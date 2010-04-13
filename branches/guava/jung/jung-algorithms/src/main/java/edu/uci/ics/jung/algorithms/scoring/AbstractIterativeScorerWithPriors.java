@@ -11,7 +11,7 @@
  */
 package edu.uci.ics.jung.algorithms.scoring;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 import edu.uci.ics.jung.graph.Hypergraph;
 
@@ -32,7 +32,7 @@ public abstract class AbstractIterativeScorerWithPriors<V,E,S> extends
      * The prior probability of each vertex being visited on a given 
      * 'jump' (non-link-following) step.
      */
-    protected Transformer<V,? extends S> vertex_priors;
+    protected Function<? super V,? extends S> vertex_priors;
 
     /**
      * The probability of making a 'jump' at each step.
@@ -48,8 +48,8 @@ public abstract class AbstractIterativeScorerWithPriors<V,E,S> extends
      * @param alpha the probability of making a 'jump' at each step
      */
     public AbstractIterativeScorerWithPriors(Hypergraph<V,E> g,
-            Transformer<E,? extends Number> edge_weights, 
-            Transformer<V,? extends S> vertex_priors, double alpha)
+            Function<? super E,? extends Number> edge_weights, 
+            Function<? super V,? extends S> vertex_priors, double alpha)
     {
         super(g, edge_weights);
         this.vertex_priors = vertex_priors;
@@ -65,7 +65,7 @@ public abstract class AbstractIterativeScorerWithPriors<V,E,S> extends
      * @param alpha the probability of making a 'jump' at each step
      */
     public AbstractIterativeScorerWithPriors(Hypergraph<V,E> g, 
-    		Transformer<V,? extends S> vertex_priors, double alpha)
+    		Function<V,? extends S> vertex_priors, double alpha)
     {
         super(g);
         this.vertex_priors = vertex_priors;
@@ -94,14 +94,14 @@ public abstract class AbstractIterativeScorerWithPriors<V,E,S> extends
      */
     protected S getVertexPrior(V v)
     {
-        return vertex_priors.transform(v);
+        return vertex_priors.apply(v);
     }
 
     /**
-     * Returns a Transformer which maps each vertex to its prior probability.
-     * @return a Transformer which maps each vertex to its prior probability
+     * Returns a Function which maps each vertex to its prior probability.
+     * @return a Function which maps each vertex to its prior probability
      */
-    public Transformer<V, ? extends S> getVertexPriors()
+    public Function<? super V, ? extends S> getVertexPriors()
     {
         return vertex_priors;
     }

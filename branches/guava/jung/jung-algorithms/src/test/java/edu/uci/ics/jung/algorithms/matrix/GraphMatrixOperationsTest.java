@@ -10,11 +10,11 @@ import java.util.List;
 import java.util.Map;
 
 import junit.framework.TestCase;
-
-import org.apache.commons.collections15.Factory;
-
 import cern.colt.matrix.DoubleMatrix2D;
 import cern.colt.matrix.impl.SparseDoubleMatrix2D;
+
+import com.google.common.base.Supplier;
+
 import edu.uci.ics.jung.graph.DirectedGraph;
 import edu.uci.ics.jung.graph.DirectedSparseGraph;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
@@ -31,11 +31,11 @@ import edu.uci.ics.jung.graph.UndirectedSparseGraph;
  */
 public class GraphMatrixOperationsTest extends TestCase
 {
-	Factory<UndirectedGraph<String, String>> undirectedGraphFactory;
-	Factory<DirectedGraph<String, String>> directedGraphFactory;
-	Factory<Graph<String,String>> graphFactory;
-	Factory<String> vertexFactory;
-	Factory<String> edgeFactory;
+	Supplier<UndirectedGraph<String, String>> undirectedGraphFactory;
+	Supplier<DirectedGraph<String, String>> directedGraphFactory;
+	Supplier<Graph<String,String>> graphFactory;
+	Supplier<String> vertexFactory;
+	Supplier<String> edgeFactory;
 
     private Graph<String,String> g;
     Map<String,String> sl;
@@ -56,28 +56,28 @@ public class GraphMatrixOperationsTest extends TestCase
     @Override
     protected void setUp()
     {
-    	undirectedGraphFactory = new Factory<UndirectedGraph<String,String>>() {
-    		public UndirectedGraph<String,String> create() {
+    	undirectedGraphFactory = new Supplier<UndirectedGraph<String,String>>() {
+    		public UndirectedGraph<String,String> get() {
     			return new UndirectedSparseGraph<String,String>();
     		}
     	};
-    	directedGraphFactory = new Factory<DirectedGraph<String,String>>() {
-    		public DirectedGraph<String,String> create() {
+    	directedGraphFactory = new Supplier<DirectedGraph<String,String>>() {
+    		public DirectedGraph<String,String> get() {
     			return new DirectedSparseGraph<String,String>();
     		}
     	};
-    	graphFactory = new Factory<Graph<String,String>>() {
-    		public Graph<String,String> create() {
+    	graphFactory = new Supplier<Graph<String,String>>() {
+    		public Graph<String,String> get() {
     			return new SparseGraph<String,String>();
     		}
     	};
-    	vertexFactory = new Factory<String>() {
+    	vertexFactory = new Supplier<String>() {
     		int n = 0;
-    		public String create() { return "V"+n++; }
+    		public String get() { return "V"+n++; }
     	};
-    	edgeFactory = new Factory<String>() {
+    	edgeFactory = new Supplier<String>() {
     		int i = 0;
-    		public String create() { return "E"+i++; }
+    		public String get() { return "E"+i++; }
     	};
 
 
@@ -87,7 +87,7 @@ public class GraphMatrixOperationsTest extends TestCase
         // graph based on Weiss, _Data Structures and Algorithm Analysis_,
         // 1992, p. 292
         for(int i=1; i<NUM_VERTICES+1; i++) {
-        	g.addVertex(vertexFactory.create());
+        	g.addVertex(vertexFactory.get());
         }
         sl = new HashMap<String,String>();
         addEdges(g, edges);    
@@ -204,7 +204,7 @@ public class GraphMatrixOperationsTest extends TestCase
                     sl.put(s2, v2);
                 }
                 
-                String e = edgeFactory.create();
+                String e = edgeFactory.get();
                 graph.addEdge(e, v1, v2);
                 if (edge.length > 2)
                 	weights.put(e, edge[2]);

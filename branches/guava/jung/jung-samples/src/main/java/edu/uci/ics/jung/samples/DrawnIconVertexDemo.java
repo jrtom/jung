@@ -21,7 +21,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.graph.DirectedSparseGraph;
@@ -65,21 +65,21 @@ public class DrawnIconVertexDemo {
         createEdges(v);
         
         vv =  new VisualizationViewer<Integer,Number>(new FRLayout<Integer,Number>(graph));
-        vv.getRenderContext().setVertexLabelTransformer(new Transformer<Integer,String>(){
+        vv.getRenderContext().setVertexLabelTransformer(new Function<Integer,String>(){
 
-			public String transform(Integer v) {
+			public String apply(Integer v) {
 				return "Vertex "+v;
 			}});
         vv.getRenderContext().setVertexLabelRenderer(new DefaultVertexLabelRenderer(Color.cyan));
         vv.getRenderContext().setEdgeLabelRenderer(new DefaultEdgeLabelRenderer(Color.cyan));
 
-        vv.getRenderContext().setVertexIconTransformer(new Transformer<Integer,Icon>() {
+        vv.getRenderContext().setVertexIconTransformer(new Function<Integer,Icon>() {
 
         	/*
         	 * Implements the Icon interface to draw an Icon with background color and
         	 * a text label
         	 */
-			public Icon transform(final Integer v) {
+			public Icon apply(final Integer v) {
 				return new Icon() {
 
 					public int getIconHeight() {

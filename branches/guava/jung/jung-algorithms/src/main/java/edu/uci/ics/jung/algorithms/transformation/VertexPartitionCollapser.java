@@ -15,9 +15,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.collections15.Factory;
-import org.apache.commons.collections15.Transformer;
-import org.apache.commons.collections15.functors.MapTransformer;
+import com.google.common.base.Function;
+import com.google.common.base.Functions;
+import com.google.common.base.Supplier;
 
 import edu.uci.ics.jung.algorithms.blockmodel.VertexPartition;
 import edu.uci.ics.jung.graph.Graph;
@@ -35,9 +35,9 @@ import edu.uci.ics.jung.graph.Graph;
  */
 public class VertexPartitionCollapser<V,E,CV,CE> 
 {
-    protected Factory<Graph<CV,CE>> graph_factory;
-    protected Factory<CV> vertex_factory;
-    protected Factory<CE> edge_factory;
+    protected Supplier<Graph<CV,CE>> graph_factory;
+    protected Supplier<CV> vertex_factory;
+    protected Supplier<CE> edge_factory;
     protected Map<Set<V>, CV> set_collapsedv;
     
     /**
@@ -46,8 +46,8 @@ public class VertexPartitionCollapser<V,E,CV,CE>
      * @param edge_factory used to construct the edges of the new graph
      * @param graph_factory used to construct the new graph
      */
-    public VertexPartitionCollapser(Factory<Graph<CV,CE>> graph_factory, 
-            Factory<CV> vertex_factory, Factory<CE> edge_factory)
+    public VertexPartitionCollapser(Supplier<Graph<CV,CE>> graph_factory, 
+            Supplier<CV> vertex_factory, Supplier<CE> edge_factory)
     {
         this.graph_factory = graph_factory;
         this.vertex_factory = vertex_factory;
@@ -63,13 +63,13 @@ public class VertexPartitionCollapser<V,E,CV,CE>
     public Graph<CV,CE> collapseVertexPartitions(VertexPartition<V,E> partitioning)
     {
         Graph<V,E> original = partitioning.getGraph();
-        Graph<CV, CE> collapsed = graph_factory.create();
+        Graph<CV, CE> collapsed = graph_factory.get();
         
         // create vertices in new graph corresponding to equivalence sets in the original graph
         for (Set<V> set : partitioning.getVertexPartitions())
         {
-            CV cv = vertex_factory.create();
-            collapsed.addVertex(vertex_factory.create());
+            CV cv = vertex_factory.get();
+            collapsed.addVertex(vertex_factory.get());
             set_collapsedv.put(set, cv);
         }
 
@@ -85,7 +85,7 @@ public class VertexPartitionCollapser<V,E,CV,CE>
             // if there's only one collapsed vertex, continue (no edges to create)
             if (collapsed_vertices.size() > 1)
             {
-                CE ce = edge_factory.create();
+                CE ce = edge_factory.get();
                 collapsed.addEdge(ce, collapsed_vertices);
             }
         }
@@ -93,11 +93,11 @@ public class VertexPartitionCollapser<V,E,CV,CE>
     }
     
     /**
-     * Returns a transformer from vertex sets in the original graph to collapsed vertices
+     * Returns a Function from vertex sets in the original graph to collapsed vertices
      * in the transformed graph.
      */
-    public Transformer<Set<V>, CV> getSetToCollapsedVertexTransformer()
+    public Function<Set<V>, CV> getSetToCollapsedVertexTransformer()
     {
-        return MapTransformer.getInstance(set_collapsedv);
+        return Functions.forMap(set_collapsedv);
     }
 }

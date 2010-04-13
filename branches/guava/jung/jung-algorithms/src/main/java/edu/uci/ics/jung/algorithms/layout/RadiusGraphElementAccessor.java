@@ -77,7 +77,7 @@ public class RadiusGraphElementAccessor<V, E> implements GraphElementAccessor<V,
 		    try {
                 for(V v : layout.getGraph().getVertices()) {
 
-		            Point2D p = layout.transform(v);
+		            Point2D p = layout.apply(v);
 		            double dx = p.getX() - x;
 		            double dy = p.getY() - y;
 		            double dist = dx * dx + dy * dy;
@@ -98,7 +98,7 @@ public class RadiusGraphElementAccessor<V, E> implements GraphElementAccessor<V,
 		    try {
                 for(V v : layout.getGraph().getVertices()) {
 
-		            Point2D p = layout.transform(v);
+		            Point2D p = layout.apply(v);
 		            if(rectangle.contains(p)) {
 		            	pickedVertices.add(v);
 		            }
@@ -142,8 +142,8 @@ public class RadiusGraphElementAccessor<V, E> implements GraphElementAccessor<V,
 		            V v1 = vertexIterator.next();
 		            V v2 = vertexIterator.next();
 		            // Get coords
-		            Point2D p1 = layout.transform(v1);
-		            Point2D p2 = layout.transform(v2);
+		            Point2D p1 = layout.apply(v1);
+		            Point2D p2 = layout.apply(v2);
 		            double x1 = p1.getX();
 		            double y1 = p1.getY();
 		            double x2 = p2.getX();

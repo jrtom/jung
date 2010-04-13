@@ -17,7 +17,7 @@ import javax.swing.JMenu;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.plaf.basic.BasicIconFactory;
 
-import org.apache.commons.collections15.Factory;
+import com.google.common.base.Supplier;
 
 import edu.uci.ics.jung.visualization.MultiLayerTransformer;
 import edu.uci.ics.jung.visualization.RenderContext;
@@ -26,8 +26,8 @@ import edu.uci.ics.jung.visualization.annotations.AnnotatingGraphMousePlugin;
 public class EditingModalGraphMouse<V,E> extends AbstractModalGraphMouse 
 	implements ModalGraphMouse, ItemSelectable {
 
-	protected Factory<V> vertexFactory;
-	protected Factory<E> edgeFactory;
+	protected Supplier<V> vertexFactory;
+	protected Supplier<E> edgeFactory;
 	protected EditingGraphMousePlugin<V,E> editingPlugin;
 	protected LabelEditingGraphMousePlugin<V,E> labelEditingPlugin;
 	protected EditingPopupGraphMousePlugin<V,E> popupEditingPlugin;
@@ -40,7 +40,7 @@ public class EditingModalGraphMouse<V,E> extends AbstractModalGraphMouse
 	 *
 	 */
 	public EditingModalGraphMouse(RenderContext<V,E> rc,
-			Factory<V> vertexFactory, Factory<E> edgeFactory) {
+			Supplier<V> vertexFactory, Supplier<E> edgeFactory) {
 		this(rc, vertexFactory, edgeFactory, 1.1f, 1/1.1f);
 	}
 
@@ -50,7 +50,7 @@ public class EditingModalGraphMouse<V,E> extends AbstractModalGraphMouse
 	 * @param out override value for scale out
 	 */
 	public EditingModalGraphMouse(RenderContext<V,E> rc,
-			Factory<V> vertexFactory, Factory<E> edgeFactory, float in, float out) {
+			Supplier<V> vertexFactory, Supplier<E> edgeFactory, float in, float out) {
 		super(in,out);
 		this.vertexFactory = vertexFactory;
 		this.edgeFactory = edgeFactory;

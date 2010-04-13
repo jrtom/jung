@@ -13,7 +13,7 @@ package edu.uci.ics.jung.visualization.decorators;
 
 import java.awt.Shape;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.Context;
@@ -26,7 +26,7 @@ import edu.uci.ics.jung.visualization.util.ArrowFactory;
  * 
  * @author Joshua O'Madadhain
  */
-public class DirectionalEdgeArrowTransformer<V,E> implements Transformer<Context<Graph<V,E>,E>,Shape> {
+public class DirectionalEdgeArrowTransformer<V,E> implements Function<Context<Graph<V,E>,E>,Shape> {
     protected Shape undirected_arrow;
     protected Shape directed_arrow;
     
@@ -39,7 +39,7 @@ public class DirectionalEdgeArrowTransformer<V,E> implements Transformer<Context
     /**
      * 
      */
-    public Shape transform(Context<Graph<V,E>,E> context)
+    public Shape apply(Context<Graph<V,E>,E> context)
     {
         if (context.graph.getEdgeType(context.element) == EdgeType.DIRECTED)
             return directed_arrow;

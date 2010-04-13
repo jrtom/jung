@@ -37,7 +37,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.graph.DirectedSparseGraph;
@@ -157,14 +157,14 @@ public class LensVertexImageShaperDemo extends JApplet {
         layout.setMaxIterations(100);
         vv =  new VisualizationViewer<Number, Number>(layout, new Dimension(600,600));
         
-        Transformer<Number,Paint> vpf = 
+        Function<Number,Paint> vpf = 
             new PickableVertexPaintTransformer<Number>(vv.getPickedVertexState(), Color.white, Color.yellow);
         vv.getRenderContext().setVertexFillPaintTransformer(vpf);
         vv.getRenderContext().setEdgeDrawPaintTransformer(new PickableEdgePaintTransformer<Number>(vv.getPickedEdgeState(), Color.black, Color.cyan));
 
         vv.setBackground(Color.white);
         
-        final Transformer<Number,String> vertexStringerImpl = 
+        final Function<Number,String> vertexStringerImpl = 
             new VertexStringerImpl<Number>(map);
         vv.getRenderContext().setVertexLabelTransformer(vertexStringerImpl);
         vv.getRenderContext().setVertexLabelRenderer(new DefaultVertexLabelRenderer(Color.cyan));
@@ -322,7 +322,7 @@ public class LensVertexImageShaperDemo extends JApplet {
      *
      *
      */
-    class VertexStringerImpl<V> implements Transformer<V,String> {
+    class VertexStringerImpl<V> implements Function<V,String> {
 
         Map<V,String> map = new HashMap<V,String>();
         
@@ -335,7 +335,7 @@ public class LensVertexImageShaperDemo extends JApplet {
         /**
          * @see edu.uci.ics.jung.graph.decorators.VertexStringer#getLabel(edu.uci.ics.jung.graph.Vertex)
          */
-        public String transform(V v) {
+        public String apply(V v) {
             if(isEnabled()) {
                 return map.get(v);
             } else {
@@ -408,7 +408,7 @@ public class LensVertexImageShaperDemo extends JApplet {
         }
 
         public void itemStateChanged(ItemEvent e) {
-            Icon icon = imager.transform((Number)e.getItem());
+            Icon icon = imager.apply((Number)e.getItem());
             if(icon != null && icon instanceof LayeredIcon) {
                 if(e.getStateChange() == ItemEvent.SELECTED) {
                     ((LayeredIcon)icon).add(checked);

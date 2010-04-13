@@ -15,6 +15,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
+import java.awt.Paint;
 import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -33,16 +34,16 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JToggleButton;
 
-import org.apache.commons.collections15.Factory;
-import org.apache.commons.collections15.functors.ConstantTransformer;
+import com.google.common.base.Functions;
+import com.google.common.base.Supplier;
 
 import edu.uci.ics.jung.algorithms.layout.BalloonLayout;
 import edu.uci.ics.jung.algorithms.layout.TreeLayout;
+import edu.uci.ics.jung.graph.DelegateForest;
+import edu.uci.ics.jung.graph.DelegateTree;
 import edu.uci.ics.jung.graph.DirectedGraph;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.Forest;
-import edu.uci.ics.jung.graph.DelegateForest;
-import edu.uci.ics.jung.graph.DelegateTree;
 import edu.uci.ics.jung.graph.Tree;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.Layer;
@@ -79,31 +80,31 @@ public class BalloonLayoutDemo extends JApplet {
      */
 	Forest<String,Integer> graph;
 
-	Factory<DirectedGraph<String,Integer>> graphFactory = 
-		new Factory<DirectedGraph<String,Integer>>() {
+	Supplier<DirectedGraph<String,Integer>> graphFactory = 
+		new Supplier<DirectedGraph<String,Integer>>() {
 
-		public DirectedGraph<String, Integer> create() {
+		public DirectedGraph<String, Integer> get() {
 			return new DirectedSparseMultigraph<String,Integer>();
 		}
 	};
 
-	Factory<Tree<String,Integer>> treeFactory =
-		new Factory<Tree<String,Integer>> () {
+	Supplier<Tree<String,Integer>> treeFactory =
+		new Supplier<Tree<String,Integer>> () {
 
-		public Tree<String, Integer> create() {
+		public Tree<String, Integer> get() {
 			return new DelegateTree<String,Integer>(graphFactory);
 		}
 	};
 
-	Factory<Integer> edgeFactory = new Factory<Integer>() {
+	Supplier<Integer> edgeFactory = new Supplier<Integer>() {
 		int i=0;
-		public Integer create() {
+		public Integer get() {
 			return i++;
 		}};
     
-    Factory<String> vertexFactory = new Factory<String>() {
+    Supplier<String> vertexFactory = new Supplier<String>() {
     	int i=0;
-		public String create() {
+		public String get() {
 			return "V"+i++;
 		}};
 
@@ -140,7 +141,7 @@ public class BalloonLayoutDemo extends JApplet {
         vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
         // add a listener for ToolTips
         vv.setVertexToolTipTransformer(new ToStringLabeller());
-        vv.getRenderContext().setArrowFillPaintTransformer(new ConstantTransformer(Color.lightGray));
+        vv.getRenderContext().setArrowFillPaintTransformer(Functions.<Paint>constant(Color.lightGray));
         rings = new Rings(radialLayout);
         
         Container content = getContentPane();
@@ -241,7 +242,7 @@ public class BalloonLayoutDemo extends JApplet {
 			for(String v : layout.getGraph().getVertices()) {
 				Double radius = layout.getRadii().get(v);
 				if(radius == null) continue;
-				Point2D p = layout.transform(v);
+				Point2D p = layout.apply(v);
 				ellipse.setFrame(-radius, -radius, 2*radius, 2*radius);
 				AffineTransform at = AffineTransform.getTranslateInstance(p.getX(), p.getY());
 				Shape shape = at.createTransformedShape(ellipse);
@@ -270,55 +271,55 @@ public class BalloonLayoutDemo extends JApplet {
     private void createTree() {
     	
        	graph.addVertex("A0");
-       	graph.addEdge(edgeFactory.create(), "A0", "B0");
-       	graph.addEdge(edgeFactory.create(), "A0", "B1");
-       	graph.addEdge(edgeFactory.create(), "A0", "B2");
+       	graph.addEdge(edgeFactory.get(), "A0", "B0");
+       	graph.addEdge(edgeFactory.get(), "A0", "B1");
+       	graph.addEdge(edgeFactory.get(), "A0", "B2");
        	
-       	graph.addEdge(edgeFactory.create(), "B0", "C0");
-       	graph.addEdge(edgeFactory.create(), "B0", "C1");
-       	graph.addEdge(edgeFactory.create(), "B0", "C2");
-       	graph.addEdge(edgeFactory.create(), "B0", "C3");
+       	graph.addEdge(edgeFactory.get(), "B0", "C0");
+       	graph.addEdge(edgeFactory.get(), "B0", "C1");
+       	graph.addEdge(edgeFactory.get(), "B0", "C2");
+       	graph.addEdge(edgeFactory.get(), "B0", "C3");
 
-       	graph.addEdge(edgeFactory.create(), "C2", "H0");
-       	graph.addEdge(edgeFactory.create(), "C2", "H1");
+       	graph.addEdge(edgeFactory.get(), "C2", "H0");
+       	graph.addEdge(edgeFactory.get(), "C2", "H1");
 
-       	graph.addEdge(edgeFactory.create(), "B1", "D0");
-       	graph.addEdge(edgeFactory.create(), "B1", "D1");
-       	graph.addEdge(edgeFactory.create(), "B1", "D2");
+       	graph.addEdge(edgeFactory.get(), "B1", "D0");
+       	graph.addEdge(edgeFactory.get(), "B1", "D1");
+       	graph.addEdge(edgeFactory.get(), "B1", "D2");
 
-       	graph.addEdge(edgeFactory.create(), "B2", "E0");
-       	graph.addEdge(edgeFactory.create(), "B2", "E1");
-       	graph.addEdge(edgeFactory.create(), "B2", "E2");
+       	graph.addEdge(edgeFactory.get(), "B2", "E0");
+       	graph.addEdge(edgeFactory.get(), "B2", "E1");
+       	graph.addEdge(edgeFactory.get(), "B2", "E2");
 
-       	graph.addEdge(edgeFactory.create(), "D0", "F0");
-       	graph.addEdge(edgeFactory.create(), "D0", "F1");
-       	graph.addEdge(edgeFactory.create(), "D0", "F2");
+       	graph.addEdge(edgeFactory.get(), "D0", "F0");
+       	graph.addEdge(edgeFactory.get(), "D0", "F1");
+       	graph.addEdge(edgeFactory.get(), "D0", "F2");
        	
-       	graph.addEdge(edgeFactory.create(), "D1", "G0");
-       	graph.addEdge(edgeFactory.create(), "D1", "G1");
-       	graph.addEdge(edgeFactory.create(), "D1", "G2");
-       	graph.addEdge(edgeFactory.create(), "D1", "G3");
-       	graph.addEdge(edgeFactory.create(), "D1", "G4");
-       	graph.addEdge(edgeFactory.create(), "D1", "G5");
-       	graph.addEdge(edgeFactory.create(), "D1", "G6");
-       	graph.addEdge(edgeFactory.create(), "D1", "G7");
+       	graph.addEdge(edgeFactory.get(), "D1", "G0");
+       	graph.addEdge(edgeFactory.get(), "D1", "G1");
+       	graph.addEdge(edgeFactory.get(), "D1", "G2");
+       	graph.addEdge(edgeFactory.get(), "D1", "G3");
+       	graph.addEdge(edgeFactory.get(), "D1", "G4");
+       	graph.addEdge(edgeFactory.get(), "D1", "G5");
+       	graph.addEdge(edgeFactory.get(), "D1", "G6");
+       	graph.addEdge(edgeFactory.get(), "D1", "G7");
        	
        	// uncomment this to make it a Forest:
 //       	graph.addVertex("K0");
-//       	graph.addEdge(edgeFactory.create(), "K0", "K1");
-//       	graph.addEdge(edgeFactory.create(), "K0", "K2");
-//       	graph.addEdge(edgeFactory.create(), "K0", "K3");
+//       	graph.addEdge(edgeFactory.get(), "K0", "K1");
+//       	graph.addEdge(edgeFactory.get(), "K0", "K2");
+//       	graph.addEdge(edgeFactory.get(), "K0", "K3");
 //       	
 //       	graph.addVertex("J0");
-//    	graph.addEdge(edgeFactory.create(), "J0", "J1");
-//    	graph.addEdge(edgeFactory.create(), "J0", "J2");
-//    	graph.addEdge(edgeFactory.create(), "J1", "J4");
-//    	graph.addEdge(edgeFactory.create(), "J2", "J3");
-////    	graph.addEdge(edgeFactory.create(), "J2", "J5");
-////    	graph.addEdge(edgeFactory.create(), "J4", "J6");
-////    	graph.addEdge(edgeFactory.create(), "J4", "J7");
-////    	graph.addEdge(edgeFactory.create(), "J3", "J8");
-////    	graph.addEdge(edgeFactory.create(), "J6", "B9");
+//    	graph.addEdge(edgeFactory.get(), "J0", "J1");
+//    	graph.addEdge(edgeFactory.get(), "J0", "J2");
+//    	graph.addEdge(edgeFactory.get(), "J1", "J4");
+//    	graph.addEdge(edgeFactory.get(), "J2", "J3");
+////    	graph.addEdge(edgeFactory.get(), "J2", "J5");
+////    	graph.addEdge(edgeFactory.get(), "J4", "J6");
+////    	graph.addEdge(edgeFactory.get(), "J4", "J7");
+////    	graph.addEdge(edgeFactory.get(), "J3", "J8");
+////    	graph.addEdge(edgeFactory.get(), "J6", "B9");
 
        	
     }

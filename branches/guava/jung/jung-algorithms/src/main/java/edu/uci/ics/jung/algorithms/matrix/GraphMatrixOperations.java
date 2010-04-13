@@ -11,14 +11,15 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections15.BidiMap;
-import org.apache.commons.collections15.Factory;
-
 import cern.colt.matrix.DoubleMatrix1D;
 import cern.colt.matrix.DoubleMatrix2D;
 import cern.colt.matrix.impl.DenseDoubleMatrix1D;
 import cern.colt.matrix.impl.SparseDoubleMatrix2D;
 import cern.colt.matrix.linalg.Algebra;
+
+import com.google.common.base.Supplier;
+import com.google.common.collect.BiMap;
+
 import edu.uci.ics.jung.algorithms.util.ConstantMap;
 import edu.uci.ics.jung.algorithms.util.Indexer;
 import edu.uci.ics.jung.graph.Graph;
@@ -50,7 +51,7 @@ public class GraphMatrixOperations
      */
     @SuppressWarnings("unchecked")
 	public static <V,E> Graph<V,E> square(Graph<V,E> g, 
-    		Factory<E> edgeFactory, MatrixElementOperations<E> meo)
+    		Supplier<E> edgeFactory, MatrixElementOperations<E> meo)
     {
         // create new graph of same type
         Graph<V, E> squaredGraph = null;
@@ -82,7 +83,7 @@ public class GraphMatrixOperations
                     E e = squaredGraph.findEdge(src,dest);
                     // if no edge from src to dest exists in G2, create one
                     if (e == null) {
-                    	e = edgeFactory.create();
+                    	e = edgeFactory.get();
                     	squaredGraph.addEdge(e, src, dest);
                     }
                     meo.mergePaths(e, pathData);
@@ -99,9 +100,9 @@ public class GraphMatrixOperations
      * <p>Notes on implementation: 
      * <ul>
      * <li>The matrix indices will be mapped onto vertices in the order in which the
-     * vertex factory generates the vertices.  This means the user is responsible
+     * vertex Supplier generates the vertices.  This means the user is responsible
      * <li>The type of edges created (directed or undirected) depends
-     * entirely on the graph factory supplied, regardless of whether the 
+     * entirely on the graph Supplier supplied, regardless of whether the 
      * matrix is symmetric or not.  The Colt {@code Property.isSymmetric} 
      * method may be used to find out whether the matrix
      * is symmetric prior to making this call.
@@ -112,8 +113,8 @@ public class GraphMatrixOperations
      *         <code>Graph</code>
      */
     public static <V,E> Graph<V,E> matrixToGraph(DoubleMatrix2D matrix, 
-    		Factory<? extends Graph<V,E>> graphFactory,
-    		Factory<V> vertexFactory, Factory<E> edgeFactory, 
+    		Supplier<? extends Graph<V,E>> graphFactory,
+    				Supplier<V> vertexFactory, Supplier<E> edgeFactory, 
     		Map<E,Number> nev)
     {
         if (matrix.rows() != matrix.columns())
@@ -122,11 +123,11 @@ public class GraphMatrixOperations
         }
         int size = matrix.rows();
 
-        Graph<V,E> graph = graphFactory.create();
+        Graph<V,E> graph = graphFactory.get();
         
         for(int i = 0; i < size; i++) 
         {
-            V vertex = vertexFactory.create();
+            V vertex = vertexFactory.get();
         	graph.addVertex(vertex);
         }
 
@@ -138,7 +139,7 @@ public class GraphMatrixOperations
                 double value = matrix.getQuick(i, j);
                 if (value != 0)
                 {
-                    E e = edgeFactory.create();
+                    E e = edgeFactory.get();
                     if (graph.addEdge(e, vertices.get(i), vertices.get(j)))
                     {
                         if (e != null && nev != null)
@@ -159,8 +160,8 @@ public class GraphMatrixOperations
      * @return a representation of <code>matrix</code> as a JUNG <code>Graph</code>
      */
     public static <V,E> Graph<V,E> matrixToGraph(DoubleMatrix2D matrix,
-    		Factory<? extends Graph<V,E>> graphFactory,
-    		Factory<V> vertexFactory, Factory<E> edgeFactory)
+    		Supplier<? extends Graph<V,E>> graphFactory,
+    				Supplier<V> vertexFactory, Supplier<E> edgeFactory)
     {
         return GraphMatrixOperations.<V,E>matrixToGraph(matrix, 
                 graphFactory, vertexFactory, edgeFactory, null);
@@ -198,7 +199,7 @@ public class GraphMatrixOperations
         SparseDoubleMatrix2D matrix = new SparseDoubleMatrix2D(numVertices,
                 numVertices);
 
-        BidiMap<V,Integer> indexer = Indexer.<V>create(g.getVertices());
+        BiMap<V,Integer> indexer = Indexer.<V>create(g.getVertices());
         int i=0;
         
         for(V v : g.getVertices())

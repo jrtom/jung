@@ -32,7 +32,7 @@ public class BasicTransformer implements MultiLayerTransformer,
         new MutableAffineTransformer(new AffineTransform());
 
     /**
-     * Creates an instance and notifies the view and layout transformers to listen to
+     * Creates an instance and notifies the view and layout Functions to listen to
      * changes published by this instance.
      */
     public BasicTransformer() {
@@ -44,18 +44,18 @@ public class BasicTransformer implements MultiLayerTransformer,
     /**
 	 * @see edu.uci.ics.jung.visualization.MultiLayerTransformer#setViewTransformer(edu.uci.ics.jung.visualization.transform.MutableTransformer)
 	 */
-    protected void setViewTransformer(MutableTransformer transformer) {
+    protected void setViewTransformer(MutableTransformer Function) {
         this.viewTransformer.removeChangeListener(this);
-        this.viewTransformer = transformer;
+        this.viewTransformer = Function;
         this.viewTransformer.addChangeListener(this);
     }
 
     /* (non-Javadoc)
 	 * @see edu.uci.ics.jung.visualization.MultiLayerTransformer#setLayoutTransformer(edu.uci.ics.jung.visualization.transform.MutableTransformer)
 	 */
-    protected void setLayoutTransformer(MutableTransformer transformer) {
+    protected void setLayoutTransformer(MutableTransformer Function) {
         this.layoutTransformer.removeChangeListener(this);
-        this.layoutTransformer = transformer;
+        this.layoutTransformer = Function;
         this.layoutTransformer.addChangeListener(this);
     }
 
@@ -208,9 +208,9 @@ public class BasicTransformer implements MultiLayerTransformer,
 		return null;
 	}
 
-	public void setTransformer(Layer layer, MutableTransformer transformer) {
-		if(layer == Layer.LAYOUT) setLayoutTransformer(transformer);
-		if(layer == Layer.VIEW) setViewTransformer(transformer);
+	public void setTransformer(Layer layer, MutableTransformer Function) {
+		if(layer == Layer.LAYOUT) setLayoutTransformer(Function);
+		if(layer == Layer.VIEW) setViewTransformer(Function);
 		
 	}
 

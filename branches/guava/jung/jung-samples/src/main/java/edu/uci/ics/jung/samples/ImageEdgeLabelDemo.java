@@ -24,7 +24,7 @@ import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.graph.DirectedGraph;
@@ -81,9 +81,9 @@ public class ImageEdgeLabelDemo extends JApplet {
         
         vv.getRenderContext().setVertexLabelRenderer(new DefaultVertexLabelRenderer(Color.cyan));
         vv.getRenderContext().setEdgeLabelRenderer(new DefaultEdgeLabelRenderer(Color.cyan));
-        vv.getRenderContext().setEdgeLabelTransformer(new Transformer<Number,String>() {
+        vv.getRenderContext().setEdgeLabelTransformer(new Function<Number,String>() {
         	URL url = getClass().getResource("/images/lightning-s.gif");
-			public String transform(Number input) {
+			public String apply(Number input) {
 				return "<html><img src="+url+" height=10 width=21>";
 			}});
         

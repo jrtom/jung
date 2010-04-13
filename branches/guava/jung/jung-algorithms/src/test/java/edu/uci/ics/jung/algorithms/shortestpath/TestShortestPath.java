@@ -14,10 +14,10 @@ import java.util.Set;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.collections15.BidiMap;
-import org.apache.commons.collections15.Factory;
-import org.apache.commons.collections15.Transformer;
-import org.apache.commons.collections15.functors.MapTransformer;
+import com.google.common.base.Function;
+import com.google.common.base.Functions;
+import com.google.common.base.Supplier;
+import com.google.common.collect.BiMap;
 
 import edu.uci.ics.jung.algorithms.util.Indexer;
 import edu.uci.ics.jung.graph.DirectedGraph;
@@ -122,31 +122,31 @@ public class TestShortestPath extends TestCase
     
     private Map<Integer,Number> edgeWeights;
     
-    private Transformer<Integer,Number> nev;
+    private Function<Integer,Number> nev;
     
-    private Factory<String> vertexFactoryDG =
-    	new Factory<String>() {
+    private Supplier<String> vertexFactoryDG =
+    	new Supplier<String>() {
     	int count = 0;
-    	public String create() {
+    	public String get() {
     		return "V"+count++;
     	}};
-    	private Factory<String> vertexFactoryUG =
-    		new Factory<String>() {
+    	private Supplier<String> vertexFactoryUG =
+    		new Supplier<String>() {
     		int count = 0;
-    		public String create() {
+    		public String get() {
     			return "U"+count++;
     		}};
     		
-    BidiMap<String,Integer> did;
-    BidiMap<String,Integer> uid;
+    BiMap<String,Integer> did;
+    BiMap<String,Integer> uid;
 
     @Override
     protected void setUp() {
     	edgeWeights = new HashMap<Integer,Number>();
-        nev = MapTransformer.<Integer,Number>getInstance(edgeWeights);
+        nev = Functions.<Integer,Number>forMap(edgeWeights);
 		dg = new DirectedSparseMultigraph<String,Integer>();
 		for(int i=0; i<dg_distances.length; i++) {
-			dg.addVertex(vertexFactoryDG.create());
+			dg.addVertex(vertexFactoryDG.get());
 		}
 		did = Indexer.<String>create(dg.getVertices(), 1);
         Integer[] dg_array = new Integer[edges.length];
@@ -154,7 +154,7 @@ public class TestShortestPath extends TestCase
         
         ug = new UndirectedSparseMultigraph<String,Integer>();
 		for(int i=0; i<ug_distances.length; i++) {
-			ug.addVertex(vertexFactoryUG.create());
+			ug.addVertex(vertexFactoryUG.get());
 		}
         uid = Indexer.<String>create(ug.getVertices(),1);
 //        GraphUtils.addVertices(ug, ug_distances.length);
@@ -171,12 +171,12 @@ public class TestShortestPath extends TestCase
     protected void tearDown() throws Exception {
     }
 
-    public void exceptionTest(Graph<String,Integer> g, BidiMap<String,Integer> indexer, int index)
+    public void exceptionTest(Graph<String,Integer> g, BiMap<String,Integer> indexer, int index)
     {
         DijkstraShortestPath<String,Integer> dsp = 
         	new DijkstraShortestPath<String,Integer>(g, nev);
 //        Indexer id = Indexer.getIndexer(g);
-        String start = indexer.getKey(index);
+        String start = indexer.inverse().get(index);
         Integer e = null;
 
         String v = "NOT IN GRAPH";
@@ -246,8 +246,8 @@ public class TestShortestPath extends TestCase
         try
         {
             // test negative edge weight exception
-            String v1 = indexer.getKey(1);
-            String v2 = indexer.getKey(7);
+            String v1 = indexer.inverse().get(1);
+            String v2 = indexer.inverse().get(7);
             e = g.getEdgeCount()+1;
          	g.addEdge(e, v1, v2);
          	edgeWeights.put(e, -2);
@@ -308,12 +308,12 @@ public class TestShortestPath extends TestCase
         
     }
 
-    private void getPathTest(Graph<String,Integer> g, BidiMap<String,Integer> indexer, int index)
+    private void getPathTest(Graph<String,Integer> g, BiMap<String,Integer> indexer, int index)
     {
         DijkstraShortestPath<String,Integer> dsp = 
         	new DijkstraShortestPath<String,Integer>(g, nev);
 //        Indexer id = Indexer.getIndexer(g);
-        String start = indexer.getKey(index);
+        String start = indexer.inverse().get(index);
         Integer[] edge_array = edgeArrays.get(g);
         Integer[] incomingEdges1 = null;
         if (g instanceof DirectedGraph)
@@ -326,7 +326,7 @@ public class TestShortestPath extends TestCase
         dsp.reset();
         for (int i = 1; i <= incomingEdges1.length; i++)
         {
-          List<Integer> shortestPath = dsp.getPath(start, indexer.getKey(i));
+          List<Integer> shortestPath = dsp.getPath(start, indexer.inverse().get(i));
             Integer[] indices = shortestPaths1[i-1];
             for (ListIterator<Integer> iter = shortestPath.listIterator(); iter.hasNext(); )
             {
@@ -340,9 +340,9 @@ public class TestShortestPath extends TestCase
         }
     }
     
-    private void weightedTest(Graph<String,Integer> g, BidiMap<String,Integer> indexer, int index, boolean cached) {
+    private void weightedTest(Graph<String,Integer> g, BiMap<String,Integer> indexer, int index, boolean cached) {
 //        Indexer id = Indexer.getIndexer(g);
-        String start = indexer.getKey(index);
+        String start = indexer.inverse().get(index);
         double[] distances1 = null;
         Integer[] incomingEdges1 = null;
         if (g instanceof DirectedGraph)
@@ -363,7 +363,7 @@ public class TestShortestPath extends TestCase
         
         // test getDistance(start, v)
         for (int i = 1; i <= distances1.length; i++) {
-            String v = indexer.getKey(i);
+            String v = indexer.inverse().get(i);
             Number n = dsp.getDistance(start, v);
             double d = distances1[i-1];
             double dist;
@@ -379,7 +379,7 @@ public class TestShortestPath extends TestCase
         dsp.reset();
         for (int i = 1; i <= incomingEdges1.length; i++)
         {
-            String v = indexer.getKey(i);
+            String v = indexer.inverse().get(i);
             Integer e = dsp.getIncomingEdge(start, v);
             if (e != null)
                 assertEquals(edge_array[incomingEdges1[i-1].intValue()], e);
@@ -482,7 +482,7 @@ public class TestShortestPath extends TestCase
         }
     }
     
-    public void addEdges(Graph<String,Integer> g, BidiMap<String,Integer> indexer, Integer[] edge_array)
+    public void addEdges(Graph<String,Integer> g, BiMap<String,Integer> indexer, Integer[] edge_array)
     {
     	
 //        Indexer id = Indexer.getIndexer(g);
@@ -490,7 +490,7 @@ public class TestShortestPath extends TestCase
         {
             int[] edge = edges[i];
             Integer e = i;
-            g.addEdge(i, indexer.getKey(edge[0]), indexer.getKey(edge[1]));
+            g.addEdge(i, indexer.inverse().get(edge[0]), indexer.inverse().get(edge[1]));
             edge_array[i] = e;
             if (edge.length > 2) {
             	edgeWeights.put(e, edge[2]);

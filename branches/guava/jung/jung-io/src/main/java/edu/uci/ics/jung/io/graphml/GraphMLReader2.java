@@ -19,11 +19,11 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 import edu.uci.ics.jung.graph.Hypergraph;
-import edu.uci.ics.jung.io.GraphReader;
 import edu.uci.ics.jung.io.GraphIOException;
+import edu.uci.ics.jung.io.GraphReader;
 import edu.uci.ics.jung.io.graphml.parser.ElementParserRegistry;
 import edu.uci.ics.jung.io.graphml.parser.GraphMLEventFilter;
 
@@ -54,10 +54,10 @@ public class GraphMLReader2<G extends Hypergraph<V, E>, V, E> implements
 
     protected XMLEventReader xmlEventReader;
     protected Reader fileReader;
-    protected Transformer<GraphMetadata, G> graphTransformer;
-    protected Transformer<NodeMetadata, V> vertexTransformer;
-    protected Transformer<EdgeMetadata, E> edgeTransformer;
-    protected Transformer<HyperEdgeMetadata, E> hyperEdgeTransformer;
+    protected Function<GraphMetadata, G> graphTransformer;
+    protected Function<NodeMetadata, V> vertexTransformer;
+    protected Function<EdgeMetadata, E> edgeTransformer;
+    protected Function<HyperEdgeMetadata, E> hyperEdgeTransformer;
     protected boolean initialized;
     final protected GraphMLDocument document = new GraphMLDocument();
     final protected ElementParserRegistry<G,V,E> parserRegistry;
@@ -65,7 +65,7 @@ public class GraphMLReader2<G extends Hypergraph<V, E>, V, E> implements
     /**
      * Constructs a GraphML reader around the given reader. This constructor
      * requires the user to supply transformation functions to convert from the
-     * GraphML metadata to Graph, Vertex, Edge instances. These transformer
+     * GraphML metadata to Graph, Vertex, Edge instances. These Function
      * functions can be used as purely factories (i.e. the metadata is
      * disregarded) or can use the metadata to set particular fields in the
      * objects.
@@ -82,10 +82,10 @@ public class GraphMLReader2<G extends Hypergraph<V, E>, V, E> implements
      * @throws IllegalArgumentException thrown if any of the arguments are null.
      */
     public GraphMLReader2(Reader fileReader,
-                          Transformer<GraphMetadata, G> graphTransformer,
-                          Transformer<NodeMetadata, V> vertexTransformer,
-                          Transformer<EdgeMetadata, E> edgeTransformer,
-                          Transformer<HyperEdgeMetadata, E> hyperEdgeTransformer) {
+                          Function<GraphMetadata, G> graphTransformer,
+                          Function<NodeMetadata, V> vertexTransformer,
+                          Function<EdgeMetadata, E> edgeTransformer,
+                          Function<HyperEdgeMetadata, E> hyperEdgeTransformer) {
 
         if (fileReader == null) {
             throw new IllegalArgumentException(
@@ -124,43 +124,43 @@ public class GraphMLReader2<G extends Hypergraph<V, E>, V, E> implements
     }
 
     /**
-     * Gets the current transformer that is being used for graph objects.
+     * Gets the current Function that is being used for graph objects.
      *
-     * @return the current transformer.
+     * @return the current Function.
      */
-    public Transformer<GraphMetadata, G> getGraphTransformer() {
+    public Function<GraphMetadata, G> getGraphTransformer() {
         return graphTransformer;
     }
 
     /**
-     * Gets the current transformer that is being used for vertex objects.
+     * Gets the current Function that is being used for vertex objects.
      *
-     * @return the current transformer.
+     * @return the current Function.
      */
-    public Transformer<NodeMetadata, V> getVertexTransformer() {
+    public Function<NodeMetadata, V> getVertexTransformer() {
         return vertexTransformer;
     }
 
     /**
-     * Gets the current transformer that is being used for edge objects.
+     * Gets the current Function that is being used for edge objects.
      *
-     * @return the current transformer.
+     * @return the current Function.
      */
-    public Transformer<EdgeMetadata, E> getEdgeTransformer() {
+    public Function<EdgeMetadata, E> getEdgeTransformer() {
         return edgeTransformer;
     }
 
     /**
-     * Gets the current transformer that is being used for hyperedge objects.
+     * Gets the current Function that is being used for hyperedge objects.
      *
-     * @return the current transformer.
+     * @return the current Function.
      */
-    public Transformer<HyperEdgeMetadata, E> getHyperEdgeTransformer() {
+    public Function<HyperEdgeMetadata, E> getHyperEdgeTransformer() {
         return hyperEdgeTransformer;
     }
 
     /**
-     * Verifies the object state and initializes this reader. All transformer
+     * Verifies the object state and initializes this reader. All Function
      * properties must be set and be non-null or a <code>GraphReaderException
      * </code> will be thrown. This method may be called more than once.
      * Successive calls will have no effect.
@@ -174,9 +174,9 @@ public class GraphMLReader2<G extends Hypergraph<V, E>, V, E> implements
             if (!initialized) {
 
                 // Create the event reader.
-                XMLInputFactory factory = XMLInputFactory.newInstance();
-                xmlEventReader = factory.createXMLEventReader(fileReader);
-                xmlEventReader = factory.createFilteredReader(xmlEventReader,
+                XMLInputFactory Supplier = XMLInputFactory.newInstance();
+                xmlEventReader = Supplier.createXMLEventReader(fileReader);
+                xmlEventReader = Supplier.createFilteredReader(xmlEventReader,
                         new GraphMLEventFilter());
 
                 initialized = true;

@@ -23,7 +23,7 @@ import java.util.NoSuchElementException;
 import java.util.Queue;
 import java.util.Vector;
 
-import org.apache.commons.collections15.IteratorUtils;
+import com.google.common.collect.Iterators;
 
 /**
  * An array-based binary heap implementation of a priority queue, 
@@ -317,7 +317,7 @@ public class MapBinaryHeap<T>
     @Override
     public Iterator<T> iterator()
     {
-        return IteratorUtils.<T>unmodifiableIterator(heap.iterator());
+        return Iterators.<T>unmodifiableIterator(heap.iterator());
     }
 
     /**

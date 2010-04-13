@@ -48,11 +48,10 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JRadioButton;
 
-import org.apache.commons.collections15.Factory;
-import org.apache.commons.collections15.Predicate;
-import org.apache.commons.collections15.Transformer;
-import org.apache.commons.collections15.functors.ConstantTransformer;
-import org.apache.commons.collections15.functors.MapTransformer;
+import com.google.common.base.Function;
+import com.google.common.base.Functions;
+import com.google.common.base.Predicate;
+import com.google.common.base.Supplier;
 
 import edu.uci.ics.jung.algorithms.generators.random.MixedRandomGraphGenerator;
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
@@ -80,7 +79,8 @@ import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.picking.PickedInfo;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import edu.uci.ics.jung.visualization.renderers.BasicEdgeArrowRenderingSupport;
-import edu.uci.ics.jung.visualization.renderers.BasicEdgeRenderer;
+import edu.uci.ics.jung.visualization.renderers.CachingEdgeRenderer;
+import edu.uci.ics.jung.visualization.renderers.CachingVertexRenderer;
 import edu.uci.ics.jung.visualization.renderers.CenterEdgeArrowRenderingSupport;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
 
@@ -209,10 +209,10 @@ public class PluggableRendererDemo extends JApplet implements ActionListener
     protected SeedDrawColor<Integer> seedDrawColor;
     protected EdgeWeightStrokeFunction<Number> ewcs;
     protected VertexStrokeHighlight<Integer,Number> vsh;
-    protected Transformer<Integer,String> vs;
-    protected Transformer<Integer,String> vs_none;
-    protected Transformer<Number,String> es;
-    protected Transformer<Number,String> es_none;
+    protected Function<? super Integer,String> vs;
+    protected Function<? super Integer,String> vs_none;
+    protected Function<? super Number,String> es;
+    protected Function<? super Number,String> es_none;
     protected VertexFontTransformer<Integer> vff;
     protected EdgeFontTransformer<Number> eff;
     protected VertexShapeSizeAspect<Integer,Number> vssa;
@@ -226,7 +226,7 @@ public class PluggableRendererDemo extends JApplet implements ActionListener
     protected final static Object TRANSPARENCY = "transparency";
     
     protected Map<Number,Number> edge_weight = new HashMap<Number,Number>();
-    protected Transformer<Integer, Double> voltages;
+    protected Function<Integer, Double> voltages;
     protected Map<Integer,Number> transparency = new HashMap<Integer,Number>();
     
     protected VisualizationViewer<Integer,Number> vv;
@@ -255,6 +255,9 @@ public class PluggableRendererDemo extends JApplet implements ActionListener
         Layout<Integer,Number> layout = new FRLayout<Integer,Number>(g);
 //        layout.setSize(new Dimension(5000,5000));
         vv = new VisualizationViewer<Integer,Number>(layout);
+        
+        vv.getRenderer().setVertexRenderer(new CachingVertexRenderer<Integer,Number>(vv));
+        vv.getRenderer().setEdgeRenderer(new CachingEdgeRenderer<Integer,Number>(vv));
 
         PickedState<Integer> picked_state = vv.getPickedVertexState();
 
@@ -268,8 +271,8 @@ public class PluggableRendererDemo extends JApplet implements ActionListener
         vsh = new VertexStrokeHighlight<Integer,Number>(g, picked_state);
         vff = new VertexFontTransformer<Integer>();
         eff = new EdgeFontTransformer<Number>();
-        vs_none = new ConstantTransformer(null);
-        es_none = new ConstantTransformer(null);
+        vs_none = Functions.constant(null);
+        es_none = Functions.constant(null);
         vssa = new VertexShapeSizeAspect<Integer,Number>(g, voltages);
         show_edge = new DirectionDisplayPredicate<Integer,Number>(true, true);
         show_arrow = new DirectionDisplayPredicate<Integer,Number>(true, false);
@@ -301,8 +304,8 @@ public class PluggableRendererDemo extends JApplet implements ActionListener
         vv.getRenderContext().setEdgeShapeTransformer(new EdgeShape.Line<Integer,Number>());
         vv.getRenderContext().setEdgeArrowPredicate(show_arrow);
         
-        vv.getRenderContext().setArrowFillPaintTransformer(new ConstantTransformer(Color.lightGray));
-        vv.getRenderContext().setArrowDrawPaintTransformer(new ConstantTransformer(Color.black));
+        vv.getRenderContext().setArrowFillPaintTransformer(Functions.<Paint>constant(Color.lightGray));
+        vv.getRenderContext().setArrowDrawPaintTransformer(Functions.<Paint>constant(Color.black));
         JPanel jp = new JPanel();
         jp.setLayout(new BorderLayout());
         
@@ -329,28 +332,28 @@ public class PluggableRendererDemo extends JApplet implements ActionListener
      * returns the resultant graph.
      */
     public Graph<Integer,Number> getGraph() {
-    	Factory<Graph<Integer,Number>> graphFactory =
-    		new Factory<Graph<Integer,Number>>() {
-    		public Graph<Integer,Number> create() {
+    	Supplier<Graph<Integer,Number>> graphFactory =
+    		new Supplier<Graph<Integer,Number>>() {
+    		public Graph<Integer,Number> get() {
     			return new SparseMultigraph<Integer,Number>();
     		}
     	};
-    	Factory<Integer> vertexFactory = 
-    		new Factory<Integer>() {
+    	Supplier<Integer> vertexFactory = 
+    		new Supplier<Integer>() {
     			int count;
-				public Integer create() {
+				public Integer get() {
 					return count++;
 				}};
-		Factory<Number> edgeFactory = 
-		    new Factory<Number>() {
+				Supplier<Number> edgeFactory = 
+		    new Supplier<Number>() {
 			    int count;
-				public Number create() {
+				public Number get() {
 					return count++;
 				}};
         Graph<Integer,Number> g = 
         	MixedRandomGraphGenerator.<Integer,Number>generateMixedRandomGraph(graphFactory, vertexFactory, edgeFactory,
         		edge_weight, 20, false, seedVertices);
-        es = new NumberFormattingTransformer<Number>(MapTransformer.getInstance(edge_weight));
+        es = new NumberFormattingTransformer<Number>(Functions.forMap(edge_weight));
         
         // collect the seeds used to define the random graph
 
@@ -371,7 +374,7 @@ public class PluggableRendererDemo extends JApplet implements ActionListener
         }
         VoltageScorer<Integer, Number> voltage_scores = 
             new VoltageScorer<Integer, Number>(g, 
-                    MapTransformer.getInstance(edge_weight), sources, sinks);
+                    Functions.forMap(edge_weight), sources, sinks);
         voltage_scores.evaluate();
         voltages = new VertexScoreTransformer<Integer, Double>(voltage_scores);
         vs = new NumberFormattingTransformer<Integer>(voltages);
@@ -751,14 +754,14 @@ public class PluggableRendererDemo extends JApplet implements ActionListener
         	if(source.isSelected()) {
         		vv.getRenderContext().setEdgeFillPaintTransformer( edgeFillPaint );
         	} else {
-        		vv.getRenderContext().setEdgeFillPaintTransformer( new ConstantTransformer(null) );
+        		vv.getRenderContext().setEdgeFillPaintTransformer( Functions.<Paint>constant(null) );
         	}
 //            edgePaint.useFill(source.isSelected());
         }
         vv.repaint();
     }
     
-    private final class SeedDrawColor<V> implements Transformer<V,Paint>
+    private final class SeedDrawColor<V> implements Function<V,Paint>
     {
         protected PickedInfo<V> pi;
         protected final static float dark_value = 0.8f;
@@ -776,7 +779,7 @@ public class PluggableRendererDemo extends JApplet implements ActionListener
             this.seed_coloring = b;
         }
         
-        public Paint transform(V v)
+        public Paint apply(V v)
         {
             return Color.BLACK;
         }
@@ -803,7 +806,7 @@ public class PluggableRendererDemo extends JApplet implements ActionListener
 //        }
     }
     
-    private final class SeedFillColor<V> implements Transformer<V,Paint>
+    private final class SeedFillColor<V> implements Function<V,Paint>
     {
         protected PickedInfo<V> pi;
         protected final static float dark_value = 0.8f;
@@ -826,7 +829,7 @@ public class PluggableRendererDemo extends JApplet implements ActionListener
 //            return Color.BLACK;
 //        }
         
-        public Paint transform(V v)
+        public Paint apply(V v)
         {
             float alpha = transparency.get(v).floatValue();
             if (pi.isPicked(v))
@@ -849,7 +852,7 @@ public class PluggableRendererDemo extends JApplet implements ActionListener
     }
 
     private final static class EdgeWeightStrokeFunction<E>
-    implements Transformer<E,Stroke>
+    implements Function<E,Stroke>
     {
         protected static final Stroke basic = new BasicStroke(1);
         protected static final Stroke heavy = new BasicStroke(2);
@@ -868,7 +871,7 @@ public class PluggableRendererDemo extends JApplet implements ActionListener
             this.weighted = weighted;
         }
         
-        public Stroke transform(E e)
+        public Stroke apply(E e)
         {
             if (weighted)
             {
@@ -893,7 +896,7 @@ public class PluggableRendererDemo extends JApplet implements ActionListener
     }
     
     private final static class VertexStrokeHighlight<V,E> implements
-    Transformer<V,Stroke>
+    Function<V,Stroke>
     {
         protected boolean highlight = false;
         protected Stroke heavy = new BasicStroke(5);
@@ -913,7 +916,7 @@ public class PluggableRendererDemo extends JApplet implements ActionListener
             this.highlight = highlight;
         }
         
-        public Stroke transform(V v)
+        public Stroke apply(V v)
         {
             if (highlight)
             {
@@ -938,7 +941,7 @@ public class PluggableRendererDemo extends JApplet implements ActionListener
     }
     
     private final static class VertexFontTransformer<V> 
-    	implements Transformer<V,Font>
+    	implements Function<V,Font>
     {
         protected boolean bold = false;
         Font f = new Font("Helvetica", Font.PLAIN, 12);
@@ -949,7 +952,7 @@ public class PluggableRendererDemo extends JApplet implements ActionListener
             this.bold = bold;
         }
         
-        public Font transform(V v)
+        public Font apply(V v)
         {
             if (bold)
                 return b;
@@ -959,7 +962,7 @@ public class PluggableRendererDemo extends JApplet implements ActionListener
     }
 
     private final static class EdgeFontTransformer<E> 
-        implements Transformer<E,Font>
+        implements Function<E,Font>
 {
     protected boolean bold = false;
     Font f = new Font("Helvetica", Font.PLAIN, 12);
@@ -970,7 +973,7 @@ public class PluggableRendererDemo extends JApplet implements ActionListener
         this.bold = bold;
     }
     
-    public Font transform(E e)
+    public Font apply(E e)
     {
         if (bold)
             return b;
@@ -1001,7 +1004,7 @@ public class PluggableRendererDemo extends JApplet implements ActionListener
             show_u = b;
         }
         
-        public boolean evaluate(Context<Graph<V,E>,E> context)
+        public boolean apply(Context<Graph<V,E>,E> context)
         {
         	Graph<V,E> graph = context.graph;
         	E e = context.element;
@@ -1032,7 +1035,7 @@ public class PluggableRendererDemo extends JApplet implements ActionListener
             filter_small = b;
         }
         
-        public boolean evaluate(Context<Graph<V,E>,V> context) {
+        public boolean apply(Context<Graph<V,E>,V> context) {
         	Graph<V,E> graph = context.graph;
         	V v = context.element;
 //            Vertex v = (Vertex)arg0;
@@ -1050,31 +1053,31 @@ public class PluggableRendererDemo extends JApplet implements ActionListener
      */
     private final static class VertexShapeSizeAspect<V,E>
     extends AbstractVertexShapeTransformer <V>
-    implements Transformer<V,Shape>  {
+    implements Function<V,Shape>  {
     	
         protected boolean stretch = false;
         protected boolean scale = false;
         protected boolean funny_shapes = false;
-        protected Transformer<V,Double> voltages;
+        protected Function<V,Double> voltages;
         protected Graph<V,E> graph;
 //        protected AffineTransform scaleTransform = new AffineTransform();
         
-        public VertexShapeSizeAspect(Graph<V,E> graphIn, Transformer<V,Double> voltagesIn)
+        public VertexShapeSizeAspect(Graph<V,E> graphIn, Function<V,Double> voltagesIn)
         {
         	this.graph = graphIn;
             this.voltages = voltagesIn;
-            setSizeTransformer(new Transformer<V,Integer>() {
+            setSizeTransformer(new Function<V,Integer>() {
 
-				public Integer transform(V v) {
+				public Integer apply(V v) {
 		            if (scale)
-		                return (int)(voltages.transform(v) * 30) + 20;
+		                return (int)(voltages.apply(v) * 30) + 20;
 		            else
 		                return 20;
 
 				}});
-            setAspectRatioTransformer(new Transformer<V,Float>() {
+            setAspectRatioTransformer(new Function<V,Float>() {
 
-				public Float transform(V v) {
+				public Float apply(V v) {
 		            if (stretch) {
 		                return (float)(graph.inDegree(v) + 1) / 
 		                	(graph.outDegree(v) + 1);
@@ -1099,7 +1102,7 @@ public class PluggableRendererDemo extends JApplet implements ActionListener
             this.funny_shapes = use;
         }
         
-        public Shape transform(V v)
+        public Shape apply(V v)
         {
             if (funny_shapes)
             {
@@ -1187,20 +1190,20 @@ public class PluggableRendererDemo extends JApplet implements ActionListener
     }
     
     public class VoltageTips<E>
-    	implements Transformer<Integer,String> {
+    	implements Function<Integer,String> {
         
-        public String transform(Integer vertex) {
-           return "Voltage:"+voltages.transform(vertex);
+        public String apply(Integer vertex) {
+           return "Voltage:"+voltages.apply(vertex);
         }
     }
     
     public class GradientPickedEdgePaintFunction<V,E> extends GradientEdgePaintTransformer<V,E> 
     {
-        private Transformer<E,Paint> defaultFunc;
+        private Function<E,Paint> defaultFunc;
         protected boolean fill_edge = false;
         Predicate<Context<Graph<V,E>,E>> selfLoop = new SelfLoopEdgePredicate<V,E>();
         
-        public GradientPickedEdgePaintFunction(Transformer<E,Paint> defaultEdgePaintFunction, 
+        public GradientPickedEdgePaintFunction(Function<E,Paint> defaultEdgePaintFunction, 
                 VisualizationViewer<V,E> vv) 
         {
             super(Color.WHITE, Color.BLACK, vv);
@@ -1212,11 +1215,11 @@ public class PluggableRendererDemo extends JApplet implements ActionListener
             fill_edge = b;
         }
         
-        public Paint transform(E e) {
+        public Paint apply(E e) {
             if (gradient_level == GRADIENT_NONE) {
-                return defaultFunc.transform(e);
+                return defaultFunc.apply(e);
             } else {
-            	return super.transform(e);
+            	return super.apply(e);
             }
         }
         

@@ -16,6 +16,7 @@ import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 
 import javax.swing.Icon;
 import javax.swing.JComponent;
@@ -33,9 +34,36 @@ public class BasicVertexRenderer<V,E> implements Renderer.Vertex<V,E> {
 
     public void paintVertex(RenderContext<V,E> rc, Layout<V,E> layout, V v) {
     	Graph<V,E> graph = layout.getGraph();
-        if (rc.getVertexIncludePredicate().evaluate(Context.<Graph<V,E>,V>getInstance(graph,v))) {
+        if (rc.getVertexIncludePredicate().apply(Context.<Graph<V,E>,V>getInstance(graph,v))) {
         	paintIconForVertex(rc, v, layout);
         }
+    }
+    
+    /**
+     * returns the vertex shape in view coordinates
+     * @param rc
+     * @param v
+     * @param layout
+     * @param coords
+     * @return
+     */
+    protected Shape prepareFinalVertexShape(RenderContext<V,E> rc, V v, 
+    		Layout<V,E> layout, int[] coords) {
+
+        // get the shape to be rendered
+        Shape shape = rc.getVertexShapeTransformer().apply(v);
+        Point2D p = layout.apply(v);
+        p = rc.getMultiLayerTransformer().transform(Layer.LAYOUT, p);
+        float x = (float)p.getX();
+        float y = (float)p.getY();
+        coords[0] = (int)x;
+        coords[1] = (int)y;
+        // create a transform that translates to the location of
+        // the vertex to be rendered
+        AffineTransform xform = AffineTransform.getTranslateInstance(x,y);
+        // transform the vertex shape with xtransform
+        shape = xform.createTransformedShape(shape);
+        return shape;
     }
     
     /**
@@ -44,28 +72,18 @@ public class BasicVertexRenderer<V,E> implements Renderer.Vertex<V,E> {
     protected void paintIconForVertex(RenderContext<V,E> rc, V v, Layout<V,E> layout) {
         GraphicsDecorator g = rc.getGraphicsContext();
         boolean vertexHit = true;
-        // get the shape to be rendered
-        Shape shape = rc.getVertexShapeTransformer().transform(v);
-        
-        Point2D p = layout.transform(v);
-        p = rc.getMultiLayerTransformer().transform(Layer.LAYOUT, p);
-        float x = (float)p.getX();
-        float y = (float)p.getY();
-        // create a transform that translates to the location of
-        // the vertex to be rendered
-        AffineTransform xform = AffineTransform.getTranslateInstance(x,y);
-        // transform the vertex shape with xtransform
-        shape = xform.createTransformedShape(shape);
-        
+        int[] coords = new int[2];
+        Shape shape = prepareFinalVertexShape(rc, v, layout, coords);
+        Rectangle2D bounds = shape.getBounds2D();
         vertexHit = vertexHit(rc, shape);
             //rc.getViewTransformer().transform(shape).intersects(deviceRectangle);
 
         if (vertexHit) {
         	if(rc.getVertexIconTransformer() != null) {
-        		Icon icon = rc.getVertexIconTransformer().transform(v);
+        		Icon icon = rc.getVertexIconTransformer().apply(v);
         		if(icon != null) {
         		
-           			g.draw(icon, rc.getScreenDevice(), shape, (int)x, (int)y);
+           			g.draw(icon, rc.getScreenDevice(), shape, coords[0], coords[1]);
 
         		} else {
         			paintShapeForVertex(rc, v, shape);
@@ -95,17 +113,17 @@ public class BasicVertexRenderer<V,E> implements Renderer.Vertex<V,E> {
     protected void paintShapeForVertex(RenderContext<V,E> rc, V v, Shape shape) {
         GraphicsDecorator g = rc.getGraphicsContext();
         Paint oldPaint = g.getPaint();
-        Paint fillPaint = rc.getVertexFillPaintTransformer().transform(v);
+        Paint fillPaint = rc.getVertexFillPaintTransformer().apply(v);
         if(fillPaint != null) {
             g.setPaint(fillPaint);
             g.fill(shape);
             g.setPaint(oldPaint);
         }
-        Paint drawPaint = rc.getVertexDrawPaintTransformer().transform(v);
+        Paint drawPaint = rc.getVertexDrawPaintTransformer().apply(v);
         if(drawPaint != null) {
         	g.setPaint(drawPaint);
         	Stroke oldStroke = g.getStroke();
-        	Stroke stroke = rc.getVertexStrokeTransformer().transform(v);
+        	Stroke stroke = rc.getVertexStrokeTransformer().apply(v);
         	if(stroke != null) {
         		g.setStroke(stroke);
         	}

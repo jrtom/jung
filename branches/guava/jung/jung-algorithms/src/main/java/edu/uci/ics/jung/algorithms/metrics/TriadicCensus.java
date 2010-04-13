@@ -14,8 +14,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.collections15.CollectionUtils;
-
 import edu.uci.ics.jung.graph.DirectedGraph;
 import edu.uci.ics.jung.graph.Graph;
 
@@ -109,7 +107,8 @@ public class TriadicCensus {
 				int triType = -1;
 				if (id.indexOf(u) <= i_v)
 					continue;
-				Set<V> neighbors = new HashSet<V>(CollectionUtils.union(g.getNeighbors(u), g.getNeighbors(v)));
+				Set<V> neighbors = new HashSet<V>(g.getNeighbors(u));
+				neighbors.addAll(g.getNeighbors(v));
 				neighbors.remove(u);
 				neighbors.remove(v);
 				if (g.isSuccessor(v,u) && g.isSuccessor(u,v)) {

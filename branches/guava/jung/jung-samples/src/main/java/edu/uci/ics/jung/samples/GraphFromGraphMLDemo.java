@@ -22,9 +22,10 @@ import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.commons.collections15.Factory;
-import org.apache.commons.collections15.Transformer;
 import org.xml.sax.SAXException;
+
+import com.google.common.base.Function;
+import com.google.common.base.Supplier;
 
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.graph.DirectedGraph;
@@ -66,13 +67,13 @@ public class GraphFromGraphMLDemo {
      */
     public GraphFromGraphMLDemo(String filename) throws ParserConfigurationException, SAXException, IOException {
         
-    	Factory<Number> vertexFactory = new Factory<Number>() {
+    	Supplier<Number> vertexFactory = new Supplier<Number>() {
     		int n = 0;
-    		public Number create() { return n++; }
+    		public Number get() { return n++; }
     	};
-    	Factory<Number> edgeFactory = new Factory<Number>() {
+    	Supplier<Number> edgeFactory = new Supplier<Number>() {
     		int n = 0;
-    		public Number create() { return n++; }
+    		public Number get() { return n++; }
     	};
     	
     	GraphMLReader<DirectedGraph<Number,Number>, Number, Number> gmlr = 
@@ -93,8 +94,8 @@ public class GraphFromGraphMLDemo {
         
         // add my listeners for ToolTips
         vv.setVertexToolTipTransformer(new ToStringLabeller<Number>());
-        vv.setEdgeToolTipTransformer(new Transformer<Number,String>() {
-			public String transform(Number edge) {
+        vv.setEdgeToolTipTransformer(new Function<Number,String>() {
+			public String apply(Number edge) {
 				return "E"+graph.getEndpoints(edge).toString();
 			}});
         

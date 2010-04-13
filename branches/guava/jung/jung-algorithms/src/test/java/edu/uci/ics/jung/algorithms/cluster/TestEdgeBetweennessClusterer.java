@@ -17,7 +17,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import org.apache.commons.collections15.Factory;
+import com.google.common.base.Supplier;
 
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.SparseMultigraph;
@@ -30,24 +30,24 @@ public class TestEdgeBetweennessClusterer extends TestCase {
     public static Test suite() {
         return new TestSuite(TestEdgeBetweennessClusterer.class);
     }
-    Factory<Graph<Integer,Number>> graphFactory;
-    Factory<Integer> vertexFactory;
-    Factory<Number> edgeFactory;
+    Supplier<Graph<Integer,Number>> graphFactory;
+    Supplier<Integer> vertexFactory;
+    Supplier<Number> edgeFactory;
 
     @Override
     protected void setUp() {
-        graphFactory = new Factory<Graph<Integer,Number>>() {
-    		public Graph<Integer,Number> create() {
+        graphFactory = new Supplier<Graph<Integer,Number>>() {
+    		public Graph<Integer,Number> get() {
     			return new SparseMultigraph<Integer,Number>();
     		}
     	};
-    	vertexFactory = new Factory<Integer>() {
+    	vertexFactory = new Supplier<Integer>() {
     		int n = 0;
-    		public Integer create() { return n++; }
+    		public Integer get() { return n++; }
     	};
-    	edgeFactory = new Factory<Number>() {
+    	edgeFactory = new Supplier<Number>() {
     		int n = 0;
-    		public Number create() { return n++; }
+    		public Number get() { return n++; }
     	};
 
     }
@@ -76,7 +76,7 @@ public class TestEdgeBetweennessClusterer extends TestCase {
         Assert.assertEquals(graph.getEdgeCount(),12);
 
         EdgeBetweennessClusterer<Number, Number> clusterer = new EdgeBetweennessClusterer<Number, Number>(3);
-        Collection<Set<Number>> clusters = clusterer.transform(graph);
+        Collection<Set<Number>> clusters = clusterer.apply(graph);
         
         Assert.assertEquals(clusters.size(),3);
     }

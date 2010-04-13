@@ -98,7 +98,7 @@ public class Intersector {
     public Line2D getLine() {
         return line;
     }
-    public Set getPoints() {
+    public Set<Point2D> getPoints() {
         return points;
     }
     public Rectangle getRectangle() {

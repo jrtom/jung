@@ -10,7 +10,7 @@
 package edu.uci.ics.jung.algorithms.shortestpath;
 import java.util.Collection;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 import edu.uci.ics.jung.algorithms.scoring.ClosenessCentrality;
 import edu.uci.ics.jung.algorithms.scoring.util.VertexScoreTransformer;
@@ -55,7 +55,7 @@ public class DistanceStatistics
      * @see edu.uci.ics.jung.algorithms.shortestpath.UnweightedShortestPath
      * @see edu.uci.ics.jung.algorithms.shortestpath.DijkstraDistance
      */
-    public static <V,E> Transformer<V,Double> averageDistances(Hypergraph<V,E> graph, Distance<V> d)
+    public static <V,E> Function<V,Double> averageDistances(Hypergraph<V,E> graph, Distance<V> d)
     {
     	final ClosenessCentrality<V,E> cc = new ClosenessCentrality<V,E>(graph, d);
     	return new VertexScoreTransformer<V, Double>(cc);
@@ -68,7 +68,7 @@ public class DistanceStatistics
      * @see #diameter(Hypergraph)
      * @see edu.uci.ics.jung.algorithms.scoring.ClosenessCentrality
      */
-    public static <V,E> Transformer<V, Double> averageDistances(Hypergraph<V,E> g)
+    public static <V,E> Function<V, Double> averageDistances(Hypergraph<V,E> g)
     {
     	final ClosenessCentrality<V,E> cc = new ClosenessCentrality<V,E>(g, 
     			new UnweightedShortestPath<V,E>(g));

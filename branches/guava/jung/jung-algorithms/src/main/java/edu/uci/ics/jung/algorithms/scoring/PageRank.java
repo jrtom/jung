@@ -11,7 +11,7 @@
  */
 package edu.uci.ics.jung.algorithms.scoring;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 import edu.uci.ics.jung.algorithms.scoring.util.ScoringUtils;
 import edu.uci.ics.jung.graph.Hypergraph;
@@ -52,7 +52,7 @@ public class PageRank<V,E> extends PageRankWithPriors<V,E>
      * @param edge_weight the edge weights (transition probabilities)
      * @param alpha the probability of taking a random jump to an arbitrary vertex
      */
-    public PageRank(Hypergraph<V,E> graph, Transformer<E, ? extends Number> edge_weight, double alpha)
+    public PageRank(Hypergraph<V,E> graph, Function<E, ? extends Number> edge_weight, double alpha)
     {
         super(graph, edge_weight, ScoringUtils.getUniformRootPrior(graph.getVertices()), alpha);
     }

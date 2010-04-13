@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-import org.apache.commons.collections15.Factory;
+import com.google.common.base.Supplier;
 
 import edu.uci.ics.jung.algorithms.generators.EvolvingGraphGenerator;
 import edu.uci.ics.jung.graph.Graph;
@@ -79,9 +79,9 @@ public class BarabasiAlbertGenerator<V,E> implements EvolvingGraphGenerator<V,E>
     protected List<V> vertex_index;
     protected int init_vertices;
     protected Map<V,Integer> index_vertex;
-    protected Factory<Graph<V,E>> graphFactory;
-    protected Factory<V> vertexFactory;
-    protected Factory<E> edgeFactory;
+    protected Supplier<Graph<V,E>> graphFactory;
+    protected Supplier<V> vertexFactory;
+    protected Supplier<E> edgeFactory;
     
     /**
      * Constructs a new instance of the generator.
@@ -92,8 +92,8 @@ public class BarabasiAlbertGenerator<V,E> implements EvolvingGraphGenerator<V,E>
      * @param parallel  specifies whether the algorithm permits parallel edges
      * @param seed  random number seed
      */
-    public BarabasiAlbertGenerator(Factory<Graph<V,E>> graphFactory,
-    		Factory<V> vertexFactory, Factory<E> edgeFactory, 
+    public BarabasiAlbertGenerator(Supplier<Graph<V,E>> graphFactory,
+    		Supplier<V> vertexFactory, Supplier<E> edgeFactory, 
     		int init_vertices, int numEdgesToAttach, 
             int seed, Set<V> seedVertices)
     {
@@ -119,20 +119,20 @@ public class BarabasiAlbertGenerator<V,E> implements EvolvingGraphGenerator<V,E>
      * @param numEdgesToAttach the number of edges that should be attached from the
      * new vertex to pre-existing vertices at each time step
      */
-    public BarabasiAlbertGenerator(Factory<Graph<V,E>> graphFactory, 
-    		Factory<V> vertexFactory, Factory<E> edgeFactory,
+    public BarabasiAlbertGenerator(Supplier<Graph<V,E>> graphFactory, 
+    		Supplier<V> vertexFactory, Supplier<E> edgeFactory,
     		int init_vertices, int numEdgesToAttach, Set<V> seedVertices) {
         this(graphFactory, vertexFactory, edgeFactory, init_vertices, numEdgesToAttach, (int) System.currentTimeMillis(), seedVertices);
     }
     
     private void initialize(Set<V> seedVertices) {
     	
-    	mGraph = graphFactory.create();
+    	mGraph = graphFactory.get();
 
         vertex_index = new ArrayList<V>(2*init_vertices);
         index_vertex = new HashMap<V, Integer>(2*init_vertices);
         for (int i = 0; i < init_vertices; i++) {
-            V v = vertexFactory.create();
+            V v = vertexFactory.get();
             mGraph.addVertex(v);
             vertex_index.add(v);
             index_vertex.put(v, i);
@@ -191,7 +191,7 @@ public class BarabasiAlbertGenerator<V,E> implements EvolvingGraphGenerator<V,E>
 
     private void evolveGraph() {
         Collection<V> preexistingNodes = mGraph.getVertices();
-        V newVertex = vertexFactory.create();
+        V newVertex = vertexFactory.get();
 
         mGraph.addVertex(newVertex);
 
@@ -209,7 +209,7 @@ public class BarabasiAlbertGenerator<V,E> implements EvolvingGraphGenerator<V,E>
         	V v2 = pair.getSecond();
         	if (mGraph.getDefaultEdgeType() != EdgeType.UNDIRECTED || 
         			!mGraph.isNeighbor(v1, v2))
-        		mGraph.addEdge(edgeFactory.create(), pair);
+        		mGraph.addEdge(edgeFactory.get(), pair);
         }
         // now that we're done attaching edges to this new vertex, 
         // add it to the index
@@ -221,7 +221,7 @@ public class BarabasiAlbertGenerator<V,E> implements EvolvingGraphGenerator<V,E>
         return mElapsedTimeSteps;
     }
 
-    public Graph<V, E> create() {
+    public Graph<V, E> get() {
         return mGraph;
     }
 }

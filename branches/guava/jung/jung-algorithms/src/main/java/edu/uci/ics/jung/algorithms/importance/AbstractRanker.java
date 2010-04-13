@@ -18,8 +18,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections15.Factory;
-import org.apache.commons.collections15.map.LazyMap;
+import com.google.common.base.Function;
+import com.google.common.collect.MapMaker;
 
 import edu.uci.ics.jung.algorithms.util.IterativeProcess;
 import edu.uci.ics.jung.graph.Graph;
@@ -48,20 +48,31 @@ public abstract class AbstractRanker<V,E> extends IterativeProcess {
     private boolean mRankNodes;
     private boolean mRankEdges;
     private boolean mNormalizeRankings;
+    MapMaker mapMaker = new MapMaker();
     protected Map<Object,Map<V, Number>> vertexRankScores = 
-    	LazyMap.decorate(
-    			new HashMap<Object,Map<V,Number>>(),
-    			new Factory<Map<V,Number>>() {
-					public Map<V,Number> create() {
-						return new HashMap<V,Number>();
-					}});
+    	mapMaker.<Object,Map<V,Number>>makeComputingMap(new Function<Object,Map<V,Number>>(){
+//			@Override
+			public Map<V, Number> apply(Object arg0) {
+				return new HashMap<V,Number>();
+			}});
+//    	LazyMap.decorate(
+//    			new HashMap<Object,Map<V,Number>>(),
+//    			new Supplier<Map<V,Number>>() {
+//					public Map<V,Number> create() {
+//						return new HashMap<V,Number>();
+//					}});
     protected Map<Object,Map<E, Number>> edgeRankScores = 
-    	LazyMap.decorate(
-    			new HashMap<Object,Map<E,Number>>(),
-    			new Factory<Map<E,Number>>() {
-					public Map<E,Number> create() {
-						return new HashMap<E,Number>();
-					}});
+    	mapMaker.<Object,Map<E,Number>>makeComputingMap(new Function<Object,Map<E,Number>>(){
+//			@Override
+			public Map<E, Number> apply(Object arg0) {
+				return new HashMap<E,Number>();
+			}});
+//    	LazyMap.decorate(
+//    			new HashMap<Object,Map<E,Number>>(),
+//    			new Supplier<Map<E,Number>>() {
+//					public Map<E,Number> create() {
+//						return new HashMap<E,Number>();
+//					}});
     private Map<E,Number> edgeWeights = new HashMap<E,Number>();
 
     protected void initialize(Graph<V,E> graph, boolean isNodeRanker, 

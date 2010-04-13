@@ -35,8 +35,8 @@ public class MagnifyIconGraphics extends TransformingFlatnessGraphics {
         this(transformer, null);
     }
     
-    public MagnifyIconGraphics(BidirectionalTransformer transformer, Graphics2D delegate) {
-        super(transformer, delegate);
+    public MagnifyIconGraphics(BidirectionalTransformer Function, Graphics2D delegate) {
+        super(Function, delegate);
     }
     
     public void draw(Icon icon, Component c, Shape clip, int x, int y) {

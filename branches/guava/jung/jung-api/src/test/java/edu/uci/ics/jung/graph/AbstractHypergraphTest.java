@@ -16,17 +16,17 @@ import java.util.Collection;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.collections15.Factory;
+import com.google.common.base.Supplier;
 
 import edu.uci.ics.jung.graph.util.Pair;
 
 
 public abstract class AbstractHypergraphTest extends TestCase
 {
-    protected Factory<? extends Hypergraph<Integer,Character>> factory;
+    protected Supplier<? extends Hypergraph<Integer,Character>> factory;
     protected Hypergraph<Integer,Character> h;
     
-    public AbstractHypergraphTest(Factory<? extends Hypergraph<Integer,Character>> factory)
+    public AbstractHypergraphTest(Supplier<? extends Hypergraph<Integer,Character>> factory)
     {
         this.factory = factory;
     }

@@ -44,8 +44,8 @@ public class LayoutTransition<V,E> implements IterativeContext {
 	public void step() {
 		Graph<V,E> g = transitionLayout.getGraph();
 		for(V v : g.getVertices()) {
-			Point2D tp = transitionLayout.transform(v);
-			Point2D fp = endLayout.transform(v);
+			Point2D tp = transitionLayout.apply(v);
+			Point2D fp = endLayout.apply(v);
 			double dx = (fp.getX()-tp.getX())/(count-counter);
 			double dy = (fp.getY()-tp.getY())/(count-counter);
 			transitionLayout.setLocation(v, 

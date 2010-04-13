@@ -18,8 +18,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections15.CollectionUtils;
-import org.apache.commons.collections15.Factory;
+import com.google.common.base.Supplier;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 
 import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.graph.util.Pair;
@@ -42,13 +43,13 @@ public class OrderedKAryTree<V, E> extends AbstractTypedGraph<V, E> implements T
     protected int order;
     
     /**
-     * Returns a {@code Factory} that creates an instance of this graph type.
-     * @param <V> the vertex type for the graph factory
-     * @param <E> the edge type for the graph factory
+     * Returns a {@code Supplier} that creates an instance of this graph type.
+     * @param <V> the vertex type for the graph Supplier
+     * @param <E> the edge type for the graph Supplier
      */
-    public static <V,E> Factory<DirectedGraph<V,E>> getFactory(final int order) {
-        return new Factory<DirectedGraph<V,E>> () {
-            public DirectedGraph<V,E> create() {
+    public static <V,E> Supplier<DirectedGraph<V,E>> getFactory(final int order) {
+        return new Supplier<DirectedGraph<V,E>> () {
+            public DirectedGraph<V,E> get() {
                 return new OrderedKAryTree<V,E>(order);
             }
         };
@@ -108,7 +109,8 @@ public class OrderedKAryTree<V, E> extends AbstractTypedGraph<V, E> implements T
         	return null;
         List<E> edges = vertex_data.get(vertex).child_edges;
         return edges == null ? Collections.<E>emptySet() : 
-            CollectionUtils.unmodifiableCollection(edges);
+        	new ImmutableList.Builder<E>().addAll(edges).build();
+//            CollectionUtils.unmodifiableCollection(edges);
     }
   
     /**
@@ -128,7 +130,8 @@ public class OrderedKAryTree<V, E> extends AbstractTypedGraph<V, E> implements T
         Collection<V> children = new ArrayList<V>(order);
         for (E edge : edges)
             children.add(this.getOpposite(vertex, edge));
-        return CollectionUtils.unmodifiableCollection(children);
+        return new ImmutableList.Builder<V>().addAll(children).build();
+        //CollectionUtils.unmodifiableCollection(children);
     }
   
     /**
@@ -643,7 +646,8 @@ public class OrderedKAryTree<V, E> extends AbstractTypedGraph<V, E> implements T
      */
     public Collection<E> getEdges() 
     {
-    	return CollectionUtils.unmodifiableCollection(edge_vpairs.keySet());
+    	return new ImmutableSet.Builder<E>().addAll(edge_vpairs.keySet()).build();
+    	//CollectionUtils.unmodifiableCollection(edge_vpairs.keySet());
     }
   
     /**
@@ -732,7 +736,8 @@ public class OrderedKAryTree<V, E> extends AbstractTypedGraph<V, E> implements T
      */
     public Collection<V> getVertices() 
     {
-      return CollectionUtils.unmodifiableCollection(vertex_data.keySet());
+      return new ImmutableSet.Builder<V>().addAll(vertex_data.keySet()).build();
+      //CollectionUtils.unmodifiableCollection(vertex_data.keySet());
     }
   
     /**

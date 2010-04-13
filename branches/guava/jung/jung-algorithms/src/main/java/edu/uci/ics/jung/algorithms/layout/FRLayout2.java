@@ -11,11 +11,10 @@ import java.awt.Dimension;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ConcurrentModificationException;
-import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.collections15.Factory;
-import org.apache.commons.collections15.map.LazyMap;
+import com.google.common.base.Function;
+import com.google.common.collect.MapMaker;
 
 import edu.uci.ics.jung.algorithms.layout.util.RandomLocationTransformer;
 import edu.uci.ics.jung.algorithms.util.IterativeContext;
@@ -53,10 +52,15 @@ public class FRLayout2<V, E> extends AbstractLayout<V, E> implements IterativeCo
     private int maxIterations = 700;
     
     private Map<V, Point2D> frVertexData = 
-    	LazyMap.decorate(new HashMap<V,Point2D>(), new Factory<Point2D>() {
-    		public Point2D create() {
-    			return new Point2D.Double();
-    		}});
+    	new MapMaker().makeComputingMap(new Function<V,Point2D>(){
+//			@Override
+			public Point2D apply(V v) {
+				return new Point2D.Double();
+			}});
+//    	LazyMap.decorate(new HashMap<V,Point2D>(), new Supplier<Point2D>() {
+//    		public Point2D create() {
+//    			return new Point2D.Double();
+//    		}});
 
     private double attraction_multiplier = 0.75;
     
@@ -188,7 +192,7 @@ public class FRLayout2<V, E> extends AbstractLayout<V, E> implements IterativeCo
     protected synchronized void calcPositions(V v) {
         Point2D fvd = this.frVertexData.get(v);
         if(fvd == null) return;
-        Point2D xyd = transform(v);
+        Point2D xyd = apply(v);
         double deltaLength = Math.max(EPSILON, 
         		Math.sqrt(fvd.getX()*fvd.getX()+fvd.getY()*fvd.getY()));
 
@@ -220,8 +224,8 @@ public class FRLayout2<V, E> extends AbstractLayout<V, E> implements IterativeCo
         	// both locked, do nothing
         	return;
         }
-        Point2D p1 = transform(v1);
-        Point2D p2 = transform(v2);
+        Point2D p1 = apply(v1);
+        Point2D p2 = apply(v2);
         if(p1 == null || p2 == null) return;
         double xDelta = p1.getX() - p2.getX();
         double yDelta = p1.getY() - p2.getY();
@@ -264,8 +268,8 @@ public class FRLayout2<V, E> extends AbstractLayout<V, E> implements IterativeCo
                 boolean v2_locked = isLocked(v2);
             	if (v1_locked && v2_locked) continue;
                 if (v1 != v2) {
-                    Point2D p1 = transform(v1);
-                    Point2D p2 = transform(v2);
+                    Point2D p1 = apply(v1);
+                    Point2D p2 = apply(v2);
                     if(p1 == null || p2 == null) continue;
                     double xDelta = p1.getX() - p2.getX();
                     double yDelta = p1.getY() - p2.getY();

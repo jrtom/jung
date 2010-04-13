@@ -11,8 +11,8 @@
  */
 package edu.uci.ics.jung.algorithms.scoring;
 
-import org.apache.commons.collections15.Transformer;
-import org.apache.commons.collections15.functors.ConstantTransformer;
+import com.google.common.base.Function;
+import com.google.common.base.Functions;
 
 import edu.uci.ics.jung.graph.Hypergraph;
 
@@ -43,8 +43,8 @@ public class HITSWithPriors<V, E>
      * @param alpha the probability of a random jump at each step
      */
     public HITSWithPriors(Hypergraph<V,E> g,
-            Transformer<E, ? extends Number> edge_weights,
-            Transformer<V, HITS.Scores> vertex_priors, double alpha)
+            Function<E, ? extends Number> edge_weights,
+            Function<V, HITS.Scores> vertex_priors, double alpha)
     {
         super(g, edge_weights, vertex_priors, alpha);
         disappearing_potential = new HITS.Scores(0,0);
@@ -59,9 +59,9 @@ public class HITSWithPriors<V, E>
      */
     @SuppressWarnings("unchecked")
     public HITSWithPriors(Hypergraph<V,E> g, 
-          Transformer<V, HITS.Scores> vertex_priors, double alpha)
+          Function<V, HITS.Scores> vertex_priors, double alpha)
     {
-    	super(g, new ConstantTransformer(1.0), vertex_priors, alpha);
+    	super(g, Functions.constant(1.0), vertex_priors, alpha);
         disappearing_potential = new HITS.Scores(0,0);
     }
 

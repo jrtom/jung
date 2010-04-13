@@ -12,7 +12,7 @@
  */
 package edu.uci.ics.jung.visualization.decorators;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 
 
@@ -24,12 +24,12 @@ import org.apache.commons.collections15.Transformer;
  * 
  * @author danyelf
  */
-public class ToStringLabeller<V> implements Transformer<V,String> {
+public class ToStringLabeller<V> implements Function<V,String> {
 
     /**
      * Retunrs v.toString()
      */
-    public String transform(V v) {
+    public String apply(V v) {
         return v.toString();
     }
 

@@ -220,7 +220,7 @@ public class TestBicomponentClusterer extends TestCase {
     public void testComponents(UndirectedGraph<String,Number> graph, String[] vertices, List<Set<String>> c)
     {
         BicomponentClusterer<String,Number> finder = new BicomponentClusterer<String,Number>();
-        Set<Set<String>> bicomponents = finder.transform(graph);
+        Set<Set<String>> bicomponents = finder.apply(graph);
         
         // check number of components
         assertEquals(bicomponents.size(), c.size());

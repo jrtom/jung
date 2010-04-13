@@ -78,7 +78,7 @@ implements MouseListener, MouseMotionListener {
     
     /**
      * called to change the location of the lens
-     * @param transformer
+     * @param Function
      * @param point
      */
     private void setViewCenter(MutableTransformer transformer, Point2D point) {
@@ -91,7 +91,7 @@ implements MouseListener, MouseMotionListener {
     
     /**
      * called to change the radius of the lens
-     * @param transformer
+     * @param Function
      * @param point
      */
     private void setViewRadius(MutableTransformer transformer, Point2D point) {
@@ -105,7 +105,7 @@ implements MouseListener, MouseMotionListener {
     
     /**
      * called to set up translating the lens center or changing the size
-     * @param transformer
+     * @param Function
      * @param point
      */
     private void testViewCenter(MutableTransformer transformer, Point2D point) {

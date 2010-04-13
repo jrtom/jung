@@ -13,7 +13,7 @@ package edu.uci.ics.jung.io.graphml.parser;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 import edu.uci.ics.jung.graph.Hypergraph;
 import edu.uci.ics.jung.io.graphml.EdgeMetadata;
@@ -35,10 +35,10 @@ public class ElementParserRegistry<G extends Hypergraph<V, E>, V, E> {
     final private ElementParser unknownElementParser = new UnknownElementParser();
 
     public ElementParserRegistry(KeyMap keyMap, 
-            Transformer<GraphMetadata, G> graphTransformer,
-            Transformer<NodeMetadata, V> vertexTransformer,
-            Transformer<EdgeMetadata, E> edgeTransformer,
-            Transformer<HyperEdgeMetadata, E> hyperEdgeTransformer) {
+            Function<GraphMetadata, G> graphTransformer,
+            Function<NodeMetadata, V> vertexTransformer,
+            Function<EdgeMetadata, E> edgeTransformer,
+            Function<HyperEdgeMetadata, E> hyperEdgeTransformer) {
         
         // Create the parser context.
         ParserContext<G,V,E> context = new ParserContext<G,V,E>(this, keyMap, graphTransformer, 

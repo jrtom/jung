@@ -335,7 +335,7 @@ public class SubLayoutDemo extends JApplet {
     			double x = 0;
     			double y = 0;
     			for(String vertex : picked) {
-    				Point2D p = clusteringLayout.transform(vertex);
+    				Point2D p = clusteringLayout.apply(vertex);
     				x += p.getX();
     				y += p.getY();
     			}

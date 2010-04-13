@@ -9,20 +9,19 @@
 */
 package edu.uci.ics.jung.algorithms.layout;
 
-import edu.uci.ics.jung.algorithms.layout.util.RandomLocationTransformer;
-import edu.uci.ics.jung.algorithms.util.IterativeContext;
-import edu.uci.ics.jung.graph.Graph;
-
-import org.apache.commons.collections15.Factory;
-import org.apache.commons.collections15.map.LazyMap;
-
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.ConcurrentModificationException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.google.common.base.Function;
+import com.google.common.collect.MapMaker;
+
+import edu.uci.ics.jung.algorithms.layout.util.RandomLocationTransformer;
+import edu.uci.ics.jung.algorithms.util.IterativeContext;
+import edu.uci.ics.jung.graph.Graph;
 
 /**
  * Implements a self-organizing map layout algorithm, based on Meyer's
@@ -33,11 +32,16 @@ import java.util.Map;
 public class ISOMLayout<V, E> extends AbstractLayout<V,E> implements IterativeContext {
 
 	Map<V, ISOMVertexData> isomVertexData =
-		LazyMap.decorate(new HashMap<V, ISOMVertexData>(),
-				new Factory<ISOMVertexData>() {
-					public ISOMVertexData create() {
-						return new ISOMVertexData();
-					}});
+		new MapMaker().makeComputingMap(new Function<V,ISOMVertexData>(){
+//			@Override
+			public ISOMVertexData apply(V arg0) {
+				return new ISOMVertexData();
+			}});
+//		LazyMap.decorate(new HashMap<V, ISOMVertexData>(),
+//				new Supplier<ISOMVertexData>() {
+//					public ISOMVertexData create() {
+//						return new ISOMVertexData();
+//					}});
 
 	private int maxEpoch;
 	private int epoch;
@@ -161,7 +165,7 @@ public class ISOMLayout<V, E> extends AbstractLayout<V,E> implements IterativeCo
 		while (!queue.isEmpty()) {
 			current = queue.remove(0);
 			ISOMVertexData currData = getISOMVertexData(current);
-			Point2D currXYData = transform(current);
+			Point2D currXYData = apply(current);
 
 			double dx = tempXYD.getX() - currXYData.getX();
 			double dy = tempXYD.getY() - currXYData.getY();

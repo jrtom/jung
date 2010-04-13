@@ -12,7 +12,7 @@ package edu.uci.ics.jung.algorithms.layout;
 import java.awt.Dimension;
 import java.awt.geom.Point2D;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 import edu.uci.ics.jung.graph.Graph;
 
@@ -24,7 +24,7 @@ import edu.uci.ics.jung.graph.Graph;
  * @author danyelf
  * @author tom nelson
  */
-public interface Layout<V, E> extends Transformer<V,Point2D> {
+public interface Layout<V, E> extends Function<V,Point2D> {
     
 	/**
 	 * Initializes fields in the node that may not have
@@ -37,7 +37,7 @@ public interface Layout<V, E> extends Transformer<V,Point2D> {
 	 * provides initial locations for all vertices.
 	 * @param initializer
 	 */
-	void setInitializer(Transformer<V,Point2D> initializer);
+	void setInitializer(Function<V,Point2D> initializer);
     
 	/**
 	 * setter for graph
@@ -88,6 +88,5 @@ public interface Layout<V, E> extends Transformer<V,Point2D> {
      * @param location
      */
 	void setLocation(V v, Point2D location);
-
-
+	
 }

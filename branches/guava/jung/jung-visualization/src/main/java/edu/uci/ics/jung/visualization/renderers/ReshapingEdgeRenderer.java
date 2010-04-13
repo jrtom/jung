@@ -59,8 +59,8 @@ public class ReshapingEdgeRenderer<V,E> extends BasicEdgeRenderer<V,E>
         Pair<V> endpoints = graph.getEndpoints(e);
         V v1 = endpoints.getFirst();
         V v2 = endpoints.getSecond();
-        Point2D p1 = layout.transform(v1);
-        Point2D p2 = layout.transform(v2);
+        Point2D p1 = layout.apply(v1);
+        Point2D p2 = layout.apply(v2);
         p1 = rc.getMultiLayerTransformer().transform(Layer.LAYOUT, p1);
         p2 = rc.getMultiLayerTransformer().transform(Layer.LAYOUT, p2);
         float x1 = (float) p1.getX();
@@ -79,8 +79,8 @@ public class ReshapingEdgeRenderer<V,E> extends BasicEdgeRenderer<V,E>
         }
 
         boolean isLoop = v1.equals(v2);
-        Shape s2 = rc.getVertexShapeTransformer().transform(v2);
-        Shape edgeShape = rc.getEdgeShapeTransformer().transform(Context.<Graph<V,E>,E>getInstance(graph, e));
+        Shape s2 = rc.getVertexShapeTransformer().apply(v2);
+        Shape edgeShape = rc.getEdgeShapeTransformer().apply(Context.<Graph<V,E>,E>getInstance(graph, e));
         
         boolean edgeHit = true;
         boolean arrowHit = true;
@@ -126,13 +126,13 @@ public class ReshapingEdgeRenderer<V,E> extends BasicEdgeRenderer<V,E>
             
             // get Paints for filling and drawing
             // (filling is done first so that drawing and label use same Paint)
-            Paint fill_paint = rc.getEdgeFillPaintTransformer().transform(e); 
+            Paint fill_paint = rc.getEdgeFillPaintTransformer().apply(e); 
             if (fill_paint != null)
             {
                 g.setPaint(fill_paint);
                 g.fill(edgeShape, flatness);
             }
-            Paint draw_paint = rc.getEdgeDrawPaintTransformer().transform(e);
+            Paint draw_paint = rc.getEdgeDrawPaintTransformer().apply(e);
             if (draw_paint != null)
             {
                 g.setPaint(draw_paint);
@@ -144,10 +144,10 @@ public class ReshapingEdgeRenderer<V,E> extends BasicEdgeRenderer<V,E>
             // see if arrows are too small to bother drawing
             if(scalex < .3 || scaley < .3) return;
             
-            if (rc.getEdgeArrowPredicate().evaluate(Context.<Graph<V,E>,E>getInstance(graph, e))) {
+            if (rc.getEdgeArrowPredicate().apply(Context.<Graph<V,E>,E>getInstance(graph, e))) {
                 
                 Shape destVertexShape = 
-                    rc.getVertexShapeTransformer().transform(graph.getEndpoints(e).getSecond());
+                    rc.getVertexShapeTransformer().apply(graph.getEndpoints(e).getSecond());
 
                 AffineTransform xf = AffineTransform.getTranslateInstance(x2, y2);
                 destVertexShape = xf.createTransformedShape(destVertexShape);
@@ -158,16 +158,16 @@ public class ReshapingEdgeRenderer<V,E> extends BasicEdgeRenderer<V,E>
                     AffineTransform at = 
                         edgeArrowRenderingSupport.getArrowTransform(rc, new GeneralPath(edgeShape), destVertexShape);
                     if(at == null) return;
-                    Shape arrow = rc.getEdgeArrowTransformer().transform(Context.<Graph<V,E>,E>getInstance(graph, e));
+                    Shape arrow = rc.getEdgeArrowTransformer().apply(Context.<Graph<V,E>,E>getInstance(graph, e));
                     arrow = at.createTransformedShape(arrow);
-                    g.setPaint(rc.getArrowFillPaintTransformer().transform(e));
+                    g.setPaint(rc.getArrowFillPaintTransformer().apply(e));
                     g.fill(arrow);
-                    g.setPaint(rc.getArrowDrawPaintTransformer().transform(e));
+                    g.setPaint(rc.getArrowDrawPaintTransformer().apply(e));
                     g.draw(arrow);
                 }
                 if (graph.getEdgeType(e) == EdgeType.UNDIRECTED) {
                     Shape vertexShape = 
-                        rc.getVertexShapeTransformer().transform(graph.getEndpoints(e).getFirst());
+                        rc.getVertexShapeTransformer().apply(graph.getEndpoints(e).getFirst());
                     xf = AffineTransform.getTranslateInstance(x1, y1);
                     vertexShape = xf.createTransformedShape(vertexShape);
                     
@@ -176,11 +176,11 @@ public class ReshapingEdgeRenderer<V,E> extends BasicEdgeRenderer<V,E>
                     if(arrowHit) {
                         AffineTransform at = edgeArrowRenderingSupport.getReverseArrowTransform(rc, new GeneralPath(edgeShape), vertexShape, !isLoop);
                         if(at == null) return;
-                        Shape arrow = rc.getEdgeArrowTransformer().transform(Context.<Graph<V,E>,E>getInstance(graph, e));
+                        Shape arrow = rc.getEdgeArrowTransformer().apply(Context.<Graph<V,E>,E>getInstance(graph, e));
                         arrow = at.createTransformedShape(arrow);
-                        g.setPaint(rc.getArrowFillPaintTransformer().transform(e));
+                        g.setPaint(rc.getArrowFillPaintTransformer().apply(e));
                         g.fill(arrow);
-                        g.setPaint(rc.getArrowDrawPaintTransformer().transform(e));
+                        g.setPaint(rc.getArrowDrawPaintTransformer().apply(e));
                         g.draw(arrow);
                     }
                 }

@@ -17,7 +17,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.apache.commons.collections15.Factory;
+import com.google.common.base.Supplier;
 
 import edu.uci.ics.jung.graph.util.Pair;
 
@@ -32,13 +32,13 @@ public class UndirectedOrderedSparseMultigraph<V,E>
     implements UndirectedGraph<V,E> {
 	
     /**
-     * Returns a {@code Factory} that creates an instance of this graph type.
-     * @param <V> the vertex type for the graph factory
-     * @param <E> the edge type for the graph factory
+     * Returns a {@code Supplier} that creates an instance of this graph type.
+     * @param <V> the vertex type for the graph Supplier
+     * @param <E> the edge type for the graph Supplier
      */
-	public static <V,E> Factory<UndirectedGraph<V,E>> getFactory() {
-		return new Factory<UndirectedGraph<V,E>> () {
-			public UndirectedGraph<V,E> create() {
+	public static <V,E> Supplier<UndirectedGraph<V,E>> getFactory() {
+		return new Supplier<UndirectedGraph<V,E>> () {
+			public UndirectedGraph<V,E> get() {
 				return new UndirectedOrderedSparseMultigraph<V,E>();
 			}
 		};

@@ -17,12 +17,11 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections15.Factory;
-import org.apache.commons.collections15.map.LazyMap;
+import com.google.common.base.Function;
+import com.google.common.collect.MapMaker;
 
 import edu.uci.ics.jung.graph.Graph;
 
@@ -39,11 +38,16 @@ public class CircleLayout<V, E> extends AbstractLayout<V,E> {
 	private List<V> vertex_ordered_list;
 	
 	Map<V, CircleVertexData> circleVertexDataMap =
-			LazyMap.decorate(new HashMap<V,CircleVertexData>(), 
-			new Factory<CircleVertexData>() {
-				public CircleVertexData create() {
-					return new CircleVertexData();
-				}});	
+		new MapMaker().makeComputingMap(new Function<V,CircleVertexData>(){
+//			@Override
+			public CircleVertexData apply(V arg0) {
+				return new CircleVertexData();
+			}});
+//			LazyMap.decorate(new HashMap<V,CircleVertexData>(), 
+//			new Supplier<CircleVertexData>() {
+//				public CircleVertexData create() {
+//					return new CircleVertexData();
+//				}});	
 
 	/**
 	 * Creates an instance for the specified graph.
@@ -113,7 +117,7 @@ public class CircleLayout<V, E> extends AbstractLayout<V,E> {
 			int i = 0;
 			for (V v : vertex_ordered_list)
 			{
-				Point2D coord = transform(v);
+				Point2D coord = apply(v);
 
 				double angle = (2 * Math.PI * i) / vertex_ordered_list.size();
 

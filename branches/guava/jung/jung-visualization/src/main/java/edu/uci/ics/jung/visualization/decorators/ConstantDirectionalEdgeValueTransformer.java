@@ -11,7 +11,7 @@
  */
 package edu.uci.ics.jung.visualization.decorators;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.Context;
@@ -23,7 +23,7 @@ import edu.uci.ics.jung.graph.util.EdgeType;
  * 
  * @author Joshua O'Madadhain
  */
-public class ConstantDirectionalEdgeValueTransformer<V,E> implements Transformer<Context<Graph<V,E>,E>,Number>
+public class ConstantDirectionalEdgeValueTransformer<V,E> implements Function<Context<Graph<V,E>,E>,Number>
 {
     protected Double undirected_value;
     protected Double directed_value;
@@ -40,9 +40,9 @@ public class ConstantDirectionalEdgeValueTransformer<V,E> implements Transformer
     }
     
     /**
-     * @see Transformer#transform(Object)
+     * @see Function#transform(Object)
      */
-    public Number transform(Context<Graph<V,E>,E> context) {
+    public Number apply(Context<Graph<V,E>,E> context) {
     	Graph<V,E> graph = context.graph;
     	E e = context.element;
         if (graph.getEdgeType(e) == EdgeType.DIRECTED)

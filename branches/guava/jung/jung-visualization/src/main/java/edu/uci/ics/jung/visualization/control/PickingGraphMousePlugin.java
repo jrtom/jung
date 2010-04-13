@@ -182,9 +182,9 @@ public class PickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
                     	pickedVertexState.clear();
                     	pickedVertexState.pick(vertex, true);
                     }
-                    // layout.getLocation applies the layout transformer so
-                    // q is transformed by the layout transformer only
-                    Point2D q = layout.transform(vertex);
+                    // layout.getLocation applies the layout Function so
+                    // q is transformed by the layout Function only
+                    Point2D q = layout.apply(vertex);
                     // transform the mouse point to graph coordinate system
                     Point2D gp = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(Layer.LAYOUT, ip);
 
@@ -210,9 +210,9 @@ public class PickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
                         vertex = null;
                     } else {
 
-                        // layout.getLocation applies the layout transformer so
-                        // q is transformed by the layout transformer only
-                        Point2D q = layout.transform(vertex);
+                        // layout.getLocation applies the layout Function so
+                        // q is transformed by the layout Function only
+                        Point2D q = layout.apply(vertex);
                         // translate mouse point to graph coord system
                         Point2D gp = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(Layer.LAYOUT, ip);
 
@@ -282,7 +282,7 @@ public class PickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
                 PickedState<V> ps = vv.getPickedVertexState();
                 
                 for(V v : ps.getPicked()) {
-                    Point2D vp = layout.transform(v);
+                    Point2D vp = layout.apply(v);
                     vp.setLocation(vp.getX()+dx, vp.getY()+dy);
                     layout.setLocation(v, vp);
                 }

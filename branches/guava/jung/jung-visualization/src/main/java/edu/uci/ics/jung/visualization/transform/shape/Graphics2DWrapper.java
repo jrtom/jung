@@ -71,7 +71,7 @@ public class Graphics2DWrapper {
     /* (non-Javadoc)
      * @see java.awt.Graphics2D#addRenderingHints(java.util.Map)
      */
-    public void addRenderingHints(Map hints) {
+    public void addRenderingHints(Map<?,?> hints) {
         delegate.addRenderingHints(hints);
     }
 
@@ -611,7 +611,7 @@ public class Graphics2DWrapper {
     /* (non-Javadoc)
      * @see java.awt.Graphics2D#setRenderingHints(java.util.Map)
      */
-    public void setRenderingHints(Map hints) {
+    public void setRenderingHints(Map<?,?> hints) {
         delegate.setRenderingHints(hints);
     }
 

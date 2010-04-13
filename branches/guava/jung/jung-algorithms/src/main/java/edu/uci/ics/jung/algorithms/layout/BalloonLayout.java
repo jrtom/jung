@@ -16,8 +16,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections15.Transformer;
-import org.apache.commons.collections15.map.LazyMap;
+import com.google.common.base.Function;
+import com.google.common.collect.MapMaker;
 
 import edu.uci.ics.jung.graph.Forest;
 import edu.uci.ics.jung.graph.util.TreeUtils;
@@ -34,11 +34,16 @@ import edu.uci.ics.jung.graph.util.TreeUtils;
 public class BalloonLayout<V,E> extends TreeLayout<V,E> {
 
     protected Map<V,PolarPoint> polarLocations =
-    	LazyMap.decorate(new HashMap<V, PolarPoint>(),
-    			new Transformer<V,PolarPoint>() {
-					public PolarPoint transform(V arg0) {
-						return new PolarPoint();
-					}});
+    	new MapMaker().makeComputingMap(new Function<V,PolarPoint>(){
+//			@Override
+			public PolarPoint apply(V arg0) {
+				return new PolarPoint();
+			}});
+//    	LazyMap.decorate(new HashMap<V, PolarPoint>(),
+//    			new Function<V,PolarPoint>() {
+//					public PolarPoint transform(V arg0) {
+//						return new PolarPoint();
+//					}});
     
     protected Map<V,Double> radii = new HashMap<V,Double>();
     
@@ -130,7 +135,7 @@ public class BalloonLayout<V,E> extends TreeLayout<V,E> {
 	}
 
 	@Override
-    public Point2D transform(V v) {
+    public Point2D apply(V v) {
 		return locations.get(v);
 	}
 

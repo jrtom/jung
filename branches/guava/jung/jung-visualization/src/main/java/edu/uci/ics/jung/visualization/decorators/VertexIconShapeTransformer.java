@@ -19,7 +19,7 @@ import java.util.Map;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 import edu.uci.ics.jung.visualization.FourPassImageShaper;
 
@@ -31,30 +31,30 @@ import edu.uci.ics.jung.visualization.FourPassImageShaper;
  * @author Tom Nelson 
  *
  *
- */public class VertexIconShapeTransformer<V> implements Transformer<V,Shape> {
+ */public class VertexIconShapeTransformer<V> implements Function<V,Shape> {
      
      protected Map<Image, Shape> shapeMap = new HashMap<Image, Shape>();
      protected Map<V,Icon> iconMap;
-     protected Transformer<V,Shape> delegate;
+     protected Function<V,Shape> delegate;
      /**
       * 
       *
       */
-    public VertexIconShapeTransformer(Transformer<V,Shape> delegate) {
+    public VertexIconShapeTransformer(Function<V,Shape> delegate) {
         this.delegate = delegate;
     }
 
     /**
      * @return Returns the delegate.
      */
-    public Transformer<V,Shape> getDelegate() {
+    public Function<V,Shape> getDelegate() {
         return delegate;
     }
 
     /**
      * @param delegate The delegate to set.
      */
-    public void setDelegate(Transformer<V,Shape> delegate) {
+    public void setDelegate(Function<V,Shape> delegate) {
         this.delegate = delegate;
     }
 
@@ -62,7 +62,7 @@ import edu.uci.ics.jung.visualization.FourPassImageShaper;
      * get the shape from the image. If not available, get
      * the shape from the delegate VertexShapeFunction
      */
-    public Shape transform(V v) {
+    public Shape apply(V v) {
 		Icon icon = iconMap.get(v);
 		if (icon != null && icon instanceof ImageIcon) {
 			Image image = ((ImageIcon) icon).getImage();
@@ -83,7 +83,7 @@ import edu.uci.ics.jung.visualization.FourPassImageShaper;
 			}
 			return shape;
 		} else {
-			return delegate.transform(v);
+			return delegate.apply(v);
 		}
 	}
 

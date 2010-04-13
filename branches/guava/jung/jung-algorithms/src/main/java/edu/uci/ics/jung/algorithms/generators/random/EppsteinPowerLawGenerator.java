@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import org.apache.commons.collections15.Factory;
+import com.google.common.base.Supplier;
 
 import edu.uci.ics.jung.algorithms.generators.GraphGenerator;
 import edu.uci.ics.jung.graph.Graph;
@@ -29,22 +29,22 @@ public class EppsteinPowerLawGenerator<V,E> implements GraphGenerator<V,E> {
     private int mNumIterations;
     private double mMaxDegree;
     private Random mRandom;
-    private Factory<Graph<V,E>> graphFactory;
-    private Factory<V> vertexFactory;
-    private Factory<E> edgeFactory;
+    private Supplier<Graph<V,E>> graphFactory;
+    private Supplier<V> vertexFactory;
+    private Supplier<E> edgeFactory;
 
     /**
      * Creates an instance with the specified factories and specifications.
-     * @param graphFactory the factory to use to generate the graph
-     * @param vertexFactory the factory to use to create vertices
-     * @param edgeFactory the factory to use to create edges
+     * @param graphFactory the Supplier to use to generate the graph
+     * @param vertexFactory the Supplier to use to create vertices
+     * @param edgeFactory the Supplier to use to create edges
      * @param numVertices the number of vertices for the generated graph
      * @param numEdges the number of edges the generated graph will have, should be Theta(numVertices)
      * @param r the number of iterations to use; the larger the value the better the graph's degree
      * distribution will approximate a power-law
      */
-    public EppsteinPowerLawGenerator(Factory<Graph<V,E>> graphFactory,
-    		Factory<V> vertexFactory, Factory<E> edgeFactory, 
+    public EppsteinPowerLawGenerator(Supplier<Graph<V,E>> graphFactory,
+    		Supplier<V> vertexFactory, Supplier<E> edgeFactory, 
     		int numVertices, int numEdges, int r) {
     	this.graphFactory = graphFactory;
     	this.vertexFactory = vertexFactory;
@@ -57,16 +57,16 @@ public class EppsteinPowerLawGenerator<V,E> implements GraphGenerator<V,E> {
 
     protected Graph<V,E> initializeGraph() {
         Graph<V,E> graph = null;
-        graph = graphFactory.create();
+        graph = graphFactory.get();
         for(int i=0; i<mNumVertices; i++) {
-        	graph.addVertex(vertexFactory.create());
+        	graph.addVertex(vertexFactory.get());
         }
         List<V> vertices = new ArrayList<V>(graph.getVertices());
         while (graph.getEdgeCount() < mNumEdges) {
             V u = vertices.get((int) (mRandom.nextDouble() * mNumVertices));
             V v = vertices.get((int) (mRandom.nextDouble() * mNumVertices));
             if (!graph.isSuccessor(v,u)) {
-            	graph.addEdge(edgeFactory.create(), u, v);
+            	graph.addEdge(edgeFactory.get(), u, v);
             }
         }
 
@@ -83,7 +83,7 @@ public class EppsteinPowerLawGenerator<V,E> implements GraphGenerator<V,E> {
      * Generates a graph whose degree distribution approximates a power-law.
      * @return the generated graph
      */
-    public Graph<V,E> create() {
+    public Graph<V,E> get() {
         Graph<V,E> graph = initializeGraph();
 
         List<V> vertices = new ArrayList<V>(graph.getVertices());
@@ -111,7 +111,7 @@ public class EppsteinPowerLawGenerator<V,E> implements GraphGenerator<V,E> {
 
             if (!graph.isSuccessor(y,x) && x != y) {
                 graph.removeEdge(randomExistingEdge);
-                graph.addEdge(edgeFactory.create(), x, y);
+                graph.addEdge(edgeFactory.get(), x, y);
             }
         }
 

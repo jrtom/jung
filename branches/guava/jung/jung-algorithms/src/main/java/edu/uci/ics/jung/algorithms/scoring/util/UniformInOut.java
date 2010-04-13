@@ -11,7 +11,7 @@
  */
 package edu.uci.ics.jung.algorithms.scoring.util;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.EdgeType;
@@ -23,7 +23,7 @@ import edu.uci.ics.jung.graph.util.EdgeType;
  * Otherwise, assigns 1/indegree(w).
  * Throws <code>IllegalArgumentException</code> if the edge is not directed.
  */
-public class UniformInOut<V,E> implements Transformer<VEPair<V,E>, Double>
+public class UniformInOut<V,E> implements Function<VEPair<V,E>, Double>
 {
 	/**
 	 * The graph for which the edge weights are defined.
@@ -43,12 +43,12 @@ public class UniformInOut<V,E> implements Transformer<VEPair<V,E>, Double>
      * @see org.apache.commons.collections15.Transformer#transform(Object)
      * @throws IllegalArgumentException
      */
-    public Double transform(VEPair<V,E> ve_pair)
+    public Double apply(VEPair<V,E> ve_pair)
     {
     	V v = ve_pair.getV();
     	E e = ve_pair.getE();
     	if (graph.getEdgeType(e) != EdgeType.DIRECTED)
-    		throw new IllegalArgumentException("This transformer only" +
+    		throw new IllegalArgumentException("This Function only" +
     				" operates on directed edges");
     	return 1.0 / (graph.isSource(v, e) ? 
     			graph.outDegree(v) : 

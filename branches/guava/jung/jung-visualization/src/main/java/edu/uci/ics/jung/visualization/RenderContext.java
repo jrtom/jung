@@ -10,8 +10,8 @@ import javax.swing.CellRendererPane;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 
-import org.apache.commons.collections15.Predicate;
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 
 import edu.uci.ics.jung.algorithms.layout.GraphElementAccessor;
 import edu.uci.ics.jung.graph.Graph;
@@ -55,62 +55,62 @@ public interface RenderContext<V, E> {
 
     void setArrowPlacementTolerance(float arrow_placement_tolerance);
 
-    Transformer<Context<Graph<V,E>,E>,Shape> getEdgeArrowTransformer();
+    Function<? super Context<Graph<V,E>,E>,Shape> getEdgeArrowTransformer();
 
-    void setEdgeArrowTransformer(Transformer<Context<Graph<V,E>,E>,Shape> edgeArrowTransformer);
+    void setEdgeArrowTransformer(Function<? super Context<Graph<V,E>,E>,Shape> edgeArrowTransformer);
 
     Predicate<Context<Graph<V,E>,E>> getEdgeArrowPredicate() ;
 
     void setEdgeArrowPredicate(Predicate<Context<Graph<V,E>,E>> edgeArrowPredicate);
 
-    Transformer<E,Font> getEdgeFontTransformer();
+    Function<? super E,Font> getEdgeFontTransformer();
 
-    void setEdgeFontTransformer(Transformer<E,Font> edgeFontTransformer);
+    void setEdgeFontTransformer(Function<? super E,Font> edgeFontTransformer);
 
     Predicate<Context<Graph<V,E>,E>> getEdgeIncludePredicate();
 
     void setEdgeIncludePredicate(Predicate<Context<Graph<V,E>,E>> edgeIncludePredicate);
 
-    Transformer<Context<Graph<V,E>,E>,Number> getEdgeLabelClosenessTransformer();
+    Function<? super Context<Graph<V,E>,E>,Number> getEdgeLabelClosenessTransformer();
 
     void setEdgeLabelClosenessTransformer(
-    		Transformer<Context<Graph<V,E>,E>,Number> edgeLabelClosenessTransformer);
+    		Function<Context<Graph<V,E>,E>,Number> edgeLabelClosenessTransformer);
 
     EdgeLabelRenderer getEdgeLabelRenderer();
 
     void setEdgeLabelRenderer(EdgeLabelRenderer edgeLabelRenderer);
 
-    Transformer<E,Paint> getEdgeFillPaintTransformer();
+    Function<? super E,Paint> getEdgeFillPaintTransformer();
 
-    void setEdgeFillPaintTransformer(Transformer<E,Paint> edgePaintTransformer);
+    void setEdgeFillPaintTransformer(Function<? super E,Paint> edgePaintTransformer);
 
-    Transformer<E,Paint> getEdgeDrawPaintTransformer();
+    Function<? super E,Paint> getEdgeDrawPaintTransformer();
 
-    void setEdgeDrawPaintTransformer(Transformer<E,Paint> edgeDrawPaintTransformer);
+    void setEdgeDrawPaintTransformer(Function<? super E,Paint> edgeDrawPaintTransformer);
 
-    Transformer<E,Paint> getArrowDrawPaintTransformer();
+    Function<? super E,Paint> getArrowDrawPaintTransformer();
 
-    void setArrowDrawPaintTransformer(Transformer<E,Paint> arrowDrawPaintTransformer);
+    void setArrowDrawPaintTransformer(Function<? super E,Paint> arrowDrawPaintTransformer);
 
-    Transformer<E,Paint> getArrowFillPaintTransformer();
+    Function<? super E,Paint> getArrowFillPaintTransformer();
 
-    void setArrowFillPaintTransformer(Transformer<E,Paint> arrowFillPaintTransformer);
+    void setArrowFillPaintTransformer(Function<? super E,Paint> arrowFillPaintTransformer);
 
-    Transformer<Context<Graph<V,E>,E>,Shape> getEdgeShapeTransformer();
+    Function<? super Context<Graph<V,E>,E>,Shape> getEdgeShapeTransformer();
 
-    void setEdgeShapeTransformer(Transformer<Context<Graph<V,E>,E>,Shape> edgeShapeTransformer);
+    void setEdgeShapeTransformer(Function<? super Context<Graph<V,E>,E>,Shape> edgeShapeTransformer);
 
-    Transformer<E,String> getEdgeLabelTransformer();
+    Function<? super E,String> getEdgeLabelTransformer();
 
-    void setEdgeLabelTransformer(Transformer<E,String> edgeStringer);
+    void setEdgeLabelTransformer(Function<? super E,String> edgeStringer);
 
-    Transformer<E,Stroke> getEdgeStrokeTransformer();
+    Function<? super E,Stroke> getEdgeStrokeTransformer();
 
-    void setEdgeStrokeTransformer(Transformer<E,Stroke> edgeStrokeTransformer);
+    void setEdgeStrokeTransformer(Function<? super E,Stroke> edgeStrokeTransformer);
     
-    Transformer<E,Stroke> getEdgeArrowStrokeTransformer();
+    Function<? super E,Stroke> getEdgeArrowStrokeTransformer();
 
-    void setEdgeArrowStrokeTransformer(Transformer<E,Stroke> edgeArrowStrokeTransformer);
+    void setEdgeArrowStrokeTransformer(Function<? super E,Stroke> edgeArrowStrokeTransformer);
     
     GraphicsDecorator getGraphicsContext();
     
@@ -137,13 +137,13 @@ public interface RenderContext<V, E> {
 
     void setScreenDevice(JComponent screenDevice);
 
-    Transformer<V,Font> getVertexFontTransformer();
+    Function<? super V,Font> getVertexFontTransformer();
 
-    void setVertexFontTransformer(Transformer<V,Font> vertexFontTransformer);
+    void setVertexFontTransformer(Function<? super V,Font> vertexFontTransformer);
 
-    Transformer<V,Icon> getVertexIconTransformer();
+    Function<? super V,Icon> getVertexIconTransformer();
 
-    void setVertexIconTransformer(Transformer<V,Icon> vertexIconTransformer);
+    void setVertexIconTransformer(Function<? super V,Icon> vertexIconTransformer);
 
     Predicate<Context<Graph<V,E>,V>> getVertexIncludePredicate();
 
@@ -153,25 +153,25 @@ public interface RenderContext<V, E> {
 
     void setVertexLabelRenderer(VertexLabelRenderer vertexLabelRenderer);
 
-    Transformer<V,Paint> getVertexFillPaintTransformer();
+    Function<? super V,Paint> getVertexFillPaintTransformer();
 
-    void setVertexFillPaintTransformer(Transformer<V,Paint> vertexFillPaintTransformer);
+    void setVertexFillPaintTransformer(Function<? super V,Paint> vertexFillPaintTransformer);
 
-    Transformer<V,Paint> getVertexDrawPaintTransformer();
+    Function<? super V,Paint> getVertexDrawPaintTransformer();
 
-    void setVertexDrawPaintTransformer(Transformer<V,Paint> vertexDrawPaintTransformer);
+    void setVertexDrawPaintTransformer(Function<? super V,Paint> vertexDrawPaintTransformer);
 
-    Transformer<V,Shape> getVertexShapeTransformer();
+    Function<? super V,Shape> getVertexShapeTransformer();
 
-    void setVertexShapeTransformer(Transformer<V,Shape> vertexShapeTransformer);
+    void setVertexShapeTransformer(Function<? super V,Shape> vertexShapeTransformer);
 
-    Transformer<V,String> getVertexLabelTransformer();
+    Function<? super V,String> getVertexLabelTransformer();
 
-    void setVertexLabelTransformer(Transformer<V,String> vertexStringer);
+    void setVertexLabelTransformer(Function<? super V,String> vertexStringer);
 
-    Transformer<V,Stroke> getVertexStrokeTransformer();
+    Function<? super V,Stroke> getVertexStrokeTransformer();
 
-    void setVertexStrokeTransformer(Transformer<V,Stroke> vertexStrokeTransformer);
+    void setVertexStrokeTransformer(Function<? super V,Stroke> vertexStrokeTransformer);
 
 //    MutableTransformer getViewTransformer();
 
@@ -180,7 +180,7 @@ public interface RenderContext<V, E> {
     class DirectedEdgeArrowPredicate<V,E> 
     	implements Predicate<Context<Graph<V,E>,E>> {
 
-        public boolean evaluate(Context<Graph<V,E>,E> c) {
+        public boolean apply(Context<Graph<V,E>,E> c) {
             return c.graph.getEdgeType(c.element) == EdgeType.DIRECTED;
         }
         
@@ -190,7 +190,7 @@ public interface RenderContext<V, E> {
     	implements Predicate<Context<Graph<V,E>,E>> {
     	//extends AbstractGraphPredicate<V,E> {
 
-        public boolean evaluate(Context<Graph<V,E>,E> c) {
+        public boolean apply(Context<Graph<V,E>,E> c) {
             return c.graph.getEdgeType(c.element) == EdgeType.UNDIRECTED;
         }
         

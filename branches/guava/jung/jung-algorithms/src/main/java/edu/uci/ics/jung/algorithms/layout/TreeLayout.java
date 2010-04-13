@@ -18,8 +18,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.collections15.Transformer;
-import org.apache.commons.collections15.map.LazyMap;
+import com.google.common.base.Function;
+import com.google.common.collect.MapMaker;
 
 import edu.uci.ics.jung.graph.Forest;
 import edu.uci.ics.jung.graph.Graph;
@@ -38,11 +38,16 @@ public class TreeLayout<V,E> implements Layout<V,E> {
 	protected Map<V,Integer> basePositions = new HashMap<V,Integer>();
 
     protected Map<V, Point2D> locations = 
-    	LazyMap.decorate(new HashMap<V, Point2D>(),
-    			new Transformer<V,Point2D>() {
-					public Point2D transform(V arg0) {
-						return new Point2D.Double();
-					}});
+    	new MapMaker().makeComputingMap(new Function<V,Point2D>(){
+//			@Override
+			public Point2D apply(V arg0) {
+				return new Point2D.Double();
+			}});
+//    	LazyMap.decorate(new HashMap<V, Point2D>(),
+//    			new Function<V,Point2D>() {
+//					public Point2D transform(V arg0) {
+//						return new Point2D.Double();
+//					}});
     
     protected transient Set<V> alreadyDone = new HashSet<V>();
 
@@ -232,7 +237,7 @@ public class TreeLayout<V,E> implements Layout<V,E> {
 		}
 	}
 
-	public void setInitializer(Transformer<V, Point2D> initializer) {
+	public void setInitializer(Function<V, Point2D> initializer) {
 	}
 	
     /**
@@ -246,7 +251,7 @@ public class TreeLayout<V,E> implements Layout<V,E> {
 		locations.get(v).setLocation(location);
 	}
 	
-	public Point2D transform(V v) {
+	public Point2D apply(V v) {
 		return locations.get(v);
 	}
 }

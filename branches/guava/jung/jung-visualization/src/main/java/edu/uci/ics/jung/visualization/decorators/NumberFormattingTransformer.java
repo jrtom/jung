@@ -13,20 +13,20 @@ package edu.uci.ics.jung.visualization.decorators;
 
 import java.text.NumberFormat;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 /**
  * Transforms inputs to String representations by chaining an input 
- * {@code Number}-generating {@code Transformer} with an internal 
+ * {@code Number}-generating {@code Function} with an internal 
  * {@code NumberFormat} instance.
  * @author Joshua O'Madadhain
  */
-public class NumberFormattingTransformer<T> implements Transformer<T, String>
+public class NumberFormattingTransformer<T> implements Function<T, String>
 {
-    private Transformer<T, ? extends Number> values;
+    private Function<T, ? extends Number> values;
     private NumberFormat formatter = NumberFormat.getInstance();
     
-    public NumberFormattingTransformer(Transformer<T, ? extends Number> values)
+    public NumberFormattingTransformer(Function<T, ? extends Number> values)
     {
         this.values = values;
     }
@@ -34,9 +34,9 @@ public class NumberFormattingTransformer<T> implements Transformer<T, String>
     /**
      * Returns a formatted string for the input.
      */
-    public String transform(T input)
+    public String apply(T input)
     {
-        return formatter.format(values.transform(input));
+        return formatter.format(values.apply(input));
     }
 
 }

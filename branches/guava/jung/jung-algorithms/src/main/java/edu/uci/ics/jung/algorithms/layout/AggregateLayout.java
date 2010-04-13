@@ -16,7 +16,7 @@ import java.awt.geom.Point2D;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 import edu.uci.ics.jung.algorithms.util.IterativeContext;
 import edu.uci.ics.jung.graph.Graph;
@@ -176,7 +176,7 @@ public class AggregateLayout<V, E> implements Layout<V,E>, IterativeContext {
 	 * @param initializer
 	 * @see edu.uci.ics.jung.algorithms.layout.Layout#setInitializer(org.apache.commons.collections15.Transformer)
 	 */
-	public void setInitializer(Transformer<V, Point2D> initializer) {
+	public void setInitializer(Function<V, Point2D> initializer) {
 		delegate.setInitializer(initializer);
 	}
 
@@ -228,7 +228,7 @@ public class AggregateLayout<V, E> implements Layout<V,E>, IterativeContext {
 	 * @return the location of the vertex
 	 * @see org.apache.commons.collections15.Transformer#transform(java.lang.Object)
 	 */
-	public Point2D transform(V v) {
+	public Point2D apply(V v) {
 		boolean wasInSublayout = false;
 		for(Layout<V,E> layout : layouts.keySet()) {
 			if(layout.getGraph().getVertices().contains(v)) {
@@ -240,11 +240,11 @@ public class AggregateLayout<V, E> implements Layout<V,E>, IterativeContext {
 				AffineTransform at = 
 					AffineTransform.getTranslateInstance(center.getX()-d.width/2,
 							center.getY()-d.height/2);
-				return at.transform(layout.transform(v),null);
+				return at.transform(layout.apply(v),null);
 			}
 		}
 		if(wasInSublayout == false) {
-			return delegate.transform(v);
+			return delegate.apply(v);
 		}
 		return null;
 	

@@ -11,8 +11,8 @@
  */
 package edu.uci.ics.jung.visualization.decorators;
 
-import org.apache.commons.collections15.Transformer;
-import org.apache.commons.collections15.functors.ConstantTransformer;
+import com.google.common.base.Function;
+import com.google.common.base.Functions;
 
 import edu.uci.ics.jung.visualization.util.VertexShapeFactory;
 
@@ -24,33 +24,32 @@ import edu.uci.ics.jung.visualization.util.VertexShapeFactory;
  */
 public abstract class AbstractVertexShapeTransformer<V> implements SettableVertexShapeTransformer<V>
 {
-    protected Transformer<V,Integer> vsf;
-    protected Transformer<V,Float> varf;
+    protected Function<? super V,Integer> vsf;
+    protected Function<? super V,Float> varf;
     protected VertexShapeFactory<V> factory;
     public final static int DEFAULT_SIZE = 8;
     public final static float DEFAULT_ASPECT_RATIO = 1.0f;
     
-    public AbstractVertexShapeTransformer(Transformer<V,Integer> vsf, Transformer<V,Float> varf)
+    public AbstractVertexShapeTransformer(Function<? super V,Integer> vsf, Function<? super V,Float> varf)
     {
         this.vsf = vsf;
         this.varf = varf;
         factory = new VertexShapeFactory<V>(vsf, varf);
     }
 
-    @SuppressWarnings("unchecked")
 	public AbstractVertexShapeTransformer()
     {
-        this(new ConstantTransformer(DEFAULT_SIZE), 
-                new ConstantTransformer(DEFAULT_ASPECT_RATIO));
+        this(Functions.constant(DEFAULT_SIZE), 
+                Functions.constant(DEFAULT_ASPECT_RATIO));
     }
     
-    public void setSizeTransformer(Transformer<V,Integer> vsf)
+    public void setSizeTransformer(Function<V,Integer> vsf)
     {
         this.vsf = vsf;
         factory = new VertexShapeFactory<V>(vsf, varf);
     }
     
-    public void setAspectRatioTransformer(Transformer<V,Float> varf)
+    public void setAspectRatioTransformer(Function<V,Float> varf)
     {
         this.varf = varf;
         factory = new VertexShapeFactory<V>(vsf, varf);

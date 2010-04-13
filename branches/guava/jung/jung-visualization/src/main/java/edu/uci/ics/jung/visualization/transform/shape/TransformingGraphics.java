@@ -23,7 +23,7 @@ import edu.uci.ics.jung.visualization.transform.BidirectionalTransformer;
 
 
 /**
- * subclassed to pass certain operations thru the transformer
+ * subclassed to pass certain operations thru the Function
  * before the base class method is applied
  * This is useful when you want to apply non-affine transformations
  * to the Graphics2D used to draw elements of the graph.
@@ -35,7 +35,7 @@ import edu.uci.ics.jung.visualization.transform.BidirectionalTransformer;
 public class TransformingGraphics extends GraphicsDecorator {
     
     /**
-     * the transformer to apply
+     * the Function to apply
      */
     protected BidirectionalTransformer transformer;
     
@@ -43,23 +43,23 @@ public class TransformingGraphics extends GraphicsDecorator {
         this(transformer, null);
     }
     
-    public TransformingGraphics(BidirectionalTransformer transformer, Graphics2D delegate) {
+    public TransformingGraphics(BidirectionalTransformer Function, Graphics2D delegate) {
         super(delegate);
-        this.transformer = transformer;
+        this.transformer = Function;
     }
     
     /**
-     * @return Returns the transformer.
+     * @return Returns the Function.
      */
     public BidirectionalTransformer getTransformer() {
         return transformer;
     }
     
     /**
-     * @param transformer The transformer to set.
+     * @param Function The Function to set.
      */
-    public void setTransformer(BidirectionalTransformer transformer) {
-        this.transformer = transformer;
+    public void setTransformer(BidirectionalTransformer Function) {
+        this.transformer = Function;
     }
     
     /**

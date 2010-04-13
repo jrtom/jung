@@ -15,7 +15,7 @@ import java.util.Map;
 
 import javax.swing.Icon;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 /**
  * A simple, stateful VertexIconFunction.
@@ -25,7 +25,7 @@ import org.apache.commons.collections15.Transformer;
  *
  *
  */
-public class DefaultVertexIconTransformer<V> implements Transformer<V,Icon> {
+public class DefaultVertexIconTransformer<V> implements Function<V,Icon> {
      
     /**
      * icon storage
@@ -49,7 +49,7 @@ public class DefaultVertexIconTransformer<V> implements Transformer<V,Icon> {
     /**
      * Returns the <code>Icon</code> associated with <code>v</code>.
      */
-	public Icon transform(V v) {
+	public Icon apply(V v) {
 		return iconMap.get(v);
 	}
 }

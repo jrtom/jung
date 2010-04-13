@@ -11,10 +11,10 @@
  */
 package edu.uci.ics.jung.algorithms.scoring;
 
+import com.google.common.base.Function;
+
 import edu.uci.ics.jung.algorithms.scoring.util.ScoringUtils;
 import edu.uci.ics.jung.graph.Graph;
-
-import org.apache.commons.collections15.Transformer;
 
 /**
  * Assigns hub and authority scores to each vertex depending on the topology of
@@ -83,7 +83,7 @@ public class HITS<V,E> extends HITSWithPriors<V,E>
      * and of an authority increasing the score of all hubs (not just those connected
      * via links)
      */
-    public HITS(Graph<V,E> g, Transformer<E, Double> edge_weights, double alpha)
+    public HITS(Graph<V,E> g, Function<E, Double> edge_weights, double alpha)
     {
         super(g, edge_weights, ScoringUtils.getHITSUniformRootPrior(g.getVertices()), alpha);
     }

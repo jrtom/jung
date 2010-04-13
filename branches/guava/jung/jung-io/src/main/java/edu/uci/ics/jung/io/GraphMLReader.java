@@ -25,14 +25,15 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-import org.apache.commons.collections15.BidiMap;
-import org.apache.commons.collections15.Factory;
-import org.apache.commons.collections15.bidimap.DualHashBidiMap;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXNotSupportedException;
 import org.xml.sax.helpers.DefaultHandler;
+
+import com.google.common.base.Supplier;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 
 import edu.uci.ics.jung.algorithms.util.MapSettableTransformer;
 import edu.uci.ics.jung.algorithms.util.SettableTransformer;
@@ -79,12 +80,12 @@ public class GraphMLReader<G extends Hypergraph<V,E>, V, E> extends DefaultHandl
     protected E current_edge;
     protected String current_key;
     protected LinkedList<TagState> current_states;
-    protected BidiMap<String, TagState> tag_state;
-    protected Factory<G> graph_factory;
-    protected Factory<V> vertex_factory;
-    protected Factory<E> edge_factory;
-    protected BidiMap<V, String> vertex_ids;
-    protected BidiMap<E, String> edge_ids;
+    protected BiMap<String, TagState> tag_state;
+    protected Supplier<G> graph_factory;
+    protected Supplier<V> vertex_factory;
+    protected Supplier<E> edge_factory;
+    protected BiMap<V, String> vertex_ids;
+    protected BiMap<E, String> edge_ids;
     protected Map<String, GraphMLMetadata<G>> graph_metadata;
     protected Map<String, GraphMLMetadata<V>> vertex_metadata;
     protected Map<String, GraphMLMetadata<E>> edge_metadata;
@@ -102,24 +103,24 @@ public class GraphMLReader<G extends Hypergraph<V,E>, V, E> extends DefaultHandl
      * Creates a <code>GraphMLReader</code> instance with the specified
      * vertex and edge factories.
      *
-     * @param vertex_factory the vertex factory to use to create vertex objects
-     * @param edge_factory the edge factory to use to create edge objects
+     * @param vertex_factory the vertex Supplier to use to create vertex objects
+     * @param edge_factory the edge Supplier to use to create edge objects
      * @throws ParserConfigurationException
      * @throws SAXException
      */
-    public GraphMLReader(Factory<V> vertex_factory,
-    		Factory<E> edge_factory)
+    public GraphMLReader(Supplier<V> vertex_factory,
+    		Supplier<E> edge_factory)
         throws ParserConfigurationException, SAXException
     {
         current_vertex = null;
         current_edge = null;
 
-        SAXParserFactory factory = SAXParserFactory.newInstance();
-        saxp = factory.newSAXParser();
+        SAXParserFactory Supplier = SAXParserFactory.newInstance();
+        saxp = Supplier.newSAXParser();
 
         current_states = new LinkedList<TagState>();
 
-        tag_state = new DualHashBidiMap<String, TagState>();
+        tag_state = HashBiMap.<String, TagState>create();
         tag_state.put("node", TagState.VERTEX);
         tag_state.put("edge", TagState.EDGE);
         tag_state.put("hyperedge", TagState.HYPEREDGE);
@@ -154,10 +155,10 @@ public class GraphMLReader<G extends Hypergraph<V,E>, V, E> extends DefaultHandl
 
     /**
      * Returns a list of the graphs parsed from the specified reader, as created by
-     * the specified factory.
+     * the specified Supplier.
      * @throws IOException
      */
-    public List<G> loadMultiple(Reader reader, Factory<G> graph_factory)
+    public List<G> loadMultiple(Reader reader, Supplier<G> graph_factory)
         throws IOException
     {
         this.graph_factory = graph_factory;
@@ -170,10 +171,10 @@ public class GraphMLReader<G extends Hypergraph<V,E>, V, E> extends DefaultHandl
 
     /**
      * Returns a list of the graphs parsed from the specified file, as created by
-     * the specified factory.
+     * the specified Supplier.
      * @throws IOException
      */
-    public List<G> loadMultiple(String filename, Factory<G> graph_factory) throws IOException
+    public List<G> loadMultiple(String filename, Supplier<G> graph_factory) throws IOException
     {
         return loadMultiple(new FileReader(filename), graph_factory);
     }
@@ -220,11 +221,11 @@ public class GraphMLReader<G extends Hypergraph<V,E>, V, E> extends DefaultHandl
      */
     protected void initializeData()
     {
-        this.vertex_ids = new DualHashBidiMap<V, String>();
+        this.vertex_ids = HashBiMap.<V, String>create();
         this.vertex_desc = new HashMap<V, String>();
         this.vertex_metadata = new HashMap<String, GraphMLMetadata<V>>();
 
-        this.edge_ids = new DualHashBidiMap<E, String>();
+        this.edge_ids = HashBiMap.<E, String>create();
         this.edge_desc = new HashMap<E, String>();
         this.edge_metadata = new HashMap<String, GraphMLMetadata<E>>();
 
@@ -281,7 +282,7 @@ public class GraphMLReader<G extends Hypergraph<V,E>, V, E> extends DefaultHandl
                 String node = endpoint_atts.remove("node");
                 if (node == null)
                     throw new SAXNotSupportedException("Endpoint must include an 'id' attribute");
-                V v = vertex_ids.getKey(node);
+                V v = vertex_ids.inverse().get(node);
                 if (v == null)
                     throw new SAXNotSupportedException("Endpoint refers to nonexistent node ID: " + node);
 
@@ -303,9 +304,9 @@ public class GraphMLReader<G extends Hypergraph<V,E>, V, E> extends DefaultHandl
                 if (this.current_graph != null && graph_factory != null)
                     throw new SAXNotSupportedException("Nesting graphs not currently supported");
 
-                // graph factory is null if there's only one graph
+                // graph Supplier is null if there's only one graph
                 if (graph_factory != null)
-                    current_graph = graph_factory.create();
+                    current_graph = graph_factory.get();
 
                 // reset all non-key data structures (to avoid collisions between different graphs)
                 clearData();
@@ -430,7 +431,7 @@ public class GraphMLReader<G extends Hypergraph<V,E>, V, E> extends DefaultHandl
 
         if (state != current_states.getFirst())
             throw new SAXNotSupportedException("Unbalanced tags: opened " +
-            		tag_state.getKey(current_states.getFirst()) +
+            		tag_state.inverse().get(current_states.getFirst()) +
                     ", closed " + tag);
 
         switch(state)
@@ -654,12 +655,12 @@ public class GraphMLReader<G extends Hypergraph<V,E>, V, E> extends DefaultHandl
         if (id == null)
             throw new SAXNotSupportedException("node attribute list missing " +
             		"'id': " + atts.toString());
-        V v = vertex_ids.getKey(id);
+        V v = vertex_ids.inverse().get(id);
 
         if (v == null)
         {
         	if (vertex_factory != null)
-        		v = vertex_factory.create();
+        		v = vertex_factory.get();
         	else
         		v = (V)id;
             vertex_ids.put(v, id);
@@ -685,12 +686,12 @@ public class GraphMLReader<G extends Hypergraph<V,E>, V, E> extends DefaultHandl
         String id = edge_atts.remove("id");
         E e;
         if (edge_factory != null)
-        	e = edge_factory.create();
+        	e = edge_factory.get();
         else
             if (id != null)
                 e = (E)id;
             else
-                throw new IllegalArgumentException("If no edge factory is supplied, " +
+                throw new IllegalArgumentException("If no edge Supplier is supplied, " +
                 		"edge id may not be null: " + edge_atts);
 
         if (id != null)
@@ -718,7 +719,7 @@ public class GraphMLReader<G extends Hypergraph<V,E>, V, E> extends DefaultHandl
         if (source_id == null)
             throw new SAXNotSupportedException("edge attribute list missing " +
             		"'source': " + atts.toString());
-        V source = vertex_ids.getKey(source_id);
+        V source = vertex_ids.inverse().get(source_id);
         if (source == null)
             throw new SAXNotSupportedException("specified 'source' attribute " +
             		"\"" + source_id + "\" does not match any node ID");
@@ -727,7 +728,7 @@ public class GraphMLReader<G extends Hypergraph<V,E>, V, E> extends DefaultHandl
         if (target_id == null)
             throw new SAXNotSupportedException("edge attribute list missing " +
             		"'target': " + atts.toString());
-        V target = vertex_ids.getKey(target_id);
+        V target = vertex_ids.inverse().get(target_id);
         if (target == null)
             throw new SAXNotSupportedException("specified 'target' attribute " +
             		"\"" + target_id + "\" does not match any node ID");
@@ -754,7 +755,7 @@ public class GraphMLReader<G extends Hypergraph<V,E>, V, E> extends DefaultHandl
     /**
      * Returns a bidirectional map relating vertices and IDs.
      */
-    public BidiMap<V, String> getVertexIDs()
+    public BiMap<V, String> getVertexIDs()
     {
         return vertex_ids;
     }
@@ -764,7 +765,7 @@ public class GraphMLReader<G extends Hypergraph<V,E>, V, E> extends DefaultHandl
      * This is not guaranteed to always be populated (edge IDs are not
      * required in GraphML files.
      */
-    public BidiMap<E, String> getEdgeIDs()
+    public BiMap<E, String> getEdgeIDs()
     {
         return edge_ids;
     }

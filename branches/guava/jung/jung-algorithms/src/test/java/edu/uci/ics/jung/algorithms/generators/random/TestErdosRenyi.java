@@ -4,21 +4,23 @@ package edu.uci.ics.jung.algorithms.generators.random;
  * @author W. Giordano, Scott White
  */
 
-import org.apache.commons.collections15.Factory;
+import junit.framework.Assert;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
-import edu.uci.ics.jung.algorithms.generators.random.ErdosRenyiGenerator;
+import com.google.common.base.Supplier;
+
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.UndirectedGraph;
 import edu.uci.ics.jung.graph.UndirectedSparseMultigraph;
 
-import junit.framework.*;
-
 
 public class TestErdosRenyi extends TestCase {
 	
-	Factory<UndirectedGraph<String,Number>> graphFactory;
-	Factory<String> vertexFactory;
-	Factory<Number> edgeFactory;
+	Supplier<UndirectedGraph<String,Number>> graphFactory;
+	Supplier<String> vertexFactory;
+	Supplier<Number> edgeFactory;
 
 	public static Test suite() {
 		return new TestSuite(TestErdosRenyi.class);
@@ -26,21 +28,21 @@ public class TestErdosRenyi extends TestCase {
 
 	@Override
   protected void setUp() {
-		graphFactory = new Factory<UndirectedGraph<String,Number>>() {
-			public UndirectedGraph<String,Number> create() {
+		graphFactory = new Supplier<UndirectedGraph<String,Number>>() {
+			public UndirectedGraph<String,Number> get() {
 				return new UndirectedSparseMultigraph<String,Number>();
 			}
 		};
-		vertexFactory = new Factory<String>() {
+		vertexFactory = new Supplier<String>() {
 			int count;
-			public String create() {
+			public String get() {
 				return Character.toString((char)('A'+count++));
 			}
 		};
 		edgeFactory = 
-			new Factory<Number>() {
+			new Supplier<Number>() {
 			int count;
-			public Number create() {
+			public Number get() {
 				return count++;
 			}
 		};
@@ -56,7 +58,7 @@ public class TestErdosRenyi extends TestCase {
 					numVertices,0.1);
             generator.setSeed(0);
 
-			Graph<String,Number> graph = generator.create();
+			Graph<String,Number> graph = generator.get();
 			Assert.assertTrue(graph.getVertexCount() == numVertices);
             total += graph.getEdgeCount();
 		}

@@ -11,7 +11,7 @@
  */
 package edu.uci.ics.jung.algorithms.metrics;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 import edu.uci.ics.jung.graph.Graph;
 
@@ -39,14 +39,14 @@ import edu.uci.ics.jung.graph.Graph;
  */
 public class StructuralHoles<V,E> {
 	
-    protected Transformer<E, ? extends Number> edge_weight;
+    protected Function<E, ? extends Number> edge_weight;
     protected Graph<V,E> g;
     
     /**
      * Creates a <code>StructuralHoles</code> instance based on the 
      * edge weights specified by <code>nev</code>.
      */
-    public StructuralHoles(Graph<V,E> graph, Transformer<E, ? extends Number> nev) 
+    public StructuralHoles(Graph<V,E> graph, Function<E, ? extends Number> nev) 
     {
         this.g = graph;
         this.edge_weight = nev;
@@ -270,8 +270,8 @@ public class StructuralHoles<V,E> {
     {
         E e12 = g.findEdge(v1,v2);
         E e21 = g.findEdge(v2,v1);
-        double w12 = (e12 != null ? edge_weight.transform(e12).doubleValue() : 0);
-        double w21 = (e21 != null ? edge_weight.transform(e21).doubleValue() : 0);
+        double w12 = (e12 != null ? edge_weight.apply(e12).doubleValue() : 0);
+        double w21 = (e21 != null ? edge_weight.apply(e21).doubleValue() : 0);
         
         return w12 + w21;
     }

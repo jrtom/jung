@@ -26,7 +26,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -45,11 +44,10 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.apache.commons.collections15.Factory;
-import org.apache.commons.collections15.Transformer;
-import org.apache.commons.collections15.functors.ConstantTransformer;
-import org.apache.commons.collections15.functors.MapTransformer;
-import org.apache.commons.collections15.map.LazyMap;
+import com.google.common.base.Function;
+import com.google.common.base.Functions;
+import com.google.common.base.Supplier;
+import com.google.common.collect.MapMaker;
 
 import edu.uci.ics.jung.algorithms.cluster.EdgeBetweennessClusterer;
 import edu.uci.ics.jung.algorithms.layout.AggregateLayout;
@@ -80,11 +78,13 @@ public class ClusteringDemo extends JApplet {
 //	Factory<Graph<Number,Number>> graphFactory;
 	
 	Map<Number,Paint> vertexPaints = 
-		LazyMap.<Number,Paint>decorate(new HashMap<Number,Paint>(),
-				new ConstantTransformer(Color.white));
+		new MapMaker().makeComputingMap(Functions.<Paint>constant(Color.white));
+//		LazyMap.<Number,Paint>decorate(new HashMap<Number,Paint>(),
+//				Functions.constant(Color.white));
 	Map<Number,Paint> edgePaints =
-	LazyMap.<Number,Paint>decorate(new HashMap<Number,Paint>(),
-			new ConstantTransformer(Color.blue));
+		new MapMaker().makeComputingMap(Functions.<Paint>constant(Color.blue));
+//	LazyMap.<Number,Paint>decorate(new HashMap<Number,Paint>(),
+//			Functions.constant(Color.blue));
 
 	public final Color[] similarColors =
 	{
@@ -130,13 +130,13 @@ public class ClusteringDemo extends JApplet {
 
 	private void setUpView(BufferedReader br) throws IOException {
 		
-    	Factory<Number> vertexFactory = new Factory<Number>() {
+		Supplier<Number> vertexFactory = new Supplier<Number>() {
             int n = 0;
-            public Number create() { return n++; }
+            public Number get() { return n++; }
         };
-        Factory<Number> edgeFactory = new Factory<Number>()  {
+        Supplier<Number> edgeFactory = new Supplier<Number>()  {
             int n = 0;
-            public Number create() { return n++; }
+            public Number get() { return n++; }
         };
 
         PajekNetReader<Graph<Number, Number>, Number,Number> pnr = 
@@ -154,9 +154,9 @@ public class ClusteringDemo extends JApplet {
 		vv = new VisualizationViewer<Number,Number>(layout);
 		vv.setBackground( Color.white );
 		//Tell the renderer to use our own customized color rendering
-		vv.getRenderContext().setVertexFillPaintTransformer(MapTransformer.<Number,Paint>getInstance(vertexPaints));
-		vv.getRenderContext().setVertexDrawPaintTransformer(new Transformer<Number,Paint>() {
-			public Paint transform(Number v) {
+		vv.getRenderContext().setVertexFillPaintTransformer(Functions.<Number,Paint>forMap(vertexPaints));
+		vv.getRenderContext().setVertexDrawPaintTransformer(new Function<Number,Paint>() {
+			public Paint apply(Number v) {
 				if(vv.getPickedVertexState().isPicked(v)) {
 					return Color.cyan;
 				} else {
@@ -165,12 +165,12 @@ public class ClusteringDemo extends JApplet {
 			}
 		});
 
-		vv.getRenderContext().setEdgeDrawPaintTransformer(MapTransformer.<Number,Paint>getInstance(edgePaints));
+		vv.getRenderContext().setEdgeDrawPaintTransformer(Functions.<Number,Paint>forMap(edgePaints));
 
-		vv.getRenderContext().setEdgeStrokeTransformer(new Transformer<Number,Stroke>() {
+		vv.getRenderContext().setEdgeStrokeTransformer(new Function<Number,Stroke>() {
                 protected final Stroke THIN = new BasicStroke(1);
                 protected final Stroke THICK= new BasicStroke(2);
-                public Stroke transform(Number e)
+                public Stroke apply(Number e)
                 {
                     Paint c = edgePaints.get(e);
                     if (c == Color.LIGHT_GRAY)
@@ -284,7 +284,7 @@ public class ClusteringDemo extends JApplet {
 
 		EdgeBetweennessClusterer<Number,Number> clusterer =
 			new EdgeBetweennessClusterer<Number,Number>(numEdgesToRemove);
-		Set<Set<Number>> clusterSet = clusterer.transform(g);
+		Set<Set<Number>> clusterSet = clusterer.apply(g);
 		List<Number> edges = clusterer.getEdgesRemoved();
 
 		int i = 0;
@@ -319,8 +319,8 @@ public class ClusteringDemo extends JApplet {
 	
 	private void groupCluster(AggregateLayout<Number,Number> layout, Set<Number> vertices) {
 		if(vertices.size() < layout.getGraph().getVertexCount()) {
-			Point2D center = layout.transform(vertices.iterator().next());
-			Graph<Number,Number> subGraph = SparseMultigraph.<Number,Number>getFactory().create();
+			Point2D center = layout.apply(vertices.iterator().next());
+			Graph<Number,Number> subGraph = SparseMultigraph.<Number,Number>getFactory().get();
 			for(Number v : vertices) {
 				subGraph.addVertex(v);
 			}

@@ -19,7 +19,6 @@ import java.awt.image.BufferedImage;
 import java.awt.print.Printable;
 import java.awt.print.PrinterJob;
 import java.io.File;
-import java.util.HashMap;
 
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
@@ -34,9 +33,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 
-import org.apache.commons.collections15.Factory;
-import org.apache.commons.collections15.functors.MapTransformer;
-import org.apache.commons.collections15.map.LazyMap;
+import com.google.common.base.Functions;
+import com.google.common.base.Supplier;
+import com.google.common.collect.MapMaker;
 
 import edu.uci.ics.jung.algorithms.layout.AbstractLayout;
 import edu.uci.ics.jung.algorithms.layout.StaticLayout;
@@ -146,11 +145,14 @@ public class GraphEditorDemo extends JApplet implements Printable {
         vv =  new VisualizationViewer<Number,Number>(layout);
         vv.setBackground(Color.white);
 
-        vv.getRenderContext().setVertexLabelTransformer(MapTransformer.<Number,String>getInstance(
-        		LazyMap.<Number,String>decorate(new HashMap<Number,String>(), new ToStringLabeller<Number>())));
+        MapMaker mapMaker = new MapMaker();
+        vv.getRenderContext().setVertexLabelTransformer(Functions.<Object,String>forMap(
+        		mapMaker.<Object,String>makeComputingMap(new ToStringLabeller<Object>())));
+//        		LazyMap.<Number,String>decorate(new HashMap<Number,String>(), new ToStringLabeller<Number>())));
         
-        vv.getRenderContext().setEdgeLabelTransformer(MapTransformer.<Number,String>getInstance(
-        		LazyMap.<Number,String>decorate(new HashMap<Number,String>(), new ToStringLabeller<Number>())));
+        vv.getRenderContext().setEdgeLabelTransformer(Functions.<Object,String>forMap(
+        		mapMaker.makeComputingMap(new ToStringLabeller<Object>())));
+//        		LazyMap.<Number,String>decorate(new HashMap<Number,String>(), new ToStringLabeller<Number>())));
 
         vv.setVertexToolTipTransformer(vv.getRenderContext().getVertexLabelTransformer());
         
@@ -158,8 +160,8 @@ public class GraphEditorDemo extends JApplet implements Printable {
         Container content = getContentPane();
         final GraphZoomScrollPane panel = new GraphZoomScrollPane(vv);
         content.add(panel);
-        Factory<Number> vertexFactory = new VertexFactory();
-        Factory<Number> edgeFactory = new EdgeFactory();
+        Supplier<Number> vertexFactory = new VertexFactory();
+        Supplier<Number> edgeFactory = new EdgeFactory();
         
         final EditingModalGraphMouse<Number,Number> graphMouse = 
         	new EditingModalGraphMouse<Number,Number>(vv.getRenderContext(), vertexFactory, edgeFactory);
@@ -245,20 +247,20 @@ public class GraphEditorDemo extends JApplet implements Printable {
         }
     }
     
-    class VertexFactory implements Factory<Number> {
+    class VertexFactory implements Supplier<Number> {
 
     	int i=0;
 
-		public Number create() {
+		public Number get() {
 			return i++;
 		}
     }
     
-    class EdgeFactory implements Factory<Number> {
+    class EdgeFactory implements Supplier<Number> {
 
     	int i=0;
     	
-		public Number create() {
+		public Number get() {
 			return i++;
 		}
     }

@@ -18,16 +18,18 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
 
 import junit.framework.Assert;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import org.apache.commons.collections15.BidiMap;
-import org.apache.commons.collections15.Factory;
-import org.apache.commons.collections15.Transformer;
 import org.xml.sax.SAXException;
+
+import com.google.common.base.Function;
+import com.google.common.base.Supplier;
+import com.google.common.collect.BiMap;
 
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.Graph;
@@ -42,9 +44,9 @@ import edu.uci.ics.jung.graph.UndirectedSparseGraph;
 public class TestGraphMLReader extends TestCase
 {
 
-    Factory<Graph<Number, Number>> graphFactory;
-    Factory<Number> vertexFactory;
-    Factory<Number> edgeFactory;
+    Supplier<Graph<Number, Number>> graphFactory;
+    Supplier<Number> vertexFactory;
+    Supplier<Number> edgeFactory;
     GraphMLReader<Graph<Number, Number>, Number, Number> gmlreader;
 
     public static Test suite()
@@ -55,27 +57,27 @@ public class TestGraphMLReader extends TestCase
     @Override
     protected void setUp() throws ParserConfigurationException, SAXException
     {
-        graphFactory = new Factory<Graph<Number, Number>>()
+        graphFactory = new Supplier<Graph<Number, Number>>()
         {
-            public Graph<Number, Number> create()
+            public Graph<Number, Number> get()
             {
                 return new DirectedSparseMultigraph<Number, Number>();
             }
         };
-        vertexFactory = new Factory<Number>()
+        vertexFactory = new Supplier<Number>()
         {
             int n = 0;
 
-            public Number create()
+            public Number get()
             {
                 return n++;
             }
         };
-        edgeFactory = new Factory<Number>()
+        edgeFactory = new Supplier<Number>()
         {
             int n = 0;
 
-            public Number create()
+            public Number get()
             {
                 return n++;
             }
@@ -93,11 +95,11 @@ public class TestGraphMLReader extends TestCase
         Assert.assertEquals(graph.getVertexCount(), 3);
         Assert.assertEquals(graph.getEdgeCount(), 3);
 
-        BidiMap<Number, String> vertex_ids = gmlreader.getVertexIDs();
+        BiMap<Number, String> vertex_ids = gmlreader.getVertexIDs();
 
-        Number joe = vertex_ids.getKey("1");
-        Number bob = vertex_ids.getKey("2");
-        Number sue = vertex_ids.getKey("3");
+        Number joe = vertex_ids.inverse().get("1");
+        Number bob = vertex_ids.inverse().get("2");
+        Number sue = vertex_ids.inverse().get("3");
 
         Assert.assertNotNull(joe);
         Assert.assertNotNull(bob);
@@ -105,11 +107,11 @@ public class TestGraphMLReader extends TestCase
         
         Map<String, GraphMLMetadata<Number>> vertex_metadata = 
         	gmlreader.getVertexMetadata();
-        Transformer<Number, String> name = 
+        Function<Number, String> name = 
         	vertex_metadata.get("name").transformer;
-        Assert.assertEquals(name.transform(joe), "Joe");
-        Assert.assertEquals(name.transform(bob), "Bob");
-        Assert.assertEquals(name.transform(sue), "Sue");
+        Assert.assertEquals(name.apply(joe), "Joe");
+        Assert.assertEquals(name.apply(bob), "Bob");
+        Assert.assertEquals(name.apply(sue), "Sue");
 
         Assert.assertTrue(graph.isPredecessor(joe, bob));
         Assert.assertTrue(graph.isPredecessor(bob, joe));
@@ -131,7 +133,7 @@ public class TestGraphMLReader extends TestCase
         Assert.assertEquals(graph.getEdgeCount(), 7);
 
         // test vertex IDs
-        BidiMap<Number, String> vertex_ids = gmlreader.getVertexIDs();
+        BiMap<Number, String> vertex_ids = gmlreader.getVertexIDs();
         for (Map.Entry<Number, String> entry : vertex_ids.entrySet())
         {
             Assert.assertEquals(entry.getValue().charAt(0), 'n');
@@ -141,7 +143,7 @@ public class TestGraphMLReader extends TestCase
         }
 
         // test edge IDs
-        BidiMap<Number, String> edge_ids = gmlreader.getEdgeIDs();
+        BiMap<Number, String> edge_ids = gmlreader.getEdgeIDs();
         for (Map.Entry<Number, String> entry : edge_ids.entrySet())
         {
             Assert.assertEquals(entry.getValue().charAt(0), 'e');
@@ -163,26 +165,26 @@ public class TestGraphMLReader extends TestCase
 
         // test vertex colors
 //        Transformer<Number, String> vertex_color = vertex_data.get("d0");
-        Transformer<Number, String> vertex_color = 
+        Function<Number, String> vertex_color = 
         	vertex_metadata.get("d0").transformer;
-        Assert.assertEquals(vertex_color.transform(0), "green");
-        Assert.assertEquals(vertex_color.transform(1), "yellow");
-        Assert.assertEquals(vertex_color.transform(2), "blue");
-        Assert.assertEquals(vertex_color.transform(3), "red");
-        Assert.assertEquals(vertex_color.transform(4), "yellow");
-        Assert.assertEquals(vertex_color.transform(5), "turquoise");
+        Assert.assertEquals(vertex_color.apply(0), "green");
+        Assert.assertEquals(vertex_color.apply(1), "yellow");
+        Assert.assertEquals(vertex_color.apply(2), "blue");
+        Assert.assertEquals(vertex_color.apply(3), "red");
+        Assert.assertEquals(vertex_color.apply(4), "yellow");
+        Assert.assertEquals(vertex_color.apply(5), "turquoise");
 
         // test edge weights
 //        Transformer<Number, String> edge_weight = edge_data.get("d1");
-        Transformer<Number, String> edge_weight = 
+        Function<Number, String> edge_weight = 
         	edge_metadata.get("d1").transformer;
-        Assert.assertEquals(edge_weight.transform(0), "1.0");
-        Assert.assertEquals(edge_weight.transform(1), "1.0");
-        Assert.assertEquals(edge_weight.transform(2), "2.0");
-        Assert.assertEquals(edge_weight.transform(3), null);
-        Assert.assertEquals(edge_weight.transform(4), null);
-        Assert.assertEquals(edge_weight.transform(5), null);
-        Assert.assertEquals(edge_weight.transform(6), "1.1");
+        Assert.assertEquals(edge_weight.apply(0), "1.0");
+        Assert.assertEquals(edge_weight.apply(1), "1.0");
+        Assert.assertEquals(edge_weight.apply(2), "2.0");
+        Assert.assertEquals(edge_weight.apply(3), null);
+        Assert.assertEquals(edge_weight.apply(4), null);
+        Assert.assertEquals(edge_weight.apply(5), null);
+        Assert.assertEquals(edge_weight.apply(6), "1.1");
 
     }
 
@@ -255,7 +257,7 @@ public class TestGraphMLReader extends TestCase
         writer.write("</graph>\n");
         writer.close();
 
-        Graph<Number, Number> graph = graphFactory.create();
+        Graph<Number, Number> graph = graphFactory.get();
         gmlreader.load(testFilename, graph);
         return graph;
     }

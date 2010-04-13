@@ -1,6 +1,6 @@
 package edu.uci.ics.jung.io.graphml;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 import edu.uci.ics.jung.graph.Hypergraph;
 import edu.uci.ics.jung.graph.SetHypergraph;
@@ -8,16 +8,16 @@ import edu.uci.ics.jung.graph.UndirectedSparseGraph;
 
 public class DummyGraphObjectBase {
     
-    public static class UndirectedSparseGraphFactory implements Transformer<GraphMetadata, Hypergraph<DummyVertex, DummyEdge>> {
+    public static class UndirectedSparseGraphFactory implements Function<GraphMetadata, Hypergraph<DummyVertex, DummyEdge>> {
     
-        public Hypergraph<DummyVertex, DummyEdge> transform(GraphMetadata arg0) {
+        public Hypergraph<DummyVertex, DummyEdge> apply(GraphMetadata arg0) {
             return new UndirectedSparseGraph<DummyVertex, DummyEdge>();
         }
     }
     
-    public static class SetHypergraphFactory implements Transformer<GraphMetadata, Hypergraph<DummyVertex, DummyEdge>> {
+    public static class SetHypergraphFactory implements Function<GraphMetadata, Hypergraph<DummyVertex, DummyEdge>> {
         
-        public Hypergraph<DummyVertex, DummyEdge> transform(GraphMetadata arg0) {
+        public Hypergraph<DummyVertex, DummyEdge> apply(GraphMetadata arg0) {
             return new SetHypergraph<DummyVertex, DummyEdge>();
         }
     }

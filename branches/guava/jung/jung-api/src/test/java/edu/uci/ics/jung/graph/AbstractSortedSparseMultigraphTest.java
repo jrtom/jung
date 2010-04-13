@@ -7,7 +7,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.collections15.Factory;
+import com.google.common.base.Supplier;
 
 import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.graph.util.Pair;
@@ -19,27 +19,27 @@ public abstract class AbstractSortedSparseMultigraphTest extends TestCase {
 	protected Integer v0 = 0;
 	protected Integer v1 = 1;
 	protected Integer v2 = 2;
-	protected Number e01 = .1;
-	protected Number e10 = .2;
-	protected Number e12 = .3;
-	protected Number e21 = .4;
+	protected Double e01 = .1;
+	protected Double e10 = .2;
+	protected Double e12 = .3;
+	protected Double e21 = .4;
 
-	protected Factory<Number> vertexFactory = new Factory<Number>() {
+	protected Supplier<Number> vertexFactory = new Supplier<Number>() {
     	int v=0;
-		public Number create() {
+		public Number get() {
 			return v++;
 		}
     };
-    protected Factory<Number> edgeFactory = new Factory<Number>() {
-    	int e=0;
-		public Number create() {
+    protected Supplier<Double> edgeFactory = new Supplier<Double>() {
+    	double e=0;
+		public Double get() {
 			return e++;
 		}
     };
     
-    protected Graph<Number,Number> graph;
+    protected Graph<Integer,Double> graph;
     protected int vertexCount = 50;
-    protected Graph<Integer,Number> smallGraph;
+    protected Graph<Integer,Double> smallGraph;
 
     public void testGetEdges() {
         assertEquals(smallGraph.getEdgeCount(), 4);
@@ -60,7 +60,7 @@ public abstract class AbstractSortedSparseMultigraphTest extends TestCase {
     public void testRemoveEndVertex() {
         int vertexCount = graph.getVertexCount();
         int edgeCount = graph.getEdgeCount();
-        Collection<Number> incident = graph.getIncidentEdges(vertexCount-1);
+        Collection<Double> incident = graph.getIncidentEdges(vertexCount-1);
         graph.removeVertex(vertexCount-1);
         assertEquals(vertexCount-1, graph.getVertexCount());
         assertEquals(edgeCount - incident.size(), graph.getEdgeCount());
@@ -69,7 +69,7 @@ public abstract class AbstractSortedSparseMultigraphTest extends TestCase {
     public void testRemoveMiddleVertex() {
         int vertexCount = graph.getVertexCount();
         int edgeCount = graph.getEdgeCount();
-        Collection<Number> incident = graph.getIncidentEdges(vertexCount/2);
+        Collection<Double> incident = graph.getIncidentEdges(vertexCount/2);
         graph.removeVertex(vertexCount/2);
         assertEquals(vertexCount-1, graph.getVertexCount());
         assertEquals(edgeCount - incident.size(), graph.getEdgeCount());
@@ -77,13 +77,13 @@ public abstract class AbstractSortedSparseMultigraphTest extends TestCase {
 
     public void testAddEdge() {
         int edgeCount = graph.getEdgeCount();
-        graph.addEdge(edgeFactory.create(), 0, 1);
+        graph.addEdge(edgeFactory.get(), 0, 1);
         assertEquals(graph.getEdgeCount(), edgeCount+1);
     }
     
     public void testNullEndpoint() {
     	try {
-    		graph.addEdge(edgeFactory.create(), new Pair<Number>(1,null));
+    		graph.addEdge(edgeFactory.get(), new Pair<Integer>(1,null));
     		fail("should not be able to add an edge with a null endpoint");
     	} catch(IllegalArgumentException e) {
     		// all is well
@@ -92,25 +92,25 @@ public abstract class AbstractSortedSparseMultigraphTest extends TestCase {
 
 
     public void testRemoveEdge() {
-    	List<Number> edgeList = new ArrayList<Number>(graph.getEdges());
+    	List<Double> edgeList = new ArrayList<Double>(graph.getEdges());
         int edgeCount = graph.getEdgeCount();
         graph.removeEdge(edgeList.get(edgeList.size()/2));
         assertEquals(graph.getEdgeCount(), edgeCount-1);
     }
 
     public void testGetInOutEdges() {
-    	for(Number v : graph.getVertices()) {
-    		Collection<Number> incident = graph.getIncidentEdges(v);
-    		Collection<Number> in = graph.getInEdges(v);
-    		Collection<Number> out = graph.getOutEdges(v);
+    	for(Integer v : graph.getVertices()) {
+    		Collection<Double> incident = graph.getIncidentEdges(v);
+    		Collection<Double> in = graph.getInEdges(v);
+    		Collection<Double> out = graph.getOutEdges(v);
     		assertTrue(incident.containsAll(in));
     		assertTrue(incident.containsAll(out));
-    		for(Number e : in) {
+    		for(Double e : in) {
     			if(out.contains(e)) {
     				assertTrue(graph.getEdgeType(e) == EdgeType.UNDIRECTED);
     			}
     		}
-    		for(Number e : out) {
+    		for(Double e : out) {
     			if(in.contains(e)) {
     				assertTrue(graph.getEdgeType(e) == EdgeType.UNDIRECTED);
     			}
@@ -153,7 +153,7 @@ public abstract class AbstractSortedSparseMultigraphTest extends TestCase {
     }
 
     public void testIsDirected() {
-        for(Number edge : smallGraph.getEdges()) {
+        for(Double edge : smallGraph.getEdges()) {
         	if(edge == e21) {
         		assertEquals(smallGraph.getEdgeType(edge), EdgeType.DIRECTED);
         	} else {

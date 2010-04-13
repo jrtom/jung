@@ -11,13 +11,11 @@
 package edu.uci.ics.jung.visualization.layout;
 
 import java.awt.geom.Point2D;
-import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.collections15.Transformer;
-import org.apache.commons.collections15.functors.ChainedTransformer;
-import org.apache.commons.collections15.functors.CloneTransformer;
-import org.apache.commons.collections15.map.LazyMap;
+import com.google.common.base.Function;
+import com.google.common.base.Functions;
+import com.google.common.collect.MapMaker;
 
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.algorithms.layout.LayoutDecorator;
@@ -39,8 +37,16 @@ public class CachingLayout<V, E> extends LayoutDecorator<V,E> implements Caching
 
     public CachingLayout(Layout<V, E> delegate) {
     	super(delegate);
-    	this.locationMap = LazyMap.<V,Point2D>decorate(new HashMap<V,Point2D>(), 
-    			new ChainedTransformer<V, Point2D>(new Transformer[]{delegate, CloneTransformer.<Point2D>getInstance()}));
+    	this.locationMap = 
+    		new MapMaker().makeComputingMap(
+    				Functions.<V,Point2D,Point2D>compose(new Function<Point2D,Point2D>(){
+//						@Override
+						public Point2D apply(Point2D p) {
+							return (Point2D)p.clone();
+						}}, delegate)
+    		);
+    		//LazyMap.<V,Point2D>decorate(new HashMap<V,Point2D>(), 
+    		//	new ChainedTransformer<V, Point2D>(new Function[]{delegate, CloneTransformer.<Point2D>getInstance()}));
     }
     
     @Override
@@ -58,8 +64,8 @@ public class CachingLayout<V, E> extends LayoutDecorator<V,E> implements Caching
 	/* (non-Javadoc)
 	 * @see edu.uci.ics.jung.visualization.layout.LayoutDecorator#transform(java.lang.Object)
 	 */
-	@Override
-	public Point2D transform(V v) {
+//	@Override
+	public Point2D apply(V v) {
 		return locationMap.get(v);
 	}
 }

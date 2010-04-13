@@ -17,8 +17,8 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
 
-import org.apache.commons.collections15.Transformer;
-import org.apache.commons.collections15.functors.ConstantTransformer;
+import com.google.common.base.Function;
+import com.google.common.base.Functions;
 
 /**
  * A utility class for generating <code>Shape</code>s for drawing vertices.  
@@ -34,14 +34,14 @@ import org.apache.commons.collections15.functors.ConstantTransformer;
  */
 public class VertexShapeFactory<V>
 {
-    protected Transformer<V,Integer> vsf;
-    protected Transformer<V,Float> varf;
+    protected Function<? super V,Integer> vsf;
+    protected Function<? super V,Float> varf;
     
     /**
      * Creates a <code>VertexShapeFactory</code> with the specified 
      * vertex size and aspect ratio functions.
      */
-    public VertexShapeFactory(Transformer<V,Integer> vsf, Transformer<V,Float> varf)
+    public VertexShapeFactory(Function<? super V,Integer> vsf, Function<? super V,Float> varf)
     {
         this.vsf = vsf;
         this.varf = varf;
@@ -51,11 +51,10 @@ public class VertexShapeFactory<V>
      * Creates a <code>VertexShapeFactory</code> with a constant size of
      * 10 and a constant aspect ratio of 1.
      */
-    @SuppressWarnings("unchecked")
 	public VertexShapeFactory()
     {
-        this(new ConstantTransformer(10), 
-            new ConstantTransformer(1.0f));
+        this(Functions.constant(10), 
+            Functions.constant(1.0f));
     }
     
     private static final Rectangle2D theRectangle = new Rectangle2D.Float();
@@ -66,8 +65,8 @@ public class VertexShapeFactory<V>
      */
     public Rectangle2D getRectangle(V v)
     {
-        float width = vsf.transform(v);
-        float height = width * varf.transform(v);
+        float width = vsf.apply(v);
+        float height = width * varf.apply(v);
         float h_offset = -(width / 2);
         float v_offset = -(height / 2);
         theRectangle.setFrame(h_offset, v_offset, width, height);

@@ -41,12 +41,6 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>net.sourceforge.collections</groupId>
-      <artifactId>collections-generic</artifactId>
-      <version>4.01</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
       <groupId>colt</groupId>
       <artifactId>colt</artifactId>
       <version>1.2.0</version>

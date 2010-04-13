@@ -11,7 +11,7 @@
  */
 package edu.uci.ics.jung.algorithms.scoring;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 import edu.uci.ics.jung.algorithms.scoring.util.UniformDegreeWeight;
 import edu.uci.ics.jung.graph.Hypergraph;
@@ -43,8 +43,8 @@ public class PageRankWithPriors<V, E>
      * @param alpha the probability of executing a 'random jump' at each step
      */
     public PageRankWithPriors(Hypergraph<V,E> graph, 
-    		Transformer<E, ? extends Number> edge_weights, 
-            Transformer<V, Double> vertex_priors, double alpha)
+    		Function<E, ? extends Number> edge_weights, 
+            Function<V, Double> vertex_priors, double alpha)
     {
         super(graph, edge_weights, vertex_priors, alpha);
     }
@@ -58,7 +58,7 @@ public class PageRankWithPriors<V, E>
      * @param alpha the probability of executing a 'random jump' at each step
      */
     public PageRankWithPriors(Hypergraph<V,E> graph, 
-    		Transformer<V, Double> vertex_priors, double alpha)
+    		Function<V, Double> vertex_priors, double alpha)
     {
         super(graph, vertex_priors, alpha);
         this.edge_weights = new UniformDegreeWeight<V,E>(graph);

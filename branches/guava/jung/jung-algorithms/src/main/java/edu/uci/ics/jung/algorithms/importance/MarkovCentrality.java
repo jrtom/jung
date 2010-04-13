@@ -12,13 +12,14 @@ package edu.uci.ics.jung.algorithms.importance;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.collections15.BidiMap;
-import org.apache.commons.collections15.functors.MapTransformer;
-
 import cern.colt.matrix.DoubleMatrix1D;
 import cern.colt.matrix.DoubleMatrix2D;
 import cern.colt.matrix.impl.DenseDoubleMatrix1D;
 import cern.colt.matrix.impl.SparseDoubleMatrix1D;
+
+import com.google.common.base.Functions;
+import com.google.common.collect.BiMap;
+
 import edu.uci.ics.jung.algorithms.matrix.GraphMatrixOperations;
 import edu.uci.ics.jung.algorithms.scoring.PageRank;
 import edu.uci.ics.jung.algorithms.util.Indexer;
@@ -32,7 +33,7 @@ import edu.uci.ics.jung.graph.DirectedGraph;
 public class MarkovCentrality<V,E> extends RelativeAuthorityRanker<V,E> {
     public final static String MEAN_FIRST_PASSAGE_TIME = "jung.algorithms.importance.mean_first_passage_time";
     private DoubleMatrix1D mRankings;
-    private BidiMap<V,Integer> mIndexer;
+    private BiMap<V,Integer> mIndexer;
 
     public MarkovCentrality(DirectedGraph<V,E> graph, Set<V> rootNodes) {
         this(graph,rootNodes,null);
@@ -107,7 +108,7 @@ public class MarkovCentrality<V,E> extends RelativeAuthorityRanker<V,E> {
     private DoubleMatrix1D getStationaryDistribution() {
         DoubleMatrix1D piVector = new DenseDoubleMatrix1D(getVertexCount());
         PageRank<V,E> pageRank = new PageRank<V,E>(getGraph(), 
-                MapTransformer.getInstance(getEdgeWeights()), 0);
+                Functions.forMap(getEdgeWeights()), 0);
         pageRank.evaluate();
         
         for (V v : getGraph().getVertices())

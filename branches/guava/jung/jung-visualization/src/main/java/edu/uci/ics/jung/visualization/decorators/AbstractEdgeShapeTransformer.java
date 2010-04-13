@@ -11,7 +11,7 @@ package edu.uci.ics.jung.visualization.decorators;
 
 import java.awt.Shape;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.Context;
@@ -25,7 +25,7 @@ import edu.uci.ics.jung.graph.util.Context;
  *  
  * @author Tom Nelson
  */
-public abstract class AbstractEdgeShapeTransformer<V,E> implements Transformer<Context<Graph<V,E>,E>,Shape> {
+public abstract class AbstractEdgeShapeTransformer<V,E> implements Function<Context<Graph<V,E>,E>,Shape> {
 
     /**
      * Specifies how far apart to place the control points for edges being

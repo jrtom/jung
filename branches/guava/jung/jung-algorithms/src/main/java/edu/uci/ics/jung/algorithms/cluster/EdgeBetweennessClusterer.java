@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 import edu.uci.ics.jung.algorithms.scoring.BetweennessCentrality;
 import edu.uci.ics.jung.graph.Graph;
@@ -43,7 +43,7 @@ import edu.uci.ics.jung.graph.util.Pair;
  * @author Tom Nelson (converted to jung2)
  * @see "Community structure in social and biological networks by Michelle Girvan and Mark Newman"
  */
-public class EdgeBetweennessClusterer<V,E> implements Transformer<Graph<V,E>,Set<Set<V>>> {
+public class EdgeBetweennessClusterer<V,E> implements Function<Graph<V,E>,Set<Set<V>>> {
     private int mNumEdgesToRemove;
     private Map<E, Pair<V>> edges_removed;
 
@@ -61,7 +61,7 @@ public class EdgeBetweennessClusterer<V,E> implements Transformer<Graph<V,E>,Set
     * The more edges removed the smaller and more cohesive the clusters.
     * @param graph the graph
     */
-    public Set<Set<V>> transform(Graph<V,E> graph) {
+    public Set<Set<V>> apply(Graph<V,E> graph) {
                 
         if (mNumEdgesToRemove < 0 || mNumEdgesToRemove > graph.getEdgeCount()) {
             throw new IllegalArgumentException("Invalid number of edges passed in.");
@@ -84,7 +84,7 @@ public class EdgeBetweennessClusterer<V,E> implements Transformer<Graph<V,E>,Set
         }
 
         WeakComponentClusterer<V,E> wcSearch = new WeakComponentClusterer<V,E>();
-        Set<Set<V>> clusterSet = wcSearch.transform(graph);
+        Set<Set<V>> clusterSet = wcSearch.apply(graph);
 
         for (Map.Entry<E, Pair<V>> entry : edges_removed.entrySet())
         {

@@ -19,8 +19,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.collections15.Transformer;
-import org.apache.commons.collections15.functors.ConstantTransformer;
+import com.google.common.base.Function;
+import com.google.common.base.Functions;
 
 import edu.uci.ics.jung.algorithms.util.BasicMapEntry;
 import edu.uci.ics.jung.algorithms.util.MapBinaryHeap;
@@ -65,7 +65,7 @@ import edu.uci.ics.jung.graph.Hypergraph;
 public class DijkstraDistance<V,E> implements Distance<V>
 {
     protected Hypergraph<V,E> g;
-    protected Transformer<E,? extends Number> nev;
+    protected Function<? super E,? extends Number> nev;
     protected Map<V,SourceData> sourceMap;   // a map of source vertices to an instance of SourceData
     protected boolean cached;
     protected double max_distance;
@@ -81,7 +81,7 @@ public class DijkstraDistance<V,E> implements Distance<V>
      * @param nev   the class responsible for returning weights for edges
      * @param cached    specifies whether the results are to be cached
      */
-    public DijkstraDistance(Hypergraph<V,E> g, Transformer<E,? extends Number> nev, boolean cached) {
+    public DijkstraDistance(Hypergraph<V,E> g, Function<? super E,? extends Number> nev, boolean cached) {
         this.g = g;
         this.nev = nev;
         this.sourceMap = new HashMap<V,SourceData>();
@@ -98,7 +98,7 @@ public class DijkstraDistance<V,E> implements Distance<V>
      * @param g     the graph on which distances will be calculated
      * @param nev   the class responsible for returning weights for edges
      */
-    public DijkstraDistance(Hypergraph<V,E> g, Transformer<E,? extends Number> nev) {
+    public DijkstraDistance(Hypergraph<V,E> g, Function<? super E,? extends Number> nev) {
         this(g, nev, true);
     }
     
@@ -109,9 +109,8 @@ public class DijkstraDistance<V,E> implements Distance<V>
      * 
      * @param g     the graph on which distances will be calculated
      */ 
-    @SuppressWarnings("unchecked")
-    public DijkstraDistance(Hypergraph<V,E> g) {
-        this(g, new ConstantTransformer(1), true);
+    public DijkstraDistance(Graph<V,E> g) {
+        this(g, Functions.constant(1), true);
     }
 
     /**
@@ -122,9 +121,8 @@ public class DijkstraDistance<V,E> implements Distance<V>
      * @param g     the graph on which distances will be calculated
      * @param cached    specifies whether the results are to be cached
      */ 
-    @SuppressWarnings("unchecked")
-    public DijkstraDistance(Hypergraph<V,E> g, boolean cached) {
-        this(g, new ConstantTransformer(1), cached);
+    public DijkstraDistance(Graph<V,E> g, boolean cached) {
+        this(g, Functions.constant(1), cached);
     }
     
     /**
@@ -198,7 +196,7 @@ public class DijkstraDistance<V,E> implements Distance<V>
                 {
                     if (!sd.distances.containsKey(w))
                     {
-                        double edge_weight = nev.transform(e).doubleValue();
+                        double edge_weight = nev.apply(e).doubleValue();
                         if (edge_weight < 0)
                             throw new IllegalArgumentException("Edges weights must be non-negative");
                         double new_dist = v_dist + edge_weight;

@@ -17,7 +17,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.collections15.Factory;
+import com.google.common.base.Supplier;
 
 import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.graph.util.Pair;
@@ -32,14 +32,14 @@ public class UndirectedSparseGraph<V, E> extends AbstractTypedGraph<V, E>
 {
 
     /**
-     * Returns a {@code Factory} that creates an instance of this graph type.
-     * @param <V> the vertex type for the graph factory
-     * @param <E> the edge type for the graph factory
+     * Returns a {@code Supplier} that creates an instance of this graph type.
+     * @param <V> the vertex type for the graph Supplier
+     * @param <E> the edge type for the graph Supplier
      */
-    public static <V,E> Factory<UndirectedGraph<V,E>> getFactory() {
-        return new Factory<UndirectedGraph<V,E>> () {
+    public static <V,E> Supplier<UndirectedGraph<V,E>> getFactory() {
+        return new Supplier<UndirectedGraph<V,E>> () {
 
-            public UndirectedGraph<V,E> create() {
+            public UndirectedGraph<V,E> get() {
                 return new UndirectedSparseGraph<V,E>();
             }
         };

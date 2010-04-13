@@ -14,9 +14,8 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import org.apache.commons.collections15.Factory;
+import com.google.common.base.Supplier;
 
-import edu.uci.ics.jung.algorithms.generators.random.EppsteinPowerLawGenerator;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.SparseMultigraph;
 
@@ -25,9 +24,9 @@ import edu.uci.ics.jung.graph.SparseMultigraph;
  */
 public class TestEppsteinPowerLawGenerator extends TestCase {
 	
-	Factory<Graph<Integer,Number>> graphFactory;
-	Factory<Integer> vertexFactory;
-	Factory<Number> edgeFactory;
+	Supplier<Graph<Integer,Number>> graphFactory;
+	Supplier<Integer> vertexFactory;
+	Supplier<Number> edgeFactory;
 
 	public static Test suite() {
 		return new TestSuite(TestEppsteinPowerLawGenerator.class);
@@ -35,21 +34,21 @@ public class TestEppsteinPowerLawGenerator extends TestCase {
 
 	@Override
   protected void setUp() {
-		graphFactory = new Factory<Graph<Integer,Number>>() {
-			public Graph<Integer,Number> create() {
+		graphFactory = new Supplier<Graph<Integer,Number>>() {
+			public Graph<Integer,Number> get() {
 				return new SparseMultigraph<Integer,Number>();
 			}
 		};
-		vertexFactory = new Factory<Integer>() {
+		vertexFactory = new Supplier<Integer>() {
 			int count;
-			public Integer create() {
+			public Integer get() {
 				return count++;
 			}
 		};
 		edgeFactory = 
-			new Factory<Number>() {
+			new Supplier<Number>() {
 			int count;
-			public Number create() {
+			public Number get() {
 				return count++;
 			}
 		};
@@ -62,7 +61,7 @@ public class TestEppsteinPowerLawGenerator extends TestCase {
             	new EppsteinPowerLawGenerator<Integer, Number>(graphFactory, vertexFactory, edgeFactory, 10,40,r);
             generator.setSeed(2);
 
-            Graph<Integer, Number> graph = generator.create();
+            Graph<Integer, Number> graph = generator.get();
             Assert.assertEquals(graph.getVertexCount(),10);
             Assert.assertEquals(graph.getEdgeCount(),40);
         }
