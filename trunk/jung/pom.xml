@@ -1,0 +1,281 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>net.sf.jung</groupId>
+	<artifactId>jung2</artifactId>
+	<packaging>pom</packaging>
+	<version>2.0.2-SNAPSHOT</version>
+	<name>jung2</name>
+	<url>http://jung.sourceforge.net/site</url>
+	<licenses>
+		<license>
+			<name>The BSD License</name>
+			<url>http://jung.sourceforge.net/license.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+	<scm>
+		<url>http://jung.cvs.sourceforge.net/jung/jung2</url>
+		<developerConnection>scm:cvs:ext:tomnelson@jung.cvs.sourceforge.net:/cvsroot/jung:jung2</developerConnection>
+		<tag>${cvsTag}</tag>
+	</scm>
+	<description>
+		JUNG the Java Universal Network/Graph Framework--is a software
+		library that provides a common and extendible language for the
+		modeling, analysis, and visualization of data that can be
+		represented as a graph or network. It is written in Java, which
+		allows JUNG-based applications to make use of the extensive
+		built-in capabilities of the Java API, as well as those of other
+		existing third-party Java libraries. The JUNG architecture is
+		designed to support a variety of representations of entities and
+		their relations, such as directed and undirected graphs,
+		multi-modal graphs, graphs with parallel edges, and hypergraphs.
+		It provides a mechanism for annotating graphs, entities, and
+		relations with metadata. This facilitates the creation of
+		analytic tools for complex data sets that can examine the
+		relations between entities as well as the metadata attached to
+		each entity and relation. The current distribution of JUNG
+		includes implementations of a number of algorithms from graph
+		theory, data mining, and social network analysis, such as
+		routines for clustering, decomposition, optimization, random
+		graph generation, statistical analysis, and calculation of
+		network distances, flows, and importance measures (centrality,
+		PageRank, HITS, etc.). JUNG also provides a visualization
+		framework that makes it easy to construct tools for the
+		interactive exploration of network data. Users can use one of
+		the layout algorithms provided, or use the framework to create
+		their own custom layouts. In addition, filtering mechanisms are
+		provided which allow users to focus their attention, or their
+		algorithms, on specific portions of the graph.
+	</description>
+
+	<developers>
+
+		<developer>
+			<id>eflat</id>
+			<name>Joshua</name>
+			<email>e-flat@sf.net</email>
+			<url>http://www.ics.uci.edu/~jmadden/</url>
+			<organization>Google</organization>
+			<organizationUrl>http://www.google.com</organizationUrl>
+			<timezone>-8</timezone>
+			<roles>
+				<role>Owner</role>
+				<role>Developer</role>
+			</roles>
+		</developer>
+
+		<developer>
+			<id>offkey</id>
+			<name>Danyel</name>
+			<email>offkey@sf.net</email>
+			<url />
+			<organization>Microsoft Research</organization>
+			<organizationUrl>
+				http://research.microsoft.com
+			</organizationUrl>
+			<timezone>-8</timezone>
+			<roles>
+				<role>Owner</role>
+				<role>Developer</role>
+			</roles>
+		</developer>
+
+		<developer>
+			<id>tomnelson</id>
+			<name>Tom</name>
+			<email>tomnelson@sf.net</email>
+			<url />
+			<organization>ICCI</organization>
+			<organizationUrl>
+				http://www.intergratedcc.com
+			</organizationUrl>
+			<timezone>-5</timezone>
+			<roles>
+				<role>Developer</role>
+			</roles>
+		</developer>
+		<!--  
+			<developer>
+			<id>jason</id>
+			<name>Jason</name>
+			<email>jason@sf.net</email>
+			<url />
+			<organization>BAH</organization>
+			<organizationUrl />
+			<timezone>-4</timezone>
+			<roles>
+			<role>Developer</role>
+			</roles>
+			</developer>
+		-->
+	</developers>
+	<mailingLists>
+		<mailingList>
+			<name>jung-support</name>
+			<subscribe>
+				https://lists.sourceforge.net/lists/listinfo/jung-support
+			</subscribe>
+		</mailingList>
+		<!--
+			<mailingList>
+			<name>open discussion</name>
+			<subscribe>https://sourceforge.net/forum/forum.php?forum_id=252062&f_feedback=1</subscribe>
+			</mailingList>
+		-->
+	</mailingLists>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.0</version>
+				<configuration>
+					<source>1.5</source>
+					<target>1.5</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-source-plugin</artifactId>
+				<groupId>org.apache.maven.plugins</groupId>
+				<configuration>
+					<includePom>true</includePom>
+				</configuration>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+	<reporting>
+		<plugins>
+			<plugin><!-- generates aggregated javadoc for root project -->
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<groupId>org.apache.maven.plugins</groupId>
+				<version>2.0</version>
+				<configuration>
+					<aggregate>true</aggregate>
+					<links>
+						<link>
+							http://java.sun.com/javaee/5/docs/api
+						</link>
+						<link>
+							http://java.sun.com/j2se/1.5.0/docs/api
+						</link>
+					</links>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-surefire-report-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>cobertura-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<artifactId>maven-pmd-plugin</artifactId>
+				<configuration>
+					<targetJdk>1.5</targetJdk>
+					<linkXref>true</linkXref>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-jxr-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</reporting>
+
+	<distributionManagement>
+                <repository>
+                  <id>jung.sf.net</id>
+                  <name>sourceforge staging repo</name>
+                  <url>${sfRepoUrl}</url>
+                </repository>
+		<site>
+			<id>jung.sf.net</id>
+			<url>
+				${sfSiteUrl}
+			</url>
+		</site>
+	</distributionManagement>
+
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>3.8.1</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+    <!--  maven profiles are used to control what gets built. The default is to build the awt/swing version
+          by specifying properties, you can build other versions:
+          mvn install -Dj3d   - will build the java3d/jai version
+          mvn install -Dall   - will build everything (CAUTION: This will result in a set of incompatible libraries)
+    -->
+	<profiles>
+		<profile>
+			<id>all</id>
+			<activation>
+				<property>
+					<name>all</name>
+				</property>
+			</activation>
+			<modules>
+				<module>jung-api</module>
+				<module>jung-graph-impl</module>
+				<module>jung-algorithms</module>
+				<module>jung-io</module>
+				<module>jung-visualization</module>
+				<module>jung-samples</module>
+				<module>jung-jai</module>
+				<module>jung-jai-samples</module>
+				<module>jung-3d</module>
+				<module>jung-3d-demos</module>
+			</modules>
+		</profile>
+		<profile>
+		<!--  build the awt/swing version - this is the default -->
+			<id>awt</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<modules>
+				<module>jung-api</module>
+				<module>jung-graph-impl</module>
+				<module>jung-algorithms</module>
+				<module>jung-io</module>
+				<module>jung-visualization</module>
+				<module>jung-samples</module>
+			</modules>
+		</profile>
+		<profile>
+		<!--  build the java3d/jai version (still experimental) -->
+			<id>j3d</id>
+			<activation>
+				<property>
+					<name>j3d</name>
+				</property>
+			</activation>
+			<modules>
+				<module>jung-api</module>
+				<module>jung-graph-impl</module>
+				<module>jung-algorithms</module>
+				<module>jung-io</module>
+				<module>jung-visualization</module>
+				<module>jung-samples</module>
+				<module>jung-jai</module>
+				<module>jung-jai-samples</module>
+				<module>jung-3d</module>
+				<module>jung-3d-demos</module>
+			</modules>
+		</profile>
+	</profiles>
+</project>
