@@ -1,0 +1,16 @@
+<projectDescription>
+  <name>jung-algorithms</name>
+  <comment>Algorithms for the jung2 project</comment>
+  <projects>
+    <project>jung-api</project>
+    <project>jung-graph-impl</project>
+  </projects>
+  <buildSpec>
+    <buildCommand>
+      <name>org.eclipse.jdt.core.javabuilder</name>
+    </buildCommand>
+  </buildSpec>
+  <natures>
+    <nature>org.eclipse.jdt.core.javanature</nature>
+  </natures>
+</projectDescription>

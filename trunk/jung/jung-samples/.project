@@ -1,0 +1,20 @@
+<projectDescription>
+  <name>jung-samples</name>
+  <comment>Sample programs using jung2. Nearly all jung2 capabilities are demonstrated here.
+  Please study the source code for these examples prior to asking how to do something.</comment>
+  <projects>
+    <project>jung-algorithms</project>
+    <project>jung-api</project>
+    <project>jung-graph-impl</project>
+    <project>jung-io</project>
+    <project>jung-visualization</project>
+  </projects>
+  <buildSpec>
+    <buildCommand>
+      <name>org.eclipse.jdt.core.javabuilder</name>
+    </buildCommand>
+  </buildSpec>
+  <natures>
+    <nature>org.eclipse.jdt.core.javanature</nature>
+  </natures>
+</projectDescription>
