@@ -1,0 +1,49 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>jung</groupId>
+  <artifactId>jung-api</artifactId>
+  <packaging>jar</packaging>
+  <version>2.0-beta1</version>
+  <url>http://jung.sourceforge.net/site/jung-api</url>
+  <name>jung-api</name>
+  <description>
+  Graph interfaces used by the jung2 project
+  </description>
+  
+  <parent>
+    <groupId>jung.app</groupId>
+    <artifactId>app</artifactId>
+    <version>2.0-beta1</version>
+  </parent>
+  <build>
+   	<plugins>
+ 	  <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+ 	  <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+		<executions>
+		  <execution>
+		    <goals>
+		      <goal>test-jar</goal>
+		    </goals>
+		  </execution>
+		</executions>
+      </plugin>
+    </plugins>
+  </build>
+  <dependencies>
+      <dependency>
+      <groupId>net.sourceforge.collections</groupId>
+      <artifactId>collections-generic</artifactId>
+      <version>4.01</version>
+		<scope>compile</scope>      
+    </dependency>
+  </dependencies>
+
+</project>
