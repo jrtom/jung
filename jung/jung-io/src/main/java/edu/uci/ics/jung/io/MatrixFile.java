@@ -12,14 +12,6 @@
  *
  */
 package edu.uci.ics.jung.io;
-import cern.colt.matrix.DoubleMatrix2D;
-import cern.colt.matrix.impl.SparseDoubleMatrix2D;
-
-import edu.uci.ics.jung.algorithms.matrix.GraphMatrixOperations;
-import edu.uci.ics.jung.graph.Graph;
-
-import org.apache.commons.collections15.Factory;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileReader;
@@ -29,6 +21,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
+
+import cern.colt.matrix.DoubleMatrix2D;
+import cern.colt.matrix.impl.SparseDoubleMatrix2D;
+
+import com.google.common.base.Supplier;
+
+import edu.uci.ics.jung.algorithms.matrix.GraphMatrixOperations;
+import edu.uci.ics.jung.graph.Graph;
 
 /**
  * Basic I/O handler for ascii matrix files. An ascii matrix is simply
@@ -69,17 +69,17 @@ import java.util.StringTokenizer;
 public class MatrixFile<V,E> implements GraphFile<V,E> {
 	private Map<E,Number> mWeightKey;
 
-	Factory<? extends Graph<V,E>> graphFactory;
-	Factory<V> vertexFactory;
-	Factory<E> edgeFactory;
+	Supplier<? extends Graph<V,E>> graphFactory;
+	Supplier<V> vertexFactory;
+	Supplier<E> edgeFactory;
 
 	/**
 	 * Constructs MatrixFile instance. If weightKey is not null then, it will
 	 * attempt to use that key to store and retreive weights from the edges'
 	 * UserData.
 	 */
-	public MatrixFile(Map<E, Number> weightKey, Factory<? extends Graph<V, E>> graphFactory,
-			Factory<V> vertexFactory, Factory<E> edgeFactory) {
+	public MatrixFile(Map<E, Number> weightKey, Supplier<? extends Graph<V, E>> graphFactory,
+			Supplier<V> vertexFactory, Supplier<E> edgeFactory) {
 
 		mWeightKey = weightKey;
 		this.graphFactory = graphFactory;

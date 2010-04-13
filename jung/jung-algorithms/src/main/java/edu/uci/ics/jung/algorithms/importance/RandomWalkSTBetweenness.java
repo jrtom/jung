@@ -9,9 +9,10 @@
  */
 package edu.uci.ics.jung.algorithms.importance;
 
-import org.apache.commons.collections15.BidiMap;
-
 import cern.colt.matrix.DoubleMatrix2D;
+
+import com.google.common.collect.BiMap;
+
 import edu.uci.ics.jung.algorithms.matrix.GraphMatrixOperations;
 import edu.uci.ics.jung.algorithms.util.Indexer;
 import edu.uci.ics.jung.graph.UndirectedGraph;
@@ -38,7 +39,7 @@ public class RandomWalkSTBetweenness<V,E> extends AbstractRanker<V,E> {
 
     public static final String CENTRALITY = "centrality.RandomWalkSTBetweennessCentrality";
     private DoubleMatrix2D mVoltageMatrix;
-    private BidiMap<V,Integer> mIndexer;
+    private BiMap<V,Integer> mIndexer;
     V mSource;
     V mTarget;
 
@@ -54,7 +55,7 @@ public class RandomWalkSTBetweenness<V,E> extends AbstractRanker<V,E> {
         mTarget = t;
     }
 
-    protected BidiMap<V,Integer> getIndexer() {
+    protected BiMap<V,Integer> getIndexer() {
         return mIndexer;
     }
 

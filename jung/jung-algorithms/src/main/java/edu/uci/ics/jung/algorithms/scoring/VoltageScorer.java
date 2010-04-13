@@ -16,7 +16,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 import edu.uci.ics.jung.algorithms.scoring.util.UniformDegreeWeight;
 import edu.uci.ics.jung.graph.Hypergraph;
@@ -60,7 +60,7 @@ public class VoltageScorer<V, E> extends AbstractIterativeScorer<V, E, Double>
      * @param source_voltages the (fixed) voltage for each source
      * @param sinks the vertices whose voltages are tied to 0
      */
-    public VoltageScorer(Hypergraph<V, E> g, Transformer<E, ? extends Number> edge_weights, 
+    public VoltageScorer(Hypergraph<V, E> g, Function<? super E, ? extends Number> edge_weights, 
             Map<V, ? extends Number> source_voltages, Collection<V> sinks)
     {
         super(g, edge_weights);
@@ -77,7 +77,7 @@ public class VoltageScorer<V, E> extends AbstractIterativeScorer<V, E, Double>
      * @param sources the vertices whose voltages are tied to 1
      * @param sinks the vertices whose voltages are tied to 0
      */
-    public VoltageScorer(Hypergraph<V, E> g, Transformer<E, ? extends Number> edge_weights, 
+    public VoltageScorer(Hypergraph<V, E> g, Function<? super E, ? extends Number> edge_weights, 
             Collection<V> sources, Collection<V> sinks)
     {
         super(g, edge_weights);
@@ -137,7 +137,7 @@ public class VoltageScorer<V, E> extends AbstractIterativeScorer<V, E, Double>
      * @param source the vertex whose voltage is tied to 1
      * @param sink the vertex whose voltage is tied to 0
      */
-    public VoltageScorer(Hypergraph<V,E> g, Transformer<E, ? extends Number> edge_weights, 
+    public VoltageScorer(Hypergraph<V,E> g, Function<? super E, ? extends Number> edge_weights, 
     		V source, V sink)
     {
         this(g, edge_weights, Collections.singletonMap(source, 1.0), Collections.singletonList(sink));

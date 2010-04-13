@@ -20,7 +20,7 @@ import java.awt.geom.Point2D;
 
 import javax.swing.ToolTipManager;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.visualization.control.GraphMouseListener;
@@ -36,9 +36,9 @@ import edu.uci.ics.jung.visualization.control.MouseListenerTranslator;
 @SuppressWarnings("serial")
 public class VisualizationViewer<V,E> extends BasicVisualizationServer<V,E> {
 
-	protected Transformer<V,String> vertexToolTipTransformer;
-	protected Transformer<E,String> edgeToolTipTransformer;
-	protected Transformer<MouseEvent,String> mouseEventToolTipTransformer;
+	protected Function<? super V,String> vertexToolTipTransformer;
+	protected Function<E,String> edgeToolTipTransformer;
+	protected Function<MouseEvent,String> mouseEventToolTipTransformer;
 	
     /**
      * provides MouseListener, MouseMotionListener, and MouseWheelListener
@@ -90,7 +90,6 @@ public class VisualizationViewer<V,E> extends BasicVisualizationServer<V,E> {
 	 * @param renderer
 	 * @param preferredSize initial preferred size of the view
 	 */
-	@SuppressWarnings("unchecked")
     public VisualizationViewer(VisualizationModel<V,E> model,
 	        Dimension preferredSize) {
         super(model, preferredSize);
@@ -160,7 +159,7 @@ public class VisualizationViewer<V,E> extends BasicVisualizationServer<V,E> {
 	 * @param edgeToolTipTransformer the edgeToolTipTransformer to set
 	 */
 	public void setEdgeToolTipTransformer(
-			Transformer<E, String> edgeToolTipTransformer) {
+			Function<E, String> edgeToolTipTransformer) {
 		this.edgeToolTipTransformer = edgeToolTipTransformer;
 		ToolTipManager.sharedInstance().registerComponent(this);
 	}
@@ -169,7 +168,7 @@ public class VisualizationViewer<V,E> extends BasicVisualizationServer<V,E> {
 	 * @param mouseEventToolTipTransformer the mouseEventToolTipTransformer to set
 	 */
 	public void setMouseEventToolTipTransformer(
-			Transformer<MouseEvent, String> mouseEventToolTipTransformer) {
+			Function<MouseEvent, String> mouseEventToolTipTransformer) {
 		this.mouseEventToolTipTransformer = mouseEventToolTipTransformer;
 		ToolTipManager.sharedInstance().registerComponent(this);
 	}
@@ -178,7 +177,7 @@ public class VisualizationViewer<V,E> extends BasicVisualizationServer<V,E> {
 	 * @param vertexToolTipTransformer the vertexToolTipTransformer to set
 	 */
 	public void setVertexToolTipTransformer(
-			Transformer<V, String> vertexToolTipTransformer) {
+			Function<? super V, String> vertexToolTipTransformer) {
 		this.vertexToolTipTransformer = vertexToolTipTransformer;
 		ToolTipManager.sharedInstance().registerComponent(this);
 	}
@@ -194,18 +193,18 @@ public class VisualizationViewer<V,E> extends BasicVisualizationServer<V,E> {
             	//renderContext.getBasicTransformer().inverseViewTransform(event.getPoint());
             V vertex = getPickSupport().getVertex(layout, p.getX(), p.getY());
             if(vertex != null) {
-            	return vertexToolTipTransformer.transform(vertex);
+            	return vertexToolTipTransformer.apply(vertex);
             }
         }
         if(edgeToolTipTransformer != null) {
         	if(p == null) p = renderContext.getMultiLayerTransformer().inverseTransform(Layer.VIEW, event.getPoint());
             E edge = getPickSupport().getEdge(layout, p.getX(), p.getY());
             if(edge != null) {
-            	return edgeToolTipTransformer.transform(edge);
+            	return edgeToolTipTransformer.apply(edge);
             }
         }
         if(mouseEventToolTipTransformer != null) {
-        	return mouseEventToolTipTransformer.transform(event);
+        	return mouseEventToolTipTransformer.apply(event);
         }
         return super.getToolTipText(event);
     }

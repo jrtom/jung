@@ -17,7 +17,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import org.apache.commons.collections15.Factory;
+import com.google.common.base.Supplier;
 
 import edu.uci.ics.jung.algorithms.scoring.util.ScoringUtils;
 import edu.uci.ics.jung.graph.DirectedGraph;
@@ -32,7 +32,7 @@ public class TestPageRankWithPriors extends TestCase {
 
 //	private Map<Integer,Number> edgeWeights;
 	private DirectedGraph<Integer,Integer> graph;
-	private Factory<Integer> edgeFactory;
+	private Supplier<Integer> edgeFactory;
 
     public static Test suite() {
         return new TestSuite(TestPageRankWithPriors.class);
@@ -41,16 +41,16 @@ public class TestPageRankWithPriors extends TestCase {
     @Override
     protected void setUp() {
 //    	edgeWeights = new HashMap<Integer,Number>();
-    	edgeFactory = new Factory<Integer>() {
+    	edgeFactory = new Supplier<Integer>() {
     		int i=0;
-			public Integer create() {
+			public Integer get() {
 				return i++;
 			}};
     }
 
     private void addEdge(Graph<Integer, Integer> G, Integer v1, Integer v2)
     {
-    	Integer edge = edgeFactory.create();
+    	Integer edge = edgeFactory.get();
     	graph.addEdge(edge, v1, v2);
 //    	edgeWeights.put(edge, weight);
     }

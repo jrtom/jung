@@ -43,9 +43,8 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.plaf.basic.BasicLabelUI;
 
-import org.apache.commons.collections15.Transformer;
-import org.apache.commons.collections15.TransformerUtils;
-import org.apache.commons.collections15.functors.ConstantTransformer;
+import com.google.common.base.Function;
+import com.google.common.base.Functions;
 
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
@@ -143,8 +142,8 @@ public class LensDemo extends JApplet {
 
         Dimension preferredSize = new Dimension(600,600);
         Map<String,Point2D> map = new HashMap<String,Point2D>();
-        Transformer<String,Point2D> vlf =
-        	TransformerUtils.mapTransformer(map);
+        Function<String,Point2D> vlf =
+        	Functions.forMap(map);
         grid = this.generateVertexGrid(map, preferredSize, 25);
         gridLayout = new StaticLayout<String,Number>(grid, vlf, preferredSize);
         
@@ -160,9 +159,9 @@ public class LensDemo extends JApplet {
         
         vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
         
-        final Transformer<String,Shape> ovals = vv.getRenderContext().getVertexShapeTransformer();
-        final Transformer<String,Shape> squares = 
-        	new ConstantTransformer(new Rectangle2D.Float(-10,-10,20,20));
+        final Function<? super String,Shape> ovals = vv.getRenderContext().getVertexShapeTransformer();
+        final Function<? super String,Shape> squares = 
+        	Functions.<Shape>constant(new Rectangle2D.Float(-10,-10,20,20));
 
         // add a listener for ToolTips
         vv.setVertexToolTipTransformer(new ToStringLabeller());
@@ -293,7 +292,7 @@ public class LensDemo extends JApplet {
                 if(e.getStateChange() == ItemEvent.SELECTED) {
                     visualizationModel.setGraphLayout(gridLayout);
                     vv.getRenderContext().setVertexShapeTransformer(squares);
-                    vv.getRenderContext().setVertexLabelTransformer(new ConstantTransformer(null));
+                    vv.getRenderContext().setVertexLabelTransformer(Functions.<String>constant(null));
                     vv.repaint();
                 }
             }});

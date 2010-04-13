@@ -17,7 +17,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.apache.commons.collections15.Predicate;
+import com.google.common.base.Predicate;
 
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.EdgeIndexFunction;
@@ -49,7 +49,7 @@ public class PredicatedParallelEdgeIndexFunction<V,E> implements EdgeIndexFuncti
      */
     public int getIndex(Graph<V,E> graph, E e) {
     	
-    	if(predicate.evaluate(e)) {
+    	if(predicate.apply(e)) {
     		return 0;
     	}
         Integer index = edge_index.get(e);

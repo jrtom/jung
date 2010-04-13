@@ -21,18 +21,18 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-//import org.apache.commons.collections15.Factory;
-import org.apache.commons.collections15.Transformer;
+import javax.xml.transform.Transformer;
+
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Test;
+
+import com.google.common.base.Function;
 
 import edu.uci.ics.jung.graph.Hypergraph;
 import edu.uci.ics.jung.graph.SetHypergraph;
 import edu.uci.ics.jung.graph.util.EdgeType;
-//import edu.uci.ics.jung.io.GraphMLReader;
 import edu.uci.ics.jung.io.GraphIOException;
-
-import org.junit.After;
-import org.junit.Test;
 
 public class TestGraphMLReader2 {
     static final String graphMLDocStart = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
@@ -273,32 +273,32 @@ public class TestGraphMLReader2 {
     @Test
     public void testHypergraphFile() throws Exception {
 
-        Transformer<GraphMetadata, Hypergraph<Number, Number>> graphFactory = new Transformer<GraphMetadata, Hypergraph<Number, Number>>() {
-            public Hypergraph<Number, Number> transform(GraphMetadata md) {
+        Function<GraphMetadata, Hypergraph<Number, Number>> graphFactory = new Function<GraphMetadata, Hypergraph<Number, Number>>() {
+            public Hypergraph<Number, Number> apply(GraphMetadata md) {
                 return new SetHypergraph<Number, Number>();
             }
         };
 
-        Transformer<NodeMetadata, Number> vertexFactory = new Transformer<NodeMetadata, Number>() {
+        Function<NodeMetadata, Number> vertexFactory = new Function<NodeMetadata, Number>() {
             int n = 0;
 
-            public Number transform(NodeMetadata md) {
+            public Number apply(NodeMetadata md) {
                 return n++;
             }
         };
 
-        Transformer<EdgeMetadata, Number> edgeFactory = new Transformer<EdgeMetadata, Number>() {
+        Function<EdgeMetadata, Number> edgeFactory = new Function<EdgeMetadata, Number>() {
             int n = 100;
 
-            public Number transform(EdgeMetadata md) {
+            public Number apply(EdgeMetadata md) {
                 return n++;
             }
         };
 
-        Transformer<HyperEdgeMetadata, Number> hyperEdgeFactory = new Transformer<HyperEdgeMetadata, Number>() {
+        Function<HyperEdgeMetadata, Number> hyperEdgeFactory = new Function<HyperEdgeMetadata, Number>() {
             int n = 0;
 
-            public Number transform(HyperEdgeMetadata md) {
+            public Number apply(HyperEdgeMetadata md) {
                 return n++;
             }
         };
@@ -423,7 +423,7 @@ public class TestGraphMLReader2 {
         System.out.println();
     }*/
 
-    private Hypergraph<DummyVertex, DummyEdge> readGraph(String xml, Transformer<GraphMetadata, Hypergraph<DummyVertex, DummyEdge>> gf,
+    private Hypergraph<DummyVertex, DummyEdge> readGraph(String xml, Function<GraphMetadata, Hypergraph<DummyVertex, DummyEdge>> gf,
                                                  DummyVertex.Factory nf, DummyEdge.EdgeFactory ef, DummyEdge.HyperEdgeFactory hef)
             throws GraphIOException {
         Reader fileReader = new StringReader(xml);
@@ -433,7 +433,7 @@ public class TestGraphMLReader2 {
         return reader.readGraph();
     }
 
-    private Hypergraph<DummyVertex, DummyEdge> readGraphFromFile(String file, Transformer<GraphMetadata, Hypergraph<DummyVertex, DummyEdge>> gf,
+    private Hypergraph<DummyVertex, DummyEdge> readGraphFromFile(String file, Function<GraphMetadata, Hypergraph<DummyVertex, DummyEdge>> gf,
             DummyVertex.Factory nf, DummyEdge.EdgeFactory ef, DummyEdge.HyperEdgeFactory hef)
             throws Exception {
         InputStream is = getClass().getResourceAsStream(file);

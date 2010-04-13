@@ -63,7 +63,7 @@ public class TwoModelDemo extends JApplet {
     VisualizationViewer<String,Number> vv2;
     
     /**
-     * the normal transformer
+     * the normal Function
      */
     MutableTransformer layoutTransformer;
     
@@ -96,11 +96,11 @@ public class TwoModelDemo extends JApplet {
         vv2 = new VisualizationViewer<String,Number>(vm2, preferredSize);
         vv1.setRenderContext(vv2.getRenderContext());
         
-        // share the model transformer between the two models
+        // share the model Function between the two models
 //        layoutTransformer = vv1.getLayoutTransformer();
 //        vv2.setLayoutTransformer(layoutTransformer);
 //        
-//        // share the view transformer between the two models
+//        // share the view Function between the two models
 //        vv2.setViewTransformer(vv1.getViewTransformer());
         
         vv2.getRenderContext().setMultiLayerTransformer(vv1.getRenderContext().getMultiLayerTransformer());
@@ -140,7 +140,7 @@ public class TwoModelDemo extends JApplet {
         vv1.setGraphMouse(gm1);
         vv2.setGraphMouse(gm2);
 
-        // create zoom buttons for scaling the transformer that is
+        // create zoom buttons for scaling the Function that is
         // shared between the two models.
         final ScalingControl scaler = new CrossoverScalingControl();
 

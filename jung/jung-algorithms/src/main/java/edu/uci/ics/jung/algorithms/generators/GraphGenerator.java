@@ -9,7 +9,7 @@
 */
 package edu.uci.ics.jung.algorithms.generators;
 
-import org.apache.commons.collections15.Factory;
+import com.google.common.base.Supplier;
 
 import edu.uci.ics.jung.graph.Graph;
 
@@ -17,4 +17,5 @@ import edu.uci.ics.jung.graph.Graph;
  * An interface for algorithms that generate graphs.
  * @author Scott White
  */
-public interface GraphGenerator<V, E> extends Factory<Graph<V,E>>{ }
+public interface GraphGenerator<V, E> extends Supplier<Graph<V,E>>{ }
+

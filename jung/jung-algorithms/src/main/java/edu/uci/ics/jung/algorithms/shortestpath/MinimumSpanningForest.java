@@ -6,9 +6,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.collections15.Factory;
-import org.apache.commons.collections15.functors.ConstantTransformer;
-import org.apache.commons.collections15.map.LazyMap;
+import com.google.common.base.Functions;
+import com.google.common.base.Supplier;
+import com.google.common.collect.MapMaker;
 
 import edu.uci.ics.jung.graph.Forest;
 import edu.uci.ics.jung.graph.Graph;
@@ -31,7 +31,7 @@ public class MinimumSpanningForest<V,E> {
 	protected Map<E,Double> weights;
 	
 	/**
-	 * Creates a Forest from the supplied Graph and supplied Factory, which
+	 * Creates a Forest from the supplied Graph and supplied Supplier, which
 	 * is used to create a new, empty Forest. If non-null, the supplied root
 	 * will be used as the root of the tree/forest. If the supplied root is
 	 * null, or not present in the Graph, then an arbitrary Graph vertex
@@ -40,13 +40,13 @@ public class MinimumSpanningForest<V,E> {
 	 * Graph, then a leftover vertex is selected as a root, and another
 	 * tree is created.
 	 * @param graph the input graph
-	 * @param factory the factory to use to create the new forest
+	 * @param Supplier the Supplier to use to create the new forest
 	 * @param root the vertex of the graph to be used as the root of the forest 
 	 * @param weights edge weights
 	 */
-	public MinimumSpanningForest(Graph<V, E> graph, Factory<Forest<V,E>> factory, 
+	public MinimumSpanningForest(Graph<V, E> graph, Supplier<Forest<V,E>> Supplier, 
 			V root, Map<E, Double> weights) {
-		this(graph, factory.create(), root, weights);
+		this(graph, Supplier.get(), root, weights);
 	}
 	
 	/**
@@ -92,7 +92,6 @@ public class MinimumSpanningForest<V,E> {
      * @param forest the Forest to populate. Must be empty
      * @param root first Tree root, may be null
      */
-    @SuppressWarnings("unchecked")
     public MinimumSpanningForest(Graph<V, E> graph, Forest<V,E> forest, 
             V root) {
         
@@ -101,8 +100,9 @@ public class MinimumSpanningForest<V,E> {
         }
         this.graph = graph;
         this.forest = forest;
-        this.weights = LazyMap.decorate(new HashMap<E,Double>(),
-                new ConstantTransformer(1.0));
+        this.weights = new MapMaker().makeComputingMap(Functions.constant(1.0));
+        	//LazyMap.decorate(new HashMap<E,Double>(),
+               // Functions.constant(1.0));
         Set<E> unfinishedEdges = new HashSet<E>(graph.getEdges());
         if(graph.getVertices().contains(root)) {
             this.forest.addVertex(root);

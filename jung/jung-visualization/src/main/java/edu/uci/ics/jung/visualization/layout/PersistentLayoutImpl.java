@@ -18,13 +18,12 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.collections15.Factory;
-import org.apache.commons.collections15.map.LazyMap;
+import com.google.common.base.Function;
+import com.google.common.collect.MapMaker;
 
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.visualization.util.Caching;
@@ -65,7 +64,9 @@ public class PersistentLayoutImpl<V, E> extends ObservableCachingLayout<V,E>
      */
     public PersistentLayoutImpl(Layout<V,E> layout) {
         super(layout);
-        this.map = LazyMap.decorate(new HashMap<V,Point>(), new RandomPointFactory(getSize()));
+        this.map = 
+        	new MapMaker().makeComputingMap(new RandomPointFactory<V>(getSize()));
+//        	LazyMap.decorate(new HashMap<V,Point>(), new RandomPointFactory(getSize()));
 
         this.dontmove = new HashSet<V>();
     }
@@ -77,7 +78,7 @@ public class PersistentLayoutImpl<V, E> extends ObservableCachingLayout<V,E>
      */
     protected void initializeLocations() {
         for(V v : getGraph().getVertices()) {
-            Point2D coord = delegate.transform(v);
+            Point2D coord = delegate.apply(v);
             if (!dontmove.contains(v))
                 initializeLocation(v, coord, getSize());
         }
@@ -158,13 +159,13 @@ public class PersistentLayoutImpl<V, E> extends ObservableCachingLayout<V,E>
     }
     
     @SuppressWarnings("serial")
-	public static class RandomPointFactory implements Factory<Point>, Serializable {
+	public static class RandomPointFactory<V> implements Function<V,Point>, Serializable {
 
     	Dimension d;
     	public RandomPointFactory(Dimension d) {
     		this.d = d;
     	}
-		public edu.uci.ics.jung.visualization.layout.PersistentLayout.Point create() {
+		public edu.uci.ics.jung.visualization.layout.PersistentLayout.Point apply(V v) {
 	            double x = Math.random() * d.width;
 	            double y = Math.random() * d.height;
 				return new Point(x,y);

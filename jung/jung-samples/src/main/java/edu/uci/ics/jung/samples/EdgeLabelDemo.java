@@ -35,7 +35,7 @@ import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 import edu.uci.ics.jung.algorithms.layout.CircleLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
@@ -109,8 +109,8 @@ public class EdgeLabelDemo extends JApplet {
         vertexLabelRenderer = vv.getRenderContext().getVertexLabelRenderer();
         edgeLabelRenderer = vv.getRenderContext().getEdgeLabelRenderer();
         
-        Transformer<Number,String> stringer = new Transformer<Number,String>(){
-            public String transform(Number e) {
+        Function<Number,String> stringer = new Function<Number,String>(){
+            public String apply(Number e) {
                 return "Edge:"+graph.getEndpoints(e).toString();
             }
         };

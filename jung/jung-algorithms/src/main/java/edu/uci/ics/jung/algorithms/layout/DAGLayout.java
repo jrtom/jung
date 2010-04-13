@@ -149,7 +149,7 @@ public class DAGLayout<V, E> extends SpringLayout<V,E> {
 	public void setSize(Dimension size) {
 		super.setSize(size);
 		for(V v : getGraph().getVertices()) {
-			initializeLocation(v,transform(v),getSize());
+			initializeLocation(v,apply(v),getSize());
 		}
 	}
 
@@ -179,7 +179,7 @@ public class DAGLayout<V, E> extends SpringLayout<V,E> {
 				if (isLocked(v))
 					continue;
 				SpringLayout.SpringVertexData vd = springVertexData.get(v);
-				Point2D xyd = transform(v);
+				Point2D xyd = apply(v);
 
 				int width = getSize().width;
 				int height = getSize().height;
@@ -263,7 +263,7 @@ public class DAGLayout<V, E> extends SpringLayout<V,E> {
 	 */
 	@Override
 	public void setLocation(V picked, double x, double y) {
-		Point2D coord = transform(picked);
+		Point2D coord = apply(picked);
 		coord.setLocation(x,y);
 		stoppingIncrements = false;
 	}
@@ -274,7 +274,7 @@ public class DAGLayout<V, E> extends SpringLayout<V,E> {
 	 */
 	@Override
 	public void setLocation(V picked, Point2D p) {
-		Point2D coord = transform(picked);
+		Point2D coord = apply(picked);
 		coord.setLocation(p);
 		stoppingIncrements = false;
 	}
@@ -291,8 +291,8 @@ public class DAGLayout<V, E> extends SpringLayout<V,E> {
 			V v1 = endpoints.getFirst();
 			V v2 = endpoints.getSecond();
 
-			Point2D p1 = transform(v1);
-			Point2D p2 = transform(v2);
+			Point2D p1 = apply(v1);
+			Point2D p2 = apply(v2);
 			double vx = p1.getX() - p2.getX();
 			double vy = p1.getY() - p2.getY();
 			double len = Math.sqrt(vx * vx + vy * vy);
@@ -305,7 +305,7 @@ public class DAGLayout<V, E> extends SpringLayout<V,E> {
 
 			// desiredLen *= Math.pow( 1.1, (v1.degree() + v2.degree()) );
 //          double desiredLen = getLength(e);
-			double desiredLen = lengthFunction.transform(e);
+			double desiredLen = lengthFunction.apply(e);
 
 			// round from zero, if needed [zero would be Bad.].
 			len = (len == 0) ? .0001 : len;

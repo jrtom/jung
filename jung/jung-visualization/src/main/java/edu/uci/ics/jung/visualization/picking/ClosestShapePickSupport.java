@@ -91,7 +91,7 @@ public class ClosestShapePickSupport<V,E> implements GraphElementAccessor<V,E> {
 		    {
                 for(V v : layout.getGraph().getVertices()) 
                 {
-		            Point2D p = layout.transform(v);
+		            Point2D p = layout.apply(v);
 		            double dx = p.getX() - x;
 		            double dy = p.getY() - y;
 		            double dist = dx * dx + dy * dy;
@@ -109,9 +109,9 @@ public class ClosestShapePickSupport<V,E> implements GraphElementAccessor<V,E> {
 		// now check to see whether (x,y) is in the shape for this vertex.
 		
 		// get the vertex shape
-        Shape shape = vv.getRenderContext().getVertexShapeTransformer().transform(closest);
+        Shape shape = vv.getRenderContext().getVertexShapeTransformer().apply(closest);
         // get the vertex location
-        Point2D p = layout.transform(closest);
+        Point2D p = layout.apply(closest);
         // transform the vertex location to screen coords
         p = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, p);
         

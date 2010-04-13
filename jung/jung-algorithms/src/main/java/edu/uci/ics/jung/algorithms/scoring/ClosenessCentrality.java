@@ -11,7 +11,7 @@
  */
 package edu.uci.ics.jung.algorithms.scoring;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 import edu.uci.ics.jung.algorithms.shortestpath.Distance;
 import edu.uci.ics.jung.graph.Hypergraph;
@@ -39,7 +39,7 @@ public class ClosenessCentrality<V,E> extends DistanceCentralityScorer<V,E>
      * @param graph the input graph
      * @param edge_weights the edge weights to be used to determine vertex/vertex distances
      */
-    public ClosenessCentrality(Hypergraph<V,E> graph, Transformer<E, ? extends Number> edge_weights)
+    public ClosenessCentrality(Hypergraph<V,E> graph, Function<E, ? extends Number> edge_weights)
     {
         super(graph, edge_weights, true);
     }

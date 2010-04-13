@@ -13,24 +13,24 @@ package edu.uci.ics.jung.visualization.decorators;
 
 import java.awt.Shape;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 /**
  * 
  * @author Joshua O'Madadhain
  */
 public class EllipseVertexShapeTransformer<V> extends AbstractVertexShapeTransformer<V>
-	implements Transformer<V,Shape>
+	implements Function<V,Shape>
 {
     public EllipseVertexShapeTransformer() 
     {
     }
-    public EllipseVertexShapeTransformer(Transformer<V,Integer> vsf, Transformer<V,Float> varf)
+    public EllipseVertexShapeTransformer(Function<V,Integer> vsf, Function<V,Float> varf)
     {
         super(vsf, varf);
     }
     
-    public Shape transform(V v)
+    public Shape apply(V v)
     {
         return factory.getEllipse(v);
     }

@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-import org.apache.commons.collections15.Factory;
+import com.google.common.base.Supplier;
 
 import edu.uci.ics.jung.algorithms.generators.Lattice2DGenerator;
 import edu.uci.ics.jung.algorithms.util.WeightedChoice;
@@ -45,8 +45,8 @@ public class KleinbergSmallWorldGenerator<V, E> extends Lattice2DGenerator<V, E>
      * @param latticeSize
      * @param clusteringExponent
      */
-    public KleinbergSmallWorldGenerator(Factory<? extends Graph<V,E>> graph_factory, Factory<V> vertex_factory, 
-            Factory<E> edge_factory, int latticeSize, double clusteringExponent) 
+    public KleinbergSmallWorldGenerator(Supplier<? extends Graph<V,E>> graph_factory, Supplier<V> vertex_factory, 
+            Supplier<E> edge_factory, int latticeSize, double clusteringExponent) 
     {
         this(graph_factory, vertex_factory, edge_factory, latticeSize, latticeSize, clusteringExponent);
     }
@@ -59,8 +59,8 @@ public class KleinbergSmallWorldGenerator<V, E> extends Lattice2DGenerator<V, E>
      * @param col_count
      * @param clusteringExponent
      */
-    public KleinbergSmallWorldGenerator(Factory<? extends Graph<V,E>> graph_factory, Factory<V> vertex_factory, 
-            Factory<E> edge_factory, int row_count, int col_count, double clusteringExponent) 
+    public KleinbergSmallWorldGenerator(Supplier<? extends Graph<V,E>> graph_factory, Supplier<V> vertex_factory, 
+            Supplier<E> edge_factory, int row_count, int col_count, double clusteringExponent) 
     {
         super(graph_factory, vertex_factory, edge_factory, row_count, col_count, true);
         clustering_exponent = clusteringExponent;
@@ -76,8 +76,8 @@ public class KleinbergSmallWorldGenerator<V, E> extends Lattice2DGenerator<V, E>
      * @param clusteringExponent
      * @param isToroidal
      */
-    public KleinbergSmallWorldGenerator(Factory<? extends Graph<V,E>> graph_factory, Factory<V> vertex_factory, 
-            Factory<E> edge_factory, int row_count, int col_count, double clusteringExponent, 
+    public KleinbergSmallWorldGenerator(Supplier<? extends Graph<V,E>> graph_factory, Supplier<V> vertex_factory, 
+            Supplier<E> edge_factory, int row_count, int col_count, double clusteringExponent, 
             boolean isToroidal) 
     {
         super(graph_factory, vertex_factory, edge_factory, row_count, col_count, isToroidal);
@@ -133,9 +133,9 @@ public class KleinbergSmallWorldGenerator<V, E> extends Lattice2DGenerator<V, E>
      * @return a random small world graph
      */
     @Override
-    public Graph<V,E> create() 
+    public Graph<V,E> get() 
     {
-        Graph<V, E> graph = super.create();
+        Graph<V, E> graph = super.get();
         
         // TODO: For toroidal graphs, we can make this more clever by pre-creating the WeightedChoice object
         // and using the output as an offset to the current vertex location.
@@ -175,7 +175,7 @@ public class KleinbergSmallWorldGenerator<V, E> extends Lattice2DGenerator<V, E>
             for (int j = 0; j < this.num_connections; j++) {
                 weighted_choice = new WeightedChoice<V>(vertex_weights, random);
                 V target = weighted_choice.nextItem();
-                graph.addEdge(edge_factory.create(), source, target);
+                graph.addEdge(edge_factory.get(), source, target);
             }
         }
 

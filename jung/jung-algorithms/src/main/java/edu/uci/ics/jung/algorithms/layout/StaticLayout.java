@@ -14,16 +14,16 @@ package edu.uci.ics.jung.algorithms.layout;
 import java.awt.Dimension;
 import java.awt.geom.Point2D;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 import edu.uci.ics.jung.graph.Graph;
 
 /**
- * StaticLayout places the vertices in the locations specified by its Transformer<V,Point2D>
+ * StaticLayout places the vertices in the locations specified by its Function<V,Point2D>
  * initializer. Vertex locations can be placed in a Map<V,Point2D> and then supplied to
  * this layout as follows:
  * <code>
-            Transformer<V,Point2D> vertexLocations =
+            Function<V,Point2D> vertexLocations =
         	TransformerUtils.mapTransformer(map);
  * </code>
  * @author Tom Nelson - tomnelson@dev.java.net
@@ -36,14 +36,14 @@ public class StaticLayout<V, E> extends AbstractLayout<V,E> {
     /**
      * Creates an instance for the specified graph, locations, and size.
      */
-    public StaticLayout(Graph<V,E> graph, Transformer<V,Point2D> initializer, Dimension size) {
+    public StaticLayout(Graph<V,E> graph, Function<V,Point2D> initializer, Dimension size) {
         super(graph, initializer, size);
     }
     
     /**
      * Creates an instance for the specified graph and locations, with default size.
      */
-    public StaticLayout(Graph<V,E> graph, Transformer<V,Point2D> initializer) {
+    public StaticLayout(Graph<V,E> graph, Function<V,Point2D> initializer) {
         super(graph, initializer);
     }
     

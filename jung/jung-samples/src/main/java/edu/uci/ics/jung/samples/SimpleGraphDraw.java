@@ -7,17 +7,18 @@
  */
 package edu.uci.ics.jung.samples;
 
+import java.io.IOException;
+
+import javax.swing.JFrame;
+
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
+
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.UndirectedSparseGraph;
 import edu.uci.ics.jung.io.PajekNetReader;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
-
-import org.apache.commons.collections15.FactoryUtils;
-
-import java.io.IOException;
-
-import javax.swing.JFrame;
 
 /**
  * A class that shows the minimal work necessary to load and visualize a graph.
@@ -42,7 +43,11 @@ public class SimpleGraphDraw
      */
     public static Graph getGraph() throws IOException 
     {
-        PajekNetReader pnr = new PajekNetReader(FactoryUtils.instantiateFactory(Object.class));
+        PajekNetReader pnr = new PajekNetReader(new Supplier(){
+//			@Override
+			public Object get() {
+				return new Object();
+			}});
         Graph g = new UndirectedSparseGraph();
         
         pnr.load("src/main/resources/datasets/simple.net", g);

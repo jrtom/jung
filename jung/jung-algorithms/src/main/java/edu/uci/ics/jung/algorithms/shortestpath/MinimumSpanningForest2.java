@@ -3,9 +3,9 @@ package edu.uci.ics.jung.algorithms.shortestpath;
 import java.util.Collection;
 import java.util.Set;
 
-import org.apache.commons.collections15.Factory;
-import org.apache.commons.collections15.Transformer;
-import org.apache.commons.collections15.functors.ConstantTransformer;
+import com.google.common.base.Function;
+import com.google.common.base.Functions;
+import com.google.common.base.Supplier;
 
 import edu.uci.ics.jung.algorithms.cluster.WeakComponentClusterer;
 import edu.uci.ics.jung.algorithms.filters.FilterUtils;
@@ -28,11 +28,11 @@ public class MinimumSpanningForest2<V,E> {
 	
 	protected Graph<V,E> graph;
 	protected Forest<V,E> forest;
-	protected Transformer<E,Double> weights = 
-		(Transformer<E,Double>)new ConstantTransformer<Double>(1.0);
+	protected Function<? super E,Double> weights = 
+		(Function<E,Double>)Functions.<Double>constant(1.0);
 	
 	/**
-	 * create a Forest from the supplied Graph and supplied Factory, which
+	 * create a Forest from the supplied Graph and supplied Supplier, which
 	 * is used to create a new, empty Forest. If non-null, the supplied root
 	 * will be used as the root of the tree/forest. If the supplied root is
 	 * null, or not present in the Graph, then an arbitary Graph vertex
@@ -41,14 +41,14 @@ public class MinimumSpanningForest2<V,E> {
 	 * Graph, then a leftover vertex is selected as a root, and another
 	 * tree is created
 	 * @param graph
-	 * @param factory
+	 * @param Supplier
 	 * @param weights
 	 */
 	public MinimumSpanningForest2(Graph<V, E> graph, 
-			Factory<Forest<V,E>> factory, 
-			Factory<? extends Graph<V,E>> treeFactory,
-			Transformer<E, Double> weights) {
-		this(graph, factory.create(), 
+			Supplier<Forest<V,E>> Supplier, 
+			Supplier<? extends Graph<V,E>> treeFactory,
+			Function<? super E, Double> weights) {
+		this(graph, Supplier.get(), 
 				treeFactory, 
 				weights);
 	}
@@ -67,8 +67,8 @@ public class MinimumSpanningForest2<V,E> {
 	 */
 	public MinimumSpanningForest2(Graph<V, E> graph, 
 			Forest<V,E> forest, 
-			Factory<? extends Graph<V,E>> treeFactory,
-			Transformer<E, Double> weights) {
+			Supplier<? extends Graph<V,E>> treeFactory,
+			Function<? super E, Double> weights) {
 		
 		if(forest.getVertexCount() != 0) {
 			throw new IllegalArgumentException("Supplied Forest must be empty");
@@ -81,14 +81,14 @@ public class MinimumSpanningForest2<V,E> {
 		
 		WeakComponentClusterer<V,E> wcc =
 			new WeakComponentClusterer<V,E>();
-		Set<Set<V>> component_vertices = wcc.transform(graph);
+		Set<Set<V>> component_vertices = wcc.apply(graph);
 		Collection<Graph<V,E>> components = 
 			FilterUtils.createAllInducedSubgraphs(component_vertices, graph);
 		
 		for(Graph<V,E> component : components) {
 			PrimMinimumSpanningTree<V,E> mst = 
 				new PrimMinimumSpanningTree<V,E>(treeFactory, this.weights);
-			Graph<V,E> subTree = mst.transform(component);
+			Graph<V,E> subTree = mst.apply(component);
 			if(subTree instanceof Tree) {
 				TreeUtils.addSubTree(forest, (Tree<V,E>)subTree, null, null);
 			}

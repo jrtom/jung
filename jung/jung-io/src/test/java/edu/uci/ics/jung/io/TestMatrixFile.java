@@ -12,7 +12,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import org.apache.commons.collections15.Factory;
+import com.google.common.base.Supplier;
 
 import edu.uci.ics.jung.graph.DirectedGraph;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
@@ -27,31 +27,31 @@ import edu.uci.ics.jung.graph.UndirectedSparseMultigraph;
  */
 public class TestMatrixFile extends TestCase {
 
-	Factory<UndirectedGraph<Number, Number>> undirectedGraphFactory;
-	Factory<DirectedGraph<Number, Number>> directedGraphFactory;
-	Factory<Number> vertexFactory;
-	Factory<Number> edgeFactory;
+	Supplier<UndirectedGraph<Number, Number>> undirectedGraphFactory;
+	Supplier<DirectedGraph<Number, Number>> directedGraphFactory;
+	Supplier<Number> vertexFactory;
+	Supplier<Number> edgeFactory;
 	Map<Number,Number> weights;
 
     @Override
     protected void setUp() {
-    	undirectedGraphFactory = new Factory<UndirectedGraph<Number,Number>>() {
-    		public UndirectedGraph<Number,Number> create() {
+    	undirectedGraphFactory = new Supplier<UndirectedGraph<Number,Number>>() {
+    		public UndirectedGraph<Number,Number> get() {
     			return new UndirectedSparseMultigraph<Number,Number>();
     		}
     	};
-    	directedGraphFactory = new Factory<DirectedGraph<Number,Number>>() {
-    		public DirectedGraph<Number,Number> create() {
+    	directedGraphFactory = new Supplier<DirectedGraph<Number,Number>>() {
+    		public DirectedGraph<Number,Number> get() {
     			return new DirectedSparseMultigraph<Number,Number>();
     		}
     	};
-    	vertexFactory = new Factory<Number>() {
+    	vertexFactory = new Supplier<Number>() {
     		int n = 0;
-    		public Number create() { return n++; }
+    		public Number get() { return n++; }
     	};
-    	edgeFactory = new Factory<Number>() {
+    	edgeFactory = new Supplier<Number>() {
     		int n = 0;
-    		public Number create() { return n++; }
+    		public Number get() { return n++; }
     	};
 
     }
@@ -61,28 +61,28 @@ public class TestMatrixFile extends TestCase {
 		return new TestSuite(TestMatrixFile.class);
 	}
 	public DirectedGraph<Number,Number> createSimpleDirectedGraph() {
-		DirectedGraph<Number,Number> graph1 = directedGraphFactory.create();
+		DirectedGraph<Number,Number> graph1 = directedGraphFactory.get();
 		for(int i=0; i<5; i++) {
 			graph1.addVertex(i);
 		}
 		weights = new HashMap<Number,Number>();
 
-		Number e = edgeFactory.create();
+		Number e = edgeFactory.get();
 		graph1.addEdge(e, 0, 1);
 		weights.put(e, 5.0);
-		e = edgeFactory.create();
+		e = edgeFactory.get();
 		graph1.addEdge(e, 0, 2);
 		weights.put(e, 10.0);
-		e = edgeFactory.create();
+		e = edgeFactory.get();
 		graph1.addEdge(e, 1, 2);
 		weights.put(e, 3.0);
-		e = edgeFactory.create();
+		e = edgeFactory.get();
 		graph1.addEdge(e, 1, 3);
 		weights.put(e, 700.0);
-		e = edgeFactory.create();
+		e = edgeFactory.get();
 		graph1.addEdge(e, 1, 4);
 		weights.put(e, 0.5);
-		e = edgeFactory.create();
+		e = edgeFactory.get();
 		graph1.addEdge(e, 4, 3);
 		weights.put(e, 5.0);
 

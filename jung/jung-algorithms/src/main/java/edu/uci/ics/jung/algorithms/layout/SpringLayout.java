@@ -7,23 +7,21 @@
  */
 package edu.uci.ics.jung.algorithms.layout;
 
-import edu.uci.ics.jung.algorithms.layout.util.RandomLocationTransformer;
-import edu.uci.ics.jung.algorithms.util.IterativeContext;
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.util.Pair;
-
-import org.apache.commons.collections15.Factory;
-import org.apache.commons.collections15.Transformer;
-import org.apache.commons.collections15.functors.ConstantTransformer;
-import org.apache.commons.collections15.map.LazyMap;
-
 import java.awt.Dimension;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.geom.Point2D;
 import java.util.ConcurrentModificationException;
-import java.util.HashMap;
 import java.util.Map;
+
+import com.google.common.base.Function;
+import com.google.common.base.Functions;
+import com.google.common.collect.MapMaker;
+
+import edu.uci.ics.jung.algorithms.layout.util.RandomLocationTransformer;
+import edu.uci.ics.jung.algorithms.util.IterativeContext;
+import edu.uci.ics.jung.graph.Graph;
+import edu.uci.ics.jung.graph.util.Pair;
 
 /**
  * The SpringLayout package represents a visualization of a set of nodes. The
@@ -37,16 +35,21 @@ import java.util.Map;
 public class SpringLayout<V, E> extends AbstractLayout<V,E> implements IterativeContext {
 
     protected double stretch = 0.70;
-    protected Transformer<E, Integer> lengthFunction;
+    protected Function<? super E, Integer> lengthFunction;
     protected int repulsion_range_sq = 100 * 100;
     protected double force_multiplier = 1.0 / 3.0;
 
     protected Map<V, SpringVertexData> springVertexData =
-    	LazyMap.decorate(new HashMap<V, SpringVertexData>(),
-    			new Factory<SpringVertexData>() {
-					public SpringVertexData create() {
-						return new SpringVertexData();
-					}});
+    	new MapMaker().makeComputingMap(new Function<V,SpringVertexData>(){
+//			@Override
+			public SpringVertexData apply(V arg0) {
+				return new SpringVertexData();
+			}});
+//    	LazyMap.decorate(new HashMap<V, SpringVertexData>(),
+//    			new Supplier<SpringVertexData>() {
+//					public SpringVertexData create() {
+//						return new SpringVertexData();
+//					}});
 
     /**
      * Constructor for a SpringLayout for a raw graph with associated
@@ -55,7 +58,7 @@ public class SpringLayout<V, E> extends AbstractLayout<V,E> implements Iterative
      */
     @SuppressWarnings("unchecked")
     public SpringLayout(Graph<V,E> g) {
-        this(g, new ConstantTransformer(30));
+        this(g, (Function<E,Integer>)Functions.<Integer>constant(30));
     }
 
     /**
@@ -64,7 +67,7 @@ public class SpringLayout<V, E> extends AbstractLayout<V,E> implements Iterative
      * @param g the {@code Graph} to lay out
      * @param length_function provides a length for each edge
      */
-    public SpringLayout(Graph<V,E> g, Transformer<E, Integer> length_function)
+    public SpringLayout(Graph<V,E> g, Function<? super E, Integer> length_function)
     {
         super(g);
         this.lengthFunction = length_function;
@@ -179,14 +182,14 @@ public class SpringLayout<V, E> extends AbstractLayout<V,E> implements Iterative
     			V v1 = endpoints.getFirst();
     			V v2 = endpoints.getSecond();
 
-    			Point2D p1 = transform(v1);
-    			Point2D p2 = transform(v2);
+    			Point2D p1 = apply(v1);
+    			Point2D p2 = apply(v2);
     			if(p1 == null || p2 == null) continue;
     			double vx = p1.getX() - p2.getX();
     			double vy = p1.getY() - p2.getY();
     			double len = Math.sqrt(vx * vx + vy * vy);
 
-    			double desiredLen = lengthFunction.transform(e);
+    			double desiredLen = lengthFunction.apply(e);
 
     			// round from zero, if needed [zero would be Bad.].
     			len = (len == 0) ? .0001 : len;
@@ -224,8 +227,8 @@ public class SpringLayout<V, E> extends AbstractLayout<V,E> implements Iterative
 
             for (V v2 : getGraph().getVertices()) {
                 if (v == v2) continue;
-                Point2D p = transform(v);
-                Point2D p2 = transform(v2);
+                Point2D p = apply(v);
+                Point2D p2 = apply(v2);
                 if(p == null || p2 == null) continue;
                 double vx = p.getX() - p2.getX();
                 double vy = p.getY() - p2.getY();
@@ -259,7 +262,7 @@ public class SpringLayout<V, E> extends AbstractLayout<V,E> implements Iterative
                     if (isLocked(v)) continue;
                     SpringVertexData vd = springVertexData.get(v);
                     if(vd == null) continue;
-                    Point2D xyd = transform(v);
+                    Point2D xyd = apply(v);
 
                     vd.dx += vd.repulsiondx + vd.edgedx;
                     vd.dy += vd.repulsiondy + vd.edgedy;

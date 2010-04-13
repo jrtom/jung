@@ -11,8 +11,8 @@ package edu.uci.ics.jung.algorithms.util;
 
 import java.util.Collection;
 
-import org.apache.commons.collections15.BidiMap;
-import org.apache.commons.collections15.bidimap.DualHashBidiMap;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 
 /**
  * A class providing static methods useful for improving the
@@ -24,7 +24,7 @@ import org.apache.commons.collections15.bidimap.DualHashBidiMap;
 public class Indexer {
 	
 	/**
-	 * Returns a <code>BidiMap</code> mapping each element of the collection to its
+	 * Returns a <code>BiMap</code> mapping each element of the collection to its
 	 * index as encountered while iterating over the collection. The purpose
 	 * of the index operation is to supply an O(1) replacement operation for the
 	 * O(n) <code>indexOf(element)</code> method of a <code>List</code>
@@ -32,11 +32,11 @@ public class Indexer {
 	 * @param collection
 	 * @return a bidirectional map from collection elements to 0-based indices
 	 */
-	public static <T> BidiMap<T,Integer> create(Collection<T> collection) {
+	public static <T> BiMap<T,Integer> create(Collection<T> collection) {
 	    return create(collection, 0);
 	}
 	/**
-	 * Returns a <code>BidiMap</code> mapping each element of the collection to its
+	 * Returns a <code>BiMap</code> mapping each element of the collection to its
 	 * index as encountered while iterating over the collection. The purpose
 	 * of the index operation is to supply an O(1) replacement operation for the
 	 * O(n) <code>indexOf(element)</code> method of a <code>List</code>
@@ -45,8 +45,8 @@ public class Indexer {
 	 * @param start start index
 	 * @return a bidirectional map from collection elements to start-based indices
 	 */
-	public static <T> BidiMap<T,Integer> create(Collection<T> collection, int start) {
-		BidiMap<T,Integer> map = new DualHashBidiMap<T,Integer>();
+	public static <T> BiMap<T,Integer> create(Collection<T> collection, int start) {
+		BiMap<T,Integer> map = HashBiMap.<T,Integer>create();
 		int i=start;
 		for(T t : collection) {
 			map.put(t,i++);

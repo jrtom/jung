@@ -35,7 +35,7 @@ public class TreeCollapser  {
     		tree.addVertex(subTree);
     	}
     	
-    	layout.setLocation(subTree, (Point2D)layout.transform(subRoot));
+    	layout.setLocation(subTree, (Point2D)layout.apply(subRoot));
     }
     
     @SuppressWarnings("unchecked")

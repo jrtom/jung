@@ -11,7 +11,7 @@
  */
 package edu.uci.ics.jung.algorithms.scoring.util;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 /**
  * A <code>Transformer<VEPair,Number></code> that delegates its operation to a
@@ -21,28 +21,28 @@ import org.apache.commons.collections15.Transformer;
  * <code>Transformer</code> only operates on edges.
  */
 public class DelegateToEdgeTransformer<V,E> implements
-        Transformer<VEPair<V,E>,Number>
+        Function<VEPair<V,E>,Number>
 {
 	/**
-	 * The transformer to which this instance delegates its function.
+	 * The Function to which this instance delegates its function.
 	 */
-    protected Transformer<E,? extends Number> delegate;
+    protected Function<? super E,? extends Number> delegate;
     
     /**
-     * Creates an instance with the specified delegate transformer.
-     * @param delegate the Transformer to which this instance will delegate
+     * Creates an instance with the specified delegate Function.
+     * @param delegate the Function to which this instance will delegate
      */
-    public DelegateToEdgeTransformer(Transformer<E,? extends Number> delegate)
+    public DelegateToEdgeTransformer(Function<? super E,? extends Number> delegate)
     {
         this.delegate = delegate;
     }
     
     /**
-     * @see Transformer#transform(Object)
+     * @see Function#transform(Object)
      */
-    public Number transform(VEPair<V,E> arg0)
+    public Number apply(VEPair<V,E> arg0)
     {
-        return delegate.transform(arg0.getE());
+        return delegate.apply(arg0.getE());
     }
 
 }

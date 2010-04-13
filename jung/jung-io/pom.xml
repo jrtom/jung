@@ -69,12 +69,6 @@
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>net.sourceforge.collections</groupId>
-      <artifactId>collections-generic</artifactId>
-      <version>4.01</version>
-      <scope>compile</scope>
-    </dependency>
         <dependency>
             <groupId>org.codehaus.woodstox</groupId>
             <artifactId>wstx-asl</artifactId>

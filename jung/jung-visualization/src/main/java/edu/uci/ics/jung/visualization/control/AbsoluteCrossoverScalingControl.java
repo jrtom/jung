@@ -16,7 +16,7 @@ import edu.uci.ics.jung.visualization.transform.MutableTransformer;
 
 /**
  * scales to the absolute value passed as an argument.
- * It first resets the scaling transformers, then uses
+ * It first resets the scaling Functions, then uses
  * the relative CrossoverScalingControl to achieve the
  * absolute value.
  * 
@@ -40,7 +40,7 @@ public class AbsoluteCrossoverScalingControl extends CrossoverScalingControl
         
         Point2D transformedAt = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(Layer.VIEW, at);
         
-        // return the transformers to 1.0
+        // return the Functions to 1.0
         layoutTransformer.scale(inverseModelScale, inverseModelScale, transformedAt);
         viewTransformer.scale(inverseViewScale, inverseViewScale, at);
 

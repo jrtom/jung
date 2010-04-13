@@ -4,7 +4,7 @@ package edu.uci.ics.jung.algorithms.generators;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-import org.apache.commons.collections15.Factory;
+import com.google.common.base.Supplier;
 
 import edu.uci.ics.jung.graph.DirectedGraph;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
@@ -15,34 +15,34 @@ import edu.uci.ics.jung.graph.UndirectedSparseMultigraph;
 
 public class TestLattice2D extends TestCase {
 	
-	protected Factory<UndirectedGraph<String,Number>> undirectedGraphFactory;
-    protected Factory<DirectedGraph<String,Number>> directedGraphFactory;
-	protected Factory<String> vertexFactory;
-	protected Factory<Number> edgeFactory;
+	protected Supplier<UndirectedGraph<String,Number>> undirectedGraphFactory;
+    protected Supplier<DirectedGraph<String,Number>> directedGraphFactory;
+	protected Supplier<String> vertexFactory;
+	protected Supplier<Number> edgeFactory;
 
 	@Override
 	protected void setUp() {
-		undirectedGraphFactory = new Factory<UndirectedGraph<String,Number>>() {
-			public UndirectedGraph<String,Number> create() {
+		undirectedGraphFactory = new Supplier<UndirectedGraph<String,Number>>() {
+			public UndirectedGraph<String,Number> get() {
 				return new UndirectedSparseMultigraph<String,Number>();
 			}
 		};
-		directedGraphFactory = new Factory<DirectedGraph<String,Number>>() {
-            public DirectedGraph<String,Number> create() {
+		directedGraphFactory = new Supplier<DirectedGraph<String,Number>>() {
+            public DirectedGraph<String,Number> get() {
                 return new DirectedSparseMultigraph<String,Number>();
             }
         };
 
-		vertexFactory = new Factory<String>() {
+		vertexFactory = new Supplier<String>() {
 			int count;
-			public String create() {
+			public String get() {
 				return Character.toString((char)('A'+count++));
 			}
 		};
 		edgeFactory = 
-			new Factory<Number>() {
+			new Supplier<Number>() {
 			int count;
-			public Number create() {
+			public Number get() {
 				return count++;
 			}
 		};
@@ -58,12 +58,12 @@ public class TestLattice2D extends TestCase {
 	    catch (IllegalArgumentException iae) {}
 	}
 	
-	public void testCreate() {
+	public void testget() {
 		for (int i = 3; i <= 10; i++) {
 		    for (int j = 0; j < 2; j++) {
 		        for (int k = 0; k < 2; k++) {
         			Lattice2DGenerator<String,Number> generator = generate(i, j, k);
-    			    Graph<String,Number> graph = generator.create();
+    			    Graph<String,Number> graph = generator.get();
                     Assert.assertEquals(i*i, graph.getVertexCount());
                     checkEdgeCount(generator, graph);
 		        }

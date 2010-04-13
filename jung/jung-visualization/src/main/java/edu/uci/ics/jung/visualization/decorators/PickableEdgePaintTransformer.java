@@ -13,7 +13,7 @@ package edu.uci.ics.jung.visualization.decorators;
 
 import java.awt.Paint;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 import edu.uci.ics.jung.visualization.picking.PickedInfo;
 
@@ -26,7 +26,7 @@ import edu.uci.ics.jung.visualization.picking.PickedInfo;
  * @author Joshua O'Madadhain
  * 
  */
-public class PickableEdgePaintTransformer<E> implements Transformer<E,Paint> {
+public class PickableEdgePaintTransformer<E> implements Function<E,Paint> {
     protected PickedInfo<E> pi;
     protected Paint draw_paint;
     protected Paint picked_paint;
@@ -48,7 +48,7 @@ public class PickableEdgePaintTransformer<E> implements Transformer<E,Paint> {
     /**
      * 
      */
-    public Paint transform(E e) {
+    public Paint apply(E e) {
         if (pi.isPicked(e)) {
             return picked_paint;
         }

@@ -18,8 +18,8 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import org.apache.commons.collections15.Factory;
-import org.apache.commons.collections15.functors.MapTransformer;
+import com.google.common.base.Functions;
+import com.google.common.base.Supplier;
 
 import edu.uci.ics.jung.graph.DirectedGraph;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
@@ -77,9 +77,9 @@ public class TestEdmondsKarpMaxFlow extends TestCase {
     
 	public void testSimpleFlow() {
 		DirectedGraph<Number,Number> graph = new DirectedSparseMultigraph<Number,Number>();
-		Factory<Number> edgeFactory = new Factory<Number>() {
+		Supplier<Number> edgeFactory = new Supplier<Number>() {
 			int count = 0;
-			public Number create() {
+			public Number get() {
 				return count++;
 			}
 		};
@@ -91,31 +91,31 @@ public class TestEdmondsKarpMaxFlow extends TestCase {
 		
 		Map<Number,Number> edgeFlowMap = new HashMap<Number,Number>();
 
-		graph.addEdge(edgeFactory.create(),0,1,EdgeType.DIRECTED);
+		graph.addEdge(edgeFactory.get(),0,1,EdgeType.DIRECTED);
 		edgeCapacityMap.put(0, 16);
 
-		graph.addEdge(edgeFactory.create(),0,2,EdgeType.DIRECTED);
+		graph.addEdge(edgeFactory.get(),0,2,EdgeType.DIRECTED);
 		edgeCapacityMap.put(1,13);
 
-		graph.addEdge(edgeFactory.create(),1,2,EdgeType.DIRECTED);
+		graph.addEdge(edgeFactory.get(),1,2,EdgeType.DIRECTED);
 		edgeCapacityMap.put(2, 6);
 
-		graph.addEdge(edgeFactory.create(),1,3,EdgeType.DIRECTED);
+		graph.addEdge(edgeFactory.get(),1,3,EdgeType.DIRECTED);
 		edgeCapacityMap.put(3, 12);
 
-		graph.addEdge(edgeFactory.create(),2,4,EdgeType.DIRECTED);
+		graph.addEdge(edgeFactory.get(),2,4,EdgeType.DIRECTED);
 		edgeCapacityMap.put(4, 14);
 
-		graph.addEdge(edgeFactory.create(),3,2,EdgeType.DIRECTED);
+		graph.addEdge(edgeFactory.get(),3,2,EdgeType.DIRECTED);
 		edgeCapacityMap.put(5, 9);
 
-		graph.addEdge(edgeFactory.create(),3,5,EdgeType.DIRECTED);
+		graph.addEdge(edgeFactory.get(),3,5,EdgeType.DIRECTED);
 		edgeCapacityMap.put(6, 20);
 
-		graph.addEdge(edgeFactory.create(),4,3,EdgeType.DIRECTED);
+		graph.addEdge(edgeFactory.get(),4,3,EdgeType.DIRECTED);
 		edgeCapacityMap.put(7, 7);
 
-		graph.addEdge(edgeFactory.create(),4,5,EdgeType.DIRECTED);
+		graph.addEdge(edgeFactory.get(),4,5,EdgeType.DIRECTED);
 		edgeCapacityMap.put(8, 4);
 
 		EdmondsKarpMaxFlow<Number,Number> ek =
@@ -123,7 +123,7 @@ public class TestEdmondsKarpMaxFlow extends TestCase {
 				graph,
 				0,
 				5,
-				MapTransformer.<Number,Number>getInstance(edgeCapacityMap),
+				Functions.<Number,Number>forMap(edgeCapacityMap, null),
 				edgeFlowMap,
 				edgeFactory);
 		ek.evaluate();
@@ -155,9 +155,9 @@ public class TestEdmondsKarpMaxFlow extends TestCase {
 
 	public void testAnotherSimpleFlow() {
 		DirectedGraph<Number,Number> graph = new DirectedSparseMultigraph<Number,Number>();
-		Factory<Number> edgeFactory = new Factory<Number>() {
+		Supplier<Number> edgeFactory = new Supplier<Number>() {
 			int count=0;
-			public Number create() {
+			public Number get() {
 				return count++;
 			}
 		};
@@ -169,31 +169,31 @@ public class TestEdmondsKarpMaxFlow extends TestCase {
 		
 		Map<Number,Number> edgeFlowMap = new HashMap<Number,Number>();
 
-		graph.addEdge(edgeFactory.create(),0,1,EdgeType.DIRECTED);
+		graph.addEdge(edgeFactory.get(),0,1,EdgeType.DIRECTED);
 		edgeCapacityMap.put(0,5);
 		
-		graph.addEdge(edgeFactory.create(),0,2,EdgeType.DIRECTED);
+		graph.addEdge(edgeFactory.get(),0,2,EdgeType.DIRECTED);
 		edgeCapacityMap.put(1,3);
 		
-		graph.addEdge(edgeFactory.create(),1,5,EdgeType.DIRECTED);
+		graph.addEdge(edgeFactory.get(),1,5,EdgeType.DIRECTED);
 		edgeCapacityMap.put(2,2);
 		
-		graph.addEdge(edgeFactory.create(),1,2,EdgeType.DIRECTED);
+		graph.addEdge(edgeFactory.get(),1,2,EdgeType.DIRECTED);
 		edgeCapacityMap.put(3,8);
 		
-		graph.addEdge(edgeFactory.create(),2,3,EdgeType.DIRECTED);
+		graph.addEdge(edgeFactory.get(),2,3,EdgeType.DIRECTED);
 		edgeCapacityMap.put(4,4);
 		
-		graph.addEdge(edgeFactory.create(),2,4,EdgeType.DIRECTED);
+		graph.addEdge(edgeFactory.get(),2,4,EdgeType.DIRECTED);
 		edgeCapacityMap.put(5,2);
 		
-		graph.addEdge(edgeFactory.create(),3,4,EdgeType.DIRECTED);
+		graph.addEdge(edgeFactory.get(),3,4,EdgeType.DIRECTED);
 		edgeCapacityMap.put(6,3);
 		
-		graph.addEdge(edgeFactory.create(),3,5,EdgeType.DIRECTED);
+		graph.addEdge(edgeFactory.get(),3,5,EdgeType.DIRECTED);
 		edgeCapacityMap.put(7,6);
 		
-		graph.addEdge(edgeFactory.create(),4,5,EdgeType.DIRECTED);
+		graph.addEdge(edgeFactory.get(),4,5,EdgeType.DIRECTED);
 		edgeCapacityMap.put(8,1);
 
 		EdmondsKarpMaxFlow<Number,Number> ek =
@@ -201,7 +201,7 @@ public class TestEdmondsKarpMaxFlow extends TestCase {
 				graph,
 				0,
 				5,
-				MapTransformer.<Number,Number>getInstance(edgeCapacityMap),
+				Functions.<Number,Number>forMap(edgeCapacityMap, null),
 				edgeFlowMap,
 				edgeFactory);
 		ek.evaluate();

@@ -26,9 +26,10 @@ import javax.xml.parsers.ParserConfigurationException;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-import org.apache.commons.collections15.Transformer;
-import org.apache.commons.collections15.TransformerUtils;
 import org.xml.sax.SAXException;
+
+import com.google.common.base.Function;
+import com.google.common.base.Functions;
 
 import edu.uci.ics.jung.graph.DirectedSparseGraph;
 import edu.uci.ics.jung.graph.Graph;
@@ -42,15 +43,16 @@ public class TestGraphMLWriter extends TestCase
     {
         Graph<String, Number> g = TestGraphs.createTestGraph(true);
         GraphMLWriter<String, Number> gmlw = new GraphMLWriter<String, Number>();
-        Transformer<Number, String> edge_weight = new Transformer<Number, String>() 
+        Function<Number, String> edge_weight = new Function<Number, String>() 
 		{ 
-			public String transform(Number n) 
+			public String apply(Number n) 
 			{ 
 				return String.valueOf(n.intValue()); 
 			} 
 		};
 
-		Transformer<String, String> vertex_name = TransformerUtils.nopTransformer();
+		Function<String, String> vertex_name = Functions.identity();
+			//TransformerUtils.nopTransformer();
 		
         gmlw.addEdgeData("weight", "integer value for the edge", 
         		Integer.toString(-1), edge_weight);
@@ -72,7 +74,7 @@ public class TestGraphMLWriter extends TestCase
         gmlr.load("src/test/resources/testbasicwrite.graphml", g2);
         Map<String, GraphMLMetadata<Object>> edge_metadata = 
         	gmlr.getEdgeMetadata();
-        Transformer<Object, String> edge_weight2 = 
+        Function<Object, String> edge_weight2 = 
         	edge_metadata.get("weight").transformer;
         validateTopology(g, g2, edge_weight, edge_weight2);
         
@@ -85,9 +87,9 @@ public class TestGraphMLWriter extends TestCase
     {
         Graph<String, Number> g = TestGraphs.getSmallGraph();
         GraphMLWriter<String, Number> gmlw = new GraphMLWriter<String, Number>();
-        Transformer<Number, String> edge_weight = new Transformer<Number, String>() 
+        Function<Number, String> edge_weight = new Function<Number, String>() 
         { 
-            public String transform(Number n) 
+            public String apply(Number n) 
             { 
                 return String.valueOf(n.doubleValue()); 
             } 
@@ -106,7 +108,7 @@ public class TestGraphMLWriter extends TestCase
         gmlr.load("src/test/resources/testmixedgraph.graphml", g2);
         Map<String, GraphMLMetadata<Object>> edge_metadata = 
             gmlr.getEdgeMetadata();
-        Transformer<Object, String> edge_weight2 = 
+        Function<Object, String> edge_weight2 = 
             edge_metadata.get("weight").transformer;
         validateTopology(g, g2, edge_weight, edge_weight2);
         
@@ -116,7 +118,7 @@ public class TestGraphMLWriter extends TestCase
     }
 
     public <T extends Comparable<T>> void validateTopology(Graph<T,Number> g, Graph<T,Object> g2,
-            Transformer<Number,String> edge_weight, Transformer<Object,String> edge_weight2)
+            Function<Number,String> edge_weight, Function<Object,String> edge_weight2)
     {
         Assert.assertEquals(g2.getEdgeCount(), g.getEdgeCount());
         List<T> g_vertices = new ArrayList<T>(g.getVertices());
@@ -148,16 +150,16 @@ public class TestGraphMLWriter extends TestCase
         
         for (Object o : g2.getEdges())
         {
-            String weight = edge_weight.transform(new Double((String)o));
-            String weight2 = edge_weight2.transform(o);
+            String weight = edge_weight.apply(new Double((String)o));
+            String weight2 = edge_weight2.apply(o);
             Assert.assertEquals(weight2, weight);
         }        
 //                Number n = g.findEdge(v, w);
 //                Object o = g2.findEdge(v, w);
 //                if (n != null)
 //                {
-//                    String weight = edge_weight.transform(n);
-//                    String weight2 = edge_weight2.transform(o);
+//                    String weight = edge_weight.apply(n);
+//                    String weight2 = edge_weight2.apply(o);
 //                    Assert.assertEquals(weight2, weight);
 //                }
 //            }

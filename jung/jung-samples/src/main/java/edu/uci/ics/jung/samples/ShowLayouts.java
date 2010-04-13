@@ -27,7 +27,7 @@ import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JPanel;
 
-import org.apache.commons.collections15.Factory;
+import com.google.common.base.Supplier;
 
 import edu.uci.ics.jung.algorithms.generators.random.MixedRandomGraphGenerator;
 import edu.uci.ics.jung.algorithms.layout.CircleLayout;
@@ -139,21 +139,21 @@ public class ShowLayouts extends JApplet {
             (Graph<? extends Object,? extends Object>[])
             new Graph<?,?>[graph_names.length];
         
-    	Factory<Graph<Integer,Number>> graphFactory =
-    		new Factory<Graph<Integer,Number>>() {
-    		public Graph<Integer,Number> create() {
+        Supplier<Graph<Integer,Number>> graphFactory =
+    		new Supplier<Graph<Integer,Number>>() {
+    		public Graph<Integer,Number> get() {
     			return new SparseMultigraph<Integer,Number>();
     		}
     	};
 
-    	Factory<Integer> vertexFactory = new Factory<Integer>() {
+    	Supplier<Integer> vertexFactory = new Supplier<Integer>() {
     			int count;
-				public Integer create() {
+				public Integer get() {
 					return count++;
 				}};
-		Factory<Number> edgeFactory = new Factory<Number>() {
+				Supplier<Number> edgeFactory = new Supplier<Number>() {
 			int count;
-				public Number create() {
+				public Number get() {
 					return count++;
 				}};
 

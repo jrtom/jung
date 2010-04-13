@@ -13,15 +13,13 @@ package edu.uci.ics.jung.algorithms.layout;
 import java.awt.Dimension;
 import java.awt.geom.Point2D;
 import java.util.ConcurrentModificationException;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.collections15.Transformer;
-import org.apache.commons.collections15.functors.ChainedTransformer;
-import org.apache.commons.collections15.functors.CloneTransformer;
-import org.apache.commons.collections15.map.LazyMap;
+import com.google.common.base.Function;
+import com.google.common.base.Functions;
+import com.google.common.collect.MapMaker;
 
 import edu.uci.ics.jung.graph.Graph;
 
@@ -48,11 +46,16 @@ abstract public class AbstractLayout<V, E> implements Layout<V,E> {
 	protected boolean initialized;
     
     protected Map<V, Point2D> locations = 
-    	LazyMap.decorate(new HashMap<V, Point2D>(),
-    			new Transformer<V,Point2D>() {
-					public Point2D transform(V arg0) {
-						return new Point2D.Double();
-					}});
+    	new MapMaker().makeComputingMap(new Function<V,Point2D>(){
+//			@Override
+			public Point2D apply(V arg0) {
+				return new Point2D.Double();
+			}});
+//    	LazyMap.decorate(new HashMap<V, Point2D>(),
+//    			new Function<V,Point2D>() {
+//					public Point2D transform(V arg0) {
+//						return new Point2D.Double();
+//					}});
 
 
 	/**
@@ -68,12 +71,18 @@ abstract public class AbstractLayout<V, E> implements Layout<V,E> {
 		this.graph = graph;
 	}
 	
-    @SuppressWarnings("unchecked")
-    protected AbstractLayout(Graph<V,E> graph, Transformer<V,Point2D> initializer) {
+    protected AbstractLayout(Graph<V,E> graph, Function<V,Point2D> initializer) {
 		this.graph = graph;
-		Transformer<V, ? extends Object> chain = 
-			ChainedTransformer.getInstance(initializer, CloneTransformer.getInstance());
-		this.locations = LazyMap.decorate(new HashMap<V,Point2D>(), (Transformer<V,Point2D>)chain);
+		Function<V, Point2D> chain = 
+			Functions.<V,Point2D,Point2D>compose(
+					new Function<Point2D,Point2D>(){
+//						@Override
+						public Point2D apply(Point2D p) {
+							return (Point2D)p.clone();
+						}}, 
+					initializer
+					);
+		this.locations = new MapMaker().makeComputingMap(chain);
 		initialized = true;
 	}
 	
@@ -82,12 +91,18 @@ abstract public class AbstractLayout<V, E> implements Layout<V,E> {
 		this.size = size;
 	}
 	
-	@SuppressWarnings("unchecked")
-    protected AbstractLayout(Graph<V,E> graph, Transformer<V,Point2D> initializer, Dimension size) {
+    protected AbstractLayout(Graph<V,E> graph, Function<V,Point2D> initializer, Dimension size) {
 		this.graph = graph;
-		Transformer<V, ? extends Object> chain = 
-			ChainedTransformer.getInstance(initializer, CloneTransformer.getInstance());
-		this.locations = LazyMap.decorate(new HashMap<V,Point2D>(), (Transformer<V,Point2D>)chain);
+		Function<V, Point2D> chain = 
+			Functions.<V,Point2D,Point2D>compose(
+					new Function<Point2D,Point2D>(){
+//						@Override
+						public Point2D apply(Point2D p) {
+							return (Point2D)p.clone();
+						}}, 
+					initializer
+					);
+		this.locations = new MapMaker().makeComputingMap(chain);
 		this.size = size;
 	}
     
@@ -138,14 +153,20 @@ abstract public class AbstractLayout<V, E> implements Layout<V,E> {
         return dontmove.contains(v);
     }
     
-    @SuppressWarnings("unchecked")
-    public void setInitializer(Transformer<V,Point2D> initializer) {
+    public void setInitializer(Function<V,Point2D> initializer) {
     	if(this.equals(initializer)) {
     		throw new IllegalArgumentException("Layout cannot be initialized with itself");
     	}
-		Transformer<V, ? extends Object> chain = 
-			ChainedTransformer.getInstance(initializer, CloneTransformer.getInstance());
-    	this.locations = LazyMap.decorate(new HashMap<V,Point2D>(), (Transformer<V, Point2D>)chain);
+		Function<V, Point2D> chain = 
+			Functions.<V,Point2D,Point2D>compose(
+					new Function<Point2D,Point2D>(){
+//						@Override
+						public Point2D apply(Point2D p) {
+							return (Point2D)p.clone();
+						}}, 
+					initializer
+					);
+		this.locations = new MapMaker().makeComputingMap(chain);
     	initialized = true;
     }
     
@@ -170,7 +191,7 @@ abstract public class AbstractLayout<V, E> implements Layout<V,E> {
         return locations.get(v);
 	}
 	
-	public Point2D transform(V v) {
+	public Point2D apply(V v) {
 		return getCoordinates(v);
 	}
 	

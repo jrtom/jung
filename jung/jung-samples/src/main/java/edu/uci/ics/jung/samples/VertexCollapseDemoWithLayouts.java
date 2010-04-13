@@ -36,8 +36,9 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import org.apache.commons.collections15.Predicate;
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import com.google.common.base.Supplier;
 
 import edu.uci.ics.jung.algorithms.layout.CircleLayout;
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
@@ -136,7 +137,7 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
         final Set exclusions = new HashSet();
         eif.setPredicate(new Predicate() {
 
-			public boolean evaluate(Object e) {
+			public boolean apply(Object e) {
 				
 				return exclusions.contains(e);
 			}});
@@ -153,11 +154,11 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
 			 * @see edu.uci.ics.jung.visualization.decorators.DefaultToolTipFunction#getToolTipText(java.lang.Object)
 			 */
 			@Override
-			public String transform(Object v) {
+			public String apply(Object v) {
 				if(v instanceof Graph) {
 					return ((Graph)v).getVertices().toString();
 				}
-				return super.transform(v);
+				return super.apply(v);
 			}});
         
         /**
@@ -204,7 +205,7 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
                     double sumx = 0;
                     double sumy = 0;
                     for(Object v : picked) {
-                    	Point2D p = (Point2D)layout.transform(v);
+                    	Point2D p = (Point2D)layout.apply(v);
                     	sumx += p.getX();
                     	sumy += p.getY();
                     }
@@ -332,7 +333,7 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
             setSizeTransformer(new ClusterVertexSizeFunction<V>(20));
         }
         @Override
-        public Shape transform(V v) {
+        public Shape apply(V v) {
             if(v instanceof Graph) {
                 int size = ((Graph)v).getVertexCount();
                 if (size < 8) {   
@@ -343,7 +344,7 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
                     return factory.getRegularStar(v, size);
                 }
             }
-            return super.transform(v);
+            return super.apply(v);
         }
     }
     
@@ -354,13 +355,13 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
      *
      * @param <V>
      */
-    class ClusterVertexSizeFunction<V> implements Transformer<V,Integer> {
+    class ClusterVertexSizeFunction<V> implements Function<V,Integer> {
     	int size;
         public ClusterVertexSizeFunction(Integer size) {
             this.size = size;
         }
 
-        public Integer transform(V v) {
+        public Integer apply(V v) {
             if(v instanceof Graph) {
                 return 30;
             }

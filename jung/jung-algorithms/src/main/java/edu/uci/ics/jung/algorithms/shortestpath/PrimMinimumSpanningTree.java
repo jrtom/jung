@@ -4,9 +4,9 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.commons.collections15.Factory;
-import org.apache.commons.collections15.Transformer;
-import org.apache.commons.collections15.functors.ConstantTransformer;
+import com.google.common.base.Function;
+import com.google.common.base.Functions;
+import com.google.common.base.Supplier;
 
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.Pair;
@@ -21,24 +21,24 @@ import edu.uci.ics.jung.graph.util.Pair;
  * @param <E> the edge type
  */
 @SuppressWarnings("unchecked")
-public class PrimMinimumSpanningTree<V,E> implements Transformer<Graph<V,E>,Graph<V,E>> {
+public class PrimMinimumSpanningTree<V,E> implements Function<Graph<V,E>,Graph<V,E>> {
 	
-	protected Factory<? extends Graph<V,E>> treeFactory;
-	protected Transformer<E,Double> weights; 
+	protected Supplier<? extends Graph<V,E>> treeFactory;
+	protected Function<? super E,Double> weights; 
 	
 	/**
 	 * Creates an instance which generates a minimum spanning tree assuming constant edge weights.
 	 */
-	public PrimMinimumSpanningTree(Factory<? extends Graph<V,E>> factory) {
-		this(factory, new ConstantTransformer(1.0));
+	public PrimMinimumSpanningTree(Supplier<? extends Graph<V,E>> Supplier) {
+		this(Supplier, Functions.constant(1.0));
 	}
 
     /**
      * Creates an instance which generates a minimum spanning tree using the input edge weights.
      */
-	public PrimMinimumSpanningTree(Factory<? extends Graph<V,E>> factory, 
-			Transformer<E, Double> weights) {
-		this.treeFactory = factory;
+	public PrimMinimumSpanningTree(Supplier<? extends Graph<V,E>> Supplier, 
+			Function<? super E, Double> weights) {
+		this.treeFactory = Supplier;
 		if(weights != null) {
 			this.weights = weights;
 		}
@@ -47,9 +47,9 @@ public class PrimMinimumSpanningTree<V,E> implements Transformer<Graph<V,E>,Grap
 	/**
 	 * @param graph the Graph to find MST in
 	 */
-    public Graph<V,E> transform(Graph<V,E> graph) {
+    public Graph<V,E> apply(Graph<V,E> graph) {
 		Set<E> unfinishedEdges = new HashSet<E>(graph.getEdges());
-		Graph<V,E> tree = treeFactory.create();
+		Graph<V,E> tree = treeFactory.get();
 		V root = findRoot(graph);
 		if(graph.getVertices().contains(root)) {
 			tree.addVertex(root);
@@ -91,15 +91,15 @@ public class PrimMinimumSpanningTree<V,E> implements Transformer<Graph<V,E>,Grap
 			V first = endpoints.getFirst();
 			V second = endpoints.getSecond();
 			if((tv.contains(first) == true && tv.contains(second) == false)) {
-				if(weights.transform(e) < minCost) {
-					minCost = weights.transform(e);
+				if(weights.apply(e) < minCost) {
+					minCost = weights.apply(e);
 					nextEdge = e;
 					currentVertex = first;
 					nextVertex = second;
 				}
 			} else if((tv.contains(second) == true && tv.contains(first) == false)) {
-				if(weights.transform(e) < minCost) {
-					minCost = weights.transform(e);
+				if(weights.apply(e) < minCost) {
+					minCost = weights.apply(e);
 					nextEdge = e;
 					currentVertex = second;
 					nextVertex = first;

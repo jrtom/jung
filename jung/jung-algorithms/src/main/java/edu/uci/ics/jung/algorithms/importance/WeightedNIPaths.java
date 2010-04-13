@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.collections15.Factory;
+import com.google.common.base.Supplier;
 
 import edu.uci.ics.jung.graph.DirectedGraph;
 
@@ -50,8 +50,8 @@ public class WeightedNIPaths<V,E> extends AbstractRanker<V,E> {
     private Map<E,Number> pathIndices = new HashMap<E,Number>();
     private Map<Object,V> roots = new HashMap<Object,V>();
     private Map<V,Set<Number>> pathsSeenMap = new HashMap<V,Set<Number>>();
-    private Factory<V> vertexFactory;
-    private Factory<E> edgeFactory;
+    private Supplier<V> vertexFactory;
+    private Supplier<E> edgeFactory;
 
     /**
      * Constructs and initializes the algorithm.
@@ -60,8 +60,8 @@ public class WeightedNIPaths<V,E> extends AbstractRanker<V,E> {
      * @param maxDepth the maximal depth to search out from the root set
      * @param priors the root set (starting vertices)
      */
-    public WeightedNIPaths(DirectedGraph<V,E> graph, Factory<V> vertexFactory,
-    		Factory<E> edgeFactory, double alpha, int maxDepth, Set<V> priors) {
+    public WeightedNIPaths(DirectedGraph<V,E> graph, Supplier<V> vertexFactory,
+    		Supplier<E> edgeFactory, double alpha, int maxDepth, Set<V> priors) {
         super.initialize(graph, true,false);
         this.vertexFactory = vertexFactory;
         this.edgeFactory = edgeFactory;
@@ -90,9 +90,9 @@ public class WeightedNIPaths<V,E> extends AbstractRanker<V,E> {
 
         List<E> edges = new ArrayList<E>();
 
-        V virtualNode = vertexFactory.create();
+        V virtualNode = vertexFactory.get();
         getGraph().addVertex(virtualNode);
-        E virtualSinkEdge = edgeFactory.create();
+        E virtualSinkEdge = edgeFactory.get();
 
         getGraph().addEdge(virtualSinkEdge, virtualNode, root);
         edges.add(virtualSinkEdge);

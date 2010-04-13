@@ -134,11 +134,11 @@ public interface VisualizationServer<V, E> {
 //    Point2D layoutTransform(Point2D p);
 
     /**
-     * @param transformer The transformer to set.
+     * @param Function The Function to set.
      */
-//    void setViewTransformer(MutableTransformer transformer);
+//    void setViewTransformer(MutableTransformer Function);
 //
-//    void setLayoutTransformer(MutableTransformer transformer);
+//    void setLayoutTransformer(MutableTransformer Function);
 //
 //    MutableTransformer getViewTransformer();
 //

@@ -14,7 +14,7 @@ package edu.uci.ics.jung.algorithms.generators.random;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.collections15.Factory;
+import com.google.common.base.Supplier;
 
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.EdgeType;
@@ -31,9 +31,9 @@ public class MixedRandomGraphGenerator {
 	 * Equivalent to <code>generateMixedRandomGraph(edge_weight, num_vertices, true)</code>.
 	 */
 	public static <V,E> Graph<V, E> generateMixedRandomGraph(
-			Factory<Graph<V,E>> graphFactory,
-			Factory<V> vertexFactory,
-    		Factory<E> edgeFactory,
+			Supplier<Graph<V,E>> graphFactory,
+			Supplier<V> vertexFactory,
+    		Supplier<E> edgeFactory,
     		Map<E,Number> edge_weight, 
 			int num_vertices, Set<V> seedVertices)
 	{
@@ -49,9 +49,9 @@ public class MixedRandomGraphGenerator {
      * edges, and assigns random weights to each edge.
      */
     public static <V,E> Graph<V,E> generateMixedRandomGraph(
-    		Factory<Graph<V,E>> graphFactory,
-    		Factory<V> vertexFactory,
-    		Factory<E> edgeFactory,
+    		Supplier<Graph<V,E>> graphFactory,
+    		Supplier<V> vertexFactory,
+    		Supplier<E> edgeFactory,
     		Map<E,Number> edge_weights, 
             int num_vertices, boolean parallel, Set<V> seedVertices)
     {
@@ -61,10 +61,10 @@ public class MixedRandomGraphGenerator {
             		4, 3, //false, parallel, 
             		seed, seedVertices);
         bag.evolveGraph(num_vertices - 4);
-        Graph<V, E> ug = bag.create();
+        Graph<V, E> ug = bag.get();
 
         // create a SparseMultigraph version of g
-        Graph<V, E> g = graphFactory.create();
+        Graph<V, E> g = graphFactory.get();
         	//new SparseMultigraph<V, E>();
         for(V v : ug.getVertices()) {
         	g.addVertex(v);
@@ -77,7 +77,7 @@ public class MixedRandomGraphGenerator {
             V v1 = ug.getEndpoints(e).getFirst();
             V v2 = ug.getEndpoints(e).getSecond();
 
-            E me = edgeFactory.create();
+            E me = edgeFactory.get();
             g.addEdge(me, v1, v2, Math.random() < .5 ? EdgeType.DIRECTED : EdgeType.UNDIRECTED);
             edge_weights.put(me, Math.random());
         }

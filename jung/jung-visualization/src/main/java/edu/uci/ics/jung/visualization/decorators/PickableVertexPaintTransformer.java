@@ -13,7 +13,7 @@ package edu.uci.ics.jung.visualization.decorators;
 
 import java.awt.Paint;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 import edu.uci.ics.jung.visualization.picking.PickedInfo;
 
@@ -22,7 +22,7 @@ import edu.uci.ics.jung.visualization.picking.PickedInfo;
  * parameters given in the constructor, so that picked and
  * non-picked vertices can be made to look different.
  */
-public class PickableVertexPaintTransformer<V> implements Transformer<V,Paint> {
+public class PickableVertexPaintTransformer<V> implements Function<V,Paint> {
 
     protected Paint fill_paint;
     protected Paint picked_paint;
@@ -45,7 +45,7 @@ public class PickableVertexPaintTransformer<V> implements Transformer<V,Paint> {
         this.picked_paint = picked_paint;
     }
 
-    public Paint transform(V v)
+    public Paint apply(V v)
     {
         if (pi.isPicked(v))
             return picked_paint;

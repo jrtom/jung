@@ -24,7 +24,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import org.apache.commons.collections15.functors.ConstantTransformer;
+import com.google.common.base.Functions;
 
 import edu.uci.ics.jung.algorithms.layout.KKLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
@@ -81,7 +81,7 @@ public class MinimumSpanningTreeDemo extends JApplet {
 //    VisualizationViewer<String,Number> vv3;
     
     /**
-     * the normal transformer
+     * the normal Function
      */
     MutableTransformer layoutTransformer;
     
@@ -104,7 +104,7 @@ public class MinimumSpanningTreeDemo extends JApplet {
         MinimumSpanningForest2<String,Number> prim = 
         	new MinimumSpanningForest2<String,Number>(graph,
         		new DelegateForest<String,Number>(), DelegateTree.<String,Number>getFactory(),
-        		new ConstantTransformer(1.0));
+        		Functions.<Double>constant(1.0));
         
         tree = prim.getForest();
         
@@ -202,7 +202,7 @@ public class MinimumSpanningTreeDemo extends JApplet {
         vv1.add(flow1, BorderLayout.NORTH);
         vv2.add(flow2, BorderLayout.NORTH);
         
-//        vv2.getRenderContext().setEdgeDrawPaintTransformer(new Transformer<Number,Paint>() {
+//        vv2.getRenderContext().setEdgeDrawPaintTransformer(new Function<Number,Paint>() {
 //
 //			public Paint transform(Number e) {
 //				if(tree.getEdges().contains(e) == false) return Color.lightGray;
@@ -231,7 +231,7 @@ public class MinimumSpanningTreeDemo extends JApplet {
         vv2.setGraphMouse(gm2);
 //        vv3.setGraphMouse(gm3);
 
-        // create zoom buttons for scaling the transformer that is
+        // create zoom buttons for scaling the Function that is
         // shared between the two models.
         final ScalingControl scaler = new CrossoverScalingControl();
         

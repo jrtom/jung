@@ -11,11 +11,11 @@
  */
 package edu.uci.ics.jung.io;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 /**
  * Maintains information relating to data for the specified type.
- * This includes a transformer from objects to their values,
+ * This includes a Function from objects to their values,
  * a default value, and a description.
  */
 public class GraphMLMetadata<T> 
@@ -31,20 +31,20 @@ public class GraphMLMetadata<T>
 	public String default_value;
 	
 	/**
-	 * A transformer from objects to string representations 
+	 * A Function from objects to string representations 
 	 * of their values.
 	 */
-	public Transformer<T, String> transformer;
+	public Function<T, String> transformer;
 	
 	/**
 	 * Creates a new instance with the specified description,
-	 * default value, and transformer.
+	 * default value, and Function.
 	 */
 	public GraphMLMetadata(String description, String default_value,
-			Transformer<T, String> transformer)
+			Function<T, String> Function)
 	{
 		this.description = description;
-		this.transformer = transformer;
+		this.transformer = Function;
 		this.default_value = default_value;
 	}
 }

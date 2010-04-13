@@ -20,8 +20,8 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Stack;
 
-import org.apache.commons.collections15.Transformer;
-import org.apache.commons.collections15.functors.ConstantTransformer;
+import com.google.common.base.Function;
+import com.google.common.base.Functions;
 
 import edu.uci.ics.jung.algorithms.util.MapBinaryHeap;
 import edu.uci.ics.jung.graph.Graph;
@@ -45,11 +45,10 @@ public class BetweennessCentrality<V, E>
 	 * in the graph.
 	 * @param graph the graph for which the scores are to be calculated
 	 */
-	@SuppressWarnings("unchecked")
 	public BetweennessCentrality(Graph<V, E> graph) 
 	{
 		initialize(graph);
-		computeBetweenness(new LinkedList<V>(), new ConstantTransformer(1));
+		computeBetweenness(new LinkedList<V>(), Functions.<Integer>constant(1));
 	}
 
 	/**
@@ -62,12 +61,12 @@ public class BetweennessCentrality<V, E>
 	 * @param edge_weights the edge weights to be used in the path length calculations
 	 */
 	public BetweennessCentrality(Graph<V, E> graph, 
-			Transformer<E, ? extends Number> edge_weights) 
+			Function<? super E, ? extends Number> edge_weights) 
 	{
 		// reject negative-weight edges up front
 		for (E e : graph.getEdges())
 		{
-			double e_weight = edge_weights.transform(e).doubleValue();
+			double e_weight = edge_weights.apply(e).doubleValue();
         	if (e_weight < 0)
         		throw new IllegalArgumentException(String.format(
         				"Weight for edge '%s' is < 0: %d", e, e_weight)); 
@@ -93,7 +92,7 @@ public class BetweennessCentrality<V, E>
 	}
 	
 	protected void computeBetweenness(Queue<V> queue, 
-			Transformer<E, ? extends Number> edge_weights)
+			Function<? super E, ? extends Number> edge_weights)
 	{
 		for (V v : graph.getVertices())
 		{
@@ -125,7 +124,7 @@ public class BetweennessCentrality<V, E>
                 	V x = graph.getOpposite(w, e);
                 	if (x.equals(w))
                 		continue;
-                	double wx_weight = edge_weights.transform(e).doubleValue();
+                	double wx_weight = edge_weights.apply(e).doubleValue();
                 	
                 	
 //                for(V x : graph.getSuccessors(w)) 
@@ -189,7 +188,7 @@ public class BetweennessCentrality<V, E>
                 	V x = graph.getOpposite(w, e);
                 	if (x.equals(w))
                 		continue;
-                	double e_weight = edge_weights.transform(e).doubleValue();
+                	double e_weight = edge_weights.apply(e).doubleValue();
                 	BetweennessData x_data = vertex_data.get(x);
                 	double x_potential_dist = w_data.distance + e_weight;
                     if (x_data.distance == x_potential_dist) 
@@ -245,7 +244,7 @@ public class BetweennessCentrality<V, E>
         vertex_data.clear();
 	}
 
-//	protected void computeWeightedBetweenness(Transformer<E, ? extends Number> edge_weights)
+//	protected void computeWeightedBetweenness(Function<E, ? extends Number> edge_weights)
 //	{
 //		for (V v : graph.getVertices())
 //		{

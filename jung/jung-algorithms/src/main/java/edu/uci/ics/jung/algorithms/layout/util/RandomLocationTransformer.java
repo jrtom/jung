@@ -16,12 +16,12 @@ import java.awt.geom.Point2D;
 import java.util.Date;
 import java.util.Random;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 /**
  * Transforms the input type into a random location within
  * the bounds of the Dimension property.
- * This is used as the backing Transformer for the LazyMap
+ * This is used as the backing Function for the LazyMap
  * for many Layouts,
  * and provides a random location for unmapped vertices
  * the first time they are accessed.
@@ -30,7 +30,7 @@ import org.apache.commons.collections15.Transformer;
  *
  * @param <V>
  */
-public class RandomLocationTransformer<V> implements Transformer<V,Point2D> {
+public class RandomLocationTransformer<V> implements Function<V,Point2D> {
 
 	Dimension d;
 	Random random;
@@ -53,7 +53,7 @@ public class RandomLocationTransformer<V> implements Transformer<V,Point2D> {
     	this.random = new Random(seed);
     }
     
-    public Point2D transform(V v) {
+    public Point2D apply(V v) {
         return new Point2D.Double(random.nextDouble() * d.width, random.nextDouble() * d.height);
     }
 }

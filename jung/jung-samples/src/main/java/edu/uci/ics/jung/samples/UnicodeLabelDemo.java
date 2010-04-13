@@ -25,7 +25,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.graph.DirectedSparseGraph;
@@ -139,7 +139,7 @@ public class UnicodeLabelDemo {
     }
     
     
-    class UnicodeVertexStringer<V> implements Transformer<V,String> {
+    class UnicodeVertexStringer<V> implements Function<V,String> {
 
         Map<V,String> map = new HashMap<V,String>();
         Map<V,Icon> iconMap = new HashMap<V,Icon>();
@@ -171,7 +171,7 @@ public class UnicodeLabelDemo {
             }
         }
         
-		public String transform(V input) {
+		public String apply(V input) {
 			return getLabel(input);
 		}
     }

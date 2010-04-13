@@ -13,7 +13,7 @@ package edu.uci.ics.jung.algorithms.filters;
 
 import java.util.Collection;
 
-import org.apache.commons.collections15.Predicate;
+import com.google.common.base.Predicate;
 
 import edu.uci.ics.jung.graph.Graph;
 
@@ -40,7 +40,7 @@ public class VertexPredicateFilter<V,E> implements Filter<V,E>
     }
     
     @SuppressWarnings("unchecked")
-	public Graph<V,E> transform(Graph<V,E> g)
+	public Graph<V,E> apply(Graph<V,E> g)
     {
         Graph<V, E> filtered;
         try
@@ -57,7 +57,7 @@ public class VertexPredicateFilter<V,E> implements Filter<V,E>
         }
 
         for (V v : g.getVertices())
-            if (vertex_pred.evaluate(v))
+            if (vertex_pred.apply(v))
                 filtered.addVertex(v);
         
         Collection<V> filtered_vertices = filtered.getVertices();

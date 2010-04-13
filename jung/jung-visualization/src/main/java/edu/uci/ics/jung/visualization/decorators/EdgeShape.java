@@ -74,7 +74,7 @@ public class EdgeShape<V,E>  {
          * SimpleLoop shared instance.
          */
         @SuppressWarnings("unchecked")
-		public Shape transform(Context<Graph<V,E>,E> context) {
+		public Shape apply(Context<Graph<V,E>,E> context) {
         	Graph<V,E> graph = context.graph;
         	E e = context.element;
             
@@ -82,7 +82,7 @@ public class EdgeShape<V,E>  {
             if(endpoints != null) {
             	boolean isLoop = endpoints.getFirst().equals(endpoints.getSecond());
             	if (isLoop) {
-            		return loop.transform(context);
+            		return loop.apply(context);
             	}
             }
             return instance;
@@ -126,14 +126,14 @@ public class EdgeShape<V,E>  {
          * Loop shared instance.
          */
         @SuppressWarnings("unchecked")
-		public Shape transform(Context<Graph<V,E>,E> context) {
+		public Shape apply(Context<Graph<V,E>,E> context) {
         	Graph<V,E> graph = context.graph;
         	E e = context.element;
             Pair<V> endpoints = graph.getEndpoints(e);
             if(endpoints != null) {
             	boolean isLoop = endpoints.getFirst().equals(endpoints.getSecond());
             	if (isLoop) {
-            		return loop.transform(context);
+            		return loop.apply(context);
             	}
             }
             
@@ -184,14 +184,14 @@ public class EdgeShape<V,E>  {
          * Loop shared instance.
          */
         @SuppressWarnings("unchecked")
-		public Shape transform(Context<Graph<V,E>,E> context) {
+		public Shape apply(Context<Graph<V,E>,E> context) {
         	Graph<V,E> graph = context.graph;
         	E e = context.element;
             Pair<V> endpoints = graph.getEndpoints(e);
             if(endpoints != null) {
             	boolean isLoop = endpoints.getFirst().equals(endpoints.getSecond());
             	if (isLoop) {
-            		return loop.transform(context);
+            		return loop.apply(context);
             	}
             }
             
@@ -242,14 +242,14 @@ public class EdgeShape<V,E>  {
          * Loop shared instance.
          */
         @SuppressWarnings("unchecked")
-		public Shape transform(Context<Graph<V,E>,E> context) {
+		public Shape apply(Context<Graph<V,E>,E> context) {
         	Graph<V,E> graph = context.graph;
         	E e = context.element;
            Pair<V> endpoints = graph.getEndpoints(e);
            if(endpoints != null) {
         	   boolean isLoop = endpoints.getFirst().equals(endpoints.getSecond());
         	   if (isLoop) {
-        		   return loop.transform(context);
+        		   return loop.apply(context);
         	   }
            }
            
@@ -283,7 +283,7 @@ public class EdgeShape<V,E>  {
          * getter for the shape
          * @return the shared instance
          */
-        public Shape transform(Context<Graph<V,E>,E> context) {
+        public Shape apply(Context<Graph<V,E>,E> context) {
             return instance;
         }
     }
@@ -319,7 +319,7 @@ public class EdgeShape<V,E>  {
          * Get the shape for this edge, modifying the diameter in the
          * case of parallel edges, so they do not overlap
          */
-        public Shape transform(Context<Graph<V,E>,E> context) {
+        public Shape apply(Context<Graph<V,E>,E> context) {
         	Graph<V,E> graph = context.graph;
         	E e = context.element;
             int count = 1;
@@ -359,7 +359,7 @@ public class EdgeShape<V,E>  {
             bowtie.closePath();
         }
         
-        public Shape transform(Context<Graph<V,E>,E> context) {
+        public Shape apply(Context<Graph<V,E>,E> context) {
         	Graph<V,E> graph = context.graph;
         	E e = context.element;
         
@@ -406,7 +406,7 @@ public class EdgeShape<V,E>  {
          * Get the shape for this edge, modifying the diameter in the
          * case of parallel edges, so they do not overlap
          */
-        public Shape transform(Context<Graph<V,E>,E> context) {
+        public Shape apply(Context<Graph<V,E>,E> context) {
         	Graph<V,E> graph = context.graph;
         	E e = context.element;
             int count = 1;
@@ -459,14 +459,14 @@ public class EdgeShape<V,E>  {
          * Loop shared instance.
          */
         @SuppressWarnings("unchecked")
-		public Shape transform(Context<Graph<V,E>,E> context) {
+		public Shape apply(Context<Graph<V,E>,E> context) {
         	Graph<V,E> graph = context.graph;
         	E e = context.element;
             Pair<V> endpoints = graph.getEndpoints(e);
             if(endpoints != null) {
             	boolean isLoop = endpoints.getFirst().equals(endpoints.getSecond());
             	if (isLoop) {
-            		return box.transform(context);
+            		return box.apply(context);
             	}
             }
             return instance;

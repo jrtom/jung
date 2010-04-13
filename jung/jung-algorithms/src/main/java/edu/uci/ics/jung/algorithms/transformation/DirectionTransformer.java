@@ -12,7 +12,7 @@
  */
 package edu.uci.ics.jung.algorithms.transformation;
 
-import org.apache.commons.collections15.Factory;
+import com.google.common.base.Supplier;
 
 import edu.uci.ics.jung.graph.DirectedGraph;
 import edu.uci.ics.jung.graph.Graph;
@@ -49,10 +49,10 @@ public class DirectionTransformer
      * @return          the transformed <code>Graph</code>
      */
     public static <V,E> UndirectedGraph<V,E> toUndirected(Graph<V,E> graph, 
-    		Factory<UndirectedGraph<V,E>> graph_factory,
-            Factory<E> edge_factory, boolean create_new)
+    		Supplier<UndirectedGraph<V,E>> graph_factory,
+            Supplier<E> edge_factory, boolean create_new)
     {
-        UndirectedGraph<V,E> out = graph_factory.create();
+        UndirectedGraph<V,E> out = graph_factory.get();
         
         for (V v : graph.getVertices())
             out.addVertex(v);
@@ -64,7 +64,7 @@ public class DirectionTransformer
             V v2 = endpoints.getSecond();
             E to_add;
             if (graph.getEdgeType(e) == EdgeType.DIRECTED || create_new)
-                to_add = edge_factory.create();
+                to_add = edge_factory.get();
             else
                 to_add = e;
             out.addEdge(to_add, v1, v2, EdgeType.UNDIRECTED);
@@ -89,10 +89,10 @@ public class DirectionTransformer
      * @param edge_factory used to create new edges
      * @return          the transformed <code>Graph</code>
      */
-    public static <V,E> Graph<V,E> toDirected(Graph<V,E> graph, Factory<DirectedGraph<V,E>> graph_factory,
-            Factory<E> edge_factory, boolean create_new)
+    public static <V,E> Graph<V,E> toDirected(Graph<V,E> graph, Supplier<DirectedGraph<V,E>> graph_factory,
+            Supplier<E> edge_factory, boolean create_new)
     {
-        DirectedGraph<V,E> out = graph_factory.create();
+        DirectedGraph<V,E> out = graph_factory.get();
         
         for (V v : graph.getVertices())
             out.addVertex(v);
@@ -104,14 +104,14 @@ public class DirectionTransformer
             {
                 V v1 = endpoints.getFirst();
                 V v2 = endpoints.getSecond();
-                out.addEdge(edge_factory.create(), v1, v2, EdgeType.DIRECTED);
-                out.addEdge(edge_factory.create(), v2, v1, EdgeType.DIRECTED);
+                out.addEdge(edge_factory.get(), v1, v2, EdgeType.DIRECTED);
+                out.addEdge(edge_factory.get(), v2, v1, EdgeType.DIRECTED);
             }
             else // if the edge is directed, just add it 
             {
                 V source = graph.getSource(e);
                 V dest = graph.getDest(e);
-                E to_add = create_new ? edge_factory.create() : e;
+                E to_add = create_new ? edge_factory.get() : e;
                 out.addEdge(to_add, source, dest, EdgeType.DIRECTED);
             }
                 

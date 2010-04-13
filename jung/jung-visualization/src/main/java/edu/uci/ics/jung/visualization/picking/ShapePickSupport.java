@@ -23,8 +23,8 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.apache.commons.collections15.Predicate;
-import org.apache.commons.collections15.functors.TruePredicate;
+import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
 
 import edu.uci.ics.jung.algorithms.layout.GraphElementAccessor;
 import edu.uci.ics.jung.algorithms.layout.Layout;
@@ -172,9 +172,9 @@ public class ShapePickSupport<V, E> implements GraphElementAccessor<V,E> {
             try {
                 for(V v : getFilteredVertices(layout)) {
                 	
-                    Shape shape = vv.getRenderContext().getVertexShapeTransformer().transform(v);
+                    Shape shape = vv.getRenderContext().getVertexShapeTransformer().apply(v);
                     // get the vertex location
-                    Point2D p = layout.transform(v);
+                    Point2D p = layout.apply(v);
                     if(p == null) continue;
                     // transform the vertex location to screen coords
                     p = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, p);
@@ -229,7 +229,7 @@ public class ShapePickSupport<V, E> implements GraphElementAccessor<V,E> {
         while(true) {
             try {
                 for(V v : getFilteredVertices(layout)) {
-                    Point2D p = layout.transform(v);
+                    Point2D p = layout.apply(v);
                     if(p == null) continue;
 
                     p = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, p);
@@ -315,8 +315,8 @@ public class ShapePickSupport<V, E> implements GraphElementAccessor<V,E> {
 		V v1 = pair.getFirst();
 		V v2 = pair.getSecond();
 		boolean isLoop = v1.equals(v2);
-		Point2D p1 = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, layout.transform(v1));
-		Point2D p2 = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, layout.transform(v2));
+		Point2D p1 = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, layout.apply(v1));
+		Point2D p2 = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, layout.apply(v2));
         if(p1 == null || p2 == null) 
         	return null;
 		float x1 = (float) p1.getX();
@@ -328,10 +328,10 @@ public class ShapePickSupport<V, E> implements GraphElementAccessor<V,E> {
 		AffineTransform xform = AffineTransform.getTranslateInstance(x1, y1);
 
 		Shape edgeShape = 
-			vv.getRenderContext().getEdgeShapeTransformer().transform(Context.<Graph<V,E>,E>getInstance(vv.getGraphLayout().getGraph(),e));
+			vv.getRenderContext().getEdgeShapeTransformer().apply(Context.<Graph<V,E>,E>getInstance(vv.getGraphLayout().getGraph(),e));
 		if(isLoop) {
 		    // make the loops proportional to the size of the vertex
-		    Shape s2 = vv.getRenderContext().getVertexShapeTransformer().transform(v2);
+		    Shape s2 = vv.getRenderContext().getVertexShapeTransformer().apply(v2);
 		    Rectangle2D s2Bounds = s2.getBounds2D();
 		    xform.scale(s2Bounds.getWidth(),s2Bounds.getHeight());
 		    // move the loop so that the nadir is centered in the vertex
@@ -401,7 +401,8 @@ public class ShapePickSupport<V, E> implements GraphElementAccessor<V,E> {
 		Predicate<Context<Graph<V,E>,V>> vertexIncludePredicate =
 			vv.getRenderContext().getVertexIncludePredicate();
 		return vertexIncludePredicate != null &&
-			vertexIncludePredicate instanceof TruePredicate == false;
+			vertexIncludePredicate.equals(Predicates.alwaysTrue()) == false;
+//			vertexIncludePredicate instanceof TruePredicate == false;
     }
     
     /**
@@ -413,7 +414,8 @@ public class ShapePickSupport<V, E> implements GraphElementAccessor<V,E> {
 		Predicate<Context<Graph<V,E>,E>> edgeIncludePredicate =
 			vv.getRenderContext().getEdgeIncludePredicate();
 		return edgeIncludePredicate != null &&
-			edgeIncludePredicate instanceof TruePredicate == false;
+			edgeIncludePredicate.equals(Predicates.alwaysTrue()) == false;
+//			edgeIncludePredicate instanceof TruePredicate == false;
     }
     
 	/**
@@ -427,7 +429,7 @@ public class ShapePickSupport<V, E> implements GraphElementAccessor<V,E> {
 	protected boolean isVertexRendered(Context<Graph<V,E>,V> context) {
 		Predicate<Context<Graph<V,E>,V>> vertexIncludePredicate =
 			vv.getRenderContext().getVertexIncludePredicate();
-		return vertexIncludePredicate == null || vertexIncludePredicate.evaluate(context);
+		return vertexIncludePredicate == null || vertexIncludePredicate.apply(context);
 	}
 	
 	/**
@@ -446,13 +448,13 @@ public class ShapePickSupport<V, E> implements GraphElementAccessor<V,E> {
 			vv.getRenderContext().getEdgeIncludePredicate();
 		Graph<V,E> g = context.graph;
 		E e = context.element;
-		boolean edgeTest = edgeIncludePredicate == null || edgeIncludePredicate.evaluate(context);
+		boolean edgeTest = edgeIncludePredicate == null || edgeIncludePredicate.apply(context);
 		Pair<V> endpoints = g.getEndpoints(e);
 		V v1 = endpoints.getFirst();
 		V v2 = endpoints.getSecond();
 		boolean endpointsTest = vertexIncludePredicate == null ||
-			(vertexIncludePredicate.evaluate(Context.<Graph<V,E>,V>getInstance(g,v1)) && 
-					vertexIncludePredicate.evaluate(Context.<Graph<V,E>,V>getInstance(g,v2)));
+			(vertexIncludePredicate.apply(Context.<Graph<V,E>,V>getInstance(g,v1)) && 
+					vertexIncludePredicate.apply(Context.<Graph<V,E>,V>getInstance(g,v2)));
 		return edgeTest && endpointsTest;
 	}
 

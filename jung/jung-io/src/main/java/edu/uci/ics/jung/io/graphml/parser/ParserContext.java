@@ -10,7 +10,7 @@
 
 package edu.uci.ics.jung.io.graphml.parser;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 import edu.uci.ics.jung.graph.Hypergraph;
 import edu.uci.ics.jung.io.graphml.EdgeMetadata;
@@ -32,17 +32,17 @@ public class ParserContext<G extends Hypergraph<V, E>, V, E> {
 
     private final KeyMap keyMap;
     private final ElementParserRegistry<G,V,E> elementParserRegistry;
-    private final Transformer<GraphMetadata, G> graphTransformer;
-    private final Transformer<NodeMetadata, V> vertexTransformer;
-    private final Transformer<EdgeMetadata, E> edgeTransformer;
-    private final Transformer<HyperEdgeMetadata, E> hyperEdgeTransformer;
+    private final Function<GraphMetadata, G> graphTransformer;
+    private final Function<NodeMetadata, V> vertexTransformer;
+    private final Function<EdgeMetadata, E> edgeTransformer;
+    private final Function<HyperEdgeMetadata, E> hyperEdgeTransformer;
     
     public ParserContext(ElementParserRegistry<G,V,E> elementParserRegistry, 
             KeyMap keyMap,
-            Transformer<GraphMetadata, G> graphTransformer,
-            Transformer<NodeMetadata, V> vertexTransformer,
-            Transformer<EdgeMetadata, E> edgeTransformer,                        
-            Transformer<HyperEdgeMetadata, E> hyperEdgeTransformer ) {
+            Function<GraphMetadata, G> graphTransformer,
+            Function<NodeMetadata, V> vertexTransformer,
+            Function<EdgeMetadata, E> edgeTransformer,                        
+            Function<HyperEdgeMetadata, E> hyperEdgeTransformer ) {
         this.elementParserRegistry = elementParserRegistry;
         this.keyMap = keyMap;
         this.graphTransformer = graphTransformer;
@@ -60,18 +60,18 @@ public class ParserContext<G extends Hypergraph<V, E>, V, E> {
     }
     
     public G createGraph(GraphMetadata metadata) {
-        return graphTransformer.transform(metadata);
+        return graphTransformer.apply(metadata);
     }
     
     public V createVertex(NodeMetadata metadata) {
-        return vertexTransformer.transform(metadata);
+        return vertexTransformer.apply(metadata);
     }
     
     public E createEdge(EdgeMetadata metadata) {
-        return edgeTransformer.transform(metadata);
+        return edgeTransformer.apply(metadata);
     }
     
     public E createHyperEdge(HyperEdgeMetadata metadata) {
-        return hyperEdgeTransformer.transform(metadata);
+        return hyperEdgeTransformer.apply(metadata);
     }
 }

@@ -32,7 +32,7 @@ public class MapSettableTransformer<I, O> implements SettableTransformer<I, O>
         this.map = m;
     }
 
-    public O transform(I input)
+    public O apply(I input)
     {
         return map.get(input);
     }

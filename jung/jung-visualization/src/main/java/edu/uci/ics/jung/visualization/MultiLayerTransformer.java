@@ -14,7 +14,7 @@ public interface MultiLayerTransformer extends BidirectionalTransformer, ShapeTr
 	/**
 	 * @see edu.uci.ics.jung.visualization.VisualizationServer#setViewTransformer(edu.uci.ics.jung.visualization.transform.MutableTransformer)
 	 */
-	void setTransformer(Layer layer, MutableTransformer transformer);
+	void setTransformer(Layer layer, MutableTransformer Function);
 
 	/**
 	 * @return the layoutTransformer

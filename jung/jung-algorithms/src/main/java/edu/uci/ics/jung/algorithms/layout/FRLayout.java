@@ -7,19 +7,18 @@
  */
 package edu.uci.ics.jung.algorithms.layout;
 
+import java.awt.Dimension;
+import java.awt.geom.Point2D;
+import java.util.ConcurrentModificationException;
+import java.util.Map;
+
+import com.google.common.base.Function;
+import com.google.common.collect.MapMaker;
+
 import edu.uci.ics.jung.algorithms.layout.util.RandomLocationTransformer;
 import edu.uci.ics.jung.algorithms.util.IterativeContext;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.Pair;
-
-import org.apache.commons.collections15.Factory;
-import org.apache.commons.collections15.map.LazyMap;
-
-import java.awt.Dimension;
-import java.awt.geom.Point2D;
-import java.util.ConcurrentModificationException;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Implements the Fruchterman-Reingold force-directed algorithm for node layout.
@@ -47,10 +46,15 @@ public class FRLayout<V, E> extends AbstractLayout<V, E> implements IterativeCon
     private int mMaxIterations = 700;
 
     private Map<V, FRVertexData> frVertexData =
-    	LazyMap.decorate(new HashMap<V,FRVertexData>(), new Factory<FRVertexData>() {
-    		public FRVertexData create() {
-    			return new FRVertexData();
-    		}});
+    	new MapMaker().makeComputingMap(new Function<V,FRVertexData>(){
+//			@Override
+			public FRVertexData apply(V arg0) {
+				return new FRVertexData();
+			}});
+//    	LazyMap.decorate(new HashMap<V,FRVertexData>(), new Supplier<FRVertexData>() {
+//    		public FRVertexData create() {
+//    			return new FRVertexData();
+//    		}});
 
     private double attraction_multiplier = 0.75;
 
@@ -178,7 +182,7 @@ public class FRLayout<V, E> extends AbstractLayout<V, E> implements IterativeCon
     protected synchronized void calcPositions(V v) {
         FRVertexData fvd = getFRData(v);
         if(fvd == null) return;
-        Point2D xyd = transform(v);
+        Point2D xyd = apply(v);
         double deltaLength = Math.max(EPSILON, fvd.norm());
 
         double newXDisp = fvd.getX() / deltaLength
@@ -223,8 +227,8 @@ public class FRLayout<V, E> extends AbstractLayout<V, E> implements IterativeCon
         	// both locked, do nothing
         	return;
         }
-        Point2D p1 = transform(v1);
-        Point2D p2 = transform(v2);
+        Point2D p1 = apply(v1);
+        Point2D p2 = apply(v2);
         if(p1 == null || p2 == null) return;
         double xDelta = p1.getX() - p2.getX();
         double yDelta = p1.getY() - p2.getY();
@@ -260,8 +264,8 @@ public class FRLayout<V, E> extends AbstractLayout<V, E> implements IterativeCon
 
 //                if (isLocked(v2)) continue;
                 if (v1 != v2) {
-                    Point2D p1 = transform(v1);
-                    Point2D p2 = transform(v2);
+                    Point2D p1 = apply(v1);
+                    Point2D p2 = apply(v2);
                     if(p1 == null || p2 == null) continue;
                     double xDelta = p1.getX() - p2.getX();
                     double yDelta = p1.getY() - p2.getY();

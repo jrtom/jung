@@ -13,7 +13,7 @@ package edu.uci.ics.jung.algorithms.generators;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.collections15.Factory;
+import com.google.common.base.Supplier;
 
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.EdgeType;
@@ -24,7 +24,7 @@ import edu.uci.ics.jung.graph.util.EdgeType;
  * May be toroidal, in which case the vertices on the edges are connected to
  * their counterparts on the opposite edges as well.
  * 
- * <p>If the graph factory supplied has a default edge type of {@code EdgeType.DIRECTED},
+ * <p>If the graph Supplier supplied has a default edge type of {@code EdgeType.DIRECTED},
  * then edges will be created in both directions between adjacent vertices.
  * 
  * @author Joshua O'Madadhain
@@ -35,9 +35,9 @@ public class Lattice2DGenerator<V,E> implements GraphGenerator<V,E>
     protected int col_count;
     protected boolean is_toroidal;
     protected boolean is_directed;
-    protected Factory<? extends Graph<V, E>> graph_factory;
-    protected Factory<V> vertex_factory;
-    protected Factory<E> edge_factory;
+    protected Supplier<? extends Graph<V, E>> graph_factory;
+    protected Supplier<V> vertex_factory;
+    protected Supplier<E> edge_factory;
     private List<V> v_array;
 
     /**
@@ -50,8 +50,8 @@ public class Lattice2DGenerator<V,E> implements GraphGenerator<V,E>
      * @param latticeSize the number of rows and columns of the lattice
      * @param isToroidal if true, the created lattice wraps from top to bottom and left to right
      */
-    public Lattice2DGenerator(Factory<? extends Graph<V,E>> graph_factory, Factory<V> vertex_factory, 
-            Factory<E> edge_factory, int latticeSize, boolean isToroidal)
+    public Lattice2DGenerator(Supplier<? extends Graph<V,E>> graph_factory, Supplier<V> vertex_factory, 
+            Supplier<E> edge_factory, int latticeSize, boolean isToroidal)
     {
         this(graph_factory, vertex_factory, edge_factory, latticeSize, latticeSize, isToroidal);
     }
@@ -67,8 +67,8 @@ public class Lattice2DGenerator<V,E> implements GraphGenerator<V,E>
      * @param col_count the number of columns in the lattice
      * @param isToroidal if true, the created lattice wraps from top to bottom and left to right
      */
-    public Lattice2DGenerator(Factory<? extends Graph<V,E>> graph_factory, Factory<V> vertex_factory, 
-            Factory<E> edge_factory, int row_count, int col_count, boolean isToroidal)
+    public Lattice2DGenerator(Supplier<? extends Graph<V,E>> graph_factory, Supplier<V> vertex_factory, 
+            Supplier<E> edge_factory, int row_count, int col_count, boolean isToroidal)
     {
         if (row_count < 2 || col_count < 2)
         {
@@ -81,21 +81,20 @@ public class Lattice2DGenerator<V,E> implements GraphGenerator<V,E>
         this.graph_factory = graph_factory;
         this.vertex_factory = vertex_factory;
         this.edge_factory = edge_factory;
-        this.is_directed = (graph_factory.create().getDefaultEdgeType() == EdgeType.DIRECTED);
+        this.is_directed = (graph_factory.get().getDefaultEdgeType() == EdgeType.DIRECTED);
     }
     
     /**
      * @see edu.uci.ics.jung.algorithms.generators.GraphGenerator#create()
      */
-    @SuppressWarnings("unchecked")
-    public Graph<V,E> create()
+    public Graph<V,E> get()
     {
         int vertex_count = row_count * col_count;
-        Graph<V,E> graph = graph_factory.create();
+        Graph<V,E> graph = graph_factory.get();
         v_array = new ArrayList<V>(vertex_count);
         for (int i = 0; i < vertex_count; i++)
         {
-            V v = vertex_factory.create();
+            V v = vertex_factory.get();
             graph.addVertex(v);
             v_array.add(i, v);
         }
@@ -108,11 +107,11 @@ public class Lattice2DGenerator<V,E> implements GraphGenerator<V,E>
         // down
         for (int i = 0; i < end_row; i++)
             for (int j = 0; j < col_count; j++)
-                graph.addEdge(edge_factory.create(), getVertex(i,j), getVertex(i+1, j));
+                graph.addEdge(edge_factory.get(), getVertex(i,j), getVertex(i+1, j));
         // right
         for (int i = 0; i < row_count; i++)
             for (int j = 0; j < end_col; j++)
-                graph.addEdge(edge_factory.create(), getVertex(i,j), getVertex(i, j+1));
+                graph.addEdge(edge_factory.get(), getVertex(i,j), getVertex(i, j+1));
 
         // if the graph is directed, fill in the edges going the other direction...
         if (graph.getDefaultEdgeType() == EdgeType.DIRECTED)
@@ -120,11 +119,11 @@ public class Lattice2DGenerator<V,E> implements GraphGenerator<V,E>
             // up
             for (int i = start; i < row_count; i++)
                 for (int j = 0; j < col_count; j++)
-                    graph.addEdge(edge_factory.create(), getVertex(i,j), getVertex(i-1, j));
+                    graph.addEdge(edge_factory.get(), getVertex(i,j), getVertex(i-1, j));
             // left
             for (int i = 0; i < row_count; i++)
                 for (int j = start; j < col_count; j++)
-                    graph.addEdge(edge_factory.create(), getVertex(i,j), getVertex(i, j-1));
+                    graph.addEdge(edge_factory.get(), getVertex(i,j), getVertex(i, j-1));
         }
         
         return graph;

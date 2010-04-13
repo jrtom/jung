@@ -11,16 +11,12 @@
  */
 package edu.uci.ics.jung.algorithms.scoring;
 
-import junit.framework.Assert;
 import junit.framework.TestCase;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
-import edu.uci.ics.jung.graph.DirectedGraph;
 import edu.uci.ics.jung.graph.DirectedSparseGraph;
 import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.UndirectedGraph;
-import edu.uci.ics.jung.graph.UndirectedSparseGraph;
 
 /**
  *
@@ -118,9 +114,9 @@ public class TestBetweennessCentrality extends TestCase
 
     	final int weights[] = {1, 1, 1, 1, 1};
     	
-    	Transformer<Character, Integer> edge_weights = new Transformer<Character, Integer>()
+    	Function<Character, Integer> edge_weights = new Function<Character, Integer>()
     	{
-			public Integer transform(Character arg0) { return weights[arg0 - 'a']; }
+			public Integer apply(Character arg0) { return weights[arg0 - 'a']; }
     	};
     	
     	BetweennessCentrality<Integer,Character> bc = 
@@ -137,7 +133,7 @@ public class TestBetweennessCentrality extends TestCase
     	{
     		char e = (char)(i + 'a');
     		System.out.println(String.format("%c: (weight: %d), %f", e, 
-    				edge_weights.transform(e), bc.getEdgeScore(e)));
+    				edge_weights.apply(e), bc.getEdgeScore(e)));
     	}
     }
 }

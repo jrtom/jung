@@ -11,11 +11,11 @@ package edu.uci.ics.jung.algorithms.cluster;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Set;
 
-import org.apache.commons.collections15.Buffer;
-import org.apache.commons.collections15.Transformer;
-import org.apache.commons.collections15.buffer.UnboundedFifoBuffer;
+import com.google.common.base.Function;
 
 import edu.uci.ics.jung.graph.Graph;
 
@@ -32,14 +32,14 @@ import edu.uci.ics.jung.graph.Graph;
  * Running time: O(|V| + |E|) where |V| is the number of vertices and |E| is the number of edges.
  * @author Scott White
  */
-public class WeakComponentClusterer<V,E> implements Transformer<Graph<V,E>, Set<Set<V>>> 
+public class WeakComponentClusterer<V,E> implements Function<Graph<V,E>, Set<Set<V>>> 
 {
 	/**
      * Extracts the weak components from a graph.
      * @param graph the graph whose weak components are to be extracted
      * @return the list of weak components
      */
-    public Set<Set<V>> transform(Graph<V,E> graph) {
+    public Set<Set<V>> apply(Graph<V,E> graph) {
 
         Set<Set<V>> clusterSet = new HashSet<Set<V>>();
 
@@ -51,7 +51,7 @@ public class WeakComponentClusterer<V,E> implements Transformer<Graph<V,E>, Set<
             unvisitedVertices.remove(root);
             cluster.add(root);
 
-            Buffer<V> queue = new UnboundedFifoBuffer<V>();
+            Queue<V> queue = new LinkedList<V>();
             queue.add(root);
 
             while (!queue.isEmpty()) {

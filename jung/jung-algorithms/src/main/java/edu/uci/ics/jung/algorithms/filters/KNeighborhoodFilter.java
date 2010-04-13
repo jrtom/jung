@@ -69,7 +69,7 @@ public class KNeighborhoodFilter<V,E> implements Filter<V,E> {
 	 * Constructs an unassembled graph containing the k-neighborhood around the root node(s).
 	 */
 	@SuppressWarnings("unchecked")
-	public Graph<V,E> transform(Graph<V,E> graph) {
+	public Graph<V,E> apply(Graph<V,E> graph) {
 		// generate a Set of Vertices we want
 		// add all to the UG
 		int currentDepth = 0;

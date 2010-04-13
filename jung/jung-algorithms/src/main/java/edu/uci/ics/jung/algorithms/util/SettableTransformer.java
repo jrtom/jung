@@ -11,7 +11,7 @@
  */
 package edu.uci.ics.jung.algorithms.util;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 /**
  * An interface for classes that can set the value to be returned (from <code>transform()</code>)
@@ -19,7 +19,7 @@ import org.apache.commons.collections15.Transformer;
  * 
  * @author Joshua O'Madadhain
  */
-public interface SettableTransformer<I, O> extends Transformer<I, O>
+public interface SettableTransformer<I, O> extends Function<I, O>
 {
     /**
      * Sets the value (<code>output</code>) to be returned by a call to 

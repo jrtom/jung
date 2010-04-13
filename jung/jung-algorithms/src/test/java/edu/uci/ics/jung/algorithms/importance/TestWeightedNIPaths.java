@@ -17,7 +17,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import org.apache.commons.collections15.Factory;
+import com.google.common.base.Supplier;
 
 import edu.uci.ics.jung.graph.DirectedGraph;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
@@ -27,8 +27,8 @@ import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
  */
 public class TestWeightedNIPaths extends TestCase {
 	
-	Factory<String> vertexFactory;
-	Factory<Number> edgeFactory;
+	Supplier<String> vertexFactory;
+	Supplier<Number> edgeFactory;
 
     public static Test suite() {
         return new TestSuite(TestWeightedNIPaths.class);
@@ -36,14 +36,14 @@ public class TestWeightedNIPaths extends TestCase {
 
     @Override
     protected void setUp() {
-    	vertexFactory = new Factory<String>() {
+    	vertexFactory = new Supplier<String>() {
     		char a = 'A';
-			public String create() {
+			public String get() {
 				return Character.toString(a++);
 			}};
-    	edgeFactory = new Factory<Number>() {
+    	edgeFactory = new Supplier<Number>() {
     		int count;
-			public Number create() {
+			public Number get() {
 				return count++;
 			}};
     }
@@ -52,22 +52,22 @@ public class TestWeightedNIPaths extends TestCase {
 
         DirectedGraph<String,Number> graph = new DirectedSparseMultigraph<String,Number>();
         for(int i=0; i<5; i++) {
-        	graph.addVertex(vertexFactory.create());
+        	graph.addVertex(vertexFactory.get());
         }
 
-        graph.addEdge(edgeFactory.create(), "A", "B");
-        graph.addEdge(edgeFactory.create(), "A", "C");
-        graph.addEdge(edgeFactory.create(), "A", "D");
-        graph.addEdge(edgeFactory.create(), "B", "A");
-        graph.addEdge(edgeFactory.create(), "B", "E");
-        graph.addEdge(edgeFactory.create(), "B", "D");
-        graph.addEdge(edgeFactory.create(), "C", "A");
-        graph.addEdge(edgeFactory.create(), "C", "E");
-        graph.addEdge(edgeFactory.create(), "C", "D");
-        graph.addEdge(edgeFactory.create(), "D", "A");
-        graph.addEdge(edgeFactory.create(), "D", "B");
-        graph.addEdge(edgeFactory.create(), "D", "C");
-        graph.addEdge(edgeFactory.create(), "D", "E");
+        graph.addEdge(edgeFactory.get(), "A", "B");
+        graph.addEdge(edgeFactory.get(), "A", "C");
+        graph.addEdge(edgeFactory.get(), "A", "D");
+        graph.addEdge(edgeFactory.get(), "B", "A");
+        graph.addEdge(edgeFactory.get(), "B", "E");
+        graph.addEdge(edgeFactory.get(), "B", "D");
+        graph.addEdge(edgeFactory.get(), "C", "A");
+        graph.addEdge(edgeFactory.get(), "C", "E");
+        graph.addEdge(edgeFactory.get(), "C", "D");
+        graph.addEdge(edgeFactory.get(), "D", "A");
+        graph.addEdge(edgeFactory.get(), "D", "B");
+        graph.addEdge(edgeFactory.get(), "D", "C");
+        graph.addEdge(edgeFactory.get(), "D", "E");
         
         Set<String> priors = new HashSet<String>();
         priors.add("A");

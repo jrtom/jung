@@ -10,6 +10,21 @@
 
 
 package edu.uci.ics.jung.samples;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JRootPane;
+
+import com.google.common.base.Functions;
+
 import edu.uci.ics.jung.algorithms.layout.AbstractLayout;
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.algorithms.layout.FRLayout2;
@@ -25,21 +40,6 @@ import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
-
-import org.apache.commons.collections15.functors.ConstantTransformer;
-
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.Timer;
-import java.util.TimerTask;
-
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JRootPane;
 
 /**
  * Demonstrates visualization of a graph being actively updated.
@@ -112,7 +112,7 @@ public class AddNodeDemo extends javax.swing.JApplet {
                 if (switchLayout.getText().indexOf("Spring") > 0) {
                     switchLayout.setText("Switch to FRLayout");
                     layout = new SpringLayout<Number,Number>(g,
-                        new ConstantTransformer(EDGE_LENGTH));
+                        Functions.<Integer>constant(EDGE_LENGTH));
                     layout.setSize(d);
                     vv.getModel().setGraphLayout(layout, d);
                 } else {

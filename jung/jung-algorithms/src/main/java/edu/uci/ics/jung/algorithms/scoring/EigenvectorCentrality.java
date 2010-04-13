@@ -11,7 +11,7 @@
  */
 package edu.uci.ics.jung.algorithms.scoring;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 import edu.uci.ics.jung.graph.Hypergraph;
 
@@ -33,7 +33,7 @@ public class EigenvectorCentrality<V,E> extends PageRank<V,E>
      * @param edge_weights the edge weights 
      */
     public EigenvectorCentrality(Hypergraph<V,E> graph, 
-    		Transformer<E, ? extends Number> edge_weights)
+    		Function<E, ? extends Number> edge_weights)
     {
         super(graph, edge_weights, 0);
         acceptDisconnectedGraph(false);

@@ -18,7 +18,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.collections15.Factory;
+import com.google.common.base.Supplier;
 
 import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.graph.util.Pair;
@@ -34,13 +34,13 @@ public class DirectedSparseMultigraph<V,E>
     implements DirectedGraph<V,E>, MultiGraph<V,E> {
 
     /**
-     * Returns a {@code Factory} that creates an instance of this graph type.
-     * @param <V> the vertex type for the graph factory
-     * @param <E> the edge type for the graph factory
+     * Returns a {@code Supplier} that creates an instance of this graph type.
+     * @param <V> the vertex type for the graph Supplier
+     * @param <E> the edge type for the graph Supplier
      */
-	public static <V,E> Factory<DirectedGraph<V,E>> getFactory() {
-		return new Factory<DirectedGraph<V,E>> () {
-			public DirectedGraph<V,E> create() {
+	public static <V,E> Supplier<DirectedGraph<V,E>> getFactory() {
+		return new Supplier<DirectedGraph<V,E>> () {
+			public DirectedGraph<V,E> get() {
 				return new DirectedSparseMultigraph<V,E>();
 			}
 		};

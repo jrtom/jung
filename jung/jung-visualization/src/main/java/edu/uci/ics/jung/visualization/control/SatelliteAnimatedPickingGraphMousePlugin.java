@@ -59,7 +59,7 @@ public class SatelliteAnimatedPickingGraphMousePlugin<V,E> extends AnimatedPicki
 
 				if (vertex != null) {
 					Layout<V,E> layout = vvMaster.getGraphLayout();
-					Point2D q = layout.transform(vertex);
+					Point2D q = layout.apply(vertex);
 					Point2D lvc = 
 						vvMaster.getRenderContext().getMultiLayerTransformer().inverseTransform(Layer.LAYOUT, vvMaster.getCenter());
 					final double dx = (lvc.getX() - q.getX()) / 10;

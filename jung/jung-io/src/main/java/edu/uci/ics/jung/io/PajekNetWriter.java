@@ -21,7 +21,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 import edu.uci.ics.jung.graph.DirectedGraph;
 import edu.uci.ics.jung.graph.Graph;
@@ -57,8 +57,8 @@ public class PajekNetWriter<V,E>
      * be supplied by <code>vs</code>.  Edge weights are specified by <code>nev</code>.
      * @throws IOException
      */
-    public void save(Graph<V,E> g, String filename, Transformer<V,String> vs, 
-            Transformer<E,Number> nev, Transformer<V,Point2D> vld) throws IOException
+    public void save(Graph<V,E> g, String filename, Function<V,String> vs, 
+            Function<E,Number> nev, Function<V,Point2D> vld) throws IOException
     {
         save(g, new FileWriter(filename), vs, nev, vld);
     }
@@ -73,8 +73,8 @@ public class PajekNetWriter<V,E>
      * @param nev
      * @throws IOException
      */
-    public void save(Graph<V,E> g, String filename, Transformer<V,String> vs, 
-            Transformer<E,Number> nev) throws IOException
+    public void save(Graph<V,E> g, String filename, Function<V,String> vs, 
+            Function<E,Number> nev) throws IOException
     {
         save(g, new FileWriter(filename), vs, nev, null);
     }
@@ -110,8 +110,8 @@ public class PajekNetWriter<V,E>
      * @param nev
      * @throws IOException
      */
-    public void save(Graph<V,E> g, Writer w, Transformer<V,String> vs, 
-            Transformer<E,Number> nev) throws IOException
+    public void save(Graph<V,E> g, Writer w, Function<V,String> vs, 
+            Function<E,Number> nev) throws IOException
     {
         save(g, w, vs, nev, null);
     }
@@ -124,8 +124,8 @@ public class PajekNetWriter<V,E>
      * and vertex locations may be specified by <code>vld</code> (defaults
      * to no locations if null). 
      */
-	public void save(Graph<V,E> graph, Writer w, Transformer<V,String> vs, 
-	        Transformer<E,Number> nev, Transformer<V,Point2D> vld) throws IOException
+	public void save(Graph<V,E> graph, Writer w, Function<V,String> vs, 
+	        Function<E,Number> nev, Function<V,Point2D> vld) throws IOException
     {
         /*
          * TODO: Changes we might want to make:
@@ -134,7 +134,7 @@ public class PajekNetWriter<V,E>
         
         BufferedWriter writer = new BufferedWriter(w);
         if (nev == null)
-            nev = new Transformer<E, Number>() { public Number transform(E e) { return 1; } };
+            nev = new Function<E, Number>() { public Number apply(E e) { return 1; } };
         writer.write("*Vertices " + graph.getVertexCount());
         writer.newLine();
         
@@ -146,13 +146,13 @@ public class PajekNetWriter<V,E>
             writer.write(""+v_id); 
             if (vs != null)
             { 
-                String label = vs.transform(currentVertex);
+                String label = vs.apply(currentVertex);
                 if (label != null)
                     writer.write (" \"" + label + "\"");
             }
             if (vld != null)
             {
-                Point2D location = vld.transform(currentVertex);
+                Point2D location = vld.apply(currentVertex);
                 if (location != null)
                     writer.write (" " + location.getX() + " " + location.getY() + " 0.0");
             }
@@ -194,7 +194,7 @@ public class PajekNetWriter<V,E>
         {
             int source_id = id.indexOf(graph.getEndpoints(e).getFirst()) + 1;
             int target_id = id.indexOf(graph.getEndpoints(e).getSecond()) + 1;
-            float weight = nev.transform(e).floatValue();
+            float weight = nev.apply(e).floatValue();
             writer.write(source_id + " " + target_id + " " + weight);
             writer.newLine();
         }
@@ -210,7 +210,7 @@ public class PajekNetWriter<V,E>
             Pair<V> endpoints = graph.getEndpoints(e);
             int v1_id = id.indexOf(endpoints.getFirst()) + 1;
             int v2_id = id.indexOf(endpoints.getSecond()) + 1;
-            float weight = nev.transform(e).floatValue();
+            float weight = nev.apply(e).floatValue();
             writer.write(v1_id + " " + v2_id + " " + weight);
             writer.newLine();
         }

@@ -25,8 +25,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
-import org.apache.commons.collections15.Factory;
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
+import com.google.common.base.Supplier;
 
 import edu.uci.ics.jung.algorithms.generators.random.EppsteinPowerLawGenerator;
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
@@ -95,8 +95,8 @@ public class ShortestPathDemo extends JPanel {
                     if(isBlessed(e)) {
                         String v1 = mGraph.getEndpoints(e).getFirst();
                         String v2 = mGraph.getEndpoints(e).getSecond();
-                        Point2D p1 = layout.transform(v1);
-                        Point2D p2 = layout.transform(v2);
+                        Point2D p1 = layout.apply(v1);
+                        Point2D p2 = layout.apply(v2);
                         p1 = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, p1);
                         p2 = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, p2);
                         Renderer<String,Number> renderer = vv.getRenderer();
@@ -125,9 +125,9 @@ public class ShortestPathDemo extends JPanel {
 	/**
 	 * @author danyelf
 	 */
-	public class MyEdgePaintFunction implements Transformer<Number,Paint> {
+	public class MyEdgePaintFunction implements Function<Number,Paint> {
 	    
-		public Paint transform(Number e) {
+		public Paint apply(Number e) {
 			if ( mPred == null || mPred.size() == 0) return Color.BLACK;
 			if( isBlessed( e )) {
 				return new Color(0.0f, 0.0f, 1.0f, 0.5f);//Color.BLUE;
@@ -137,11 +137,11 @@ public class ShortestPathDemo extends JPanel {
 		}
 	}
 	
-	public class MyEdgeStrokeFunction implements Transformer<Number,Stroke> {
+	public class MyEdgeStrokeFunction implements Function<Number,Stroke> {
         protected final Stroke THIN = new BasicStroke(1);
         protected final Stroke THICK = new BasicStroke(1);
 
-        public Stroke transform(Number e) {
+        public Stroke apply(Number e) {
 			if ( mPred == null || mPred.size() == 0) return THIN;
 			if (isBlessed( e ) ) {
 			    return THICK;
@@ -154,17 +154,17 @@ public class ShortestPathDemo extends JPanel {
 	/**
 	 * @author danyelf
 	 */
-	public class MyVertexDrawPaintFunction<V> implements Transformer<V,Paint> {
+	public class MyVertexDrawPaintFunction<V> implements Function<V,Paint> {
 
-		public Paint transform(V v) {
+		public Paint apply(V v) {
 			return Color.black;
 		}
 
 	}
 
-	public class MyVertexFillPaintFunction<V> implements Transformer<V,Paint> {
+	public class MyVertexFillPaintFunction<V> implements Function<V,Paint> {
 
-		public Paint transform( V v ) {
+		public Paint apply( V v ) {
 			if ( v == mFrom) {
 				return Color.BLUE;
 			}
@@ -272,7 +272,7 @@ public class ShortestPathDemo extends JPanel {
 
 		Graph<String,Number> g =
 			new EppsteinPowerLawGenerator<String,Number>(
-					new GraphFactory(), new VertexFactory(), new EdgeFactory(), 26, 50, 50).create();
+					new GraphFactory(), new VertexFactory(), new EdgeFactory(), 26, 50, 50).get();
 		Set<String> removeMe = new HashSet<String>();
 		for (String v : g.getVertices()) {
             if ( g.degree(v) == 0 ) {
@@ -285,22 +285,22 @@ public class ShortestPathDemo extends JPanel {
 		return g;
 	}
 	
-	static class GraphFactory implements Factory<Graph<String,Number>> {
-		public Graph<String,Number> create() {
+	static class GraphFactory implements Supplier<Graph<String,Number>> {
+		public Graph<String,Number> get() {
 			return new SparseMultigraph<String,Number>();
 		}
 	}
 	
-	static class VertexFactory implements Factory<String> {
+	static class VertexFactory implements Supplier<String> {
 		char a = 'a';
-		public String create() {
+		public String get() {
 			return Character.toString(a++);
 		}
 		
 	}
-	static class EdgeFactory implements Factory<Number> {
+	static class EdgeFactory implements Supplier<Number> {
 		int count;
-		public Number create() {
+		public Number get() {
 			return count++;
 		}
 		

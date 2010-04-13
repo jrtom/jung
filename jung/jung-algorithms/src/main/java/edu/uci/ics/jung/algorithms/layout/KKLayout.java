@@ -155,7 +155,7 @@ public class KKLayout<V,E> extends AbstractLayout<V,E> implements IterativeConte
     			try {
     				int index = 0;
     				for(V v : graph.getVertices()) {
-    					Point2D xyd = transform(v);
+    					Point2D xyd = apply(v);
     					vertices[index] = v;
     					xydata[index] = xyd;
     					index++;

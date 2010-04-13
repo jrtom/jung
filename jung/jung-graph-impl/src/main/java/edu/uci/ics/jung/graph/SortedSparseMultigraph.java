@@ -17,8 +17,8 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import org.apache.commons.collections15.Factory;
-import org.apache.commons.collections15.comparators.ComparableComparator;
+import com.google.common.base.Supplier;
+import com.google.common.collect.Ordering;
 
 import edu.uci.ics.jung.graph.util.Pair;
 
@@ -36,15 +36,15 @@ public class SortedSparseMultigraph<V,E>
     implements MultiGraph<V,E> 
 {
     /**
-     * Returns a {@code Factory} that creates an instance of this graph type.
-     * @param <V> the vertex type for the graph factory
-     * @param <E> the edge type for the graph factory
+     * Returns a {@code Supplier} that creates an instance of this graph type.
+     * @param <V> the vertex type for the graph Supplier
+     * @param <E> the edge type for the graph Supplier
      */
-	public static <V,E> Factory<Graph<V,E>> getFactory() 
+	public static <V,E> Supplier<Graph<V,E>> getFactory() 
 	{ 
-		return new Factory<Graph<V,E>> () 
+		return new Supplier<Graph<V,E>> () 
 		{
-			public Graph<V,E> create() 
+			public Graph<V,E> get() 
 			{
 				return new SortedSparseMultigraph<V,E>();
 			}
@@ -80,10 +80,16 @@ public class SortedSparseMultigraph<V,E>
      * Creates a new instance which sorts its vertices and edges according to 
      * their natural ordering.
      */
-    @SuppressWarnings("unchecked")
     public SortedSparseMultigraph()
     {
-        this(new ComparableComparator(), new ComparableComparator());
+        this(new Ordering<V>(){
+			public int compare(V v1, V v2) {
+				return ((Comparable<V>) v1).compareTo(v2);
+			}},
+        		new Ordering<E>(){
+					public int compare(E e1, E e2) {
+						return ((Comparable<E>) e1).compareTo(e2);
+					}});
     }
 
     /**

@@ -65,12 +65,12 @@ public class GradientVertexRenderer<V,E> implements Renderer.Vertex<V,E> {
 
 	public void paintVertex(RenderContext<V,E> rc, Layout<V,E> layout, V v) {
 		Graph<V,E> graph = layout.getGraph();
-        if (rc.getVertexIncludePredicate().evaluate(Context.<Graph<V,E>,V>getInstance(graph,v))) {
+        if (rc.getVertexIncludePredicate().apply(Context.<Graph<V,E>,V>getInstance(graph,v))) {
             boolean vertexHit = true;
             // get the shape to be rendered
-            Shape shape = rc.getVertexShapeTransformer().transform(v);
+            Shape shape = rc.getVertexShapeTransformer().apply(v);
             
-            Point2D p = layout.transform(v);
+            Point2D p = layout.apply(v);
             p = rc.getMultiLayerTransformer().transform(Layer.LAYOUT, p);
 
             float x = (float)p.getX();
@@ -125,12 +125,12 @@ public class GradientVertexRenderer<V,E> implements Renderer.Vertex<V,E> {
             g.fill(shape);
             g.setPaint(oldPaint);
         }
-        Paint drawPaint = rc.getVertexDrawPaintTransformer().transform(v);
+        Paint drawPaint = rc.getVertexDrawPaintTransformer().apply(v);
         if(drawPaint != null) {
             g.setPaint(drawPaint);
         }
         Stroke oldStroke = g.getStroke();
-        Stroke stroke = rc.getVertexStrokeTransformer().transform(v);
+        Stroke stroke = rc.getVertexStrokeTransformer().apply(v);
         if(stroke != null) {
             g.setStroke(stroke);
         }

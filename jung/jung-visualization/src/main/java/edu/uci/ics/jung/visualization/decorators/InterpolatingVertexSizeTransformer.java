@@ -11,7 +11,7 @@
  */
 package edu.uci.ics.jung.visualization.decorators;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 
 /**
@@ -20,15 +20,15 @@ import org.apache.commons.collections15.Transformer;
  * 
  * @author Joshua O'Madadhain
  */
-public class InterpolatingVertexSizeTransformer<V> implements Transformer<V,Integer>
+public class InterpolatingVertexSizeTransformer<V> implements Function<V,Integer>
 {
     protected double min;
     protected double max;
-    protected Transformer<V, ? extends Number> values;
+    protected Function<V, ? extends Number> values;
     protected int min_size;
     protected int size_diff;
     
-    public InterpolatingVertexSizeTransformer(Transformer<V, ? extends Number> values, 
+    public InterpolatingVertexSizeTransformer(Function<V, ? extends Number> values, 
             int min_size, int max_size)
     {
         super();
@@ -43,9 +43,9 @@ public class InterpolatingVertexSizeTransformer<V> implements Transformer<V,Inte
         setMaxSize(max_size);
     }
 
-    public Integer transform(V v)
+    public Integer apply(V v)
     {
-        Number n = values.transform(v);
+        Number n = values.apply(v);
         double value = min;
         if (n != null)
             value = n.doubleValue();

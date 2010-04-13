@@ -71,7 +71,7 @@ public class BasicRenderer<V,E> implements Renderer<V, E> {
     }
     
     public void renderVertexLabel(RenderContext<V,E> rc, Layout<V,E> layout, V v) {
-        vertexLabelRenderer.labelVertex(rc, layout, v, rc.getVertexLabelTransformer().transform(v));
+        vertexLabelRenderer.labelVertex(rc, layout, v, rc.getVertexLabelTransformer().apply(v));
     }
     
     public void renderEdge(RenderContext<V,E> rc, Layout<V,E> layout, E e) {
@@ -79,7 +79,7 @@ public class BasicRenderer<V,E> implements Renderer<V, E> {
     }
     
     public void renderEdgeLabel(RenderContext<V,E> rc, Layout<V,E> layout, E e) {
-    	edgeLabelRenderer.labelEdge(rc, layout, e, rc.getEdgeLabelTransformer().transform(e));
+    	edgeLabelRenderer.labelEdge(rc, layout, e, rc.getEdgeLabelTransformer().apply(e));
     }
     
     public void setVertexRenderer(Renderer.Vertex<V,E> r) {

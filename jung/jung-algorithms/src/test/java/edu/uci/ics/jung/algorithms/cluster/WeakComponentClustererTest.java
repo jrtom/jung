@@ -13,7 +13,7 @@ public class WeakComponentClustererTest extends TestCase {
 	public void testWeakComponent() {
 		WeakComponentClusterer<String,Number> clusterer = 
 			new WeakComponentClusterer<String,Number>();
-		Set<Set<String>> clusterSet = clusterer.transform(graph);
+		Set<Set<String>> clusterSet = clusterer.apply(graph);
 //		System.err.println("set is "+clusterSet);
 	}
 

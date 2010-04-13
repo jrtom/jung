@@ -20,8 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.collections15.CollectionUtils;
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.Pair;
@@ -42,9 +41,9 @@ import edu.uci.ics.jung.graph.util.Pair;
  * 
  * @author Danyel Fisher
  */
-public class StructurallyEquivalent<V,E> implements Transformer<Graph<V,E>, VertexPartition<V,E>> 
+public class StructurallyEquivalent<V,E> implements Function<Graph<V,E>, VertexPartition<V,E>> 
 {
-	public VertexPartition<V,E> transform(Graph<V,E> g) 
+	public VertexPartition<V,E> apply(Graph<V,E> g) 
 	{
 	    Set<Pair<V>> vertex_pairs = getEquivalentPairs(g);
 	    
@@ -66,8 +65,10 @@ public class StructurallyEquivalent<V,E> implements Transformer<Graph<V,E>, Vert
 
         // pick up the vertices which don't appear in intermediate; they are
         // singletons (equivalence classes of size 1)
-        Collection<V> singletons = CollectionUtils.subtract(g.getVertices(),
-                intermediate.keySet());
+        Collection<V> singletons = new ArrayList<V>(g.getVertices());
+        singletons.removeAll(intermediate.keySet());
+        //        	CollectionUtils.subtract(g.getVertices(),
+//                intermediate.keySet());
         for (V v : singletons)
         {
             Set<V> v_set = Collections.singleton(v);

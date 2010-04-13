@@ -76,9 +76,9 @@ public class LayoutLensShapePickSupport<V, E> extends ShapePickSupport<V,E>
             try {
                 for(V v : getFilteredVertices(layout)) {
                 	
-                    Shape shape = vv.getRenderContext().getVertexShapeTransformer().transform(v);
+                    Shape shape = vv.getRenderContext().getVertexShapeTransformer().apply(v);
                     // get the vertex location
-                    Point2D p = layout.transform(v);
+                    Point2D p = layout.apply(v);
                     if(p == null) continue;
                     // transform the vertex location to screen coords
                     p = vv.getRenderContext().getMultiLayerTransformer().transform(p);
@@ -126,7 +126,7 @@ public class LayoutLensShapePickSupport<V, E> extends ShapePickSupport<V,E>
         while(true) {
             try {
                 for(V v : getFilteredVertices(layout)) {
-                    Point2D p = layout.transform(v);
+                    Point2D p = layout.apply(v);
                     if(p == null) continue;
 
                     p = vv.getRenderContext().getMultiLayerTransformer().transform(p);
@@ -164,8 +164,8 @@ public class LayoutLensShapePickSupport<V, E> extends ShapePickSupport<V,E>
                     V v1 = pair.getFirst();
                     V v2 = pair.getSecond();
                     boolean isLoop = v1.equals(v2);
-                    Point2D p1 = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, layout.transform(v1));
-                    Point2D p2 = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, layout.transform(v2));
+                    Point2D p1 = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, layout.apply(v1));
+                    Point2D p2 = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, layout.apply(v2));
                     if(p1 == null || p2 == null) continue;
                     float x1 = (float) p1.getX();
                     float y1 = (float) p1.getY();
@@ -176,10 +176,10 @@ public class LayoutLensShapePickSupport<V, E> extends ShapePickSupport<V,E>
                     AffineTransform xform = AffineTransform.getTranslateInstance(x1, y1);
 
                     Shape edgeShape = 
-                    	vv.getRenderContext().getEdgeShapeTransformer().transform(Context.<Graph<V,E>,E>getInstance(vv.getGraphLayout().getGraph(),e));
+                    	vv.getRenderContext().getEdgeShapeTransformer().apply(Context.<Graph<V,E>,E>getInstance(vv.getGraphLayout().getGraph(),e));
                     if(isLoop) {
                         // make the loops proportional to the size of the vertex
-                        Shape s2 = vv.getRenderContext().getVertexShapeTransformer().transform(v2);
+                        Shape s2 = vv.getRenderContext().getVertexShapeTransformer().apply(v2);
                         Rectangle2D s2Bounds = s2.getBounds2D();
                         xform.scale(s2Bounds.getWidth(),s2Bounds.getHeight());
                         // move the loop so that the nadir is centered in the vertex

@@ -88,7 +88,7 @@ public class RadialTreeLayout<V,E> extends TreeLayout<V,E> {
 	}
 
 	@Override
-    public Point2D transform(V v) {
+    public Point2D apply(V v) {
 		PolarPoint pp = polarLocations.get(v);
 		double centerX = getSize().getWidth()/2;
 		double centerY = getSize().getHeight()/2;

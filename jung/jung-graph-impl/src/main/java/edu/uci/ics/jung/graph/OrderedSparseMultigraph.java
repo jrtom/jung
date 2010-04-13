@@ -17,7 +17,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.apache.commons.collections15.Factory;
+import com.google.common.base.Supplier;
 
 import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.graph.util.Pair;
@@ -33,13 +33,13 @@ public class OrderedSparseMultigraph<V,E>
     implements MultiGraph<V,E> {
 	
     /**
-     * Returns a {@code Factory} that creates an instance of this graph type.
-     * @param <V> the vertex type for the graph factory
-     * @param <E> the edge type for the graph factory
+     * Returns a {@code Supplier} that creates an instance of this graph type.
+     * @param <V> the vertex type for the graph Supplier
+     * @param <E> the edge type for the graph Supplier
      */
-	public static <V,E> Factory<Graph<V,E>> getFactory() { 
-		return new Factory<Graph<V,E>> () {
-			public Graph<V,E> create() {
+	public static <V,E> Supplier<Graph<V,E>> getFactory() { 
+		return new Supplier<Graph<V,E>> () {
+			public Graph<V,E> get() {
 				return new OrderedSparseMultigraph<V,E>();
 			}
 		};

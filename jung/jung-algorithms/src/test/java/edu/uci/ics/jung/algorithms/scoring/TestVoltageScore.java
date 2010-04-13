@@ -18,7 +18,7 @@ import java.util.Set;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.collections15.functors.ConstantTransformer;
+import com.google.common.base.Functions;
 
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.UndirectedSparseMultigraph;
@@ -51,7 +51,7 @@ public class TestVoltageScore extends TestCase
     
     @SuppressWarnings("unchecked")
     public final void testCalculateVoltagesSourceTarget() {
-        VoltageScorer<Number,Number> vr = new VoltageScorer<Number,Number>(g, new ConstantTransformer(1), 0, 6);
+        VoltageScorer<Number,Number> vr = new VoltageScorer<Number,Number>(g, Functions.<Number>constant(1), 0, 6);
         double[] voltages = {1.0, 0.75, 0.75, 0.5, 0.25, 0.25, 0};
         
         vr.evaluate();
@@ -70,7 +70,7 @@ public class TestVoltageScore extends TestCase
         sinks.add(6);
         sinks.add(5);
         VoltageScorer<Number,Number> vr = 
-        	new VoltageScorer<Number,Number>(g, new ConstantTransformer(1), sources, sinks);
+        	new VoltageScorer<Number,Number>(g, Functions.constant(1), sources, sinks);
         double[] voltages = {1.0, 0.5, 0.66, 0.33, 0.16, 0, 0};
         
         vr.evaluate();

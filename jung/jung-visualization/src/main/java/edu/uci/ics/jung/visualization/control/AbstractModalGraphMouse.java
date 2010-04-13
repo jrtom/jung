@@ -144,7 +144,7 @@ public abstract class AbstractModalGraphMouse extends PluggableGraphMouse
         add(rotatingPlugin);
         add(shearingPlugin);
     }
-
+    
     /**
      * @param zoomAtMouse The zoomAtMouse to set.
      */

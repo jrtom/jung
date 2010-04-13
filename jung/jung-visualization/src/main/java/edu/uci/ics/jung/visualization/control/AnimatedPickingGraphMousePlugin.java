@@ -98,31 +98,37 @@ public class AnimatedPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlu
     public void mouseReleased(MouseEvent e) {
 		if (e.getModifiers() == modifiers) {
 			final VisualizationViewer<V,E> vv = (VisualizationViewer<V,E>) e.getSource();
+			Point2D newCenter = null;
 			if (vertex != null) {
+				// center the picked vertex
 				Layout<V,E> layout = vv.getGraphLayout();
-				Point2D q = layout.transform(vertex);
-				Point2D lvc = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(vv.getCenter());
-				final double dx = (lvc.getX() - q.getX()) / 10;
-				final double dy = (lvc.getY() - q.getY()) / 10;
+				newCenter = layout.apply(vertex);
+			} else {
+				// they did not pick a vertex to center, so
+				// just center the graph
+				newCenter = vv.getCenter();
+			}
+			Point2D lvc = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(vv.getCenter());
+			final double dx = (lvc.getX() - newCenter.getX()) / 10;
+			final double dy = (lvc.getY() - newCenter.getY()) / 10;
 
-				Runnable animator = new Runnable() {
+			Runnable animator = new Runnable() {
 
-					public void run() {
-						for (int i = 0; i < 10; i++) {
-							vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT).translate(dx, dy);
-							try {
-								Thread.sleep(100);
-							} catch (InterruptedException ex) {
-							}
+				public void run() {
+					for (int i = 0; i < 10; i++) {
+						vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT).translate(dx, dy);
+						try {
+							Thread.sleep(100);
+						} catch (InterruptedException ex) {
 						}
 					}
-				};
-				Thread thread = new Thread(animator);
-				thread.start();
-			}
+				}
+			};
+			Thread thread = new Thread(animator);
+			thread.start();
 		}
 	}
-     
+    
     public void mouseClicked(MouseEvent e) {
     }
 
