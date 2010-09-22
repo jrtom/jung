@@ -1,0 +1,10 @@
+#summary Frequently Asked Questions
+#labels faq
+
+<wiki:toc max_depth="2" />
+
+= Layout Algorithms = 
+
+== How to avoid edge crossings? ==
+
+We don't provide layout algorithms that do that directly.  Even checking for edge crossings requires considering all pairs of edges, which is prohibitively expensive.  The force-directed algorithms generally avoid this as an emergent property of the forces in play, but we provide no guarantees in any of the algorithms for general graphs that we provide.
