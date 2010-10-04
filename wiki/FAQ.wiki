@@ -5,6 +5,10 @@
 
 = Layout Algorithms = 
 
+== I already have vertex positions; how do I use them?  ==
+
+This is what [http://code.google.com/p/jung/source/browse/trunk/jung/jung-algorithms/src/main/java/edu/uci/ics/jung/algorithms/layout/StaticLayout.java StaticLayout] is for.
+
 == How to avoid edge crossings? ==
 
 We don't provide layout algorithms that do that directly.  Even checking for edge crossings requires considering all pairs of edges, which is prohibitively expensive.  The force-directed algorithms generally avoid this as an emergent property of the forces in play, but we provide no guarantees in any of the algorithms for general graphs that we provide.
