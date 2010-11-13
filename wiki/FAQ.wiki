@@ -23,6 +23,10 @@ As of this writing (October 2010) JUNG's (iterative, force-directed) layout algo
 
 = Visualization =
 
+== How do I change visual properties (color, shape, size, etc.) of vertices and edges? ==
+
+[http://code.google.com/p/jung/source/browse/trunk/jung/jung-visualization/src/main/java/edu/uci/ics/jung/visualization/PluggableRenderContext.java PluggableRendererContext]  is responsible for these things.  See PluggableRendererDemo (under jung.samples) for examples of how this is used.
+
 == How do I speed up a visualization? ==
 
 The visualization code has the same limitations that the layout does (see "How do I speed up a layout?"), for the same reasons.
