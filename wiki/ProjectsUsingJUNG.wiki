@@ -1,0 +1,80 @@
+#summary Projects and research that use JUNG.
+
+= Projects Using JUNG =
+
+Please feel free to add your own!
+
+==Software==
+[http://www.jnovation.net/djinn Djinn]: a tool for visualizing java artifacts dependencies in a project : jars, directories, packages, classes. (Fabien Benoit) <br>
+[http://angur.sourceforge.net Angur]: An XML visualization/WYSWYG Editor (Amir Mohammad shahi)<br>
+[http://semweb.salzburgresearch.at/apps/rdf-gravity/index.html RDF Gravity]: a tool for visualizing RDF/OWL graphs/ontologies. (Sunil Goyal, Rupert Westenthaler) <br>
+[http://www.hpl.hp.com/research/idl/projects/graphs/index.html GUESS] from HP Labs is a database-driven network analysis tool that provides flexible visualizations, scripting capabilities with Python/Jython, and interfaces with JUNG to let users take advantage of its algorithm library. (Eytan Adar, David Feinberg) <br>
+[http://bioinformatics.picr.man.ac.uk/adaptnet ADAPTNet] is an applet that visualises the families of short oligo microarray probesets associated through common gene transcripts. (Michal Okoniewski, Tim Yates) <br>
+[http://drzaius.ics.uci.edu/%7Ejfroehli/augur/index.html Augur] is a visualization tool designed to support the distributed software development process. (Jon Froehlich) <br>
+[http://www.ischool.washington.edu/mcdonald/cscw04/papers/desousa-cscw04.pdf Ariadne] is an Eclipse plug-in (under development) that links technical and social dependencies. (Cleidson de Souza et al.) <br>
+[http://jung.sourceforge.net/netsight Netsight] is a proof-of-concept tool for the visual exploratory data analysis of large-scale network and relational data sets. (Yan-Biao Boey, Joshua O'Madadhain, Scott White, Padhraic Smyth) <br>
+[http://iv.slis.indiana.edu/sw/ InfoVis CyberInfrastructure] provides an unified architecture in which diverse data analysis, modeling and visualization algorithms can be plugged in and run. <br>
+[http://www.ocf.berkeley.edu/%7Ejadelman/pwcomp/ PWComp] is a graph comparative metabolic pathway tool. (Joshua Adelman, Josh England, Alex Chen) <br>
+[http://richard.jones.name/google-hacks/google-cartography/google-cartography.html Google Cartography], featured in Google Hacks, uses the Google Search API to build a visual representation of the interconnectivity of streets in an area. (Richard Jones) <br>
+[http://csbi.sourceforge.net/ GINY] is a project with similar aims to that of JUNG, which contains some code derived from JUNG. (Rowan Christmas) <br>
+[http://graphexplore.cgt.duke.edu/ GraphExplore] is a JAVA application that renders networks of objects in a graphical form, which uses modified forms of the JUNG layout algorithm implementations. (Quanli Wang) <br>
+[http://totem.run.montefiore.ulg.ac.be/ TOTEM] (TOolbox for Traffic Engineering Methods) provides a framework where researchers can integrate their traffic engineering algorithms. These algorithms can therefore be applied on models of real networks. The TOTEM toolbox also gives network operators the opportunity to experiment the currently developed traffic engineering algorithms on their own network. Today, the TOTEM toolbox already federates a large set of traffic engineering algorithms published in the scientific literature. This project uses JUNG for the graphical representation of the network topology. (S. Balon, O. Delcourt, J. Lepropre and F. Skivee) <br>
+[http://alg.ncsa.uiuc.edu/do/downloads D2K] ("Data to Knowledge") is a visual programming environment for building complicated data mining applications; T2K is a library of D2K modules that implements sophisticated algorithms for text analysis. Each of these uses JUNG for network visualization. <br>
+[http://aadc-maps.aad.gov.au/analysis/gb.cfm graphBuilder] is an application that allows users to build network representations of relational databases and data files. It has been designed as a tool for exploring online scientific data repositories. (Ben Raymond) <br>
+[http://www.semiophore.net/ Semiophore] is an application for exploring large graphs where there are many variables on both nodes and links (including time-based/event variables). It works with a relationnal database. It provides several visualization approaches. One of them is based on JUNG. It provides several analysis routines, featuring SNA measures among them. User can interact with the network : dynamic multi-variables filtering, dynamic aggregation, network editing and production of quicktime videos from longitudinal analysis are possible. Semiophore can handle text/XML documents with NLP information extraction and text summarization routines [English and French support only] in order to automatically build network maps of actors/information. <br>
+[http://sourceforge.net/projects/xholon/ Xholon] uses JUNG to represent and visualize networks such as biochemical pathways and models ([http://sourceforge.net/project/screenshots.php?group_id=152054 screenshots]). (Ken Webb) <br>
+[http://flink.semanticweb.org/ Flink] is a website presenting the social networks and research activity of Semantic Web researchers based on a number of sources (web pages, publication databases, email archives, FOAF data). Flink uses JUNG for network representation and visualization as well as for computing network measures. Flink has won 1st prize at the ([http://challenge.semanticweb.org/ Semantic Web Challenge]) of 2004. (Peter Mika) <br>
+T-Prox[http://jung.sourceforge.net/pmwiki/index.php/Main/ProjectsUsingJUNG?action=approvesites (approve sites)] is a proxy, designed to be used for usability analyzes of websites. It uses JUNG to visualize the users path through the site. (Sven Lilienthal)<br>
+[http://code.google.com/p/ckeditor Simple C-K Editor] is a visualisation tool built on the C-K Design Theory. Its main purpose is to provide an easy tool to create, manipulate, edit and print C-K diagrams.
+<br>
+[http://revolutionresearch.uab.es PCOPGene] Web-based application to analise microarray data with large sample-series. The user can identify several kinds of non-linear expression relationships inside the gene network, study the expression dependence fluctuations in detail, and crossing the results with external biomedical data-servers.
+
+==Papers, Research Projects==
+
+[http://www.cs.uvm.edu/tr/Papers/CS-06-9.pdf Reduction of Redundancy in Directed Random Verification through Checkpointing] (Jesse Craig) <br>
+[http://www.w3.org/2001/sw/Europe/events/foaf-galway/papers/fp/bootstrapping_the_foaf_web/ "Bootstrapping the FOAF-Web: An Experiment in Social Network Mining"]: uses JUNG to visualize social networks mined out of Google; presented at the FOAF workshop: [http://sw.deri.ie/%7Ejbreslin/foaf-galway/ http://sw.deri.ie/~jbreslin/foaf-galway/]. (Peter Mika) <br>
+[http://www.sussex.ac.uk/Users/agl21/Agora/ASpaper.pdf Some first steps in search of actors in simple, dynamic, transformational networks] (Andreas Loengarov) <br>
+[http://www.biomedcentral.com/1471-2105/6/39 The Use of Edge-Betweenness Clustering to Investigate Biological Function in Protein Interaction Networks] (Ruth Dunn, Frank Dudbridge, Christopher M Sanderson) <br>
+[http://omnibus.uni-freiburg.de/%7Ecw2/expose.htm Communication Networks around Japanese Tea Masters – Scale-free networks in the way of tea] (Chantal Weber) <br>
+[http://e170.ex.com/handouts/final/nathande-ccbelenski_paper.doc Visualizing the PGP Web of Trust] (Chris Cebelenski, Dan Nathan) <br>
+[http://www.ics.uci.edu/%7Edmdb UCI KDD Project] is a research project in data mining and visualization, focusing on entity-event relations in large data collections. (Padhraic Smyth, Sharad Mehrotra, Joshua O'Madadhain, Dawit Seid, et al.) <br>
+[http://www.johndbeatty.com/edgebase-overview-04.html EdgeBase: A Distributed, Graph­Structured Database for Very Large Graphs] (John Beatty) <br>
+[http://arxiv.org/pdf/cs.SE/0411096 Inter-package dependency networks in open-source software] (Nathan !LaBelle, Eugene Wallingford) <br>
+[http://portal.acm.org/citation.cfm?id=985762 Social and Temporal Structures in Everyday Collaboration] Danyel Fisher, Paul Dourish. A part of the [http://www.isr.uci.edu/projects/soylent/ SOYLENT project]. <br>
+[http://www.modelica.org/events/Conference2005/online_proceedings/Session2/Session24.pdf Visualisation of Model Transformation Algorithms for a Modelica Translator] Describes a software component which has been developed to visualise the bipartite graph representing the model structure of a Modelica model. (Peter Harman) <br>
+[http://weblogs.java.net/blog/kirillcool/archive/2005/07/visualize_your.html Visualize your Schema Dependencies] by Kirill Grouchnikov <br>
+[http://www.isi.edu/LinkKDD-05/Download/Papers/linkkdd05-02.pdf EventRank: A Framework for Ranking Time-Varying Networks] (Joshua O'Madadhain, Padhraic Smyth) <br>
+[http://crpit.com/confpapers/CRPITV60Merrick.pdf Increasing the Readability of Graph Drawings with Centrality-Based Scaling] (Damian Merrick, Joachim Gudmundsson) <br>
+[http://ftp.isds.duke.edu/WorkingPapers/04-22.pdf GraphExplore: a software tool for network visualization] (Quanli Wang, Guang Yao, Joseph Nevins, Mike West and Adrian Dobra) <br>
+[http://portal.acm.org/ft_gateway.cfm%3Fid%3D1014146%26type%3Dpdf Mining scale-free networks using geodesic clustering] (Andrew Wu, Michael Garland, Jiawei Han) <br>
+[http://www.cra.org/Activities/craw/dmp/awards/2004/Wilcox/DMPReportLaurenWilcox.pdf TeacherBRIDGE Activity Visualization Tool] (Lauren Wilcox) <br>
+[http://nexus.tfh-berlin.de/%7E21c3/Folien/48-ad-hoc-collaboration-paper.pdf MagicMap–Kooperative Positionsbestimmung über WLAN] (Peter Ibach, Tobias Hübner, Martin Schweigert) <br>
+[http://jcmc.indiana.edu/vol10/issue4/turner.html Picturing Usenet: Mapping Computer-Mediated Collective Action] (Tammara Combs Turner, Marc A. Smith, Danyel Fisher, Howard T. Welser) <br>
+[http://www.springerlink.com/openurl.asp?genre=article&issn=0302-9743&volume=3843&spage=505 D-Dupe: An Interactive Tool for Entity Resolution in Social Networks] (Mustafa Bilgic, Louis Licamele, Lise Getoor, Ben Shneiderman) <br>
+[http://genome.tugraz.at/Theses/Fuchs2005.pdf Bayesian Networks in Clinical Decision Support] (Thomas J. Fuchs) <br>
+[http://eco83.econ.unito.it/terna/swarmfest2005papers/ietri_lamieri.pdf Networks between markets and hierarchical structures: an agent based simulation framework] (Marco Lamieri, Daniele Ietri) <br>
+[http://www-slis.lib.indiana.edu/research/working_papers/files/SLISWP-04-02.pdf A Toolkit for Large Scale Network Analysis] (Shashikant Penumarthy, Ketan K. Mane & Katy Börner) <br>
+[http://www.sussex.ac.uk/Users/agl21/Agora/ASpaper.pdf Some first steps in search of actors in simple, dynamic, transformational networks] (Andreas Loengarov) <br>
+[http://arxiv.org/pdf/cs.SE/0411096 Inter-Package Dependency Networks in Open-Source Software] (Nathan [http://jung.sourceforge.net/pmwiki/index.php/Main/LaBelle LaBelle], Eugene Wallingford) <br>
+[http://www.dsic.upv.es/%7Eeinsfran/pfc/PFC-FI-Leandro.pdf Social Network Analysis for Online Privacy Data] (Leandro Taberner Taberner) <br>
+[http://www.ece.drexel.edu/telecomm/Talks/Vilas.pdf A Generating Function Approach to Analyze Random Graphs] (Vilas Veeraraghavan) <br>
+[http://genomebiology.com/content/pdf/gb-2005-6-12-r106.pdf Ulysses-an application for the projection of molecular interactions across species] (Danielle Kemmer, Yong Huang, Sohrab P Shah, Jonathan Lim, Jochen Brumm, Macaire MS Yuen, John Ling, Tao Xu, Wyeth W Wasserman, BF Francis Ouellette) <br>
+[http://www.mindswap.org/papers/cropcircles-iswc-2005.pdf Visualizing Web Ontologies with CropCircles] (Bijan Parsia, Taowei Wang, Jennifer Golbeck) <br>
+[http://www.cc.uah.es/msicilia/papers/Garcia_EUSFLAT_05.pdf Filtering Information with Imprecise Social Criteria: A FOAF-based backlink model] (Elena Garcia-Barriocanal, Miguel-Angel Sicilia) <br>
+[http://portal.acm.org/ft_gateway.cfm%3Fid%3D1096999%26type%3Dpdf Geographical Partition for Distributed Web Crawling] (Jose Exposto, Joaquim Macedo, Antonio Pina, Albano Alves, Jose Rufino) <br>
+[http://portal.acm.org/ft_gateway.cfm%3Fid%3D1077519%26type%3Dpdf Data Quality Inference] (Raymond K. Pon and Alfonso F. Cárdenas) <br>
+[http://scholar.google.com/scholar?num=100&hl=en&lr=&safe=off&q=cache:uo5zBW11DwYJ:se.informatik.uni-oldenburg.de/theses/abgeschlossen/PDF/2004IPJensKrefeldt.pdf VIS-Visual Interactionstructure: Ein komponentenbasiertes Framework fur die Visualisierung von Interaktions- und Graphstrukturen] (Jens Krefeldt) <br>
+[http://www.dcs.shef.ac.uk/%7Enw/Files/walkinshaw_roper_wood_landmark.pdf Extracting User-Level Functions from Object-Oriented Code] (Neil Walkinshaw, Marc Roper, Murray Wood) <br>
+[http://www.bsos.umd.edu/gvpt/CITE-IT/Documents/McIntosh%20etal%202005%20WPSA.pdf Using Information Technology to Examine the Communication of Precedent: Initial Findings and Lessons From the CITE-IT Project] Wayne [http://jung.sourceforge.net/pmwiki/index.php/Main/McIntosh?action=edit McIntosh][http://jung.sourceforge.net/pmwiki/index.php/Main/McIntosh?action=edit ?], Ken Cousins, James Rose, Steve Simon, Mike Evans, Kimberly Karnes, John [http://jung.sourceforge.net/pmwiki/index.php/Main/McTague?action=edit McTague][http://jung.sourceforge.net/pmwiki/index.php/Main/McTague?action=edit ?], Shanna Pearson-Merkowitz) <br>
+[http://portal.acm.org/citation.cfm%3Fid%3D1089815.1089825 Extracting statistical data frames from text] (Jisheng Liang, Krzysztof Koperski, Thien Nguyen, Giovanni Marchisio) <br>
+[http://www.cs.vu.nl/%7Epmika/research/papers/Scientometrics-submission.pdf Application of Semantic Technology for Social Network Analysis in the Sciences] (Peter Mika, Tom Elfring, Peter Groenewegen) <br>
+[https://www.cs.tcd.ie/publications/tech-reports/reports.05/TCD-CS-2005-03.pdf Default Free Introduction, Rare Self-Introduction Fee, Costly Spoofing: No Profitable Spam?] (Jean-Marc Seigneur, Alan Gray) <br>
+[http://ieeexplore.ieee.org/iel5/4236/32341/01510601.pdf?arnumber=1510601 Using Egocentric Networks to Understand Communication] (Danyel Fisher) <br>
+[http://www.bsos.umd.edu/gvpt/CITE-IT/Documents/Cousins%20etal%202005%20Patterns%20of%20Judicial%20Influence.pdf Patterns of Judicial Influence: Tracking Regulatory Takings Policy in the Lower Federal Courts] (Ken Cousins, Shanna Pearson-Merkowitz, Steve Simons, Mike Evans, Kimberly Karnes, John [http://jung.sourceforge.net/pmwiki/index.php/Main/McTague?action=edit McTague][http://jung.sourceforge.net/pmwiki/index.php/Main/McTague?action=edit ?], Wayne [http://jung.sourceforge.net/pmwiki/index.php/Main/McIntosh?action=edit McIntosh][http://jung.sourceforge.net/pmwiki/index.php/Main/McIntosh?action=edit ?]) <br>
+[http://ieeexplore.ieee.org/iel5/9727/30705/01421037.pdf%3Farnumber%3D1421037 Understanding Object-Oriented Source Code from the Behavioural Perspective] (Neil Walkinshaw, Marc Roper, Murray Wood) 
+<br>
+[http://www.biomedcentral.com/1471-2105/7/276/abstract Hybridization interactions between probesets in short oligo microarrays lead to spurious correlations] (Michal Okoniewski, Crispin Miller)
+<br>
+[http://homepages.dcc.ufmg.br/~mtov/pub/2010_sbcars.pdf On-the-fly and Non-invasive Extraction of Runtime Architectures using Hierarchical Object Graphs] (Hugo de Brito V. R. Alves, Henrique Rocha, Ricardo Terra, Marco Túlio Valente) (Language: Portuguese)
+<br>
+[http://www.biomedcentral.com/1471-2105/10/138 PCOPGene-Net: holistic characterisation of cellular states from microarray data based on continuous and non-continuous analysis of gene-expression relationships] (Huerta Mario, Cedano Juan, Peña Dario, Rodriguez Antonio, Querol Enrique)
