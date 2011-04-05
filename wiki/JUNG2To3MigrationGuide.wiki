@@ -2,7 +2,7 @@
 
 = Introduction =
 
-The versions of JUNG hosted on the original JUNG site (SourceForge), ended with 2.x; the Google Code-hosted version starts with 3.0.  This is largely (at the moment) due to the decision to migrate from the LarvaLabs generics port of the Apache Commons-Collections libraries to using the Guava libraries for various utility interfaces and classes.  This document describes the changes that were made, so that users with JUNG 2.0 code can port their code to using the JUNG 3.0 libraries.
+The versions of JUNG hosted on the original JUNG site (SourceForge), ended with 2.x; the Google Code-hosted version starts with 3.0.  This is largely (at the moment) due to the decision to migrate from the LarvaLabs generics port of the Apache Commons-Collections libraries to using the Guava libraries (http://code.google.com/p/guava-libraries/) for various utility interfaces and classes.  This document describes the changes that were made, so that users with JUNG 2.0 code can port their code to using the JUNG 3.0 libraries.
 
 {{{
 Predicate.evaluate() -> Predicate.apply()
