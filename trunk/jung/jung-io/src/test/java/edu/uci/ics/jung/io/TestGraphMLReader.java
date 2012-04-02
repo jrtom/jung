@@ -125,7 +125,7 @@ public class TestGraphMLReader extends TestCase
     public void testAttributes() throws IOException
     {
         Graph<Number, Number> graph = new UndirectedSparseGraph<Number, Number>();
-        gmlreader.load("src/test/resources/attributes.graphml", graph);
+        gmlreader.load("src/test/resources/edu/uci/ics/jung/io/graphml/attributes.graphml", graph);
 
         Assert.assertEquals(graph.getVertexCount(), 6);
         Assert.assertEquals(graph.getEdgeCount(), 7);
@@ -193,7 +193,7 @@ public class TestGraphMLReader extends TestCase
         GraphMLReader<Hypergraph<Number, Number>, Number, Number> hyperreader = 
             new GraphMLReader<Hypergraph<Number, Number>, Number, Number>(
                 vertexFactory, edgeFactory);
-        hyperreader.load("src/test/resources/hyper.graphml", graph);
+        hyperreader.load("src/test/resources/edu/uci/ics/jung/io/graphml/hyper.graphml", graph);
 
         Assert.assertEquals(graph.getVertexCount(), 7);
         Assert.assertEquals(graph.getEdgeCount(), 4);
