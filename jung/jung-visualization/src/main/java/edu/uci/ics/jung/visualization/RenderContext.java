@@ -96,7 +96,7 @@ public interface RenderContext<V, E> {
 
     void setArrowFillPaintTransformer(Function<? super E,Paint> arrowFillPaintTransformer);
 
-    Function<? super Context<Graph<V,E>,E>,Shape> getEdgeShapeTransformer();
+    Function<Context<Graph<V,E>,E>,Shape> getEdgeShapeTransformer();
 
     void setEdgeShapeTransformer(Function<? super Context<Graph<V,E>,E>,Shape> edgeShapeTransformer);
 
