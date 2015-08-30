@@ -13,31 +13,28 @@ import java.awt.Shape;
 
 import com.google.common.base.Function;
 
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.util.Context;
-
-
+import edu.uci.ics.jung.graph.util.EdgeIndexFunction;
 
 
 /**
- * An interface for decorators that return a 
- * <code>Shape</code> for a specified edge.
+ * An abstract class for edge->Shape functions that work with parallel edges.
  *  
  * @author Tom Nelson
  */
-public abstract class AbstractEdgeShapeTransformer<V,E> implements Function<Context<Graph<V,E>,E>,Shape> {
-
-    /**
-     * Specifies how far apart to place the control points for edges being
-     * drawn in parallel.
-     */
+public abstract class ParallelEdgeShapeTransformer<V,E> implements Function<E, Shape> {
+    /** Specifies the distance between control points for edges being drawn in parallel. */
     protected float control_offset_increment = 20.f;
+    protected EdgeIndexFunction<V,E> edgeIndexFunction;
     
-    /**
-     * Sets the value of <code>control_offset_increment</code>.
-     */
     public void setControlOffsetIncrement(float y) {
         control_offset_increment = y;
     }
     
+    public void setEdgeIndexFunction(EdgeIndexFunction<V,E> edgeIndexFunction) {
+    	this.edgeIndexFunction = edgeIndexFunction;
+    }
+    
+    public EdgeIndexFunction<V,E> getEdgeIndexFunction() {
+    	return edgeIndexFunction;
+    }
 }

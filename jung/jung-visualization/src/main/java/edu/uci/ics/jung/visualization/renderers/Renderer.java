@@ -37,6 +37,7 @@ public interface Renderer<V,E> {
 
 	interface Vertex<V,E> {
 		void paintVertex(RenderContext<V,E> rc, Layout<V,E> layout, V v);
+		@SuppressWarnings("rawtypes")
 		class NOOP implements Vertex {
 			public void paintVertex(RenderContext rc, Layout layout, Object v) {}
 		};
@@ -44,8 +45,9 @@ public interface Renderer<V,E> {
     
 	interface Edge<V,E> {
 		void paintEdge(RenderContext<V,E> rc, Layout<V,E> layout, E e);
-		EdgeArrowRenderingSupport getEdgeArrowRenderingSupport();
-		void setEdgeArrowRenderingSupport(EdgeArrowRenderingSupport edgeArrowRenderingSupport);
+		EdgeArrowRenderingSupport<V, E> getEdgeArrowRenderingSupport();
+		void setEdgeArrowRenderingSupport(EdgeArrowRenderingSupport<V, E> edgeArrowRenderingSupport);
+		@SuppressWarnings("rawtypes")
 		class NOOP implements Edge {
 			public void paintEdge(RenderContext rc, Layout layout, Object e) {}
 			public EdgeArrowRenderingSupport getEdgeArrowRenderingSupport(){return null;}
@@ -59,6 +61,7 @@ public interface Renderer<V,E> {
 		void setPosition(Position position);
 		void setPositioner(Positioner positioner);
 		Positioner getPositioner();
+		@SuppressWarnings("rawtypes")
 		class NOOP implements VertexLabel {
 			public void labelVertex(RenderContext rc, Layout layout, Object v, String label) {}
 			public Position getPosition() { return Position.CNTR; }
@@ -81,6 +84,7 @@ public interface Renderer<V,E> {
 	
 	interface EdgeLabel<V,E> {
 		void labelEdge(RenderContext<V,E> rc, Layout<V,E> layout, E e, String label);
+		@SuppressWarnings("rawtypes")
 		class NOOP implements EdgeLabel {
 			public void labelEdge(RenderContext rc, Layout layout, Object e, String label) {}
 		}

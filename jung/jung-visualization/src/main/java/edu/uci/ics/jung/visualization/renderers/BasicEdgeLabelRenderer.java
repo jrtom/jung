@@ -74,7 +74,7 @@ public class BasicEdgeLabelRenderer<V,E> implements Renderer.EdgeLabel<V,E> {
         
         Dimension d = component.getPreferredSize();
 
-        Shape edgeShape = rc.getEdgeShapeTransformer().apply(Context.<Graph<V,E>,E>getInstance(graph, e));
+        Shape edgeShape = rc.getEdgeShapeTransformer().apply(e);
         
         double parallelOffset = 1;
 

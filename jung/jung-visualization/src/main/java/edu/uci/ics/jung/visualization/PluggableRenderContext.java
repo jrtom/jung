@@ -33,6 +33,7 @@ import edu.uci.ics.jung.graph.util.IncidentEdgeIndexFunction;
 import edu.uci.ics.jung.visualization.decorators.ConstantDirectionalEdgeValueTransformer;
 import edu.uci.ics.jung.visualization.decorators.DirectionalEdgeArrowTransformer;
 import edu.uci.ics.jung.visualization.decorators.EdgeShape;
+import edu.uci.ics.jung.visualization.decorators.ParallelEdgeShapeTransformer;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import edu.uci.ics.jung.visualization.renderers.DefaultEdgeLabelRenderer;
 import edu.uci.ics.jung.visualization.renderers.DefaultVertexLabelRenderer;
@@ -81,8 +82,9 @@ public class PluggableRenderContext<V, E> implements RenderContext<V, E> {
         Functions.constant(new Font("Helvetica", Font.PLAIN, 12));
     protected Function<? super Context<Graph<V,E>,E>,Number> edgeLabelClosenessTransformer = 
         new ConstantDirectionalEdgeValueTransformer<V,E>(0.5, 0.65);
-    protected Function<? super Context<Graph<V,E>,E>,Shape> edgeShapeTransformer = 
-        new EdgeShape.QuadCurve<V,E>();
+//    protected Function<? super Context<Graph<V,E>,E>,Shape> edgeShapeTransformer = 
+//        new EdgeShape.QuadCurve<V,E>();
+    protected Function<? super E, Shape> edgeShapeTransformer;
     protected Function<? super E,Paint> edgeFillPaintTransformer =
         Functions.constant(null);
     protected Function<? super E,Paint> edgeDrawPaintTransformer =
@@ -135,8 +137,11 @@ public class PluggableRenderContext<V, E> implements RenderContext<V, E> {
     
     protected GraphicsDecorator graphicsContext;
     
-    PluggableRenderContext() {
-        this.setEdgeShapeTransformer(new EdgeShape.QuadCurve<V,E>());
+    private EdgeShape<V, E> edgeShape;
+    
+    PluggableRenderContext(Graph<V, E> graph) {
+        this.edgeShape = new EdgeShape<V, E>(graph);
+    	this.edgeShapeTransformer = edgeShape.new QuadCurve();    	
     }
 
 	/**
@@ -258,7 +263,7 @@ public class PluggableRenderContext<V, E> implements RenderContext<V, E> {
      * @see edu.uci.ics.jung.visualization.RenderContext#setEdgeLabelClosenessTransformer(edu.uci.ics.jung.visualization.decorators.NumberDirectionalEdgeValue)
      */
     public void setEdgeLabelClosenessTransformer(
-    		Function<Context<Graph<V,E>,E>,Number> edgeLabelClosenessTransformer) {
+    		Function<? super Context<Graph<V,E>,E>,Number> edgeLabelClosenessTransformer) {
         this.edgeLabelClosenessTransformer = edgeLabelClosenessTransformer;
     }
 
@@ -307,20 +312,23 @@ public class PluggableRenderContext<V, E> implements RenderContext<V, E> {
     /**
      * @see edu.uci.ics.jung.visualization.RenderContext#getEdgeShapeTransformer()
      */
-    public Function<? super Context<Graph<V,E>,E>,Shape> getEdgeShapeTransformer() {
+    public Function<? super E, Shape> getEdgeShapeTransformer() {
         return edgeShapeTransformer;
     }
 
     /**
      * @see edu.uci.ics.jung.visualization.RenderContext#setEdgeShapeTransformer(edu.uci.ics.jung.visualization.decorators.EdgeShapeTransformer)
      */
-    public void setEdgeShapeTransformer(Function<? super Context<Graph<V,E>,E>,Shape> edgeShapeTransformer) {
+    public void setEdgeShapeTransformer(Function<? super E, Shape> edgeShapeTransformer) {
         this.edgeShapeTransformer = edgeShapeTransformer;
-        if(edgeShapeTransformer instanceof EdgeShape.Orthogonal) {
-        	((EdgeShape.IndexedRendering<V, E>)edgeShapeTransformer).setEdgeIndexFunction(this.incidentEdgeIndexFunction);
-        } else 
-        if(edgeShapeTransformer instanceof EdgeShape.IndexedRendering) {
-            ((EdgeShape.IndexedRendering<V,E>)edgeShapeTransformer).setEdgeIndexFunction(this.parallelEdgeIndexFunction);
+        if (edgeShapeTransformer instanceof ParallelEdgeShapeTransformer) {
+        	ParallelEdgeShapeTransformer<V, E> transformer =
+        			(ParallelEdgeShapeTransformer<V, E>)edgeShapeTransformer;
+        	if (transformer instanceof EdgeShape.Orthogonal) {
+        		transformer.setEdgeIndexFunction(this.incidentEdgeIndexFunction);
+        	} else {
+        		transformer.setEdgeIndexFunction(this.parallelEdgeIndexFunction);
+        	}
         }
     }
 

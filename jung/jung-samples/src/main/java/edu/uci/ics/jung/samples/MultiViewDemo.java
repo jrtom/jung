@@ -126,13 +126,13 @@ public class MultiViewDemo extends JApplet {
         vv2 = new VisualizationViewer<String,Number>(visualizationModel, preferredSize);
         vv3 = new VisualizationViewer<String,Number>(visualizationModel, preferredSize);
         
-        vv1.getRenderContext().setEdgeShapeTransformer(new EdgeShape.Line<String,Number>());
+        vv1.getRenderContext().setEdgeShapeTransformer(EdgeShape.line(graph));
         vv2.getRenderContext().setVertexShapeTransformer(
         		Functions.<Shape>constant(new Rectangle2D.Float(-6,-6,12,12)));
 
-        vv2.getRenderContext().setEdgeShapeTransformer(new EdgeShape.QuadCurve<String,Number>());
+        vv2.getRenderContext().setEdgeShapeTransformer(EdgeShape.quadCurve(graph));
         
-        vv3.getRenderContext().setEdgeShapeTransformer(new EdgeShape.CubicCurve<String,Number>());
+        vv3.getRenderContext().setEdgeShapeTransformer(EdgeShape.cubicCurve(graph));
 
 //        Function = vv1.getLayoutTransformer();
 //        vv2.setLayoutTransformer(Function);

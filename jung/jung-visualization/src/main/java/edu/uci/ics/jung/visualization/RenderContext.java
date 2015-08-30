@@ -74,7 +74,7 @@ public interface RenderContext<V, E> {
     Function<? super Context<Graph<V,E>,E>,Number> getEdgeLabelClosenessTransformer();
 
     void setEdgeLabelClosenessTransformer(
-    		Function<Context<Graph<V,E>,E>,Number> edgeLabelClosenessTransformer);
+    		Function<? super Context<Graph<V,E>,E>,Number> edgeLabelClosenessTransformer);
 
     EdgeLabelRenderer getEdgeLabelRenderer();
 
@@ -96,9 +96,13 @@ public interface RenderContext<V, E> {
 
     void setArrowFillPaintTransformer(Function<? super E,Paint> arrowFillPaintTransformer);
 
-    Function<Context<Graph<V,E>,E>,Shape> getEdgeShapeTransformer();
+//    Function<? extends Context<Graph<V,E>,E>,Shape> getEdgeShapeTransformer();
+//
+//    void setEdgeShapeTransformer(Function<? super Context<Graph<V,E>,E>,Shape> edgeShapeTransformer);
 
-    void setEdgeShapeTransformer(Function<? super Context<Graph<V,E>,E>,Shape> edgeShapeTransformer);
+    Function<? super E, Shape> getEdgeShapeTransformer();
+
+    void setEdgeShapeTransformer(Function<? super E, Shape> edgeShapeTransformer);
 
     Function<? super E,String> getEdgeLabelTransformer();
 

@@ -137,10 +137,10 @@ public class BalloonLayoutDemo extends JApplet {
         radialLayout.setSize(new Dimension(900,900));
         vv =  new VisualizationViewer<String,Integer>(layout, new Dimension(600,600));
         vv.setBackground(Color.white);
-        vv.getRenderContext().setEdgeShapeTransformer(new EdgeShape.Line());
-        vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
+        vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.quadCurve(graph));
+        vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller<String>());
         // add a listener for ToolTips
-        vv.setVertexToolTipTransformer(new ToStringLabeller());
+        vv.setVertexToolTipTransformer(new ToStringLabeller<String>());
         vv.getRenderContext().setArrowFillPaintTransformer(Functions.<Paint>constant(Color.lightGray));
         rings = new Rings(radialLayout);
         
@@ -148,7 +148,8 @@ public class BalloonLayoutDemo extends JApplet {
         final GraphZoomScrollPane panel = new GraphZoomScrollPane(vv);
         content.add(panel);
         
-        final DefaultModalGraphMouse graphMouse = new DefaultModalGraphMouse();
+        final DefaultModalGraphMouse<String, Integer> graphMouse =
+        		new DefaultModalGraphMouse<String, Integer>();
 
         vv.setGraphMouse(graphMouse);
         vv.addKeyListener(graphMouse.getModeKeyListener());
@@ -161,7 +162,7 @@ public class BalloonLayoutDemo extends JApplet {
 
         graphMouse.addItemListener(hyperbolicViewSupport.getGraphMouse().getModeListener());
 
-        JComboBox modeBox = graphMouse.getModeComboBox();
+        JComboBox<?> modeBox = graphMouse.getModeComboBox();
         modeBox.addItemListener(graphMouse.getModeListener());
         graphMouse.setMode(ModalGraphMouse.Mode.TRANSFORMING);
 

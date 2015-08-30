@@ -9,6 +9,8 @@
  */
 package edu.uci.ics.jung.visualization.decorators;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.CubicCurve2D;
@@ -17,9 +19,11 @@ import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
 import java.awt.geom.QuadCurve2D;
 import java.awt.geom.Rectangle2D;
+import java.awt.geom.RectangularShape;
+
+import com.google.common.base.Function;
 
 import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.util.Context;
 import edu.uci.ics.jung.graph.util.EdgeIndexFunction;
 import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.graph.util.Pair;
@@ -37,116 +41,126 @@ import edu.uci.ics.jung.visualization.util.ArrowFactory;
  * @author Tom Nelson
  * @param <Edge>
  */
-public class EdgeShape<V,E>  {
-    
-    /**
-     * a convenience instance for other edge shapes to use
-     * for self-loop edges where parallel instances will not
-     * overlay each other.
-     */
-    @SuppressWarnings("unchecked")
-    protected static Loop loop = new Loop();
-    
-    /**
-     * a convenience instance for other edge shapes to use
-     * for self-loop edges where parallel instances overlay each
-     * other
-     */
-    @SuppressWarnings("unchecked")
-    protected static SimpleLoop simpleLoop = new SimpleLoop();
-    
-    @SuppressWarnings("unchecked")
-    protected static Box box = new Box();
+public class EdgeShape<V,E> {
+    private static final Line2D LINE = new Line2D.Float(0.0f, 0.0f, 1.0f, 0.0f);
+    private static final GeneralPath BENT_LINE = new GeneralPath();
+    private static final QuadCurve2D QUAD_CURVE = new QuadCurve2D.Float();
+    private static final CubicCurve2D CUBIC_CURVE = new CubicCurve2D.Float();
+    private static final Ellipse2D ELLIPSE = new Ellipse2D.Float(-.5f, -.5f, 1, 1);
+    private static Rectangle2D BOX = new Rectangle2D.Float();
 
+    private static GeneralPath triangle;
+    private static GeneralPath bowtie;
+
+	protected final Graph<V, E> graph;
+	
+    /**
+     * A convenience instance for other edge shapes to use for self-loop edges 
+     * where parallel instances will not overlay each other.
+     */
+    protected final Loop loop;
+    
+    /**
+     * A convenience instance for other edge shapes to use for self-loop edges
+     * where parallel instances overlay each other.
+     */
+    protected final SimpleLoop simpleLoop;
+
+    protected final Box box;
+
+	public EdgeShape(Graph<V, E> g) {
+		this.graph = g;
+		this.box = new Box();
+		this.loop = new Loop();
+		this.simpleLoop = new SimpleLoop();
+	}
+	
+	private Shape getLoopOrNull(E e) {
+		return getLoopOrNull(e, loop);
+	}
+	
+	private Shape getLoopOrNull(E e, Function<? super E, Shape> loop) {
+        Pair<V> endpoints = graph.getEndpoints(e);
+        checkNotNull(endpoints);
+    	boolean isLoop = endpoints.getFirst().equals(endpoints.getSecond());
+    	if (isLoop) {
+    		return loop.apply(e);
+    	}
+        return null;
+	}
+	
+	public static <V, E> EdgeShape<V, E>.Line line(Graph<V, E> graph) {
+        return new EdgeShape<V, E>(graph).new Line();
+	}
+	
+	public static <V, E> EdgeShape<V, E>.QuadCurve quadCurve(Graph<V, E> graph) {
+        return new EdgeShape<V, E>(graph).new QuadCurve();
+	}
+	
+	public static <V, E> EdgeShape<V, E>.QuadCurve cubicCurve(Graph<V, E> graph) {
+        return new EdgeShape<V, E>(graph).new QuadCurve();
+	}
+	
+	public static <V, E> EdgeShape<V, E>.Orthogonal orthogonal(Graph<V, E> graph) {
+		return new EdgeShape<V, E>(graph).new Orthogonal();
+	}
+	
+	public static <V, E> EdgeShape<V, E>.Wedge wedge(Graph<V, E> graph, int width) {
+		return new EdgeShape<V, E>(graph).new Wedge(width);
+	}
+	
     /**
      * An edge shape that renders as a straight line between
      * the vertex endpoints.
      */
-    public static class Line<V,E> extends AbstractEdgeShapeTransformer<V,E> {
-
-        /**
-         * Singleton instance of the Line2D edge shape
-         */
-        private static Line2D instance = new Line2D.Float(0.0f, 0.0f, 1.0f, 0.0f);
+    public class Line implements Function<E, Shape> {
         /**
          * Get the shape for this edge, returning either the
-         * shared instance or, in the case of self-loop edges, the
-         * SimpleLoop shared instance.
+         * shared instance or, in the case of self-loop edges, the 
+         * Loop shared instance.
          */
-        @SuppressWarnings("unchecked")
-		public Shape apply(Context<Graph<V,E>,E> context) {
-        	Graph<V,E> graph = context.graph;
-        	E e = context.element;
-            
-            Pair<V> endpoints = graph.getEndpoints(e);
-            if(endpoints != null) {
-            	boolean isLoop = endpoints.getFirst().equals(endpoints.getSecond());
-            	if (isLoop) {
-            		return loop.apply(context);
-            	}
-            }
-            return instance;
+		public Shape apply(E e) {
+			Shape loop = getLoopOrNull(e);
+			return loop == null
+					? LINE
+					: loop;
         }
+    }
+
+    private int getIndex(E e, EdgeIndexFunction<V, E> edgeIndexFunction) {
+    	return edgeIndexFunction == null
+    			? 1
+    			: edgeIndexFunction.getIndex(graph, e);
     }
     
     /**
      * An edge shape that renders as a bent-line between the
      * vertex endpoints.
      */
-    public static class BentLine<V,E> 
-             extends AbstractEdgeShapeTransformer<V,E> implements IndexedRendering<V,E> {
-        
-        /**
-         * singleton instance of the BentLine shape
-         */
-        private static GeneralPath instance = new GeneralPath();
-        
-        protected EdgeIndexFunction<V,E> parallelEdgeIndexFunction;
-
-        @SuppressWarnings("unchecked")
-		public void setEdgeIndexFunction(EdgeIndexFunction<V,E> parallelEdgeIndexFunction) {
-            this.parallelEdgeIndexFunction = parallelEdgeIndexFunction;
-            loop.setEdgeIndexFunction(parallelEdgeIndexFunction);
+    public class BentLine extends ParallelEdgeShapeTransformer<V,E> {
+		public void setEdgeIndexFunction(EdgeIndexFunction<V,E> edgeIndexFunction) {
+			this.edgeIndexFunction = edgeIndexFunction;
+            loop.setEdgeIndexFunction(edgeIndexFunction);
         }
-        
-        
-
-        /**
-		 * @return the parallelEdgeIndexFunction
-		 */
-		public EdgeIndexFunction<V, E> getEdgeIndexFunction() {
-			return parallelEdgeIndexFunction;
-		}
-
-
 
 		/**
          * Get the shape for this edge, returning either the
          * shared instance or, in the case of self-loop edges, the
          * Loop shared instance.
          */
-        @SuppressWarnings("unchecked")
-		public Shape apply(Context<Graph<V,E>,E> context) {
-        	Graph<V,E> graph = context.graph;
-        	E e = context.element;
-            Pair<V> endpoints = graph.getEndpoints(e);
-            if(endpoints != null) {
-            	boolean isLoop = endpoints.getFirst().equals(endpoints.getSecond());
-            	if (isLoop) {
-            		return loop.apply(context);
-            	}
-            }
-            
-            int index = 1;
-            if(parallelEdgeIndexFunction != null) {
-                index = parallelEdgeIndexFunction.getIndex(graph, e);
-            }
-            float controlY = control_offset_increment + control_offset_increment*index;
-            instance.reset();
-            instance.moveTo(0.0f, 0.0f);
-            instance.lineTo(0.5f, controlY);
-            instance.lineTo(1.0f, 1.0f);
-            return instance;
+		public Shape apply(E e) {
+        	Shape edgeShape = getLoopOrNull(e);
+        	if (edgeShape != null) {
+        		return edgeShape;
+        	}
+
+        	int index = getIndex(e, edgeIndexFunction);
+            float controlY = control_offset_increment + control_offset_increment * index;
+            BENT_LINE.reset();
+            BENT_LINE.moveTo(0.0f, 0.0f);
+            BENT_LINE.lineTo(0.5f, controlY);
+            BENT_LINE.lineTo(1.0f, 1.0f);
+            return BENT_LINE;
         }
 
     }
@@ -155,55 +169,30 @@ public class EdgeShape<V,E>  {
      * An edge shape that renders as a QuadCurve between vertex
      * endpoints.
      */
-    public static class QuadCurve<V,E>
-           extends AbstractEdgeShapeTransformer<V,E> implements IndexedRendering<V,E> {
-        
-        /**
-         * singleton instance of the QuadCurve shape
-         */
-        private static QuadCurve2D instance = new QuadCurve2D.Float();
-        
-        protected EdgeIndexFunction<V,E> parallelEdgeIndexFunction;
-
-        @SuppressWarnings("unchecked")
+    public class QuadCurve extends ParallelEdgeShapeTransformer<V,E> {
+    	@Override
 		public void setEdgeIndexFunction(EdgeIndexFunction<V,E> parallelEdgeIndexFunction) {
-            this.parallelEdgeIndexFunction = parallelEdgeIndexFunction;
+            this.edgeIndexFunction = parallelEdgeIndexFunction;
             loop.setEdgeIndexFunction(parallelEdgeIndexFunction);
         }
 
-       /**
-		 * @return the parallelEdgeIndexFunction
-		 */
-		public EdgeIndexFunction<V, E> getEdgeIndexFunction() {
-			return parallelEdgeIndexFunction;
-		}
-
-	/**
+    	/**
          * Get the shape for this edge, returning either the
          * shared instance or, in the case of self-loop edges, the
          * Loop shared instance.
          */
-        @SuppressWarnings("unchecked")
-		public Shape apply(Context<Graph<V,E>,E> context) {
-        	Graph<V,E> graph = context.graph;
-        	E e = context.element;
-            Pair<V> endpoints = graph.getEndpoints(e);
-            if(endpoints != null) {
-            	boolean isLoop = endpoints.getFirst().equals(endpoints.getSecond());
-            	if (isLoop) {
-            		return loop.apply(context);
-            	}
-            }
+		public Shape apply(E e) {
+        	Shape edgeShape = getLoopOrNull(e);
+        	if (edgeShape != null) {
+        		return edgeShape;
+        	}
             
-            int index = 1;
-            if(parallelEdgeIndexFunction != null) {
-                index = parallelEdgeIndexFunction.getIndex(graph, e);
-            }
+            int index = getIndex(e, edgeIndexFunction);
             
             float controlY = control_offset_increment + 
                 control_offset_increment * index;
-            instance.setCurve(0.0f, 0.0f, 0.5f, controlY, 1.0f, 0.0f);
-            return instance;
+            QUAD_CURVE.setCurve(0.0f, 0.0f, 0.5f, controlY, 1.0f, 0.0f);
+            return QUAD_CURVE;
         }
     }
     
@@ -213,56 +202,30 @@ public class EdgeShape<V,E>  {
      * (1/3*length, 2*controlY) and (2/3*length, controlY)
      * giving a 'spiral' effect.
      */
-    public static class CubicCurve<V,E> 
-         extends AbstractEdgeShapeTransformer<V,E> implements IndexedRendering<V,E> {
-        
-        /**
-         * singleton instance of the CubicCurve edge shape
-         */
-        private static CubicCurve2D instance = new CubicCurve2D.Float();
-        
-        protected EdgeIndexFunction<V,E> parallelEdgeIndexFunction;
-
-        @SuppressWarnings("unchecked")
-		public void setEdgeIndexFunction(EdgeIndexFunction<V,E> parallelEdgeIndexFunction) {
-            this.parallelEdgeIndexFunction = parallelEdgeIndexFunction;
-            loop.setEdgeIndexFunction(parallelEdgeIndexFunction);
+    public class CubicCurve extends ParallelEdgeShapeTransformer<V,E> {
+		public void setEdgeIndexFunction(EdgeIndexFunction<V,E> edgeIndexFunction) {
+            this.edgeIndexFunction = edgeIndexFunction;
+            loop.setEdgeIndexFunction(edgeIndexFunction);
        }
-
-        /**
-		 * @return the parallelEdgeIndexFunction
-		 */
-		public EdgeIndexFunction<V, E> getEdgeIndexFunction() {
-			return parallelEdgeIndexFunction;
-		}
 
 		/**
          * Get the shape for this edge, returning either the
          * shared instance or, in the case of self-loop edges, the
          * Loop shared instance.
          */
-        @SuppressWarnings("unchecked")
-		public Shape apply(Context<Graph<V,E>,E> context) {
-        	Graph<V,E> graph = context.graph;
-        	E e = context.element;
-           Pair<V> endpoints = graph.getEndpoints(e);
-           if(endpoints != null) {
-        	   boolean isLoop = endpoints.getFirst().equals(endpoints.getSecond());
-        	   if (isLoop) {
-        		   return loop.apply(context);
-        	   }
-           }
-           
-           int index = 1;
-           if(parallelEdgeIndexFunction != null) {
-               index = parallelEdgeIndexFunction.getIndex(graph, e);
-           }
+		public Shape apply(E e) {
+        	Shape edgeShape = getLoopOrNull(e);
+        	if (edgeShape != null) {
+        		return edgeShape;
+        	}
+            
+            int index = getIndex(e, edgeIndexFunction);
 
 			float controlY = control_offset_increment
 			    + control_offset_increment * index;
-			instance.setCurve(0.0f, 0.0f, 0.33f, 2 * controlY, .66f, -controlY,
+			CUBIC_CURVE.setCurve(0.0f, 0.0f, 0.33f, 2 * controlY, .66f, -controlY,
 					1.0f, 0.0f);
-            return instance;
+            return CUBIC_CURVE;
         }
     }
     
@@ -272,69 +235,32 @@ public class EdgeShape<V,E>  {
 	 * 
      * @author Tom Nelson 
      */
-    public static class SimpleLoop<V,E> extends AbstractEdgeShapeTransformer<V,E> {
-        
-        /**
-         * singleton instance of the SimpleLoop shape
-         */
-        private static Ellipse2D instance = new Ellipse2D.Float(-.5f, -.5f, 1, 1);
-        
-        /**
-         * getter for the shape
-         * @return the shared instance
-         */
-        public Shape apply(Context<Graph<V,E>,E> context) {
-            return instance;
+    public class SimpleLoop extends ParallelEdgeShapeTransformer<V,E> {
+        public Shape apply(E e) {
+            return ELLIPSE;
         }
+    }
+    
+    private Shape buildFrame(RectangularShape shape, int index) {
+        float x = -.5f;
+        float y = -.5f;
+        float diam = 1.f;
+        diam += diam * index/2;
+        x += x * index/2;
+        y += y * index/2;
+    	
+        shape.setFrame(x, y, diam, diam);
+        
+        return shape;
     }
     
     /**
      * An edge shape that renders as a loop with its nadir at the
      * center of the vertex. Parallel instances will not overlap.
      */
-    public static class Loop<V,E>
-           extends AbstractEdgeShapeTransformer<V,E> implements IndexedRendering<V,E> {
-        
-        /**
-         * singleton instance of the Loop shape
-         */
-        private static Ellipse2D instance = new Ellipse2D.Float();
-        
-        protected EdgeIndexFunction<V,E> parallelEdgeIndexFunction;
-
-        public void setEdgeIndexFunction(EdgeIndexFunction<V,E> parallelEdgeIndexFunction) {
-            this.parallelEdgeIndexFunction = parallelEdgeIndexFunction;
-        }
-
-
-        /**
-		 * @return the parallelEdgeIndexFunction
-		 */
-		public EdgeIndexFunction<V, E> getEdgeIndexFunction() {
-			return parallelEdgeIndexFunction;
-		}
-
-
-		/**
-         * Get the shape for this edge, modifying the diameter in the
-         * case of parallel edges, so they do not overlap
-         */
-        public Shape apply(Context<Graph<V,E>,E> context) {
-        	Graph<V,E> graph = context.graph;
-        	E e = context.element;
-            int count = 1;
-            if(parallelEdgeIndexFunction != null) {
-                count = parallelEdgeIndexFunction.getIndex(graph, e);
-            }
-            
-            float x = -.5f;
-            float y = -.5f;
-            float diam = 1.f;
-            diam += diam*count/2;
-            x += x*count/2;
-            y += y*count/2;
-            instance.setFrame(x,y,diam,diam);
-            return instance;
+    public class Loop extends ParallelEdgeShapeTransformer<V,E> {
+        public Shape apply(E e) {
+            return buildFrame(ELLIPSE, getIndex(e, edgeIndexFunction));
         }
     }
 
@@ -344,10 +270,7 @@ public class EdgeShape<V,E>  {
      * and as a "bowtie" shape for undirected edges.
      * @author Joshua O'Madadhain
      */
-    public static class Wedge<V,E> extends AbstractEdgeShapeTransformer<V,E> {
-        private static GeneralPath triangle;
-        private static GeneralPath bowtie;
-        
+    public class Wedge extends ParallelEdgeShapeTransformer<V,E> {
         public Wedge(int width)  {
             triangle = ArrowFactory.getWedgeArrow(width, 1);
             triangle.transform(AffineTransform.getTranslateInstance(1,0));
@@ -359,123 +282,38 @@ public class EdgeShape<V,E>  {
             bowtie.closePath();
         }
         
-        public Shape apply(Context<Graph<V,E>,E> context) {
-        	Graph<V,E> graph = context.graph;
-        	E e = context.element;
-        
-            Pair<V> endpoints = graph.getEndpoints(e);
-            if(endpoints != null) {
-            	boolean isLoop = endpoints.getFirst().equals(endpoints.getSecond());
-            	if (isLoop) {
-            		return Loop.instance;
-            	}
-            }
-            if (graph.getEdgeType(e) == EdgeType.DIRECTED)
-                return triangle;
-            else
-                return bowtie;
+        public Shape apply(E e) {
+        	Shape edgeShape = getLoopOrNull(e);
+        	if (edgeShape != null) {
+        		return edgeShape;
+        	}
+        	return (graph.getEdgeType(e) == EdgeType.DIRECTED)
+        			? triangle
+        			: bowtie;
         }
     }
     
     /**
-     * An edge shape that renders as a loop with its nadir at the
+     * An edge shape that renders as a diamond with its nadir at the
      * center of the vertex. Parallel instances will not overlap.
      */
-    public static class Box<V,E>
-           extends AbstractEdgeShapeTransformer<V,E> implements IndexedRendering<V,E> {
-        
-        /**
-         * singleton instance of the Loop shape
-         */
-        private static Rectangle2D instance = new Rectangle2D.Float();
-        
-        protected EdgeIndexFunction<V,E> parallelEdgeIndexFunction;
-
-        public void setEdgeIndexFunction(EdgeIndexFunction<V,E> parallelEdgeIndexFunction) {
-            this.parallelEdgeIndexFunction = parallelEdgeIndexFunction;
-        }
-
-        /**
-		 * @return the parallelEdgeIndexFunction
-		 */
-		public EdgeIndexFunction<V, E> getEdgeIndexFunction() {
-			return parallelEdgeIndexFunction;
-		}
-
-		/**
-         * Get the shape for this edge, modifying the diameter in the
-         * case of parallel edges, so they do not overlap
-         */
-        public Shape apply(Context<Graph<V,E>,E> context) {
-        	Graph<V,E> graph = context.graph;
-        	E e = context.element;
-            int count = 1;
-            if(parallelEdgeIndexFunction != null) {
-                count = parallelEdgeIndexFunction.getIndex(graph, e);
-            }
-            
-            float x = -.5f;
-            float y = -.5f;
-            float diam = 1.f;
-            diam += diam*count/2;
-            x += x*count/2;
-            y += y*count/2;
-            instance.setFrame(x,y,diam,diam);
-            return instance;
+    public class Box extends ParallelEdgeShapeTransformer<V,E> {
+        public Shape apply(E e) {
+            return buildFrame(BOX, getIndex(e, edgeIndexFunction));
         }
     }
 
 
     /**
-     * An edge shape that renders as a bent-line between the
-     * vertex endpoints.
+     * An edge shape that renders as a bent-line between the vertex endpoints.
      */
-    public static class Orthogonal<V,E> 
-             extends AbstractEdgeShapeTransformer<V,E> implements IndexedRendering<V,E> {
-        
-        /**
-         * singleton instance of the BentLine shape
-         */
-        private static Line2D instance = new Line2D.Float(0.0f, 0.0f, 1.0f, 0.0f);
-        
-        protected EdgeIndexFunction<V,E> edgeIndexFunction;
-
-        @SuppressWarnings("unchecked")
-		public void setEdgeIndexFunction(EdgeIndexFunction<V,E> edgeIndexFunction) {
-            this.edgeIndexFunction = edgeIndexFunction;
-            box.setEdgeIndexFunction(edgeIndexFunction);
+    public class Orthogonal extends ParallelEdgeShapeTransformer<V,E> {
+		public Shape apply(E e) {
+			Shape loop = getLoopOrNull(e, box);
+			return loop == null
+					? LINE
+					: loop;
         }
-
-        /**
-		 * @return the parallelEdgeIndexFunction
-		 */
-		public EdgeIndexFunction<V, E> getEdgeIndexFunction() {
-			return edgeIndexFunction;
-		}
-
-		/**
-         * Get the shape for this edge, returning either the
-         * shared instance or, in the case of self-loop edges, the
-         * Loop shared instance.
-         */
-        @SuppressWarnings("unchecked")
-		public Shape apply(Context<Graph<V,E>,E> context) {
-        	Graph<V,E> graph = context.graph;
-        	E e = context.element;
-            Pair<V> endpoints = graph.getEndpoints(e);
-            if(endpoints != null) {
-            	boolean isLoop = endpoints.getFirst().equals(endpoints.getSecond());
-            	if (isLoop) {
-            		return box.apply(context);
-            	}
-            }
-            return instance;
-        }
-    }
-    
-    public static interface IndexedRendering<V,E> {
-        void setEdgeIndexFunction(EdgeIndexFunction<V,E> peif);
-        EdgeIndexFunction<V,E> getEdgeIndexFunction();
     }
 }
     

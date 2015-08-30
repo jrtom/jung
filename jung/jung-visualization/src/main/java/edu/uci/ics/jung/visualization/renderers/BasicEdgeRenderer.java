@@ -30,7 +30,7 @@ import edu.uci.ics.jung.graph.util.Pair;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.decorators.EdgeShape;
-import edu.uci.ics.jung.visualization.decorators.EdgeShape.IndexedRendering;
+import edu.uci.ics.jung.visualization.decorators.ParallelEdgeShapeTransformer;
 import edu.uci.ics.jung.visualization.transform.LensTransformer;
 import edu.uci.ics.jung.visualization.transform.MutableTransformer;
 import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
@@ -39,7 +39,6 @@ public class BasicEdgeRenderer<V,E> implements Renderer.Edge<V,E> {
 	
 	protected EdgeArrowRenderingSupport<V,E> edgeArrowRenderingSupport =
 		new BasicEdgeArrowRenderingSupport<V,E>();
-	
 
     public void paintEdge(RenderContext<V,E> rc, Layout<V, E> layout, E e) {
         GraphicsDecorator g2d = rc.getGraphicsContext();
@@ -90,7 +89,7 @@ public class BasicEdgeRenderer<V,E> implements Renderer.Edge<V,E> {
         
         boolean isLoop = loop[0] = v1.equals(v2);
         Shape s2 = rc.getVertexShapeTransformer().apply(v2);
-        Shape edgeShape = rc.getEdgeShapeTransformer().apply(Context.<Graph<V,E>,E>getInstance(graph, e));
+        Shape edgeShape = rc.getEdgeShapeTransformer().apply(e);
         
 //        boolean edgeHit = true;
 //        boolean arrowHit = true;
@@ -114,9 +113,11 @@ public class BasicEdgeRenderer<V,E> implements Renderer.Edge<V,E> {
             float dx = x2-x1;
             float dy = y2-y1;
             int index = 0;
-            if(rc.getEdgeShapeTransformer() instanceof IndexedRendering) {
-            	EdgeIndexFunction<V,E> peif = 
-            		((IndexedRendering<V,E>)rc.getEdgeShapeTransformer()).getEdgeIndexFunction();
+            if(rc.getEdgeShapeTransformer() instanceof ParallelEdgeShapeTransformer) {
+				@SuppressWarnings("unchecked")
+				EdgeIndexFunction<V,E> peif =
+					((ParallelEdgeShapeTransformer<V,E>)rc.getEdgeShapeTransformer())
+						.getEdgeIndexFunction();
             	index = peif.getIndex(graph, e);
             	index *= 20;
             }
@@ -178,7 +179,6 @@ public class BasicEdgeRenderer<V,E> implements Renderer.Edge<V,E> {
      * is scaled in the x-direction so that its width is equal to the distance between
      * <code>(x1,y1)</code> and <code>(x2,y2)</code>.
      */
-    @SuppressWarnings("unchecked")
     protected void drawSimpleEdge(RenderContext<V,E> rc, Layout<V,E> layout, E e) {
     	
     	int[] coords = new int[4];
@@ -373,12 +373,12 @@ public class BasicEdgeRenderer<V,E> implements Renderer.Edge<V,E> {
         }
     }
 
-	public EdgeArrowRenderingSupport getEdgeArrowRenderingSupport() {
+	public EdgeArrowRenderingSupport<V, E> getEdgeArrowRenderingSupport() {
 		return edgeArrowRenderingSupport;
 	}
 
 	public void setEdgeArrowRenderingSupport(
-			EdgeArrowRenderingSupport edgeArrowRenderingSupport) {
+			EdgeArrowRenderingSupport<V, E> edgeArrowRenderingSupport) {
 		this.edgeArrowRenderingSupport = edgeArrowRenderingSupport;
 	}
 }

@@ -11,7 +11,6 @@ import java.util.Set;
 
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.util.Context;
 import edu.uci.ics.jung.graph.util.EdgeIndexFunction;
 import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.graph.util.Pair;
@@ -19,7 +18,7 @@ import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.decorators.EdgeShape;
-import edu.uci.ics.jung.visualization.decorators.EdgeShape.IndexedRendering;
+import edu.uci.ics.jung.visualization.decorators.ParallelEdgeShapeTransformer;
 
 /** 
  * maintains caches of vertices and edges that will be the subset of the
@@ -94,7 +93,8 @@ public class FastRenderingGraph<V, E> implements Graph<V, E> {
         
         boolean isLoop = v1.equals(v2);
         Shape s2 = rc.getVertexShapeTransformer().apply(v2);
-        Shape edgeShape = rc.getEdgeShapeTransformer().apply(Context.<Graph<V,E>,E>getInstance(graph, e));
+//        Shape edgeShape = rc.getEdgeShapeTransformer().apply(Context.<Graph<V,E>,E>getInstance(graph, e));
+        Shape edgeShape = rc.getEdgeShapeTransformer().apply(e);
 
         AffineTransform xform = AffineTransform.getTranslateInstance(x1, y1);
         
@@ -109,9 +109,11 @@ public class FastRenderingGraph<V, E> implements Graph<V, E> {
             float dx = x2-x1;
             float dy = y2-y1;
             int index = 0;
-            if(rc.getEdgeShapeTransformer() instanceof IndexedRendering) {
-            	EdgeIndexFunction<V,E> peif = 
-            		((IndexedRendering<V,E>)rc.getEdgeShapeTransformer()).getEdgeIndexFunction();
+            if(rc.getEdgeShapeTransformer() instanceof ParallelEdgeShapeTransformer) {
+            	@SuppressWarnings("unchecked")
+				EdgeIndexFunction<V,E> peif = 
+            		((ParallelEdgeShapeTransformer<V,E>)rc.getEdgeShapeTransformer())
+            			.getEdgeIndexFunction();
             	index = peif.getIndex(graph, e);
             	index *= 20;
             }

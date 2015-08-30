@@ -127,7 +127,7 @@ public class BasicVisualizationServer<V, E> extends JPanel
 	 */
 	protected List<Paintable> postRenderers = new ArrayList<Paintable>();
 	
-    protected RenderContext<V,E> renderContext = new PluggableRenderContext<V,E>();
+    protected RenderContext<V,E> renderContext;
     
     /**
      * Create an instance with passed parameters.
@@ -137,6 +137,7 @@ public class BasicVisualizationServer<V, E> extends JPanel
      */
 	public BasicVisualizationServer(Layout<V,E> layout) {
 	    this(new DefaultVisualizationModel<V,E>(layout));
+	    renderContext = new PluggableRenderContext<V,E>(layout.getGraph());
 	}
 	
     /**
@@ -148,6 +149,7 @@ public class BasicVisualizationServer<V, E> extends JPanel
      */
 	public BasicVisualizationServer(Layout<V,E> layout, Dimension preferredSize) {
 	    this(new DefaultVisualizationModel<V,E>(layout, preferredSize), preferredSize);
+	    renderContext = new PluggableRenderContext<V,E>(layout.getGraph());
 	}
 	
 	/**
@@ -166,10 +168,10 @@ public class BasicVisualizationServer<V, E> extends JPanel
 	 * @param renderer
 	 * @param preferredSize initial preferred size of the view
 	 */
-	@SuppressWarnings("unchecked")
     public BasicVisualizationServer(VisualizationModel<V,E> model,
 	        Dimension preferredSize) {
 	    this.model = model;
+	    renderContext = new PluggableRenderContext<V,E>(model.getGraphLayout().getGraph());
 //        renderContext.setScreenDevice(this);
 	    model.addChangeListener(this);
 	    setDoubleBuffered(false);

@@ -133,13 +133,13 @@ public class MinimumSpanningTreeDemo extends JApplet {
         vv1.getRenderContext().setMultiLayerTransformer(vv0.getRenderContext().getMultiLayerTransformer());
         vv2.getRenderContext().setMultiLayerTransformer(vv0.getRenderContext().getMultiLayerTransformer());
 
-        vv1.getRenderContext().setEdgeShapeTransformer(new EdgeShape.Line());
+        vv1.getRenderContext().setEdgeShapeTransformer(EdgeShape.line(graph));
         
         vv0.addChangeListener(vv1);
         vv1.addChangeListener(vv2);
         
-        vv0.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
-        vv2.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
+        vv0.getRenderContext().setVertexLabelTransformer(new ToStringLabeller<String>());
+        vv2.getRenderContext().setVertexLabelTransformer(new ToStringLabeller<String>());
         
         Color back = Color.decode("0xffffbb");
         vv0.setBackground(back);
@@ -174,9 +174,9 @@ public class MinimumSpanningTreeDemo extends JApplet {
                 Color.red, Color.yellow));
         
         // add default listeners for ToolTips
-        vv0.setVertexToolTipTransformer(new ToStringLabeller());
-        vv1.setVertexToolTipTransformer(new ToStringLabeller());
-        vv2.setVertexToolTipTransformer(new ToStringLabeller());
+        vv0.setVertexToolTipTransformer(new ToStringLabeller<String>());
+        vv1.setVertexToolTipTransformer(new ToStringLabeller<String>());
+        vv2.setVertexToolTipTransformer(new ToStringLabeller<String>());
         
         vv0.setLayout(new BorderLayout());
         vv1.setLayout(new BorderLayout());

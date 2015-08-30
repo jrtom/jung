@@ -233,6 +233,8 @@ public class PluggableRendererDemo extends JApplet implements ActionListener
     protected DefaultModalGraphMouse<Integer, Number> gm;
     protected Set<Integer> seedVertices = new HashSet<Integer>();
     
+    private Graph<Integer, Number> graph;
+    
     public void start()
     {
         getContentPane().add( startFunction() );
@@ -250,9 +252,9 @@ public class PluggableRendererDemo extends JApplet implements ActionListener
     
     
     public JPanel startFunction() {
-        Graph<Integer,Number> g = getGraph();
+        this.graph = buildGraph();
         
-        Layout<Integer,Number> layout = new FRLayout<Integer,Number>(g);
+        Layout<Integer,Number> layout = new FRLayout<Integer,Number>(graph);
 //        layout.setSize(new Dimension(5000,5000));
         vv = new VisualizationViewer<Integer,Number>(layout);
         
@@ -268,12 +270,12 @@ public class PluggableRendererDemo extends JApplet implements ActionListener
         seedDrawColor = new SeedDrawColor<Integer>(picked_state);
         ewcs = 
             new EdgeWeightStrokeFunction<Number>(edge_weight);
-        vsh = new VertexStrokeHighlight<Integer,Number>(g, picked_state);
+        vsh = new VertexStrokeHighlight<Integer,Number>(graph, picked_state);
         vff = new VertexFontTransformer<Integer>();
         eff = new EdgeFontTransformer<Number>();
         vs_none = Functions.constant(null);
         es_none = Functions.constant(null);
-        vssa = new VertexShapeSizeAspect<Integer,Number>(g, voltages);
+        vssa = new VertexShapeSizeAspect<Integer,Number>(graph, voltages);
         show_edge = new DirectionDisplayPredicate<Integer,Number>(true, true);
         show_arrow = new DirectionDisplayPredicate<Integer,Number>(true, false);
         show_vertex = new VertexDisplayPredicate<Integer,Number>(false);
@@ -301,7 +303,7 @@ public class PluggableRendererDemo extends JApplet implements ActionListener
         vv.getRenderContext().setEdgeFontTransformer(eff);
         vv.getRenderContext().setEdgeStrokeTransformer(ewcs);
         vv.getRenderContext().setEdgeIncludePredicate(show_edge);
-        vv.getRenderContext().setEdgeShapeTransformer(new EdgeShape.Line<Integer,Number>());
+        vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.line(graph));
         vv.getRenderContext().setEdgeArrowPredicate(show_arrow);
         
         vv.getRenderContext().setArrowFillPaintTransformer(Functions.<Paint>constant(Color.lightGray));
@@ -331,7 +333,7 @@ public class PluggableRendererDemo extends JApplet implements ActionListener
      * Generates a mixed-mode random graph, runs VoltageRanker on it, and
      * returns the resultant graph.
      */
-    public Graph<Integer,Number> getGraph() {
+    public Graph<Integer,Number> buildGraph() {
     	Supplier<Graph<Integer,Number>> graphFactory =
     		new Supplier<Graph<Integer,Number>>() {
     		public Graph<Integer,Number> get() {
@@ -685,18 +687,18 @@ public class PluggableRendererDemo extends JApplet implements ActionListener
         {
             if(source.isSelected())
             {
-                vv.getRenderContext().setEdgeShapeTransformer(new EdgeShape.Line<Integer,Number>());
+                vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.line(graph));
             }
         }
         else if (source == e_ortho)
         {
             if (source.isSelected())
-                vv.getRenderContext().setEdgeShapeTransformer(new EdgeShape.Orthogonal<Integer,Number>());
+                vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.orthogonal(graph));
         }
         else if (source == e_wedge)
         {
             if (source.isSelected())
-                vv.getRenderContext().setEdgeShapeTransformer(new EdgeShape.Wedge<Integer,Number>(10));
+                vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.wedge(graph, 10));
         }
 //        else if (source == e_bent) 
 //        {
@@ -709,14 +711,14 @@ public class PluggableRendererDemo extends JApplet implements ActionListener
         {
             if(source.isSelected())
             {
-                vv.getRenderContext().setEdgeShapeTransformer(new EdgeShape.QuadCurve<Integer,Number>());
+                vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.quadCurve(graph));
             }
         }
         else if (source == e_cubic) 
         {
             if(source.isSelected())
             {
-                vv.getRenderContext().setEdgeShapeTransformer(new EdgeShape.CubicCurve<Integer,Number>());
+                vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.cubicCurve(graph));
             }
         }
        else if (source == e_show_d)

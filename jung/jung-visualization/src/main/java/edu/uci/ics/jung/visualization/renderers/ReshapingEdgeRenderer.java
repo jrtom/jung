@@ -80,7 +80,7 @@ public class ReshapingEdgeRenderer<V,E> extends BasicEdgeRenderer<V,E>
 
         boolean isLoop = v1.equals(v2);
         Shape s2 = rc.getVertexShapeTransformer().apply(v2);
-        Shape edgeShape = rc.getEdgeShapeTransformer().apply(Context.<Graph<V,E>,E>getInstance(graph, e));
+        Shape edgeShape = rc.getEdgeShapeTransformer().apply(e);
         
         boolean edgeHit = true;
         boolean arrowHit = true;

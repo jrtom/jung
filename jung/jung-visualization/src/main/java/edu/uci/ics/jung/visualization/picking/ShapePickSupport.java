@@ -327,8 +327,7 @@ public class ShapePickSupport<V, E> implements GraphElementAccessor<V,E> {
 		// translate the edge to the starting vertex
 		AffineTransform xform = AffineTransform.getTranslateInstance(x1, y1);
 
-		Shape edgeShape = 
-			vv.getRenderContext().getEdgeShapeTransformer().apply(Context.<Graph<V,E>,E>getInstance(vv.getGraphLayout().getGraph(),e));
+		Shape edgeShape = vv.getRenderContext().getEdgeShapeTransformer().apply(e);
 		if(isLoop) {
 		    // make the loops proportional to the size of the vertex
 		    Shape s2 = vv.getRenderContext().getVertexShapeTransformer().apply(v2);

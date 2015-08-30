@@ -24,8 +24,6 @@ import java.util.Set;
 
 import edu.uci.ics.jung.algorithms.layout.GraphElementAccessor;
 import edu.uci.ics.jung.algorithms.layout.Layout;
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.util.Context;
 import edu.uci.ics.jung.graph.util.Pair;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationServer;
@@ -202,8 +200,7 @@ public class ViewLensShapePickSupport<V, E> extends ShapePickSupport<V,E>
                     // translate the edge to the starting vertex
                     AffineTransform xform = AffineTransform.getTranslateInstance(x1, y1);
 
-                    Shape edgeShape = 
-                    	vv.getRenderContext().getEdgeShapeTransformer().apply(Context.<Graph<V,E>,E>getInstance(vv.getGraphLayout().getGraph(),e));
+                    Shape edgeShape = vv.getRenderContext().getEdgeShapeTransformer().apply(e);
                     if(isLoop) {
                         // make the loops proportional to the size of the vertex
                         Shape s2 = vv.getRenderContext().getVertexShapeTransformer().apply(v2);

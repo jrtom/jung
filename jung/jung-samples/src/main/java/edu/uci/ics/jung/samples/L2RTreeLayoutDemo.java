@@ -129,10 +129,10 @@ public class L2RTreeLayoutDemo extends JApplet {
         radialLayout.setSize(new Dimension(600,600));
         vv =  new VisualizationViewer<String,Integer>(treeLayout, new Dimension(600,600));
         vv.setBackground(Color.white);
-        vv.getRenderContext().setEdgeShapeTransformer(new EdgeShape.Line());
-        vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
+        vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.quadCurve(graph));
+        vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller<String>());
         // add a listener for ToolTips
-        vv.setVertexToolTipTransformer(new ToStringLabeller());
+        vv.setVertexToolTipTransformer(new ToStringLabeller<String>());
         vv.getRenderContext().setArrowFillPaintTransformer(Functions.<Paint>constant(Color.lightGray));
         rings = new Rings();
         

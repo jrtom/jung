@@ -9,7 +9,6 @@ import java.util.List;
 
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.util.Context;
 import edu.uci.ics.jung.graph.util.Pair;
 import edu.uci.ics.jung.visualization.RenderContext;
 
@@ -52,7 +51,7 @@ public class BoundingRectangleCollector<V,E>  {
 			
 			boolean isLoop = v1.equals(v2);
 			Shape s2 = rc.getVertexShapeTransformer().apply(v2);
-			Shape edgeShape = rc.getEdgeShapeTransformer().apply(Context.<Graph<V,E>,E>getInstance(graph,e));
+			Shape edgeShape = rc.getEdgeShapeTransformer().apply(e);
 
 			AffineTransform xform = AffineTransform.getTranslateInstance(x1,y1);
 			

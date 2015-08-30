@@ -94,20 +94,6 @@
 				<role>Developer</role>
 			</roles>
 		</developer>
-		<!--  
-			<developer>
-			<id>jason</id>
-			<name>Jason</name>
-			<email>jason@sf.net</email>
-			<url />
-			<organization>BAH</organization>
-			<organizationUrl />
-			<timezone>-4</timezone>
-			<roles>
-			<role>Developer</role>
-			</roles>
-			</developer>
-		-->
 	</developers>
 	<mailingLists>
 		<mailingList>
@@ -116,12 +102,6 @@
 				https://lists.sourceforge.net/lists/listinfo/jung-support
 			</subscribe>
 		</mailingList>
-		<!--
-			<mailingList>
-			<name>open discussion</name>
-			<subscribe>https://sourceforge.net/forum/forum.php?forum_id=252062&f_feedback=1</subscribe>
-			</mailingList>
-		-->
 	</mailingLists>
 
 	<build>

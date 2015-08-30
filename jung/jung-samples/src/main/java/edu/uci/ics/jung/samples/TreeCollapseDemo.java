@@ -140,9 +140,9 @@ public class TreeCollapseDemo extends JApplet {
         radialLayout.setSize(new Dimension(600,600));
         vv =  new VisualizationViewer<String,Integer>(layout, new Dimension(600,600));
         vv.setBackground(Color.white);
-        vv.getRenderContext().setEdgeShapeTransformer(new EdgeShape.Line());
+        vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.line(graph));
         vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
-        vv.getRenderContext().setVertexShapeTransformer(new ClusterVertexShapeFunction());
+        vv.getRenderContext().setVertexShapeTransformer(new ClusterVertexShapeFunction<String>());
         // add a listener for ToolTips
         vv.setVertexToolTipTransformer(new ToStringLabeller());
         vv.getRenderContext().setArrowFillPaintTransformer(Functions.<Paint>constant(Color.lightGray));
