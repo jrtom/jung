@@ -82,8 +82,6 @@ public class PluggableRenderContext<V, E> implements RenderContext<V, E> {
         Functions.constant(new Font("Helvetica", Font.PLAIN, 12));
     protected Function<? super Context<Graph<V,E>,E>,Number> edgeLabelClosenessTransformer = 
         new ConstantDirectionalEdgeValueTransformer<V,E>(0.5, 0.65);
-//    protected Function<? super Context<Graph<V,E>,E>,Shape> edgeShapeTransformer = 
-//        new EdgeShape.QuadCurve<V,E>();
     protected Function<? super E, Shape> edgeShapeTransformer;
     protected Function<? super E,Paint> edgeFillPaintTransformer =
         Functions.constant(null);
