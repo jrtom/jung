@@ -96,10 +96,6 @@ public interface RenderContext<V, E> {
 
     void setArrowFillPaintTransformer(Function<? super E,Paint> arrowFillPaintTransformer);
 
-//    Function<? extends Context<Graph<V,E>,E>,Shape> getEdgeShapeTransformer();
-//
-//    void setEdgeShapeTransformer(Function<? super Context<Graph<V,E>,E>,Shape> edgeShapeTransformer);
-
     Function<? super E, Shape> getEdgeShapeTransformer();
 
     void setEdgeShapeTransformer(Function<? super E, Shape> edgeShapeTransformer);
@@ -177,10 +173,6 @@ public interface RenderContext<V, E> {
 
     void setVertexStrokeTransformer(Function<? super V,Stroke> vertexStrokeTransformer);
 
-//    MutableTransformer getViewTransformer();
-
-//    void setViewTransformer(MutableTransformer viewTransformer);
-    
     class DirectedEdgeArrowPredicate<V,E> 
     	implements Predicate<Context<Graph<V,E>,E>> {
 
