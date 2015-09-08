@@ -8,7 +8,7 @@ package edu.uci.ics.jung.algorithms.generators.random;
 *
 * This software is open-source under the BSD license; see either
 * "license.txt" or
-* http://jung.sourceforge.net/license.txt for a description.
+* https://github.com/jrtom/jung/blob/master/LICENSE for a description.
 */
 
 import java.util.HashMap;
