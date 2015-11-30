@@ -18,6 +18,8 @@ import java.util.Random;
 
 import com.google.common.base.Function;
 
+import edu.uci.ics.jung.algorithms.layout.StaticLayout;
+
 /**
  * Provides a random vertex location within the bounds of the Dimension property.
  * This provides a random location for unmapped vertices
