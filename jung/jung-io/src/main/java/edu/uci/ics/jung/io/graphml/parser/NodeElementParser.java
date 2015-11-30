@@ -42,9 +42,9 @@ public class NodeElementParser<G extends Hypergraph<V,E>,V,E> extends AbstractEl
             NodeMetadata node = new NodeMetadata();
 
             // Parse the attributes.
-            Iterator iterator = start.getAttributes();
+            Iterator<Attribute> iterator = start.getAttributes();
             while (iterator.hasNext()) {
-                Attribute attribute = (Attribute) iterator.next();
+                Attribute attribute = iterator.next();
                 String name = attribute.getName().getLocalPart();
                 String value = attribute.getValue();
                 if (node.getId() == null && GraphMLConstants.ID_NAME.equals(name)) {

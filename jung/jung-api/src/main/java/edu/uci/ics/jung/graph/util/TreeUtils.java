@@ -24,9 +24,10 @@ import java.util.List;
 public class TreeUtils 
 {
 	/**
-	 * Returns the roots of this forest.
 	 * @param <V> the vertex type
 	 * @param <E> the edge type
+	 * @param forest the forest whose roots are to be returned
+	 * @return the roots of this forest.
 	 */
 	public static <V,E> List<V> getRoots(Forest<V,E> forest) 
 	{
@@ -38,7 +39,7 @@ public class TreeUtils
 	}
     
     /**
-     * Returns the subtree of <code>tree</code> which is rooted at <code>root</code> as a <code>Forest<V,E></code>.
+     * Returns the subtree of <code>tree</code> which is rooted at <code>root</code> as a <code>Forest</code>.
      * The tree returned is an independent entity, although it uses the same vertex and edge objects.
      * @param <V> the vertex type
      * @param <E> the edge type
@@ -46,10 +47,10 @@ public class TreeUtils
      * @param root the root of the subtree to be extracted
      * @return the subtree of <code>tree</code> which is rooted at <code>root</code>
      * @throws InstantiationException if a new tree of the same type cannot be created
-     * @throws IllegalAccessException 
+     * @throws IllegalAccessException if a new tree of the same type cannot be created
      */
 	@SuppressWarnings("unchecked")
-	public static <V,E> Tree<V,E> getSubTree(Forest<V,E> forest, V root) throws InstantiationException, IllegalAccessException 
+	public static <V,E> Tree<V,E> getSubTree(Forest<V,E> forest, V root) throws InstantiationException, IllegalAccessException
 	{
 	    if (!forest.containsVertex(root))
 	        throw new IllegalArgumentException("Specified tree does not contain the specified root as a vertex");
@@ -100,37 +101,6 @@ public class TreeUtils
 		addFromSubTree(tree, subTree, connectingEdge, node, root);
 	}
 	
-	/**
-	 * Adds the trees in <code>source</code> to <code>destination</code>.
-	 * <code>source</code> is left unchanged.  The vertex and edge objects
-	 * in <code>source</code> will also be used in <code>destination</code>,
-	 * in the same (structural) roles.
-	 * @param <V> the vertex type
-	 * @param <E> the edge type
-	 * @param destination  the forest to which the trees in <code>source</code> 
-	 * will be added
-	 * @param source the forest whose trees will be added to 
-	 * <code>destination</code>
-	 * FIXME also note that this is redundant with DelegateForest.addTree()
-	 *
-	 */
-//	public static <V,E> void mergeForests(Forest<V,E> destination, 
-//	        Forest<V,E> source)
-//	{
-//	    for (Tree<V,E> tree : source.getTrees())
-//	    {
-//	        V root = tree.getRoot();
-//	        // FIXME this is not done: addChildrenToForest is not yet complete
-//	        // also still need to integrate into MST2, etc. (see email thread)
-////	        addChildrenToForest(destination, tree, root);
-//	        for (E e: tree.getOutEdges(root))
-//	        {
-//	            V child = tree.getOpposite(root, e);
-//	            addFromSubTree(destination, source, e, root, child);
-//	        }
-//	    }
-//	}
-	
 	public static <V,E> void addFromSubTree(Forest<V,E> tree, Forest<V,E> subTree, 
 			E edge, V parent, V root) {
 
@@ -147,16 +117,4 @@ public class TreeUtils
 			addFromSubTree(tree, subTree, e, root, opposite);
 		}
 	}
-
-	// FIXME: not done or integrated yet
-//	private static <V,E> void addChildrenToForest(Forest<V,E> forest, Tree<V,E> tree, 
-//	        V subtree_root)
-//	{
-//	    V parent = tree.getPredecessors(subtree_root).iterator().next();
-//	    for (E e : tree.getOutEdges(subtree_root))
-//	    {
-//	        V child = tree.getOpposite(subtree_root, e);
-//	        addChildrenToForest(forest, tree, child);
-//	    }
-//	}
 }

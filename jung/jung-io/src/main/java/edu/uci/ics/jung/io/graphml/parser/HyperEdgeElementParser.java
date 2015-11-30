@@ -33,7 +33,6 @@ public class HyperEdgeElementParser<G extends Hypergraph<V,E>,V,E> extends Abstr
         super(parserContext);
     }
     
-    @SuppressWarnings("unchecked")
     public HyperEdgeMetadata parse(XMLEventReader xmlEventReader, StartElement start)
             throws GraphIOException {
 
@@ -42,7 +41,8 @@ public class HyperEdgeElementParser<G extends Hypergraph<V,E>,V,E> extends Abstr
             HyperEdgeMetadata edge = new HyperEdgeMetadata();
 
             // Parse the attributes.
-            Iterator iterator = start.getAttributes();
+            @SuppressWarnings("unchecked")
+            Iterator<Attribute> iterator = start.getAttributes();
             while (iterator.hasNext()) {
                 Attribute attribute = (Attribute) iterator.next();
                 String name = attribute.getName().getLocalPart();

@@ -37,34 +37,34 @@ import java.util.Set;
  * The primary difference is that Wu and Huberman assume a priori that the clusters
  * are of approximately the same size, and therefore use a more complex
  * method than k-means (which is used here) for determining cluster
- * membership based on co-occurrence data.</p>
+ * membership based on co-occurrence data.
  *
  * <p>The algorithm proceeds as follows:
  * <ul>
- * <li/>first, generate a set of candidate clusters as follows:
+ * <li>first, generate a set of candidate clusters as follows:
  *      <ul>
- *      <li/>pick (widely separated) vertex pair, run VoltageScorer
- *      <li/>group the vertices in two clusters according to their voltages
- *      <li/>store resulting candidate clusters
+ *      <li>pick (widely separated) vertex pair, run VoltageScorer
+ *      <li>group the vertices in two clusters according to their voltages
+ *      <li>store resulting candidate clusters
  *      </ul>
- * <li/>second, generate k-1 clusters as follows:
+ * <li>second, generate k-1 clusters as follows:
  *      <ul>
- *      <li/>pick a vertex v as a cluster 'seed'
+ *      <li>pick a vertex v as a cluster 'seed'
  *           <br>(Wu/Huberman: most frequent vertex in candidate clusters)
- *      <li/>calculate co-occurrence over all candidate clusters of v with each other
+ *      <li>calculate co-occurrence over all candidate clusters of v with each other
  *           vertex
- *      <li/>separate co-occurrence counts into high/low;
+ *      <li>separate co-occurrence counts into high/low;
  *           high vertices constitute a cluster
- *      <li/>remove v's vertices from candidate clusters; continue
+ *      <li>remove v's vertices from candidate clusters; continue
  *      </ul>
- * <li/>finally, remaining unassigned vertices are assigned to the kth ("garbage")
+ * <li>finally, remaining unassigned vertices are assigned to the kth ("garbage")
  * cluster.
- * </ul></p>
+ * </ul>
  *
  * <p><b>NOTE</b>: Depending on how the co-occurrence data splits the data into
  * clusters, the number of clusters returned by this algorithm may be less than the
  * number of clusters requested.  The number of clusters will never be more than
- * the number requested, however.</p>
+ * the number requested, however.
  *
  * @author Joshua O'Madadhain
  * @see "'Finding communities in linear time: a physics approach', Fang Wu and Bernardo Huberman, http://www.hpl.hp.com/research/idl/papers/linear/"
@@ -82,7 +82,8 @@ public class VoltageClusterer<V,E>
      * Creates an instance of a VoltageCluster with the specified parameters.
      * These are mostly parameters that are passed directly to VoltageScorer
      * and KMeansClusterer.
-     *
+     * 
+     * @param g the graph whose vertices are to be clustered
      * @param num_candidates    the number of candidate clusters to create
      */
     public VoltageClusterer(Graph<V,E> g, int num_candidates)
@@ -102,8 +103,8 @@ public class VoltageClusterer<V,E>
     }
 
     /**
-     * Returns a community (cluster) centered around <code>v</code>.
      * @param v the vertex whose community we wish to discover
+     * @return a community (cluster) centered around <code>v</code>.
      */
     public Collection<Set<V>> getCommunity(V v)
     {
@@ -114,6 +115,7 @@ public class VoltageClusterer<V,E>
      * Clusters the vertices of <code>g</code> into
      * <code>num_clusters</code> clusters, based on their connectivity.
      * @param num_clusters  the number of clusters to identify
+     * @return a collection of clusters (sets of vertices)
      */
     public Collection<Set<V>> cluster(int num_clusters)
     {
@@ -124,6 +126,7 @@ public class VoltageClusterer<V,E>
      * Does the work of <code>getCommunity</code> and <code>cluster</code>.
      * @param origin the vertex around which clustering is to be done
      * @param num_clusters the (maximum) number of clusters to find
+     * @return a collection of clusters (sets of vertices)
      */
     protected Collection<Set<V>> cluster_internal(V origin, int num_clusters)
     {
@@ -230,10 +233,10 @@ public class VoltageClusterer<V,E>
     }
 
     /**
-     * Do k-means with three intervals and pick the
-     * smaller two clusters (presumed to be on the ends); this is closer to the Wu-Huberman method.
-     * @param candidates
-     * @param voltage_ranks
+     * Do k-means with three intervals and pick the smaller two clusters 
+     * (presumed to be on the ends); this is closer to the Wu-Huberman method.
+     * @param candidates the list of clusters to populate
+     * @param voltage_ranks the voltage values for each vertex
      */
     protected void addTwoCandidateClusters(LinkedList<Set<V>> candidates,
             Map<V, double[]> voltage_ranks)
@@ -270,8 +273,8 @@ public class VoltageClusterer<V,E>
      * alternative to addTwoCandidateClusters(): cluster vertices by voltages into 2 clusters.
      * We only consider the smaller of the two clusters returned
      * by k-means to be a 'true' cluster candidate; the other is a garbage cluster.
-     * @param candidates
-     * @param voltage_ranks
+     * @param candidates the list of clusters to populate
+     * @param voltage_ranks the voltage values for each vertex
      */
     protected void addOneCandidateCluster(LinkedList<Set<V>> candidates,
             Map<V, double[]> voltage_ranks)
@@ -292,10 +295,11 @@ public class VoltageClusterer<V,E>
     }
 
     /**
-     * Returns an array of cluster seeds, ranked in decreasing order
+     * Returns a list of cluster seeds, ranked in decreasing order
      * of number of appearances in the specified collection of candidate
      * clusters.
-     * @param candidates
+     * @param candidates the set of candidate clusters
+     * @return a set of cluster seeds
      */
     protected List<V> getSeedCandidates(Collection<Set<V>> candidates)
     {
@@ -304,7 +308,7 @@ public class VoltageClusterer<V,E>
         ArrayList<V> occurrences = new ArrayList<V>(occur_counts.keySet());
         Collections.sort(occurrences, new MapValueArrayComparator(occur_counts));
 
-        System.out.println("occurrences: ");
+//        System.out.println("occurrences: ");
         for (int i = 0; i < occurrences.size(); i++)
             System.out.println(occur_counts.get(occurrences.get(i))[0]);
 

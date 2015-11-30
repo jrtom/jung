@@ -69,16 +69,16 @@ public class ShowLayouts extends JApplet {
     
 	public static class GraphChooser implements ActionListener
     {
-        private JComboBox layout_combo;
+		private JComboBox<?> layout_combo;
 
-        public GraphChooser(JComboBox layout_combo)
+		public GraphChooser(JComboBox<?> layout_combo)
         {
             this.layout_combo = layout_combo;
         }
         
         public void actionPerformed(ActionEvent e)
         {
-            JComboBox cb = (JComboBox)e.getSource();
+			JComboBox<?> cb = (JComboBox<?>)e.getSource();
             graph_index = cb.getSelectedIndex();
             layout_combo.setSelectedIndex(layout_combo.getSelectedIndex()); // rebuild the layout
         }
@@ -91,24 +91,24 @@ public class ShowLayouts extends JApplet {
 	
 	private static final class LayoutChooser implements ActionListener
     {
-        private final JComboBox jcb;
+        private final JComboBox<?> jcb;
         private final VisualizationViewer<Integer,Number> vv;
 
-        private LayoutChooser(JComboBox jcb, VisualizationViewer<Integer,Number> vv)
+        private LayoutChooser(JComboBox<?> jcb, VisualizationViewer<Integer,Number> vv)
         {
             super();
             this.jcb = jcb;
             this.vv = vv;
         }
 
-        public void actionPerformed(ActionEvent arg0)
+        @SuppressWarnings("unchecked")
+		public void actionPerformed(ActionEvent arg0)
         {
             Object[] constructorArgs =
                 { g_array[graph_index]};
 
-            Class<? extends Layout<Integer,Number>> layoutC = 
+			Class<? extends Layout<Integer,Number>> layoutC = 
                 (Class<? extends Layout<Integer,Number>>) jcb.getSelectedItem();
-//            Class lay = layoutC;
             try
             {
                 Constructor<? extends Layout<Integer, Number>> constructor = layoutC
@@ -133,7 +133,8 @@ public class ShowLayouts extends JApplet {
         }
     }
 
-    private static JPanel getGraphPanel()
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	private static JPanel getGraphPanel()
     {
         g_array = 
             (Graph<? extends Object,? extends Object>[])
@@ -160,7 +161,7 @@ public class ShowLayouts extends JApplet {
             
         g_array[0] = TestGraphs.createTestGraph(false);
         g_array[1] = MixedRandomGraphGenerator.generateMixedRandomGraph(graphFactory, 
-        		vertexFactory, edgeFactory, new HashMap<Number,Number>(), 20, true, new HashSet<Integer>());
+        		vertexFactory, edgeFactory, new HashMap<Number,Number>(), 20, new HashSet<Integer>());
         g_array[2] = TestGraphs.getDemoGraph();
         g_array[3] = TestGraphs.createDirectedAcyclicGraph(4, 4, 0.3);
         g_array[4] = TestGraphs.getOneComponentGraph();
@@ -254,7 +255,7 @@ public class ShowLayouts extends JApplet {
     /**
      * @return
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private static Class<? extends Layout>[] getCombos()
     {
         List<Class<? extends Layout>> layouts = new ArrayList<Class<? extends Layout>>();

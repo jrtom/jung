@@ -26,6 +26,7 @@ public class MapSettableTransformer<I, O> implements SettableTransformer<I, O>
     
     /**
      * Creates an instance based on <code>m</code>.
+     * @param m the map on which this instance is based
      */
     public MapSettableTransformer(Map<I,O> m)
     {

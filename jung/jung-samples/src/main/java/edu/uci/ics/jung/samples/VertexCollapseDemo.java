@@ -61,12 +61,12 @@ import edu.uci.ics.jung.visualization.util.PredicatedParallelEdgeIndexFunction;
  * 
  * Note that the collection types don't use generics in this
  * demo, because the vertices are of two types: String for plain
- * vertices, and Graph<String,Number> for the collapsed vertices.
+ * vertices, and {@code Graph<String,Number>} for the collapsed vertices.
  * 
  * @author Tom Nelson
  * 
  */
-@SuppressWarnings("serial")
+@SuppressWarnings({"serial", "rawtypes", "unchecked"})
 public class VertexCollapseDemo extends JApplet {
 
     String instructions =
@@ -134,9 +134,6 @@ public class VertexCollapseDemo extends JApplet {
         // add a listener for ToolTips
         vv.setVertexToolTipTransformer(new ToStringLabeller() {
 
-			/* (non-Javadoc)
-			 * @see edu.uci.ics.jung.visualization.decorators.DefaultToolTipFunction#getToolTipText(java.lang.Object)
-			 */
 			@Override
 			public String apply(Object v) {
 				if(v instanceof Graph) {
@@ -293,7 +290,7 @@ public class VertexCollapseDemo extends JApplet {
      * 
      * @author Tom Nelson
      *
-     * @param <V>
+     * @param <V> the vertex type
      */
     class ClusterVertexShapeFunction<V> extends EllipseVertexShapeTransformer<V> {
 
@@ -321,7 +318,7 @@ public class VertexCollapseDemo extends JApplet {
      * a collapsed collection of original vertices
      * @author Tom Nelson
      *
-     * @param <V>
+     * @param <V> the vertex type
      */
     class ClusterVertexSizeFunction<V> implements Function<V,Integer> {
     	int size;
@@ -337,9 +334,6 @@ public class VertexCollapseDemo extends JApplet {
         }
     }
 
-    /**
-     * a driver for this demo
-     */
     public static void main(String[] args) {
         JFrame f = new JFrame();
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

@@ -78,7 +78,6 @@ public class MinimumSpanningTreeDemo extends JApplet {
     VisualizationViewer<String,Number> vv0;
     VisualizationViewer<String,Number> vv1;
     VisualizationViewer<String,Number> vv2;
-//    VisualizationViewer<String,Number> vv3;
     
     /**
      * the normal Function
@@ -127,8 +126,6 @@ public class MinimumSpanningTreeDemo extends JApplet {
         vv0 = new VisualizationViewer<String,Number>(vm0, preferredSize);
         vv1 = new VisualizationViewer<String,Number>(vm1, preferredSizeRect);
         vv2 = new VisualizationViewer<String,Number>(vm2, preferredSizeRect);
-
-//        vv1.setRenderContext(vv2.getRenderContext());
         
         vv1.getRenderContext().setMultiLayerTransformer(vv0.getRenderContext().getMultiLayerTransformer());
         vv2.getRenderContext().setMultiLayerTransformer(vv0.getRenderContext().getMultiLayerTransformer());
@@ -138,8 +135,8 @@ public class MinimumSpanningTreeDemo extends JApplet {
         vv0.addChangeListener(vv1);
         vv1.addChangeListener(vv2);
         
-        vv0.getRenderContext().setVertexLabelTransformer(new ToStringLabeller<String>());
-        vv2.getRenderContext().setVertexLabelTransformer(new ToStringLabeller<String>());
+        vv0.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
+        vv2.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
         
         Color back = Color.decode("0xffffbb");
         vv0.setBackground(back);
@@ -174,9 +171,9 @@ public class MinimumSpanningTreeDemo extends JApplet {
                 Color.red, Color.yellow));
         
         // add default listeners for ToolTips
-        vv0.setVertexToolTipTransformer(new ToStringLabeller<String>());
-        vv1.setVertexToolTipTransformer(new ToStringLabeller<String>());
-        vv2.setVertexToolTipTransformer(new ToStringLabeller<String>());
+        vv0.setVertexToolTipTransformer(new ToStringLabeller());
+        vv1.setVertexToolTipTransformer(new ToStringLabeller());
+        vv2.setVertexToolTipTransformer(new ToStringLabeller());
         
         vv0.setLayout(new BorderLayout());
         vv1.setLayout(new BorderLayout());
@@ -202,34 +199,24 @@ public class MinimumSpanningTreeDemo extends JApplet {
         vv1.add(flow1, BorderLayout.NORTH);
         vv2.add(flow2, BorderLayout.NORTH);
         
-//        vv2.getRenderContext().setEdgeDrawPaintTransformer(new Function<Number,Paint>() {
-//
-//			public Paint transform(Number e) {
-//				if(tree.getEdges().contains(e) == false) return Color.lightGray;
-//				return Color.black;
-//			}});
-        
         Container content = getContentPane();
         JPanel grid = new JPanel(new GridLayout(0,1));
         JPanel panel = new JPanel(new BorderLayout());
         panel.add(new GraphZoomScrollPane(vv0), BorderLayout.WEST);
         grid.add(new GraphZoomScrollPane(vv1));
         grid.add(new GraphZoomScrollPane(vv2));
-//        panel.add(new GraphZoomScrollPane(vv3), BorderLayout.EAST);
         panel.add(grid);
 
         content.add(panel);
         
         // create a GraphMouse for each view
-        DefaultModalGraphMouse gm0 = new DefaultModalGraphMouse();
-        DefaultModalGraphMouse gm1 = new DefaultModalGraphMouse();
-        DefaultModalGraphMouse gm2 = new DefaultModalGraphMouse();
-        DefaultModalGraphMouse gm3 = new DefaultModalGraphMouse();
+        DefaultModalGraphMouse<String, Number> gm0 = new DefaultModalGraphMouse<String, Number>();
+        DefaultModalGraphMouse<String, Number> gm1 = new DefaultModalGraphMouse<String, Number>();
+        DefaultModalGraphMouse<String, Number> gm2 = new DefaultModalGraphMouse<String, Number>();
 
         vv0.setGraphMouse(gm0);
         vv1.setGraphMouse(gm1);
         vv2.setGraphMouse(gm2);
-//        vv3.setGraphMouse(gm3);
 
         // create zoom buttons for scaling the Function that is
         // shared between the two models.
@@ -238,7 +225,6 @@ public class MinimumSpanningTreeDemo extends JApplet {
         vv0.scaleToLayout(scaler);
         vv1.scaleToLayout(scaler);
         vv2.scaleToLayout(scaler);
-//        vv3.scaleToLayout(scaler);
 
         JButton plus = new JButton("+");
         plus.addActionListener(new ActionListener() {
@@ -260,7 +246,6 @@ public class MinimumSpanningTreeDemo extends JApplet {
         modePanel.setBorder(BorderFactory.createTitledBorder("Mouse Mode"));
         gm1.getModeComboBox().addItemListener(gm2.getModeListener());
         gm1.getModeComboBox().addItemListener(gm0.getModeListener());
-        gm1.getModeComboBox().addItemListener(gm3.getModeListener());
         modePanel.add(gm1.getModeComboBox());
 
         JPanel controls = new JPanel();
@@ -271,9 +256,6 @@ public class MinimumSpanningTreeDemo extends JApplet {
         content.add(controls, BorderLayout.SOUTH);
     }
 
-    /**
-     * a driver for this demo
-     */
     public static void main(String[] args) {
         JFrame f = new JFrame();
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

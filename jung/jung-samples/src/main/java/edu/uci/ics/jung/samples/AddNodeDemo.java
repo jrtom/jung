@@ -100,13 +100,12 @@ public class AddNodeDemo extends javax.swing.JApplet {
         vv.setGraphMouse(new DefaultModalGraphMouse<Number,Number>());
 
         vv.getRenderer().getVertexLabelRenderer().setPosition(Renderer.VertexLabel.Position.CNTR);
-        vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller<Number>());
+        vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
         vv.setForeground(Color.white);
         getContentPane().add(vv);
         switchLayout = new JButton("Switch to SpringLayout");
         switchLayout.addActionListener(new ActionListener() {
 
-            @SuppressWarnings("unchecked")
             public void actionPerformed(ActionEvent ae) {
             	Dimension d = new Dimension(600,600);
                 if (switchLayout.getText().indexOf("Spring") > 0) {

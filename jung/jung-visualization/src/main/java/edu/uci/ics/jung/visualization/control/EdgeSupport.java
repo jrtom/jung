@@ -10,8 +10,8 @@ import edu.uci.ics.jung.visualization.BasicVisualizationServer;
  * SimpleEdgeSupport is a sample implementation
  * @author tanelso
  *
- * @param <V>
- * @param <E>
+ * @param <V> the vertex type
+ * @param <V> the edge type
  */
 public interface EdgeSupport<V,E> {
 	

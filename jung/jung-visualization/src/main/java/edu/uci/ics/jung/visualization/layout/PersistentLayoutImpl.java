@@ -18,12 +18,14 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import com.google.common.base.Function;
 import com.google.common.collect.MapMaker;
+import com.google.common.collect.Maps;
 
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.visualization.util.Caching;
@@ -45,7 +47,7 @@ public class PersistentLayoutImpl<V, E> extends ObservableCachingLayout<V,E>
     /**
      * a container for Vertices
      */
-    protected Map<V,Point> map;
+    protected Map<V, Point> locations;
     
     /**
      * a collection of Vertices that should not move
@@ -60,13 +62,17 @@ public class PersistentLayoutImpl<V, E> extends ObservableCachingLayout<V,E>
     /**
      * create an instance with a passed layout
      * create containers for graph components
-     * @param layout 
+     * @param layout the layout whose positions are to be persisted
      */
     public PersistentLayoutImpl(Layout<V,E> layout) {
         super(layout);
-        this.map = 
-        	new MapMaker().makeComputingMap(new RandomPointFactory<V>(getSize()));
-//        	LazyMap.decorate(new HashMap<V,Point>(), new RandomPointFactory(getSize()));
+        this.locations = new HashMap<V, Point>();
+        // TODO(jrtom): replace this with Maps.asMap(vertices, factory)
+        // once we depend on Guava 14.0.1 or later; right now we have Guava v11
+        Function<V, Point> factory = new RandomPointFactory<V>(getSize());
+        for (V v : layout.getGraph().getVertices()) {
+        	locations.put(v, factory.apply(v));
+        }
 
         this.dontmove = new HashSet<V>();
     }
@@ -80,7 +86,7 @@ public class PersistentLayoutImpl<V, E> extends ObservableCachingLayout<V,E>
         for(V v : getGraph().getVertices()) {
             Point2D coord = delegate.apply(v);
             if (!dontmove.contains(v))
-                initializeLocation(v, coord, getSize());
+                initializeLocation(v, coord);
         }
     }
 
@@ -90,30 +96,28 @@ public class PersistentLayoutImpl<V, E> extends ObservableCachingLayout<V,E>
      * If the vertex has not been persisted, sets a random location. If you want
      * to initialize in some different way, override this method.
      * 
-     * @param v
-     * @param coord
-     * @param d
+     * @param v the vertex whose location is to be initialized
+     * @param coord the location 
      */
-    protected void initializeLocation(V v, Point2D coord, Dimension d) {
-
-        Point point = map.get(v);
+    protected void initializeLocation(V v, Point2D coord) {
+        Point point = locations.get(v);
         coord.setLocation(point.x, point.y);
     }
 
     /**
      * save the Vertex locations to a file
      * @param fileName the file to save to	
-     * @throws an IOException if the file cannot be used
+     * @throws IOException if the file cannot be used
      */
     public void persist(String fileName) throws IOException {
 
         for(V v : getGraph().getVertices()) {
             Point p = new Point(transform(v));
-            map.put(v, p);
+            locations.put(v, p);
         }
         ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(
                 fileName));
-        oos.writeObject(map);
+        oos.writeObject(locations);
         oos.close();
     }
 
@@ -128,7 +132,7 @@ public class PersistentLayoutImpl<V, E> extends ObservableCachingLayout<V,E>
             ClassNotFoundException {
         ObjectInputStream ois = new ObjectInputStream(new FileInputStream(
                 fileName));
-        map = (Map) ois.readObject();
+        locations = (Map<V, Point>) ois.readObject();
         ois.close();
         initializeLocations();
         locked = true;

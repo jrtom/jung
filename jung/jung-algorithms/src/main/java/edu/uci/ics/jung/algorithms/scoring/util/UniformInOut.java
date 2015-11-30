@@ -39,10 +39,6 @@ public class UniformInOut<V,E> implements Function<VEPair<V,E>, Double>
         this.graph = graph;
     }
     
-    /**
-     * @see org.apache.commons.collections15.Transformer#transform(Object)
-     * @throws IllegalArgumentException
-     */
     public Double apply(VEPair<V,E> ve_pair)
     {
     	V v = ve_pair.getV();

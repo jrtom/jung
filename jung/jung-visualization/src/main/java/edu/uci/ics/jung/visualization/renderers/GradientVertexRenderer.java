@@ -33,8 +33,8 @@ import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
  * A renderer that will fill vertex shapes with a GradientPaint
  * @author Tom Nelson
  *
- * @param <V>
- * @param <E>
+ * @param <V> the vertex type
+ * @param <V> the edge type
  */
 public class GradientVertexRenderer<V,E> implements Renderer.Vertex<V,E> {
 	

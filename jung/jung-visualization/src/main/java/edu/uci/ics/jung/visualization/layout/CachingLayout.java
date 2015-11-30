@@ -11,11 +11,12 @@
 package edu.uci.ics.jung.visualization.layout;
 
 import java.awt.geom.Point2D;
-import java.util.Map;
 
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
-import com.google.common.collect.MapMaker;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.algorithms.layout.LayoutDecorator;
@@ -33,20 +34,17 @@ import edu.uci.ics.jung.visualization.util.Caching;
  */
 public class CachingLayout<V, E> extends LayoutDecorator<V,E> implements Caching {
     
-    protected Map<V,Point2D> locationMap;
+    protected LoadingCache<V, Point2D> locations;
 
     public CachingLayout(Layout<V, E> delegate) {
     	super(delegate);
-    	this.locationMap = 
-    		new MapMaker().makeComputingMap(
-    				Functions.<V,Point2D,Point2D>compose(new Function<Point2D,Point2D>(){
-//						@Override
-						public Point2D apply(Point2D p) {
-							return (Point2D)p.clone();
-						}}, delegate)
-    		);
-    		//LazyMap.<V,Point2D>decorate(new HashMap<V,Point2D>(), 
-    		//	new ChainedTransformer<V, Point2D>(new Function[]{delegate, CloneTransformer.<Point2D>getInstance()}));
+    	Function<V, Point2D> chain = Functions.<V,Point2D,Point2D>compose(
+    		new Function<Point2D,Point2D>() {
+    			public Point2D apply(Point2D p) {
+    				return (Point2D)p.clone();
+    		}}, 
+    		delegate);
+    	this.locations = CacheBuilder.newBuilder().build(CacheLoader.from(chain));
     }
     
     @Override
@@ -55,17 +53,17 @@ public class CachingLayout<V, E> extends LayoutDecorator<V,E> implements Caching
     }
 
 	public void clear() {
-		this.locationMap.clear();
+	    this.locations = CacheBuilder.newBuilder().build(new CacheLoader<V, Point2D>() {
+	    	public Point2D load(V vertex) {
+	    		return new Point2D.Double();
+	    	}
+	    });
 	}
 
 	public void init() {
 	}
 
-	/* (non-Javadoc)
-	 * @see edu.uci.ics.jung.visualization.layout.LayoutDecorator#transform(java.lang.Object)
-	 */
-//	@Override
 	public Point2D apply(V v) {
-		return locationMap.get(v);
+		return locations.getUnchecked(v);
 	}
 }

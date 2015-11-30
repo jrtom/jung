@@ -50,7 +50,7 @@ public class DistanceCentralityScorer<V,E> implements VertexScorer<V, Double>
     
     /**
      * The cache for the output results.  Null encodes "not yet calculated",
-     * < 0 encodes "no such distance exists".
+     * &lt; 0 encodes "no such distance exists".
      */
     protected Map<V, Double> output;
     

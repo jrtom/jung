@@ -31,7 +31,6 @@ public class PickableVertexPaintTransformer<V> implements Function<V,Paint> {
     /**
      * 
      * @param pi            specifies which vertices report as "picked"
-     * @param draw_paint    <code>Paint</code> used to draw vertex shapes
      * @param fill_paint    <code>Paint</code> used to fill vertex shapes
      * @param picked_paint  <code>Paint</code> used to fill picked vertex shapes
      */

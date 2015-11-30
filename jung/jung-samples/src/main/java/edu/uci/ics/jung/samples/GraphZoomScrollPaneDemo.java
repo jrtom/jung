@@ -52,7 +52,7 @@ import edu.uci.ics.jung.visualization.renderers.BasicVertexLabelRenderer.InsideP
  * vertical scrollbars.
  *
  * <p>This demo also shows ToolTips on graph vertices and edges,
- * and a key listener to change graph mouse modes.</p>
+ * and a key listener to change graph mouse modes.
  * 
  * @author Tom Nelson
  * 
@@ -143,13 +143,13 @@ public class GraphZoomScrollPaneDemo {
         vv.getRenderContext().setArrowDrawPaintTransformer(Functions.<Paint>constant(Color.lightGray));
         
         // add my listeners for ToolTips
-        vv.setVertexToolTipTransformer(new ToStringLabeller<String>());
+        vv.setVertexToolTipTransformer(new ToStringLabeller());
         vv.setEdgeToolTipTransformer(new Function<Number,String>() {
 			public String apply(Number edge) {
 				return "E"+graph.getEndpoints(edge).toString();
 			}});
         
-        vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller<String>());
+        vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
         vv.getRenderer().getVertexLabelRenderer().setPositioner(new InsidePositioner());
         vv.getRenderer().getVertexLabelRenderer().setPosition(Renderer.VertexLabel.Position.AUTO);
         vv.setForeground(Color.lightGray);
@@ -254,9 +254,6 @@ public class GraphZoomScrollPaneDemo {
     		}
     }
 
-    /**
-     * a driver for this demo
-     */
     public static void main(String[] args) 
     {
         new GraphZoomScrollPaneDemo();

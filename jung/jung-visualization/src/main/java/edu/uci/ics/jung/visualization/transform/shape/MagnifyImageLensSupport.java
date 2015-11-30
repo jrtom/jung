@@ -50,11 +50,7 @@ public class MagnifyImageLensSupport<V,E> extends AbstractLensSupport<V,E> {
         this(vv, new MagnifyShapeTransformer(vv),
                 new ModalLensGraphMouse());
     }
-    /**
-     * create the base class, setting common members and creating
-     * a custom GraphMouse
-     * @param vv the VisualizationViewer to work on
-     */
+    
     public MagnifyImageLensSupport(VisualizationViewer<V,E> vv, LensTransformer lensTransformer,
             ModalGraphMouse lensGraphMouse) {
         super(vv, lensGraphMouse);

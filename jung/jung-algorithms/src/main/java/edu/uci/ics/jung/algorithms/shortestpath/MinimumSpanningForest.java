@@ -1,14 +1,13 @@
 package edu.uci.ics.jung.algorithms.shortestpath;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.base.Function;
 import com.google.common.base.Functions;
 import com.google.common.base.Supplier;
-import com.google.common.collect.MapMaker;
 
 import edu.uci.ics.jung.graph.Forest;
 import edu.uci.ics.jung.graph.Graph;
@@ -21,14 +20,14 @@ import edu.uci.ics.jung.graph.util.Pair;
  * 
  * @author Tom Nelson - tomnelson@dev.java.net
  *
- * @param <V>
- * @param <E>
+ * @param <V> the vertex type
+ * @param <E> the edge type
  */
 public class MinimumSpanningForest<V,E> {
 	
 	protected Graph<V,E> graph;
 	protected Forest<V,E> forest;
-	protected Map<E,Double> weights;
+	protected Function<E, Double> weights;
 	
 	/**
 	 * Creates a Forest from the supplied Graph and supplied Supplier, which
@@ -71,7 +70,7 @@ public class MinimumSpanningForest<V,E> {
 		this.graph = graph;
 		this.forest = forest;
 		if(weights != null) {
-			this.weights = weights;
+			this.weights = Functions.forMap(weights);
 		}
 		Set<E> unfinishedEdges = new HashSet<E>(graph.getEdges());
 		if(graph.getVertices().contains(root)) {
@@ -92,7 +91,8 @@ public class MinimumSpanningForest<V,E> {
      * @param forest the Forest to populate. Must be empty
      * @param root first Tree root, may be null
      */
-    public MinimumSpanningForest(Graph<V, E> graph, Forest<V,E> forest, 
+    @SuppressWarnings("unchecked")
+	public MinimumSpanningForest(Graph<V, E> graph, Forest<V,E> forest, 
             V root) {
         
         if(forest.getVertexCount() != 0) {
@@ -100,9 +100,7 @@ public class MinimumSpanningForest<V,E> {
         }
         this.graph = graph;
         this.forest = forest;
-        this.weights = new MapMaker().makeComputingMap(Functions.constant(1.0));
-        	//LazyMap.decorate(new HashMap<E,Double>(),
-               // Functions.constant(1.0));
+        this.weights = (Function<E, Double>) Functions.constant(1.0);
         Set<E> unfinishedEdges = new HashSet<E>(graph.getEdges());
         if(graph.getVertices().contains(root)) {
             this.forest.addVertex(root);
@@ -111,7 +109,7 @@ public class MinimumSpanningForest<V,E> {
     }
 	
 	/**
-	 * Returns the generated forest.
+	 * @return the generated forest
 	 */
 	public Forest<V,E> getForest() {
 		return forest;
@@ -131,8 +129,8 @@ public class MinimumSpanningForest<V,E> {
 			V first = endpoints.getFirst();
 			V second = endpoints.getSecond();
 			if(tv.contains(first) == true && tv.contains(second) == false) {
-				if(weights.get(e) < minCost) {
-					minCost = weights.get(e);
+				if(weights.apply(e) < minCost) {
+					minCost = weights.apply(e);
 					nextEdge = e;
 					currentVertex = first;
 					nextVertex = second;
@@ -140,8 +138,8 @@ public class MinimumSpanningForest<V,E> {
 			}
 			if(graph.getEdgeType(e) == EdgeType.UNDIRECTED &&
 					tv.contains(second) == true && tv.contains(first) == false) {
-				if(weights.get(e) < minCost) {
-					minCost = weights.get(e);
+				if(weights.apply(e) < minCost) {
+					minCost = weights.apply(e);
 					nextEdge = e;
 					currentVertex = second;
 					nextVertex = first;

@@ -16,7 +16,6 @@ import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 
 import javax.swing.Icon;
 import javax.swing.JComponent;
@@ -40,12 +39,12 @@ public class BasicVertexRenderer<V,E> implements Renderer.Vertex<V,E> {
     }
     
     /**
-     * returns the vertex shape in view coordinates
-     * @param rc
-     * @param v
-     * @param layout
-     * @param coords
-     * @return
+     * Returns the vertex shape in view coordinates.
+     * @param rc the render context used for rendering the vertex
+     * @param v the vertex whose shape is to be returned
+     * @param layout the layout algorithm that provides coordinates for the vertex
+     * @param coords the x and y view coordinates
+     * @return the vertex shape in view coordinates
      */
     protected Shape prepareFinalVertexShape(RenderContext<V,E> rc, V v, 
     		Layout<V,E> layout, int[] coords) {
@@ -68,15 +67,17 @@ public class BasicVertexRenderer<V,E> implements Renderer.Vertex<V,E> {
     
     /**
      * Paint <code>v</code>'s icon on <code>g</code> at <code>(x,y)</code>.
+     * 
+     * @param rc the render context used for rendering the vertex
+     * @param v the vertex to be painted
+     * @param layout the layout algorithm that provides coordinates for the vertex
      */
     protected void paintIconForVertex(RenderContext<V,E> rc, V v, Layout<V,E> layout) {
         GraphicsDecorator g = rc.getGraphicsContext();
         boolean vertexHit = true;
         int[] coords = new int[2];
         Shape shape = prepareFinalVertexShape(rc, v, layout, coords);
-        Rectangle2D bounds = shape.getBounds2D();
         vertexHit = vertexHit(rc, shape);
-            //rc.getViewTransformer().transform(shape).intersects(deviceRectangle);
 
         if (vertexHit) {
         	if(rc.getVertexIconTransformer() != null) {

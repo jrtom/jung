@@ -34,9 +34,9 @@ public class DirectedSparseMultigraph<V,E>
     implements DirectedGraph<V,E>, MultiGraph<V,E> {
 
     /**
-     * Returns a {@code Supplier} that creates an instance of this graph type.
      * @param <V> the vertex type for the graph Supplier
      * @param <E> the edge type for the graph Supplier
+     * @return a {@code Supplier} that creates an instance of this graph type.
      */
 	public static <V,E> Supplier<DirectedGraph<V,E>> getFactory() {
 		return new Supplier<DirectedGraph<V,E>> () {

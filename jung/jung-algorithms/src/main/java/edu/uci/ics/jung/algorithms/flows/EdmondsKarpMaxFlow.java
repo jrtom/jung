@@ -200,14 +200,14 @@ public class EdmondsKarpMaxFlow<V,E> extends IterativeProcess {
     }
 
     /**
-     * Returns the value of the maximum flow from the source to the sink.
+     * @return the value of the maximum flow from the source to the sink.
      */
     public int getMaxFlow() {
         return mMaxFlow;
     }
 
     /**
-     * Returns the nodes which share the same partition (as defined by the min-cut edges)
+     * @return the nodes which share the same partition (as defined by the min-cut edges)
      * as the sink node.
      */
     public Set<V> getNodesInSinkPartition() {
@@ -215,7 +215,7 @@ public class EdmondsKarpMaxFlow<V,E> extends IterativeProcess {
     }
 
     /**
-     * Returns the nodes which share the same partition (as defined by the min-cut edges)
+     * @return the nodes which share the same partition (as defined by the min-cut edges)
      * as the source node.
      */
     public Set<V> getNodesInSourcePartition() {
@@ -223,14 +223,14 @@ public class EdmondsKarpMaxFlow<V,E> extends IterativeProcess {
     }
 
     /**
-     * Returns the edges in the minimum cut.
+     * @return the edges in the minimum cut.
      */
     public Set<E> getMinCutEdges() {
         return mMinCutEdges;
     }
 
     /**
-     * Returns the graph for which the maximum flow is calculated.
+     * @return the graph for which the maximum flow is calculated.
      */
     public DirectedGraph<V,E> getFlowGraph() {
         return mFlowGraph;

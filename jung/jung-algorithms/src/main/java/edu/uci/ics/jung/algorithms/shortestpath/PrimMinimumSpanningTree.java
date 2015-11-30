@@ -20,7 +20,6 @@ import edu.uci.ics.jung.graph.util.Pair;
  * @param <V> the vertex type
  * @param <E> the edge type
  */
-@SuppressWarnings("unchecked")
 public class PrimMinimumSpanningTree<V,E> implements Function<Graph<V,E>,Graph<V,E>> {
 	
 	protected Supplier<? extends Graph<V,E>> treeFactory;
@@ -28,17 +27,20 @@ public class PrimMinimumSpanningTree<V,E> implements Function<Graph<V,E>,Graph<V
 	
 	/**
 	 * Creates an instance which generates a minimum spanning tree assuming constant edge weights.
+	 * @param supplier used to create the tree instances
 	 */
-	public PrimMinimumSpanningTree(Supplier<? extends Graph<V,E>> Supplier) {
-		this(Supplier, Functions.constant(1.0));
+	public PrimMinimumSpanningTree(Supplier<? extends Graph<V,E>> supplier) {
+		this(supplier, Functions.constant(1.0));
 	}
 
     /**
      * Creates an instance which generates a minimum spanning tree using the input edge weights.
+	 * @param supplier used to create the tree instances
+	 * @param weights the edge weights to use for defining the MST
      */
-	public PrimMinimumSpanningTree(Supplier<? extends Graph<V,E>> Supplier, 
+	public PrimMinimumSpanningTree(Supplier<? extends Graph<V,E>> supplier, 
 			Function<? super E, Double> weights) {
-		this.treeFactory = Supplier;
+		this.treeFactory = supplier;
 		if(weights != null) {
 			this.weights = weights;
 		}

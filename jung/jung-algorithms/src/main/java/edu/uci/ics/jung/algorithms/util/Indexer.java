@@ -28,8 +28,8 @@ public class Indexer {
 	 * index as encountered while iterating over the collection. The purpose
 	 * of the index operation is to supply an O(1) replacement operation for the
 	 * O(n) <code>indexOf(element)</code> method of a <code>List</code>
-	 * @param <T>
-	 * @param collection
+	 * @param <T> the type of the collection elements
+	 * @param collection the collection whose indices are to be generated
 	 * @return a bidirectional map from collection elements to 0-based indices
 	 */
 	public static <T> BiMap<T,Integer> create(Collection<T> collection) {
@@ -40,8 +40,8 @@ public class Indexer {
 	 * index as encountered while iterating over the collection. The purpose
 	 * of the index operation is to supply an O(1) replacement operation for the
 	 * O(n) <code>indexOf(element)</code> method of a <code>List</code>
-	 * @param <T>
-	 * @param collection
+	 * @param <T> the type of the collection elements
+	 * @param collection the collection whose indices are to be generated
 	 * @param start start index
 	 * @return a bidirectional map from collection elements to start-based indices
 	 */

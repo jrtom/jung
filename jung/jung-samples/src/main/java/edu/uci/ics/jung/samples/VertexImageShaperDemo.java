@@ -44,14 +44,12 @@ import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.algorithms.layout.util.RandomLocationTransformer;
 import edu.uci.ics.jung.graph.DirectedSparseGraph;
 import edu.uci.ics.jung.graph.util.EdgeType;
-import edu.uci.ics.jung.visualization.FourPassImageShaper;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.LayeredIcon;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
-import edu.uci.ics.jung.visualization.decorators.DefaultVertexIconTransformer;
 import edu.uci.ics.jung.visualization.decorators.EllipseVertexShapeTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
@@ -62,6 +60,7 @@ import edu.uci.ics.jung.visualization.renderers.BasicVertexRenderer;
 import edu.uci.ics.jung.visualization.renderers.Checkmark;
 import edu.uci.ics.jung.visualization.renderers.DefaultEdgeLabelRenderer;
 import edu.uci.ics.jung.visualization.renderers.DefaultVertexLabelRenderer;
+import edu.uci.ics.jung.visualization.util.ImageShapeUtils;
 
 /**
  * Demonstrates the use of images to represent graph vertices.
@@ -174,12 +173,10 @@ public class VertexImageShaperDemo extends JApplet {
         // features on and off. For a real application, use VertexIconShapeTransformer instead.
         final DemoVertexIconShapeTransformer<Number> vertexIconShapeTransformer =
             new DemoVertexIconShapeTransformer<Number>(new EllipseVertexShapeTransformer<Number>());
-        
-        final DemoVertexIconTransformer<Number> vertexIconTransformer =
-        	new DemoVertexIconTransformer<Number>();
-        
         vertexIconShapeTransformer.setIconMap(iconMap);
-        vertexIconTransformer.setIconMap(iconMap);
+
+        final DemoVertexIconTransformer<Number> vertexIconTransformer
+        	= new DemoVertexIconTransformer<Number>(iconMap);
         
         vv.getRenderContext().setVertexShapeTransformer(vertexIconShapeTransformer);
         vv.getRenderContext().setVertexIconTransformer(vertexIconTransformer);
@@ -223,7 +220,7 @@ public class VertexImageShaperDemo extends JApplet {
         });
 
         // add a listener for ToolTips
-        vv.setVertexToolTipTransformer(new ToStringLabeller<Number>());
+        vv.setVertexToolTipTransformer(new ToStringLabeller());
         
         Container content = getContentPane();
         final GraphZoomScrollPane panel = new GraphZoomScrollPane(vv);
@@ -276,7 +273,7 @@ public class VertexImageShaperDemo extends JApplet {
             }
         });
         
-        JComboBox modeBox = graphMouse.getModeComboBox();
+        JComboBox<?> modeBox = graphMouse.getModeComboBox();
         JPanel modePanel = new JPanel();
         modePanel.setBorder(BorderFactory.createTitledBorder("Mouse Mode"));
         modePanel.add(modeBox);
@@ -305,16 +302,17 @@ public class VertexImageShaperDemo extends JApplet {
      *
      */
     public static class PickWithIconListener<V> implements ItemListener {
-        DefaultVertexIconTransformer<V> imager;
+        Function<V, Icon> imager;
         Icon checked;
         
-        public PickWithIconListener(DefaultVertexIconTransformer<V> imager) {
+        public PickWithIconListener(Function<V, Icon> imager) {
             this.imager = imager;
             checked = new Checkmark();
         }
 
         public void itemStateChanged(ItemEvent e) {
-            Icon icon = imager.apply((V)e.getItem());
+            @SuppressWarnings("unchecked")
+			Icon icon = imager.apply((V)e.getItem());
             if(icon != null && icon instanceof LayeredIcon) {
                 if(e.getStateChange() == ItemEvent.SELECTED) {
                     ((LayeredIcon)icon).add(checked);
@@ -400,16 +398,20 @@ public class VertexImageShaperDemo extends JApplet {
     }
 
     /** 
-     * this class exists only to provide settings to turn on/off shapes and image fill
+     * This class exists only to provide settings to turn on/off shapes and image fill
      * in this demo.
-     * In a real application, use DefaultVertexIconTransformer instead.
      * 
+     * <p>For a real application, just use {@code Functions.forMap(iconMap)} to provide a
+     * {@code Function<V, Icon>}.
      */
-    public static class DemoVertexIconTransformer<V> extends DefaultVertexIconTransformer<V>
-    	implements Function<V,Icon> {
-        
+    public static class DemoVertexIconTransformer<V> implements Function<V,Icon> {
         boolean fillImages = true;
         boolean outlineImages = false;
+        Map<V, Icon> iconMap = new HashMap<V, Icon>();
+        
+        public DemoVertexIconTransformer(Map<V, Icon> iconMap) {
+        	this.iconMap = iconMap;
+        }
 
         /**
          * @return Returns the fillImages.
@@ -478,7 +480,7 @@ public class VertexImageShaperDemo extends JApplet {
 				Shape shape = shapeMap.get(image);
 				if (shape == null) {
 					if (shapeImages) {
-						shape = FourPassImageShaper.getShape(image, 30);
+						shape = ImageShapeUtils.getShape(image, 30);
 					} else {
 						shape = new Rectangle2D.Float(0, 0, 
 								image.getWidth(null), image.getHeight(null));
@@ -539,9 +541,6 @@ public class VertexImageShaperDemo extends JApplet {
 //        }
     }
     
-    /**
-	 * a driver for this demo
-	 */
     public static void main(String[] args) {
         JFrame frame = new JFrame();
         Container content = frame.getContentPane();

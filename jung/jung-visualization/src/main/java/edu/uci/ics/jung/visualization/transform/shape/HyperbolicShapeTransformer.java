@@ -35,6 +35,7 @@ public class HyperbolicShapeTransformer extends HyperbolicTransformer
     /**
      * Create an instance, setting values from the passed component
      * and registering to listen for size changes on the component.
+     * @param component the component in which rendering takes place
      */
     public HyperbolicShapeTransformer(Component component) {
         this(component, null);
@@ -44,6 +45,8 @@ public class HyperbolicShapeTransformer extends HyperbolicTransformer
      * Create an instance, setting values from the passed component
      * and registering to listen for size changes on the component,
      * with a possibly shared transform <code>delegate</code>.
+     * @param component the component in which rendering takes place
+     * @param delegate the transformer to use
      */
     public HyperbolicShapeTransformer(Component component, MutableTransformer delegate) {
         super(component, delegate);

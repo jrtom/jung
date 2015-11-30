@@ -121,19 +121,18 @@ public class TestBetweennessCentrality extends TestCase
     	
     	BetweennessCentrality<Integer,Character> bc = 
     		new BetweennessCentrality<Integer,Character>(graph, edge_weights);
-//    		new BetweennessCentrality<Integer,Integer>(graph);
 
-    	System.out.println("scoring");
-    	System.out.println("(weighted)");
-    	System.out.println("vertices:");
-    	for (int i = 0; i < graph.getVertexCount(); i++) 
-    		System.out.println(String.format("%d: %f", i, bc.getVertexScore(i)));
-    	System.out.println("edges:");
-    	for (int i = 0; i < graph.getEdgeCount(); i++) 
-    	{
-    		char e = (char)(i + 'a');
-    		System.out.println(String.format("%c: (weight: %d), %f", e, 
-    				edge_weights.apply(e), bc.getEdgeScore(e)));
-    	}
+//    	System.out.println("scoring");
+//    	System.out.println("(weighted)");
+//    	System.out.println("vertices:");
+//    	for (int i = 0; i < graph.getVertexCount(); i++) 
+//    		System.out.println(String.format("%d: %f", i, bc.getVertexScore(i)));
+//    	System.out.println("edges:");
+//    	for (int i = 0; i < graph.getEdgeCount(); i++) 
+//    	{
+//    		char e = (char)(i + 'a');
+//    		System.out.println(String.format("%c: (weight: %d), %f", e, 
+//    				edge_weights.apply(e), bc.getEdgeScore(e)));
+//    	}
     }
 }

@@ -22,7 +22,7 @@ import javax.swing.border.EmptyBorder;
 
 /**
  * AnnotationRenderer is similar to the cell renderers
- * used by the JTable and JTree jfc classes.
+ * used by the JTable and JTree JFC classes.
  * 
  * @author Tom Nelson 
  *
@@ -66,7 +66,7 @@ public class AnnotationRenderer extends JLabel implements
 
     /**
      * Notification from the <code>UIManager</code> that the look and feel
-     * [L&F] has changed.
+     * has changed.
      * Replaces the current UI object with the latest version from the 
      * <code>UIManager</code>.
      *
@@ -80,25 +80,18 @@ public class AnnotationRenderer extends JLabel implements
     }
     
     /**
-    *
-    * Returns the default label renderer for an Edge
-    *
-    * @param vv  the <code>VisualizationViewer</code> to render on
-    * @param value  the value to assign to the label for
-    *			<code>Edge</code>
-    * @param edge  the <code>Edge</code>
-    * @return the default label renderer
-    */
+     * Returns the default label renderer.
+     *
+     * @param vv  the <code>VisualizationViewer</code> to render on
+     * @param value  the value to assign to the label
+     * @return the default label renderer
+     */
     public Component getAnnotationRendererComponent(JComponent vv, Object value) {
         
         super.setForeground(vv.getForeground());
         super.setBackground(vv.getBackground());
         
-//        if(font != null) {
-//            setFont(font);
-//        } else {
-            setFont(vv.getFont());
-//        }
+        setFont(vv.getFont());
         setIcon(null);
         setBorder(noFocusBorder);
         setValue(value); 

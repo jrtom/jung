@@ -23,6 +23,8 @@ public class ObservableGraph<V,E> extends GraphDecorator<V,E> {
 
     /**
      * Creates a new instance based on the provided {@code delegate}.
+     * 
+     * @param delegate the graph on which this class operates
      */
 	public ObservableGraph(Graph<V, E> delegate) {
 		super(delegate);
@@ -30,6 +32,8 @@ public class ObservableGraph<V,E> extends GraphDecorator<V,E> {
 	
 	/**
 	 * Adds {@code l} as a listener to this graph.
+	 * 
+	 * @param l the listener to add
 	 */
 	public void addGraphEventListener(GraphEventListener<V,E> l) {
 		listenerList.add(l);
@@ -37,6 +41,8 @@ public class ObservableGraph<V,E> extends GraphDecorator<V,E> {
 
     /**
      * Removes {@code l} as a listener to this graph.
+     * 
+	 * @param l the listener to remove
      */
 	public void removeGraphEventListener(GraphEventListener<V,E> l) {
 		listenerList.remove(l);

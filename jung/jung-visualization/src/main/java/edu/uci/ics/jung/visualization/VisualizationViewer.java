@@ -37,7 +37,7 @@ import edu.uci.ics.jung.visualization.control.MouseListenerTranslator;
 public class VisualizationViewer<V,E> extends BasicVisualizationServer<V,E> {
 
 	protected Function<? super V,String> vertexToolTipTransformer;
-	protected Function<E,String> edgeToolTipTransformer;
+	protected Function<? super E,String> edgeToolTipTransformer;
 	protected Function<MouseEvent,String> mouseEventToolTipTransformer;
 	
     /**
@@ -53,43 +53,18 @@ public class VisualizationViewer<V,E> extends BasicVisualizationServer<V,E> {
     };
 
 
-    /**
-     * Create an instance with passed parameters.
-     * 
-     * @param layout		The Layout to apply, with its associated Graph
-     * @param renderer		The Renderer to draw it with
-     */
 	public VisualizationViewer(Layout<V,E> layout) {
 	    this(new DefaultVisualizationModel<V,E>(layout));
 	}
 	
-    /**
-     * Create an instance with passed parameters.
-     * 
-     * @param layout		The Layout to apply, with its associated Graph
-     * @param renderer		The Renderer to draw it with
-     * @param preferredSize the preferred size of this View
-     */
 	public VisualizationViewer(Layout<V,E> layout, Dimension preferredSize) {
 	    this(new DefaultVisualizationModel<V,E>(layout, preferredSize), preferredSize);
 	}
 	
-	/**
-	 * Create an instance with passed parameters.
-	 * 
-	 * @param model
-	 * @param renderer
-	 */
 	public VisualizationViewer(VisualizationModel<V,E> model) {
 	    this(model, new Dimension(600,600));
 	}
-	/**
-	 * Create an instance with passed parameters.
-	 * 
-	 * @param model
-	 * @param renderer
-	 * @param preferredSize initial preferred size of the view
-	 */
+
     public VisualizationViewer(VisualizationModel<V,E> model,
 	        Dimension preferredSize) {
         super(model, preferredSize);
@@ -138,7 +113,7 @@ public class VisualizationViewer<V,E> extends BasicVisualizationServer<V,E> {
 	/**
 	 * This is the interface for adding a mouse listener. The GEL
 	 * will be called back with mouse clicks on vertices.
-	 * @param gel
+	 * @param gel the mouse listener to add
 	 */
 	public void addGraphMouseListener( GraphMouseListener<V> gel ) {
 		addMouseListener( new MouseListenerTranslator<V,E>( gel, this ));
@@ -151,15 +126,13 @@ public class VisualizationViewer<V,E> extends BasicVisualizationServer<V,E> {
 	@Override
 	public synchronized void addKeyListener(KeyListener l) {
 		super.addKeyListener(l);
-//		setFocusable(true);
-//		addMouseListener(requestFocusListener);
 	}
 	
 	/**
 	 * @param edgeToolTipTransformer the edgeToolTipTransformer to set
 	 */
 	public void setEdgeToolTipTransformer(
-			Function<E, String> edgeToolTipTransformer) {
+			Function<? super E, String> edgeToolTipTransformer) {
 		this.edgeToolTipTransformer = edgeToolTipTransformer;
 		ToolTipManager.sharedInstance().registerComponent(this);
 	}

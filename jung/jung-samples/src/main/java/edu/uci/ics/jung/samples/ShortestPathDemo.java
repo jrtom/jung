@@ -79,7 +79,7 @@ public class ShortestPathDemo extends JPanel {
         vv.getRenderContext().setVertexFillPaintTransformer(new MyVertexFillPaintFunction<String>());
         vv.getRenderContext().setEdgeDrawPaintTransformer(new MyEdgePaintFunction());
         vv.getRenderContext().setEdgeStrokeTransformer(new MyEdgeStrokeFunction());
-        vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller<String>());
+        vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
         vv.setGraphMouse(new DefaultModalGraphMouse<String, Number>());
         vv.addPostRenderPaintable(new VisualizationViewer.Paintable(){
             
@@ -214,13 +214,13 @@ public class ShortestPathDemo extends JPanel {
 		for (String v : mGraph.getVertices()) {
 			s.add(v);
 		}
-		final JComboBox choices = new JComboBox(s.toArray());
+		final JComboBox<String> choices = new JComboBox<String>((String[]) s.toArray());
 		choices.setSelectedIndex(-1);
 		choices.setBackground(Color.WHITE);
 		choices.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
-				String v = (String)choices.getSelectedItem();
+				String v = (String) choices.getSelectedItem();
 					
 				if (from) {
 					mFrom = v;

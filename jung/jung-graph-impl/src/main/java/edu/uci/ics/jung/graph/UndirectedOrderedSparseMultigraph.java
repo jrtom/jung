@@ -32,9 +32,9 @@ public class UndirectedOrderedSparseMultigraph<V,E>
     implements UndirectedGraph<V,E> {
 	
     /**
-     * Returns a {@code Supplier} that creates an instance of this graph type.
      * @param <V> the vertex type for the graph Supplier
      * @param <E> the edge type for the graph Supplier
+     * @return a {@code Supplier} that creates an instance of this graph type.
      */
 	public static <V,E> Supplier<UndirectedGraph<V,E>> getFactory() {
 		return new Supplier<UndirectedGraph<V,E>> () {

@@ -20,8 +20,8 @@ import edu.uci.ics.jung.graph.util.TreeUtils;
  * 
  * @author Tom Nelson - tomnelson@dev.java.net
  *
- * @param <V>
- * @param <E>
+ * @param <V> the vertex type
+ * @param <E> the edge type
  */
 @SuppressWarnings("unchecked")
 public class MinimumSpanningForest2<V,E> {
@@ -32,7 +32,7 @@ public class MinimumSpanningForest2<V,E> {
 		(Function<E,Double>)Functions.<Double>constant(1.0);
 	
 	/**
-	 * create a Forest from the supplied Graph and supplied Supplier, which
+	 * Create a Forest from the supplied Graph and supplied Supplier, which
 	 * is used to create a new, empty Forest. If non-null, the supplied root
 	 * will be used as the root of the tree/forest. If the supplied root is
 	 * null, or not present in the Graph, then an arbitary Graph vertex
@@ -40,21 +40,22 @@ public class MinimumSpanningForest2<V,E> {
 	 * If the Minimum Spanning Tree does not include all vertices of the
 	 * Graph, then a leftover vertex is selected as a root, and another
 	 * tree is created
-	 * @param graph
-	 * @param Supplier
-	 * @param weights
+	 * @param graph the graph for which the minimum spanning forest will be generated
+	 * @param supplier a factory for the type of forest to build
+	 * @param treeFactory a factory for the type of tree to build
+	 * @param weights edge weights; may be null
 	 */
 	public MinimumSpanningForest2(Graph<V, E> graph, 
-			Supplier<Forest<V,E>> Supplier, 
+			Supplier<Forest<V,E>> supplier, 
 			Supplier<? extends Graph<V,E>> treeFactory,
 			Function<? super E, Double> weights) {
-		this(graph, Supplier.get(), 
+		this(graph, supplier.get(), 
 				treeFactory, 
 				weights);
 	}
 	
 	/**
-	 * create a forest from the supplied graph, populating the
+	 * Create a forest from the supplied graph, populating the
 	 * supplied Forest, which must be empty. 
 	 * If the supplied root is null, or not present in the Graph,
 	 * then an arbitary Graph vertex will be selected as the root.
@@ -63,6 +64,7 @@ public class MinimumSpanningForest2<V,E> {
 	 * tree is created
 	 * @param graph the Graph to find MST in
 	 * @param forest the Forest to populate. Must be empty
+	 * @param treeFactory a factory for the type of tree to build
 	 * @param weights edge weights, may be null
 	 */
 	public MinimumSpanningForest2(Graph<V, E> graph, 
@@ -96,7 +98,7 @@ public class MinimumSpanningForest2<V,E> {
 	}
 	
 	/**
-	 * Returns the generated forest.
+	 * @return the generated forest
 	 */
 	public Forest<V,E> getForest() {
 		return forest;

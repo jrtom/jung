@@ -36,9 +36,9 @@ public class SortedSparseMultigraph<V,E>
     implements MultiGraph<V,E> 
 {
     /**
-     * Returns a {@code Supplier} that creates an instance of this graph type.
      * @param <V> the vertex type for the graph Supplier
      * @param <E> the edge type for the graph Supplier
+     * @return a {@code Supplier} that creates an instance of this graph type.
      */
 	public static <V,E> Supplier<Graph<V,E>> getFactory() 
 	{ 
@@ -66,6 +66,8 @@ public class SortedSparseMultigraph<V,E>
     /**
      * Creates a new instance which sorts its vertices and edges according to the 
      * specified {@code Comparator}s.
+     * @param vertex_comparator specifies how the vertices are to be compared 
+     * @param edge_comparator specifies how the edges are to be compared
      */
     public SortedSparseMultigraph(Comparator<V> vertex_comparator, Comparator<E> edge_comparator)
     {
@@ -83,10 +85,12 @@ public class SortedSparseMultigraph<V,E>
     public SortedSparseMultigraph()
     {
         this(new Ordering<V>(){
+			@SuppressWarnings("unchecked")
 			public int compare(V v1, V v2) {
 				return ((Comparable<V>) v1).compareTo(v2);
 			}},
         		new Ordering<E>(){
+					@SuppressWarnings("unchecked")
 					public int compare(E e1, E e2) {
 						return ((Comparable<E>) e1).compareTo(e2);
 					}});

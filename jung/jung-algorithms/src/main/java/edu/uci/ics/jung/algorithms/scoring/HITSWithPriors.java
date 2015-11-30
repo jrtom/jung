@@ -57,7 +57,6 @@ public class HITSWithPriors<V, E>
      * @param vertex_priors the prior probability for each vertex
      * @param alpha the probability of a random jump at each step
      */
-    @SuppressWarnings("unchecked")
     public HITSWithPriors(Hypergraph<V,E> g, 
           Function<V, HITS.Scores> vertex_priors, double alpha)
     {

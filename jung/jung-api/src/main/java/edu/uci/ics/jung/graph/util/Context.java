@@ -6,7 +6,7 @@ package edu.uci.ics.jung.graph.util;
  */
 public class Context<G,E> 
 {
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	private static Context instance = new Context();
 	
 	/**
@@ -20,9 +20,11 @@ public class Context<G,E>
 	public E element;
 	
 	/**
-	 * Returns an instance of this type for the specified graph and element.
 	 * @param <G> the graph type
 	 * @param <E> the element type
+	 * @param graph the graph for which the instance is created
+	 * @param element the element for which the instance is created
+	 * @return an instance of this type for the specified graph and element
 	 */
 	@SuppressWarnings("unchecked")
 	public static <G,E> Context<G,E> getInstance(G graph, E element) {
@@ -36,12 +38,12 @@ public class Context<G,E>
 		return graph.hashCode() ^ element.hashCode();
 	}
 	
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	@Override
     public boolean equals(Object o) {
         if (!(o instanceof Context))
             return false;
-        Context context = (Context)o;
+        Context context = (Context) o;
         return context.graph.equals(graph) && context.element.equals(element);
     }
 }

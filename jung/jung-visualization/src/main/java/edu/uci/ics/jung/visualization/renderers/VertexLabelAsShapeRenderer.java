@@ -34,8 +34,8 @@ import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
  * 
  * @author Tom Nelson
  *
- * @param <V>
- * @param <E>
+ * @param <V> the vertex type
+ * @param <V> the edge type
  */
 public class VertexLabelAsShapeRenderer<V,E> 
 	implements Renderer.VertexLabel<V,E>, Function<V,Shape> {

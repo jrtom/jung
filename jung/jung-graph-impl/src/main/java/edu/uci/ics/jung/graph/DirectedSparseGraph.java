@@ -31,9 +31,9 @@ public class DirectedSparseGraph<V,E> extends AbstractTypedGraph<V, E> implement
         DirectedGraph<V, E>
 {
     /**
-     * Returns a {@code Supplier} that creates an instance of this graph type.
      * @param <V> the vertex type for the graph Supplier
      * @param <E> the edge type for the graph Supplier
+     * @return a {@code Supplier} that creates an instance of this graph type.
      */
    public static final <V,E> Supplier<DirectedGraph<V,E>> getFactory() {
         return new Supplier<DirectedGraph<V,E>> () {

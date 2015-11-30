@@ -27,7 +27,7 @@ import edu.uci.ics.jung.graph.util.Pair;
 
 /**
  * An implementation of <code>Tree</code> in which each vertex has
- * <= k children.  The value of 'k' is specified by the constructor
+ * &le; k children.  The value of 'k' is specified by the constructor
  * parameter.  A specific child (edge) can be retrieved directly by specifying the
  * index at which the child is located.  By default, new (child) vertices
  * are added at the lowest index available, if no index is specified.
@@ -43,9 +43,10 @@ public class OrderedKAryTree<V, E> extends AbstractTypedGraph<V, E> implements T
     protected int order;
     
     /**
-     * Returns a {@code Supplier} that creates an instance of this graph type.
      * @param <V> the vertex type for the graph Supplier
      * @param <E> the edge type for the graph Supplier
+     * @param order the maximum number of children ("k") that any vertex can have
+     * @return a {@code Supplier} that creates an instance of this graph type.
      */
     public static <V,E> Supplier<DirectedGraph<V,E>> getFactory(final int order) {
         return new Supplier<DirectedGraph<V,E>> () {
@@ -57,6 +58,7 @@ public class OrderedKAryTree<V, E> extends AbstractTypedGraph<V, E> implements T
     
     /**
      * Creates a new instance with the specified order (maximum number of children).
+     * @param order the maximum number of children ("k") that any vertex can have
      */
     public OrderedKAryTree(int order)
     {
@@ -68,7 +70,8 @@ public class OrderedKAryTree<V, E> extends AbstractTypedGraph<V, E> implements T
     }
   
     /**
-     * Returns the number of children that {@code vertex} has.  
+     * @param vertex the vertex whose number of children is to be returned
+     * @return the number of children that {@code vertex} has
      * @see edu.uci.ics.jung.graph.Tree#getChildCount(java.lang.Object)
      */
     public int getChildCount(V vertex) {
@@ -85,10 +88,10 @@ public class OrderedKAryTree<V, E> extends AbstractTypedGraph<V, E> implements T
     }
   
     /**
-     * Returns the child edge of the vertex at index <code>index</code>.
-     * @param vertex
-     * @param index
-     * @return the child edge of the vertex at index <code>index</code>
+     * @param vertex the vertex whose child edge is to be returned
+     * @param index the index of the edge to be returned
+     * @return the child edge of {@code vertex} at index {@code index}, that is, 
+     *     its <i>i</i>th child edge.
      */
     public E getChildEdge(V vertex, int index) 
     {
@@ -110,7 +113,6 @@ public class OrderedKAryTree<V, E> extends AbstractTypedGraph<V, E> implements T
         List<E> edges = vertex_data.get(vertex).child_edges;
         return edges == null ? Collections.<E>emptySet() : 
         	new ImmutableList.Builder<E>().addAll(edges).build();
-//            CollectionUtils.unmodifiableCollection(edges);
     }
   
     /**
@@ -131,7 +133,6 @@ public class OrderedKAryTree<V, E> extends AbstractTypedGraph<V, E> implements T
         for (E edge : edges)
             children.add(this.getOpposite(vertex, edge));
         return new ImmutableList.Builder<V>().addAll(children).build();
-        //CollectionUtils.unmodifiableCollection(children);
     }
   
     /**
@@ -203,6 +204,11 @@ public class OrderedKAryTree<V, E> extends AbstractTypedGraph<V, E> implements T
      * available position; if it is greater than or equal to the order of this
      * tree, an exception is thrown.
      * 
+     * @param e the edge to add
+     * @param parent the source of the edge to be added
+     * @param child the destination of the edge to be added
+     * @param index the position at which e is to be added as a child of {@code parent}
+     * @return {@code true} if the graph has been modified
      * @see edu.uci.ics.jung.graph.Graph#addEdge(java.lang.Object, java.lang.Object, java.lang.Object)
      */
 	public boolean addEdge(E e, V parent, V child, int index) 
@@ -615,6 +621,7 @@ public class OrderedKAryTree<V, E> extends AbstractTypedGraph<V, E> implements T
      * Returns the child of <code>vertex</code> at position <code>index</code> 
      * in this tree, or <code>null</code> if it has no child at that position.
      * @param vertex the vertex to query
+     * @param index the index of the child to return
      * @return the child of <code>vertex</code> at position <code>index</code> 
      * in this tree, or <code>null</code> if it has no child at that position
      * @throws ArrayIndexOutOfBoundsException if <code>index</code> is not in 

@@ -21,7 +21,7 @@ import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.graph.util.Pair;
 
 /**
- * <p>Functions for transforming graphs into directed or undirected graphs.</p>
+ * <p>Functions for transforming graphs into directed or undirected graphs.
  * 
  * 
  * @author Danyel Fisher
@@ -36,9 +36,9 @@ public class DirectionTransformer
      * visualization tasks).
      * Specifically:
      * <ul>
-     * <li/>Vertices are copied from <code>graph</code>.
-     * <li/>Directed edges are 'converted' into a single new undirected edge in the new graph.
-     * <li/>Each undirected edge (if any) in <code>graph</code> is 'recreated' with a new undirected edge in the new
+     * <li>Vertices are copied from <code>graph</code>.
+     * <li>Directed edges are 'converted' into a single new undirected edge in the new graph.
+     * <li>Each undirected edge (if any) in <code>graph</code> is 'recreated' with a new undirected edge in the new
      * graph if <code>create_new</code> is true, or copied from <code>graph</code> otherwise.
      * </ul>
      * 
@@ -46,6 +46,8 @@ public class DirectionTransformer
      * @param create_new specifies whether existing undirected edges are to be copied or recreated
      * @param graph_factory used to create the new graph object
      * @param edge_factory used to create new edges
+     * @param <V> the vertex type
+     * @param <E> the edge type
      * @return          the transformed <code>Graph</code>
      */
     public static <V,E> UndirectedGraph<V,E> toUndirected(Graph<V,E> graph, 
@@ -77,9 +79,9 @@ public class DirectionTransformer
      * into a directed graph.  
      * Specifically:
      * <ul>
-     * <li/>Vertices are copied from <code>graph</code>.
-     * <li/>Undirected edges are 'converted' into two new antiparallel directed edges in the new graph.
-     * <li/>Each directed edge (if any) in <code>graph</code> is 'recreated' with a new edge in the new
+     * <li>Vertices are copied from <code>graph</code>.
+     * <li>Undirected edges are 'converted' into two new antiparallel directed edges in the new graph.
+     * <li>Each directed edge (if any) in <code>graph</code> is 'recreated' with a new edge in the new
      * graph if <code>create_new</code> is true, or copied from <code>graph</code> otherwise.
      * </ul>
      * 
@@ -87,6 +89,8 @@ public class DirectionTransformer
      * @param create_new specifies whether existing directed edges are to be copied or recreated
      * @param graph_factory used to create the new graph object
      * @param edge_factory used to create new edges
+     * @param <V> the vertex type
+     * @param <E> the edge type
      * @return          the transformed <code>Graph</code>
      */
     public static <V,E> Graph<V,E> toDirected(Graph<V,E> graph, Supplier<DirectedGraph<V,E>> graph_factory,

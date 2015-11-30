@@ -93,7 +93,7 @@ public class LensDemo extends JApplet {
      */
     Graph<String,Number> graph;
     
-    Layout<String,Number> graphLayout;
+    FRLayout<String,Number> graphLayout;
     
     /**
      * a grid shaped graph
@@ -138,7 +138,7 @@ public class LensDemo extends JApplet {
         graph = TestGraphs.getOneComponentGraph();
         
         graphLayout = new FRLayout<String,Number>(graph);
-        ((FRLayout)graphLayout).setMaxIterations(1000);
+        graphLayout.setMaxIterations(1000);
 
         Dimension preferredSize = new Dimension(600,600);
         Map<String,Point2D> map = new HashMap<String,Point2D>();
@@ -173,7 +173,8 @@ public class LensDemo extends JApplet {
         /**
          * the regular graph mouse for the normal view
          */
-        final DefaultModalGraphMouse graphMouse = new DefaultModalGraphMouse();
+        final DefaultModalGraphMouse<String,Number> graphMouse
+        	= new DefaultModalGraphMouse<String,Number>();
 
         vv.setGraphMouse(graphMouse);
         vv.addKeyListener(graphMouse.getModeKeyListener());
@@ -281,7 +282,8 @@ public class LensDemo extends JApplet {
                 if(e.getStateChange() == ItemEvent.SELECTED) {
                     visualizationModel.setGraphLayout(graphLayout);
                     vv.getRenderContext().setVertexShapeTransformer(ovals);
-                    vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
+                    vv.getRenderContext().setVertexLabelTransformer(
+                    	new ToStringLabeller());
                     vv.repaint();
                 }
             }});
@@ -437,12 +439,6 @@ public class LensDemo extends JApplet {
         }
     }
 
-
-
-
-    /**
-     * a driver for this demo
-     */
     public static void main(String[] args) {
         JFrame f = new JFrame();
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

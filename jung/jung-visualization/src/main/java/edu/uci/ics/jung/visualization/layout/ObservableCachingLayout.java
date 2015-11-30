@@ -63,28 +63,18 @@ public class ObservableCachingLayout<V, E> extends LayoutDecorator<V,E>
 //    			new ChainedTransformer<V, Point2D>(new Function[]{delegate, CloneTransformer.<Point2D>getInstance()}));
     }
     
-    /**
-     * @see edu.uci.ics.jung.algorithms.layout.Layout#step()
-     */
     @Override
     public void step() {
     	super.step();
     	fireStateChanged();
     }
 
-    /**
-	 * 
-	 * @see edu.uci.ics.jung.algorithms.layout.Layout#initialize()
-	 */
 	@Override
     public void initialize() {
 		super.initialize();
 		fireStateChanged();
 	}
 	
-    /**
-     * @see edu.uci.ics.jung.algorithms.util.IterativeContext#done()
-     */
     @Override
     public boolean done() {
     	if(delegate instanceof IterativeContext) {
@@ -94,11 +84,6 @@ public class ObservableCachingLayout<V, E> extends LayoutDecorator<V,E>
     }
 
 
-	/**
-	 * @param v
-	 * @param location
-	 * @see edu.uci.ics.jung.algorithms.layout.Layout#setLocation(java.lang.Object, java.awt.geom.Point2D)
-	 */
 	@Override
     public void setLocation(V v, Point2D location) {
 		super.setLocation(v, location);
@@ -134,10 +119,6 @@ public class ObservableCachingLayout<V, E> extends LayoutDecorator<V,E>
 	public void init() {
 	}
 
-	/* (non-Javadoc)
-	 * @see edu.uci.ics.jung.visualization.layout.LayoutDecorator#transform(java.lang.Object)
-	 */
-//	@Override
 	public Point2D apply(V v) {
 		return locationMap.get(v);
 	}
@@ -149,13 +130,11 @@ public class ObservableCachingLayout<V, E> extends LayoutDecorator<V,E>
 		}
 	}
 	
-//	@Override
 	public void addLayoutChangeListener(LayoutChangeListener<V, E> listener) {
 		layoutChangeListeners.add(listener);
 		
 	}
 
-//	@Override
 	public void removeLayoutChangeListener(LayoutChangeListener<V, E> listener) {
 		layoutChangeListeners.remove(listener);
 		

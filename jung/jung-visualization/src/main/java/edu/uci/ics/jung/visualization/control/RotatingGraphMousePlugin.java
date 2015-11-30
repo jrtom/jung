@@ -109,7 +109,7 @@ public class RotatingGraphMousePlugin extends AbstractGraphMousePlugin
 	 * @param e the event
 	 */
     public void mousePressed(MouseEvent e) {
-        VisualizationViewer vv = (VisualizationViewer)e.getSource();
+        VisualizationViewer<?, ?> vv = (VisualizationViewer<?, ?>)e.getSource();
            boolean accepted = checkModifiers(e);
            down = e.getPoint();
           if(accepted) {
@@ -121,7 +121,7 @@ public class RotatingGraphMousePlugin extends AbstractGraphMousePlugin
      * unset the down point and change the cursor back to the default
 	 */
     public void mouseReleased(MouseEvent e) {
-        VisualizationViewer vv = (VisualizationViewer)e.getSource();
+        VisualizationViewer<?, ?> vv = (VisualizationViewer<?, ?>)e.getSource();
         down = null;
         vv.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
@@ -132,7 +132,7 @@ public class RotatingGraphMousePlugin extends AbstractGraphMousePlugin
 	 */
     public void mouseDragged(MouseEvent e) {
         if(down == null) return;
-        VisualizationViewer vv = (VisualizationViewer)e.getSource();
+        VisualizationViewer<?, ?> vv = (VisualizationViewer<?, ?>)e.getSource();
         boolean accepted = checkModifiers(e);
         if(accepted) {
             MutableTransformer modelTransformer =
@@ -157,9 +157,9 @@ public class RotatingGraphMousePlugin extends AbstractGraphMousePlugin
     /**
      * Returns the angle between two vectors from the origin
      * to points v1 and v2.
-     * @param v1
-     * @param v2
-     * @return
+     * @param v1 the first point
+     * @param v2 the second point
+     * @return the angle between two vectors from the origin through points v1 and v2
      */
     protected double angleBetween(Point2D v1, Point2D v2) {
         double x1 = v1.getX();

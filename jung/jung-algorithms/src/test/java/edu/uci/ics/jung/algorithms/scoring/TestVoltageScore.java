@@ -49,7 +49,6 @@ public class TestVoltageScore extends TestCase
         g.addEdge(j++,5,6);
     }
     
-    @SuppressWarnings("unchecked")
     public final void testCalculateVoltagesSourceTarget() {
         VoltageScorer<Number,Number> vr = new VoltageScorer<Number,Number>(g, Functions.<Number>constant(1), 0, 6);
         double[] voltages = {1.0, 0.75, 0.75, 0.5, 0.25, 0.25, 0};
@@ -60,7 +59,6 @@ public class TestVoltageScore extends TestCase
         }
     }
     
-    @SuppressWarnings("unchecked")
     public final void testCalculateVoltagesSourcesTargets()
     {
         Map<Number,Number> sources = new HashMap<Number,Number>();

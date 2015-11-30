@@ -38,8 +38,8 @@ public abstract class AbstractGraphMousePlugin implements GraphMousePlugin {
     protected Cursor cursor;
     
     /**
-     * create an instance with passed values
-     * @param modifiers
+     * Creates an instance with the specified mouse event modifiers.
+     * @param modifiers the mouse event modifiers to use
      */
     public AbstractGraphMousePlugin(int modifiers) {
         this.modifiers = modifiers;

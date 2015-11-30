@@ -95,7 +95,10 @@ public class SubLayoutDemo extends JApplet {
     
     Map<Graph<String,Number>,Dimension> sizes = new HashMap<Graph<String,Number>,Dimension>();
 
-    Class[] layoutClasses = new Class[]{CircleLayout.class,SpringLayout.class,FRLayout.class,KKLayout.class};
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+	Class<Layout>[] layoutClasses = new Class[] {
+		CircleLayout.class,SpringLayout.class,FRLayout.class,KKLayout.class
+    };
     /**
      * the visual component and renderer for the graph
      */
@@ -107,7 +110,8 @@ public class SubLayoutDemo extends JApplet {
     
     PickedState<String> ps;
     
-    Class subLayoutType = CircleLayout.class;
+    @SuppressWarnings("rawtypes")
+	Class<CircleLayout> subLayoutType = CircleLayout.class;
     
     /**
      * create an instance of a simple graph with controls to
@@ -142,7 +146,7 @@ public class SubLayoutDemo extends JApplet {
         /**
          * the regular graph mouse for the normal view
          */
-        final DefaultModalGraphMouse graphMouse = new DefaultModalGraphMouse();
+        final DefaultModalGraphMouse<?, ?> graphMouse = new DefaultModalGraphMouse<Object, Object>();
 
         vv.setGraphMouse(graphMouse);
         
@@ -150,7 +154,7 @@ public class SubLayoutDemo extends JApplet {
         GraphZoomScrollPane gzsp = new GraphZoomScrollPane(vv);
         content.add(gzsp);
         
-        JComboBox modeBox = graphMouse.getModeComboBox();
+        JComboBox<?> modeBox = graphMouse.getModeComboBox();
         modeBox.addItemListener(graphMouse.getModeListener());
         graphMouse.setMode(ModalGraphMouse.Mode.PICKING);
         
@@ -181,9 +185,9 @@ public class SubLayoutDemo extends JApplet {
 				uncluster();
 			}});
         
-        JComboBox layoutTypeComboBox = new JComboBox(layoutClasses);
+        JComboBox<?> layoutTypeComboBox = new JComboBox<Object>(layoutClasses);
         layoutTypeComboBox.setRenderer(new DefaultListCellRenderer() {
-            public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
                 String valueString = value.toString();
                 valueString = valueString.substring(valueString.lastIndexOf('.')+1);
                 return super.getListCellRendererComponent(list, valueString, index, isSelected,
@@ -195,7 +199,8 @@ public class SubLayoutDemo extends JApplet {
 
 			public void itemStateChanged(ItemEvent e) {
 				if(e.getStateChange() == ItemEvent.SELECTED) {
-					Class clazz = (Class)e.getItem();
+					@SuppressWarnings({ "unchecked", "rawtypes" })
+					Class<CircleLayout> clazz = (Class<CircleLayout>)e.getItem();
 					try {
 						Layout<String,Number> layout = getLayoutFor(clazz, graph);
 						layout.setInitializer(vv.getGraphLayout());
@@ -207,10 +212,10 @@ public class SubLayoutDemo extends JApplet {
 				}
 			}});
         
-        JComboBox subLayoutTypeComboBox = new JComboBox(layoutClasses);
+        JComboBox<?> subLayoutTypeComboBox = new JComboBox<Object>(layoutClasses);
         
         subLayoutTypeComboBox.setRenderer(new DefaultListCellRenderer() {
-            public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
                 String valueString = value.toString();
                 valueString = valueString.substring(valueString.lastIndexOf('.')+1);
                 return super.getListCellRendererComponent(list, valueString, index, isSelected,
@@ -219,14 +224,15 @@ public class SubLayoutDemo extends JApplet {
         });
         subLayoutTypeComboBox.addItemListener(new ItemListener() {
 
+			@SuppressWarnings({ "unchecked", "rawtypes" })
 			public void itemStateChanged(ItemEvent e) {
 				if(e.getStateChange() == ItemEvent.SELECTED) {
-					subLayoutType = (Class)e.getItem();
+					subLayoutType = (Class<CircleLayout>)e.getItem();
 				}
 			}});
         
-        JComboBox subLayoutDimensionComboBox = 
-        	new JComboBox(new Dimension[]{
+        JComboBox<?> subLayoutDimensionComboBox = 
+        	new JComboBox<Object>(new Dimension[]{
         			new Dimension(75,75),
         			new Dimension(100,100),
         			new Dimension(150,150),
@@ -236,7 +242,7 @@ public class SubLayoutDemo extends JApplet {
         	}	
         	);
         subLayoutDimensionComboBox.setRenderer(new DefaultListCellRenderer() {
-            public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
                 String valueString = value.toString();
                 valueString = valueString.substring(valueString.lastIndexOf('['));
                 valueString = valueString.replaceAll("idth", "");
@@ -312,10 +318,11 @@ public class SubLayoutDemo extends JApplet {
     	component.setMaximumSize(d);
     }
     
-    private Layout getLayoutFor(Class layoutClass, Graph graph) throws Exception {
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	private Layout<String, Number> getLayoutFor(Class<CircleLayout> layoutClass, Graph<String, Number> graph) throws Exception {
     	Object[] args = new Object[]{graph};
-    	Constructor constructor = layoutClass.getConstructor(new Class[] {Graph.class});
-    	return  (Layout)constructor.newInstance(args);
+    	Constructor<CircleLayout> constructor = layoutClass.getConstructor(new Class[] {Graph.class});
+    	return  constructor.newInstance(args);
     }
     
     private void clusterPicked() {
@@ -326,7 +333,8 @@ public class SubLayoutDemo extends JApplet {
     	cluster(false);
     }
 
-    private void cluster(boolean state) {
+    @SuppressWarnings("unchecked")
+	private void cluster(boolean state) {
     	if(state == true) {
     		// put the picked vertices into a new sublayout 
     		Collection<String> picked = ps.getPicked();
@@ -343,8 +351,6 @@ public class SubLayoutDemo extends JApplet {
     			y /= picked.size();
 				center.setLocation(x,y);
 
-//    			String firstVertex = picked.iterator().next();
-//    			Point2D center = clusteringLayout.transform(firstVertex);
     			Graph<String, Number> subGraph;
     			try {
     				subGraph = graph.getClass().newInstance();
@@ -377,9 +383,6 @@ public class SubLayoutDemo extends JApplet {
     	}
     }
 
-    /**
-     * a driver for this demo
-     */
     public static void main(String[] args) {
         JFrame f = new JFrame();
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

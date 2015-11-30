@@ -25,11 +25,11 @@ import edu.uci.ics.jung.graph.Graph;
  * <p>Calculates distances and shortest paths using Dijkstra's   
  * single-source-shortest-path algorithm.  This is a lightweight
  * extension of <code>DijkstraDistance</code> that also stores
- * path information, so that the shortest paths can be reconstructed.</p>
+ * path information, so that the shortest paths can be reconstructed.
  * 
  * <p> The elements in the maps returned by 
  * <code>getIncomingEdgeMap</code> are ordered (that is, returned 
- * by the iterator) by nondecreasing distance from <code>source</code>.</p>
+ * by the iterator) by nondecreasing distance from <code>source</code>.
  * 
  * @author Joshua O'Madadhain
  * @author Tom Nelson converted to jung2
@@ -102,10 +102,15 @@ public class DijkstraShortestPath<V,E> extends DijkstraDistance<V,E> implements 
     /**
      * <p>Returns the last edge on a shortest path from <code>source</code>
      * to <code>target</code>, or null if <code>target</code> is not 
-     * reachable from <code>source</code>.</p>
+     * reachable from <code>source</code>.
      * 
      * <p>If either vertex is not in the graph for which this instance
-     * was created, throws <code>IllegalArgumentException</code>.</p>
+     * was created, throws <code>IllegalArgumentException</code>.
+     * 
+     * @param source the vertex where the shortest path starts
+     * @param target the vertex where the shortest path ends
+     * @return the last edge on a shortest path from {@code source} to {@code target}
+     *     or null if {@code target} is not reachable from {@code source}
      */
 	public E getIncomingEdge(V source, V target)
 	{
@@ -120,7 +125,8 @@ public class DijkstraShortestPath<V,E> extends DijkstraDistance<V,E> implements 
         Set<V> targets = new HashSet<V>();
         targets.add(target);
         singleSourceShortestPath(source, targets, g.getVertexCount());
-        Map<V,E> incomingEdgeMap = 
+        @SuppressWarnings("unchecked")
+		Map<V,E> incomingEdgeMap = 
             ((SourcePathData)sourceMap.get(source)).incomingEdges;
         E incomingEdge = incomingEdgeMap.get(target);
         
@@ -136,7 +142,7 @@ public class DijkstraShortestPath<V,E> extends DijkstraDistance<V,E> implements 
      * to the last edge on the shortest path from the 
      * <code>source</code> vertex.
      * The map's iterator will return the elements in order of 
-     * increasing distance from <code>source</code>.</p>
+     * increasing distance from <code>source</code>.
      * 
      * @see DijkstraDistance#getDistanceMap(Object,int)
      * @see DijkstraDistance#getDistance(Object,Object)
@@ -153,6 +159,11 @@ public class DijkstraShortestPath<V,E> extends DijkstraDistance<V,E> implements 
      * occurrence on this path.  
      * If either vertex is not in the graph for which this instance
      * was created, throws <code>IllegalArgumentException</code>.
+     * 
+     * @param source the starting vertex for the path to generate
+     * @param target the ending vertex for the path to generate
+     * @return the edges on the shortest path from {@code source} to {@code target},
+     *     in order of their occurrence
      */
 	public List<E> getPath(V source, V target)
 	{
@@ -172,7 +183,8 @@ public class DijkstraShortestPath<V,E> extends DijkstraDistance<V,E> implements 
         Set<V> targets = new HashSet<V>();
         targets.add(target);
         singleSourceShortestPath(source, targets, g.getVertexCount());
-        Map<V,E> incomingEdges = 
+        @SuppressWarnings("unchecked")
+		Map<V,E> incomingEdges = 
             ((SourcePathData)sourceMap.get(source)).incomingEdges;
         
         if (incomingEdges.isEmpty() || incomingEdges.get(target) == null)
@@ -190,7 +202,7 @@ public class DijkstraShortestPath<V,E> extends DijkstraDistance<V,E> implements 
     
     /**
      * <p>Returns a <code>LinkedHashMap</code> which maps each of the closest 
-     * <code>numDist</code> vertices to the <code>source</code> vertex 
+     * <code>numDests</code> vertices to the <code>source</code> vertex 
      * in the graph (including the <code>source</code> vertex) 
      * to the incoming edge along the path from that vertex.  Throws 
      * an <code>IllegalArgumentException</code> if <code>source</code>
@@ -201,7 +213,9 @@ public class DijkstraShortestPath<V,E> extends DijkstraDistance<V,E> implements 
      * @see #getIncomingEdgeMap(Object)
      * @see #getPath(Object,Object)
      * @param source    the vertex from which distances are measured
-     * @param numDests  the number of vertics for which to measure distances
+     * @param numDests  the number of vertices for which to measure distances
+     * @return a map from each of the closest {@code numDests} vertices
+     *     to the last edge on the shortest path to that vertex starting from {@code source}
      */
 	public LinkedHashMap<V,E> getIncomingEdgeMap(V source, int numDests)
 	{
@@ -215,7 +229,8 @@ public class DijkstraShortestPath<V,E> extends DijkstraDistance<V,E> implements 
 
         singleSourceShortestPath(source, null, numDests);
         
-        LinkedHashMap<V,E> incomingEdgeMap = 
+        @SuppressWarnings("unchecked")
+		LinkedHashMap<V,E> incomingEdgeMap = 
             ((SourcePathData)sourceMap.get(source)).incomingEdges;
         
         if (!cached)

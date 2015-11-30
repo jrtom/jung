@@ -35,7 +35,6 @@ public class KeyElementParser<G extends Hypergraph<V,E>,V,E> extends AbstractEle
         super(parserContext);
     }
     
-    @SuppressWarnings("unchecked")
     public Key parse(XMLEventReader xmlEventReader, StartElement start)
             throws GraphIOException {
 
@@ -44,9 +43,10 @@ public class KeyElementParser<G extends Hypergraph<V,E>,V,E> extends AbstractEle
             Key key = new Key();
 
             // Parse the attributes.
-            Iterator iterator = start.getAttributes();
+            @SuppressWarnings("unchecked")
+            Iterator<Attribute> iterator = start.getAttributes();
             while (iterator.hasNext()) {
-                Attribute attribute = (Attribute) iterator.next();
+                Attribute attribute = iterator.next();
                 String name = attribute.getName().getLocalPart();
                 String value = attribute.getValue();
                 if (key.getId() == null && GraphMLConstants.ID_NAME.equals(name)) {

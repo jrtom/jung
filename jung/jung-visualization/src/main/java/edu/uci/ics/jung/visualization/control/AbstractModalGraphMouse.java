@@ -70,7 +70,7 @@ public abstract class AbstractModalGraphMouse extends PluggableGraphMouse
     /**
      * a JComboBox control available to set the mode
      */
-    protected JComboBox modeBox;
+    protected JComboBox<Mode> modeBox;
     /**
      * a menu available to set the mode
      */
@@ -188,9 +188,9 @@ public abstract class AbstractModalGraphMouse extends PluggableGraphMouse
 	/**
 	 * @return Returns the modeBox.
 	 */
-    public JComboBox getModeComboBox() {
+    public JComboBox<Mode> getModeComboBox() {
         if(modeBox == null) {
-            modeBox = new JComboBox(new Mode[]{Mode.TRANSFORMING, Mode.PICKING});
+            modeBox = new JComboBox<Mode>(new Mode[]{Mode.TRANSFORMING, Mode.PICKING});
             modeBox.addItemListener(getModeListener());
         }
         modeBox.setSelectedItem(mode);

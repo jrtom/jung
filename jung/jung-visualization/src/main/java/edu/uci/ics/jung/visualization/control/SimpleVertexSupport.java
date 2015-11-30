@@ -14,7 +14,8 @@ import edu.uci.ics.jung.visualization.BasicVisualizationServer;
  * override midVertexCreate and endVertexCreate for more elaborate implementations
  * @author tanelso
  *
- * @param <V,E>
+ * @param <V> the vertex type
+ * @param <E> the edge type
  */
 public class SimpleVertexSupport<V,E> implements VertexSupport<V,E> {
 
@@ -24,7 +25,6 @@ public class SimpleVertexSupport<V,E> implements VertexSupport<V,E> {
 		this.vertexFactory = vertexFactory;
 	}
 	
-//	@Override
 	public void startVertexCreate(BasicVisualizationServer<V, E> vv,
 			Point2D point) {
 		V newVertex = vertexFactory.get();
@@ -35,13 +35,11 @@ public class SimpleVertexSupport<V,E> implements VertexSupport<V,E> {
 		vv.repaint();
 	}
 
-//	@Override
 	public void midVertexCreate(BasicVisualizationServer<V, E> vv,
 			Point2D point) {
 		// noop
 	}
 
-//	@Override
 	public void endVertexCreate(BasicVisualizationServer<V, E> vv,
 			Point2D point) {
 		//noop

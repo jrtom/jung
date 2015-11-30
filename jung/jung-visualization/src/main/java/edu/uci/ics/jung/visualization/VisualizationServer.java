@@ -26,30 +26,32 @@ import edu.uci.ics.jung.visualization.renderers.Renderer;
 /**
  * @author tom
  *
- * @param <V>
- * @param <E>
+ * @param <V> the vertex type
+ * @param <E> the edge type
  */
 public interface VisualizationServer<V, E> {
 
     /**
-     * set whether this class uses its offscreen image or not. If
-     * true, then doubleBuffering in the superclass is set to 'false'
+     * Specify whether this class uses its offscreen image or not. 
+     * 
+     * @param doubleBuffered if true, then doubleBuffering in the superclass is set to 'false'
      */
     void setDoubleBuffered(boolean doubleBuffered);
 
     /**
-     * whether this class uses double buffering. The superclass
+     * Returns whether this class uses double buffering. The superclass
      * will be the opposite state.
+     * @return the double buffered state 
      */
     boolean isDoubleBuffered();
 
     /**
-     * @return Returns the model.
+     * @return the model.
      */
     VisualizationModel<V, E> getModel();
 
     /**
-     * @param model The model to set.
+     * @param model the model for this class to use
      */
     void setModel(VisualizationModel<V, E> model);
 
@@ -58,94 +60,45 @@ public interface VisualizationServer<V, E> {
      * view, then fire an event to any listeners.
      * Examples of listeners are the GraphZoomScrollPane and
      * the BirdsEyeVisualizationViewer
+     * @param e the change event
      */
     void stateChanged(ChangeEvent e);
 
     /**
      * Sets the showing Renderer to be the input Renderer. Also
-     * tells the Renderer to refer to this visualizationviewer
+     * tells the Renderer to refer to this instance
      * as a PickedKey. (Because Renderers maintain a small
      * amount of state, such as the PickedKey, it is important
      * to create a separate instance for each VV instance.)
+     * @param r the renderer to use
      */
     void setRenderer(Renderer<V, E> r);
 
     /**
-     * Returns the renderer used by this instance.
+     * @return the renderer used by this instance.
      */
     Renderer<V, E> getRenderer();
 
     /**
-     * Removes the current graph layout, and adds a new one.
+     * Replaces the current graph layout with {@code layout}.
      * @param layout the new layout to set
      */
     void setGraphLayout(Layout<V, E> layout);
 
     /**
-     * Removes the current graph layout, and adds a new one,
-     * optionally re-scaling the view to show the entire layout
-     * @param layout the new layout to set
-     * @param scaleToLayout whether to scale the view to show the whole layout
-     */
-//    void setGraphLayout(Layout<V, E> layout, boolean scaleToLayout);
-
-    /**
-     * Returns the current graph layout.
-     * Passes thru to the model
+     * @return the current graph layout.
      */
     Layout<V, E> getGraphLayout();
 
     /** 
-     * 
+     * Makes the component visible if {@code aFlag} is true, or invisible if false.
+     * @param aFlag true iff the component should be visible
      * @see javax.swing.JComponent#setVisible(boolean)
      */
     void setVisible(boolean aFlag);
 
     /**
-     * Returns a flag that says whether the visRunner thread is running. If
-     * it is not, then you may need to restart the thread. 
-     */
-//    boolean isVisRunnerRunning();
-
-    /**
-     * Transform the mouse point with the inverse transform
-     * of the VisualizationViewer. This maps from screen coordinates
-     * to graph coordinates.
-     * @param p the point to transform (typically, a mouse point)
-     * @return a transformed Point2D
-     */
-//    Point2D inverseTransform(Point2D p);
-//
-//    Point2D inverseViewTransform(Point2D p);
-//
-//    Point2D inverseLayoutTransform(Point2D p);
-
-    /**
-     * Transform the mouse point with the current transform
-     * of the VisualizationViewer. This maps from graph coordinates
-     * to screen coordinates.
-     * @param p the point to transform
-     * @return a transformed Point2D
-     */
-//    Point2D transform(Point2D p);
-//
-//    Point2D viewTransform(Point2D p);
-//
-//    Point2D layoutTransform(Point2D p);
-
-    /**
-     * @param Function The Function to set.
-     */
-//    void setViewTransformer(MutableTransformer Function);
-//
-//    void setLayoutTransformer(MutableTransformer Function);
-//
-//    MutableTransformer getViewTransformer();
-//
-//    MutableTransformer getLayoutTransformer();
-
-    /**
-     * @return Returns the renderingHints.
+     * @return the renderingHints
      */
     Map<Key, Object> getRenderingHints();
 
@@ -204,24 +157,21 @@ public interface VisualizationServer<V, E> {
     void fireStateChanged();
 
     /**
-     * @return Returns the pickedState.
+     * @return the vertex PickedState instance
      */
     PickedState<V> getPickedVertexState();
 
     /**
-     * @return Returns the pickedState.
+     * @return the edge PickedState instance
      */
     PickedState<E> getPickedEdgeState();
 
-    /**
-     * @param pickedState The pickedState to set.
-     */
     void setPickedVertexState(PickedState<V> pickedVertexState);
 
     void setPickedEdgeState(PickedState<E> pickedEdgeState);
 
     /**
-     * @return Returns the GraphElementAccessor.
+     * @return the GraphElementAccessor
      */
     GraphElementAccessor<V, E> getPickSupport();
 
@@ -245,7 +195,4 @@ public interface VisualizationServer<V, E> {
         public void paint(Graphics g);
         public boolean useTransform();
     }
-
-
-
 }

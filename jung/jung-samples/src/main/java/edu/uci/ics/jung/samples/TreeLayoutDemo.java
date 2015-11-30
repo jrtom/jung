@@ -55,6 +55,7 @@ import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
+import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.EdgeShape;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
@@ -128,9 +129,9 @@ public class TreeLayoutDemo extends JApplet {
         vv =  new VisualizationViewer<String,Integer>(treeLayout, new Dimension(600,600));
         vv.setBackground(Color.white);
         vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.line(graph));
-        vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller<String>());
+        vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
         // add a listener for ToolTips
-        vv.setVertexToolTipTransformer(new ToStringLabeller<String>());
+        vv.setVertexToolTipTransformer(new ToStringLabeller());
         vv.getRenderContext().setArrowFillPaintTransformer(Functions.<Paint>constant(Color.lightGray));
         rings = new Rings();
 
@@ -138,11 +139,12 @@ public class TreeLayoutDemo extends JApplet {
         final GraphZoomScrollPane panel = new GraphZoomScrollPane(vv);
         content.add(panel);
         
-        final DefaultModalGraphMouse graphMouse = new DefaultModalGraphMouse();
+        final DefaultModalGraphMouse<String, Integer> graphMouse
+        	= new DefaultModalGraphMouse<String, Integer>();
 
         vv.setGraphMouse(graphMouse);
         
-        JComboBox modeBox = graphMouse.getModeComboBox();
+        JComboBox<Mode> modeBox = graphMouse.getModeComboBox();
         modeBox.addItemListener(graphMouse.getModeListener());
         graphMouse.setMode(ModalGraphMouse.Mode.TRANSFORMING);
 
@@ -269,10 +271,6 @@ public class TreeLayoutDemo extends JApplet {
        	
     }
 
-
-    /**
-     * a driver for this demo
-     */
     public static void main(String[] args) {
         JFrame frame = new JFrame();
         Container content = frame.getContentPane();

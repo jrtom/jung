@@ -47,11 +47,11 @@ import edu.uci.ics.jung.graph.util.Pair;
  * that data.  Currently supports the following parts of the GraphML
  * specification:
  * <ul>
- * <li/>graphs and hypergraphs
- * <li/>directed and undirected edges
- * <li/>graph, vertex, edge <code>data</code>
- * <li/>graph, vertex, edge descriptions and <code>data</code> descriptions
- * <li/>vertex and edge IDs
+ * <li>graphs and hypergraphs
+ * <li>directed and undirected edges
+ * <li>graph, vertex, edge <code>data</code>
+ * <li>graph, vertex, edge descriptions and <code>data</code> descriptions
+ * <li>vertex and edge IDs
  * </ul>
  * Each of these is exposed via appropriate <code>get</code> methods.
  *
@@ -103,10 +103,10 @@ public class GraphMLReader<G extends Hypergraph<V,E>, V, E> extends DefaultHandl
      * Creates a <code>GraphMLReader</code> instance with the specified
      * vertex and edge factories.
      *
-     * @param vertex_factory the vertex Supplier to use to create vertex objects
-     * @param edge_factory the edge Supplier to use to create edge objects
-     * @throws ParserConfigurationException
-     * @throws SAXException
+     * @param vertex_factory the vertex supplier to use to create vertex objects
+     * @param edge_factory the edge supplier to use to create edge objects
+     * @throws ParserConfigurationException if a SAX parser cannot be constructed
+     * @throws SAXException if the SAX parser factory cannot be constructed
      */
     public GraphMLReader(Supplier<V> vertex_factory,
     		Supplier<E> edge_factory)
@@ -115,8 +115,8 @@ public class GraphMLReader<G extends Hypergraph<V,E>, V, E> extends DefaultHandl
         current_vertex = null;
         current_edge = null;
 
-        SAXParserFactory Supplier = SAXParserFactory.newInstance();
-        saxp = Supplier.newSAXParser();
+        SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
+        saxp = saxParserFactory.newSAXParser();
 
         current_states = new LinkedList<TagState>();
 
@@ -145,8 +145,8 @@ public class GraphMLReader<G extends Hypergraph<V,E>, V, E> extends DefaultHandl
      * Note that this requires that (a) each edge have a valid ID, which is not
      * normally a requirement for edges in GraphML, and (b) that the vertex
      * and edge types be assignment-compatible with <code>String</code>.
-     * @throws ParserConfigurationException
-     * @throws SAXException
+     * @throws ParserConfigurationException if a SAX parser cannot be constructed
+     * @throws SAXException if the SAX parser factory cannot be constructed
      */
     public GraphMLReader() throws ParserConfigurationException, SAXException
     {
@@ -156,7 +156,10 @@ public class GraphMLReader<G extends Hypergraph<V,E>, V, E> extends DefaultHandl
     /**
      * Returns a list of the graphs parsed from the specified reader, as created by
      * the specified Supplier.
-     * @throws IOException
+     * @param reader the source of the graph data in GraphML format
+     * @param graph_factory used to build graph instances
+     * @return the graphs parsed from the specified reader
+     * @throws IOException if an error is encountered while parsing the graph
      */
     public List<G> loadMultiple(Reader reader, Supplier<G> graph_factory)
         throws IOException
@@ -172,7 +175,10 @@ public class GraphMLReader<G extends Hypergraph<V,E>, V, E> extends DefaultHandl
     /**
      * Returns a list of the graphs parsed from the specified file, as created by
      * the specified Supplier.
-     * @throws IOException
+     * @param filename the source of the graph data in GraphML format
+     * @param graph_factory used to build graph instances
+     * @return the graphs parsed from the specified file
+     * @throws IOException if an error is encountered while parsing the graph
      */
     public List<G> loadMultiple(String filename, Supplier<G> graph_factory) throws IOException
     {
@@ -181,7 +187,9 @@ public class GraphMLReader<G extends Hypergraph<V,E>, V, E> extends DefaultHandl
 
     /**
      * Populates the specified graph with the data parsed from the reader.
-     * @throws IOException
+     * @param reader the source of the graph data in GraphML format
+     * @param g the graph instance to populate
+     * @throws IOException if an error is encountered while parsing the graph
      */
     public void load(Reader reader, G g) throws IOException
     {
@@ -195,7 +203,9 @@ public class GraphMLReader<G extends Hypergraph<V,E>, V, E> extends DefaultHandl
 
     /**
      * Populates the specified graph with the data parsed from the specified file.
-     * @throws IOException
+     * @param filename the source of the graph data in GraphML format
+     * @param g the graph instance to populate
+     * @throws IOException if an error is encountered while parsing the graph
      */
     public void load(String filename, G g) throws IOException
     {
@@ -347,13 +357,13 @@ public class GraphMLReader<G extends Hypergraph<V,E>, V, E> extends DefaultHandl
     }
 
     /**
-     *
+     * 
      * @param <T>
      * @param atts
      * @param metadata_map
      * @param current_elt
      */
-	protected <T>void addExtraData(Map<String, String> atts,
+	private <T> void addExtraData(Map<String, String> atts,
 			Map<String, GraphMLMetadata<T>> metadata_map, T current_elt)
 	{
 		// load in the default values; these override anything that might
@@ -753,7 +763,7 @@ public class GraphMLReader<G extends Hypergraph<V,E>, V, E> extends DefaultHandl
     }
 
     /**
-     * Returns a bidirectional map relating vertices and IDs.
+     * @return a bidirectional map relating vertices and IDs.
      */
     public BiMap<V, String> getVertexIDs()
     {
@@ -764,6 +774,7 @@ public class GraphMLReader<G extends Hypergraph<V,E>, V, E> extends DefaultHandl
      * Returns a bidirectional map relating edges and IDs.
      * This is not guaranteed to always be populated (edge IDs are not
      * required in GraphML files.
+     * @return a bidirectional map relating edges and IDs.
      */
     public BiMap<E, String> getEdgeIDs()
     {
@@ -771,7 +782,7 @@ public class GraphMLReader<G extends Hypergraph<V,E>, V, E> extends DefaultHandl
     }
 
     /**
-     * Returns a map from graph type name to type metadata.
+     * @return a map from graph type name to type metadata
      */
     public Map<String, GraphMLMetadata<G>> getGraphMetadata()
     {
@@ -779,7 +790,7 @@ public class GraphMLReader<G extends Hypergraph<V,E>, V, E> extends DefaultHandl
     }
 
     /**
-     * Returns a map from vertex type name to type metadata.
+     * @return a map from vertex type name to type metadata
      */
     public Map<String, GraphMLMetadata<V>> getVertexMetadata()
     {
@@ -787,7 +798,7 @@ public class GraphMLReader<G extends Hypergraph<V,E>, V, E> extends DefaultHandl
     }
 
     /**
-     * Returns a map from edge type name to type metadata.
+     * @return a map from edge type name to type metadata
      */
     public Map<String, GraphMLMetadata<E>> getEdgeMetadata()
     {
@@ -795,7 +806,7 @@ public class GraphMLReader<G extends Hypergraph<V,E>, V, E> extends DefaultHandl
     }
 
     /**
-     * Returns a map from graphs to graph descriptions.
+     * @return a map from graphs to graph descriptions
      */
     public Map<G, String> getGraphDescriptions()
     {
@@ -803,7 +814,7 @@ public class GraphMLReader<G extends Hypergraph<V,E>, V, E> extends DefaultHandl
     }
 
     /**
-     * Returns a map from vertices to vertex descriptions.
+     * @return a map from vertices to vertex descriptions
      */
     public Map<V, String> getVertexDescriptions()
     {
@@ -811,7 +822,7 @@ public class GraphMLReader<G extends Hypergraph<V,E>, V, E> extends DefaultHandl
     }
 
     /**
-     * Returns a map from edges to edge descriptions.
+     * @return a map from edges to edge descriptions
      */
     public Map<E, String> getEdgeDescriptions()
     {

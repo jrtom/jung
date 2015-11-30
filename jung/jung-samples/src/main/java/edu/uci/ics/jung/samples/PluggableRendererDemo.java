@@ -83,6 +83,7 @@ import edu.uci.ics.jung.visualization.renderers.CachingEdgeRenderer;
 import edu.uci.ics.jung.visualization.renderers.CachingVertexRenderer;
 import edu.uci.ics.jung.visualization.renderers.CenterEdgeArrowRenderingSupport;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
+import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
 
 
 /**
@@ -95,79 +96,80 @@ import edu.uci.ics.jung.visualization.renderers.Renderer;
  * weights using <code>TestGraph.generateMixedRandomGraph</code>.
  * It then runs <code>VoltageRanker</code> on this graph, using half
  * of the "seed" vertices from the random graph generation as 
- * voltage sources, and half of them as voltage sinks.</p>
+ * voltage sources, and half of them as voltage sinks.
  * 
  * <p>What the controls do:
  * <ul>
- * <li/>Mouse controls:
+ * <li>Mouse controls:
  * <ul>
- * <li/>If your mouse has a scroll wheel, scrolling forward zooms out and 
+ * <li>If your mouse has a scroll wheel, scrolling forward zooms out and 
  * scrolling backward zooms in.
- * <li/>Left-clicking on a vertex or edge selects it, and unselects all others.
- * <li/>Middle-clicking on a vertex or edge toggles its selection state.
- * <li/>Right-clicking on a vertex brings up a pop-up menu that allows you to
+ * <li>Left-clicking on a vertex or edge selects it, and unselects all others.
+ * <li>Middle-clicking on a vertex or edge toggles its selection state.
+ * <li>Right-clicking on a vertex brings up a pop-up menu that allows you to
  * increase or decrease that vertex's transparency.
- * <li/>Left-clicking on the background allows you to drag the image around.
- * <li/>Hovering over a vertex tells you what its voltage is; hovering over an
+ * <li>Left-clicking on the background allows you to drag the image around.
+ * <li>Hovering over a vertex tells you what its voltage is; hovering over an
  * edge shows its identity; hovering over the background shows an informational 
  * message.
-</ul>
- * <li/>Vertex stuff:
+ * </ul>
+ * <li>Vertex stuff:
  * <ul>
- * <li/>"vertex seed coloring": if checked, the seed vertices are colored blue, 
+ * <li>"vertex seed coloring": if checked, the seed vertices are colored blue, 
  * and all other vertices are colored red.  Otherwise, all vertices are colored
  * a slightly transparent red (except the currently "picked" vertex, which is
  * colored transparent purple).
- * <li/>"vertex selection stroke highlighting": if checked, the picked vertex
+ * <li>"vertex selection stroke highlighting": if checked, the picked vertex
  * and its neighbors are all drawn with heavy borders.  Otherwise, all vertices
  * are drawn with light borders.
- * <li/>"show vertex ranks (voltages)": if checked, each vertex is labeled with its
+ * <li>"show vertex ranks (voltages)": if checked, each vertex is labeled with its
  * calculated 'voltage'.  Otherwise, vertices are unlabeled.
- * <li/>"vertex degree shapes": if checked, vertices are drawn with a polygon with
+ * <li>"vertex degree shapes": if checked, vertices are drawn with a polygon with
  * number of sides proportional to its degree.  Otherwise, vertices are drawn
  * as ellipses.
- * <li/>"vertex voltage size": if checked, vertices are drawn with a size 
+ * <li>"vertex voltage size": if checked, vertices are drawn with a size 
  * proportional to their voltage ranking.  Otherwise, all vertices are drawn 
  * at the same size.
- * <li/>"vertex degree ratio stretch": if checked, vertices are drawn with an
+ * <li>"vertex degree ratio stretch": if checked, vertices are drawn with an
  * aspect ratio (height/width ratio) proportional to the ratio of their indegree to
  * their outdegree.  Otherwise, vertices are drawn with an aspect ratio of 1.
- * <li/>"filter vertices of degree &lt; 4": if checked, does not display any vertices
+ * <li>"filter vertices of degree &lt; 4": if checked, does not display any vertices
  * (or their incident edges) whose degree in the original graph is less than 4; 
  * otherwise, all vertices are drawn.
  * </ul>
- * <li/>Edge stuff:
+ * <li>Edge stuff:
  * <ul>
- * <li/>"edge shape": selects between lines, wedges, quadratic curves, and cubic curves
+ * <li>"edge shape": selects between lines, wedges, quadratic curves, and cubic curves
  * for drawing edges.  
- * <li/>"fill edge shapes": if checked, fills the edge shapes.  This will have no effect
+ * <li>"fill edge shapes": if checked, fills the edge shapes.  This will have no effect
  * if "line" is selected.
- * <li/>"edge paint": selects between solid colored edges, and gradient-painted edges.
+ * <li>"edge paint": selects between solid colored edges, and gradient-painted edges.
  * Gradient painted edges are darkest in the middle for undirected edges, and darkest
  * at the destination for directed edges.
- * <li/>"show edges": only edges of the checked types are drawn.
- * <li/>"show arrows": only arrows whose edges are of the checked types are drawn.
- * <li/>"edge weight highlighting": if checked, edges with weight greater than
+ * <li>"show edges": only edges of the checked types are drawn.
+ * <li>"show arrows": only arrows whose edges are of the checked types are drawn.
+ * <li>"edge weight highlighting": if checked, edges with weight greater than
  * a threshold value are drawn using thick solid lines, and other edges are drawn
  * using thin gray dotted lines.  (This combines edge stroke and paint.) Otherwise,
  * all edges are drawn with thin solid lines.
- * <li/>"show edge weights": if checked, edges are labeled with their weights.
+ * <li>"show edge weights": if checked, edges are labeled with their weights.
  * Otherwise, edges are not labeled.
  * </ul>
- * <li/>Miscellaneous (center panel)
+ * <li>Miscellaneous (center panel)
  * <ul>
- * <li/>"bold text": if checked, all vertex and edge labels are drawn using a
+ * <li>"bold text": if checked, all vertex and edge labels are drawn using a
  * boldface font.  Otherwise, a normal-weight font is used.  (Has no effect if
  * no labels are currently visible.)
- * <li/>zoom controls: 
+ * <li>zoom controls: 
  * <ul>
- * <li/>"+" zooms in, "-" zooms out
- * <li/>"zoom at mouse (wheel only)": if checked, zooming (using the mouse 
+ * <li>"+" zooms in, "-" zooms out
+ * <li>"zoom at mouse (wheel only)": if checked, zooming (using the mouse 
  * scroll wheel) is centered on the location of the mouse pointer; otherwise,
  * it is centered on the center of the visualization pane.
  * </ul>
  * </ul>
- * </p>
+ * </ul>
+ * 
  * 
  * @author Danyel Fisher, Joshua O'Madadhain, Tom Nelson
  */
@@ -255,7 +257,6 @@ public class PluggableRendererDemo extends JApplet implements ActionListener
         this.graph = buildGraph();
         
         Layout<Integer,Number> layout = new FRLayout<Integer,Number>(graph);
-//        layout.setSize(new Dimension(5000,5000));
         vv = new VisualizationViewer<Integer,Number>(layout);
         
         vv.getRenderer().setVertexRenderer(new CachingVertexRenderer<Integer,Number>(vv));
@@ -263,11 +264,10 @@ public class PluggableRendererDemo extends JApplet implements ActionListener
 
         PickedState<Integer> picked_state = vv.getPickedVertexState();
 
-//        affineTransformer = vv.getLayoutTransformer();
         self_loop = new SelfLoopEdgePredicate<Integer,Number>();
         // create decorators
         seedFillColor = new SeedFillColor<Integer>(picked_state);
-        seedDrawColor = new SeedDrawColor<Integer>(picked_state);
+        seedDrawColor = new SeedDrawColor<Integer>();
         ewcs = 
             new EdgeWeightStrokeFunction<Number>(edge_weight);
         vsh = new VertexStrokeHighlight<Integer,Number>(graph, picked_state);
@@ -332,6 +332,7 @@ public class PluggableRendererDemo extends JApplet implements ActionListener
     /**
      * Generates a mixed-mode random graph, runs VoltageRanker on it, and
      * returns the resultant graph.
+     * @return the generated graph
      */
     public Graph<Integer,Number> buildGraph() {
     	Supplier<Graph<Integer,Number>> graphFactory =
@@ -354,7 +355,7 @@ public class PluggableRendererDemo extends JApplet implements ActionListener
 				}};
         Graph<Integer,Number> g = 
         	MixedRandomGraphGenerator.<Integer,Number>generateMixedRandomGraph(graphFactory, vertexFactory, edgeFactory,
-        		edge_weight, 20, false, seedVertices);
+        		edge_weight, 20, seedVertices);
         es = new NumberFormattingTransformer<Number>(Functions.forMap(edge_weight));
         
         // collect the seeds used to define the random graph
@@ -402,7 +403,6 @@ public class PluggableRendererDemo extends JApplet implements ActionListener
     /**
      * @param jp    panel to which controls will be added
      */
-    @SuppressWarnings("serial")
 	protected void addBottomControls(final JPanel jp) 
     {
         final JPanel control_panel = new JPanel();
@@ -575,7 +575,7 @@ public class PluggableRendererDemo extends JApplet implements ActionListener
         both_panel.add(zoomPanel);
         both_panel.add(fontPanel);
         
-        JComboBox modeBox = gm.getModeComboBox();
+        JComboBox<?> modeBox = gm.getModeComboBox();
         modeBox.setAlignmentX(Component.CENTER_ALIGNMENT);
         JPanel modePanel = new JPanel(new BorderLayout()) {
             public Dimension getMaximumSize() {
@@ -589,7 +589,7 @@ public class PluggableRendererDemo extends JApplet implements ActionListener
         fontPanel.add(comboGrid);
         
         
-        JComboBox cb = new JComboBox();
+        JComboBox<Position> cb = new JComboBox<Position>();
         cb.addItem(Renderer.VertexLabel.Position.N);
         cb.addItem(Renderer.VertexLabel.Position.NE);
         cb.addItem(Renderer.VertexLabel.Position.E);
@@ -622,7 +622,6 @@ public class PluggableRendererDemo extends JApplet implements ActionListener
         AbstractButton source = (AbstractButton)e.getSource();
         if (source == v_color)
         {
-            seedDrawColor.setSeedColoring(source.isSelected());
             seedFillColor.setSeedColoring(source.isSelected());
         }
         else if (source == e_color)
@@ -659,11 +658,13 @@ public class PluggableRendererDemo extends JApplet implements ActionListener
         {
         	if(source.isSelected()) 
         	{
-        		vv.getRenderer().getEdgeRenderer().setEdgeArrowRenderingSupport(new CenterEdgeArrowRenderingSupport());
+        		vv.getRenderer().getEdgeRenderer().setEdgeArrowRenderingSupport(
+        			new CenterEdgeArrowRenderingSupport<Integer, Number>());
         	} 
         	else
         	{
-        		vv.getRenderer().getEdgeRenderer().setEdgeArrowRenderingSupport(new BasicEdgeArrowRenderingSupport());
+        		vv.getRenderer().getEdgeRenderer().setEdgeArrowRenderingSupport(
+        			new BasicEdgeArrowRenderingSupport<Integer, Number>());
         	}
         }
         else if (source == font)
@@ -741,10 +742,6 @@ public class PluggableRendererDemo extends JApplet implements ActionListener
 			if (source.isSelected()) {
 				gradient_level = GRADIENT_NONE;
 			}
-//		} else if (source == gradient_absolute) {
-//			if (source.isSelected()) {
-//				gradient_level = GRADIENT_ABSOLUTE;
-//			}
 		} 
         else if (source == gradient_relative) {
 			if (source.isSelected()) {
@@ -758,54 +755,16 @@ public class PluggableRendererDemo extends JApplet implements ActionListener
         	} else {
         		vv.getRenderContext().setEdgeFillPaintTransformer( Functions.<Paint>constant(null) );
         	}
-//            edgePaint.useFill(source.isSelected());
         }
         vv.repaint();
     }
     
     private final class SeedDrawColor<V> implements Function<V,Paint>
     {
-        protected PickedInfo<V> pi;
-        protected final static float dark_value = 0.8f;
-        protected final static float light_value = 0.2f;
-        protected boolean seed_coloring;
-        
-        public SeedDrawColor(PickedInfo<V> pi)
-        {
-            this.pi = pi;
-            seed_coloring = false;
-        }
-
-        public void setSeedColoring(boolean b)
-        {
-            this.seed_coloring = b;
-        }
-        
         public Paint apply(V v)
         {
             return Color.BLACK;
         }
-        
-//        public Paint getFillPaint(V v)
-//        {
-//            float alpha = transparency.get(v).floatValue();
-//            if (pi.isPicked(v))
-//            {
-//                return new Color(1f, 1f, 0, alpha); 
-//            }
-//            else
-//            {
-//                if (seed_coloring && seedVertices.contains(v))
-//                {
-//                    Color dark = new Color(0, 0, dark_value, alpha);
-//                    Color light = new Color(0, 0, light_value, alpha);
-//                    return new GradientPaint( 0, 0, dark, 10, 0, light, true);
-//                }
-//                else
-//                    return new Color(1f, 0, 0, alpha);
-//            }
-//                
-//        }
     }
     
     private final class SeedFillColor<V> implements Function<V,Paint>
@@ -825,11 +784,6 @@ public class PluggableRendererDemo extends JApplet implements ActionListener
         {
             this.seed_coloring = b;
         }
-        
-//        public Paint getDrawPaint(V v)
-//        {
-//            return Color.BLACK;
-//        }
         
         public Paint apply(V v)
         {
@@ -1139,7 +1093,7 @@ public class PluggableRendererDemo extends JApplet implements ActionListener
          * If this event is over a Vertex, pop up a menu to
          * allow the user to increase/decrease the voltage
          * attribute of this Vertex
-         * @param e
+         * @param e the event to be handled
          */
         @SuppressWarnings("unchecked")
         protected void handlePopup(MouseEvent e) {

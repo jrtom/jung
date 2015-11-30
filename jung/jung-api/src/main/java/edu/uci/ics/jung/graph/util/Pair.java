@@ -71,6 +71,8 @@ public final class Pair<T> implements Collection<T>, Serializable
     /**
      * Creates a <code>Pair</code> from the passed array.
      * The size of the array must be 2.
+     * 
+     * @param values the values to be used to construct this Pair
      * @throws IllegalArgumentException if the input array is null,
      * contains null values, or has != 2 elements.
      */
@@ -91,7 +93,7 @@ public final class Pair<T> implements Collection<T>, Serializable
     }
 
     /**
-     * Returns the first element.
+     * @return the first element.
      */
     public T getFirst() 
     {
@@ -99,21 +101,21 @@ public final class Pair<T> implements Collection<T>, Serializable
     }
     
     /**
-     * Returns the second element.
+     * @return the second element.
      */
     public T getSecond() 
     {
         return second;
     }
     
-    @SuppressWarnings("unchecked")
     @Override
     public boolean equals( Object o ) {
         if (o == this)
             return true;
 
         if (o instanceof Pair) {
-            Pair otherPair = (Pair) o;
+            @SuppressWarnings("rawtypes")
+			Pair otherPair = (Pair) o;
             Object otherFirst = otherPair.getFirst();
             Object otherSecond = otherPair.getSecond();
             return 

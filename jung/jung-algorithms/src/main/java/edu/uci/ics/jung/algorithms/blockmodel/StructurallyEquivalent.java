@@ -67,8 +67,6 @@ public class StructurallyEquivalent<V,E> implements Function<Graph<V,E>, VertexP
         // singletons (equivalence classes of size 1)
         Collection<V> singletons = new ArrayList<V>(g.getVertices());
         singletons.removeAll(intermediate.keySet());
-        //        	CollectionUtils.subtract(g.getVertices(),
-//                intermediate.keySet());
         for (V v : singletons)
         {
             Set<V> v_set = Collections.singleton(v);
@@ -84,10 +82,9 @@ public class StructurallyEquivalent<V,E> implements Function<Graph<V,E>, VertexP
 	 * equivalent: meaning that they connect to the exact same vertices. (Is
 	 * this regular equivalence, or whathaveyou?)
 	 * 
-	 * Returns a Set of Pairs of vertices, where all the vertices in the inner
+	 * @param g the graph whose equivalent pairs are to be generated
+	 * @return a Set of Pairs of vertices, where all the vertices in the inner
 	 * Pairs are equivalent.
-	 * 
-	 * @param g
 	 */
 	protected Set<Pair<V>> getEquivalentPairs(Graph<V,?> g) {
 
@@ -107,7 +104,7 @@ public class StructurallyEquivalent<V,E> implements Function<Graph<V,E>, VertexP
 				if (alreadyEquivalent.contains(v2))
 					continue;
 
-				if (!canPossiblyCompare(v1, v2))
+				if (!canBeEquivalent(v1, v2))
 					continue;
 
 				if (isStructurallyEquivalent(g, v1, v2)) {
@@ -122,13 +119,11 @@ public class StructurallyEquivalent<V,E> implements Function<Graph<V,E>, VertexP
 	}
 
 	/**
-	 * Checks whether a pair of vertices are structurally equivalent.
-	 * Specifically, whether v1's predecessors are equal to v2's predecessors,
-	 * and same for successors.
-	 * 
 	 * @param g the graph in which the structural equivalence comparison is to take place
 	 * @param v1 the vertex to check for structural equivalence to v2
 	 * @param v2 the vertex to check for structural equivalence to v1
+	 * @return {@code true} if {@code v1}'s predecessors/successors are equal to
+	 *     {@code v2}'s predecessors/successors
 	 */
 	protected boolean isStructurallyEquivalent(Graph<V,?> g, V v1, V v2) {
 		
@@ -167,13 +162,13 @@ public class StructurallyEquivalent<V,E> implements Function<Graph<V,E>, VertexP
 
 	/**
 	 * This is a space for optimizations. For example, for a bipartite graph,
-	 * vertices from different partitions cannot possibly be compared.
+	 * vertices from different partitions cannot possibly be equivalent.
 	 * 
-	 * @param v1
-	 * @param v2
+	 * @param v1 the first vertex to compare
+	 * @param v2 the second vertex to compare
+	 * @return {@code true} if the vertices can be equivalent
 	 */
-	protected boolean canPossiblyCompare(V v1, V v2) {
+	protected boolean canBeEquivalent(V v1, V v2) {
 		return true;
 	}
-
 }

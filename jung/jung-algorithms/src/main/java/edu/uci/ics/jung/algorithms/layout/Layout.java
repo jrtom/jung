@@ -34,58 +34,53 @@ public interface Layout<V, E> extends Function<V,Point2D> {
 	void initialize();
 	
 	/**
-	 * provides initial locations for all vertices.
-	 * @param initializer
+	 * @param initializer a function that specifies initial locations for all vertices
 	 */
 	void setInitializer(Function<V,Point2D> initializer);
     
 	/**
-	 * setter for graph
-	 * @param graph
+	 * @param graph the graph that this algorithm is to operate on
 	 */
     void setGraph(Graph<V,E> graph);
 
 	/**
-	 * Returns the full graph (the one that was passed in at 
-	 * construction time) that this Layout refers to.
-	 * 
+	 * @return the graph that this Layout refers to
 	 */
 	Graph<V,E> getGraph();
 	
-	/**
-	 * 
-	 *
-	 */
 	void reset();
 	
 	/**
-	 * @param d
+	 * @param d the space to use to lay out this graph
 	 */
 	void setSize(Dimension d);
 	
 	/**
-	 * Returns the current size of the visualization's space.
+	 * @return the current size of the visualization's space
 	 */
 	Dimension getSize();
 
 
 	/**
-	 * Sets a flag which fixes this vertex in place.
+	 * Locks or unlocks the specified vertex.  Locking the vertex fixes it at its current position,
+	 * so that it will not be affected by the layout algorithm.  Unlocking it allows the layout
+	 * algorithm to change the vertex's position.
      * 
-	 * @param v	vertex
+	 * @param v	the vertex to lock/unlock
+	 * @param state {@code true} to lock the vertex, {@code false} to unlock it
 	 */
 	void lock(V v, boolean state);
 
     /**
-     * Returns <code>true</code> if the position of vertex <code>v</code>
-     * is locked.
+     * @param v the vertex whose locked state is being queried
+     * @return <code>true</code> if the position of vertex <code>v</code> is locked
      */
     boolean isLocked(V v);
 
     /**
-     * set the location of a vertex
-     * @param v
-     * @param location
+     * Changes the layout coordinates of {@code v} to {@code location}.
+     * @param v the vertex whose location is to be specified
+     * @param location the coordinates of the specified location
      */
 	void setLocation(V v, Point2D location);
 	

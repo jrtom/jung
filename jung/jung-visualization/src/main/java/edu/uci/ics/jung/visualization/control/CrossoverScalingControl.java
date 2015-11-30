@@ -15,7 +15,6 @@ import java.awt.geom.Point2D;
 
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationServer;
-import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.transform.MutableTransformer;
 
 /** 
@@ -39,21 +38,19 @@ public class CrossoverScalingControl implements ScalingControl {
     
     /**
      * Sets the crossover point to the specified value.
+     * @param crossover the crossover point to use (defaults to 1.0)
      */
 	public void setCrossover(double crossover) {
 	    this.crossover = crossover;
 	}
 
     /**
-     * Returns the current crossover value.
+     * @return the current crossover value
      */
     public double getCrossover() {
         return crossover;
     }
     
-	/**
-     * @see edu.uci.ics.jung.visualization.control.ScalingControl#scale(VisualizationViewer, float, Point2D)
-     */
 	public void scale(VisualizationServer<?,?> vv, float amount, Point2D at) {
 	        
 	    MutableTransformer layoutTransformer = vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT);

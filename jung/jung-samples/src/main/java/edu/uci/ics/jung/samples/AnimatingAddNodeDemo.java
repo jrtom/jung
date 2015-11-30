@@ -109,7 +109,7 @@ public class AnimatingAddNodeDemo extends javax.swing.JApplet {
         vv.setGraphMouse(new DefaultModalGraphMouse<Number,Number>());
 
         vv.getRenderer().getVertexLabelRenderer().setPosition(Renderer.VertexLabel.Position.CNTR);
-        vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller<Number>());
+        vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
         vv.setForeground(Color.white);
 
         vv.addComponentListener(new ComponentAdapter() {
@@ -128,7 +128,6 @@ public class AnimatingAddNodeDemo extends javax.swing.JApplet {
         switchLayout = new JButton("Switch to SpringLayout");
         switchLayout.addActionListener(new ActionListener() {
 
-            @SuppressWarnings("unchecked")
             public void actionPerformed(ActionEvent ae) {
             	Dimension d = vv.getSize();//new Dimension(600,600);
                 if (switchLayout.getText().indexOf("Spring") > 0) {
@@ -146,7 +145,6 @@ public class AnimatingAddNodeDemo extends javax.swing.JApplet {
     							staticLayout);
     				Animator animator = new Animator(lt);
     				animator.start();
-    			//	vv.getRenderContext().getMultiLayerTransformer().setToIdentity();
     				vv.repaint();
 
                 } else {
@@ -163,7 +161,6 @@ public class AnimatingAddNodeDemo extends javax.swing.JApplet {
     							staticLayout);
     				Animator animator = new Animator(lt);
     				animator.start();
-    			//	vv.getRenderContext().getMultiLayerTransformer().setToIdentity();
     				vv.repaint();
 
                 }

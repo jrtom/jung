@@ -38,7 +38,6 @@ import javax.swing.JPanel;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
-import com.google.common.base.Supplier;
 
 import edu.uci.ics.jung.algorithms.layout.CircleLayout;
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
@@ -75,7 +74,7 @@ import edu.uci.ics.jung.visualization.util.PredicatedParallelEdgeIndexFunction;
  * 
  * Note that the collection types don't use generics in this
  * demo, because the vertices are of two types: String for plain
- * vertices, and Graph<String,Number> for the collapsed vertices.
+ * vertices, and {@code Graph<String, Number>} for the collapsed vertices.
  * 
  * @author Tom Nelson
  * 
@@ -104,19 +103,24 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
     /**
      * the graph
      */
-    Graph graph;
-    Graph collapsedGraph;
+    @SuppressWarnings("rawtypes")
+	Graph graph;
+    @SuppressWarnings("rawtypes")
+	Graph collapsedGraph;
 
     /**
      * the visual component and renderer for the graph
      */
-    VisualizationViewer vv;
+    @SuppressWarnings("rawtypes")
+	VisualizationViewer vv;
     
-    Layout layout;
+    @SuppressWarnings("rawtypes")
+	Layout layout;
     
     GraphCollapser collapser;
 
-    public VertexCollapseDemoWithLayouts() {
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+	public VertexCollapseDemoWithLayouts() {
         
         // create a simple graph for the demo
         graph = 
@@ -325,7 +329,7 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
      * 
      * @author Tom Nelson
      *
-     * @param <V>
+     * @param <V> the vertex type
      */
     class ClusterVertexShapeFunction<V> extends EllipseVertexShapeTransformer<V> {
 
@@ -335,7 +339,8 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
         @Override
         public Shape apply(V v) {
             if(v instanceof Graph) {
-                int size = ((Graph)v).getVertexCount();
+                @SuppressWarnings("rawtypes")
+				int size = ((Graph)v).getVertexCount();
                 if (size < 8) {   
                     int sides = Math.max(size, 3);
                     return factory.getRegularPolygon(v, sides);
@@ -353,7 +358,7 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
      * a collapsed collection of original vertices
      * @author Tom Nelson
      *
-     * @param <V>
+     * @param <V> the vertex type
      */
     class ClusterVertexSizeFunction<V> implements Function<V,Integer> {
     	int size;
@@ -371,24 +376,25 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
 
 	private class LayoutChooser implements ActionListener
     {
-        private final JComboBox jcb;
-        private final VisualizationViewer vv;
+        private final JComboBox<?> jcb;
+        @SuppressWarnings("rawtypes")
+		private final VisualizationViewer vv;
 
-        private LayoutChooser(JComboBox jcb, VisualizationViewer vv)
+        private LayoutChooser(JComboBox<?> jcb, VisualizationViewer<Object, ?> vv)
         {
             super();
             this.jcb = jcb;
             this.vv = vv;
         }
 
+        @SuppressWarnings({ "unchecked", "rawtypes" })
         public void actionPerformed(ActionEvent arg0)
         {
             Object[] constructorArgs =
                 { collapsedGraph };
 
-            Class<? extends Layout> layoutC = 
+			Class<? extends Layout> layoutC = 
                 (Class<? extends Layout>) jcb.getSelectedItem();
-//            Class lay = layoutC;
             try
             {
                 Constructor<? extends Layout> constructor = layoutC
@@ -415,7 +421,7 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
     /**
      * @return
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private Class<? extends Layout>[] getCombos()
     {
         List<Class<? extends Layout>> layouts = new ArrayList<Class<? extends Layout>>();
@@ -428,9 +434,6 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
         return layouts.toArray(new Class[0]);
     }
 
-    /**
-     * a driver for this demo
-     */
     public static void main(String[] args) {
         JFrame f = new JFrame();
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

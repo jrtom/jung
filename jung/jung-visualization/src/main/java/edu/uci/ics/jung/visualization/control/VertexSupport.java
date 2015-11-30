@@ -9,7 +9,7 @@ import edu.uci.ics.jung.visualization.BasicVisualizationServer;
  * SimpleVertexSupport is a sample implementation.
  * @author tanelso
  *
- * @param <V>
+ * @param <V> the vertex type
  */
 public interface VertexSupport<V,E> {
 	

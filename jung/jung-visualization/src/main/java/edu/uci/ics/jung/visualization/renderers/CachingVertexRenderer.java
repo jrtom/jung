@@ -1,7 +1,6 @@
 package edu.uci.ics.jung.visualization.renderers;
 
 import java.awt.Shape;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -12,7 +11,6 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import edu.uci.ics.jung.algorithms.layout.Layout;
-import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.layout.LayoutChangeListener;
@@ -27,6 +25,7 @@ public class CachingVertexRenderer<V, E> extends BasicVertexRenderer<V, E>
 	
 	protected Set<V> dirtyVertices = new HashSet<V>();
 	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public CachingVertexRenderer(BasicVisualizationServer<V,E> vv) {
 		vv.getRenderContext().getMultiLayerTransformer().addChangeListener(this);
 		Layout<V,E> layout = vv.getGraphLayout();
@@ -66,20 +65,13 @@ public class CachingVertexRenderer<V, E> extends BasicVertexRenderer<V, E>
         }
     }
 
-//	@Override
 	public void stateChanged(ChangeEvent evt) {
 		System.err.println("got change event "+evt);
 		vertexShapeMap.clear();
 		
 	}
 
-//	@Override
 	public void layoutChanged(LayoutEvent<V,E> evt) {
-		V vertex = evt.getVertex();
-		Graph<V,E> graph = evt.getGraph();
-		Collection<E> edges = graph.getIncidentEdges(vertex);
-		this.dirtyVertices.add(vertex);
+		this.dirtyVertices.add(evt.getVertex());
 	}
-
-
 }

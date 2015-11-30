@@ -37,13 +37,21 @@ public class EditingGraphMousePlugin<V,E> extends AbstractGraphMousePlugin imple
 	private Creating createMode = Creating.UNDETERMINED;
 	private enum Creating { EDGE, VERTEX, UNDETERMINED }
     
+    /**
+     * Creates an instance and prepares shapes for visual effects, using the default modifiers
+     * of BUTTON1_MASK.
+     * @param vertexFactory for creating vertices
+     * @param edgeFactory for creating edges
+     */
     public EditingGraphMousePlugin(Supplier<V> vertexFactory, Supplier<E> edgeFactory) {
         this(MouseEvent.BUTTON1_MASK, vertexFactory, edgeFactory);
     }
 
     /**
-     * create instance and prepare shapes for visual effects
-     * @param modifiers
+     * Creates an instance and prepares shapes for visual effects.
+     * @param modifiers the mouse event modifiers to use
+     * @param vertexFactory for creating vertices
+     * @param edgeFactory for creating edges
      */
     public EditingGraphMousePlugin(int modifiers, Supplier<V> vertexFactory, Supplier<E> edgeFactory) {
         super(modifiers);

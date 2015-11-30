@@ -93,7 +93,7 @@ public class BicomponentClusterer<V,E> implements Function<UndirectedGraph<V,E>,
 
     /**
      * <p>Stores, in <code>bicomponents</code>, all the biconnected
-     * components that are reachable from <code>v</code>.</p>
+     * components that are reachable from <code>v</code>.
      * 
      * <p>The algorithm basically proceeds as follows: do a depth-first
      * traversal starting from <code>v</code>, marking each vertex with
@@ -117,8 +117,11 @@ public class BicomponentClusterer<V,E> implements Function<UndirectedGraph<V,E>,
      * (v,w) should only be put on the stack if w hasn't been seen already,
      * and there's no real benefit to putting v on the stack separately: just
      * check for (v,w) on the stack rather than v.  Had I known this, I could
-     * have saved myself a few days.  JRTOM)</p>
+     * have saved myself a few days.  JRTOM)
      * 
+     * @param g the graph to check for biconnected components
+     * @param v the starting place for searching for biconnected components
+     * @param bicomponents storage for the biconnected components found by this algorithm
      */
     protected void findBiconnectedComponents(UndirectedGraph<V,E> g, V v, Set<Set<V>> bicomponents)
     {

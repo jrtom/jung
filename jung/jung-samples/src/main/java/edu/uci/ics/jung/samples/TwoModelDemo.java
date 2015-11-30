@@ -133,9 +133,11 @@ public class TwoModelDemo extends JApplet {
         content.add(panel);
         
         // create a GraphMouse for each view
-        final DefaultModalGraphMouse gm1 = new DefaultModalGraphMouse();
+        final DefaultModalGraphMouse<String, Number> gm1
+        	= new DefaultModalGraphMouse<String, Number>();
 
-        DefaultModalGraphMouse gm2 = new DefaultModalGraphMouse();
+        DefaultModalGraphMouse<String, Number> gm2
+        	= new DefaultModalGraphMouse<String, Number>();
 
         vv1.setGraphMouse(gm1);
         vv2.setGraphMouse(gm2);
@@ -173,9 +175,6 @@ public class TwoModelDemo extends JApplet {
         content.add(controls, BorderLayout.SOUTH);
     }
 
-    /**
-     * a driver for this demo
-     */
     public static void main(String[] args) {
         JFrame f = new JFrame();
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

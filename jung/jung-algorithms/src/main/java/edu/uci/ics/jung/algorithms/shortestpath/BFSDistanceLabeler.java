@@ -62,6 +62,7 @@ public class BFSDistanceLabeler<V, E> {
 
     /**
      * Given a vertex, returns the shortest distance from any node in the root set to v
+     * @param g the graph in which the distances are to be measured
      * @param v the vertex whose distance is to be retrieved
      * @return the shortest distance from any node in the root set to v
      */
@@ -160,8 +161,8 @@ public class BFSDistanceLabeler<V, E> {
     }
 
     /**
-     * Returns a map from vertices to minimum distances from the original source(s).
      * Must be called after {@code labelDistances} in order to contain valid data.
+     * @return a map from vertices to minimum distances from the original source(s)
      */
     public Map<V, Number> getDistanceDecorator() {
         return distanceDecorator;

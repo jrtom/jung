@@ -46,6 +46,7 @@ import edu.uci.ics.jung.graph.Graph;
  * In fact, there are exactly 16, conventionally sorted by the number of 
  * realized edges in the triad:
  * <table>
+ * <caption>Descriptions of the different types of triads</caption>
  * <tr><th>Number</th> <th>Configuration</th> <th>Notes</th></tr>
  * <tr><td>1</td><td>003</td><td>The empty triad</td></tr>
  * <tr><td>2</td><td>012</td><td></td></tr>
@@ -56,7 +57,7 @@ import edu.uci.ics.jung.graph.Graph;
  * <tr><td>7</td><td>111D</td><td>"Down": 021D but one edge is mutual</td></tr>
  * <tr><td>8</td><td>111U</td><td>"Up": 021U but one edge is mutual</td></tr>
  * <tr><td>9</td><td>030T</td><td>"Transitive": two point to the same vertex</td></tr>
- * <tr><td>10</td><td>030C</td><td>"Circle": A->B->C->A</td></tr>
+ * <tr><td>10</td><td>030C</td><td>"Circle": A&#8594;B&#8594;C&#8594;A</td></tr>
  * <tr><td>11</td><td>201</td><td></td></tr>
  * <tr><td>12</td><td>120D</td><td>"Down": 021D but the third edge is mutual</td></tr>
  * <tr><td>13</td><td>120U</td><td>"Up": 021U but the third edge is mutual</td></tr>
@@ -93,7 +94,10 @@ public class TriadicCensus {
      * occurrences of the corresponding triad type in <code>g</code>.
      * (The 0th element is not meaningful; this array is effectively 1-based.)
 	 * 
-	 * @param g
+	 * @param g the graph whose properties are being measured
+	 * @param <V> the vertex type
+	 * @param <E> the edge type
+	 * @return an array encoding the number of occurrences of each triad type
 	 */
     public static <V,E> long[] getCounts(DirectedGraph<V,E> g) {
         long[] count = new long[MAX_TRIADS];
@@ -133,11 +137,19 @@ public class TriadicCensus {
 		return count;		
 	}
 
-	/**
+    /**
 	 * This is the core of the technique in the paper. Returns an int from 0 to
-	 * 65 based on: WU -> 32 UW -> 16 WV -> 8 VW -> 4 UV -> 2 VU -> 1
-	 * 
-	 */
+	 * 63 which encodes the presence of all possible links between u, v, and w 
+	 * as bit flags: WU = 32, UW = 16, WV = 8, VW = 4, UV = 2, VU = 1
+     * 
+     * @param g the graph for which the calculation is being made
+     * @param u a vertex in g
+     * @param v a vertex in g
+     * @param w a vertex in g
+     * @param <V> the vertex type
+     * @param <E> the edge type
+     * @return an int encoding the presence of all links between u, v, and w
+     */
 	public static <V,E> int triCode(Graph<V,E> g, V u, V v, V w) {
 		int i = 0;
 		i += link(g, v, u ) ? 1 : 0;
@@ -155,8 +167,7 @@ public class TriadicCensus {
 	
 	
 	/**
-	 * Simply returns the triCode. 
-	 * @param triCode
+	 * @param triCode the code returned by {@code triCode()}
 	 * @return the string code associated with the numeric type
 	 */
 	public static int triType( int triCode ) {
@@ -173,14 +184,17 @@ public class TriadicCensus {
 			14, 15, 8, 14, 13, 15, 11, 15, 15, 16 };
 
 	/**
-	 * Make sure we have a canonical ordering: Returns true if u < w, or v < w <
-	 * u and v doesn't link to w
+	 * Return true iff this ordering is canonical and therefore we should build statistics for it.
 	 * 
-	 * @param id
-	 * @param u
-	 * @param v
-	 * @param w
-	 * @return true if u < w, or if v < w < u and v doesn't link to w; false otherwise
+	 * @param g the graph whose properties are being examined
+	 * @param id a list of the vertices in g; used to assign an index to each
+	 * @param u a vertex in g
+	 * @param v a vertex in g
+	 * @param w a vertex in g
+     * @param <V> the vertex type
+     * @param <E> the edge type
+	 * @return true if index(u) &lt; index(w), or if index(v) &lt; index(w) &lt; index(u)
+	 *     and v doesn't link to w; false otherwise
 	 */
 	protected static <V,E> boolean shouldCount(Graph<V,E> g, List<V> id, V u, V v, V w) {
 		int i_u = id.indexOf(u);

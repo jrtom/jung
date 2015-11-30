@@ -38,6 +38,7 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
 import com.google.common.base.Function;
+import com.google.common.base.Functions;
 
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.graph.DirectedSparseGraph;
@@ -47,8 +48,8 @@ import edu.uci.ics.jung.visualization.LayeredIcon;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
+import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
-import edu.uci.ics.jung.visualization.decorators.DefaultVertexIconTransformer;
 import edu.uci.ics.jung.visualization.decorators.EllipseVertexShapeTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
@@ -175,11 +176,9 @@ public class LensVertexImageShaperDemo extends JApplet {
         final VertexIconShapeTransformer<Number> vertexImageShapeFunction =
             new VertexIconShapeTransformer<Number>(new EllipseVertexShapeTransformer<Number>());
 
-        final DefaultVertexIconTransformer<Number> vertexIconFunction =
-        	new DefaultVertexIconTransformer<Number>();
+        final Function<Number, Icon> vertexIconFunction = Functions.forMap(iconMap);
         
         vertexImageShapeFunction.setIconMap(iconMap);
-        vertexIconFunction.setIconMap(iconMap);
         
         vv.getRenderContext().setVertexShapeTransformer(vertexImageShapeFunction);
         vv.getRenderContext().setVertexIconTransformer(vertexIconFunction);
@@ -221,13 +220,14 @@ public class LensVertexImageShaperDemo extends JApplet {
         });
 
         // add a listener for ToolTips
-        vv.setVertexToolTipTransformer(new ToStringLabeller<Number>());
+        vv.setVertexToolTipTransformer(new ToStringLabeller());
         
         Container content = getContentPane();
         final GraphZoomScrollPane panel = new GraphZoomScrollPane(vv);
         content.add(panel);
         
-        final DefaultModalGraphMouse graphMouse = new DefaultModalGraphMouse();
+        final DefaultModalGraphMouse<Number, Number> graphMouse
+        	= new DefaultModalGraphMouse<Number, Number>();
         vv.setGraphMouse(graphMouse);
         
         
@@ -246,7 +246,7 @@ public class LensVertexImageShaperDemo extends JApplet {
             }
         });
         
-        JComboBox modeBox = graphMouse.getModeComboBox();
+        JComboBox<Mode> modeBox = graphMouse.getModeComboBox();
         JPanel modePanel = new JPanel();
         modePanel.setBorder(BorderFactory.createTitledBorder("Mouse Mode"));
         modePanel.add(modeBox);
@@ -399,10 +399,10 @@ public class LensVertexImageShaperDemo extends JApplet {
     }
     
     public static class PickWithIconListener implements ItemListener {
-        DefaultVertexIconTransformer<Number> imager;
+        Function<Number, Icon> imager;
         Icon checked;
         
-        public PickWithIconListener(DefaultVertexIconTransformer<Number> imager) {
+        public PickWithIconListener(Function<Number, Icon> imager) {
             this.imager = imager;
             checked = new Checkmark(Color.red);
         }
@@ -419,10 +419,6 @@ public class LensVertexImageShaperDemo extends JApplet {
         }
     }
 
-
-    /**
-     * a driver for this demo
-     */
     public static void main(String[] args) {
         JFrame frame = new JFrame();
         Container content = frame.getContentPane();

@@ -178,16 +178,13 @@ public class WorldMapGraphDemo extends JApplet {
         
         final GraphZoomScrollPane panel = new GraphZoomScrollPane(vv);
         add(panel);
-        final AbstractModalGraphMouse graphMouse = new DefaultModalGraphMouse();
+        final AbstractModalGraphMouse graphMouse = new DefaultModalGraphMouse<String, Number>();
         vv.setGraphMouse(graphMouse);
         
         vv.addKeyListener(graphMouse.getModeKeyListener());
         vv.setToolTipText("<html><center>Type 'p' for Pick mode<p>Type 't' for Transform mode");
         
         final ScalingControl scaler = new CrossoverScalingControl();
-        
-//        vv.scaleToLayout(scaler);
-
 
         JButton plus = new JButton("+");
         plus.addActionListener(new ActionListener() {
@@ -297,9 +294,6 @@ public class WorldMapGraphDemo extends JApplet {
     	
     }
 
-    /**
-     * a driver for this demo
-     */
     public static void main(String[] args) {
         // create a frome to hold the graph
         final JFrame frame = new JFrame();

@@ -39,12 +39,12 @@ public class SatelliteRotatingGraphMousePlugin extends RotatingGraphMousePlugin 
      */
     public void mouseDragged(MouseEvent e) {
         if(down == null) return;
-        VisualizationViewer vv = (VisualizationViewer)e.getSource();
+        VisualizationViewer<?, ?> vv = (VisualizationViewer<?, ?>)e.getSource();
         boolean accepted = checkModifiers(e);
         if(accepted) {
             if(vv instanceof SatelliteVisualizationViewer) {
-                VisualizationViewer vvMaster = 
-                    ((SatelliteVisualizationViewer)vv).getMaster();
+                VisualizationViewer<?, ?> vvMaster = 
+                    ((SatelliteVisualizationViewer<?, ?>)vv).getMaster();
                 
                 MutableTransformer modelTransformerMaster = 
                 	vvMaster.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT);

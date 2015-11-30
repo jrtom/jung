@@ -73,9 +73,6 @@ public class KKLayout<V,E> extends AbstractLayout<V,E> implements IterativeConte
      */
     private double disconnected_multiplier = 0.5;
     
-	/**
-	 * Creates an instance for the specified graph.
-	 */
 	public KKLayout(Graph<V,E> g) 
     {
         this(g, new UnweightedShortestPath<V,E>(g));
@@ -83,6 +80,8 @@ public class KKLayout<V,E> extends AbstractLayout<V,E> implements IterativeConte
 
 	/**
 	 * Creates an instance for the specified graph and distance metric.
+	 * @param g the graph on which the layout algorithm is to operate
+	 * @param distance specifies the distance between pairs of vertices
 	 */
     public KKLayout(Graph<V,E> g, Distance<V> distance){
         super(g);
@@ -90,44 +89,41 @@ public class KKLayout<V,E> extends AbstractLayout<V,E> implements IterativeConte
     }
 
     /**
-     * Sets a multiplicative factor which 
-     * partly specifies the "preferred" length of an edge (L).
+     * @param length_factor a multiplicative factor which partially specifies
+     *     the preferred length of an edge
      */
     public void setLengthFactor(double length_factor){
         this.length_factor = length_factor;
     }
     
     /**
-     * Sets a multiplicative factor that specifies the fraction of the graph's diameter to be 
-     * used as the inter-vertex distance between disconnected vertices.
+     * @param disconnected_multiplier a multiplicative factor that specifies the fraction of the
+     *     graph's diameter to be used as the inter-vertex distance between disconnected vertices
      */
     public void setDisconnectedDistanceMultiplier(double disconnected_multiplier){
         this.disconnected_multiplier = disconnected_multiplier;
     }
     
     /**
-     * Returns a string with information about the current status of the algorithm.
+     * @return a string with information about the current status of the algorithm.
      */
 	public String getStatus() {
 		return status + this.getSize();
 	}
 
-	/**
-	 * Sets the maximum number of iterations.
-	 */
     public void setMaxIterations(int maxIterations) {
         this.maxIterations = maxIterations;
     }
 
 	/**
-	 * This one is an incremental visualization.
+	 * @return true
 	 */
 	public boolean isIncremental() {
 		return true;
 	}
 
 	/**
-	 * Returns true once the current iteration has passed the maximum count.
+	 * @return true if the current iteration has passed the maximum count.
 	 */
 	public boolean done() {
 		if (currentIteration > maxIterations) {
@@ -274,9 +270,6 @@ public class KKLayout<V,E> extends AbstractLayout<V,E> implements IterativeConte
 		}
 	}
 
-    /* (non-Javadoc)
-	 * @see edu.uci.ics.jung.visualization.layout.AbstractLayout#setSize(java.awt.Dimension)
-	 */
 	@Override
 	public void setSize(Dimension size) {
 		if(initialized == false)
@@ -284,16 +277,10 @@ public class KKLayout<V,E> extends AbstractLayout<V,E> implements IterativeConte
 		super.setSize(size);
 	}
 
-	/**
-	 * Enable or disable gravity point adjusting.
-	 */
 	public void setAdjustForGravity(boolean on) {
 		adjustForGravity = on;
 	}
 
-	/**
-	 * Returns true if gravity point adjusting is enabled.
-	 */
 	public boolean getAdjustForGravity() {
 		return adjustForGravity;
 	}
@@ -301,15 +288,12 @@ public class KKLayout<V,E> extends AbstractLayout<V,E> implements IterativeConte
 	/**
 	 * Enable or disable the local minimum escape technique by
 	 * exchanging vertices.
+	 * @param on iff the local minimum escape technique is to be enabled
 	 */
 	public void setExchangeVertices(boolean on) {
 		exchangeVertices = on;
 	}
 
-	/**
-	 * Returns true if the local minimum escape technique by
-	 * exchanging vertices is enabled.
-	 */
 	public boolean getExchangeVertices() {
 		return exchangeVertices;
 	}

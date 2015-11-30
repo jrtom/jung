@@ -33,16 +33,13 @@ public class UniformDegreeWeight<V, E> implements
     private Hypergraph<V, E> graph;
     
     /**
-     * Creates an instance for the specified graph.
+     * @param graph the graph for which an instance is being created
      */
     public UniformDegreeWeight(Hypergraph<V, E> graph)
     {
         this.graph = graph;
     }
 
-	/**
-	 * @see org.apache.commons.collections15.Transformer#transform(java.lang.Object)
-	 */
 	public Double apply(VEPair<V, E> ve_pair) 
 	{
 		E e = ve_pair.getE();

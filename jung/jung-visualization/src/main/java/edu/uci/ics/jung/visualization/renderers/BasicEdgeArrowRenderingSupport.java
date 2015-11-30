@@ -20,9 +20,6 @@ import edu.uci.ics.jung.visualization.RenderContext;
 
 public class BasicEdgeArrowRenderingSupport<V,E> implements EdgeArrowRenderingSupport<V, E>  {
 
-    /* (non-Javadoc)
-	 * @see edu.uci.ics.jung.visualization.renderers.EdgeArrowRenderingSupport#getArrowTransform(edu.uci.ics.jung.visualization.RenderContext, java.awt.geom.GeneralPath, java.awt.Shape)
-	 */
     public AffineTransform getArrowTransform(RenderContext<V,E> rc, Shape edgeShape, Shape vertexShape) {
     	GeneralPath path = new GeneralPath(edgeShape);
         float[] seg = new float[6];
@@ -47,16 +44,10 @@ public class BasicEdgeArrowRenderingSupport<V,E> implements EdgeArrowRenderingSu
         return at;
     }
 
-    /* (non-Javadoc)
-	 * @see edu.uci.ics.jung.visualization.renderers.EdgeArrowRenderingSupport#getReverseArrowTransform(edu.uci.ics.jung.visualization.RenderContext, java.awt.geom.GeneralPath, java.awt.Shape)
-	 */
     public AffineTransform getReverseArrowTransform(RenderContext<V,E> rc, Shape edgeShape, Shape vertexShape) {
         return getReverseArrowTransform(rc, edgeShape, vertexShape, true);
     }
             
-    /* (non-Javadoc)
-	 * @see edu.uci.ics.jung.visualization.renderers.EdgeArrowRenderingSupport#getReverseArrowTransform(edu.uci.ics.jung.visualization.RenderContext, java.awt.geom.GeneralPath, java.awt.Shape, boolean)
-	 */
     public AffineTransform getReverseArrowTransform(RenderContext<V,E> rc, Shape edgeShape, Shape vertexShape,
             boolean passedGo) {
     	GeneralPath path = new GeneralPath(edgeShape);
@@ -84,9 +75,6 @@ public class BasicEdgeArrowRenderingSupport<V,E> implements EdgeArrowRenderingSu
         return at;
     }
 
-    /* (non-Javadoc)
-	 * @see edu.uci.ics.jung.visualization.renderers.EdgeArrowRenderingSupport#getArrowTransform(edu.uci.ics.jung.visualization.RenderContext, java.awt.geom.Line2D, java.awt.Shape)
-	 */
     public AffineTransform getArrowTransform(RenderContext<V,E> rc, Line2D edgeShape, Shape vertexShape) {
         float dx = (float) (edgeShape.getX1()-edgeShape.getX2());
         float dy = (float) (edgeShape.getY1()-edgeShape.getY2());
@@ -109,14 +97,6 @@ public class BasicEdgeArrowRenderingSupport<V,E> implements EdgeArrowRenderingSu
         return at;
     }
 
-    /**
-     * This is used for the reverse-arrow of a non-directed edge
-     * get a transform to place the arrow shape on the passed edge at the
-     * point where it intersects the passed shape
-     * @param edgeShape
-     * @param vertexShape
-     * @return
-     */
     protected AffineTransform getReverseArrowTransform(RenderContext<V,E> rc, Line2D edgeShape, Shape vertexShape) {
         float dx = (float) (edgeShape.getX1()-edgeShape.getX2());
         float dy = (float) (edgeShape.getY1()-edgeShape.getY2());
@@ -140,12 +120,12 @@ public class BasicEdgeArrowRenderingSupport<V,E> implements EdgeArrowRenderingSu
     }
     
     /**
-     * Passed Line's point2 must be inside the passed shape or
-     * an IllegalArgumentException is thrown
+     * Returns a line that intersects {@code shape}'s boundary.
+     * 
      * @param line line to subdivide
      * @param shape shape to compare with line
      * @return a line that intersects the shape boundary
-     * @throws IllegalArgumentException if the passed line's point1 is not inside the shape
+     * @throws IllegalArgumentException if the passed line's point2 is not inside the shape
      */
     protected Line2D getLastOutsideSegment(Line2D line, Shape shape) {
         if(shape.contains(line.getP2())==false) {
@@ -168,8 +148,8 @@ public class BasicEdgeArrowRenderingSupport<V,E> implements EdgeArrowRenderingSu
     }
    
     /**
-     * Passed Line's point1 must be inside the passed shape or
-     * an IllegalArgumentException is thrown
+     * Returns a line that intersects {@code shape}'s boundary.
+     * 
      * @param line line to subdivide
      * @param shape shape to compare with line
      * @return a line that intersects the shape boundary

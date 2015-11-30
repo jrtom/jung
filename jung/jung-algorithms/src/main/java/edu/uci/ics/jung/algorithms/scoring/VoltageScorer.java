@@ -34,17 +34,17 @@ import edu.uci.ics.jung.graph.Hypergraph;
  * 
  * <p>A few notes about this algorithm's interpretation of the graph data: 
  * <ul>
- * <li/>Higher edge weights are interpreted as indicative of greater 
+ * <li>Higher edge weights are interpreted as indicative of greater 
  * influence/effect than lower edge weights.  
- * <li/>Negative edge weights (and negative "source" voltages) invalidate
+ * <li>Negative edge weights (and negative "source" voltages) invalidate
  * the interpretation of the resultant values as voltages.  However, this 
  * algorithm will not reject graphs with negative edge weights or source voltages.
- * <li/>Parallel edges are equivalent to a single edge whose weight is the 
+ * <li>Parallel edges are equivalent to a single edge whose weight is the 
  * sum of the weights on the parallel edges.
- * <li/>Current flows along undirected edges in both directions, 
+ * <li>Current flows along undirected edges in both directions, 
  * but only flows along directed edges in the direction of the edge.
  * </ul>
- * </p> 
+ *  
  */
 public class VoltageScorer<V, E> extends AbstractIterativeScorer<V, E, Double>
         implements VertexScorer<V, Double>

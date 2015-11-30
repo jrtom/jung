@@ -19,9 +19,9 @@ import edu.uci.ics.jung.graph.Hypergraph;
  * 
  * @param <G>
  *            the graph type
- * @param <V>
+ * @param <V> the vertex type
  *            the vertex type
- * @param <E>
+ * @param <V> the edge type
  *            the edge type
  */
 public interface GraphReader<G extends Hypergraph<V, E>, V, E> {

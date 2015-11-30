@@ -59,8 +59,8 @@ public class DefaultVisualizationModel<V, E> implements VisualizationModel<V,E>,
 	}
     
 	/**
-	 * 
-	 * @param layout
+	 * Create an instance with the specified layout and dimension.
+	 * @param layout the layout to use
 	 * @param d The preferred size of the View that will display this graph
 	 */
 	public DefaultVisualizationModel(Layout<V,E> layout, Dimension d) {

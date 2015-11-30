@@ -60,7 +60,7 @@ implements MouseListener, MouseMotionListener {
      * @param e the event
      */
     public void mousePressed(MouseEvent e) {
-        VisualizationViewer vv = (VisualizationViewer)e.getSource();
+        VisualizationViewer<?, ?> vv = (VisualizationViewer<?, ?>)e.getSource();
         MutableTransformer vt = vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.VIEW);
         if(vt instanceof LensTransformer) {
         	vt = ((LensTransformer)vt).getDelegate();
@@ -141,7 +141,7 @@ implements MouseListener, MouseMotionListener {
      * @param e the event
      */
     public void mouseDragged(MouseEvent e) {
-        VisualizationViewer vv = (VisualizationViewer)e.getSource();
+        VisualizationViewer<?, ?> vv = (VisualizationViewer<?, ?>)e.getSource();
         MutableTransformer vt = vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.VIEW);
         if(vt instanceof LensTransformer) {
         	vt = ((LensTransformer)vt).getDelegate();

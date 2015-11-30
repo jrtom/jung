@@ -13,7 +13,7 @@
 </head>
 <body>
 
-<p>Interfaces for the JUNG graph types, and some representative implementations.</p>
+<p>Interfaces for the JUNG graph types, and some representative implementations.
 
 <P>A graph consists of a set of vertices set and a set of edges which connect the
 vertices.  The base interface is <code>Hypergraph</code>, which defines the most
@@ -23,28 +23,28 @@ define more restrictive graph types.
 
 <p>Types of graphs which are supported include (but are not limited to)
 <ul>
-<li/>edges (these have have exactly two endpoints, which may or may not be distinct)
-<li/>self-loops (edges which connect exactly one vertex)
+<li>edges (these have have exactly two endpoints, which may or may not be distinct)
+<li>self-loops (edges which connect exactly one vertex)
 <li> directed and undirected edges
 <li> vertices and edges with attributes (for example, weighted edges)
 <li> vertices and edges with different constraints or properties (examples: trees, bipartite 
      graphs, or multimodal)
 <li> parallel edges (multiple edges which connect a single set of vertices)
 <li> internal representations as matrices or as adjacency lists or adjacency maps
-<li/>internal representations that order their elements according to insertion time,
+<li>internal representations that order their elements according to insertion time,
 natural ordering, or a specified <code>Comparator</code>
 </ul> 
 Extensions or implementations of this interface 
 may enforce or disallow any or all of these variations.
 <p><b>Notes</b>:
 <ul>
-<li/> The collections returned by graph instances
+<li> The collections returned by graph instances
 should be treated in general as if read-only.  While they are not contractually 
 guaranteed (or required) to be immutable,
 these interfaces do not define the outcome if they are mutated.
 Mutations should be done via <code>{add,remove}{Edge,Vertex}</code>, or
 in the constructor.
-<li/> "Wrapper" graphs are available through <code>GraphDecorator</code>; these are useful
+<li> "Wrapper" graphs are available through <code>GraphDecorator</code>; these are useful
 if you want to create a graph implementation that uses another implementation to do the work,
 and adds some extra behavior.  (One example: <code>ObservableGraph</code>, which notifies 
 registered listeners when graph mutations occur.)

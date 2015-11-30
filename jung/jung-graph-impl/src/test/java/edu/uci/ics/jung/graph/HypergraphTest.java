@@ -29,7 +29,7 @@ public class HypergraphTest extends AbstractHypergraphTest
     public void setUp()
     {
         h = factory.get();
-        System.out.println(h.getClass().getSimpleName());
+//        System.out.println(h.getClass().getSimpleName());
     }
     
     public static Test suite()

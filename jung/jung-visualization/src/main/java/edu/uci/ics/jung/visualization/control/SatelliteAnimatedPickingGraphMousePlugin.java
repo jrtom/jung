@@ -52,10 +52,10 @@ public class SatelliteAnimatedPickingGraphMousePlugin<V,E> extends AnimatedPicki
     @SuppressWarnings("unchecked")
     public void mouseReleased(MouseEvent e) {
     		if (e.getModifiers() == modifiers) {
-			final VisualizationViewer<V,E> vv = (VisualizationViewer) e.getSource();
+			final VisualizationViewer<V,E> vv = (VisualizationViewer<V, E>) e.getSource();
 			if (vv instanceof SatelliteVisualizationViewer) {
 				final VisualizationViewer<V,E> vvMaster = 
-					((SatelliteVisualizationViewer) vv).getMaster();
+					((SatelliteVisualizationViewer<V, E>) vv).getMaster();
 
 				if (vertex != null) {
 					Layout<V,E> layout = vvMaster.getGraphLayout();

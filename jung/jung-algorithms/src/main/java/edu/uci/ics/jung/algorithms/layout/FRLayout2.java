@@ -11,10 +11,10 @@ import java.awt.Dimension;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ConcurrentModificationException;
-import java.util.Map;
 
-import com.google.common.base.Function;
-import com.google.common.collect.MapMaker;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 
 import edu.uci.ics.jung.algorithms.layout.util.RandomLocationTransformer;
 import edu.uci.ics.jung.algorithms.util.IterativeContext;
@@ -28,15 +28,15 @@ import edu.uci.ics.jung.graph.util.Pair;
  * 
  * <p>Behavior is determined by the following settable parameters:
  * <ul>
- * <li/>attraction multiplier: how much edges try to keep their vertices together
- * <li/>repulsion multiplier: how much vertices try to push each other apart
- * <li/>maximum iterations: how many iterations this algorithm will use before stopping
+ * <li>attraction multiplier: how much edges try to keep their vertices together
+ * <li>repulsion multiplier: how much vertices try to push each other apart
+ * <li>maximum iterations: how many iterations this algorithm will use before stopping
  * </ul>
  * Each of the first two defaults to 0.75; the maximum number of iterations defaults to 700.
 
  * 
  * @see "Fruchterman and Reingold, 'Graph Drawing by Force-directed Placement'"
- * @see http://i11www.ilkd.uni-karlsruhe.de/teaching/SS_04/visualisierung/papers/fruchterman91graph.pdf
+ * @see "http://i11www.ilkd.uni-karlsruhe.de/teaching/SS_04/visualisierung/papers/fruchterman91graph.pdf"
  * 
  * @author Tom Nelson
  * @author Scott White, Yan-Biao Boey, Danyel Fisher
@@ -51,16 +51,12 @@ public class FRLayout2<V, E> extends AbstractLayout<V, E> implements IterativeCo
 
     private int maxIterations = 700;
     
-    private Map<V, Point2D> frVertexData = 
-    	new MapMaker().makeComputingMap(new Function<V,Point2D>(){
-//			@Override
-			public Point2D apply(V v) {
-				return new Point2D.Double();
-			}});
-//    	LazyMap.decorate(new HashMap<V,Point2D>(), new Supplier<Point2D>() {
-//    		public Point2D create() {
-//    			return new Point2D.Double();
-//    		}});
+    protected LoadingCache<V, Point2D> frVertexData =
+    	CacheBuilder.newBuilder().build(new CacheLoader<V, Point2D>() {
+	    	public Point2D load(V vertex) {
+	    		return new Point2D.Double();
+	    	}
+    });
 
     private double attraction_multiplier = 0.75;
     
@@ -76,16 +72,10 @@ public class FRLayout2<V, E> extends AbstractLayout<V, E> implements IterativeCo
     
     private boolean checked = false;
     
-    /**
-     * Creates an instance for the specified graph.
-     */
     public FRLayout2(Graph<V, E> g) {
         super(g);
     }
     
-    /**
-     * Creates an instance of size {@code d} for the specified graph.
-     */
     public FRLayout2(Graph<V, E> g, Dimension d) {
         super(g, new RandomLocationTransformer<V>(d), d);
         max_dimension = Math.max(d.height, d.width);
@@ -102,16 +92,10 @@ public class FRLayout2<V, E> extends AbstractLayout<V, E> implements IterativeCo
         max_dimension = Math.max(size.height, size.width);
 	}
 
-    /**
-     * Sets the attraction multiplier.
-     */
 	public void setAttractionMultiplier(double attraction) {
         this.attraction_multiplier = attraction;
     }
     
-    /**
-     * Sets the repulsion multiplier.
-     */
     public void setRepulsionMultiplier(double repulsion) {
         this.repulsion_multiplier = repulsion;
     }
@@ -190,7 +174,7 @@ public class FRLayout2<V, E> extends AbstractLayout<V, E> implements IterativeCo
     }
 
     protected synchronized void calcPositions(V v) {
-        Point2D fvd = this.frVertexData.get(v);
+        Point2D fvd = this.frVertexData.getUnchecked(v);
         if(fvd == null) return;
         Point2D xyd = apply(v);
         double deltaLength = Math.max(EPSILON, 
@@ -238,8 +222,8 @@ public class FRLayout2<V, E> extends AbstractLayout<V, E> implements IterativeCo
 
         double dx = xDelta * force;
         double dy = yDelta * force;
-        Point2D fvd1 = frVertexData.get(v1);
-        Point2D fvd2 = frVertexData.get(v2);
+        Point2D fvd1 = frVertexData.getUnchecked(v1);
+        Point2D fvd2 = frVertexData.getUnchecked(v2);
         if(v2_locked) {
         	// double the offset for v1, as v2 will not be moving in
         	// the opposite direction
@@ -257,7 +241,7 @@ public class FRLayout2<V, E> extends AbstractLayout<V, E> implements IterativeCo
     }
 
     protected void calcRepulsion(V v1) {
-        Point2D fvd1 = frVertexData.get(v1);
+        Point2D fvd1 = frVertexData.getUnchecked(v1);
         if(fvd1 == null) return;
         fvd1.setLocation(0, 0);
         boolean v1_locked = isLocked(v1);
@@ -302,30 +286,24 @@ public class FRLayout2<V, E> extends AbstractLayout<V, E> implements IterativeCo
         temperature *= (1.0 - currentIteration / (double) maxIterations);
     }
 
-    /**
-     * Sets the maximum number of iterations.
-     */
     public void setMaxIterations(int maxIterations) {
         this.maxIterations = maxIterations;
     }
 
     /**
-     * This one is an incremental visualization.
+     * @return true
      */
     public boolean isIncremental() {
         return true;
     }
 
     /**
-     * Returns true once the current iteration has passed the maximum count,
-     * <tt>MAX_ITERATIONS</tt>.
+     * @return true once the current iteration has passed the maximum count.
      */
     public boolean done() {
         if (currentIteration > maxIterations || temperature < 1.0/max_dimension) { 
             if (!checked)
             {
-//                System.out.println("current iteration: " + currentIteration);
-//                System.out.println("temperature: " + temperature);
                 checked = true;
             }
             return true; 

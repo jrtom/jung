@@ -165,7 +165,7 @@ public class PickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
     @SuppressWarnings("unchecked")
     public void mousePressed(MouseEvent e) {
         down = e.getPoint();
-        VisualizationViewer<V,E> vv = (VisualizationViewer)e.getSource();
+        VisualizationViewer<V,E> vv = (VisualizationViewer<V, E>)e.getSource();
         GraphElementAccessor<V,E> pickSupport = vv.getPickSupport();
         PickedState<V> pickedVertexState = vv.getPickedVertexState();
         PickedState<E> pickedEdgeState = vv.getPickedEdgeState();
@@ -235,7 +235,7 @@ public class PickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
 	 */
     @SuppressWarnings("unchecked")
     public void mouseReleased(MouseEvent e) {
-        VisualizationViewer<V,E> vv = (VisualizationViewer)e.getSource();
+        VisualizationViewer<V,E> vv = (VisualizationViewer<V, E>)e.getSource();
         if(e.getModifiers() == modifiers) {
             if(down != null) {
                 Point2D out = e.getPoint();
@@ -271,7 +271,7 @@ public class PickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
     @SuppressWarnings("unchecked")
     public void mouseDragged(MouseEvent e) {
         if(locked == false) {
-            VisualizationViewer<V,E> vv = (VisualizationViewer)e.getSource();
+            VisualizationViewer<V,E> vv = (VisualizationViewer<V, E>)e.getSource();
             if(vertex != null) {
                 Point p = e.getPoint();
                 Point2D graphPoint = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(p);
@@ -315,9 +315,13 @@ public class PickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
     }
     
     /**
-     * pick the vertices inside the rectangle created from points
-     * 'down' and 'out'
-     *
+     * pick the vertices inside the rectangle created from points 'down' and 'out' (two diagonally
+     * opposed corners of the rectangle)
+     * 
+     * @param vv the viewer containing the layout and picked state
+     * @param down one corner of the rectangle
+     * @param out the other corner of the rectangle
+     * @param clear whether to reset existing picked state
      */
     protected void pickContainedVertices(VisualizationViewer<V,E> vv, Point2D down, Point2D out, boolean clear) {
         

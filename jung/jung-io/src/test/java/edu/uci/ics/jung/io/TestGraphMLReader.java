@@ -18,7 +18,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
 
 import junit.framework.Assert;
 import junit.framework.Test;

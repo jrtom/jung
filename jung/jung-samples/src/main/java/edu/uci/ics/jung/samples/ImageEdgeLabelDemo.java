@@ -34,6 +34,7 @@ import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
+import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
@@ -88,8 +89,8 @@ public class ImageEdgeLabelDemo extends JApplet {
 			}});
         
         // add a listener for ToolTips
-        vv.setVertexToolTipTransformer(new ToStringLabeller<Number>());
-        vv.setEdgeToolTipTransformer(new ToStringLabeller<Number>());
+        vv.setVertexToolTipTransformer(new ToStringLabeller());
+        vv.setEdgeToolTipTransformer(new ToStringLabeller());
         Container content = getContentPane();
         final GraphZoomScrollPane panel = new GraphZoomScrollPane(vv);
         content.add(panel);
@@ -112,7 +113,7 @@ public class ImageEdgeLabelDemo extends JApplet {
             }
         });
 
-        JComboBox modeBox = graphMouse.getModeComboBox();
+        JComboBox<Mode> modeBox = graphMouse.getModeComboBox();
         JPanel modePanel = new JPanel();
         modePanel.setBorder(BorderFactory.createTitledBorder("Mouse Mode"));
         modePanel.add(modeBox);
@@ -158,9 +159,6 @@ public class ImageEdgeLabelDemo extends JApplet {
         graph.addEdge(j++, 10, 4, EdgeType.DIRECTED);
     }
 
-    /**
-	 * a driver for this demo
-	 */
     public static void main(String[] args) {
         JFrame frame = new JFrame();
         Container content = frame.getContentPane();

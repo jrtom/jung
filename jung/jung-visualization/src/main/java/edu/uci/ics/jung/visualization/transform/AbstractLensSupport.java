@@ -26,8 +26,6 @@ import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
  * for examples of how to use it.
  * 
  * @author Tom Nelson
- *
- *
  */
 public abstract class AbstractLensSupport<V,E> implements LensSupport {
 
@@ -48,6 +46,7 @@ public abstract class AbstractLensSupport<V,E> implements LensSupport {
      * create the base class, setting common members and creating
      * a custom GraphMouse
      * @param vv the VisualizationViewer to work on
+     * @param lensGraphMouse the GraphMouse instance to use for the lens
      */
     public AbstractLensSupport(VisualizationViewer<V,E> vv, ModalGraphMouse lensGraphMouse) {
         this.vv = vv;
@@ -66,7 +65,7 @@ public abstract class AbstractLensSupport<V,E> implements LensSupport {
     }
 
     /**
-     * @return Returns the hyperbolicGraphMouse.
+     * @return the hyperbolicGraphMouse.
      */
     public ModalGraphMouse getGraphMouse() {
         return lensGraphMouse;
@@ -75,8 +74,6 @@ public abstract class AbstractLensSupport<V,E> implements LensSupport {
     /**
      * the background for the hyperbolic projection
      * @author Tom Nelson 
-     *
-     *
      */
     public static class Lens implements Paintable {
         LensTransformer lensTransformer;
@@ -102,12 +99,7 @@ public abstract class AbstractLensSupport<V,E> implements LensSupport {
 			this.paint = paint;
 		}
 
-		/**
-         * @return Returns the hyperbolicTransformer.
-         */
-
         public void paint(Graphics g) {
-            
             Graphics2D g2d = (Graphics2D)g;
             g2d.setPaint(paint);
             g2d.fill(lensShape);
@@ -147,10 +139,6 @@ public abstract class AbstractLensSupport<V,E> implements LensSupport {
 		public void setPaint(Paint paint) {
 			this.paint = paint;
 		}
-
-		/**
-         * @return Returns the hyperbolicTransformer.
-         */
 
         public void paint(Graphics g) {
             
@@ -194,5 +182,4 @@ public abstract class AbstractLensSupport<V,E> implements LensSupport {
 	public void setLensControls(LensControls lensControls) {
 		this.lensControls = lensControls;
 	}
-
 }

@@ -39,11 +39,11 @@ public class SatelliteScalingGraphMousePlugin extends ScalingGraphMousePlugin {
     public void mouseWheelMoved(MouseWheelEvent e) {
         boolean accepted = checkModifiers(e);
         if(accepted == true) {
-            VisualizationViewer vv = (VisualizationViewer)e.getSource();
+            VisualizationViewer<?, ?> vv = (VisualizationViewer<?, ?>)e.getSource();
 
             if(vv instanceof SatelliteVisualizationViewer) {
-                VisualizationViewer vvMaster = 
-                    ((SatelliteVisualizationViewer)vv).getMaster();
+                VisualizationViewer<?, ?> vvMaster = 
+                    ((SatelliteVisualizationViewer<?, ?>)vv).getMaster();
 
                 int amount = e.getWheelRotation();
                 

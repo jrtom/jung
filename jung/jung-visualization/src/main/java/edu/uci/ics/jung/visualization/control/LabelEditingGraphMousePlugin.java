@@ -53,9 +53,8 @@ public class LabelEditingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
 	}
 
 	/**
-	 * create an instance with overides
+	 * create an instance with overrides
 	 * @param selectionModifiers for primary selection
-	 * @param addToSelectionModifiers for additional selection
 	 */
     public LabelEditingGraphMousePlugin(int selectionModifiers) {
         super(selectionModifiers);
@@ -81,13 +80,14 @@ public class LabelEditingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
 	 */
     @SuppressWarnings("unchecked")
     public void mouseClicked(MouseEvent e) {
-    	if(e.getModifiers() == modifiers && e.getClickCount() == 2) {
-    		VisualizationViewer<V,E> vv = (VisualizationViewer)e.getSource();
+    	if (e.getModifiers() == modifiers && e.getClickCount() == 2) {
+    		VisualizationViewer<V,E> vv = (VisualizationViewer<V, E>)e.getSource();
     		GraphElementAccessor<V,E> pickSupport = vv.getPickSupport();
-    		if(pickSupport != null) {
+    		if (pickSupport != null) {
     			Function<? super V,String> vs = vv.getRenderContext().getVertexLabelTransformer();
-    			if(vs instanceof MapSettableTransformer) {
-    				MapSettableTransformer mst = (MapSettableTransformer)vs;
+    			if (vs instanceof MapSettableTransformer) {
+    				MapSettableTransformer<? super V, String> mst =
+    					(MapSettableTransformer<? super V, String>)vs;
     				Layout<V,E> layout = vv.getGraphLayout();
     				// p is the screen point for the mouse event
     				Point2D p = e.getPoint();
@@ -104,8 +104,9 @@ public class LabelEditingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
     				}
     			}
     			Function<? super E,String> es = vv.getRenderContext().getEdgeLabelTransformer();
-    			if(es instanceof MapSettableTransformer) {
-    				MapSettableTransformer mst = (MapSettableTransformer)es;
+    			if (es instanceof MapSettableTransformer) {
+    				MapSettableTransformer<? super E, String> mst =
+    					(MapSettableTransformer<? super E, String>)es;
     				Layout<V,E> layout = vv.getGraphLayout();
     				// p is the screen point for the mouse event
     				Point2D p = e.getPoint();
@@ -147,13 +148,9 @@ public class LabelEditingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
     }
 
 	public void mouseEntered(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	public void mouseExited(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
 	}
 
 }

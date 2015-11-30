@@ -56,7 +56,9 @@ public class WeightedNIPaths<V,E> extends AbstractRanker<V,E> {
     /**
      * Constructs and initializes the algorithm.
      * @param graph the graph whose nodes are being measured for their importance
-     * @param alpha the path decay coefficient (>= 1); 2 is recommended
+     * @param vertexFactory used to generate instances of V
+     * @param edgeFactory used to generate instances of E
+     * @param alpha the path decay coefficient (&ge;1); 2 is recommended
      * @param maxDepth the maximal depth to search out from the root set
      * @param priors the root set (starting vertices)
      */

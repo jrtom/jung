@@ -19,18 +19,17 @@ import com.google.common.base.Function;
 /**
  * Labels vertices by their toString. This class functions as a drop-in
  * replacement for the default StringLabeller method. This class does not
- * guarantee unique labels; or even consistent ones; as a result,
- * getVertexByLabel will always return NULL.
+ * guarantee unique labels; or even consistent ones.
  * 
  * @author danyelf
  */
-public class ToStringLabeller<V> implements Function<V,String> {
+public class ToStringLabeller implements Function<Object, String> {
 
     /**
-     * Retunrs v.toString()
+     * @return o.toString()
      */
-    public String apply(V v) {
-        return v.toString();
+    public String apply(Object o) {
+        return o.toString();
     }
 
  }

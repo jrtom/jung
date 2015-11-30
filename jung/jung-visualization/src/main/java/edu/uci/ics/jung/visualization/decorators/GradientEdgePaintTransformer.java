@@ -85,6 +85,8 @@ public class GradientEdgePaintTransformer<V, E>
      * Returns <code>c1</code>.  Subclasses may override
      * this method to enable more complex behavior (e.g., for
      * picked edges).
+     * @param e the edge for which a color is to be retrieved
+     * @return the constructor-supplied color {@code c1}
      */
     protected Color getColor1(E e)
     {
@@ -95,6 +97,8 @@ public class GradientEdgePaintTransformer<V, E>
      * Returns <code>c2</code>.  Subclasses may override
      * this method to enable more complex behavior (e.g., for
      * picked edges).
+     * @param e the edge for which a color is to be retrieved
+     * @return the constructor-supplied color {@code c2}
      */
     protected Color getColor2(E e)
     {

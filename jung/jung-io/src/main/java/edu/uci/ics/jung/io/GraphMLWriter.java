@@ -33,8 +33,8 @@ import edu.uci.ics.jung.graph.util.Pair;
  *
  * Current known issues: 
  * <ul>
- * <li/>Only supports one graph per output file.
- * <li/>Does not indent lines for text-format readability.
+ * <li>Only supports one graph per output file.
+ * <li>Does not indent lines for text-format readability.
  * </ul>
  * 
  */
@@ -51,10 +51,6 @@ public class GraphMLWriter<V,E>
 	protected boolean directed;
 	protected int nest_level;
     
-	/**
-	 * 
-	 */
-	@SuppressWarnings("unchecked")
 	public GraphMLWriter() 
 	{
 	    vertex_ids = new Function<V,String>()
@@ -76,10 +72,10 @@ public class GraphMLWriter<V,E>
 	
 	
 	/**
-	 * 
-	 * @param graph
-	 * @param w
-	 * @throws IOException 
+	 * Writes {@code graph} out using {@code w}.
+	 * @param graph the graph to write out
+	 * @param w the writer instance to which the graph data will be written out
+	 * @throws IOException if writing the graph fails
 	 */
 	public void save(Hypergraph<V,E> graph, Writer w) throws IOException
 	{
@@ -314,7 +310,7 @@ public class GraphMLWriter<V,E>
 	 * the output of <code>toString</code> 
 	 * (and thus not guaranteed to be unique).
 	 * 
-	 * @param vertex_ids
+	 * @param vertex_ids a mapping from vertex to ID
 	 */
 	public void setVertexIDs(Function<V, String> vertex_ids) 
 	{
@@ -327,7 +323,7 @@ public class GraphMLWriter<V,E>
 	 * If any edge ID is missing, no ID will be written out for the
 	 * corresponding edge.
 	 * 
-	 * @param edge_ids
+	 * @param edge_ids a mapping from edge to ID
 	 */
 	public void setEdgeIDs(Function<E, String> edge_ids) 
 	{
@@ -336,6 +332,8 @@ public class GraphMLWriter<V,E>
 
 	/**
 	 * Provides a map from data type name to graph data.
+	 * 
+	 * @param graph_map map from data type name to graph data
 	 */
 	public void setGraphData(Map<String, GraphMLMetadata<Hypergraph<V,E>>> graph_map)
 	{
@@ -344,6 +342,8 @@ public class GraphMLWriter<V,E>
 	
     /**
      * Provides a map from data type name to vertex data.
+     * 
+     * @param vertex_map map from data type name to vertex data
      */
 	public void setVertexData(Map<String, GraphMLMetadata<V>> vertex_map)
 	{
@@ -352,6 +352,8 @@ public class GraphMLWriter<V,E>
 	
     /**
      * Provides a map from data type name to edge data.
+     * 
+     * @param edge_map map from data type name to edge data
      */
 	public void setEdgeData(Map<String, GraphMLMetadata<E>> edge_map)
 	{
@@ -360,6 +362,11 @@ public class GraphMLWriter<V,E>
 	
 	/**
 	 * Adds a new graph data specification.
+	 * 
+	 * @param id the ID of the data to add
+	 * @param description a description of the data to add
+	 * @param default_value a default value for the data type
+	 * @param graph_transformer a mapping from graphs to their string representations
 	 */
 	public void addGraphData(String id, String description, String default_value,
 			Function<Hypergraph<V,E>, String> graph_transformer)
@@ -370,9 +377,14 @@ public class GraphMLWriter<V,E>
 				default_value, graph_transformer));
 	}
 	
-    /**
-     * Adds a new vertex data specification.
-     */
+	/**
+	 * Adds a new vertex data specification.
+	 * 
+	 * @param id the ID of the data to add
+	 * @param description a description of the data to add
+	 * @param default_value a default value for the data type
+	 * @param vertex_transformer a mapping from vertices to their string representations
+	 */
 	public void addVertexData(String id, String description, String default_value,
 			Function<V, String> vertex_transformer)
 	{
@@ -382,9 +394,14 @@ public class GraphMLWriter<V,E>
 				vertex_transformer));
 	}
 
-    /**
-     * Adds a new edge data specification.
-     */
+	/**
+	 * Adds a new edge data specification.
+	 * 
+	 * @param id the ID of the data to add
+	 * @param description a description of the data to add
+	 * @param default_value a default value for the data type
+	 * @param edge_transformer a mapping from edges to their string representations
+	 */
 	public void addEdgeData(String id, String description, String default_value,
 			Function<E, String> edge_transformer)
 	{
@@ -396,6 +413,7 @@ public class GraphMLWriter<V,E>
 
 	/**
 	 * Provides vertex descriptions.
+	 * @param vertex_desc a mapping from vertices to their descriptions
 	 */
 	public void setVertexDescriptions(Function<V, String> vertex_desc) 
 	{
@@ -404,6 +422,7 @@ public class GraphMLWriter<V,E>
 
     /**
      * Provides edge descriptions.
+	 * @param edge_desc a mapping from edges to their descriptions
      */
 	public void setEdgeDescriptions(Function<E, String> edge_desc) 
 	{
@@ -412,6 +431,7 @@ public class GraphMLWriter<V,E>
 
     /**
      * Provides graph descriptions.
+	 * @param graph_desc a mapping from graphs to their descriptions
      */
 	public void setGraphDescriptions(Function<Hypergraph<V,E>, String> graph_desc) 
 	{

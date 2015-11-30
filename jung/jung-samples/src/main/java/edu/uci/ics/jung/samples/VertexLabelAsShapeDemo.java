@@ -91,18 +91,11 @@ public class VertexLabelAsShapeDemo extends JApplet {
         vv.getRenderContext().setVertexLabelTransformer(
         		// this chains together Functions so that the html tags
         		// are prepended to the toString method output
-        		Functions.<String,String,String>compose(
+        		Functions.<Object,String,String>compose(
         				new Function<String,String>(){
-//							@Override
 							public String apply(String input) {
 								return "<html><center>Vertex<p>"+input;
-							}}, new ToStringLabeller<String>()));
-//        		new ChainedTransformer<String,String>(new Function[]{
-//        		new ToStringLabeller<String>(),
-//        		new Function<String,String>() {
-//					public String transform(String input) {
-//						return "<html><center>Vertex<p>"+input;
-//					}}}));
+							}}, new ToStringLabeller()));
         vv.getRenderContext().setVertexShapeTransformer(vlasr);
         vv.getRenderContext().setVertexLabelRenderer(new DefaultVertexLabelRenderer(Color.red));
         vv.getRenderContext().setEdgeDrawPaintTransformer(Functions.<Paint>constant(Color.yellow));
@@ -115,7 +108,7 @@ public class VertexLabelAsShapeDemo extends JApplet {
         vv.setBackground(Color.black);
         
         // add a listener for ToolTips
-        vv.setVertexToolTipTransformer(new ToStringLabeller<String>());
+        vv.setVertexToolTipTransformer(new ToStringLabeller());
         
         final DefaultModalGraphMouse<String,Number> graphMouse = 
             new DefaultModalGraphMouse<String,Number>();
@@ -127,7 +120,7 @@ public class VertexLabelAsShapeDemo extends JApplet {
         GraphZoomScrollPane gzsp = new GraphZoomScrollPane(vv);
         content.add(gzsp);
         
-        JComboBox modeBox = graphMouse.getModeComboBox();
+        JComboBox<?> modeBox = graphMouse.getModeComboBox();
         modeBox.addItemListener(graphMouse.getModeListener());
         graphMouse.setMode(ModalGraphMouse.Mode.TRANSFORMING);
         
@@ -156,9 +149,6 @@ public class VertexLabelAsShapeDemo extends JApplet {
         content.add(controls, BorderLayout.SOUTH);
     }
     
-    /**
-     * a driver for this demo
-     */
     public static void main(String[] args) {
         JFrame f = new JFrame();
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

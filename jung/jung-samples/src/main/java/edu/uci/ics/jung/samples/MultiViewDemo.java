@@ -218,10 +218,10 @@ public class MultiViewDemo extends JApplet {
         
         // create a GraphMouse for each view
         // each one has a different scaling plugin
-        DefaultModalGraphMouse gm1 = new DefaultModalGraphMouse() {
+        DefaultModalGraphMouse<String,Number> gm1 = new DefaultModalGraphMouse<String,Number>() {
             protected void loadPlugins() {
-                pickingPlugin = new PickingGraphMousePlugin();
-                animatedPickingPlugin = new AnimatedPickingGraphMousePlugin();
+                pickingPlugin = new PickingGraphMousePlugin<String,Number>();
+                animatedPickingPlugin = new AnimatedPickingGraphMousePlugin<String,Number>();
                 translatingPlugin = new TranslatingGraphMousePlugin(InputEvent.BUTTON1_MASK);
                 scalingPlugin = new ScalingGraphMousePlugin(new LayoutScalingControl(), 0);
                 rotatingPlugin = new RotatingGraphMousePlugin();
@@ -232,10 +232,10 @@ public class MultiViewDemo extends JApplet {
             }
         };
 
-        DefaultModalGraphMouse gm2 = new DefaultModalGraphMouse() {
+        DefaultModalGraphMouse<String,Number> gm2 = new DefaultModalGraphMouse<String,Number>() {
             protected void loadPlugins() {
-                pickingPlugin = new PickingGraphMousePlugin();
-                animatedPickingPlugin = new AnimatedPickingGraphMousePlugin();
+                pickingPlugin = new PickingGraphMousePlugin<String,Number>();
+                animatedPickingPlugin = new AnimatedPickingGraphMousePlugin<String,Number>();
                 translatingPlugin = new TranslatingGraphMousePlugin(InputEvent.BUTTON1_MASK);
                 scalingPlugin = new ScalingGraphMousePlugin(new ViewScalingControl(), 0);
                 rotatingPlugin = new RotatingGraphMousePlugin();
@@ -247,7 +247,7 @@ public class MultiViewDemo extends JApplet {
        	
         };
 
-        DefaultModalGraphMouse gm3 = new DefaultModalGraphMouse() {};
+        DefaultModalGraphMouse<String,Number> gm3 = new DefaultModalGraphMouse<String,Number>() {};
         
         vv1.setGraphMouse(gm1);
         vv2.setGraphMouse(gm2);
@@ -297,9 +297,9 @@ public class MultiViewDemo extends JApplet {
         int swidth;
         int sheight;
         String str;
-        VisualizationViewer vv;
+        VisualizationViewer<String,Number> vv;
         
-        public BannerLabel(VisualizationViewer vv, String label) {
+        public BannerLabel(VisualizationViewer<String,Number> vv, String label) {
             this.vv = vv;
             this.str = label;
         }
@@ -325,10 +325,6 @@ public class MultiViewDemo extends JApplet {
         }
     }
 
-
-    /**
-     * a driver for this demo
-     */
     public static void main(String[] args) {
         JFrame f = new JFrame();
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

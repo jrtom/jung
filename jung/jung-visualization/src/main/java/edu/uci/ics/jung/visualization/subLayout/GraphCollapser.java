@@ -15,10 +15,11 @@ import java.util.logging.Logger;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.Pair;
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class GraphCollapser  {
     
     private static final Logger logger = Logger.getLogger(GraphCollapser.class.getClass().getName());
-    private Graph originalGraph;
+	private Graph originalGraph;
     
     public GraphCollapser(Graph originalGraph) {
         this.originalGraph = originalGraph;

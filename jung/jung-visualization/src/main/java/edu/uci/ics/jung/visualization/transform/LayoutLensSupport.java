@@ -33,13 +33,17 @@ public class LayoutLensSupport<V,E> extends AbstractLensSupport<V,E>
 	protected GraphElementAccessor<V,E> pickSupport;
 	
     public LayoutLensSupport(VisualizationViewer<V,E> vv) {
-        this(vv, new HyperbolicTransformer(vv, vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT)),
-                new ModalLensGraphMouse());
+        this(vv, new HyperbolicTransformer(
+        		vv, vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT)),
+             new ModalLensGraphMouse());
     }
+    
     /**
-     * create the base class, setting common members and creating
-     * a custom GraphMouse
-     * @param vv the VisualizationViewer to work on
+     * Create an instance with the specified parameters.
+     * 
+     * @param vv the visualization viewer used for rendering
+     * @param lensTransformer the lens transformer to use
+     * @param lensGraphMouse the lens input handler
      */
     public LayoutLensSupport(VisualizationViewer<V,E> vv, LensTransformer lensTransformer,
             ModalGraphMouse lensGraphMouse) {

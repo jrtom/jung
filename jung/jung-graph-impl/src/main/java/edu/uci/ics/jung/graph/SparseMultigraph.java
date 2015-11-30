@@ -33,9 +33,9 @@ public class SparseMultigraph<V,E>
     implements MultiGraph<V,E> {
 	
     /**
-     * Returns a {@code Supplier} that creates an instance of this graph type.
      * @param <V> the vertex type for the graph Supplier
      * @param <E> the edge type for the graph Supplier
+     * @return a {@code Supplier} that creates an instance of this graph type
      */
 	public static <V,E> Supplier<Graph<V,E>> getFactory() { 
 		return new Supplier<Graph<V,E>> () {

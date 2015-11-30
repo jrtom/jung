@@ -116,7 +116,7 @@ public class VertexPartition<V,E>
 	}
 
 	/**
-	 * Returns the number of partitions.
+	 * @return the number of partitions.
 	 */
 	public int numPartitions() 
 	{

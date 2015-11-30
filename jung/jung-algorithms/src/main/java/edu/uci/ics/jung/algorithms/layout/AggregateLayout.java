@@ -39,7 +39,7 @@ public class AggregateLayout<V, E> implements Layout<V,E>, IterativeContext {
 
 	/**
 	 * Creates an instance backed by the specified {@code delegate}.
-	 * @param delegate
+	 * @param delegate the layout to which this instance is delegating
 	 */
 	public AggregateLayout(Layout<V, E> delegate) {
 		this.delegate = delegate;
@@ -60,18 +60,17 @@ public class AggregateLayout<V, E> implements Layout<V,E>, IterativeContext {
 	}
 
 	/**
-	 * adds the passed layout as a sublayout, also specifying
-	 * the center of where this sublayout should appear
-	 * @param layout
-	 * @param center
+	 * Adds the passed layout as a sublayout, and specifies
+	 * the center of where this sublayout should appear.
+	 * @param layout the layout algorithm to use as a sublayout
+	 * @param center the center of the coordinates for the sublayout
 	 */
 	public void put(Layout<V,E> layout, Point2D center) {
 		layouts.put(layout,center);
 	}
 	
 	/**
-	 * Returns the center of the passed layout.
-	 * @param layout
+	 * @param layout the layout whose center is to be returned
 	 * @return the center of the passed layout
 	 */
 	public Point2D get(Layout<V,E> layout) {
@@ -80,6 +79,7 @@ public class AggregateLayout<V, E> implements Layout<V,E>, IterativeContext {
 	
 	/**
 	 * Removes {@code layout} from this instance.
+	 * @param layout the layout to remove
 	 */
 	public void remove(Layout<V,E> layout) {
 		layouts.remove(layout);
@@ -92,28 +92,14 @@ public class AggregateLayout<V, E> implements Layout<V,E>, IterativeContext {
 		layouts.clear();
 	}
 	
-	/**
-	 * Returns the graph for which this layout is defined.
-	 * @return the graph for which this layout is defined
-	 * @see edu.uci.ics.jung.algorithms.layout.Layout#getGraph()
-	 */
 	public Graph<V, E> getGraph() {
 		return delegate.getGraph();
 	}
 
-	/**
-	 * Returns the size of the underlying layout.
-	 * @return the size of the underlying layout
-	 * @see edu.uci.ics.jung.algorithms.layout.Layout#getSize()
-	 */
 	public Dimension getSize() {
 		return delegate.getSize();
 	}
 
-	/**
-	 * 
-	 * @see edu.uci.ics.jung.algorithms.layout.Layout#initialize()
-	 */
 	public void initialize() {
 		delegate.initialize();
 		for(Layout<V,E> layout : layouts.keySet()) {
@@ -122,27 +108,23 @@ public class AggregateLayout<V, E> implements Layout<V,E>, IterativeContext {
 	}
 
 	/**
-	 * Override to test if the passed vertex is locked in
-	 * any of the layouts.
-	 * @param v
+	 * @param v the vertex whose locked state is to be returned
 	 * @return true if v is locked in any of the layouts, and false otherwise
-	 * @see edu.uci.ics.jung.algorithms.layout.Layout#isLocked(java.lang.Object)
 	 */
 	public boolean isLocked(V v) {
-		boolean locked = false;
 		for(Layout<V,E> layout : layouts.keySet()) {
-			locked |= layout.isLocked(v);
+			if (layout.isLocked(v)) {
+				return true;
+			}
 		}
-		locked |= delegate.isLocked(v);
-		return locked;
+		return delegate.isLocked(v);
 	}
 
 	/**
-	 * override to lock or unlock this vertex in any layout with
-	 * a subgraph containing it
-	 * @param v
-	 * @param state
-	 * @see edu.uci.ics.jung.algorithms.layout.Layout#lock(java.lang.Object, boolean)
+	 * Locks this vertex in the main layout and in any sublayouts whose graph contains
+	 * this vertex.
+	 * @param v the vertex whose locked state is to be set
+	 * @param state {@code true} if the vertex is to be locked, and {@code false} if unlocked
 	 */
 	public void lock(V v, boolean state) {
 		for(Layout<V,E> layout : layouts.keySet()) {
@@ -153,10 +135,6 @@ public class AggregateLayout<V, E> implements Layout<V,E>, IterativeContext {
 		delegate.lock(v, state);
 	}
 
-	/**
-	 * 
-	 * @see edu.uci.ics.jung.algorithms.layout.Layout#reset()
-	 */
 	public void reset() {
 		for(Layout<V,E> layout : layouts.keySet()) {
 			layout.reset();
@@ -164,27 +142,14 @@ public class AggregateLayout<V, E> implements Layout<V,E>, IterativeContext {
 		delegate.reset();
 	}
 
-	/**
-	 * @param graph
-	 * @see edu.uci.ics.jung.algorithms.layout.Layout#setGraph(edu.uci.ics.jung.graph.Graph)
-	 */
 	public void setGraph(Graph<V, E> graph) {
 		delegate.setGraph(graph);
 	}
 
-	/**
-	 * @param initializer
-	 * @see edu.uci.ics.jung.algorithms.layout.Layout#setInitializer(org.apache.commons.collections15.Transformer)
-	 */
 	public void setInitializer(Function<V, Point2D> initializer) {
 		delegate.setInitializer(initializer);
 	}
 
-	/**
-	 * @param v
-	 * @param location
-	 * @see edu.uci.ics.jung.algorithms.layout.Layout#setLocation(java.lang.Object, java.awt.geom.Point2D)
-	 */
 	public void setLocation(V v, Point2D location) {
 		boolean wasInSublayout = false;
 		for(Layout<V,E> layout : layouts.keySet()) {
@@ -206,16 +171,12 @@ public class AggregateLayout<V, E> implements Layout<V,E>, IterativeContext {
 		}
 	}
 
-	/**
-	 * @param d
-	 * @see edu.uci.ics.jung.algorithms.layout.Layout#setSize(java.awt.Dimension)
-	 */
 	public void setSize(Dimension d) {
 		delegate.setSize(d);
 	}
 	
 	/**
-	 * Returns a map from each {@code Layout} instance to its center point.
+	 * @return a map from each {@code Layout} instance to its center point.
 	 */
 	public Map<Layout<V,E>,Point2D> getLayouts() {
 		return layouts;
@@ -226,7 +187,6 @@ public class AggregateLayout<V, E> implements Layout<V,E>, IterativeContext {
 	 * by the sublayouts, and then by the base layout if no sublayouts operate
 	 * on this vertex.
 	 * @return the location of the vertex
-	 * @see org.apache.commons.collections15.Transformer#transform(java.lang.Object)
 	 */
 	public Point2D apply(V v) {
 		boolean wasInSublayout = false;
@@ -251,25 +211,24 @@ public class AggregateLayout<V, E> implements Layout<V,E>, IterativeContext {
 	}
 
 	/**
-	 * Check all sublayouts.keySet() and the delegate layout, returning
-	 * done == true iff all are done.
+	 * @return {@code true} iff the delegate layout and all sublayouts are done
 	 */
 	public boolean done() {
-		boolean done = true;
-		for(Layout<V,E> layout : layouts.keySet()) {
-			if(layout instanceof IterativeContext) {
-				done &= ((IterativeContext)layout).done();
+		for (Layout<V,E> layout : layouts.keySet()) {
+			if (layout instanceof IterativeContext) {
+				if (! ((IterativeContext) layout).done() ) {
+					return false;
+				}
 			}
 		}
 		if(delegate instanceof IterativeContext) {
-			done &= ((IterativeContext)delegate).done();
+			return ((IterativeContext)delegate).done();
 		}
-		return done;
+		return true;
 	}
 
 	/**
-	 * call step on any sublayout that is also an IterativeContext
-	 * and is not done
+	 * Call step on any sublayout that is also an IterativeContext and is not done
 	 */
 	public void step() {
 		for(Layout<V,E> layout : layouts.keySet()) {

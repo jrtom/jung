@@ -167,8 +167,8 @@ public class SatelliteViewDemo<V, E> extends JApplet {
         helpDialog.getContentPane().add(new JLabel(instructions));
         
         // create a GraphMouse for the main view
-        // 
-        final DefaultModalGraphMouse graphMouse = new DefaultModalGraphMouse();
+        final DefaultModalGraphMouse<String, Number> graphMouse
+        	= new DefaultModalGraphMouse<String, Number>();
         vv1.setGraphMouse(graphMouse);
         
         final ScalingControl scaler = new CrossoverScalingControl();
@@ -186,8 +186,9 @@ public class SatelliteViewDemo<V, E> extends JApplet {
             }
         });
         
-        JComboBox modeBox = graphMouse.getModeComboBox();
-        modeBox.addItemListener(((DefaultModalGraphMouse)vv2.getGraphMouse()).getModeListener());
+        JComboBox<?> modeBox = graphMouse.getModeComboBox();
+        modeBox.addItemListener(((DefaultModalGraphMouse<?, ?>)vv2.getGraphMouse())
+        	.getModeListener());
         
         JCheckBox gridBox = new JCheckBox("Show Grid");
         gridBox.addItemListener(new ItemListener() {
@@ -212,7 +213,7 @@ public class SatelliteViewDemo<V, E> extends JApplet {
         content.add(controls, BorderLayout.SOUTH);
     }
     
-    protected void showGrid(VisualizationViewer vv, boolean state) {
+    protected void showGrid(VisualizationViewer<?, ?> vv, boolean state) {
     		if(state == true) {
     			vv.addPreRenderPaintable(viewGrid);
     		} else {
@@ -228,10 +229,10 @@ public class SatelliteViewDemo<V, E> extends JApplet {
      */
     static class ViewGrid implements Paintable {
 
-        VisualizationViewer master;
-        VisualizationViewer vv;
+        VisualizationViewer<?, ?> master;
+        VisualizationViewer<?, ?> vv;
         
-        public ViewGrid(VisualizationViewer vv, VisualizationViewer master) {
+        public ViewGrid(VisualizationViewer<?, ?> vv, VisualizationViewer<?, ?> master) {
             this.vv = vv;
             this.master = master;
         }
@@ -287,13 +288,10 @@ public class SatelliteViewDemo<V, E> extends JApplet {
     }
 
     
-    /**
-     * a driver for this demo
-     */
     public static void main(String[] args) {
         JFrame f = new JFrame();
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        f.getContentPane().add(new SatelliteViewDemo());
+        f.getContentPane().add(new SatelliteViewDemo<String, Number>());
         f.pack();
         f.setVisible(true);
     }

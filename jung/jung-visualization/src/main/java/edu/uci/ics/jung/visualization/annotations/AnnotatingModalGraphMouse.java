@@ -43,8 +43,8 @@ import edu.uci.ics.jung.visualization.control.TranslatingGraphMousePlugin;
  * 
  * @author Tom Nelson - tomnelson@dev.java.net
  *
- * @param <V>
- * @param <E>
+ * @param <V> the vertex type
+ * @param <E> the edge type
  */
 public class AnnotatingModalGraphMouse<V,E> extends AbstractModalGraphMouse 
 	implements ModalGraphMouse, ItemSelectable {
@@ -54,8 +54,10 @@ public class AnnotatingModalGraphMouse<V,E> extends AbstractModalGraphMouse
 	protected RenderContext<V,E> rc;
 
 	/**
-	 * create an instance with default values
-	 *
+	 * Create an instance with default values for scale in (1.1) and scale out (1/1.1).
+	 * 
+	 * @param rc the RenderContext for which this class will be used
+	 * @param annotatingPlugin the plugin used by this class for annotating
 	 */
 	public AnnotatingModalGraphMouse(RenderContext<V,E> rc, 
 			AnnotatingGraphMousePlugin<V,E> annotatingPlugin) {
@@ -63,7 +65,10 @@ public class AnnotatingModalGraphMouse<V,E> extends AbstractModalGraphMouse
 	}
 
 	/**
-	 * create an instance with passed values
+	 * Create an instance with the specified scale in and scale out values.
+	 * 
+	 * @param rc the RenderContext for which this class will be used
+	 * @param annotatingPlugin the plugin used by this class for annotating
 	 * @param in override value for scale in
 	 * @param out override value for scale out
 	 */
@@ -117,9 +122,6 @@ public class AnnotatingModalGraphMouse<V,E> extends AbstractModalGraphMouse
 		}
 	}
 	
-	/* (non-Javadoc)
-	 * @see edu.uci.ics.jung.visualization.control.ModalGraphMouse#setPickingMode()
-	 */
 	@Override
 	protected void setPickingMode() {
 		remove(translatingPlugin);
@@ -130,9 +132,6 @@ public class AnnotatingModalGraphMouse<V,E> extends AbstractModalGraphMouse
 		add(animatedPickingPlugin);
 	}
 
-	/* (non-Javadoc)
-	 * @see edu.uci.ics.jung.visualization.control.ModalGraphMouse#setTransformingMode()
-	 */
 	@Override
 	protected void setTransformingMode() {
 		remove(pickingPlugin);
@@ -166,9 +165,10 @@ public class AnnotatingModalGraphMouse<V,E> extends AbstractModalGraphMouse
 	 * @return Returns the modeBox.
 	 */
 	@Override
-	public JComboBox getModeComboBox() {
+	public JComboBox<Mode> getModeComboBox() {
 		if(modeBox == null) {
-			modeBox = new JComboBox(new Mode[]{Mode.TRANSFORMING, Mode.PICKING, Mode.ANNOTATING});
+			modeBox = new JComboBox<Mode>(
+				new Mode[]{Mode.TRANSFORMING, Mode.PICKING, Mode.ANNOTATING});
 			modeBox.addItemListener(getModeListener());
 		}
 		modeBox.setSelectedItem(mode);

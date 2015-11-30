@@ -46,6 +46,8 @@ public class RadiusGraphElementAccessor<V, E> implements GraphElementAccessor<V,
     
     /**
      * Creates an instance with the specified default maximum distance.
+     * @param maxDistance the maximum distance at which any element can be from a specified location
+     *     and still be returned
      */
     public RadiusGraphElementAccessor(double maxDistance) {
         this.maxDistance = maxDistance;
@@ -55,7 +57,13 @@ public class RadiusGraphElementAccessor<V, E> implements GraphElementAccessor<V,
 	 * Gets the vertex nearest to the location of the (x,y) location selected,
 	 * within a distance of <tt>maxDistance</tt>. Iterates through all
 	 * visible vertices and checks their distance from the click. Override this
-	 * method to provde a more efficient implementation.
+	 * method to provide a more efficient implementation.
+	 * 
+	 * @param layout the context in which the location is defined
+	 * @param x the x coordinate of the location
+	 * @param y the y coordinate of the location
+	 * @return a vertex which is associated with the location {@code (x,y)}
+	 *     as given by {@code layout}
 	 */
 	public V getVertex(Layout<V,E> layout, double x, double y) {
 	    return getVertex(layout, x, y, this.maxDistance);
@@ -63,12 +71,17 @@ public class RadiusGraphElementAccessor<V, E> implements GraphElementAccessor<V,
 
 	/**
 	 * Gets the vertex nearest to the location of the (x,y) location selected,
-	 * within a distance of <tt>maxDistance</tt>. Iterates through all
-	 * visible vertices and checks their distance from the click. Override this
-	 * method to provde a more efficient implementation.
-	 * @param x
-	 * @param y
-	 * @param maxDistance temporarily overrides member maxDistance
+	 * within a distance of {@code maxDistance}. Iterates through all
+	 * visible vertices and checks their distance from the location. Override this
+	 * method to provide a more efficient implementation.
+	 * 
+	 * @param layout the context in which the location is defined
+	 * @param x the x coordinate of the location
+	 * @param y the y coordinate of the location
+	 * @param maxDistance the maximum distance at which any element can be from a specified location
+     *     and still be returned
+	 * @return a vertex which is associated with the location {@code (x,y)}
+	 *     as given by {@code layout}
 	 */
 	public V getVertex(Layout<V,E> layout, double x, double y, double maxDistance) {
 		double minDistance = maxDistance * maxDistance;
@@ -109,24 +122,23 @@ public class RadiusGraphElementAccessor<V, E> implements GraphElementAccessor<V,
 		return pickedVertices;
 	}
 	
-	/**
-	 * Gets the edge nearest to the location of the (x,y) location selected.
-	 * Calls the longer form of the call.
-	 */
 	public E getEdge(Layout<V,E> layout, double x, double y) {
 	    return getEdge(layout, x, y, this.maxDistance);
 	}
 
 	/**
-	 * Gets the edge nearest to the location of the (x,y) location selected,
-	 * within a distance of <tt>maxDistance</tt>, Iterates through all
-	 * visible edges and checks their distance from the click. Override this
+	 * Gets the vertex nearest to the location of the (x,y) location selected,
+	 * whose endpoints are &lt; {@code maxDistance}. Iterates through all
+	 * visible vertices and checks their distance from the location. Override this
 	 * method to provide a more efficient implementation.
 	 * 
-	 * @param x
-	 * @param y
-	 * @param maxDistance temporarily overrides member maxDistance
-	 * @return Edge closest to the click.
+	 * @param layout the context in which the location is defined
+	 * @param x the x coordinate of the location
+	 * @param y the y coordinate of the location
+	 * @param maxDistance the maximum distance at which any element can be from a specified location
+     *     and still be returned
+	 * @return an edge which is associated with the location {@code (x,y)}
+	 *     as given by {@code layout}
 	 */
 	public E getEdge(Layout<V,E> layout, double x, double y, double maxDistance) {
 		double minDistance = maxDistance * maxDistance;

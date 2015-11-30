@@ -138,9 +138,9 @@ public class BalloonLayoutDemo extends JApplet {
         vv =  new VisualizationViewer<String,Integer>(layout, new Dimension(600,600));
         vv.setBackground(Color.white);
         vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.quadCurve(graph));
-        vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller<String>());
+        vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
         // add a listener for ToolTips
-        vv.setVertexToolTipTransformer(new ToStringLabeller<String>());
+        vv.setVertexToolTipTransformer(new ToStringLabeller());
         vv.getRenderContext().setArrowFillPaintTransformer(Functions.<Paint>constant(Color.lightGray));
         rings = new Rings(radialLayout);
         
@@ -325,9 +325,6 @@ public class BalloonLayoutDemo extends JApplet {
        	
     }
 
-    /**
-     * a driver for this demo
-     */
     public static void main(String[] args) {
         JFrame frame = new JFrame();
         Container content = frame.getContentPane();

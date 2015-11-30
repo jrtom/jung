@@ -25,8 +25,8 @@ import edu.uci.ics.jung.algorithms.layout.Layout;
  * visualization, then produces an image of it.
  * @author tom
  *
- * @param <V>
- * @param <E>
+ * @param <V> the vertex type
+ * @param <E> the edge type
  */
 @SuppressWarnings("serial")
 public class VisualizationImageServer<V,E> extends BasicVisualizationServer<V,E> {
@@ -34,7 +34,10 @@ public class VisualizationImageServer<V,E> extends BasicVisualizationServer<V,E>
     Map<RenderingHints.Key, Object> renderingHints = new HashMap<RenderingHints.Key, Object>();
     
     /**
-     * Creates a new instance the specified layout and preferred size.
+     * Creates a new instance with the specified layout and preferred size.
+     * 
+     * @param layout the Layout instance; provides the vertex locations
+     * @param preferredSize the preferred size of the image
      */
     public VisualizationImageServer(Layout<V,E> layout, Dimension preferredSize) {
         super(layout, preferredSize);

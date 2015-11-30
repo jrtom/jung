@@ -65,10 +65,10 @@ public class BetweennessCentrality<V,E> extends AbstractRanker<V,E> {
 
     	Map<V,BetweennessData> decorator = new HashMap<V,BetweennessData>();
     	Map<V,Number> bcVertexDecorator = 
-    		vertexRankScores.get(getRankScoreKey());
+    		vertexRankScores.getUnchecked(getRankScoreKey());
     	bcVertexDecorator.clear();
     	Map<E,Number> bcEdgeDecorator = 
-    		edgeRankScores.get(getRankScoreKey());
+    		edgeRankScores.getUnchecked(getRankScoreKey());
     	bcEdgeDecorator.clear();
         
         Collection<V> vertices = graph.getVertices();
@@ -144,7 +144,7 @@ public class BetweennessCentrality<V,E> extends AbstractRanker<V,E> {
     private void initializeData(Graph<V,E> g, Map<V,BetweennessData> decorator) {
         for (V vertex : g.getVertices()) {
 
-        	Map<V,Number> bcVertexDecorator = vertexRankScores.get(getRankScoreKey());
+        	Map<V,Number> bcVertexDecorator = vertexRankScores.getUnchecked(getRankScoreKey());
         	if(bcVertexDecorator.containsKey(vertex) == false) {
         		bcVertexDecorator.put(vertex, 0.0);
         	}
@@ -152,7 +152,7 @@ public class BetweennessCentrality<V,E> extends AbstractRanker<V,E> {
         }
         for (E e : g.getEdges()) {
 
-        	Map<E,Number> bcEdgeDecorator = edgeRankScores.get(getRankScoreKey());
+        	Map<E,Number> bcEdgeDecorator = edgeRankScores.getUnchecked(getRankScoreKey());
         	if(bcEdgeDecorator.containsKey(e) == false) {
         		bcEdgeDecorator.put(e, 0.0);
         	}

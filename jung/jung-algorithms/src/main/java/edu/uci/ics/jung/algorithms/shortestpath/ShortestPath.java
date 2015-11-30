@@ -20,10 +20,12 @@ import java.util.Map;
 public interface ShortestPath<V, E>
 {
     /**
-     * <p>Returns a <code>Map</code> which maps each vertex 
-     * in the graph (including the <code>source</code> vertex) 
-     * to the last edge on the shortest path from the 
-     * <code>source</code> vertex.
+     * Returns a map from vertices to the last edge on the shortest path to that vertex
+     * starting from {@code source}.
+     * 
+     * @param source the starting point for the shortest paths
+     * @return a map from vertices to the last edge on the shortest path to that vertex
+     *     starting from {@code source}
      */ 
      Map<V,E> getIncomingEdgeMap(V source);
 }

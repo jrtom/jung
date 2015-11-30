@@ -36,29 +36,29 @@ import edu.uci.ics.jung.graph.Graph;
  * HITS is somewhat different from random walk/eigenvector-based algorithms 
  * such as PageRank in that: 
  * <ul>
- * <li/>there are two mutually recursive scores being calculated, rather than 
+ * <li>there are two mutually recursive scores being calculated, rather than 
  * a single value
- * <li/>the edge weights are effectively all 1, i.e., they can't be interpreted
+ * <li>the edge weights are effectively all 1, i.e., they can't be interpreted
  * as transition probabilities.  This means that the more inlinks and outlinks
  * that a vertex has, the better, since adding an inlink (or outlink) does
  * not dilute the influence of the other inlinks (or outlinks) as in 
  * random walk-based algorithms.
- * <li/>the scores cannot be interpreted as posterior probabilities (due to the different
+ * <li>the scores cannot be interpreted as posterior probabilities (due to the different
  * normalization)
  * </ul>
  * 
  * This implementation has the classic behavior by default.  However, it has
  * been generalized somewhat so that it can act in a more "PageRank-like" fashion:
  * <ul>
- * <li/>this implementation has an optional 'random jump probability' parameter analogous
+ * <li>this implementation has an optional 'random jump probability' parameter analogous
  * to the 'alpha' parameter used by PageRank.  Varying this value between 0 and 1
  * allows the user to vary between the classic HITS behavior and one in which the
  * scores are smoothed to a uniform distribution.
  * The default value for this parameter is 0 (no random jumps possible).
- * <li/>the edge weights can be set to anything the user likes, and in 
+ * <li>the edge weights can be set to anything the user likes, and in 
  * particular they can be set up (e.g. using <code>UniformDegreeWeight</code>)
  * so that the weights of the relevant edges incident to a vertex sum to 1.
- * <li/>The vertex score normalization has been factored into its own method
+ * <li>The vertex score normalization has been factored into its own method
  * so that it can be overridden by a subclass.  Thus, for example, 
  * since the vertices' values are set to sum to 1 initially, if the weights of the
  * relevant edges incident to a vertex sum to 1, then the vertices' values
@@ -129,6 +129,8 @@ public class HITS<V,E> extends HITSWithPriors<V,E>
     	
     	/**
     	 * Creates an instance with the specified hub and authority score.
+    	 * @param hub the hub score
+    	 * @param authority the authority score
     	 */
     	public Scores(double hub, double authority)
     	{

@@ -45,7 +45,6 @@ public class EndpointElementParser<G extends Hypergraph<V,E>,V,E> extends Abstra
         super(parserContext);
     }
     
-    @SuppressWarnings("unchecked")
     public EndpointMetadata parse(XMLEventReader xmlEventReader, StartElement start)
             throws GraphIOException {
 
@@ -54,9 +53,10 @@ public class EndpointElementParser<G extends Hypergraph<V,E>,V,E> extends Abstra
             EndpointMetadata endpoint = new EndpointMetadata();
 
             // Parse the attributes.
-            Iterator iterator = start.getAttributes();
+            @SuppressWarnings("unchecked")
+            Iterator<Attribute> iterator = start.getAttributes();
             while (iterator.hasNext()) {
-                Attribute attribute = (Attribute) iterator.next();
+                Attribute attribute = iterator.next();
                 String name = attribute.getName().getLocalPart();
                 String value = attribute.getValue();
                 if (endpoint.getId() == null && GraphMLConstants.ID_NAME.equals(name)) {

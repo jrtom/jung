@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2003, the JUNG Project and the Regents of the University 
+\* Copyright (c) 2003, the JUNG Project and the Regents of the University 
 * of California
 * All rights reserved.
 *
@@ -130,10 +130,9 @@ public class BasicVisualizationServer<V, E> extends JPanel
     protected RenderContext<V,E> renderContext;
     
     /**
-     * Create an instance with passed parameters.
+     * Create an instance with the specified Layout.
      * 
      * @param layout		The Layout to apply, with its associated Graph
-     * @param renderer		The Renderer to draw it with
      */
 	public BasicVisualizationServer(Layout<V,E> layout) {
 	    this(new DefaultVisualizationModel<V,E>(layout));
@@ -141,10 +140,9 @@ public class BasicVisualizationServer<V, E> extends JPanel
 	}
 	
     /**
-     * Create an instance with passed parameters.
+     * Create an instance with the specified Layout and view dimension.
      * 
      * @param layout		The Layout to apply, with its associated Graph
-     * @param renderer		The Renderer to draw it with
      * @param preferredSize the preferred size of this View
      */
 	public BasicVisualizationServer(Layout<V,E> layout, Dimension preferredSize) {
@@ -153,26 +151,24 @@ public class BasicVisualizationServer<V, E> extends JPanel
 	}
 	
 	/**
-	 * Create an instance with passed parameters.
+	 * Create an instance with the specified model and a default dimension (600x600).
 	 * 
-	 * @param model
-	 * @param renderer
+	 * @param model the model to use
 	 */
 	public BasicVisualizationServer(VisualizationModel<V,E> model) {
 	    this(model, new Dimension(600,600));
 	}
+	
 	/**
-	 * Create an instance with passed parameters.
+	 * Create an instance with the specified model and view dimension.
 	 * 
-	 * @param model
-	 * @param renderer
+	 * @param model the model to use
 	 * @param preferredSize initial preferred size of the view
 	 */
     public BasicVisualizationServer(VisualizationModel<V,E> model,
 	        Dimension preferredSize) {
 	    this.model = model;
 	    renderContext = new PluggableRenderContext<V,E>(model.getGraphLayout().getGraph());
-//        renderContext.setScreenDevice(this);
 	    model.addChangeListener(this);
 	    setDoubleBuffered(false);
 		this.addComponentListener(new VisualizationListener(this));
@@ -218,7 +214,7 @@ public class BasicVisualizationServer<V, E> extends JPanel
 	/**
 	 * Ensure that, if doubleBuffering is enabled, the offscreen
 	 * image buffer exists and is the correct size.
-	 * @param d
+	 * @param d the expected Dimension of the offscreen buffer
 	 */
 	protected void checkOffscreenImage(Dimension d) {
 	    if(doubleBuffered) {
@@ -229,44 +225,28 @@ public class BasicVisualizationServer<V, E> extends JPanel
 	    }
 	}
 	
-    /* (non-Javadoc)
-     * @see edu.uci.ics.jung.visualization.VisualizationServer#getModel()
-     */
     public VisualizationModel<V,E> getModel() {
         return model;
     }
-    /* (non-Javadoc)
-     * @see edu.uci.ics.jung.visualization.VisualizationServer#setModel(edu.uci.ics.jung.visualization.VisualizationModel)
-     */
+
     public void setModel(VisualizationModel<V,E> model) {
         this.model = model;
     }
-	/* (non-Javadoc)
-     * @see edu.uci.ics.jung.visualization.VisualizationServer#stateChanged(javax.swing.event.ChangeEvent)
-     */
+
 	public void stateChanged(ChangeEvent e) {
 	    repaint();
 	    fireStateChanged();
 	}
 
-	/* (non-Javadoc)
-     * @see edu.uci.ics.jung.visualization.VisualizationServer#setRenderer(edu.uci.ics.jung.visualization.Renderer)
-     */
 	public void setRenderer(Renderer<V,E> r) {
 	    this.renderer = r;
 	    repaint();
 	}
 	
-	/* (non-Javadoc)
-     * @see edu.uci.ics.jung.visualization.VisualizationServer#getRenderer()
-     */
 	public Renderer<V,E> getRenderer() {
 	    return renderer;
 	}
 
-	/* (non-Javadoc)
-     * @see edu.uci.ics.jung.visualization.VisualizationServer#setGraphLayout(edu.uci.ics.jung.visualization.layout.Layout)
-     */
     public void setGraphLayout(Layout<V,E> layout) {
     	Dimension viewSize = getPreferredSize();
     	if(this.isShowing()) {
@@ -346,7 +326,6 @@ public class BasicVisualizationServer<V, E> extends JPanel
         AffineTransform newXform = new AffineTransform(oldXform);
         newXform.concatenate(
         		renderContext.getMultiLayerTransformer().getTransformer(Layer.VIEW).getTransform());
-//        		viewTransformer.getTransform());
 		
         g2d.setTransform(newXform);
 
@@ -491,9 +470,6 @@ public class BasicVisualizationServer<V, E> extends JPanel
         pickedVertexState.addItemListener(pickEventListener);
     }
     
-    /* (non-Javadoc)
-     * @see edu.uci.ics.jung.visualization.VisualizationServer#setPickedEdgeState(edu.uci.ics.jung.visualization.picking.PickedState)
-     */
     public void setPickedEdgeState(PickedState<E> pickedEdgeState) {
         if(pickEventListener != null && this.pickedEdgeState != null) {
             this.pickedEdgeState.removeItemListener(pickEventListener);
@@ -511,37 +487,23 @@ public class BasicVisualizationServer<V, E> extends JPanel
         pickedEdgeState.addItemListener(pickEventListener);
     }
     
-    /* (non-Javadoc)
-     * @see edu.uci.ics.jung.visualization.VisualizationServer#getPickSupport()
-     */
     public GraphElementAccessor<V,E> getPickSupport() {
         return renderContext.getPickSupport();
     }
-    /* (non-Javadoc)
-     * @see edu.uci.ics.jung.visualization.VisualizationServer#setPickSupport(edu.uci.ics.jung.visualization.GraphElementAccessor)
-     */
+
     public void setPickSupport(GraphElementAccessor<V,E> pickSupport) {
         renderContext.setPickSupport(pickSupport);
     }
     
-    /* (non-Javadoc)
-     * @see edu.uci.ics.jung.visualization.VisualizationServer#getCenter()
-     */
     public Point2D getCenter() {
         Dimension d = getSize();
         return new Point2D.Float(d.width/2, d.height/2);
     }
 
-    /* (non-Javadoc)
-     * @see edu.uci.ics.jung.visualization.VisualizationServer#getRenderContext()
-     */
     public RenderContext<V,E> getRenderContext() {
         return renderContext;
     }
 
-    /* (non-Javadoc)
-     * @see edu.uci.ics.jung.visualization.VisualizationServer#setRenderContext(edu.uci.ics.jung.visualization.RenderContext)
-     */
     public void setRenderContext(RenderContext<V,E> renderContext) {
         this.renderContext = renderContext;
     }

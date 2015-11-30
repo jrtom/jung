@@ -46,7 +46,7 @@ public class ClosenessCentrality<V,E> extends DistanceCentralityScorer<V,E>
 
     /**
      * Creates an instance which measures distance on the graph without edge weights.
-     * @param graph
+     * @param graph the graph whose vertices' centrality scores will be calculated
      */
     public ClosenessCentrality(Hypergraph<V,E> graph)
     {

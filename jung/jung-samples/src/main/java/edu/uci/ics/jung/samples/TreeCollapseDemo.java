@@ -118,14 +118,12 @@ public class TreeCollapseDemo extends JApplet {
     String root;
 
     TreeLayout<String,Integer> layout;
-    @SuppressWarnings("unchecked")
-	FRLayout layout1;
+	FRLayout<?, ?> layout1;
 
     TreeCollapser collapser;
 
     RadialTreeLayout<String,Integer> radialLayout;
 
-    @SuppressWarnings("unchecked")
 	public TreeCollapseDemo() {
 
         // create a simple graph for the demo
@@ -152,11 +150,12 @@ public class TreeCollapseDemo extends JApplet {
         final GraphZoomScrollPane panel = new GraphZoomScrollPane(vv);
         content.add(panel);
 
-        final DefaultModalGraphMouse graphMouse = new DefaultModalGraphMouse();
+        final DefaultModalGraphMouse<String, Integer> graphMouse
+        	= new DefaultModalGraphMouse<String, Integer>();
 
         vv.setGraphMouse(graphMouse);
 
-        JComboBox modeBox = graphMouse.getModeComboBox();
+        JComboBox<?> modeBox = graphMouse.getModeComboBox();
         modeBox.addItemListener(graphMouse.getModeListener());
         graphMouse.setMode(ModalGraphMouse.Mode.TRANSFORMING);
 
@@ -180,12 +179,10 @@ public class TreeCollapseDemo extends JApplet {
 
 			public void itemStateChanged(ItemEvent e) {
 				if(e.getStateChange() == ItemEvent.SELECTED) {
-//					layout.setRadial(true);
 					vv.setGraphLayout(radialLayout);
 					vv.getRenderContext().getMultiLayerTransformer().setToIdentity();
 					vv.addPreRenderPaintable(rings);
 				} else {
-//					layout.setRadial(false);
 					vv.setGraphLayout(layout);
 					vv.getRenderContext().getMultiLayerTransformer().setToIdentity();
 					vv.removePreRenderPaintable(rings);
@@ -197,10 +194,11 @@ public class TreeCollapseDemo extends JApplet {
         collapse.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
-                Collection picked =new HashSet(vv.getPickedVertexState().getPicked());
+                Collection<String> picked
+                	= new HashSet<String>(vv.getPickedVertexState().getPicked());
                 if(picked.size() == 1) {
                 	Object root = picked.iterator().next();
-                    Forest inGraph = (Forest)layout.getGraph();
+                    Forest<String, Integer> inGraph = (Forest<String, Integer>)layout.getGraph();
 
                     try {
 						collapser.collapse(vv.getGraphLayout(), inGraph, root);
@@ -221,11 +219,12 @@ public class TreeCollapseDemo extends JApplet {
         expand.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
-                Collection picked = vv.getPickedVertexState().getPicked();
+                Collection<String> picked = vv.getPickedVertexState().getPicked();
                 for(Object v : picked) {
                     if(v instanceof Forest) {
-                        Forest inGraph = (Forest)layout.getGraph();
-            			collapser.expand(inGraph, (Forest)v);
+                        Forest<String, Integer> inGraph
+                        	= (Forest<String, Integer>)layout.getGraph();
+            			collapser.expand(inGraph, (Forest<?, ?>)v);
                     }
                     vv.getPickedVertexState().clear();
                    vv.repaint();
@@ -327,7 +326,7 @@ public class TreeCollapseDemo extends JApplet {
      * 
      * @author Tom Nelson
      *
-     * @param <V>
+     * @param <V> the vertex type
      */
     class ClusterVertexShapeFunction<V> extends EllipseVertexShapeTransformer<V>
 {
@@ -335,11 +334,11 @@ public class TreeCollapseDemo extends JApplet {
         ClusterVertexShapeFunction() {
             setSizeTransformer(new ClusterVertexSizeFunction<V>(20));
         }
-        @SuppressWarnings("unchecked")
 		@Override
         public Shape apply(V v) {
             if(v instanceof Graph) {
-                int size = ((Graph)v).getVertexCount();
+                @SuppressWarnings("rawtypes")
+				int size = ((Graph)v).getVertexCount();
                 if (size < 8) {   
                     int sides = Math.max(size, 3);
                     return factory.getRegularPolygon(v, sides);
@@ -357,7 +356,7 @@ public class TreeCollapseDemo extends JApplet {
      * a collapsed collection of original vertices
      * @author Tom Nelson
      *
-     * @param <V>
+     * @param <V> the vertex type
      */
     class ClusterVertexSizeFunction<V> implements Function<V,Integer> {
     	int size;
@@ -373,11 +372,6 @@ public class TreeCollapseDemo extends JApplet {
         }
     }
 
-
-
-    /**
-     * a driver for this demo
-     */
     public static void main(String[] args) {
         JFrame frame = new JFrame();
         Container content = frame.getContentPane();

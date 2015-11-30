@@ -30,8 +30,6 @@ import java.awt.geom.RectangularShape;
  * inverseTransform methods.
  * 
  * @author Tom Nelson
- *
- *
  */
 public abstract class LensTransformer extends MutableTransformerDecorator implements MutableTransformer {
 
@@ -43,9 +41,10 @@ public abstract class LensTransformer extends MutableTransformerDecorator implem
     protected float magnification = 0.7f;
     
     /**
-     * create an instance with a possibly shared transform
-     * @param component
-     * @param delegate
+     * Create an instance with a possibly shared transform.
+     * 
+     * @param component the component used for rendering
+     * @param delegate the transformer to use
      */
     public LensTransformer(Component component, MutableTransformer delegate) {
     		super(delegate);
@@ -54,9 +53,8 @@ public abstract class LensTransformer extends MutableTransformerDecorator implem
    }
     
     /**
-     * set values from the passed component.
-     * declared private so it can't be overridden
-     * @param component
+     * Set values from the passed component.
+     * @param component the component used for rendering
      */
     private void setComponent(Component component) {
         Dimension d = component.getSize();
@@ -68,27 +66,18 @@ public abstract class LensTransformer extends MutableTransformerDecorator implem
         lensShape.setFrame(d.width/2-ewidth/2, d.height/2-eheight/2, ewidth, eheight);
     }
     
-    /**
-     * @return Returns the magnification.
-     */
     public float getMagnification() {
         return magnification;
     }
-    /**
-     * @param magnification The magnification to set.
-     */
+
     public void setMagnification(float magnification) {
         this.magnification = magnification;
     }
-    /**
-     * @return Returns the viewCenter.
-     */
+    
     public Point2D getViewCenter() {
         return new Point2D.Double(lensShape.getCenterX(), lensShape.getCenterY());
     }
-    /**
-     * @param viewCenter The viewCenter to set.
-     */
+
     public void setViewCenter(Point2D viewCenter) {
         double width = lensShape.getWidth();
         double height = lensShape.getHeight();
@@ -97,15 +86,10 @@ public abstract class LensTransformer extends MutableTransformerDecorator implem
                 width, height);
     }
 
-    /**
-     * @return Returns the viewRadius.
-     */
     public double getViewRadius() {
         return lensShape.getHeight()/2;
     }
-    /**
-     * @param viewRadius The viewRadius to set.
-     */
+
     public void setViewRadius(double viewRadius) {
         double x = lensShape.getCenterX();
         double y = lensShape.getCenterY();
@@ -117,7 +101,7 @@ public abstract class LensTransformer extends MutableTransformerDecorator implem
     }
     
     /**
-     * @return Returns the ratio.
+     * @return the ratio between the lens height and lens width
      */
     public double getRatio() {
         return lensShape.getHeight()/lensShape.getWidth();
@@ -175,8 +159,8 @@ public abstract class LensTransformer extends MutableTransformerDecorator implem
     }
     
     /**
-     * return the supplied shape, translated to the coordinates
-     * that result from calling inverseTransform on its center
+     * Returns the supplied shape, translated to the coordinates
+     * that result from calling inverseTransform on its center.
      */
     public Shape inverseTransform(Shape shape) {
     	Rectangle2D bounds = shape.getBounds2D();

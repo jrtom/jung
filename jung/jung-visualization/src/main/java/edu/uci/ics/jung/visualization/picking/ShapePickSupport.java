@@ -46,13 +46,13 @@ public class ShapePickSupport<V, E> implements GraphElementAccessor<V,E> {
 	/**
 	 * The available picking heuristics:
      * <ul>
-     * <li/><code>Style.CENTERED</code>: returns the element whose 
+     * <li><code>Style.CENTERED</code>: returns the element whose 
      * center is closest to the pick point.
-     * <li/><code>Style.LOWEST</code>: returns the first such element
+     * <li><code>Style.LOWEST</code>: returns the first such element
      * encountered.  (If the element collection has a consistent
      * ordering, this will also be the element "on the bottom", 
      * that is, the one which is rendered first.) 
-     * <li/><code>Style.HIGHEST</code>: returns the last such element
+     * <li><code>Style.HIGHEST</code>: returns the last such element
      * encountered.  (If the element collection has a consistent
      * ordering, this will also be the element "on the top", 
      * that is, the one which is rendered last.)
@@ -61,10 +61,6 @@ public class ShapePickSupport<V, E> implements GraphElementAccessor<V,E> {
 	 */
 	public static enum Style { LOWEST, CENTERED, HIGHEST };
 
-	/**
-	 * 
-	 *
-	 */
     protected float pickSize;
     
     /**
@@ -100,6 +96,7 @@ public class ShapePickSupport<V, E> implements GraphElementAccessor<V,E> {
      * Create a <code>ShapePickSupport</code> for the specified
      * <code>VisualizationServer</code> with a default pick footprint.
      * of size 2.
+     * @param vv the visualization server used for rendering
      */
     public ShapePickSupport(VisualizationServer<V,E> vv) {
         this.vv = vv;
@@ -112,13 +109,13 @@ public class ShapePickSupport<V, E> implements GraphElementAccessor<V,E> {
      * whose shapes contain the pick point, is returned.
      * The available styles are:
      * <ul>
-     * <li/><code>Style.CENTERED</code>: returns the element whose 
+     * <li><code>Style.CENTERED</code>: returns the element whose 
      * center is closest to the pick point.
-     * <li/><code>Style.LOWEST</code>: returns the first such element
+     * <li><code>Style.LOWEST</code>: returns the first such element
      * encountered.  (If the element collection has a consistent
      * ordering, this will also be the element "on the bottom", 
      * that is, the one which is rendered first.) 
-     * <li/><code>Style.HIGHEST</code>: returns the last such element
+     * <li><code>Style.HIGHEST</code>: returns the last such element
      * encountered.  (If the element collection has a consistent
      * ordering, this will also be the element "on the top", 
      * that is, the one which is rendered last.)
@@ -136,13 +133,13 @@ public class ShapePickSupport<V, E> implements GraphElementAccessor<V,E> {
      * whose shapes contain the pick point, will be returned.
      * The available styles are:
      * <ul>
-     * <li/><code>Style.CENTERED</code>: returns the element whose 
+     * <li><code>Style.CENTERED</code>: returns the element whose 
      * center is closest to the pick point.
-     * <li/><code>Style.LOWEST</code>: returns the first such element
+     * <li><code>Style.LOWEST</code>: returns the first such element
      * encountered.  (If the element collection has a consistent
      * ordering, this will also be the element "on the bottom", 
      * that is, the one which is rendered first.) 
-     * <li/><code>Style.HIGHEST</code>: returns the last such element
+     * <li><code>Style.HIGHEST</code>: returns the last such element
      * encountered.  (If the element collection has a consistent
      * ordering, this will also be the element "on the top", 
      * that is, the one which is rendered last.)
@@ -154,10 +151,14 @@ public class ShapePickSupport<V, E> implements GraphElementAccessor<V,E> {
 	}
 
 	/** 
-     * Iterates over Vertices, checking to see if x,y is contained in the
-     * Vertex's Shape. If (x,y) is contained in more than one vertex, use
+     * Returns the vertex, if any, whose shape contains (x, y).
+     * If (x,y) is contained in more than one vertex's shape, returns
      * the vertex whose center is closest to the pick point.
-     * @see edu.uci.ics.jung.visualization.picking.PickSupport#getVertex(double, double)
+     * 
+     * @param layout the layout instance that records the positions for all vertices
+     * @param x the x coordinate of the pick point
+     * @param y the y coordinate of the pick point
+     * @return the vertex whose shape contains (x,y), and whose center is closest to the pick point
      */
     public V getVertex(Layout<V, E> layout, double x, double y) {
 
@@ -246,6 +247,11 @@ public class ShapePickSupport<V, E> implements GraphElementAccessor<V,E> {
     /**
      * Returns an edge whose shape intersects the 'pickArea' footprint of the passed
      * x,y, coordinates.
+     * 
+	 * @param layout the context in which the location is defined
+	 * @param x the x coordinate of the location
+	 * @param y the y coordinate of the location
+     * @return an edge whose shape intersects the pick area centered on the location {@code (x,y)}
      */
     public E getEdge(Layout<V, E> layout, double x, double y) {
 
@@ -308,7 +314,7 @@ public class ShapePickSupport<V, E> implements GraphElementAccessor<V,E> {
      * @param layout the <code>Layout</code> which specifies
      * <code>e</code>'s endpoints' positions
      * @param e the edge whose shape is to be returned
-     * @return
+     * @return the transformed shape
      */
 	private Shape getTransformedEdgeShape(Layout<V, E> layout, E e) {
 		Pair<V> pair = layout.getGraph().getEndpoints(e);
@@ -351,11 +357,6 @@ public class ShapePickSupport<V, E> implements GraphElementAccessor<V,E> {
 		return edgeShape;
 	}
 
-	/**
-	 * 
-	 * @param layout
-	 * @return
-	 */
     protected Collection<V> getFilteredVertices(Layout<V,E> layout) {
     	if(verticesAreFiltered()) {
     		Collection<V> unfiltered = layout.getGraph().getVertices();
@@ -371,11 +372,6 @@ public class ShapePickSupport<V, E> implements GraphElementAccessor<V,E> {
     	}
     }
 
-    /**
-     * 
-     * @param layout
-     * @return
-     */
     protected Collection<E> getFilteredEdges(Layout<V,E> layout) {
     	if(edgesAreFiltered()) {
     		Collection<E> unfiltered = layout.getGraph().getEdges();
@@ -401,7 +397,6 @@ public class ShapePickSupport<V, E> implements GraphElementAccessor<V,E> {
 			vv.getRenderContext().getVertexIncludePredicate();
 		return vertexIncludePredicate != null &&
 			vertexIncludePredicate.equals(Predicates.alwaysTrue()) == false;
-//			vertexIncludePredicate instanceof TruePredicate == false;
     }
     
     /**
@@ -414,7 +409,6 @@ public class ShapePickSupport<V, E> implements GraphElementAccessor<V,E> {
 			vv.getRenderContext().getEdgeIncludePredicate();
 		return edgeIncludePredicate != null &&
 			edgeIncludePredicate.equals(Predicates.alwaysTrue()) == false;
-//			edgeIncludePredicate instanceof TruePredicate == false;
     }
     
 	/**
@@ -469,7 +463,7 @@ public class ShapePickSupport<V, E> implements GraphElementAccessor<V,E> {
 
 	/**
 	 * Sets the size of the edge picking area.
-	 * @param the length of one side of the (square) picking area, in view coordinates
+	 * @param pickSize the length of one side of the (square) picking area, in view coordinates
 	 */
 	public void setPickSize(float pickSize) {
 		this.pickSize = pickSize;

@@ -21,16 +21,16 @@ import edu.uci.ics.jung.graph.Graph;
  * 
  * <p><b>Notes</b>: 
  * <ul>
- * <li/>Each of these measures assumes that each edge has an associated 
+ * <li>Each of these measures assumes that each edge has an associated 
  * non-null weight whose value is accessed through the specified 
  * <code>Transformer</code> instance.
- * <li/>Nonexistent edges are treated as edges with weight 0 for purposes 
+ * <li>Nonexistent edges are treated as edges with weight 0 for purposes 
  * of edge weight calculations.
  * </ul>
  *  
  * <p>Based on code donated by Jasper Voskuilen and 
  * Diederik van Liere of the Department of Information and Decision Sciences
- * at Erasmus University.</p>
+ * at Erasmus University.
  * 
  * @author Joshua O'Madadhain
  * @author Jasper Voskuilen
@@ -43,8 +43,8 @@ public class StructuralHoles<V,E> {
     protected Graph<V,E> g;
     
     /**
-     * Creates a <code>StructuralHoles</code> instance based on the 
-     * edge weights specified by <code>nev</code>.
+     * @param graph the graph for which the metrics are to be calculated
+     * @param nev the edge weights
      */
     public StructuralHoles(Graph<V,E> graph, Function<E, ? extends Number> nev) 
     {
@@ -61,10 +61,13 @@ public class StructuralHoles<V,E> {
      * </pre>
      * where 
      * <ul>
-     * <li/><code>N(a) = a.getNeighbors()</code>
-     * <li/><code>p(v,w) =</code> normalized mutual edge weight of v and w
-     * <li/><code>m(u,w)</code> = maximum-scaled mutual edge weight of u and w
+     * <li><code>N(a) = a.getNeighbors()</code>
+     * <li><code>p(v,w) =</code> normalized mutual edge weight of v and w
+     * <li><code>m(u,w)</code> = maximum-scaled mutual edge weight of u and w
      * </ul>
+     * @param v the vertex whose properties are being measured
+     * @return the effective size of the vertex's network
+     * 
      * @see #normalizedMutualEdgeWeight(Object, Object)
      * @see #maxScaledMutualEdgeWeight(Object, Object) 
      */
@@ -88,6 +91,9 @@ public class StructuralHoles<V,E> {
      * alters in <code>v</code>'s network.  (In other words, 
      * <code>effectiveSize(v) / v.degree()</code>.)
      * If <code>v.degree() == 0</code>, returns 0.
+     * 
+     * @param v the vertex whose properties are being measured
+     * @return the effective size of the vertex divided by its degree
      */
     public double efficiency(V v) {
         double degree = g.degree(v);
@@ -108,6 +114,9 @@ public class StructuralHoles<V,E> {
      * </pre>
      * where MP(v) is the subset of v's neighbors that are both predecessors and successors of v. 
      * @see #localConstraint(Object, Object)
+     * 
+     * @param v the vertex whose properties are being measured
+     * @return the constraint of the vertex
      */
     public double constraint(V v) {
         double result = 0;
@@ -132,11 +141,14 @@ public class StructuralHoles<V,E> {
      * </pre>
      * where
      * <ul>
-     * <li/><code>N(v) = v.getNeighbors()</code> 
-     * <li/><code>s(v,w) = localConstraint(v,w) / (aggregateConstraint(v) / v.degree())</code>
+     * <li><code>N(v) = v.getNeighbors()</code> 
+     * <li><code>s(v,w) = localConstraint(v,w) / (aggregateConstraint(v) / v.degree())</code>
      * </ul>
      * @see #localConstraint(Object, Object)
      * @see #aggregateConstraint(Object)
+     * 
+     * @param v the vertex whose properties are being measured
+     * @return the hierarchy value for a given vertex
      */
     public double hierarchy(V v)
     {
@@ -163,7 +175,7 @@ public class StructuralHoles<V,E> {
     }
 
     /**
-     * Returns the local constraint on <code>v</code> from a lack of primary holes 
+     * Returns the local constraint on <code>v1</code> from a lack of primary holes 
      * around its neighbor <code>v2</code>.
      * Based on Burt's equation 2.4.  Formally:
      * <pre>
@@ -171,9 +183,12 @@ public class StructuralHoles<V,E> {
      * </pre>
      * where 
      * <ul>
-     * <li/><code>N(v) = v.getNeighbors()</code>
-     * <li/><code>p(v,w) =</code> normalized mutual edge weight of v and w
+     * <li><code>N(v) = v.getNeighbors()</code>
+     * <li><code>p(v,w) =</code> normalized mutual edge weight of v and w
      * </ul>
+     * @param v1 the first vertex whose local constraint is desired
+     * @param v2 the second vertex whose local constraint is desired
+     * @return the local constraint on (v1, v2)
      * @see #normalizedMutualEdgeWeight(Object, Object)
      */
     public double localConstraint(V v1, V v2) 
@@ -196,9 +211,12 @@ public class StructuralHoles<V,E> {
      * </pre>
      * where
      * <ul>
-     * <li/><code>N(v) = v.getNeighbors()</code>
-     * <li/><code>O(w) = organizationalMeasure(w)</code>
+     * <li><code>N(v) = v.getNeighbors()</code>
+     * <li><code>O(w) = organizationalMeasure(w)</code>
      * </ul>
+     * 
+     * @param v the vertex whose properties are being measured
+     * @return the aggregate constraint on v
      */
     public double aggregateConstraint(V v)
     {
@@ -218,7 +236,10 @@ public class StructuralHoles<V,E> {
      * closed interval [0,1].
      * 
      * <p>This implementation returns 1.  Users may wish to override this
-     * method in order to define their own behavior.</p>
+     * method in order to define their own behavior.
+     * @param g the subgraph centered on v
+     * @param v the vertex whose properties are being measured
+     * @return 1.0 (in this implementation)
      */
     protected double organizationalMeasure(Graph<V,E> g, V v) {
         return 1.0;
@@ -233,6 +254,9 @@ public class StructuralHoles<V,E> {
      * </pre>
      * Returns 0 if either numerator or denominator = 0, or if <code>v1 == v2</code>.
      * @see #mutualWeight(Object, Object)
+     * @param v1 the first vertex of the pair whose property is being measured
+     * @param v2 the second vertex of the pair whose property is being measured
+     * @return the normalized mutual edge weight between v1 and v2
      */
     protected double normalizedMutualEdgeWeight(V v1, V v2)
     {
@@ -265,6 +289,10 @@ public class StructuralHoles<V,E> {
      * Throws <code>NullPointerException</code> if either edge is 
      * present but not assigned a weight by the constructor-specified
      * <code>NumberEdgeValue</code>.
+     * 
+     * @param v1 the first vertex of the pair whose property is being measured
+     * @param v2 the second vertex of the pair whose property is being measured
+     * @return the weights of the edges {@code<v1, v2>} and {@code <v2, v1>}
      */
     protected double mutualWeight(V v1, V v2)
     {
@@ -277,12 +305,17 @@ public class StructuralHoles<V,E> {
     }
     
     /**
-     * The marginal strength of v1's relation with contact vertex2.
+     * The marginal strength of v1's relation with contact v2.
      * Formally:
      * <pre>
      * normalized_mutual_weight = mutual_weight(a,b) / (max_c mutual_weight(a,c))
      * </pre>
      * Returns 0 if either numerator or denominator is 0, or if <code>v1 == v2</code>.
+     * 
+     * @param v1 the first vertex of the pair whose property is being measured
+     * @param v2 the second vertex of the pair whose property is being measured
+     * @return the marginal strength of v1's relation with v2
+     * 
      * @see #mutualWeight(Object, Object)
      */
     protected double maxScaledMutualEdgeWeight(V v1, V v2)

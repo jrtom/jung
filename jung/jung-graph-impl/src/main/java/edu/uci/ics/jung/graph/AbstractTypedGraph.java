@@ -73,9 +73,9 @@ public abstract class AbstractTypedGraph<V,E> extends AbstractGraph<V, E>
     }
     
     /**
-     * Returns {@code true} if {@code edge_type} matches the default edge type for 
-     * this graph, and {@code false} otherwise.
      * @param edge_type the edge type to compare to this instance's default edge type
+     * @return {@code true} if {@code edge_type} matches the default edge type for 
+     * this graph, and {@code false} otherwise
      */
     protected boolean hasEqualEdgeType(EdgeType edge_type)
     {

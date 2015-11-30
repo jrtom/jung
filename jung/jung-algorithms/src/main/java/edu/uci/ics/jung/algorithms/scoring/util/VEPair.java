@@ -39,7 +39,7 @@ public class VEPair<V, E>
     }
     
     /**
-     * Returns the vertex of this pair.
+     * @return the vertex of this pair
      */
     public V getV()
     {
@@ -47,7 +47,7 @@ public class VEPair<V, E>
     }
     
     /**
-     * Returns the edge of this pair.
+     * @return the edge of this pair
      */
     public E getE()
     {

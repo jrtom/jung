@@ -156,20 +156,18 @@ public class RadialTreeLensDemo extends JApplet {
         vv.getRenderContext().setEdgeDrawPaintTransformer(new PickableEdgePaintTransformer<Integer>(pes, Color.black, Color.cyan));
         vv.setBackground(Color.white);
         
-        vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller<String>());
+        vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
         vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.line(graph));
         
         // add a listener for ToolTips
-        vv.setVertexToolTipTransformer(new ToStringLabeller<String>());
+        vv.setVertexToolTipTransformer(new ToStringLabeller());
         
         Container content = getContentPane();
         GraphZoomScrollPane gzsp = new GraphZoomScrollPane(vv);
         content.add(gzsp);
         
-        /**
-         * the regular graph mouse for the normal view
-         */
-        final DefaultModalGraphMouse graphMouse = new DefaultModalGraphMouse();
+        final DefaultModalGraphMouse<String,Integer> graphMouse
+        	= new DefaultModalGraphMouse<String,Integer>();
 
         vv.setGraphMouse(graphMouse);
         vv.addKeyListener(graphMouse.getModeKeyListener());
@@ -287,7 +285,6 @@ public class RadialTreeLensDemo extends JApplet {
 						center.getX()+d, center.getY()+d);
 				Shape shape = 
 					vv.getRenderContext().getMultiLayerTransformer().transform(ellipse);
-//					vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT).transform(ellipse);
 				g2d.draw(shape);
 			}
 		}
@@ -297,9 +294,6 @@ public class RadialTreeLensDemo extends JApplet {
 		}
     }
 
-    /**
-     * a driver for this demo
-     */
     public static void main(String[] args) {
         JFrame f = new JFrame();
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

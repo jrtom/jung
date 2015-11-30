@@ -20,26 +20,11 @@ import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.EdgeType;
 
 /**
- * 
- * Generates a mixed-mode random graph based on the output of <code>BarabasiAlbertGenerator</code>.
+ * Generates a mixed-mode random graph (with random edge weights) based on the output of 
+ * <code>BarabasiAlbertGenerator</code>.
  * Primarily intended for providing a heterogeneous sample graph for visualization testing, etc.
- *  
  */
 public class MixedRandomGraphGenerator {
-
-	/**
-	 * Equivalent to <code>generateMixedRandomGraph(edge_weight, num_vertices, true)</code>.
-	 */
-	public static <V,E> Graph<V, E> generateMixedRandomGraph(
-			Supplier<Graph<V,E>> graphFactory,
-			Supplier<V> vertexFactory,
-    		Supplier<E> edgeFactory,
-    		Map<E,Number> edge_weight, 
-			int num_vertices, Set<V> seedVertices)
-	{
-		return generateMixedRandomGraph(graphFactory, vertexFactory, edgeFactory, 
-				edge_weight, num_vertices, true, seedVertices);
-	}
 
     /**
      * Returns a random mixed-mode graph.  Starts with a randomly generated 
@@ -47,13 +32,22 @@ public class MixedRandomGraphGenerator {
      * (4 initial vertices, 3 edges added at each step, and num_vertices - 4 evolution steps).
      * Then takes the resultant graph, replaces random undirected edges with directed
      * edges, and assigns random weights to each edge.
+	 * @param <V> the vertex type
+	 * @param <E> the edge type
+     * @param graphFactory factory for graphs of the appropriate type
+     * @param vertexFactory factory for vertices of the appropriate type
+     * @param edgeFactory factory for edges of the appropriate type
+     * @param edge_weights storage for the edge weights that this generator creates
+     * @param num_vertices number of vertices to generate
+     * @param seedVertices storage for the seed vertices that this generator creates
+     * @return the generated graph
      */
     public static <V,E> Graph<V,E> generateMixedRandomGraph(
     		Supplier<Graph<V,E>> graphFactory,
     		Supplier<V> vertexFactory,
     		Supplier<E> edgeFactory,
     		Map<E,Number> edge_weights, 
-            int num_vertices, boolean parallel, Set<V> seedVertices)
+            int num_vertices, Set<V> seedVertices)
     {
         int seed = (int)(Math.random() * 10000);
         BarabasiAlbertGenerator<V,E> bag = 
@@ -63,9 +57,7 @@ public class MixedRandomGraphGenerator {
         bag.evolveGraph(num_vertices - 4);
         Graph<V, E> ug = bag.get();
 
-        // create a SparseMultigraph version of g
         Graph<V, E> g = graphFactory.get();
-        	//new SparseMultigraph<V, E>();
         for(V v : ug.getVertices()) {
         	g.addVertex(v);
         }

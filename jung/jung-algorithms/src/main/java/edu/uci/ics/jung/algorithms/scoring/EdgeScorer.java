@@ -21,7 +21,7 @@ package edu.uci.ics.jung.algorithms.scoring;
 public interface EdgeScorer<E, S>
 {
     /**
-     * Returns the algorithm's score for this edge.
+     * @param e the edge whose score is requested
      * @return the algorithm's score for this edge
      */
     public S getEdgeScore(E e);

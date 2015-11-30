@@ -27,6 +27,7 @@ public class VertexScoreTransformer<V, S> implements Function<V, S>
 
     /**
      * Creates an instance based on the specified VertexScorer.
+     * @param vs the VertexScorer which will retrieve the score for each vertex
      */
     public VertexScoreTransformer(VertexScorer<V,S> vs)
     {
@@ -34,7 +35,8 @@ public class VertexScoreTransformer<V, S> implements Function<V, S>
     }
 
     /**
-     * Returns the score for this vertex.
+     * @param v the vertex whose score is being returned
+     * @return the score for this vertex.
      */
     public S apply(V v)
     {

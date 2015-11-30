@@ -106,8 +106,9 @@ public class KStepMarkov<V,E> extends PageRankWithPriors<V,E>
 
 	/**
 	 * Specifies whether this instance should assign a score to each vertex
-	 * based on the 
-	 * @param cumulative
+	 * based on the sum over all steps of the probability for each step.
+	 * See the class-level documentation for details.
+	 * @param cumulative true if this instance should assign a cumulative score to each vertex
 	 */
 	public void setCumulative(boolean cumulative)
 	{

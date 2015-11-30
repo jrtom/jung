@@ -17,7 +17,7 @@ import edu.uci.ics.jung.graph.util.TreeUtils;
 
 public class TreeCollapser  {
     
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
 	public void collapse(Layout layout, Forest tree, Object subRoot) throws InstantiationException, IllegalAccessException {
         
     	// get a sub tree from subRoot
@@ -38,7 +38,7 @@ public class TreeCollapser  {
     	layout.setLocation(subTree, (Point2D)layout.apply(subRoot));
     }
     
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
 	public void expand(Forest tree, Forest subTree) {
 
     	Object parent = null;
@@ -47,8 +47,6 @@ public class TreeCollapser  {
     		parent = tree.getPredecessors(subTree).iterator().next();
     		edge = tree.getInEdges(subTree).iterator().next();
     	}
-//    	Object edge = tree.getInEdges(subTree).iterator().next();
-//    	Object parent = tree.getPredecessors(subTree).iterator().next();
     	tree.removeVertex(subTree);
     	TreeUtils.addSubTree(tree, subTree, parent, edge);
     }

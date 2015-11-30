@@ -68,7 +68,6 @@ public class BasicEdgeRenderer<V,E> implements Renderer.Edge<V,E> {
     }
 
 	protected Shape prepareFinalEdgeShape(RenderContext<V,E> rc, Layout<V, E> layout, E e, int[] coords, boolean[] loop) {
-//        GraphicsDecorator g = rc.getGraphicsContext();
         Graph<V,E> graph = layout.getGraph();
         Pair<V> endpoints = graph.getEndpoints(e);
         V v1 = endpoints.getFirst();
@@ -91,15 +90,6 @@ public class BasicEdgeRenderer<V,E> implements Renderer.Edge<V,E> {
         Shape s2 = rc.getVertexShapeTransformer().apply(v2);
         Shape edgeShape = rc.getEdgeShapeTransformer().apply(e);
         
-//        boolean edgeHit = true;
-//        boolean arrowHit = true;
-//        Rectangle deviceRectangle = null;
-//        JComponent vv = rc.getScreenDevice();
-//        if(vv != null) {
-//            Dimension d = vv.getSize();
-//            deviceRectangle = new Rectangle(0,0,d.width,d.height);
-//        }
-
         AffineTransform xform = AffineTransform.getTranslateInstance(x1, y1);
         
         if(isLoop) {
@@ -118,7 +108,7 @@ public class BasicEdgeRenderer<V,E> implements Renderer.Edge<V,E> {
 				EdgeIndexFunction<V,E> peif =
 					((ParallelEdgeShapeTransformer<V,E>)rc.getEdgeShapeTransformer())
 						.getEdgeIndexFunction();
-            	index = peif.getIndex(graph, e);
+            	index = peif.getIndex(null, e);
             	index *= 20;
             }
             GeneralPath gp = new GeneralPath();
@@ -178,6 +168,9 @@ public class BasicEdgeRenderer<V,E> implements Renderer.Edge<V,E> {
      * The <code>Shape</code> provided by the <code>EdgeShapeFunction</code> instance
      * is scaled in the x-direction so that its width is equal to the distance between
      * <code>(x1,y1)</code> and <code>(x2,y2)</code>.
+     * @param rc the render context used for rendering the edge
+     * @param layout the layout instance which provides the edge's endpoints' coordinates
+     * @param e the edge to be drawn
      */
     protected void drawSimpleEdge(RenderContext<V,E> rc, Layout<V,E> layout, E e) {
     	
@@ -193,23 +186,6 @@ public class BasicEdgeRenderer<V,E> implements Renderer.Edge<V,E> {
         
         GraphicsDecorator g = rc.getGraphicsContext();
         Graph<V,E> graph = layout.getGraph();
-//        Pair<V> endpoints = graph.getEndpoints(e);
-//        V v1 = endpoints.getFirst();
-//        V v2 = endpoints.getSecond();
-//        
-//        Point2D p1 = layout.transform(v1);
-//        Point2D p2 = layout.transform(v2);
-//        p1 = rc.getMultiLayerTransformer().transform(Layer.LAYOUT, p1);
-//        p2 = rc.getMultiLayerTransformer().transform(Layer.LAYOUT, p2);
-//        float x1 = (float) p1.getX();
-//        float y1 = (float) p1.getY();
-//        float x2 = (float) p2.getX();
-//        float y2 = (float) p2.getY();
-//        
-//        boolean isLoop = v1.equals(v2);
-//        Shape s2 = rc.getVertexShapeTransformer().transform(v2);
-//        Shape edgeShape = rc.getEdgeShapeTransformer().transform(Context.<Graph<V,E>,E>getInstance(graph, e));
-//        
         boolean edgeHit = true;
         boolean arrowHit = true;
         Rectangle deviceRectangle = null;
@@ -218,73 +194,6 @@ public class BasicEdgeRenderer<V,E> implements Renderer.Edge<V,E> {
             Dimension d = vv.getSize();
             deviceRectangle = new Rectangle(0,0,d.width,d.height);
         }
-//
-//        AffineTransform xform = AffineTransform.getTranslateInstance(x1, y1);
-//        
-//        if(isLoop) {
-//            // this is a self-loop. scale it is larger than the vertex
-//            // it decorates and translate it so that its nadir is
-//            // at the center of the vertex.
-//            Rectangle2D s2Bounds = s2.getBounds2D();
-//            xform.scale(s2Bounds.getWidth(),s2Bounds.getHeight());
-//            xform.translate(0, -edgeShape.getBounds2D().getWidth()/2);
-//        } else if(rc.getEdgeShapeTransformer() instanceof EdgeShape.Orthogonal) {
-//            float dx = x2-x1;
-//            float dy = y2-y1;
-//            int index = 0;
-//            if(rc.getEdgeShapeTransformer() instanceof IndexedRendering) {
-//            	EdgeIndexFunction<V,E> peif = 
-//            		((IndexedRendering<V,E>)rc.getEdgeShapeTransformer()).getEdgeIndexFunction();
-//            	index = peif.getIndex(graph, e);
-//            	index *= 20;
-//            }
-//            GeneralPath gp = new GeneralPath();
-//            gp.moveTo(0,0);// the xform will do the translation to x1,y1
-//            if(x1 > x2) {
-//            	if(y1 > y2) {
-//            		gp.lineTo(0, index);
-//            		gp.lineTo(dx-index, index);
-//            		gp.lineTo(dx-index, dy);
-//            		gp.lineTo(dx, dy);
-//            	} else {
-//            		gp.lineTo(0, -index);
-//            		gp.lineTo(dx-index, -index);
-//            		gp.lineTo(dx-index, dy);
-//            		gp.lineTo(dx, dy);
-//            	}
-//
-//            } else {
-//            	if(y1 > y2) {
-//            		gp.lineTo(0, index);
-//            		gp.lineTo(dx+index, index);
-//            		gp.lineTo(dx+index, dy);
-//            		gp.lineTo(dx, dy);
-//            		
-//            	} else {
-//            		gp.lineTo(0, -index);
-//            		gp.lineTo(dx+index, -index);
-//            		gp.lineTo(dx+index, dy);
-//            		gp.lineTo(dx, dy);
-//            		
-//            	}
-//            	
-//            }
-//
-//            edgeShape = gp;
-//        	
-//        } else {
-//            // this is a normal edge. Rotate it to the angle between
-//            // vertex endpoints, then scale it to the distance between
-//            // the vertices
-//            float dx = x2-x1;
-//            float dy = y2-y1;
-//            float thetaRadians = (float) Math.atan2(dy, dx);
-//            xform.rotate(thetaRadians);
-//            float dist = (float) Math.sqrt(dx*dx + dy*dy);
-//            xform.scale(dist, 1.0);
-//        }
-//        
-//        edgeShape = xform.createTransformedShape(edgeShape);
         
         MutableTransformer vt = rc.getMultiLayerTransformer().getTransformer(Layer.VIEW);
         if(vt instanceof LensTransformer) {

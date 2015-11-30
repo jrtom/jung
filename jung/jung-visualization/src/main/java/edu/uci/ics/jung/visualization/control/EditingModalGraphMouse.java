@@ -36,8 +36,11 @@ public class EditingModalGraphMouse<V,E> extends AbstractModalGraphMouse
 	protected RenderContext<V,E> rc;
 
 	/**
-	 * create an instance with default values
-	 *
+	 * Creates an instance with the specified rendering context and vertex/edge factories,
+	 * and with default zoom in/out values of 1.1 and 1/1.1.
+	 * @param rc the rendering context
+	 * @param vertexFactory used to construct vertices
+	 * @param edgeFactory used to construct edges
 	 */
 	public EditingModalGraphMouse(RenderContext<V,E> rc,
 			Supplier<V> vertexFactory, Supplier<E> edgeFactory) {
@@ -45,9 +48,13 @@ public class EditingModalGraphMouse<V,E> extends AbstractModalGraphMouse
 	}
 
 	/**
-	 * create an instance with passed values
-	 * @param in override value for scale in
-	 * @param out override value for scale out
+	 * Creates an instance with the specified rendering context and vertex/edge factories,
+	 * and with the specified zoom in/out values.
+	 * @param rc the rendering context
+	 * @param vertexFactory used to construct vertices
+	 * @param edgeFactory used to construct edges
+	 * @param in amount to zoom in by for each action
+	 * @param out amount to zoom out by for each action
 	 */
 	public EditingModalGraphMouse(RenderContext<V,E> rc,
 			Supplier<V> vertexFactory, Supplier<E> edgeFactory, float in, float out) {
@@ -160,9 +167,10 @@ public class EditingModalGraphMouse<V,E> extends AbstractModalGraphMouse
 	 * @return the modeBox.
 	 */
 	@Override
-    public JComboBox getModeComboBox() {
+    public JComboBox<Mode> getModeComboBox() {
 		if(modeBox == null) {
-			modeBox = new JComboBox(new Mode[]{Mode.TRANSFORMING, Mode.PICKING, Mode.EDITING, Mode.ANNOTATING});
+			modeBox = new JComboBox<Mode>(
+				new Mode[]{Mode.TRANSFORMING, Mode.PICKING, Mode.EDITING, Mode.ANNOTATING});
 			modeBox.addItemListener(getModeListener());
 		}
 		modeBox.setSelectedItem(mode);

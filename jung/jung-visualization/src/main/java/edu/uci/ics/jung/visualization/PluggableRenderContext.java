@@ -42,9 +42,6 @@ import edu.uci.ics.jung.visualization.renderers.VertexLabelRenderer;
 import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
 
 
-/**
- */
-@SuppressWarnings("unchecked")
 public class PluggableRenderContext<V, E> implements RenderContext<V, E> {
     
 	protected float arrowPlacementTolerance = 1;
@@ -180,147 +177,88 @@ public class PluggableRenderContext<V, E> implements RenderContext<V, E> {
         return dotting;
     }
 
-    /**
-     * @see edu.uci.ics.jung.visualization.RenderContext#getArrow_placement_tolerance()
-     */
     public float getArrowPlacementTolerance() {
         return arrowPlacementTolerance;
     }
 
-    /**
-     * @see edu.uci.ics.jung.visualization.RenderContext#setArrow_placement_tolerance(float)
-     */
     public void setArrowPlacementTolerance(float arrow_placement_tolerance) {
         this.arrowPlacementTolerance = arrow_placement_tolerance;
     }
 
-    /**
-     * @see edu.uci.ics.jung.visualization.RenderContext#getEdgeArrowTransformer()
-     */
     public Function<? super Context<Graph<V,E>,E>,Shape> getEdgeArrowTransformer() {
         return edgeArrowTransformer;
     }
 
-    /**
-     * @see edu.uci.ics.jung.visualization.RenderContext#setEdgeArrowTransformer(edu.uci.ics.jung.visualization.decorators.EdgeArrowTransformer)
-     */
     public void setEdgeArrowTransformer(Function<? super Context<Graph<V,E>,E>,Shape> edgeArrowTransformer) {
         this.edgeArrowTransformer = edgeArrowTransformer;
     }
 
-    /**
-     * @see RenderContext#getEdgeArrowPredicate()
-     */
     public Predicate<Context<Graph<V,E>,E>> getEdgeArrowPredicate() {
         return edgeArrowPredicate;
     }
 
-    /**
-     * @see RenderContext#setEdgeArrowPredicate(Predicate)
-     */
     public void setEdgeArrowPredicate(Predicate<Context<Graph<V,E>,E>> edgeArrowPredicate) {
         this.edgeArrowPredicate = edgeArrowPredicate;
     }
 
-    /**
-     * @see edu.uci.ics.jung.visualization.RenderContext#getEdgeFontTransformer()
-     */
     public Function<? super E,Font> getEdgeFontTransformer() {
         return edgeFontTransformer;
     }
 
-    /**
-     * @see edu.uci.ics.jung.visualization.RenderContext#setEdgeFontTransformer(edu.uci.ics.jung.visualization.decorators.EdgeFontTransformer)
-     */
     public void setEdgeFontTransformer(Function<? super E,Font> edgeFontTransformer) {
         this.edgeFontTransformer = edgeFontTransformer;
     }
 
-    /**
-     * @see edu.uci.ics.jung.visualization.RenderContext#getEdgeIncludePredicate()
-     */
     public Predicate<Context<Graph<V,E>,E>> getEdgeIncludePredicate() {
         return edgeIncludePredicate;
     }
 
-    /**
-     * @see edu.uci.ics.jung.visualization.RenderContext#setEdgeIncludePredicate(org.apache.commons.collections15.Predicate)
-     */
     public void setEdgeIncludePredicate(Predicate<Context<Graph<V,E>,E>> edgeIncludePredicate) {
         this.edgeIncludePredicate = edgeIncludePredicate;
     }
 
-    /**
-     * @see edu.uci.ics.jung.visualization.RenderContext#getEdgeLabelClosenessTransformer()
-     */
     public Function<? super Context<Graph<V,E>,E>,Number> getEdgeLabelClosenessTransformer() {
         return edgeLabelClosenessTransformer;
     }
 
-    /**
-     * @see edu.uci.ics.jung.visualization.RenderContext#setEdgeLabelClosenessTransformer(edu.uci.ics.jung.visualization.decorators.NumberDirectionalEdgeValue)
-     */
     public void setEdgeLabelClosenessTransformer(
     		Function<? super Context<Graph<V,E>,E>,Number> edgeLabelClosenessTransformer) {
         this.edgeLabelClosenessTransformer = edgeLabelClosenessTransformer;
     }
 
-    /**
-     * @see edu.uci.ics.jung.visualization.RenderContext#getEdgeLabelRenderer()
-     */
     public EdgeLabelRenderer getEdgeLabelRenderer() {
         return edgeLabelRenderer;
     }
 
-    /**
-     * @see edu.uci.ics.jung.visualization.RenderContext#setEdgeLabelRenderer(edu.uci.ics.jung.visualization.EdgeLabelRenderer)
-     */
     public void setEdgeLabelRenderer(EdgeLabelRenderer edgeLabelRenderer) {
         this.edgeLabelRenderer = edgeLabelRenderer;
     }
 
-    /**
-     * @see edu.uci.ics.jung.visualization.RenderContext#getEdgePaintTransformer()
-     */
     public Function<? super E,Paint> getEdgeFillPaintTransformer() {
         return edgeFillPaintTransformer;
     }
 
-    /**
-     * @see edu.uci.ics.jung.visualization.RenderContext#setEdgePaintTransformer(edu.uci.ics.jung.visualization.decorators.EdgePaintTransformer)
-     */
     public void setEdgeDrawPaintTransformer(Function<? super E,Paint> edgeDrawPaintTransformer) {
         this.edgeDrawPaintTransformer = edgeDrawPaintTransformer;
     }
 
-    /**
-     * @see edu.uci.ics.jung.visualization.RenderContext#getEdgePaintTransformer()
-     */
     public Function<? super E,Paint> getEdgeDrawPaintTransformer() {
         return edgeDrawPaintTransformer;
     }
 
-    /**
-     * @see edu.uci.ics.jung.visualization.RenderContext#setEdgePaintTransformer(edu.uci.ics.jung.visualization.decorators.EdgePaintTransformer)
-     */
     public void setEdgeFillPaintTransformer(Function<? super E,Paint> edgeFillPaintTransformer) {
         this.edgeFillPaintTransformer = edgeFillPaintTransformer;
     }
 
-    /**
-     * @see edu.uci.ics.jung.visualization.RenderContext#getEdgeShapeTransformer()
-     */
     public Function<? super E, Shape> getEdgeShapeTransformer() {
         return edgeShapeTransformer;
     }
 
-    /**
-     * @see edu.uci.ics.jung.visualization.RenderContext#setEdgeShapeTransformer(edu.uci.ics.jung.visualization.decorators.EdgeShapeTransformer)
-     */
     public void setEdgeShapeTransformer(Function<? super E, Shape> edgeShapeTransformer) {
         this.edgeShapeTransformer = edgeShapeTransformer;
         if (edgeShapeTransformer instanceof ParallelEdgeShapeTransformer) {
-        	ParallelEdgeShapeTransformer<V, E> transformer =
+        	@SuppressWarnings("unchecked")
+			ParallelEdgeShapeTransformer<V, E> transformer =
         			(ParallelEdgeShapeTransformer<V, E>)edgeShapeTransformer;
         	if (transformer instanceof EdgeShape.Orthogonal) {
         		transformer.setEdgeIndexFunction(this.incidentEdgeIndexFunction);
@@ -330,86 +268,50 @@ public class PluggableRenderContext<V, E> implements RenderContext<V, E> {
         }
     }
 
-    /**
-     * @see edu.uci.ics.jung.visualization.RenderContext#getEdgeLabelTransformer()
-     */
     public Function<? super E,String> getEdgeLabelTransformer() {
         return edgeLabelTransformer;
     }
 
-    /**
-     * @see edu.uci.ics.jung.visualization.RenderContext#setEdgeLabelTransformer(edu.uci.ics.jung.visualization.decorators.EdgeLabelTransformer)
-     */
     public void setEdgeLabelTransformer(Function<? super E,String> edgeLabelTransformer) {
         this.edgeLabelTransformer = edgeLabelTransformer;
     }
 
-    /**
-     * @see edu.uci.ics.jung.visualization.RenderContext#getEdgeStrokeTransformer()
-     */
     public Function<? super E,Stroke> getEdgeStrokeTransformer() {
         return edgeStrokeTransformer;
     }
 
-    /**
-     * @see edu.uci.ics.jung.visualization.RenderContext#setEdgeStrokeTransformer(edu.uci.ics.jung.visualization.decorators.EdgeStrokeTransformer)
-     */
     public void setEdgeStrokeTransformer(Function<? super E,Stroke> edgeStrokeTransformer) {
         this.edgeStrokeTransformer = edgeStrokeTransformer;
     }
 
-    /**
-     * @see edu.uci.ics.jung.visualization.RenderContext#getEdgeStrokeTransformer()
-     */
     public Function<? super E,Stroke> getEdgeArrowStrokeTransformer() {
         return edgeArrowStrokeTransformer;
     }
 
-    /**
-     * @see edu.uci.ics.jung.visualization.RenderContext#setEdgeStrokeTransformer(edu.uci.ics.jung.visualization.decorators.EdgeStrokeTransformer)
-     */
     public void setEdgeArrowStrokeTransformer(Function<? super E,Stroke> edgeArrowStrokeTransformer) {
         this.edgeArrowStrokeTransformer = edgeArrowStrokeTransformer;
     }
 
-    /**
-     * @see RenderContext#getGraphicsContext()
-     */
     public GraphicsDecorator getGraphicsContext() {
         return graphicsContext;
     }
 
-    /**
-     * @see RenderContext#setGraphicsContext(GraphicsDecorator)
-     */
     public void setGraphicsContext(GraphicsDecorator graphicsContext) {
         this.graphicsContext = graphicsContext;
     }
 
-    /**
-     * @see RenderContext#getLabelOffset()
-     */
     public int getLabelOffset() {
         return labelOffset;
     }
 
-    /**
-     * @see RenderContext#setLabelOffset(int)
-     */
     public void setLabelOffset(int labelOffset) {
         this.labelOffset = labelOffset;
     }
 
-    /**
-     * @see edu.uci.ics.jung.visualization.RenderContext#getParallelEdgeIndexTransformer()
-     */
     public EdgeIndexFunction<V, E> getParallelEdgeIndexFunction() {
         return parallelEdgeIndexFunction;
     }
 
-    /**
-     * @see edu.uci.ics.jung.visualization.RenderContext#setParallelEdgeIndexFunction(edu.uci.ics.graph.util.ParallelEdgeIndexFunction)
-     */
     public void setParallelEdgeIndexFunction(
             EdgeIndexFunction<V, E> parallelEdgeIndexFunction) {
         this.parallelEdgeIndexFunction = parallelEdgeIndexFunction;
@@ -418,214 +320,124 @@ public class PluggableRenderContext<V, E> implements RenderContext<V, E> {
         this.setEdgeShapeTransformer(getEdgeShapeTransformer());
     }
 
-    /**
-     * @see edu.uci.ics.jung.visualization.RenderContext#getPickedEdgeState()
-     */
     public PickedState<E> getPickedEdgeState() {
         return pickedEdgeState;
     }
 
-    /**
-     * @see edu.uci.ics.jung.visualization.RenderContext#setPickedEdgeState(edu.uci.ics.jung.visualization.picking.PickedState)
-     */
     public void setPickedEdgeState(PickedState<E> pickedEdgeState) {
         this.pickedEdgeState = pickedEdgeState;
     }
 
-    /**
-     * @see edu.uci.ics.jung.visualization.RenderContext#getPickedVertexState()
-     */
     public PickedState<V> getPickedVertexState() {
         return pickedVertexState;
     }
 
-    /**
-     * @see edu.uci.ics.jung.visualization.RenderContext#setPickedVertexState(edu.uci.ics.jung.visualization.picking.PickedState)
-     */
     public void setPickedVertexState(PickedState<V> pickedVertexState) {
         this.pickedVertexState = pickedVertexState;
     }
 
-    /**
-     * @see edu.uci.ics.jung.visualization.RenderContext#getRendererPane()
-     */
     public CellRendererPane getRendererPane() {
         return rendererPane;
     }
 
-    /**
-     * @see edu.uci.ics.jung.visualization.RenderContext#setRendererPane(javax.swing.CellRendererPane)
-     */
     public void setRendererPane(CellRendererPane rendererPane) {
         this.rendererPane = rendererPane;
     }
 
-    /**
-     * @see edu.uci.ics.jung.visualization.RenderContext#getScreenDevice()
-     */
     public JComponent getScreenDevice() {
         return screenDevice;
     }
 
-    /**
-     * @see edu.uci.ics.jung.visualization.RenderContext#setScreenDevice(edu.uci.ics.jung.visualization.VisualizationViewer)
-     */
     public void setScreenDevice(JComponent screenDevice) {
         this.screenDevice = screenDevice;
         screenDevice.add(rendererPane);
     }
 
-    /**
-     * @see edu.uci.ics.jung.visualization.RenderContext#getVertexFontTransformer()
-     */
     public Function<? super V,Font> getVertexFontTransformer() {
         return vertexFontTransformer;
     }
 
-    /**
-     * @see edu.uci.ics.jung.visualization.RenderContext#setVertexFontTransformer(edu.uci.ics.jung.visualization.decorators.VertexFontTransformer)
-     */
     public void setVertexFontTransformer(Function<? super V,Font> vertexFontTransformer) {
         this.vertexFontTransformer = vertexFontTransformer;
     }
 
-    /**
-     * @see edu.uci.ics.jung.visualization.RenderContext#getVertexIconTransformer()
-     */
     public Function<? super V,Icon> getVertexIconTransformer() {
         return vertexIconTransformer;
     }
 
-    /**
-     * @see edu.uci.ics.jung.visualization.RenderContext#setVertexIconTransformer(edu.uci.ics.jung.visualization.decorators.VertexIconTransformer)
-     */
     public void setVertexIconTransformer(Function<? super V,Icon> vertexIconTransformer) {
         this.vertexIconTransformer = vertexIconTransformer;
     }
 
-    /**
-     * @see edu.uci.ics.jung.visualization.RenderContext#getVertexIncludePredicate()
-     */
     public Predicate<Context<Graph<V,E>,V>> getVertexIncludePredicate() {
         return vertexIncludePredicate;
     }
 
-    /**
-     * @see edu.uci.ics.jung.visualization.RenderContext#setVertexIncludePredicate(org.apache.commons.collections15.Predicate)
-     */
     public void setVertexIncludePredicate(Predicate<Context<Graph<V,E>,V>> vertexIncludePredicate) {
         this.vertexIncludePredicate = vertexIncludePredicate;
     }
 
-    /**
-     * @see edu.uci.ics.jung.visualization.RenderContext#getVertexLabelRenderer()
-     */
     public VertexLabelRenderer getVertexLabelRenderer() {
         return vertexLabelRenderer;
     }
 
-    /**
-     * @see edu.uci.ics.jung.visualization.RenderContext#setVertexLabelRenderer(edu.uci.ics.jung.visualization.VertexLabelRenderer)
-     */
     public void setVertexLabelRenderer(VertexLabelRenderer vertexLabelRenderer) {
         this.vertexLabelRenderer = vertexLabelRenderer;
     }
 
-    /**
-     * @see edu.uci.ics.jung.visualization.RenderContext#getVertexPaintTransformer()
-     */
     public Function<? super V,Paint> getVertexFillPaintTransformer() {
         return vertexFillPaintTransformer;
     }
 
-    /**
-     * @see edu.uci.ics.jung.visualization.RenderContext#setVertexPaintTransformer(edu.uci.ics.jung.visualization.decorators.VertexPaintTransformer)
-     */
     public void setVertexFillPaintTransformer(Function<? super V,Paint> vertexFillPaintTransformer) {
         this.vertexFillPaintTransformer = vertexFillPaintTransformer;
     }
 
-    /**
-     * @see edu.uci.ics.jung.visualization.RenderContext#getVertexPaintTransformer()
-     */
     public Function<? super V,Paint> getVertexDrawPaintTransformer() {
         return vertexDrawPaintTransformer;
     }
 
-    /**
-     * @see edu.uci.ics.jung.visualization.RenderContext#setVertexPaintTransformer(edu.uci.ics.jung.visualization.decorators.VertexPaintTransformer)
-     */
     public void setVertexDrawPaintTransformer(Function<? super V,Paint> vertexDrawPaintTransformer) {
         this.vertexDrawPaintTransformer = vertexDrawPaintTransformer;
     }
 
-    /**
-     * @see edu.uci.ics.jung.visualization.RenderContext#getVertexLabelTransformer()
-     */
     public Function<? super V,String> getVertexLabelTransformer() {
         return vertexLabelTransformer;
     }
 
-    /**
-     * @see edu.uci.ics.jung.visualization.RenderContext#setVertexLabelTransformer(edu.uci.ics.jung.visualization.decorators.VertexLabelTransformer)
-     */
     public void setVertexLabelTransformer(Function<? super V,String> vertexLabelTransformer) {
         this.vertexLabelTransformer = vertexLabelTransformer;
     }
 
-	/**
-	 * @return the pickSupport
-	 */
 	public GraphElementAccessor<V, E> getPickSupport() {
 		return pickSupport;
 	}
 
-	/**
-	 * @param pickSupport the pickSupport to set
-	 */
 	public void setPickSupport(GraphElementAccessor<V, E> pickSupport) {
 		this.pickSupport = pickSupport;
 	}
 	
-	/**
-	 * @return the basicTransformer
-	 */
 	public MultiLayerTransformer getMultiLayerTransformer() {
 		return multiLayerTransformer;
 	}
 
-	/**
-	 * @param basicTransformer the basicTransformer to set
-	 */
 	public void setMultiLayerTransformer(MultiLayerTransformer basicTransformer) {
 		this.multiLayerTransformer = basicTransformer;
 	}
 
-	/**
-	 * @see RenderContext#getArrowDrawPaintTransformer()
-	 */
 	public Function<? super E, Paint> getArrowDrawPaintTransformer() {
 		return arrowDrawPaintTransformer;
 	}
 
-	/**
-	 * @see RenderContext#getArrowFillPaintTransformer()
-	 */
 	public Function<? super E, Paint> getArrowFillPaintTransformer() {
 		return arrowFillPaintTransformer;
 	}
 
-	/**
-	 * @see RenderContext#setArrowDrawPaintTransformer(Function)
-	 */
 	public void setArrowDrawPaintTransformer(Function<? super E, Paint> arrowDrawPaintTransformer) {
 		this.arrowDrawPaintTransformer = arrowDrawPaintTransformer;
 		
 	}
 
-	/**
-	 * @see RenderContext#setArrowFillPaintTransformer(Function)
-	 */
 	public void setArrowFillPaintTransformer(Function<? super E, Paint> arrowFillPaintTransformer) {
 		this.arrowFillPaintTransformer = arrowFillPaintTransformer;
 		

@@ -24,6 +24,8 @@ public interface PickedState<T> extends PickedInfo<T>, ItemSelectable {
     /**
      * Marks <code>v</code> as "picked" if <code>b == true</code>,
      * and unmarks <code>v</code> as picked if <code>b == false</code>.
+     * @param v the element to be picked/unpicked
+     * @param b true if {@code v} is to be marked as picked, false if to be marked as unpicked
      * @return the "picked" state of <code>v</code> prior to this call
      */
     boolean pick(T v, boolean b);
@@ -34,12 +36,12 @@ public interface PickedState<T> extends PickedInfo<T>, ItemSelectable {
     void clear();
     
     /**
-     * Returns all "picked" elements.
+     * @return all "picked" elements.
      */
     Set<T> getPicked();
     
     /** 
-     * Returns <code>true</code> if <code>v</code> is currently "picked".
+     * @return <code>true</code> if <code>v</code> is currently "picked".
      */
     boolean isPicked(T v);
 

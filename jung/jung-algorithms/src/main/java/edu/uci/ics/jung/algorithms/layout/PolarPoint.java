@@ -31,7 +31,9 @@ public class PolarPoint
 	}
 
 	/**
-	 * Creates a new instance with radius {@code radius} and angle {@code theta}.
+	 * Creates a new instance with the specified radius and angle.
+	 * @param theta the angle of the point to create
+	 * @param radius the distance from the origin of the point to create
 	 */
 	public PolarPoint(double theta, double radius) {
 		this.theta = theta;
@@ -39,48 +41,48 @@ public class PolarPoint
 	}
 	
 	/**
-	 * Returns the angle for this point.
+	 * @return the angle for this point
 	 */
 	public double getTheta() { return theta; }
 
 	/**
-	 * Returns the radius for this point.
+	 * @return the radius for this point
 	 */
 	public double getRadius() { return radius; }
 	
-	/**
-	 * Sets the angle for this point to {@code theta}.
-	 */
 	public void setTheta(double theta) { this.theta = theta; }
 	
-	/**
-	 * Sets the radius for this point to {@code theta}.
-	 */
 	public void setRadius(double radius) { this.radius = radius; }
 
 	/**
-	 * Returns the result of converting <code>polar</code> to Cartesian coordinates.
+	 * @param polar the input location to convert
+	 * @return the result of converting <code>polar</code> to Cartesian coordinates.
 	 */
 	public static Point2D polarToCartesian(PolarPoint polar) {
 		return polarToCartesian(polar.getTheta(), polar.getRadius());
 	}
 
 	/**
-	 * Returns the result of converting <code>(theta, radius)</code> to Cartesian coordinates.
+	 * @param theta the angle of the input location
+	 * @param radius the distance from the origin of the input location
+	 * @return the result of converting <code>(theta, radius)</code> to Cartesian coordinates.
 	 */
 	public static Point2D polarToCartesian(double theta, double radius) {
 		return new Point2D.Double(radius*Math.cos(theta), radius*Math.sin(theta));
 	}
 
 	/**
-	 * Returns the result of converting <code>point</code> to polar coordinates.
+	 * @param point the input location
+	 * @return the result of converting <code>point</code> to polar coordinates.
 	 */
 	public static PolarPoint cartesianToPolar(Point2D point) {
 		return cartesianToPolar(point.getX(), point.getY());
 	}
 
 	/**
-	 * Returns the result of converting <code>(x, y)</code> to polar coordinates.
+	 * @param x the x coordinate of the input location
+	 * @param y the y coordinate of the input location
+	 * @return the result of converting <code>(x, y)</code> to polar coordinates.
 	 */
 	public static PolarPoint cartesianToPolar(double x, double y) {
 		double theta = Math.atan2(y,x);
@@ -95,6 +97,7 @@ public class PolarPoint
 	
 	/**
 	 * Sets the angle and radius of this point to those of {@code p}.
+	 * @param p the point whose location is copied into this instance
 	 */
 	public void setLocation(PolarPoint p) {
 		this.theta = p.getTheta();

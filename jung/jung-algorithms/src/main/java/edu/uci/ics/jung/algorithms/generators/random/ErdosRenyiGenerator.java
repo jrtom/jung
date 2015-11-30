@@ -35,6 +35,9 @@ public class ErdosRenyiGenerator<V,E> implements GraphGenerator<V,E> {
 
     /**
      *
+     * @param graphFactory factory for graphs of the appropriate type
+     * @param vertexFactory factory for vertices of the appropriate type
+     * @param edgeFactory factory for edges of the appropriate type
      * @param numVertices number of vertices graph should have
      * @param p Connection's probability between 2 vertices
      */
@@ -82,6 +85,8 @@ public class ErdosRenyiGenerator<V,E> implements GraphGenerator<V,E> {
     /**
      * Sets the seed of the internal random number generator to {@code seed}.
      * Enables consistent behavior.
+     * 
+     * @param seed the seed to use for the internal random number generator
      */
     public void setSeed(long seed) {
         mRandom.setSeed(seed);

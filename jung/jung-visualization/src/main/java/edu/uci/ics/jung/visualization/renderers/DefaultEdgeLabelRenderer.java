@@ -43,7 +43,10 @@ public class DefaultEdgeLabelRenderer extends JLabel implements
      }
      
     /**
-     * Creates a default table cell renderer.
+     * Creates an instance with the specified properties.
+     * 
+     * @param pickedEdgeLabelColor the color to use for rendering the labels of picked edges
+     * @param rotateEdgeLabels whether the 
      */
     public DefaultEdgeLabelRenderer(Color pickedEdgeLabelColor, boolean rotateEdgeLabels) {
         super();
@@ -89,7 +92,7 @@ public class DefaultEdgeLabelRenderer extends JLabel implements
 
     /**
      * Notification from the <code>UIManager</code> that the look and feel
-     * [L&F] has changed.
+     * has changed.
      * Replaces the current UI object with the latest version from the 
      * <code>UIManager</code>.
      *
@@ -131,8 +134,9 @@ public class DefaultEdgeLabelRenderer extends JLabel implements
     }
     
     /*
+     * <bold id="override">Implementation Note</bold>
      * The following methods are overridden as a performance measure to 
-     * to prune code-paths are often called in the case of renders
+     * prune code-paths that are often called in the case of renders
      * but which we know are unnecessary.  Great care should be taken
      * when writing your own renderer to weigh the benefits and 
      * drawbacks of overriding methods like these.
@@ -150,9 +154,9 @@ public class DefaultEdgeLabelRenderer extends JLabel implements
         if (p != null) { 
             p = p.getParent(); 
         }
-        boolean colorMatch = (back != null) && (p != null) && 
-        back.equals(p.getBackground()) && 
-        p.isOpaque();
+        boolean colorMatch =
+        		(back != null) && (p != null)
+        		&& back.equals(p.getBackground()) && p.isOpaque();
         return !colorMatch && super.isOpaque(); 
     }
 

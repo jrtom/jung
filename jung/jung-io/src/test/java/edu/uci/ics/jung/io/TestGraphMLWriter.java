@@ -38,7 +38,6 @@ import edu.uci.ics.jung.graph.util.TestGraphs;
 
 public class TestGraphMLWriter extends TestCase
 {
-    @SuppressWarnings("unchecked")
     public void testBasicWrite() throws IOException, ParserConfigurationException, SAXException
     {
         Graph<String, Number> g = TestGraphs.createTestGraph(true);

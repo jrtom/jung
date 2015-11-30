@@ -33,9 +33,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 
-import com.google.common.base.Functions;
+import com.google.common.base.Function;
 import com.google.common.base.Supplier;
-import com.google.common.collect.MapMaker;
 
 import edu.uci.ics.jung.algorithms.layout.AbstractLayout;
 import edu.uci.ics.jung.algorithms.layout.StaticLayout;
@@ -47,6 +46,7 @@ import edu.uci.ics.jung.visualization.annotations.AnnotationControls;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
 import edu.uci.ics.jung.visualization.control.EditingModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
+import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 
@@ -145,14 +145,9 @@ public class GraphEditorDemo extends JApplet implements Printable {
         vv =  new VisualizationViewer<Number,Number>(layout);
         vv.setBackground(Color.white);
 
-        MapMaker mapMaker = new MapMaker();
-        vv.getRenderContext().setVertexLabelTransformer(Functions.<Object,String>forMap(
-        		mapMaker.<Object,String>makeComputingMap(new ToStringLabeller<Object>())));
-//        		LazyMap.<Number,String>decorate(new HashMap<Number,String>(), new ToStringLabeller<Number>())));
-        
-        vv.getRenderContext().setEdgeLabelTransformer(Functions.<Object,String>forMap(
-        		mapMaker.makeComputingMap(new ToStringLabeller<Object>())));
-//        		LazyMap.<Number,String>decorate(new HashMap<Number,String>(), new ToStringLabeller<Number>())));
+        Function<Object, String> labeller = new ToStringLabeller();
+        vv.getRenderContext().setVertexLabelTransformer(labeller);
+        vv.getRenderContext().setEdgeLabelTransformer(labeller);
 
         vv.setVertexToolTipTransformer(vv.getRenderContext().getVertexLabelTransformer());
         
@@ -201,7 +196,7 @@ public class GraphEditorDemo extends JApplet implements Printable {
         JPanel controls = new JPanel();
         controls.add(plus);
         controls.add(minus);
-        JComboBox modeBox = graphMouse.getModeComboBox();
+        JComboBox<Mode> modeBox = graphMouse.getModeComboBox();
         controls.add(modeBox);
         controls.add(annotationControls.getAnnotationsToolBar());
         controls.add(help);
@@ -210,7 +205,7 @@ public class GraphEditorDemo extends JApplet implements Printable {
     
     /**
      * copy the visible part of the graph to a file as a jpeg image
-     * @param file
+     * @param file the file in which to save the graph image
      */
     public void writeJPEGImage(File file) {
         int width = vv.getWidth();
@@ -265,9 +260,6 @@ public class GraphEditorDemo extends JApplet implements Printable {
 		}
     }
 
-    /**
-     * a driver for this demo
-     */
     @SuppressWarnings("serial")
 	public static void main(String[] args) {
         JFrame frame = new JFrame();

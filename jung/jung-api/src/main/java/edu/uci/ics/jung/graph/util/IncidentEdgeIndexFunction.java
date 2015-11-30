@@ -32,9 +32,9 @@ public class IncidentEdgeIndexFunction<V,E> implements EdgeIndexFunction<V,E>
     }
     
     /**
-     * Returns an instance of this type.
      * @param <V> the vertex type
      * @param <E> the edge type
+     * @return an instance of this type.
      */
     public static <V,E> IncidentEdgeIndexFunction<V,E> getInstance() {
         return new IncidentEdgeIndexFunction<V,E>();
@@ -45,7 +45,7 @@ public class IncidentEdgeIndexFunction<V,E> implements EdgeIndexFunction<V,E>
      * Calculates the indices for <code>e</code> and for all edges parallel
      * to <code>e</code>.
      */
-    public int getIndex(Graph<V,E> graph, E e)
+    public int getIndex(Graph<V, E> graph, E e)
     {
         Integer index = edge_index.get(e);
         if(index == null) {
@@ -98,7 +98,8 @@ public class IncidentEdgeIndexFunction<V,E> implements EdgeIndexFunction<V,E>
      * Resets the indices for this edge and its parallel edges.
      * Should be invoked when an edge parallel to <code>e</code>
      * has been added or removed.
-     * @param e
+     * @param graph the graph whose indices are to be reset
+     * @param e the edge whose associated indices are to be reset
      */
     public void reset(Graph<V,E> graph, E e) {
     	Pair<V> endpoints = graph.getEndpoints(e);

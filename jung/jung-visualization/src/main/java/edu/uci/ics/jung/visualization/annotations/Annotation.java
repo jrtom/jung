@@ -17,7 +17,7 @@ import java.awt.geom.Point2D;
  * 
  * @author Tom Nelson - tomnelson@dev.java.net
  *
- * @param <T>
+ * @param <T> the type of the annotation object
  */
 public class Annotation<T> {
 	
@@ -27,8 +27,6 @@ public class Annotation<T> {
 	protected Layer layer;
 	protected boolean fill;
 	public static enum Layer { LOWER, UPPER }
-	
-	
 	
 	public Annotation(T annotation, Layer layer, Paint paint, 
 			boolean fill, Point2D location) {
@@ -98,6 +96,4 @@ public class Annotation<T> {
 	public void setFill(boolean fill) {
 		this.fill = fill;
 	}
-	
-
 }

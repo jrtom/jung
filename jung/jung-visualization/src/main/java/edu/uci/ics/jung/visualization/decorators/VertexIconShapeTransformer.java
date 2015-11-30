@@ -21,7 +21,7 @@ import javax.swing.ImageIcon;
 
 import com.google.common.base.Function;
 
-import edu.uci.ics.jung.visualization.FourPassImageShaper;
+import edu.uci.ics.jung.visualization.util.ImageShapeUtils;
 
 /**
  * A default implementation that stores images in a Map keyed on the
@@ -29,18 +29,17 @@ import edu.uci.ics.jung.visualization.FourPassImageShaper;
  * shape of the opaque part of a transparent image.
  * 
  * @author Tom Nelson 
- *
- *
- */public class VertexIconShapeTransformer<V> implements Function<V,Shape> {
+ */
+public class VertexIconShapeTransformer<V> implements Function<V,Shape> {
+	protected Map<Image, Shape> shapeMap = new HashMap<Image, Shape>();
+	protected Map<V, Icon> iconMap;
+	protected Function<V, Shape> delegate;
      
-     protected Map<Image, Shape> shapeMap = new HashMap<Image, Shape>();
-     protected Map<V,Icon> iconMap;
-     protected Function<V,Shape> delegate;
-     /**
-      * 
-      *
-      */
-    public VertexIconShapeTransformer(Function<V,Shape> delegate) {
+	/**
+	 * Creates an instance with the specified delegate.
+	 * @param delegate the vertex-to-shape function to use if no image is present for the vertex
+	 */
+    public VertexIconShapeTransformer(Function<V, Shape> delegate) {
         this.delegate = delegate;
     }
 
@@ -68,7 +67,7 @@ import edu.uci.ics.jung.visualization.FourPassImageShaper;
 			Image image = ((ImageIcon) icon).getImage();
 			Shape shape = (Shape) shapeMap.get(image);
 			if (shape == null) {
-			    shape = FourPassImageShaper.getShape(image, 30);
+			    shape = ImageShapeUtils.getShape(image, 30);
 			    if(shape.getBounds().getWidth() > 0 && 
 			            shape.getBounds().getHeight() > 0) {
                     // don't cache a zero-sized shape, wait for the image

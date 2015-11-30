@@ -22,11 +22,9 @@ import edu.uci.ics.jung.visualization.transform.MutableTransformer;
  * MagnifyShapeTransformer extends MagnifyTransformer and
  * adds implementations for methods in ShapeTransformer.
  * It modifies the shapes (Vertex, Edge, and Arrowheads) so that
- * they are enlarged by the magnify transformation
+ * they are enlarged by the magnify transformation.
  * 
  * @author Tom Nelson
- *
- *
  */
 public class MagnifyShapeTransformer extends MagnifyTransformer 
     implements ShapeFlatnessTransformer {
@@ -34,6 +32,8 @@ public class MagnifyShapeTransformer extends MagnifyTransformer
     /**
      * Create an instance, setting values from the passed component
      * and registering to listen for size changes on the component.
+     * 
+     * @param component the component used for rendering
      */
     public MagnifyShapeTransformer(Component component) {
         this(component, null);
@@ -43,6 +43,9 @@ public class MagnifyShapeTransformer extends MagnifyTransformer
      * Create an instance, setting values from the passed component
      * and registering to listen for size changes on the component,
      * with a possibly shared transform <code>delegate</code>.
+     * 
+     * @param component the component used for rendering
+     * @param delegate the transformer to use
      */
     public MagnifyShapeTransformer(Component component, MutableTransformer delegate) {
         super(component, delegate);
@@ -147,9 +150,7 @@ public class MagnifyShapeTransformer extends MagnifyTransformer
         }
         return newPath;
     }
-    /**
-     * 
-     */
+    
     private Point2D _transform(Point2D graphPoint) {
         if(graphPoint == null) return null;
         Point2D viewCenter = getViewCenter();
@@ -157,7 +158,6 @@ public class MagnifyShapeTransformer extends MagnifyTransformer
         double ratio = getRatio();
         // transform the point from the graph to the view
         Point2D viewPoint = graphPoint;
-//        	delegate.transform(graphPoint);
         // calculate point from center
         double dx = viewPoint.getX() - viewCenter.getX();
         double dy = viewPoint.getY() - viewCenter.getY();
@@ -201,7 +201,6 @@ public class MagnifyShapeTransformer extends MagnifyTransformer
 
         double radius = polar.getRadius();
         if(radius > viewRadius) return viewPoint;
-        //delegate.inverseTransform(viewPoint);
         
         double mag = magnification;
         radius /= mag;
@@ -210,13 +209,13 @@ public class MagnifyShapeTransformer extends MagnifyTransformer
         projectedPoint.setLocation(projectedPoint.getX()/ratio, projectedPoint.getY());
         Point2D translatedBack = new Point2D.Double(projectedPoint.getX()+viewCenter.getX(),
                 projectedPoint.getY()+viewCenter.getY());
-//        return delegate.inverseTransform(translatedBack);
         return translatedBack;
     }
+    
     /**
-     * magnify the shape, without considering the Lens
-     * @param shape
-     * @return
+     * Magnify the shape, without considering the Lens.
+     * @param shape the shape to magnify
+     * @return the transformed shape
      */
     public Shape magnify(Shape shape) {
         return magnify(shape, 0);

@@ -39,8 +39,8 @@ import edu.uci.ics.jung.visualization.transform.shape.TransformingGraphics;
  * 
  * @author Tom Nelson - tomnelson@dev.java.net
  *
- * @param <V>
- * @param <E>
+ * @param <V> the vertex type
+ * @param <V> the edge type
  */
 public class ReshapingEdgeRenderer<V,E> extends BasicEdgeRenderer<V,E>
 	implements Renderer.Edge<V,E> {
@@ -188,11 +188,6 @@ public class ReshapingEdgeRenderer<V,E> extends BasicEdgeRenderer<V,E>
             // use existing paint for text if no draw paint specified
             if (draw_paint == null)
                 g.setPaint(oldPaint);
-//            String label = edgeStringer.getLabel(e);
-//            if (label != null) {
-//                labelEdge(g, graph, e, label, x1, x2, y1, y2);
-//            }
-            
             
             // restore old paint
             g.setPaint(oldPaint);
@@ -236,10 +231,10 @@ public class ReshapingEdgeRenderer<V,E> extends BasicEdgeRenderer<V,E>
             
     /**
      * <p>Returns a transform to position the arrowhead on this edge shape at the
-     * point where it intersects the passed vertex shape.</p>
+     * point where it intersects the passed vertex shape.
      * 
      * <p>The Loop edge is a special case because its staring point is not inside
-     * the vertex. The passedGo flag handles this case.</p>
+     * the vertex. The passedGo flag handles this case.
      * 
      * @param edgeShape
      * @param vertexShape

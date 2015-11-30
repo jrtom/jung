@@ -96,15 +96,10 @@ public class ShearingGraphMousePlugin extends AbstractGraphMousePlugin
         g.drawLine(right-2,bottom-5,right-4,bottom-7);
         g.dispose();
         cursor = Toolkit.getDefaultToolkit().createCustomCursor(cursorImage, new Point(), "RotateCursor");
-
 	}
 
-	/**
-	 * 
-	 * @param e the event
-	 */
 	public void mousePressed(MouseEvent e) {
-	    VisualizationViewer vv = (VisualizationViewer)e.getSource();
+	    VisualizationViewer<?, ?> vv = (VisualizationViewer<?, ?>)e.getSource();
 	    boolean accepted = checkModifiers(e);
 	    down = e.getPoint();
 	    if(accepted) {
@@ -112,24 +107,15 @@ public class ShearingGraphMousePlugin extends AbstractGraphMousePlugin
 	    }
 	}
     
-	/**
-	 * 
-	 */
     public void mouseReleased(MouseEvent e) {
-        VisualizationViewer vv = (VisualizationViewer)e.getSource();
+        VisualizationViewer<?, ?> vv = (VisualizationViewer<?, ?>)e.getSource();
         down = null;
         vv.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
     
-    /**
-	 * 
-	 * 
-	 * 
-	 * 
-	 */
     public void mouseDragged(MouseEvent e) {
         if(down == null) return;
-        VisualizationViewer vv = (VisualizationViewer)e.getSource();
+        VisualizationViewer<?, ?> vv = (VisualizationViewer<?, ?>)e.getSource();
         boolean accepted = checkModifiers(e);
         if(accepted) {
             MutableTransformer modelTransformer = 

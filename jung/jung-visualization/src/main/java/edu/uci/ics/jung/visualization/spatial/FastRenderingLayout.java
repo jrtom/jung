@@ -13,8 +13,8 @@ import edu.uci.ics.jung.graph.Graph;
  * break into several rectangular areas, each of which will have a reference Graph
  * @author tanelso
  *
- * @param <V>
- * @param <E>
+ * @param <V> the vertex type
+ * @param <E> the edge type
  */
 public class FastRenderingLayout<V,E> implements Layout<V,E> {
 	

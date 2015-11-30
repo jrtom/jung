@@ -26,8 +26,8 @@ import edu.uci.ics.jung.visualization.decorators.ParallelEdgeShapeTransformer;
  * 
  * @author tanelso
  *
- * @param <V>
- * @param <E>
+ * @param <V> the vertex type
+ * @param <E> the edge type
  */
 public class FastRenderingGraph<V, E> implements Graph<V, E> {
 
@@ -93,7 +93,6 @@ public class FastRenderingGraph<V, E> implements Graph<V, E> {
         
         boolean isLoop = v1.equals(v2);
         Shape s2 = rc.getVertexShapeTransformer().apply(v2);
-//        Shape edgeShape = rc.getEdgeShapeTransformer().apply(Context.<Graph<V,E>,E>getInstance(graph, e));
         Shape edgeShape = rc.getEdgeShapeTransformer().apply(e);
 
         AffineTransform xform = AffineTransform.getTranslateInstance(x1, y1);
@@ -114,7 +113,7 @@ public class FastRenderingGraph<V, E> implements Graph<V, E> {
 				EdgeIndexFunction<V,E> peif = 
             		((ParallelEdgeShapeTransformer<V,E>)rc.getEdgeShapeTransformer())
             			.getEdgeIndexFunction();
-            	index = peif.getIndex(graph, e);
+            	index = peif.getIndex(null, e);
             	index *= 20;
             }
             GeneralPath gp = new GeneralPath();

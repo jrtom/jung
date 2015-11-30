@@ -32,6 +32,7 @@ import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
+import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 import edu.uci.ics.jung.visualization.control.SatelliteVisualizationViewer;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
@@ -106,7 +107,8 @@ public class InternalFrameSatelliteViewDemo {
 
         // add my listener for ToolTips
         vv.setVertexToolTipTransformer(new ToStringLabeller());
-        final ModalGraphMouse graphMouse = new DefaultModalGraphMouse();
+        final DefaultModalGraphMouse<String, Number> graphMouse
+        	= new DefaultModalGraphMouse<String, Number>();
         vv.setGraphMouse(graphMouse);
 
         satellite =
@@ -185,7 +187,7 @@ public class InternalFrameSatelliteViewDemo {
             }
         });
 
-        JComboBox modeBox = ((DefaultModalGraphMouse)graphMouse).getModeComboBox();
+        JComboBox<Mode> modeBox = graphMouse.getModeComboBox();
         modeBox.addItemListener(((ModalGraphMouse)satellite.getGraphMouse()).getModeListener());
         JPanel p = new JPanel();
         p.add(zoomer);
@@ -196,9 +198,6 @@ public class InternalFrameSatelliteViewDemo {
         frame.setVisible(true);
     }
 
-    /**
-     * a driver for this demo
-     */
     public static void main(String[] args) {
         new InternalFrameSatelliteViewDemo();
     }

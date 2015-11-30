@@ -30,8 +30,8 @@ public class ConstantDirectionalEdgeValueTransformer<V,E> implements Function<Co
 
     /**
      * 
-     * @param undirected
-     * @param directed
+     * @param undirected the value to return if the edge is undirected
+     * @param directed the value to return if the edge is directed
      */
     public ConstantDirectionalEdgeValueTransformer(double undirected, double directed)
     {
@@ -39,9 +39,6 @@ public class ConstantDirectionalEdgeValueTransformer<V,E> implements Function<Co
         this.directed_value = new Double(directed);
     }
     
-    /**
-     * @see Function#transform(Object)
-     */
     public Number apply(Context<Graph<V,E>,E> context) {
     	Graph<V,E> graph = context.graph;
     	E e = context.element;

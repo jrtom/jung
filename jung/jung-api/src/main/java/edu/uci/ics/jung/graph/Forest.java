@@ -23,6 +23,8 @@ public interface Forest<V,E> extends DirectedGraph<V,E> {
      * (unique) shortest path from the root to this vertex.
      * This is a convenience method which is equivalent to 
      * <code>Graph.getPredecessors(vertex).iterator().next()</code>.
+     * 
+     * @param vertex the vertex whose parent is to be returned
      * @return the parent of <code>vertex</code> in this tree
      * @see Graph#getPredecessors(Object)
      * @see #getParentEdge(Object)
@@ -38,8 +40,11 @@ public interface Forest<V,E> extends DirectedGraph<V,E> {
      * This is a convenience method which is equivalent to 
      * <code>Graph.getInEdges(vertex).iterator().next()</code>,
      * and also to <code>Graph.findEdge(vertex, getParent(vertex))</code>.
+     * 
+     * @param vertex the vertex whose incoming edge is to be returned
      * @return the edge connecting <code>vertex</code> to its parent, or 
      * <code>null</code> if <code>vertex</code> is the root
+     * 
      * @see Graph#getInEdges(Object)
      * @see #getParent(Object)
      */

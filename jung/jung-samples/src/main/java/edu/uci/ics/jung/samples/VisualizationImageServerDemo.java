@@ -127,9 +127,6 @@ public class VisualizationImageServerDemo {
         graph.addEdge(new Double(Math.random()), v[5], v[4], EdgeType.DIRECTED);
     }
 
-    /**
-     * a driver for this demo
-     */
     public static void main(String[] args) 
     {
         new VisualizationImageServerDemo();

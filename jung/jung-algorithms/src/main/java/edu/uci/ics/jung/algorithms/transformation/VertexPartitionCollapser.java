@@ -57,7 +57,7 @@ public class VertexPartitionCollapser<V,E,CV,CE>
 
     /**
      * Creates a new graph whose vertices correspond to the partitions of the supplied graph.
-     * @param partitioning
+     * @param partitioning a vertex partition of a graph
      * @return a new graph whose vertices correspond to the partitions of the supplied graph
      */
     public Graph<CV,CE> collapseVertexPartitions(VertexPartition<V,E> partitioning)
@@ -93,7 +93,7 @@ public class VertexPartitionCollapser<V,E,CV,CE>
     }
     
     /**
-     * Returns a Function from vertex sets in the original graph to collapsed vertices
+     * @return a Function from vertex sets in the original graph to collapsed vertices
      * in the transformed graph.
      */
     public Function<Set<V>, CV> getSetToCollapsedVertexTransformer()

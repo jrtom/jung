@@ -35,6 +35,7 @@ public class CachingEdgeRenderer<V, E> extends BasicEdgeRenderer<V, E>
 	protected Map<E,Shape> edgeShapeMap = new HashMap<E,Shape>();
 	protected Set<E> dirtyEdges = new HashSet<E>();
 	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public CachingEdgeRenderer(BasicVisualizationServer<V,E> vv) {
 		vv.getRenderContext().getMultiLayerTransformer().addChangeListener(this);
 		Layout<V,E> layout = vv.getGraphLayout();
@@ -49,7 +50,6 @@ public class CachingEdgeRenderer<V, E> extends BasicEdgeRenderer<V, E>
      * is scaled in the x-direction so that its width is equal to the distance between
      * <code>(x1,y1)</code> and <code>(x2,y2)</code>.
      */
-    @SuppressWarnings("unchecked")
     protected void drawSimpleEdge(RenderContext<V,E> rc, Layout<V,E> layout, E e) {
     	
     	int[] coords = new int[4];

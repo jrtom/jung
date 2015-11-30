@@ -32,7 +32,7 @@ public class ViewScalingControl implements ScalingControl {
 	 * zoom the display in or out, depending on the direction of the
 	 * mouse wheel motion.
 	 */
-    public void scale(VisualizationServer vv, float amount, Point2D from) {
+    public void scale(VisualizationServer<?, ?> vv, float amount, Point2D from) {
         MutableTransformer viewTransformer = vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.VIEW);
         viewTransformer.scale(amount, amount, from);
         vv.repaint();

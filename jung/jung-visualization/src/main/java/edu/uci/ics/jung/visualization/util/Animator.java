@@ -39,14 +39,14 @@ public class Animator implements Runnable {
 	}
 
 	/**
-	 * @return the relaxerThreadSleepTime
+	 * @return the relaxer thread sleep time
 	 */
 	public long getSleepTime() {
 		return sleepTime;
 	}
 
 	/**
-	 * @param relaxerThreadSleepTime the relaxerThreadSleepTime to set
+	 * @param sleepTime the relaxer thread sleep time to set
 	 */
 	public void setSleepTime(long sleepTime) {
 		this.sleepTime = sleepTime;

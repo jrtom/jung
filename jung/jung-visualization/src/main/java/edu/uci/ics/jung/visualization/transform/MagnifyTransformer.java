@@ -24,24 +24,23 @@ import edu.uci.ics.jung.algorithms.layout.PolarPoint;
  * inverseTransform methods.
  * 
  * @author Tom Nelson 
- *
- *
  */
 public class MagnifyTransformer extends LensTransformer implements MutableTransformer {
-
-    
     /**
-     * create an instance, setting values from the passed component
-     * and registering to listen for size changes on the component
-     * @param component
+     * Create an instance, setting values from the passed component
+     * and registering to listen for size changes on the component.
+     * 
+     * @param component the component used for rendering
      */
     public MagnifyTransformer(Component component) {
         this(component, new MutableAffineTransformer());
     }
+    
     /**
-     * create an instance with a possibly shared transform
-     * @param component
-     * @param delegate
+     * Create an instance with a possibly shared transform.
+     * 
+     * @param component the component used for rendering
+     * @param delegate the transformer to use
      */
     public MagnifyTransformer(Component component, MutableTransformer delegate) {
     		super(component, delegate);
@@ -112,9 +111,9 @@ public class MagnifyTransformer extends LensTransformer implements MutableTransf
     }
     
     /**
-     * magnifies the point, without considering the Lens
-     * @param graphPoint
-     * @return
+     * Magnifies the point, without considering the Lens.
+     * @param graphPoint the point to transform via magnification
+     * @return the transformed point
      */
     public Point2D magnify(Point2D graphPoint) {
         if(graphPoint == null) return null;

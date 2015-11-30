@@ -17,7 +17,7 @@ import edu.uci.ics.jung.graph.util.EdgeIndexFunction;
 
 
 /**
- * An abstract class for edge->Shape functions that work with parallel edges.
+ * An abstract class for edge-to-Shape functions that work with parallel edges.
  *  
  * @author Tom Nelson
  */

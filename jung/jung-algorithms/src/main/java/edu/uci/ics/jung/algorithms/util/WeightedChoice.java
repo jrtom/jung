@@ -42,7 +42,7 @@ public class WeightedChoice<T>
 
 	/**
 	 * Equivalent to {@code this(item_weights, new Random(), DEFAULT_THRESHOLD)}.
-	 * @param item_weights
+	 * @param item_weights a map from items to their weights
 	 */
 	public WeightedChoice(Map<T, ? extends Number> item_weights)
 	{
@@ -51,6 +51,9 @@ public class WeightedChoice<T>
 
 	/**
 	 * Equivalent to {@code this(item_weights, new Random(), threshold)}.
+	 * @param item_weights a map from items to their weights
+	 * @param threshold the minimum value that is treated as a probability
+	 *     (anything smaller will be considered equivalent to a floating-point rounding error)
 	 */
 	public WeightedChoice(Map<T, ? extends Number> item_weights, double threshold)
 	{
@@ -59,6 +62,8 @@ public class WeightedChoice<T>
 	
 	/**
 	 * Equivalent to {@code this(item_weights, random, DEFAULT_THRESHOLD)}.
+	 * @param item_weights a map from items to their weights
+	 * @param random the Random instance to use for selection
 	 */
 	public WeightedChoice(Map<T, ? extends Number> item_weights, Random random)
 	{
@@ -75,6 +80,10 @@ public class WeightedChoice<T>
 	 * used to provide uniform integer and double values.
 	 * <p>The threshold indicates default minimum value that is treated as a valid 
 	 * probability (as opposed to rounding error from floating-point operations). 
+	 * @param item_weights a map from items to their weights
+	 * @param random the Random instance to use for selection
+	 * @param threshold the minimum value that is treated as a probability
+	 *     (anything smaller will be considered equivalent to a floating-point rounding error)
 	 */
 	public WeightedChoice(Map<T, ? extends Number> item_weights, Random random,
 			double threshold) 
@@ -149,7 +158,7 @@ public class WeightedChoice<T>
 	}
 	
 	/**
-	 * Sets the seed used by the internal random number generator.
+	 * @param seed the seed to be used by the internal random number generator
 	 */
 	public void setRandomSeed(long seed)
 	{
@@ -159,6 +168,7 @@ public class WeightedChoice<T>
 	/**
 	 * Retrieves an item with probability proportional to its weight in the
 	 * {@code Map} provided in the input.
+	 * @return an item chosen randomly based on its specified weight
 	 */
 	public T nextItem()
 	{

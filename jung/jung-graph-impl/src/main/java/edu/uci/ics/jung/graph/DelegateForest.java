@@ -10,7 +10,7 @@ import edu.uci.ics.jung.graph.util.Pair;
 import edu.uci.ics.jung.graph.util.TreeUtils;
 
 /**
- * An implementation of <code>Forest<V,E></code> that delegates to a specified <code>DirectedGraph</code>
+ * An implementation of <code>Forest</code> that delegates to a specified <code>DirectedGraph</code>
  * instance.
  * @author Tom Nelson
  *
@@ -28,7 +28,8 @@ public class DelegateForest<V,E> extends GraphDecorator<V,E> implements Forest<V
 	}
 
 	/**
-	 * Creates an instance backed by the input {@code DirectedGraph} i
+	 * Creates an instance backed by the input {@code DirectedGraph}.
+	 * @param delegate the graph to which operations will be delegated
 	 */
 	public DelegateForest(DirectedGraph<V,E> delegate) {
 		super(delegate);
@@ -175,12 +176,21 @@ public class DelegateForest<V,E> extends GraphDecorator<V,E> implements Forest<V
 	}
 
 	/**
-	 * getter for the root of the tree
-	 * returns null, as this tree has >1 roots
-	 * @return the root
+	 * @return the root of the tree, or null if the tree has &gt; 1 roots
 	 */
 	public V getRoot() {
-		return null;
+		V root = null;
+		for (V v : delegate.getVertices()) {
+			if (delegate.getPredecessorCount(v) == 0) {
+				if (root == null) {
+					root = v;
+				} else {
+					// we've found > 1 root, return null
+					return null;
+				}
+			}
+		}
+		return root;
 	}
 
 	/**
@@ -226,8 +236,7 @@ public class DelegateForest<V,E> extends GraphDecorator<V,E> implements Forest<V
 	}
 
 	/**
-	 * computes and returns whether the passed node is
-	 * neither the root, nor a leaf node.
+	 * @param v the vertex to test
 	 * @return <code>true</code> if <code>v</code> is neither a leaf
 	 * nor a root
 	 */
@@ -236,21 +245,24 @@ public class DelegateForest<V,E> extends GraphDecorator<V,E> implements Forest<V
 	}
 
 	/**
-	 * Returns true if {@code v} has no child nodes.
+	 * @param v the vertex to test
+	 * @return {@code true} if {@code v} has no child nodes.
 	 */
 	public boolean isLeaf(V v) {
 		return getChildren(v).size() == 0;
 	}
 
 	/**
-	 * Returns the children of {@code v}.
+	 * @param v the vertex whose children are to be returned
+	 * @return the children of {@code v}.
 	 */
 	public Collection<V> getChildren(V v) {
 		return delegate.getSuccessors(v);
 	}
 
 	/**
-	 * Returns true if {@code v} has no parent node.
+	 * @param v the vertex to test
+	 * @return {@code true} if {@code v} has no parent node.
 	 */
 	public boolean isRoot(V v) {
 		return getParent(v) == null;
@@ -275,7 +287,7 @@ public class DelegateForest<V,E> extends GraphDecorator<V,E> implements Forest<V
 	}
 
 	/**
-	 * Returns the root of each tree of this forest as a {@code Collection}.
+	 * @return the root of each tree of this forest as a {@code Collection}.
 	 */
 	public Collection<V> getRoots() {
 		Collection<V> roots = new HashSet<V>();

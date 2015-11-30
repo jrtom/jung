@@ -87,17 +87,17 @@ public class AnnotationManager {
 		return upperAnnotationPaintable;
 	}
 	
-	@SuppressWarnings("unchecked")
-    public Annotation getAnnotation(Point2D p) {
+    public Annotation<?> getAnnotation(Point2D p) {
+		@SuppressWarnings("rawtypes")
 		Set<Annotation> annotations = new HashSet<Annotation>(lowerAnnotationPaintable.getAnnotations());
 		annotations.addAll(upperAnnotationPaintable.getAnnotations());
 		return getAnnotation(p, annotations);
 	}
 	
-	@SuppressWarnings("unchecked")
-    public Annotation getAnnotation(Point2D p, Collection<Annotation> annotations) {
+    @SuppressWarnings("rawtypes")
+	public Annotation<?> getAnnotation(Point2D p, Collection<Annotation> annotations) {
 		double closestDistance = Double.MAX_VALUE;
-		Annotation closestAnnotation = null;
+		Annotation<?> closestAnnotation = null;
 		for(Annotation annotation : annotations) {
 			Object ann = annotation.getAnnotation();
 			if(ann instanceof Shape) {
@@ -149,9 +149,4 @@ public class AnnotationManager {
 	public Component prepareRenderer(RenderContext<?,?> rc, AnnotationRenderer annotationRenderer, Object value) {
 		return annotationRenderer.getAnnotationRendererComponent(rc.getScreenDevice(), value);
 	}
-
-
-	
-	
-
 }

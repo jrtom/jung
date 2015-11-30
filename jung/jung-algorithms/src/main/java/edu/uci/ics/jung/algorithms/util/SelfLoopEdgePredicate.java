@@ -11,8 +11,8 @@ import edu.uci.ics.jung.graph.util.Pair;
  * endpoints in the input graph are identical.  (Thus, an edge which connects
  * its sole incident vertex to itself).
  *
- * @param <V>
- * @param <E>
+ * @param <V> the vertex type
+ * @param <E> the edge type
  */
 public class SelfLoopEdgePredicate<V,E> implements Predicate<Context<Graph<V,E>,E>> {
 

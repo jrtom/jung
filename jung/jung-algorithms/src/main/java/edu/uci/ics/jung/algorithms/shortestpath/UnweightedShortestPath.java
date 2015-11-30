@@ -103,7 +103,6 @@ public class UnweightedShortestPath<V, E>
                 	{
                 		if (neighbor.equals(vertex))
                 			continue;
-//	                    V neighbor = mGraph.getOpposite(vertex, incomingEdge);
 	
 	                    Number predDistanceVal = distances.get(neighbor);
 	
@@ -142,6 +141,8 @@ public class UnweightedShortestPath<V, E>
      * from this vertex are invalidated by changes to the graph.
      * 
      * @see #reset()
+     * 
+     * @param v the vertex for which distances should be cleared
      */
     public void reset(V v)
     {

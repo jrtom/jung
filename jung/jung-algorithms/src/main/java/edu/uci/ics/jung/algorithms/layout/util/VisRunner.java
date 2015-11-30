@@ -36,6 +36,7 @@ public class VisRunner implements Relaxer, Runnable {
 	
 	/**
 	 * Creates an instance for the specified process.
+	 * @param process the process (generally a layout) for which this instance is created
 	 */
 	public VisRunner(IterativeContext process) {
 		this.process = process;

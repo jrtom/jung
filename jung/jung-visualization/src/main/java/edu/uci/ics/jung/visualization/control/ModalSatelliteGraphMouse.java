@@ -16,6 +16,7 @@ import java.awt.event.InputEvent;
  * @author Tom Nelson 
  *
  */
+@SuppressWarnings("rawtypes")
 public class ModalSatelliteGraphMouse extends DefaultModalGraphMouse implements
         ModalGraphMouse {
 
@@ -27,7 +28,7 @@ public class ModalSatelliteGraphMouse extends DefaultModalGraphMouse implements
         super(in, out);
     }
     
-    protected void loadPlugins() {
+	protected void loadPlugins() {
         pickingPlugin = new PickingGraphMousePlugin();
         animatedPickingPlugin = new SatelliteAnimatedPickingGraphMousePlugin();
         translatingPlugin = new SatelliteTranslatingGraphMousePlugin(InputEvent.BUTTON1_MASK);

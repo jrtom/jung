@@ -38,17 +38,17 @@ public class SatelliteTranslatingGraphMousePlugin extends
     }
     
     /**
-     * chack the modifiers. If accepted, translate the main view according
+     * Check the modifiers. If accepted, translate the main view according
      * to the dragging of the mouse pointer in the satellite view
      * @param e the event
      */
     public void mouseDragged(MouseEvent e) {
-        VisualizationViewer vv = (VisualizationViewer)e.getSource();
+        VisualizationViewer<?, ?> vv = (VisualizationViewer<?, ?>)e.getSource();
         boolean accepted = checkModifiers(e);
         if(accepted) {
             if(vv instanceof SatelliteVisualizationViewer) {
-                VisualizationViewer vvMaster = 
-                    ((SatelliteVisualizationViewer)vv).getMaster();
+                VisualizationViewer<?, ?> vvMaster = 
+                    ((SatelliteVisualizationViewer<?, ?>)vv).getMaster();
                 
                 MutableTransformer modelTransformerMaster = 
                 	vvMaster.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT);

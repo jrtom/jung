@@ -39,7 +39,8 @@ import edu.uci.ics.jung.visualization.util.ArrowFactory;
  * position by the PluggableRenderer.
  *  
  * @author Tom Nelson
- * @param <Edge>
+ * @param <V> the vertex type
+ * @param <E> the edge type
  */
 public class EdgeShape<V,E> {
     private static final Line2D LINE = new Line2D.Float(0.0f, 0.0f, 1.0f, 0.0f);
@@ -130,7 +131,7 @@ public class EdgeShape<V,E> {
     private int getIndex(E e, EdgeIndexFunction<V, E> edgeIndexFunction) {
     	return edgeIndexFunction == null
     			? 1
-    			: edgeIndexFunction.getIndex(graph, e);
+    			: edgeIndexFunction.getIndex(null, e);
     }
     
     /**

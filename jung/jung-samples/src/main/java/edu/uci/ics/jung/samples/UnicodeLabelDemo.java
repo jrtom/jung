@@ -26,6 +26,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import com.google.common.base.Function;
+import com.google.common.base.Functions;
 
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.graph.DirectedSparseGraph;
@@ -35,9 +36,7 @@ import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
-import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
-import edu.uci.ics.jung.visualization.decorators.DefaultVertexIconTransformer;
 import edu.uci.ics.jung.visualization.decorators.EllipseVertexShapeTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
@@ -73,6 +72,7 @@ public class UnicodeLabelDemo {
         graph = new DirectedSparseGraph<Integer,Number>();
         Integer[] v = createVertices(10);
         createEdges(v);
+        Map<Integer, Icon> iconMap = new HashMap<Integer, Icon>();
         
         vv =  new VisualizationViewer<Integer,Number>(new FRLayout<Integer,Number>(graph));
         vv.getRenderContext().setVertexLabelTransformer(new UnicodeVertexStringer<Integer>(v));
@@ -80,18 +80,18 @@ public class UnicodeLabelDemo {
         vv.getRenderContext().setEdgeLabelRenderer(new DefaultEdgeLabelRenderer(Color.cyan));
         VertexIconShapeTransformer<Integer> vertexIconShapeFunction =
             new VertexIconShapeTransformer<Integer>(new EllipseVertexShapeTransformer<Integer>());
-        DefaultVertexIconTransformer<Integer> vertexIconFunction = new DefaultVertexIconTransformer<Integer>();
+        Function<Integer, Icon> vertexIconFunction = Functions.forMap(iconMap);
         vv.getRenderContext().setVertexShapeTransformer(vertexIconShapeFunction);
         vv.getRenderContext().setVertexIconTransformer(vertexIconFunction);
-        loadImages(v, vertexIconFunction.getIconMap());
-        vertexIconShapeFunction.setIconMap(vertexIconFunction.getIconMap());
+        loadImages(v, iconMap);
+        vertexIconShapeFunction.setIconMap(iconMap);
         vv.getRenderContext().setVertexFillPaintTransformer(new PickableVertexPaintTransformer<Integer>(vv.getPickedVertexState(), Color.white,  Color.yellow));
         vv.getRenderContext().setEdgeDrawPaintTransformer(new PickableEdgePaintTransformer<Number>(vv.getPickedEdgeState(), Color.black, Color.lightGray));
 
         vv.setBackground(Color.white);
 
         // add my listener for ToolTips
-        vv.setVertexToolTipTransformer(new ToStringLabeller<Integer>());
+        vv.setVertexToolTipTransformer(new ToStringLabeller());
         
         // create a frome to hold the graph
         final JFrame frame = new JFrame();
@@ -100,7 +100,8 @@ public class UnicodeLabelDemo {
         content.add(panel);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
-        final ModalGraphMouse gm = new DefaultModalGraphMouse<Integer,Number>();
+        final DefaultModalGraphMouse<Integer, Number> gm
+        	= new DefaultModalGraphMouse<Integer,Number>();
         vv.setGraphMouse(gm);
         
         final ScalingControl scaler = new CrossoverScalingControl();
@@ -131,7 +132,7 @@ public class UnicodeLabelDemo {
         controls.add(plus);
         controls.add(minus);
         controls.add(lo);
-        controls.add(((DefaultModalGraphMouse<Integer,Number>) gm).getModeComboBox());
+        controls.add(gm.getModeComboBox());
         content.add(controls, BorderLayout.SOUTH);
 
         frame.pack();
@@ -214,10 +215,6 @@ public class UnicodeLabelDemo {
         graph.addEdge(new Double(Math.random()), v[5], v[4], EdgeType.DIRECTED);
     }
 
-    /**
-     * A nested class to demo ToolTips
-     */
-    
     protected void loadImages(Integer[] vertices, Map<Integer,Icon> imageMap) {
         
         ImageIcon[] icons = null;
@@ -238,9 +235,7 @@ public class UnicodeLabelDemo {
             imageMap.put(vertices[i],icons[i%icons.length]);
         }
     }
-    /**
-     * a driver for this demo
-     */
+
     public static void main(String[] args) 
     {
         new UnicodeLabelDemo();

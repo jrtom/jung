@@ -19,7 +19,9 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.common.base.Function;
-import com.google.common.collect.MapMaker;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 
 import edu.uci.ics.jung.graph.Forest;
 import edu.uci.ics.jung.graph.Graph;
@@ -28,26 +30,19 @@ import edu.uci.ics.jung.graph.util.TreeUtils;
 /**
  * @author Karlheinz Toni
  * @author Tom Nelson - converted to jung2
- *  
  */
-
 public class TreeLayout<V,E> implements Layout<V,E> {
 
 	protected Dimension size = new Dimension(600,600);
 	protected Forest<V,E> graph;
 	protected Map<V,Integer> basePositions = new HashMap<V,Integer>();
 
-    protected Map<V, Point2D> locations = 
-    	new MapMaker().makeComputingMap(new Function<V,Point2D>(){
-//			@Override
-			public Point2D apply(V arg0) {
-				return new Point2D.Double();
-			}});
-//    	LazyMap.decorate(new HashMap<V, Point2D>(),
-//    			new Function<V,Point2D>() {
-//					public Point2D transform(V arg0) {
-//						return new Point2D.Double();
-//					}});
+    protected LoadingCache<V, Point2D> locations =
+    	CacheBuilder.newBuilder().build(new CacheLoader<V, Point2D>() {
+	    	public Point2D load(V vertex) {
+	    		return new Point2D.Double();
+	    	}
+    });
     
     protected transient Set<V> alreadyDone = new HashSet<V>();
 
@@ -75,6 +70,7 @@ public class TreeLayout<V,E> implements Layout<V,E> {
 
     /**
      * Creates an instance for the specified graph with default X and Y distances.
+	 * @param g the graph on which the layout algorithm is to operate
      */
     public TreeLayout(Forest<V,E> g) {
     	this(g, DEFAULT_DISTX, DEFAULT_DISTY);
@@ -83,6 +79,8 @@ public class TreeLayout<V,E> implements Layout<V,E> {
     /**
      * Creates an instance for the specified graph and X distance with
      * default Y distance.
+	 * @param g the graph on which the layout algorithm is to operate
+	 * @param distx the horizontal spacing between adjacent siblings
      */
     public TreeLayout(Forest<V,E> g, int distx) {
         this(g, distx, DEFAULT_DISTY);
@@ -90,6 +88,9 @@ public class TreeLayout<V,E> implements Layout<V,E> {
 
     /**
      * Creates an instance for the specified graph, X distance, and Y distance.
+	 * @param g the graph on which the layout algorithm is to operate
+	 * @param distx the horizontal spacing between adjacent siblings
+	 * @param disty the vertical spacing between adjacent siblings
      */
     public TreeLayout(Forest<V,E> g, int distx, int disty) {
         if (g == null)
@@ -113,17 +114,11 @@ public class TreeLayout<V,E> implements Layout<V,E> {
         		buildTree(v, this.m_currentPoint.x);
         	}
         }
-        int width = 0;
-        for(V v : roots) {
-        	width += basePositions.get(v);
-        }
     }
 
     protected void buildTree(V v, int x) {
 
-        if (!alreadyDone.contains(v)) {
-            alreadyDone.add(v);
-
+        if (alreadyDone.add(v)) {
             //go one level further down
             this.m_currentPoint.y += this.distY;
             this.m_currentPoint.x = x;
@@ -202,7 +197,7 @@ public class TreeLayout<V,E> implements Layout<V,E> {
     	if(y < 0) size.height -= y;
     	if(y > size.height-distY) 
     		size.height = y + distY;
-    	locations.get(vertex).setLocation(m_currentPoint);
+    	locations.getUnchecked(vertex).setLocation(m_currentPoint);
 
     }
 
@@ -241,17 +236,17 @@ public class TreeLayout<V,E> implements Layout<V,E> {
 	}
 	
     /**
-     * Returns the center of this layout's area.
+     * @return the center of this layout's area.
      */
 	public Point2D getCenter() {
 		return new Point2D.Double(size.getWidth()/2,size.getHeight()/2);
 	}
 
 	public void setLocation(V v, Point2D location) {
-		locations.get(v).setLocation(location);
+		locations.getUnchecked(v).setLocation(location);
 	}
 	
 	public Point2D apply(V v) {
-		return locations.get(v);
+		return locations.getUnchecked(v);
 	}
 }

@@ -22,7 +22,7 @@ public interface IterativeContext
 	void step();
 
 	/**
-	 * Returns true if this iterative process is finished, and false otherwise.
+	 * @return {@code true} if this iterative process is finished, and {@code false} otherwise.
 	 */
 	boolean done();
 }

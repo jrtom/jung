@@ -115,7 +115,7 @@ public class EdgeLabelDemo extends JApplet {
         vv.getRenderContext().setEdgeDrawPaintTransformer(new PickableEdgePaintTransformer<Number>(vv.getPickedEdgeState(), Color.black, Color.cyan));
         vv.getRenderContext().setVertexFillPaintTransformer(new PickableVertexPaintTransformer<Integer>(vv.getPickedVertexState(), Color.red, Color.yellow));
         // add my listener for ToolTips
-        vv.setVertexToolTipTransformer(new ToStringLabeller<Integer>());
+        vv.setVertexToolTipTransformer(new ToStringLabeller());
         
         // create a frome to hold the graph
         final GraphZoomScrollPane panel = new GraphZoomScrollPane(vv);
@@ -338,9 +338,6 @@ public class EdgeLabelDemo extends JApplet {
         graph.addEdge(new Double(Math.random()), v[1], v[2]);
     }
 
-    /**
-     * a driver for this demo
-     */
     public static void main(String[] args) {
         JFrame frame = new JFrame();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

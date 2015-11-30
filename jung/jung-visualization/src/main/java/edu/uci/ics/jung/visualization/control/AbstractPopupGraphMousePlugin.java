@@ -38,9 +38,6 @@ public abstract class AbstractPopupGraphMousePlugin extends AbstractGraphMousePl
         }
     }
     
-    /**
-     * @param e
-     */
     protected abstract void handlePopup(MouseEvent e);
     
     public void mouseClicked(MouseEvent e) {

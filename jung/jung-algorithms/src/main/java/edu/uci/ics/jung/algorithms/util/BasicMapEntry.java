@@ -14,7 +14,8 @@ public class BasicMapEntry<K,V> implements Map.Entry<K,V> {
     V value;
     
     /**
-     * Create new entry.
+     * @param k the key
+     * @param v the value
      */
     public BasicMapEntry(K k, V v) {
         value = v;
@@ -35,12 +36,12 @@ public class BasicMapEntry<K,V> implements Map.Entry<K,V> {
         return oldValue;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof Map.Entry))
             return false;
-        Map.Entry e = (Map.Entry)o;
+        @SuppressWarnings("rawtypes")
+		Map.Entry e = (Map.Entry)o;
         Object k1 = getKey();
         Object k2 = e.getKey();
         if (k1 == k2 || (k1 != null && k1.equals(k2))) {

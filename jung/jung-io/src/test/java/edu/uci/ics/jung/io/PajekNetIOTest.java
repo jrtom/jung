@@ -11,7 +11,6 @@
  */
 package edu.uci.ics.jung.io;
 
-import java.awt.Dimension;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -24,17 +23,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.transform.Transformer;
-
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
 import com.google.common.base.Supplier;
-import com.google.common.collect.MapMaker;
 
-import edu.uci.ics.jung.algorithms.layout.util.RandomLocationTransformer;
 import edu.uci.ics.jung.graph.DirectedGraph;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.Graph;
@@ -287,7 +282,7 @@ public class PajekNetIOTest extends TestCase
         }
         int j=0;
 
-        List<Number> id = new ArrayList<Number>(graph1.getVertices());//Indexer.getIndexer(graph1);
+        List<Number> id = new ArrayList<Number>(graph1.getVertices());
         GreekLabels<Number> gl = new GreekLabels<Number>(id);
         Number[] edges = { 0,1,2,3,4,5 };
 
@@ -319,13 +314,12 @@ public class PajekNetIOTest extends TestCase
         String testFilename = "mtest.net";
         String testFilename2 = testFilename + "2";
 
-        // lay out network
-        Dimension d = new Dimension(100, 200);
-        Function<Number,Point2D> vld = 
-        	
-        	Functions.<Number,Point2D>forMap(
-        			new MapMaker().<Number,Point2D>makeComputingMap(
-        					new RandomLocationTransformer<Number>(d)));
+        // assign arbitrary locations to each vertex
+        Map<Number, Point2D> locations = new HashMap<Number, Point2D>();
+        for (Number v : graph1.getVertices()) {
+        	locations.put(v, new Point2D.Double(v.intValue() * v.intValue(), 1 << v.intValue()));
+        }
+        Function<Number, Point2D> vld = Functions.forMap(locations);
         
         PajekNetWriter<Number,Number> pnw = new PajekNetWriter<Number,Number>();
         pnw.save(graph1, testFilename, gl, Functions.forMap(nr), vld);
@@ -337,7 +331,7 @@ public class PajekNetIOTest extends TestCase
         
         assertEquals(graph1.getVertexCount(), graph2.getVertexCount());
         assertEquals(graph1.getEdgeCount(), graph2.getEdgeCount());
-        
+
         // test vertex labels and locations
         for (int i = 0; i < graph1.getVertexCount(); i++)
         {

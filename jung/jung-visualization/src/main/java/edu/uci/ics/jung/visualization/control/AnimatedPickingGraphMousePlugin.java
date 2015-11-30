@@ -29,7 +29,7 @@ import edu.uci.ics.jung.visualization.picking.PickedState;
 /** 
  * AnimatedPickingGraphMousePlugin supports the picking of one Graph
  * Vertex. When the mouse is released, the graph is translated so that
- * the picked Vertex is moved to the center of the view. This translateion
+ * the picked Vertex is moved to the center of the view. This translation
  * is conducted in an animation Thread so that the graph slides to its
  * new position
  * 
@@ -44,16 +44,15 @@ public class AnimatedPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlu
     protected V vertex;
     
     /**
-	 * create an instance with default modifiers
-	 * 
+	 * Creates an instance with default modifiers of BUTTON1_MASK and CTRL_MASK
 	 */
 	public AnimatedPickingGraphMousePlugin() {
 	    this(InputEvent.BUTTON1_MASK  | InputEvent.CTRL_MASK);
 	}
 
 	/**
-	 * create an instance, overriding the default modifiers
-	 * @param selectionModifiers
+	 * Creates an instance with the specified mouse event modifiers.
+	 * @param selectionModifiers the mouse event modifiers to use.
 	 */
     public AnimatedPickingGraphMousePlugin(int selectionModifiers) {
         super(selectionModifiers);
@@ -67,7 +66,7 @@ public class AnimatedPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlu
     @SuppressWarnings("unchecked")
     public void mousePressed(MouseEvent e) {
 		if (e.getModifiers() == modifiers) {
-			VisualizationViewer<V,E> vv = (VisualizationViewer) e.getSource();
+			VisualizationViewer<V,E> vv = (VisualizationViewer<V,E>) e.getSource();
 			GraphElementAccessor<V, E> pickSupport = vv.getPickSupport();
 			PickedState<V> pickedVertexState = vv.getPickedVertexState();
             Layout<V,E> layout = vv.getGraphLayout();

@@ -31,20 +31,23 @@ public class GraphMLMetadata<T>
 	public String default_value;
 	
 	/**
-	 * A Function from objects to string representations 
-	 * of their values.
+	 * A Function mapping objects to string representations of their values.
 	 */
 	public Function<T, String> transformer;
 	
 	/**
 	 * Creates a new instance with the specified description,
-	 * default value, and Function.
+	 * default value, and function.
+	 * 
+	 * @param description a textual description of the object
+	 * @param default_value the default value for the object, as a String
+	 * @param function maps objects of this type to string representations
 	 */
 	public GraphMLMetadata(String description, String default_value,
-			Function<T, String> Function)
+			Function<T, String> function)
 	{
 		this.description = description;
-		this.transformer = Function;
+		this.transformer = function;
 		this.default_value = default_value;
 	}
 }

@@ -12,7 +12,6 @@ import java.io.IOException;
 import javax.swing.JFrame;
 
 import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
 
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.graph.Graph;
@@ -26,25 +25,28 @@ import edu.uci.ics.jung.visualization.VisualizationViewer;
 public class SimpleGraphDraw 
 {
 
-    public static void main(String[] args) throws IOException 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	public static void main(String[] args) throws IOException 
     {
         JFrame jf = new JFrame();
-        Graph g = getGraph();
+		Graph g = getGraph();
         VisualizationViewer vv = new VisualizationViewer(new FRLayout(g));
         jf.getContentPane().add(vv);
         jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         jf.pack();
         jf.setVisible(true);
     }
+    
     /**
      * Generates a graph: in this case, reads it from the file
      * "samples/datasetsgraph/simple.net"
      * @return A sample undirected graph
+     * @throws IOException if there is an error in reading the file
      */
-    public static Graph getGraph() throws IOException 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	public static Graph getGraph() throws IOException 
     {
         PajekNetReader pnr = new PajekNetReader(new Supplier(){
-//			@Override
 			public Object get() {
 				return new Object();
 			}});

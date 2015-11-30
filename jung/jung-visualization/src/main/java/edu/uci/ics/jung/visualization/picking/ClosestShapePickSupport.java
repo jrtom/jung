@@ -29,9 +29,9 @@ import edu.uci.ics.jung.visualization.VisualizationServer;
  * the closest element to see whether it contains the pick point.
  * Possible unexpected odd behaviors:
  * <ul>
- * <li/>If the elements overlap, this mechanism may pick another element than the one that's 
+ * <li>If the elements overlap, this mechanism may pick another element than the one that's 
  * "on top" (rendered last) if the pick point is closer to the center of an obscured vertex.
- * <li/>If element shapes are not convex, then this mechanism may return <code>null</code>
+ * <li>If element shapes are not convex, then this mechanism may return <code>null</code>
  * even if the pick point is inside some element's shape, if the pick point is closer
  * to the center of another element.
  * </ul>
@@ -63,6 +63,7 @@ public class ClosestShapePickSupport<V,E> implements GraphElementAccessor<V,E> {
      * Create a <code>ShapePickSupport</code> with the <code>vv</code>
      * VisualizationServer and default pick footprint.
      * The footprint defaults to 2.
+     * @param vv source of the current <code>Layout</code>.
 	 */
 	public ClosestShapePickSupport(VisualizationServer<V,E> vv) 
 	{

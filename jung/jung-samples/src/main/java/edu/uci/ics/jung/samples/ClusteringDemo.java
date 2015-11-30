@@ -28,7 +28,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.swing.BorderFactory;
@@ -47,7 +46,9 @@ import javax.swing.event.ChangeListener;
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
 import com.google.common.base.Supplier;
-import com.google.common.collect.MapMaker;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 
 import edu.uci.ics.jung.algorithms.cluster.EdgeBetweennessClusterer;
 import edu.uci.ics.jung.algorithms.layout.AggregateLayout;
@@ -74,17 +75,13 @@ import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 public class ClusteringDemo extends JApplet {
 
 	VisualizationViewer<Number,Number> vv;
-	
-//	Factory<Graph<Number,Number>> graphFactory;
-	
-	Map<Number,Paint> vertexPaints = 
-		new MapMaker().makeComputingMap(Functions.<Paint>constant(Color.white));
-//		LazyMap.<Number,Paint>decorate(new HashMap<Number,Paint>(),
-//				Functions.constant(Color.white));
-	Map<Number,Paint> edgePaints =
-		new MapMaker().makeComputingMap(Functions.<Paint>constant(Color.blue));
-//	LazyMap.<Number,Paint>decorate(new HashMap<Number,Paint>(),
-//			Functions.constant(Color.blue));
+
+	LoadingCache<Number, Paint> vertexPaints =
+			CacheBuilder.newBuilder().build(
+					CacheLoader.from(Functions.<Paint>constant(Color.white))); 
+	LoadingCache<Number, Paint> edgePaints =
+			CacheBuilder.newBuilder().build(
+					CacheLoader.from(Functions.<Paint>constant(Color.blue))); 
 
 	public final Color[] similarColors =
 	{
@@ -154,7 +151,7 @@ public class ClusteringDemo extends JApplet {
 		vv = new VisualizationViewer<Number,Number>(layout);
 		vv.setBackground( Color.white );
 		//Tell the renderer to use our own customized color rendering
-		vv.getRenderContext().setVertexFillPaintTransformer(Functions.<Number,Paint>forMap(vertexPaints));
+		vv.getRenderContext().setVertexFillPaintTransformer(vertexPaints);
 		vv.getRenderContext().setVertexDrawPaintTransformer(new Function<Number,Paint>() {
 			public Paint apply(Number v) {
 				if(vv.getPickedVertexState().isPicked(v)) {
@@ -165,14 +162,14 @@ public class ClusteringDemo extends JApplet {
 			}
 		});
 
-		vv.getRenderContext().setEdgeDrawPaintTransformer(Functions.<Number,Paint>forMap(edgePaints));
+		vv.getRenderContext().setEdgeDrawPaintTransformer(edgePaints);
 
 		vv.getRenderContext().setEdgeStrokeTransformer(new Function<Number,Stroke>() {
                 protected final Stroke THIN = new BasicStroke(1);
                 protected final Stroke THICK= new BasicStroke(2);
                 public Stroke apply(Number e)
                 {
-                    Paint c = edgePaints.get(e);
+                    Paint c = edgePaints.getUnchecked(e);
                     if (c == Color.LIGHT_GRAY)
                         return THIN;
                     else 
@@ -184,7 +181,7 @@ public class ClusteringDemo extends JApplet {
 		JButton scramble = new JButton("Restart");
 		scramble.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				Layout layout = vv.getGraphLayout();
+				Layout<Number, Number> layout = vv.getGraphLayout();
 				layout.initialize();
 				Relaxer relaxer = vv.getModel().getRelaxer();
 				if(relaxer != null) {
@@ -196,7 +193,7 @@ public class ClusteringDemo extends JApplet {
 
 		});
 		
-		DefaultModalGraphMouse gm = new DefaultModalGraphMouse();
+		DefaultModalGraphMouse<Number, Number> gm = new DefaultModalGraphMouse<Number, Number>();
 		vv.setGraphMouse(gm);
 		
 		final JToggleButton groupVertices = new JToggleButton("Group Clusters");

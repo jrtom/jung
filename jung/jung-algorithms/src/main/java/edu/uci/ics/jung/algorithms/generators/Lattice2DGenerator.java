@@ -85,7 +85,9 @@ public class Lattice2DGenerator<V,E> implements GraphGenerator<V,E>
     }
     
     /**
-     * @see edu.uci.ics.jung.algorithms.generators.GraphGenerator#create()
+     * Generates a graph based on the constructor-specified settings.
+     * 
+     * @return the generated graph
      */
     public Graph<V,E> get()
     {
@@ -132,6 +134,8 @@ public class Lattice2DGenerator<V,E> implements GraphGenerator<V,E>
     /**
      * Returns the number of edges found in a lattice of this generator's specifications.
      * (This is useful for subclasses that may modify the generated graphs to add more edges.)
+     * 
+     * @return the number of edges that this generator will generate
      */
     public int getGridEdgeCount()
     {
@@ -154,7 +158,9 @@ public class Lattice2DGenerator<V,E> implements GraphGenerator<V,E>
     }
     
     /**
-     * Returns the vertex at position ({@code i mod row_count, j mod col_count}).
+     * @param i row index into the lattice
+     * @param j column index into the lattice
+     * @return the vertex at position ({@code i mod row_count, j mod col_count})
      */
     protected V getVertex(int i, int j)
     {
@@ -162,7 +168,8 @@ public class Lattice2DGenerator<V,E> implements GraphGenerator<V,E>
     }
     
     /**
-     * Returns the {@code i}th vertex (counting row-wise).
+     * @param i row index into the lattice
+     * @return the {@code i}th vertex (counting row-wise)
      */
     protected V getVertex(int i)
     {
@@ -170,7 +177,8 @@ public class Lattice2DGenerator<V,E> implements GraphGenerator<V,E>
     }
     
     /**
-     * Returns the row in which vertex {@code i} is found.
+     * @param i index of the vertex whose row we want
+     * @return the row in which the vertex with index {@code i} is found
      */
     protected int getRow(int i)
     {
@@ -178,7 +186,8 @@ public class Lattice2DGenerator<V,E> implements GraphGenerator<V,E>
     }
     
     /**
-     * Returns the column in which vertex {@code i} is found.
+     * @param i index of the vertex whose column we want
+     * @return the column in which the vertex with index {@code i} is found
      */
     protected int getCol(int i)
     {

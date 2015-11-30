@@ -31,8 +31,8 @@ public class MouseListenerTranslator<V, E> extends MouseAdapter {
 	private GraphMouseListener<V> gel;
 
 	/**
-	 * @param gel
-	 * @param vv
+	 * @param gel listens for mouse events
+	 * @param vv the viewer used for visualization
 	 */
 	public MouseListenerTranslator(GraphMouseListener<V> gel, VisualizationViewer<V,E> vv) {
 		this.gel = gel;

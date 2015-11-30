@@ -38,6 +38,7 @@ import edu.uci.ics.jung.visualization.annotations.AnnotatingModalGraphMouse;
 import edu.uci.ics.jung.visualization.annotations.AnnotationControls;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
+import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
@@ -106,13 +107,11 @@ public class AnnotationsDemo<V, E> extends JApplet {
         vv.setBackground(Color.white);
         vv.getRenderContext().setEdgeDrawPaintTransformer(new PickableEdgePaintTransformer<Number>(vv.getPickedEdgeState(), Color.black, Color.cyan));
         vv.getRenderContext().setVertexFillPaintTransformer(new PickableVertexPaintTransformer<String>(vv.getPickedVertexState(), Color.red, Color.yellow));
-        vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller<String>());
+        vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
         vv.getRenderer().getVertexLabelRenderer().setPosition(Renderer.VertexLabel.Position.CNTR);
         
         // add default listener for ToolTips
-        vv.setVertexToolTipTransformer(new ToStringLabeller<String>());
-        
-//        ToolTipManager.sharedInstance().setDismissDelay(10000);
+        vv.setVertexToolTipTransformer(new ToStringLabeller());
         
         Container content = getContentPane();
         Container panel = new JPanel(new BorderLayout());
@@ -148,7 +147,7 @@ public class AnnotationsDemo<V, E> extends JApplet {
             }
         });
         
-        JComboBox modeBox = graphMouse.getModeComboBox();
+        JComboBox<Mode> modeBox = graphMouse.getModeComboBox();
         modeBox.setSelectedItem(ModalGraphMouse.Mode.ANNOTATING);
         
         JButton help = new JButton("Help");
@@ -188,9 +187,6 @@ public class AnnotationsDemo<V, E> extends JApplet {
         content.add(controls, BorderLayout.SOUTH);
     }
     
-    /**
-     * a driver for this demo
-     */
     public static void main(String[] args) {
         JFrame f = new JFrame();
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

@@ -39,6 +39,7 @@ public class SpringLayout2<V, E> extends SpringLayout<V,E>
      * Constructor for a SpringLayout for a raw graph with associated
      * dimension--the input knows how big the graph is. Defaults to the unit
      * length function.
+	 * @param g the graph on which the layout algorithm is to operate
      */
     public SpringLayout2(Graph<V,E> g) {
         super(g);
@@ -85,7 +86,7 @@ public class SpringLayout2<V, E> extends SpringLayout<V,E>
             try {
                 for (V v : getGraph().getVertices()) {
                     if (isLocked(v)) continue;
-                    SpringVertexData vd = springVertexData.get(v);
+                    SpringVertexData vd = springVertexData.getUnchecked(v);
                     if(vd == null) continue;
                     Point2D xyd = apply(v);
                     

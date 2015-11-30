@@ -35,7 +35,7 @@ public abstract class AbstractIterativeScorer<V,E,T> implements IterativeContext
     protected int max_iterations;
     
     /**
-     * Minimum change from one step to the next; if all changes are <= tolerance, 
+     * Minimum change from one step to the next; if all changes are &le; tolerance, 
      * no further updates will occur.
      * Defaults to 0.001.
      */
@@ -220,9 +220,8 @@ public abstract class AbstractIterativeScorer<V,E,T> implements IterativeContext
 
     /**
      * Updates the value for <code>v</code>.
-     * This is the key 
      * @param v the vertex whose value is to be updated
-     * @return
+     * @return the updated value
      */
     protected abstract double update(V v);
 
@@ -323,7 +322,7 @@ public abstract class AbstractIterativeScorer<V,E,T> implements IterativeContext
     /**
      * Collects the 'potential' from v (its current value) if it has no outgoing edges; this
      * can then be redistributed among the other vertices as a means of normalization.
-     * @param v
+     * @param v the vertex whose potential is being collected
      */
     protected void collectDisappearingPotential(V v) {}
 
@@ -361,6 +360,8 @@ public abstract class AbstractIterativeScorer<V,E,T> implements IterativeContext
      * the graph is a binary relation or if hyperedges are treated as self-loops,
      * the value returned is {@code graph.getIncidentCount(e)}; otherwise it is
      * {@code graph.getIncidentCount(e) - 1}.
+     * @param e the edge whose incident edge count is requested
+     * @return the edge count, adjusted based on how hyperedges are treated
      */
     protected int getAdjustedIncidentCount(E e) 
     {

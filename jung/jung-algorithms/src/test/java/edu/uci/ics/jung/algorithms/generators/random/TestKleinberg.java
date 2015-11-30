@@ -26,10 +26,14 @@ public class TestKleinberg extends TestLattice2D {
     }
     
     @Override
-    protected void checkEdgeCount(Lattice2DGenerator generator, Graph<String, Number> graph) 
+    protected void checkEdgeCount(Lattice2DGenerator<String, Number> generator,
+    	Graph<String, Number> graph) 
+    
     {
-        Assert.assertEquals(generator.getGridEdgeCount() +
-                ((KleinbergSmallWorldGenerator)generator).getConnectionCount() * graph.getVertexCount(), 
-                graph.getEdgeCount());
+        Assert.assertEquals(
+        	generator.getGridEdgeCount() +
+                ((KleinbergSmallWorldGenerator<?, ?>)generator).getConnectionCount()
+                	* graph.getVertexCount(), 
+            graph.getEdgeCount());
     }
 }

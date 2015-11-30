@@ -14,8 +14,8 @@ package edu.uci.ics.jung.algorithms.scoring.util;
 import com.google.common.base.Function;
 
 /**
- * A <code>Transformer<VEPair,Number></code> that delegates its operation to a
- * <code>Transformer<E,Number></code>.  Mainly useful for technical reasons inside 
+ * A {@code Transformer<VEPair,Number} that delegates its operation to a
+ * {@code Transformer<E,Number>}.  Mainly useful for technical reasons inside 
  * AbstractIterativeScorer; in essence it allows the edge weight instance 
  * variable to be of type <code>VEPair,W</code> even if the edge weight 
  * <code>Transformer</code> only operates on edges.
@@ -38,7 +38,7 @@ public class DelegateToEdgeTransformer<V,E> implements
     }
     
     /**
-     * @see Function#transform(Object)
+     * @see Function#apply(Object)
      */
     public Number apply(VEPair<V,E> arg0)
     {

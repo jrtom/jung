@@ -31,7 +31,6 @@ import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
-import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
@@ -114,7 +113,7 @@ public class DrawnIconVertexDemo {
         vv.setBackground(Color.white);
 
         // add my listener for ToolTips
-        vv.setVertexToolTipTransformer(new ToStringLabeller<Integer>());
+        vv.setVertexToolTipTransformer(new ToStringLabeller());
         
         // create a frome to hold the graph
         final JFrame frame = new JFrame();
@@ -123,7 +122,8 @@ public class DrawnIconVertexDemo {
         content.add(panel);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
-        final ModalGraphMouse gm = new DefaultModalGraphMouse<Integer,Number>();
+        final DefaultModalGraphMouse<Integer, Number> gm
+        	= new DefaultModalGraphMouse<Integer,Number>();
         vv.setGraphMouse(gm);
         
         final ScalingControl scaler = new CrossoverScalingControl();
@@ -144,7 +144,7 @@ public class DrawnIconVertexDemo {
         JPanel controls = new JPanel();
         controls.add(plus);
         controls.add(minus);
-        controls.add(((DefaultModalGraphMouse<Integer,Number>) gm).getModeComboBox());
+        controls.add(gm.getModeComboBox());
         content.add(controls, BorderLayout.SOUTH);
 
         frame.pack();
@@ -190,9 +190,6 @@ public class DrawnIconVertexDemo {
         graph.addEdge(new Double(Math.random()), v[5], v[4], EdgeType.DIRECTED);
     }
 
-    /**
-     * a driver for this demo
-     */
     public static void main(String[] args) 
     {
         new DrawnIconVertexDemo();

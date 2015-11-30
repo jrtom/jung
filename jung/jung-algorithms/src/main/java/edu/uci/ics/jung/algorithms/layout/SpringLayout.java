@@ -12,11 +12,12 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.geom.Point2D;
 import java.util.ConcurrentModificationException;
-import java.util.Map;
 
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
-import com.google.common.collect.MapMaker;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 
 import edu.uci.ics.jung.algorithms.layout.util.RandomLocationTransformer;
 import edu.uci.ics.jung.algorithms.util.IterativeContext;
@@ -39,23 +40,24 @@ public class SpringLayout<V, E> extends AbstractLayout<V,E> implements Iterative
     protected int repulsion_range_sq = 100 * 100;
     protected double force_multiplier = 1.0 / 3.0;
 
-    protected Map<V, SpringVertexData> springVertexData =
-    	new MapMaker().makeComputingMap(new Function<V,SpringVertexData>(){
-//			@Override
-			public SpringVertexData apply(V arg0) {
-				return new SpringVertexData();
-			}});
-//    	LazyMap.decorate(new HashMap<V, SpringVertexData>(),
-//    			new Supplier<SpringVertexData>() {
-//					public SpringVertexData create() {
-//						return new SpringVertexData();
-//					}});
+    protected LoadingCache<V, SpringVertexData> springVertexData =
+    	CacheBuilder.newBuilder().build(new CacheLoader<V, SpringVertexData>() {
+	    	public SpringVertexData load(V vertex) {
+	    		return new SpringVertexData();
+	    	}
+    });
+//    protected Map<V, SpringVertexData> springVertexData =
+//    	new MapMaker().makeComputingMap(new Function<V,SpringVertexData>(){
+//			public SpringVertexData apply(V arg0) {
+//				return new SpringVertexData();
+//			}});
 
     /**
      * Constructor for a SpringLayout for a raw graph with associated
      * dimension--the input knows how big the graph is. Defaults to the unit
      * length function.
-     */
+ 	 * @param g the graph on which the layout algorithm is to operate
+    */
     @SuppressWarnings("unchecked")
     public SpringLayout(Graph<V,E> g) {
         this(g, (Function<E,Integer>)Functions.<Integer>constant(30));
@@ -64,7 +66,7 @@ public class SpringLayout<V, E> extends AbstractLayout<V,E> implements Iterative
     /**
      * Constructor for a SpringLayout for a raw graph with associated component.
      *
-     * @param g the {@code Graph} to lay out
+	 * @param g the graph on which the layout algorithm is to operate
      * @param length_function provides a length for each edge
      */
     public SpringLayout(Graph<V,E> g, Function<? super E, Integer> length_function)
@@ -74,16 +76,12 @@ public class SpringLayout<V, E> extends AbstractLayout<V,E> implements Iterative
     }
 
     /**
-     * Returns the current value for the stretch parameter.
-     * @see #setStretch(double)
+     * @return the current value for the stretch parameter
      */
     public double getStretch() {
         return stretch;
     }
 
-    /**
-     * Sets the dimensions of the available space for layout to {@code size}.
-     */
 	@Override
 	public void setSize(Dimension size) {
 		if(initialized == false)
@@ -95,23 +93,19 @@ public class SpringLayout<V, E> extends AbstractLayout<V,E> implements Iterative
      * <p>Sets the stretch parameter for this instance.  This value
      * specifies how much the degrees of an edge's incident vertices
      * should influence how easily the endpoints of that edge
-     * can move (that is, that edge's tendency to change its length).</p>
+     * can move (that is, that edge's tendency to change its length).
      *
      * <p>The default value is 0.70.  Positive values less than 1 cause
      * high-degree vertices to move less than low-degree vertices, and
-     * values > 1 cause high-degree vertices to move more than
+     * values &gt; 1 cause high-degree vertices to move more than
      * low-degree vertices.  Negative values will have unpredictable
-     * and inconsistent results.</p>
-     * @param stretch
+     * and inconsistent results.
+     * @param stretch the stretch parameter
      */
     public void setStretch(double stretch) {
         this.stretch = stretch;
     }
 
-    /**
-     * Returns the current value for the node repulsion range.
-     * @see #setRepulsionRange(int)
-     */
     public int getRepulsionRange() {
         return (int)(Math.sqrt(repulsion_range_sq));
     }
@@ -120,16 +114,12 @@ public class SpringLayout<V, E> extends AbstractLayout<V,E> implements Iterative
      * Sets the node repulsion range (in drawing area units) for this instance.
      * Outside this range, nodes do not repel each other.  The default value
      * is 100.  Negative values are treated as their positive equivalents.
-     * @param range
+     * @param range the maximum repulsion range
      */
     public void setRepulsionRange(int range) {
         this.repulsion_range_sq = range * range;
     }
 
-    /**
-     * Returns the current value for the edge length force multiplier.
-     * @see #setForceMultiplier(double)
-     */
     public double getForceMultiplier() {
         return force_multiplier;
     }
@@ -143,6 +133,7 @@ public class SpringLayout<V, E> extends AbstractLayout<V,E> implements Iterative
      * layout to cause edges to conform to the default length.  Negative
      * values cause long edges to get longer and short edges to get shorter; use
      * at your own risk.
+     * @param force an energy field created by all living things that binds the galaxy together
      */
     public void setForceMultiplier(double force) {
         this.force_multiplier = force;
@@ -157,7 +148,7 @@ public class SpringLayout<V, E> extends AbstractLayout<V,E> implements Iterative
     public void step() {
     	try {
     		for(V v : getGraph().getVertices()) {
-    			SpringVertexData svd = springVertexData.get(v);
+    			SpringVertexData svd = springVertexData.getUnchecked(v);
     			if (svd == null) {
     				continue;
     			}
@@ -203,8 +194,8 @@ public class SpringLayout<V, E> extends AbstractLayout<V,E> implements Iterative
     			double dx = f * vx;
     			double dy = f * vy;
     			SpringVertexData v1D, v2D;
-    			v1D = springVertexData.get(v1);
-    			v2D = springVertexData.get(v2);
+    			v1D = springVertexData.getUnchecked(v1);
+    			v2D = springVertexData.getUnchecked(v2);
 
     			v1D.edgedx += dx;
     			v1D.edgedy += dy;
@@ -221,7 +212,7 @@ public class SpringLayout<V, E> extends AbstractLayout<V,E> implements Iterative
         for (V v : getGraph().getVertices()) {
             if (isLocked(v)) continue;
 
-            SpringVertexData svd = springVertexData.get(v);
+            SpringVertexData svd = springVertexData.getUnchecked(v);
             if(svd == null) continue;
             double dx = 0, dy = 0;
 
@@ -260,7 +251,7 @@ public class SpringLayout<V, E> extends AbstractLayout<V,E> implements Iterative
             try {
                 for (V v : getGraph().getVertices()) {
                     if (isLocked(v)) continue;
-                    SpringVertexData vd = springVertexData.get(v);
+                    SpringVertexData vd = springVertexData.getUnchecked(v);
                     if(vd == null) continue;
                     Point2D xyd = apply(v);
 
@@ -318,14 +309,14 @@ public class SpringLayout<V, E> extends AbstractLayout<V,E> implements Iterative
     }
 
     /**
-     * This one is an incremental visualization
+     * @return true
      */
     public boolean isIncremental() {
         return true;
     }
 
     /**
-     * For now, we pretend it never finishes.
+     * @return false
      */
     public boolean done() {
         return false;

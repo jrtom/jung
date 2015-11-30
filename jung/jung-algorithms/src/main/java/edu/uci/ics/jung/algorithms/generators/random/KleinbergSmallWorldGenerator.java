@@ -38,49 +38,54 @@ public class KleinbergSmallWorldGenerator<V, E> extends Lattice2DGenerator<V, E>
     private int num_connections = 1;
     
     /**
-     * Creates 
-     * @param graph_factory
-     * @param vertex_factory
-     * @param edge_factory
-     * @param latticeSize
-     * @param clusteringExponent
+     * Creates an instance with the specified parameters, whose underlying lattice is (a) of size
+     * {@code latticeSize} x {@code latticeSize}, and (b) toroidal.
+     * @param graphFactory factory for graphs of the appropriate type
+     * @param vertexFactory factory for vertices of the appropriate type
+     * @param edgeFactory factory for edges of the appropriate type
+     * @param latticeSize the number of rows and columns of the underlying lattice
+     * @param clusteringExponent the clustering exponent
      */
-    public KleinbergSmallWorldGenerator(Supplier<? extends Graph<V,E>> graph_factory, Supplier<V> vertex_factory, 
-            Supplier<E> edge_factory, int latticeSize, double clusteringExponent) 
+    public KleinbergSmallWorldGenerator(Supplier<? extends Graph<V,E>> graphFactory,
+    		Supplier<V> vertexFactory, Supplier<E> edgeFactory,
+    		int latticeSize, double clusteringExponent) 
     {
-        this(graph_factory, vertex_factory, edge_factory, latticeSize, latticeSize, clusteringExponent);
+        this(graphFactory, vertexFactory, edgeFactory, latticeSize, latticeSize, clusteringExponent);
     }
 
     /**
-     * @param graph_factory
-     * @param vertex_factory
-     * @param edge_factory
-     * @param row_count
-     * @param col_count
-     * @param clusteringExponent
+     * Creates an instance with the specified parameters, whose underlying lattice is toroidal.
+     * @param graphFactory factory for graphs of the appropriate type
+     * @param vertexFactory factory for vertices of the appropriate type
+     * @param edgeFactory factory for edges of the appropriate type
+     * @param row_count number of rows of the underlying lattice
+     * @param col_count number of columns of the underlying lattice
+     * @param clusteringExponent the clustering exponent
      */
-    public KleinbergSmallWorldGenerator(Supplier<? extends Graph<V,E>> graph_factory, Supplier<V> vertex_factory, 
-            Supplier<E> edge_factory, int row_count, int col_count, double clusteringExponent) 
+    public KleinbergSmallWorldGenerator(Supplier<? extends Graph<V,E>> graphFactory,
+    		Supplier<V> vertexFactory, Supplier<E> edgeFactory,
+            int row_count, int col_count, double clusteringExponent) 
     {
-        super(graph_factory, vertex_factory, edge_factory, row_count, col_count, true);
+        super(graphFactory, vertexFactory, edgeFactory, row_count, col_count, true);
         clustering_exponent = clusteringExponent;
         initialize();
     }
 
     /**
-     * @param graph_factory
-     * @param vertex_factory
-     * @param edge_factory
-     * @param row_count
-     * @param col_count
-     * @param clusteringExponent
-     * @param isToroidal
+     * Creates an instance with the specified parameters.
+     * @param graphFactory factory for graphs of the appropriate type
+     * @param vertexFactory factory for vertices of the appropriate type
+     * @param edgeFactory factory for edges of the appropriate type
+     * @param row_count number of rows of the underlying lattice
+     * @param col_count number of columns of the underlying lattice
+     * @param clusteringExponent the clustering exponent
+     * @param isToroidal whether the underlying lattice is toroidal
      */
-    public KleinbergSmallWorldGenerator(Supplier<? extends Graph<V,E>> graph_factory, Supplier<V> vertex_factory, 
-            Supplier<E> edge_factory, int row_count, int col_count, double clusteringExponent, 
-            boolean isToroidal) 
+    public KleinbergSmallWorldGenerator(Supplier<? extends Graph<V,E>> graphFactory,
+    		Supplier<V> vertexFactory, Supplier<E> edgeFactory, 
+    		int row_count, int col_count, double clusteringExponent, boolean isToroidal) 
     {
-        super(graph_factory, vertex_factory, edge_factory, row_count, col_count, isToroidal);
+        super(graphFactory, vertexFactory, edgeFactory, row_count, col_count, isToroidal);
         clustering_exponent = clusteringExponent;
         initialize();
     }
@@ -93,6 +98,7 @@ public class KleinbergSmallWorldGenerator<V, E> extends Lattice2DGenerator<V, E>
     /**
      * Sets the {@code Random} instance used by this instance.  Useful for 
      * unit testing.
+     * @param random the {@code Random} instance for this class to use
      */
     public void setRandom(Random random)
     {
@@ -102,6 +108,7 @@ public class KleinbergSmallWorldGenerator<V, E> extends Lattice2DGenerator<V, E>
     /**
      * Sets the seed of the internal random number generator.  May be used to provide repeatable
      * experiments.
+     * @param seed the random seed that this class's random number generator is to use
      */
     public void setRandomSeed(long seed) 
     {
@@ -110,6 +117,7 @@ public class KleinbergSmallWorldGenerator<V, E> extends Lattice2DGenerator<V, E>
 
     /**
      * Sets the number of new 'small-world' connections (outgoing edges) to be added to each vertex.
+     * @param num_connections the number of outgoing small-world edges to add to each vertex
      */
     public void setConnectionCount(int num_connections)
     {
@@ -121,7 +129,7 @@ public class KleinbergSmallWorldGenerator<V, E> extends Lattice2DGenerator<V, E>
     }
 
     /**
-     * Returns the number of new 'small-world' connections to be made to each vertex.
+     * @return the number of new 'small-world' connections that will originate at each vertex
      */
     public int getConnectionCount()
     {

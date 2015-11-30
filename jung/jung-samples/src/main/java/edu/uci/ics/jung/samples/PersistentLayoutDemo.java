@@ -73,7 +73,7 @@ public class PersistentLayoutDemo {
         
         // add my listener for ToolTips
         vv.setVertexToolTipTransformer(new ToStringLabeller());
-        DefaultModalGraphMouse gm = new DefaultModalGraphMouse();
+        DefaultModalGraphMouse<String,Number> gm = new DefaultModalGraphMouse<String,Number>();
         vv.setGraphMouse(gm);
         final ScalingControl scaler = new CrossoverScalingControl();
         

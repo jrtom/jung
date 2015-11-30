@@ -32,7 +32,7 @@ import edu.uci.ics.jung.graph.util.Pair;
  * step, a new vertex is created and is connected to existing vertices
  * according to the principle of "preferential attachment", whereby 
  * vertices with higher degree have a higher probability of being 
- * selected for attachment.</p>
+ * selected for attachment.
  * 
  * <p>At a given timestep, the probability <code>p</code> of creating an edge
  * between an existing vertex <code>v</code> and the newly added vertex is
@@ -42,18 +42,18 @@ import edu.uci.ics.jung.graph.util.Pair;
  * 
  * <p>where <code>|E|</code> and <code>|V|</code> are, respectively, the number 
  * of edges and vertices currently in the network (counting neither the new
- * vertex nor the other edges that are being attached to it).</p>
+ * vertex nor the other edges that are being attached to it).
  * 
  * <p>Note that the formula specified in the original paper
  * (cited below) was
  * <pre>
  * p = degree(v) / |E|
  * </pre>
- * </p>
+ * 
  * 
  * <p>However, this would have meant that the probability of attachment for any existing
  * isolated vertex would be 0.  This version uses Lagrangian smoothing to give
- * each existing vertex a positive attachment probability.</p>
+ * each existing vertex a positive attachment probability.
  * 
  * <p>The graph created may be either directed or undirected (controlled by a constructor
  * parameter); the default is undirected.  
@@ -61,10 +61,10 @@ import edu.uci.ics.jung.graph.util.Pair;
  * from the newly added vertex u to the existing vertex v, with probability proportional to the 
  * indegree of v (number of edges directed towards v).  If the graph is specified to be undirected,
  * then the (undirected) edges added will connect u to v, with probability proportional to the 
- * degree of v.</p> 
+ * degree of v. 
  * 
  * <p>The <code>parallel</code> constructor parameter specifies whether parallel edges
- * may be created.</p>
+ * may be created.
  * 
  * @see "A.-L. Barabasi and R. Albert, Emergence of scaling in random networks, Science 286, 1999."
  * @author Scott White
@@ -85,13 +85,17 @@ public class BarabasiAlbertGenerator<V,E> implements EvolvingGraphGenerator<V,E>
     
     /**
      * Constructs a new instance of the generator.
+     * 
+     * @param graphFactory factory for graphs of the appropriate type
+     * @param vertexFactory factory for vertices of the appropriate type
+     * @param edgeFactory factory for edges of the appropriate type
      * @param init_vertices     number of unconnected 'seed' vertices that the graph should start with
      * @param numEdgesToAttach the number of edges that should be attached from the
      * new vertex to pre-existing vertices at each time step
-     * @param directed  specifies whether the graph and edges to be created should be directed or not
-     * @param parallel  specifies whether the algorithm permits parallel edges
      * @param seed  random number seed
+     * @param seedVertices storage for the seed vertices that this graph creates
      */
+    // TODO: seedVertices is a bizarre way of exposing that information, refactor
     public BarabasiAlbertGenerator(Supplier<Graph<V,E>> graphFactory,
     		Supplier<V> vertexFactory, Supplier<E> edgeFactory, 
     		int init_vertices, int numEdgesToAttach, 
@@ -115,9 +119,14 @@ public class BarabasiAlbertGenerator<V,E> implements EvolvingGraphGenerator<V,E>
     /**
      * Constructs a new instance of the generator, whose output will be an undirected graph,
      * and which will use the current time as a seed for the random number generation.
+     * 
+     * @param graphFactory factory for graphs of the appropriate type
+     * @param vertexFactory factory for vertices of the appropriate type
+     * @param edgeFactory factory for edges of the appropriate type
      * @param init_vertices     number of vertices that the graph should start with
      * @param numEdgesToAttach the number of edges that should be attached from the
      * new vertex to pre-existing vertices at each time step
+     * @param seedVertices storage for the seed vertices that this graph creates
      */
     public BarabasiAlbertGenerator(Supplier<Graph<V,E>> graphFactory, 
     		Supplier<V> vertexFactory, Supplier<E> edgeFactory,

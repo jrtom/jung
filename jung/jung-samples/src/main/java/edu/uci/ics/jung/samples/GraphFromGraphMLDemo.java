@@ -58,12 +58,11 @@ public class GraphFromGraphMLDemo {
     VisualizationViewer<Number, Number> vv;
     
     /**
-     * create an instance of a simple graph with controls to
-     * demo the zoom features.
-     * @throws SAXException 
-     * @throws ParserConfigurationException 
-     * @throws IOException 
-     * 
+     * Creates an instance showing a simple graph with controls to demonstrate the zoom features.
+     * @param filename the file containing the graph data we're reading
+     * @throws ParserConfigurationException if a SAX parser cannot be constructed
+     * @throws SAXException if the SAX parser factory cannot be constructed
+     * @throws IOException if the file cannot be read
      */
     public GraphFromGraphMLDemo(String filename) throws ParserConfigurationException, SAXException, IOException {
         
@@ -93,13 +92,13 @@ public class GraphFromGraphMLDemo {
         				false));
         
         // add my listeners for ToolTips
-        vv.setVertexToolTipTransformer(new ToStringLabeller<Number>());
+        vv.setVertexToolTipTransformer(new ToStringLabeller());
         vv.setEdgeToolTipTransformer(new Function<Number,String>() {
 			public String apply(Number edge) {
 				return "E"+graph.getEndpoints(edge).toString();
 			}});
         
-        vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller<Number>());
+        vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
         vv.getRenderer().getVertexLabelRenderer().setPositioner(new InsidePositioner());
         vv.getRenderer().getVertexLabelRenderer().setPosition(Renderer.VertexLabel.Position.AUTO);
         
@@ -163,10 +162,10 @@ public class GraphFromGraphMLDemo {
     }
 
     /**
-     * a driver for this demo
-     * @throws IOException 
-     * @throws SAXException 
-     * @throws ParserConfigurationException 
+     * @param args if this contains at least one element, the first will be used as the file to read
+     * @throws ParserConfigurationException if a SAX parser cannot be constructed
+     * @throws SAXException if the SAX parser factory cannot be constructed
+     * @throws IOException if the file cannot be read
      */
     public static void main(String[] args) throws ParserConfigurationException, SAXException, IOException 
     {

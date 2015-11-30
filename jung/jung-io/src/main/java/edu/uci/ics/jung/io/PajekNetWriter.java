@@ -32,13 +32,10 @@ import edu.uci.ics.jung.graph.util.Pair;
 /**
  * Writes graphs in the Pajek NET format.
  * 
- * <p>Labels for vertices may optionally be specified by implementations of 
- * <code>VertexStringer</code>.  Edge weights are optionally specified by 
- * implementations of <code>Transformer<E, Number></code>.  Vertex locations
- * are optionally specified by implementations of 
- * <code>Transformer<V, Point2D></code>.  Note that vertex location coordinates 
+ * <p>Labels for vertices, edge weights, and vertex locations may each optionally
+ * be specified.  Note that vertex location coordinates 
  * must be normalized to the interval [0, 1] on each axis in order to conform to the 
- * Pajek specification.</p>
+ * Pajek specification.
  * 
  * @author Joshua O'Madadhain
  * @author Tom Nelson - converted to jung2
@@ -53,9 +50,13 @@ public class PajekNetWriter<V,E>
     }
 
     /**
-     * Saves <code>g</code> to <code>filename</code>.  Labels for vertices may
-     * be supplied by <code>vs</code>.  Edge weights are specified by <code>nev</code>.
-     * @throws IOException
+     * Saves the graph to the specified file.
+     * @param g the graph to be saved
+     * @param filename the filename of the file to write the graph to
+     * @param vs mapping from vertices to labels
+     * @param nev mapping from edges to weights
+     * @param vld mapping from vertices to locations
+     * @throws IOException if the graph cannot be saved
      */
     public void save(Graph<V,E> g, String filename, Function<V,String> vs, 
             Function<E,Number> nev, Function<V,Point2D> vld) throws IOException
@@ -64,14 +65,12 @@ public class PajekNetWriter<V,E>
     }
     
     /**
-     * Saves <code>g</code> to <code>filename</code>.  Labels are specified by
-     * <code>vs</code>, and edge weights by <code>nev</code>; vertex coordinates
-     * are not written out.
-     * @param g         the graph to write out
-     * @param filename  
-     * @param vs
-     * @param nev
-     * @throws IOException
+     * Saves the graph to the specified file.
+     * @param g the graph to be saved
+     * @param filename the filename of the file to write the graph to
+     * @param vs mapping from vertices to labels
+     * @param nev mapping from edges to weights
+     * @throws IOException if the graph cannot be saved
      */
     public void save(Graph<V,E> g, String filename, Function<V,String> vs, 
             Function<E,Number> nev) throws IOException
@@ -80,10 +79,11 @@ public class PajekNetWriter<V,E>
     }
     
     /**
-     * Saves <code>g</code> to <code>filename</code>; no vertex labels are written out,
-     * and the edge weights are written as 1.0.
-     * 
-     * @throws IOException
+     * Saves the graph to the specified file.  No vertex labels are written, and the 
+     * edge weights are written as 1.0.
+     * @param g the graph to be saved
+     * @param filename the filename of the file to write the graph to
+     * @throws IOException if the graph cannot be saved
      */
     public void save(Graph<V,E> g, String filename) throws IOException
     {
@@ -91,10 +91,11 @@ public class PajekNetWriter<V,E>
     }
 
     /**
-     * Saves <code>g</code> to <code>w</code>; no vertex labels are written out,
-     * and the edge weights are written as 1.0.
-     * 
-     * @throws IOException
+     * Saves the graph to the specified writer.  No vertex labels are written, and the 
+     * edge weights are written as 1.0.
+     * @param g the graph to be saved
+     * @param w the writer instance to write the graph to
+     * @throws IOException if the graph cannot be saved
      */
     public void save(Graph<V,E> g, Writer w) throws IOException
     {
@@ -102,13 +103,12 @@ public class PajekNetWriter<V,E>
     }
 
     /**
-     * Saves <code>g</code> to <code>w</code>; vertex labels are given by 
-     * <code>vs</code> and edge weights by <code>nev</code>.
-     * @param g
-     * @param w
-     * @param vs
-     * @param nev
-     * @throws IOException
+     * Saves the graph to the specified writer.
+     * @param g the graph to be saved
+     * @param w the writer instance to write the graph to
+     * @param vs mapping from vertices to labels
+     * @param nev mapping from edges to weights
+     * @throws IOException if the graph cannot be saved
      */
     public void save(Graph<V,E> g, Writer w, Function<V,String> vs, 
             Function<E,Number> nev) throws IOException
@@ -117,12 +117,13 @@ public class PajekNetWriter<V,E>
     }
     
     /**
-     * Writes <code>graph</code> to <code>w</code>.  Labels for vertices may
-     * be supplied by <code>vs</code> (defaults to no labels if null), 
-     * edge weights may be specified by <code>nev</code>
-     * (defaults to weights of 1.0 if null), 
-     * and vertex locations may be specified by <code>vld</code> (defaults
-     * to no locations if null). 
+     * Saves the graph to the specified writer.
+     * @param graph the graph to be saved
+     * @param w the writer instance to write the graph to
+     * @param vs mapping from vertices to labels (no labels are written if null)
+     * @param nev mapping from edges to weights (defaults to weights of 1.0 if null)
+     * @param vld mapping from vertices to locations (no locations are written if null)
+     * @throws IOException if the graph cannot be saved
      */
 	public void save(Graph<V,E> graph, Writer w, Function<V,String> vs, 
 	        Function<E,Number> nev, Function<V,Point2D> vld) throws IOException
@@ -138,7 +139,7 @@ public class PajekNetWriter<V,E>
         writer.write("*Vertices " + graph.getVertexCount());
         writer.newLine();
         
-        List<V> id = new ArrayList<V>(graph.getVertices());//Indexer.getIndexer(graph);
+        List<V> id = new ArrayList<V>(graph.getVertices());
         for (V currentVertex : graph.getVertices())
         {
             // convert from 0-based to 1-based index

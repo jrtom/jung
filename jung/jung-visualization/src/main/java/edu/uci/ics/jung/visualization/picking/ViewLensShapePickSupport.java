@@ -33,39 +33,22 @@ import edu.uci.ics.jung.visualization.transform.MutableTransformerDecorator;
  * ShapePickSupport provides access to Vertices and EdgeType based on
  * their actual shapes. 
  * 
+ * @param <V> the vertex type
+ * @param <E> the edge type
+ * 
  * @author Tom Nelson
- *
  */
 public class ViewLensShapePickSupport<V, E> extends ShapePickSupport<V,E>
 	implements GraphElementAccessor<V,E> {
 
-    /**
-     * Create an instance.
-     * The HasGraphLayout is used as the source of the current
-     * Graph Layout. The HasShapes
-     * is used to access the VertexShapes and the EdgeShapes
-     * @param hasGraphLayout source of the current layout.
-     * @param hasShapeFunctions source of Vertex and Edge shapes.
-     * @param pickSize how large to make the pick footprint for line edges
-     */
     public ViewLensShapePickSupport(VisualizationServer<V,E> vv, float pickSize) {
     	super(vv, pickSize);
     }
     
-    /**
-     * Create an instance.
-     * The pickSize footprint defaults to 2.
-     */
     public ViewLensShapePickSupport(VisualizationServer<V,E> vv) {
         this(vv, 2);
     }
 
-    /** 
-     * Iterates over Vertices, checking to see if x,y is contained in the
-     * Vertex's Shape. If (x,y) is contained in more than one vertex, use
-     * the vertex whose center is closest to the pick point.
-     * @see edu.uci.ics.jung.visualization.picking.PickSupport#getVertex(double, double)
-     */
     public V getVertex(Layout<V, E> layout, double x, double y) {
 
         V closest = null;
@@ -125,12 +108,6 @@ public class ViewLensShapePickSupport<V, E> extends ShapePickSupport<V,E>
         return closest;
     }
 
-    /**
-     * returns the vertices that are contained in the passed shape.
-     * The shape is in screen coordinates, and the graph vertices
-     * are transformed to screen coordinates before they are tested
-     * for inclusion
-     */
     public Collection<V> getVertices(Layout<V, E> layout, Shape rectangle) {
     	Set<V> pickedVertices = new HashSet<V>();
     	
@@ -162,10 +139,7 @@ public class ViewLensShapePickSupport<V, E> extends ShapePickSupport<V,E>
         }
         return pickedVertices;
     }
-    /**
-     * return an edge whose shape intersects the 'pickArea' footprint of the passed
-     * x,y, coordinates.
-     */
+    
     public E getEdge(Layout<V, E> layout, double x, double y) {
 
         Point2D ip = ((MutableTransformerDecorator)vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.VIEW)).getDelegate().inverseTransform(new Point2D.Double(x,y));

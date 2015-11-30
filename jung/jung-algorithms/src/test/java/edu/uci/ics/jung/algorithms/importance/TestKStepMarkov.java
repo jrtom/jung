@@ -68,19 +68,19 @@ public class TestKStepMarkov extends TestCase {
         priors.add(2);
         KStepMarkov<Number,Number> ranker = new KStepMarkov<Number,Number>(mGraph,priors,2,edgeWeights);
 //        ranker.evaluate();
-        System.out.println(ranker.getIterations());
+//        System.out.println(ranker.getIterations());
 
         for (int i = 0; i < 10; i++) 
         {
-            System.out.println(ranker.getIterations());
-	        for (Number n : mGraph.getVertices())
-	        	System.out.println(n + ": " + ranker.getVertexRankScore(n));
+//            System.out.println(ranker.getIterations());
+//	        for (Number n : mGraph.getVertices())
+//	        	System.out.println(n + ": " + ranker.getVertexRankScore(n));
             
 	        ranker.step();
         }
         
         
         List<Ranking<?>> rankings = ranker.getRankings();
-        System.out.println(rankings);
+//        System.out.println(rankings);
     }
 }

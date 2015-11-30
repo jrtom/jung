@@ -19,16 +19,11 @@ public class Intersector {
     protected Rectangle rectangle;
     Line2D line;
     Set<Point2D> points = new HashSet<Point2D>();
-    /**
-     * @param rectangle
-     */
+
     public Intersector(Rectangle rectangle) {
         this.rectangle = rectangle;
     }
-    /**
-     * @param rectangle
-     * @param line
-     */
+
     public Intersector(Rectangle rectangle, Line2D line) {
         this.rectangle = rectangle;
        intersectLine(line);
