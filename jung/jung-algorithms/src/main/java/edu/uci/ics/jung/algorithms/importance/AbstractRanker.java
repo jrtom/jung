@@ -148,6 +148,7 @@ public abstract class AbstractRanker<V,E> extends IterativeProcess {
     abstract public Object getRankScoreKey();
 
 
+	@SuppressWarnings("unchecked")
 	@Override
     protected void finalizeIterations() {
         List<Ranking<?>> sortedRankings = new ArrayList<Ranking<?>>();

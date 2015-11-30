@@ -13,13 +13,14 @@ package edu.uci.ics.jung.visualization.layout;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.event.ChangeListener;
 
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
-import com.google.common.collect.MapMaker;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.algorithms.layout.LayoutDecorator;
@@ -41,26 +42,23 @@ import edu.uci.ics.jung.visualization.util.DefaultChangeEventSupport;
 public class ObservableCachingLayout<V, E> extends LayoutDecorator<V,E> 
 	implements ChangeEventSupport, Caching, LayoutEventSupport<V,E> {
     
-    protected ChangeEventSupport changeSupport =
-        new DefaultChangeEventSupport(this);
+    protected ChangeEventSupport changeSupport = new DefaultChangeEventSupport(this);
     
-    protected Map<V,Point2D> locationMap;
+    protected LoadingCache<V, Point2D> locations;
     
     private List<LayoutChangeListener<V,E>> layoutChangeListeners = 
     	new ArrayList<LayoutChangeListener<V,E>>();
 
     public ObservableCachingLayout(Layout<V, E> delegate) {
     	super(delegate);
-    	this.locationMap = 
-    		new MapMaker().makeComputingMap(
-    				Functions.<V,Point2D,Point2D>compose(new Function<Point2D,Point2D>(){
-//						@Override
-						public Point2D apply(Point2D p) {
-							return (Point2D)p.clone();
-						}}, delegate)
-    		);
-//    		LazyMap.<V,Point2D>decorate(new HashMap<V,Point2D>(), 
-//    			new ChainedTransformer<V, Point2D>(new Function[]{delegate, CloneTransformer.<Point2D>getInstance()}));
+		Function<V, Point2D> chain = Functions.<V, Point2D, Point2D> compose(
+				new Function<Point2D, Point2D>() {
+					public Point2D apply(Point2D p) {
+						return (Point2D) p.clone();
+					}
+				},
+				delegate);
+		this.locations = CacheBuilder.newBuilder().build(CacheLoader.from(chain));
     }
     
     @Override
@@ -113,14 +111,14 @@ public class ObservableCachingLayout<V, E> extends LayoutDecorator<V,E>
     }
 
 	public void clear() {
-		this.locationMap.clear();
+		this.locations.invalidateAll();
 	}
 
 	public void init() {
 	}
 
 	public Point2D apply(V v) {
-		return locationMap.get(v);
+		return locations.getUnchecked(v);
 	}
 
 	private void fireLayoutChanged(V v) {
