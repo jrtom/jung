@@ -2,12 +2,12 @@
   <parent>
     <artifactId>jung2</artifactId>
     <groupId>net.sf.jung</groupId>
-    <version>2.0.2-SNAPSHOT</version>
+    <version>2.1</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>jung-algorithms</artifactId>
   <name>jung-algorithms</name>
-  <version>2.0.2-SNAPSHOT</version>
+  <version>2.1</version>
   <url>http://jung.sourceforge.net/site/jung-algorithms</url>
   <description>
   Algorithms for the jung2 project
