@@ -1,21 +1,22 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>net.sf.jung</groupId>
-	<artifactId>jung2</artifactId>
+	<artifactId>jung</artifactId>
 	<packaging>pom</packaging>
 	<version>2.1</version>
-	<name>jung2</name>
-	<url>http://jung.sourceforge.net/site</url>
+	<name>jung</name>
+	<url>http://jrtom.github.io/jung/</url>
 	<licenses>
 		<license>
 			<name>The BSD License</name>
-			<url>http://jung.sourceforge.net/license.txt</url>
+			<url>https://github.com/jrtom/jung/blob/master/LICENSE</url>
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
 	<scm>
-		<url>http://jung.cvs.sourceforge.net/jung/jung2</url>
-		<developerConnection>scm:cvs:ext:tomnelson@jung.cvs.sourceforge.net:/cvsroot/jung:jung2</developerConnection>
+		<url>https://github.com/jrtom/jung</url>
+		<connection>scm:git:git://github.com/jrtom/jung.git</connection>
+		<developerConnection>scm:git:git://github.com/jrtom/jung.git</developerConnection>
 		<tag>${cvsTag}</tag>
 	</scm>
 	<description>
