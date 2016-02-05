@@ -17,7 +17,6 @@
 		<url>https://github.com/jrtom/jung</url>
 		<connection>scm:git:git://github.com/jrtom/jung.git</connection>
 		<developerConnection>scm:git:git://github.com/jrtom/jung.git</developerConnection>
-		<tag>${cvsTag}</tag>
 	</scm>
 	<description>
 		JUNG the Java Universal Network/Graph Framework--is a software
