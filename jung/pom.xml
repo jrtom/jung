@@ -3,7 +3,7 @@
 	<groupId>net.sf.jung</groupId>
 	<artifactId>jung</artifactId>
 	<packaging>pom</packaging>
-	<version>2.1</version>
+	<version>2.1-SNAPSHOT</version>
 	<name>jung</name>
 	<url>http://jrtom.github.io/jung/</url>
 	<licenses>
