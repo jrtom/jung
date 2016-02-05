@@ -20,34 +20,34 @@
     <developerConnection>scm:git:git://github.com/jrtom/jung.git</developerConnection>
   </scm>
   <description>
-		JUNG the Java Universal Network/Graph Framework--is a software
-		library that provides a common and extendible language for the
-		modeling, analysis, and visualization of data that can be
-		represented as a graph or network. It is written in Java, which
-		allows JUNG-based applications to make use of the extensive
-		built-in capabilities of the Java API, as well as those of other
-		existing third-party Java libraries. The JUNG architecture is
-		designed to support a variety of representations of entities and
-		their relations, such as directed and undirected graphs,
-		multi-modal graphs, graphs with parallel edges, and hypergraphs.
-		It provides a mechanism for annotating graphs, entities, and
-		relations with metadata. This facilitates the creation of
-		analytic tools for complex data sets that can examine the
-		relations between entities as well as the metadata attached to
-		each entity and relation. The current distribution of JUNG
-		includes implementations of a number of algorithms from graph
-		theory, data mining, and social network analysis, such as
-		routines for clustering, decomposition, optimization, random
-		graph generation, statistical analysis, and calculation of
-		network distances, flows, and importance measures (centrality,
-		PageRank, HITS, etc.). JUNG also provides a visualization
-		framework that makes it easy to construct tools for the
-		interactive exploration of network data. Users can use one of
-		the layout algorithms provided, or use the framework to create
-		their own custom layouts. In addition, filtering mechanisms are
-		provided which allow users to focus their attention, or their
-		algorithms, on specific portions of the graph.
-	</description>
+    JUNG the Java Universal Network/Graph Framework--is a software
+    library that provides a common and extendible language for the
+    modeling, analysis, and visualization of data that can be
+    represented as a graph or network. It is written in Java, which
+    allows JUNG-based applications to make use of the extensive
+    built-in capabilities of the Java API, as well as those of other
+    existing third-party Java libraries. The JUNG architecture is
+    designed to support a variety of representations of entities and
+    their relations, such as directed and undirected graphs,
+    multi-modal graphs, graphs with parallel edges, and hypergraphs.
+    It provides a mechanism for annotating graphs, entities, and
+    relations with metadata. This facilitates the creation of
+    analytic tools for complex data sets that can examine the
+    relations between entities as well as the metadata attached to
+    each entity and relation. The current distribution of JUNG
+    includes implementations of a number of algorithms from graph
+    theory, data mining, and social network analysis, such as
+    routines for clustering, decomposition, optimization, random
+    graph generation, statistical analysis, and calculation of
+    network distances, flows, and importance measures (centrality,
+    PageRank, HITS, etc.). JUNG also provides a visualization
+    framework that makes it easy to construct tools for the
+    interactive exploration of network data. Users can use one of
+    the layout algorithms provided, or use the framework to create
+    their own custom layouts. In addition, filtering mechanisms are
+    provided which allow users to focus their attention, or their
+    algorithms, on specific portions of the graph.
+  </description>
   <developers>
     <developer>
       <id>eflat</id>
@@ -69,8 +69,8 @@
       <url/>
       <organization>Microsoft Research</organization>
       <organizationUrl>
-				http://research.microsoft.com
-			</organizationUrl>
+	http://research.microsoft.com
+      </organizationUrl>
       <timezone>-8</timezone>
       <roles>
         <role>Owner</role>
@@ -84,8 +84,8 @@
       <url/>
       <organization>ICCI</organization>
       <organizationUrl>
-				http://www.intergratedcc.com
-			</organizationUrl>
+        http://www.intergratedcc.com
+      </organizationUrl>
       <timezone>-5</timezone>
       <roles>
         <role>Developer</role>
@@ -132,12 +132,8 @@
         <configuration>
           <aggregate>true</aggregate>
           <links>
-            <link>
-							http://java.sun.com/javaee/5/docs/api
-						</link>
-            <link>
-							http://java.sun.com/j2se/1.5.0/docs/api
-						</link>
+            <link>http://java.sun.com/javaee/5/docs/api</link>
+            <link>http://java.sun.com/j2se/1.5.0/docs/api</link>
           </links>
         </configuration>
       </plugin>
@@ -168,9 +164,7 @@
     </repository>
     <site>
       <id>jung.sf.net</id>
-      <url>
-				${sfSiteUrl}
-			</url>
+      <url>${sfSiteUrl}</url>
     </site>
   </distributionManagement>
   <dependencies>
