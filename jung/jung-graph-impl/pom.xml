@@ -10,7 +10,7 @@
   </description>
   <parent>
     <groupId>net.sf.jung</groupId>
-    <artifactId>jung2</artifactId>
+    <artifactId>jung</artifactId>
     <version>2.1</version>
   </parent>
     <build>
