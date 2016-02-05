@@ -32,4 +32,4 @@ All files will be released to users of JUNG under a BSD license
 Before your code can be accepted into the project you must sign the
 [Individual Contributor License Agreement (CLA)][CLA].
 
-[CLA]: http://unsure.waiting.on.the.clabot.to.tell.me.what.the.address.is
+[CLA]: https://cla-assistant.io/jrtom/jung
