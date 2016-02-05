@@ -5,12 +5,12 @@
 *
 * This software is open-source under the BSD license; see either
 * "license.txt" or
-* http://jung.sourceforge.net/license.txt for a description.
+* https://github.com/jrtom/jung/blob/master/LICENSE for a description.
 */
 package edu.uci.ics.jung.algorithms.shortestpath;
 import java.util.Collection;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 import edu.uci.ics.jung.algorithms.scoring.ClosenessCentrality;
 import edu.uci.ics.jung.algorithms.scoring.util.VertexScoreTransformer;
@@ -19,14 +19,14 @@ import edu.uci.ics.jung.graph.Hypergraph;
 /**
  * Statistics relating to vertex-vertex distances in a graph.
  * 
- * <p>Formerly known as <code>GraphStatistics</code> in JUNG 1.x.</p>
+ * <p>Formerly known as <code>GraphStatistics</code> in JUNG 1.x.
  * 
  * @author Scott White
  * @author Joshua O'Madadhain
  */
 public class DistanceStatistics 
 {
-    /**
+	/**
      * For each vertex <code>v</code> in <code>graph</code>, 
      * calculates the average shortest path length from <code>v</code> 
      * to all other vertices in <code>graph</code> using the metric 
@@ -54,8 +54,14 @@ public class DistanceStatistics
      * 
      * @see edu.uci.ics.jung.algorithms.shortestpath.UnweightedShortestPath
      * @see edu.uci.ics.jung.algorithms.shortestpath.DijkstraDistance
-     */
-    public static <V,E> Transformer<V,Double> averageDistances(Hypergraph<V,E> graph, Distance<V> d)
+	 * 
+	 * @param graph the graph for which distances are to be calculated
+	 * @param d the distance metric to use for the calculation
+	 * @param <V> the vertex type
+	 * @param <E> the edge type
+	 * @return a map from each vertex to the mean distance to each other (reachable) vertex
+	 */
+    public static <V,E> Function<V,Double> averageDistances(Hypergraph<V,E> graph, Distance<V> d)
     {
     	final ClosenessCentrality<V,E> cc = new ClosenessCentrality<V,E>(graph, d);
     	return new VertexScoreTransformer<V, Double>(cc);
@@ -67,8 +73,13 @@ public class DistanceStatistics
      * to all other vertices in <code>g</code>, ignoring edge weights.
      * @see #diameter(Hypergraph)
      * @see edu.uci.ics.jung.algorithms.scoring.ClosenessCentrality
+     *
+     * @param g the graph for which distances are to be calculated
+	 * @param <V> the vertex type
+	 * @param <E> the edge type
+	 * @return a map from each vertex to the mean distance to each other (reachable) vertex
      */
-    public static <V,E> Transformer<V, Double> averageDistances(Hypergraph<V,E> g)
+    public static <V,E> Function<V, Double> averageDistances(Hypergraph<V,E> g)
     {
     	final ClosenessCentrality<V,E> cc = new ClosenessCentrality<V,E>(g, 
     			new UnweightedShortestPath<V,E>(g));
@@ -86,6 +97,14 @@ public class DistanceStatistics
      * if <code>use_max == true</code>, the value returned
      * will be the the maximum shortest path length over all pairs of <b>connected</b> 
      * vertices; otherwise it will be <code>Double.POSITIVE_INFINITY</code>.
+     * 
+	 * @param g the graph for which distances are to be calculated
+	 * @param d the distance metric to use for the calculation
+	 * @param use_max if {@code true}, return the maximum shortest path length for all graphs;
+	 *     otherwise, return {@code Double.POSITIVE_INFINITY} for disconnected graphs
+	 * @param <V> the vertex type
+	 * @param <E> the edge type
+	 * @return the longest distance from any vertex to any other
      */
     public static <V, E> double diameter(Hypergraph<V,E> g, Distance<V> d, boolean use_max)
     {
@@ -118,6 +137,12 @@ public class DistanceStatistics
      * <code>v</code>, or <code>Double.POSITIVE_INFINITY</code>
      * if any of these distances do not exist.
      * @see #diameter(Hypergraph, Distance, boolean)
+     * 
+	 * @param g the graph for which distances are to be calculated
+	 * @param d the distance metric to use for the calculation
+	 * @param <V> the vertex type
+	 * @param <E> the edge type
+	 * @return the longest distance from any vertex to any other
      */
     public static <V, E> double diameter(Hypergraph<V,E> g, Distance<V> d)
     {
@@ -127,10 +152,14 @@ public class DistanceStatistics
     /**
      * Returns the diameter of <code>g</code>, ignoring edge weights.
      * @see #diameter(Hypergraph, Distance, boolean)
+     * 
+	 * @param g the graph for which distances are to be calculated
+	 * @param <V> the vertex type
+	 * @param <E> the edge type
+	 * @return the longest distance from any vertex to any other
      */
     public static <V, E> double diameter(Hypergraph<V,E> g)
     {
         return diameter(g, new UnweightedShortestPath<V,E>(g));
     }
-    
 }

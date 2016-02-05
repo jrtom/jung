@@ -3,7 +3,7 @@
  * California All rights reserved.
  *
  * This software is open-source under the BSD license; see either "license.txt"
- * or http://jung.sourceforge.net/license.txt for a description.
+ * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  *
  * Created on Apr 16, 2005
  */
@@ -32,20 +32,21 @@ public class AffineTransformer implements BidirectionalTransformer, ShapeTransfo
     protected AffineTransform inverse;
 
     /**
-     * the AffineTransform to use. Initialize to identity
+     * The AffineTransform to use; initialized to identity.
      * 
      */
     protected AffineTransform transform = new AffineTransform();
     
     /**
-     * create an instance that does not transform points
-     *
+     * Create an instance that does not transform points.
      */
     public AffineTransformer() {
         // nothing left to do
     }
+
     /**
-     * Create an instance with the supplied transform
+     * Create an instance with the supplied transform.
+     * @param transform the transform to use
      */
     public AffineTransformer(AffineTransform transform) {
         if(transform != null) 
@@ -67,8 +68,8 @@ public class AffineTransformer implements BidirectionalTransformer, ShapeTransfo
     
     /**
      * applies the inverse transform to the supplied point
-     * @param p
-     * @return
+     * @param p the point to transform
+     * @return the transformed point
      */
     public Point2D inverseTransform(Point2D p) {
 
@@ -87,57 +88,59 @@ public class AffineTransformer implements BidirectionalTransformer, ShapeTransfo
     }
     
     /**
-     * getter for scalex
+     * @return the transform's x scale value
      */
     public double getScaleX() {
         return transform.getScaleX();   
     }
     
     /**
-     * getter for scaley
+     * @return the transform's y scale value
      */
     public double getScaleY() {
         return transform.getScaleY();
     }
-    
+
+    /**
+     * @return the transform's overall scale magnitude
+     */
     public double getScale() {
     		return Math.sqrt(transform.getDeterminant());
     }
     
     /**
-     * getter for shear in x axis
+     * @return the transform's x shear value
      */
     public double getShearX() {
         return transform.getShearX();
     }
     
     /**
-     * getter for shear in y axis
+     * @return the transform's y shear value
      */
     public double getShearY() {
         return transform.getShearY();
     }
     
     /**
-     * get the translate x value
+     * @return the transform's x translate value
      */
     public double getTranslateX() {
         return transform.getTranslateX();
     }
     
     /**
-     * get the translate y value
+     * @return the transform's y translate value
      */
     public double getTranslateY() {
         return transform.getTranslateY();
     }
     
-
-    
-    
-    
     /**
-     * applies the transform to the supplied point
+     * Applies the transform to the supplied point.
+     * 
+     * @param p the point to be transformed
+     * @return the transformed point
      */
     public Point2D transform(Point2D p) {
         if(p == null) return null;
@@ -145,8 +148,8 @@ public class AffineTransformer implements BidirectionalTransformer, ShapeTransfo
     }
     
     /**
-     * transform the supplied shape from graph coordinates to
-     * screen coordinates
+     * Transform the supplied shape from graph (layout) to screen (view) coordinates.
+     * 
      * @return the GeneralPath of the transformed shape
      */
     public Shape transform(Shape shape) {
@@ -192,8 +195,8 @@ public class AffineTransformer implements BidirectionalTransformer, ShapeTransfo
     }
 
     /**
-     * transform the supplied shape from graph coordinates to
-     * screen coordinates
+     * Transform the supplied shape from screen (view) to graph (layout) coordinates.
+     * 
      * @return the GeneralPath of the transformed shape
      */
     public Shape inverseTransform(Shape shape) {
@@ -267,5 +270,4 @@ public class AffineTransformer implements BidirectionalTransformer, ShapeTransfo
     public String toString() {
         return "Transformer using "+transform;
     }
- 
 }

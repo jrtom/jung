@@ -5,7 +5,7 @@
  *
  * This software is open-source under the BSD license; see either
  * "license.txt" or
- * http://jung.sourceforge.net/license.txt for a description.
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  * 
  * Created on Feb 18, 2004
  */
@@ -13,6 +13,8 @@ package edu.uci.ics.jung.algorithms.util;
 
 import java.util.Collection;
 import java.util.Iterator;
+
+import com.google.common.base.Preconditions;
 
 /**
  * A utility class for calculating properties of discrete distributions.
@@ -34,12 +36,16 @@ public class DiscreteDistribution
      * Note that this value is not symmetric; see 
      * <code>symmetricKL</code> for a symmetric variant. 
      * @see #symmetricKL(double[], double[])
+     * @param dist the distribution whose divergence from {@code reference} is being measured
+     * @param reference the reference distribution
+     * @return sum_i of {@code dist[i] * Math.log(dist[i] / reference[i])}
      */
     public static double KullbackLeibler(double[] dist, double[] reference)
     {
         double distance = 0;
 
-        checkLengths(dist, reference);
+        Preconditions.checkArgument(dist.length == reference.length,
+        		"input arrays must be of the same length");
 
         for (int i = 0; i < dist.length; i++)
         {
@@ -50,7 +56,9 @@ public class DiscreteDistribution
     }
 
     /**
-     * Returns <code>KullbackLeibler(dist, reference) + KullbackLeibler(reference, dist)</code>.
+     * @param dist the distribution whose divergence from {@code reference} is being measured
+     * @param reference the reference distribution
+     * @return <code>KullbackLeibler(dist, reference) + KullbackLeibler(reference, dist)</code>
      * @see #KullbackLeibler(double[], double[])
      */
     public static double symmetricKL(double[] dist, double[] reference)
@@ -65,12 +73,16 @@ public class DiscreteDistribution
      * number of elements.  This is defined as 
      * the sum over all <code>i</code> of the square of 
      * <code>(dist[i] - reference[i])</code>.
+     * @param dist the distribution whose distance from {@code reference} is being measured
+     * @param reference the reference distribution
+     * @return sum_i {@code (dist[i] - reference[i])^2}
      */
     public static double squaredError(double[] dist, double[] reference)
     {
         double error = 0;
 
-        checkLengths(dist, reference);
+        Preconditions.checkArgument(dist.length == reference.length,
+        		"input arrays must be of the same length");
 
         for (int i = 0; i < dist.length; i++)
         {
@@ -87,11 +99,14 @@ public class DiscreteDistribution
      * in <code>dist.length</code>-dimensional space.
      * Given the following definitions
      * <ul>
-     * <li/><code>v</code> = the sum over all <code>i</code> of <code>dist[i] * dist[i]</code>
-     * <li/><code>w</code> = the sum over all <code>i</code> of <code>reference[i] * reference[i]</code>
-     * <li/><code>vw</code> = the sum over all <code>i</code> of <code>dist[i] * reference[i]</code>
+     * <li><code>v</code> = the sum over all <code>i</code> of <code>dist[i] * dist[i]</code>
+     * <li><code>w</code> = the sum over all <code>i</code> of <code>reference[i] * reference[i]</code>
+     * <li><code>vw</code> = the sum over all <code>i</code> of <code>dist[i] * reference[i]</code>
      * </ul>
      * the value returned is defined as <code>vw / (Math.sqrt(v) * Math.sqrt(w))</code>.
+     * @param dist the distribution whose distance from {@code reference} is being measured
+     * @param reference the reference distribution
+     * @return the cosine distance between {@code dist} and {@code reference}, considered as vectors
      */
     public static double cosine(double[] dist, double[] reference)
     {
@@ -99,7 +114,8 @@ public class DiscreteDistribution
         double w_prod = 0; // dot product y*y
         double vw_prod = 0; // dot product x*y
 
-        checkLengths(dist, reference);
+        Preconditions.checkArgument(dist.length == reference.length,
+        		"input arrays must be of the same length");
 
         for (int i = 0; i < dist.length; i++)
         {
@@ -120,6 +136,9 @@ public class DiscreteDistribution
      * point, this method returns 0).  Entropy is defined as 
      * the sum over all <code>i</code> of 
      * <code>-(dist[i] * Math.log(dist[i]))</code>
+     * 
+     * @param dist the distribution whose entropy is being measured
+     * @return sum_i {@code -(dist[i] * Math.log(dist[i]))}
      */
     public static double entropy(double[] dist)
     {
@@ -134,22 +153,13 @@ public class DiscreteDistribution
     }
 
     /**
-     * Throws an <code>IllegalArgumentException</code> if the two arrays are not of the same length.
-     */
-    protected static void checkLengths(double[] dist, double[] reference)
-    {
-        if (dist.length != reference.length)
-            throw new IllegalArgumentException("Arrays must be of the same length");
-    }
-
-    /**
      * Normalizes, with Lagrangian smoothing, the specified <code>double</code>
      * array, so that the values sum to 1 (i.e., can be treated as probabilities).
      * The effect of the Lagrangian smoothing is to ensure that all entries 
      * are nonzero; effectively, a value of <code>alpha</code> is added to each
      * entry in the original array prior to normalization.
-     * @param counts
-     * @param alpha
+     * @param counts the array to be converted into a probability distribution
+     * @param alpha the value to add to each entry prior to normalization
      */
     public static void normalize(double[] counts, double alpha)
     {
@@ -168,6 +178,8 @@ public class DiscreteDistribution
      * distributions, which are assumed to be normalized arrays of 
      * <code>double</code> values.
      * @see #mean(double[][])
+     * @param distributions the distributions whose mean is to be calculated
+     * @return the mean of the distributions
      */
     public static double[] mean(Collection<double[]> distributions)
     {
@@ -188,6 +200,8 @@ public class DiscreteDistribution
      * represented as normalized arrays of <code>double</code> values.
      * Will throw an "index out of bounds" exception if the 
      * distribution arrays are not all of the same length.
+     * @param distributions the distributions whose mean is to be calculated
+     * @return the mean of the distributions
      */
     public static double[] mean(double[][] distributions)
     {

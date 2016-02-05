@@ -5,7 +5,7 @@
  *
  * This software is open-source under the BSD license; see either
  * "license.txt" or
- * http://jung.sourceforge.net/license.txt for a description.
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  */
 /*
  * Created on Dec 4, 2003
@@ -17,12 +17,11 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import org.apache.commons.collections15.Factory;
-import org.apache.commons.collections15.map.LazyMap;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 
 import edu.uci.ics.jung.graph.Graph;
 
@@ -38,30 +37,27 @@ public class CircleLayout<V, E> extends AbstractLayout<V,E> {
 	private double radius;
 	private List<V> vertex_ordered_list;
 	
-	Map<V, CircleVertexData> circleVertexDataMap =
-			LazyMap.decorate(new HashMap<V,CircleVertexData>(), 
-			new Factory<CircleVertexData>() {
-				public CircleVertexData create() {
-					return new CircleVertexData();
-				}});	
+    protected LoadingCache<V, CircleVertexData> circleVertexDatas =
+    	CacheBuilder.newBuilder().build(new CacheLoader<V, CircleVertexData>() {
+	    	public CircleVertexData load(V vertex) {
+	    		return new CircleVertexData();
+	    	}
+    });
 
-	/**
-	 * Creates an instance for the specified graph.
-	 */
 	public CircleLayout(Graph<V,E> g) {
 		super(g);
 	}
 
 	/**
-	 * Returns the radius of the circle.
+	 * @return the radius of the circle.
 	 */
 	public double getRadius() {
 		return radius;
 	}
 
 	/**
-	 * Sets the radius of the circle.  Must be called before
-	 * {@code initialize()} is called.
+	 * Sets the radius of the circle.  Must be called before {@code initialize()} is called.
+	 * @param radius the radius of the circle
 	 */
 	public void setRadius(double radius) {
 		this.radius = radius;
@@ -70,6 +66,7 @@ public class CircleLayout<V, E> extends AbstractLayout<V,E> {
 	/**
 	 * Sets the order of the vertices in the layout according to the ordering
 	 * specified by {@code comparator}.
+	 * @param comparator the comparator to use to order the vertices
 	 */
 	public void setVertexOrder(Comparator<V> comparator)
 	{
@@ -81,6 +78,7 @@ public class CircleLayout<V, E> extends AbstractLayout<V,E> {
     /**
      * Sets the order of the vertices in the layout according to the ordering
      * of {@code vertex_list}.
+     * @param vertex_list a list specifying the ordering of the vertices
      */
 	public void setVertexOrder(List<V> vertex_list)
 	{
@@ -113,7 +111,7 @@ public class CircleLayout<V, E> extends AbstractLayout<V,E> {
 			int i = 0;
 			for (V v : vertex_ordered_list)
 			{
-				Point2D coord = transform(v);
+				Point2D coord = apply(v);
 
 				double angle = (2 * Math.PI * i) / vertex_ordered_list.size();
 
@@ -128,7 +126,7 @@ public class CircleLayout<V, E> extends AbstractLayout<V,E> {
 	}
 
 	protected CircleVertexData getCircleData(V v) {
-		return circleVertexDataMap.get(v);
+		return circleVertexDatas.getUnchecked(v);
 	}
 
 	protected static class CircleVertexData {

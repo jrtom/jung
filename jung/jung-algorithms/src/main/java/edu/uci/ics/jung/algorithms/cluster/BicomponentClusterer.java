@@ -5,7 +5,7 @@
 *
 * This software is open-source under the BSD license; see either
 * "license.txt" or
-* http://jung.sourceforge.net/license.txt for a description.
+* https://github.com/jrtom/jung/blob/master/LICENSE for a description.
 */
 package edu.uci.ics.jung.algorithms.cluster;
 
@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 import edu.uci.ics.jung.graph.UndirectedGraph;
 
@@ -33,7 +33,7 @@ import edu.uci.ics.jung.graph.UndirectedGraph;
  * 
  * @author Joshua O'Madadhain
  */
-public class BicomponentClusterer<V,E> implements Transformer<UndirectedGraph<V,E>, Set<Set<V>>> 
+public class BicomponentClusterer<V,E> implements Function<UndirectedGraph<V,E>, Set<Set<V>>> 
 {
     protected Map<V,Number> dfs_num;
     protected Map<V,Number> high;
@@ -52,7 +52,7 @@ public class BicomponentClusterer<V,E> implements Transformer<UndirectedGraph<V,
     * @param theGraph the graph whose bicomponents are to be extracted
     * @return the <code>ClusterSet</code> of bicomponents
     */
-    public Set<Set<V>> transform(UndirectedGraph<V,E> theGraph) 
+    public Set<Set<V>> apply(UndirectedGraph<V,E> theGraph) 
     {
     	Set<Set<V>> bicomponents = new LinkedHashSet<Set<V>>();
 
@@ -93,7 +93,7 @@ public class BicomponentClusterer<V,E> implements Transformer<UndirectedGraph<V,
 
     /**
      * <p>Stores, in <code>bicomponents</code>, all the biconnected
-     * components that are reachable from <code>v</code>.</p>
+     * components that are reachable from <code>v</code>.
      * 
      * <p>The algorithm basically proceeds as follows: do a depth-first
      * traversal starting from <code>v</code>, marking each vertex with
@@ -117,8 +117,11 @@ public class BicomponentClusterer<V,E> implements Transformer<UndirectedGraph<V,
      * (v,w) should only be put on the stack if w hasn't been seen already,
      * and there's no real benefit to putting v on the stack separately: just
      * check for (v,w) on the stack rather than v.  Had I known this, I could
-     * have saved myself a few days.  JRTOM)</p>
+     * have saved myself a few days.  JRTOM)
      * 
+     * @param g the graph to check for biconnected components
+     * @param v the starting place for searching for biconnected components
+     * @param bicomponents storage for the biconnected components found by this algorithm
      */
     protected void findBiconnectedComponents(UndirectedGraph<V,E> g, V v, Set<Set<V>> bicomponents)
     {

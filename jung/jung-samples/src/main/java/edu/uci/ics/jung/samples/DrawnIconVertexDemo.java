@@ -3,7 +3,7 @@
  * California All rights reserved.
  * 
  * This software is open-source under the BSD license; see either "license.txt"
- * or http://jung.sourceforge.net/license.txt for a description.
+ * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  * 
  */
 package edu.uci.ics.jung.samples;
@@ -21,7 +21,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.graph.DirectedSparseGraph;
@@ -31,7 +31,6 @@ import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
-import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
@@ -65,21 +64,21 @@ public class DrawnIconVertexDemo {
         createEdges(v);
         
         vv =  new VisualizationViewer<Integer,Number>(new FRLayout<Integer,Number>(graph));
-        vv.getRenderContext().setVertexLabelTransformer(new Transformer<Integer,String>(){
+        vv.getRenderContext().setVertexLabelTransformer(new Function<Integer,String>(){
 
-			public String transform(Integer v) {
+			public String apply(Integer v) {
 				return "Vertex "+v;
 			}});
         vv.getRenderContext().setVertexLabelRenderer(new DefaultVertexLabelRenderer(Color.cyan));
         vv.getRenderContext().setEdgeLabelRenderer(new DefaultEdgeLabelRenderer(Color.cyan));
 
-        vv.getRenderContext().setVertexIconTransformer(new Transformer<Integer,Icon>() {
+        vv.getRenderContext().setVertexIconTransformer(new Function<Integer,Icon>() {
 
         	/*
         	 * Implements the Icon interface to draw an Icon with background color and
         	 * a text label
         	 */
-			public Icon transform(final Integer v) {
+			public Icon apply(final Integer v) {
 				return new Icon() {
 
 					public int getIconHeight() {
@@ -114,7 +113,7 @@ public class DrawnIconVertexDemo {
         vv.setBackground(Color.white);
 
         // add my listener for ToolTips
-        vv.setVertexToolTipTransformer(new ToStringLabeller<Integer>());
+        vv.setVertexToolTipTransformer(new ToStringLabeller());
         
         // create a frome to hold the graph
         final JFrame frame = new JFrame();
@@ -123,7 +122,8 @@ public class DrawnIconVertexDemo {
         content.add(panel);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
-        final ModalGraphMouse gm = new DefaultModalGraphMouse<Integer,Number>();
+        final DefaultModalGraphMouse<Integer, Number> gm
+        	= new DefaultModalGraphMouse<Integer,Number>();
         vv.setGraphMouse(gm);
         
         final ScalingControl scaler = new CrossoverScalingControl();
@@ -144,7 +144,7 @@ public class DrawnIconVertexDemo {
         JPanel controls = new JPanel();
         controls.add(plus);
         controls.add(minus);
-        controls.add(((DefaultModalGraphMouse<Integer,Number>) gm).getModeComboBox());
+        controls.add(gm.getModeComboBox());
         content.add(controls, BorderLayout.SOUTH);
 
         frame.pack();
@@ -190,9 +190,6 @@ public class DrawnIconVertexDemo {
         graph.addEdge(new Double(Math.random()), v[5], v[4], EdgeType.DIRECTED);
     }
 
-    /**
-     * a driver for this demo
-     */
     public static void main(String[] args) 
     {
         new DrawnIconVertexDemo();

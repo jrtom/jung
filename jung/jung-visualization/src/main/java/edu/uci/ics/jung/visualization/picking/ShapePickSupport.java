@@ -5,7 +5,7 @@
  *
  * This software is open-source under the BSD license; see either
  * "license.txt" or
- * http://jung.sourceforge.net/license.txt for a description.
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  * Created on Mar 11, 2005
  *
  */
@@ -23,8 +23,8 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.apache.commons.collections15.Predicate;
-import org.apache.commons.collections15.functors.TruePredicate;
+import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
 
 import edu.uci.ics.jung.algorithms.layout.GraphElementAccessor;
 import edu.uci.ics.jung.algorithms.layout.Layout;
@@ -46,13 +46,13 @@ public class ShapePickSupport<V, E> implements GraphElementAccessor<V,E> {
 	/**
 	 * The available picking heuristics:
      * <ul>
-     * <li/><code>Style.CENTERED</code>: returns the element whose 
+     * <li><code>Style.CENTERED</code>: returns the element whose 
      * center is closest to the pick point.
-     * <li/><code>Style.LOWEST</code>: returns the first such element
+     * <li><code>Style.LOWEST</code>: returns the first such element
      * encountered.  (If the element collection has a consistent
      * ordering, this will also be the element "on the bottom", 
      * that is, the one which is rendered first.) 
-     * <li/><code>Style.HIGHEST</code>: returns the last such element
+     * <li><code>Style.HIGHEST</code>: returns the last such element
      * encountered.  (If the element collection has a consistent
      * ordering, this will also be the element "on the top", 
      * that is, the one which is rendered last.)
@@ -61,10 +61,6 @@ public class ShapePickSupport<V, E> implements GraphElementAccessor<V,E> {
 	 */
 	public static enum Style { LOWEST, CENTERED, HIGHEST };
 
-	/**
-	 * 
-	 *
-	 */
     protected float pickSize;
     
     /**
@@ -100,6 +96,7 @@ public class ShapePickSupport<V, E> implements GraphElementAccessor<V,E> {
      * Create a <code>ShapePickSupport</code> for the specified
      * <code>VisualizationServer</code> with a default pick footprint.
      * of size 2.
+     * @param vv the visualization server used for rendering
      */
     public ShapePickSupport(VisualizationServer<V,E> vv) {
         this.vv = vv;
@@ -112,13 +109,13 @@ public class ShapePickSupport<V, E> implements GraphElementAccessor<V,E> {
      * whose shapes contain the pick point, is returned.
      * The available styles are:
      * <ul>
-     * <li/><code>Style.CENTERED</code>: returns the element whose 
+     * <li><code>Style.CENTERED</code>: returns the element whose 
      * center is closest to the pick point.
-     * <li/><code>Style.LOWEST</code>: returns the first such element
+     * <li><code>Style.LOWEST</code>: returns the first such element
      * encountered.  (If the element collection has a consistent
      * ordering, this will also be the element "on the bottom", 
      * that is, the one which is rendered first.) 
-     * <li/><code>Style.HIGHEST</code>: returns the last such element
+     * <li><code>Style.HIGHEST</code>: returns the last such element
      * encountered.  (If the element collection has a consistent
      * ordering, this will also be the element "on the top", 
      * that is, the one which is rendered last.)
@@ -136,13 +133,13 @@ public class ShapePickSupport<V, E> implements GraphElementAccessor<V,E> {
      * whose shapes contain the pick point, will be returned.
      * The available styles are:
      * <ul>
-     * <li/><code>Style.CENTERED</code>: returns the element whose 
+     * <li><code>Style.CENTERED</code>: returns the element whose 
      * center is closest to the pick point.
-     * <li/><code>Style.LOWEST</code>: returns the first such element
+     * <li><code>Style.LOWEST</code>: returns the first such element
      * encountered.  (If the element collection has a consistent
      * ordering, this will also be the element "on the bottom", 
      * that is, the one which is rendered first.) 
-     * <li/><code>Style.HIGHEST</code>: returns the last such element
+     * <li><code>Style.HIGHEST</code>: returns the last such element
      * encountered.  (If the element collection has a consistent
      * ordering, this will also be the element "on the top", 
      * that is, the one which is rendered last.)
@@ -154,10 +151,14 @@ public class ShapePickSupport<V, E> implements GraphElementAccessor<V,E> {
 	}
 
 	/** 
-     * Iterates over Vertices, checking to see if x,y is contained in the
-     * Vertex's Shape. If (x,y) is contained in more than one vertex, use
+     * Returns the vertex, if any, whose shape contains (x, y).
+     * If (x,y) is contained in more than one vertex's shape, returns
      * the vertex whose center is closest to the pick point.
-     * @see edu.uci.ics.jung.visualization.picking.PickSupport#getVertex(double, double)
+     * 
+     * @param layout the layout instance that records the positions for all vertices
+     * @param x the x coordinate of the pick point
+     * @param y the y coordinate of the pick point
+     * @return the vertex whose shape contains (x,y), and whose center is closest to the pick point
      */
     public V getVertex(Layout<V, E> layout, double x, double y) {
 
@@ -172,9 +173,9 @@ public class ShapePickSupport<V, E> implements GraphElementAccessor<V,E> {
             try {
                 for(V v : getFilteredVertices(layout)) {
                 	
-                    Shape shape = vv.getRenderContext().getVertexShapeTransformer().transform(v);
+                    Shape shape = vv.getRenderContext().getVertexShapeTransformer().apply(v);
                     // get the vertex location
-                    Point2D p = layout.transform(v);
+                    Point2D p = layout.apply(v);
                     if(p == null) continue;
                     // transform the vertex location to screen coords
                     p = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, p);
@@ -229,7 +230,7 @@ public class ShapePickSupport<V, E> implements GraphElementAccessor<V,E> {
         while(true) {
             try {
                 for(V v : getFilteredVertices(layout)) {
-                    Point2D p = layout.transform(v);
+                    Point2D p = layout.apply(v);
                     if(p == null) continue;
 
                     p = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, p);
@@ -246,6 +247,11 @@ public class ShapePickSupport<V, E> implements GraphElementAccessor<V,E> {
     /**
      * Returns an edge whose shape intersects the 'pickArea' footprint of the passed
      * x,y, coordinates.
+     * 
+	 * @param layout the context in which the location is defined
+	 * @param x the x coordinate of the location
+	 * @param y the y coordinate of the location
+     * @return an edge whose shape intersects the pick area centered on the location {@code (x,y)}
      */
     public E getEdge(Layout<V, E> layout, double x, double y) {
 
@@ -308,15 +314,15 @@ public class ShapePickSupport<V, E> implements GraphElementAccessor<V,E> {
      * @param layout the <code>Layout</code> which specifies
      * <code>e</code>'s endpoints' positions
      * @param e the edge whose shape is to be returned
-     * @return
+     * @return the transformed shape
      */
 	private Shape getTransformedEdgeShape(Layout<V, E> layout, E e) {
 		Pair<V> pair = layout.getGraph().getEndpoints(e);
 		V v1 = pair.getFirst();
 		V v2 = pair.getSecond();
 		boolean isLoop = v1.equals(v2);
-		Point2D p1 = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, layout.transform(v1));
-		Point2D p2 = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, layout.transform(v2));
+		Point2D p1 = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, layout.apply(v1));
+		Point2D p2 = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, layout.apply(v2));
         if(p1 == null || p2 == null) 
         	return null;
 		float x1 = (float) p1.getX();
@@ -327,11 +333,10 @@ public class ShapePickSupport<V, E> implements GraphElementAccessor<V,E> {
 		// translate the edge to the starting vertex
 		AffineTransform xform = AffineTransform.getTranslateInstance(x1, y1);
 
-		Shape edgeShape = 
-			vv.getRenderContext().getEdgeShapeTransformer().transform(Context.<Graph<V,E>,E>getInstance(vv.getGraphLayout().getGraph(),e));
+		Shape edgeShape = vv.getRenderContext().getEdgeShapeTransformer().apply(e);
 		if(isLoop) {
 		    // make the loops proportional to the size of the vertex
-		    Shape s2 = vv.getRenderContext().getVertexShapeTransformer().transform(v2);
+		    Shape s2 = vv.getRenderContext().getVertexShapeTransformer().apply(v2);
 		    Rectangle2D s2Bounds = s2.getBounds2D();
 		    xform.scale(s2Bounds.getWidth(),s2Bounds.getHeight());
 		    // move the loop so that the nadir is centered in the vertex
@@ -352,11 +357,6 @@ public class ShapePickSupport<V, E> implements GraphElementAccessor<V,E> {
 		return edgeShape;
 	}
 
-	/**
-	 * 
-	 * @param layout
-	 * @return
-	 */
     protected Collection<V> getFilteredVertices(Layout<V,E> layout) {
     	if(verticesAreFiltered()) {
     		Collection<V> unfiltered = layout.getGraph().getVertices();
@@ -372,11 +372,6 @@ public class ShapePickSupport<V, E> implements GraphElementAccessor<V,E> {
     	}
     }
 
-    /**
-     * 
-     * @param layout
-     * @return
-     */
     protected Collection<E> getFilteredEdges(Layout<V,E> layout) {
     	if(edgesAreFiltered()) {
     		Collection<E> unfiltered = layout.getGraph().getEdges();
@@ -401,7 +396,7 @@ public class ShapePickSupport<V, E> implements GraphElementAccessor<V,E> {
 		Predicate<Context<Graph<V,E>,V>> vertexIncludePredicate =
 			vv.getRenderContext().getVertexIncludePredicate();
 		return vertexIncludePredicate != null &&
-			vertexIncludePredicate instanceof TruePredicate == false;
+			vertexIncludePredicate.equals(Predicates.alwaysTrue()) == false;
     }
     
     /**
@@ -413,7 +408,7 @@ public class ShapePickSupport<V, E> implements GraphElementAccessor<V,E> {
 		Predicate<Context<Graph<V,E>,E>> edgeIncludePredicate =
 			vv.getRenderContext().getEdgeIncludePredicate();
 		return edgeIncludePredicate != null &&
-			edgeIncludePredicate instanceof TruePredicate == false;
+			edgeIncludePredicate.equals(Predicates.alwaysTrue()) == false;
     }
     
 	/**
@@ -427,7 +422,7 @@ public class ShapePickSupport<V, E> implements GraphElementAccessor<V,E> {
 	protected boolean isVertexRendered(Context<Graph<V,E>,V> context) {
 		Predicate<Context<Graph<V,E>,V>> vertexIncludePredicate =
 			vv.getRenderContext().getVertexIncludePredicate();
-		return vertexIncludePredicate == null || vertexIncludePredicate.evaluate(context);
+		return vertexIncludePredicate == null || vertexIncludePredicate.apply(context);
 	}
 	
 	/**
@@ -446,13 +441,13 @@ public class ShapePickSupport<V, E> implements GraphElementAccessor<V,E> {
 			vv.getRenderContext().getEdgeIncludePredicate();
 		Graph<V,E> g = context.graph;
 		E e = context.element;
-		boolean edgeTest = edgeIncludePredicate == null || edgeIncludePredicate.evaluate(context);
+		boolean edgeTest = edgeIncludePredicate == null || edgeIncludePredicate.apply(context);
 		Pair<V> endpoints = g.getEndpoints(e);
 		V v1 = endpoints.getFirst();
 		V v2 = endpoints.getSecond();
 		boolean endpointsTest = vertexIncludePredicate == null ||
-			(vertexIncludePredicate.evaluate(Context.<Graph<V,E>,V>getInstance(g,v1)) && 
-					vertexIncludePredicate.evaluate(Context.<Graph<V,E>,V>getInstance(g,v2)));
+			(vertexIncludePredicate.apply(Context.<Graph<V,E>,V>getInstance(g,v1)) && 
+					vertexIncludePredicate.apply(Context.<Graph<V,E>,V>getInstance(g,v2)));
 		return edgeTest && endpointsTest;
 	}
 
@@ -468,7 +463,7 @@ public class ShapePickSupport<V, E> implements GraphElementAccessor<V,E> {
 
 	/**
 	 * Sets the size of the edge picking area.
-	 * @param the length of one side of the (square) picking area, in view coordinates
+	 * @param pickSize the length of one side of the (square) picking area, in view coordinates
 	 */
 	public void setPickSize(float pickSize) {
 		this.pickSize = pickSize;

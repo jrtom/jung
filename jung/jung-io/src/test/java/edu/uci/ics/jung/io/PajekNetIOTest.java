@@ -7,11 +7,10 @@
  *
  * This software is open-source under the BSD license; see either
  * "license.txt" or
- * http://jung.sourceforge.net/license.txt for a description.
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  */
 package edu.uci.ics.jung.io;
 
-import java.awt.Dimension;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -27,13 +26,10 @@ import java.util.Map;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-import org.apache.commons.collections15.Factory;
-import org.apache.commons.collections15.Transformer;
-import org.apache.commons.collections15.TransformerUtils;
-import org.apache.commons.collections15.functors.MapTransformer;
-import org.apache.commons.collections15.map.LazyMap;
+import com.google.common.base.Function;
+import com.google.common.base.Functions;
+import com.google.common.base.Supplier;
 
-import edu.uci.ics.jung.algorithms.layout.util.RandomLocationTransformer;
 import edu.uci.ics.jung.graph.DirectedGraph;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.Graph;
@@ -56,37 +52,37 @@ public class PajekNetIOTest extends TestCase
 {
     protected String[] vertex_labels = {"alpha", "beta", "gamma", "delta", "epsilon"};
     
-	Factory<DirectedGraph<Number,Number>> directedGraphFactory;
-	Factory<UndirectedGraph<Number,Number>> undirectedGraphFactory;
-	Factory<Graph<Number,Number>> graphFactory;
-	Factory<Number> vertexFactory;
-	Factory<Number> edgeFactory;
+	Supplier<DirectedGraph<Number,Number>> directedGraphFactory;
+	Supplier<UndirectedGraph<Number,Number>> undirectedGraphFactory;
+	Supplier<Graph<Number,Number>> graphFactory;
+	Supplier<Number> vertexFactory;
+	Supplier<Number> edgeFactory;
     PajekNetReader<Graph<Number, Number>, Number,Number> pnr; 
 	
     @Override
     protected void setUp() {
-    	directedGraphFactory = new Factory<DirectedGraph<Number,Number>>() {
-    		public DirectedGraph<Number,Number> create() {
+    	directedGraphFactory = new Supplier<DirectedGraph<Number,Number>>() {
+    		public DirectedGraph<Number,Number> get() {
     			return new DirectedSparseMultigraph<Number,Number>();
     		}
     	};
-    	undirectedGraphFactory = new Factory<UndirectedGraph<Number,Number>>() {
-    		public UndirectedGraph<Number,Number> create() {
+    	undirectedGraphFactory = new Supplier<UndirectedGraph<Number,Number>>() {
+    		public UndirectedGraph<Number,Number> get() {
     			return new UndirectedSparseMultigraph<Number,Number>();
     		}
     	};
-    	graphFactory = new Factory<Graph<Number,Number>>() {
-    		public Graph<Number,Number> create() {
+    	graphFactory = new Supplier<Graph<Number,Number>>() {
+    		public Graph<Number,Number> get() {
     			return new SparseMultigraph<Number,Number>();
     		}
     	};
-    	vertexFactory = new Factory<Number>() {
+    	vertexFactory = new Supplier<Number>() {
     		int n = 0;
-    		public Number create() { return n++; }
+    		public Number get() { return n++; }
     	};
-    	edgeFactory = new Factory<Number>() {
+    	edgeFactory = new Supplier<Number>() {
     		int n = 0;
-    		public Number create() { return n++; }
+    		public Number get() { return n++; }
     	};
         pnr = new PajekNetReader<Graph<Number, Number>, Number,Number>(vertexFactory, edgeFactory);
 
@@ -126,7 +122,7 @@ public class PajekNetIOTest extends TestCase
     
     public void testDirectedSaveLoadSave() throws IOException
     {
-        Graph<Number,Number> graph1 = directedGraphFactory.create();
+        Graph<Number,Number> graph1 = directedGraphFactory.get();
         for(int i=0; i<5; i++) {
         	graph1.addVertex(i);
         }
@@ -204,7 +200,7 @@ public class PajekNetIOTest extends TestCase
     public void testUndirectedSaveLoadSave() throws IOException
     {
         UndirectedGraph<Number,Number> graph1 = 
-        	undirectedGraphFactory.create();
+        	undirectedGraphFactory.get();
         for(int i=0; i<5; i++) {
         	graph1.addVertex(i);
         }
@@ -286,7 +282,7 @@ public class PajekNetIOTest extends TestCase
         }
         int j=0;
 
-        List<Number> id = new ArrayList<Number>(graph1.getVertices());//Indexer.getIndexer(graph1);
+        List<Number> id = new ArrayList<Number>(graph1.getVertices());
         GreekLabels<Number> gl = new GreekLabels<Number>(id);
         Number[] edges = { 0,1,2,3,4,5 };
 
@@ -318,35 +314,35 @@ public class PajekNetIOTest extends TestCase
         String testFilename = "mtest.net";
         String testFilename2 = testFilename + "2";
 
-        // lay out network
-        Dimension d = new Dimension(100, 200);
-        Transformer<Number,Point2D> vld = 
-        	TransformerUtils.mapTransformer(
-        			LazyMap.decorate(new HashMap<Number,Point2D>(),
-        					new RandomLocationTransformer<Number>(d)));
+        // assign arbitrary locations to each vertex
+        Map<Number, Point2D> locations = new HashMap<Number, Point2D>();
+        for (Number v : graph1.getVertices()) {
+        	locations.put(v, new Point2D.Double(v.intValue() * v.intValue(), 1 << v.intValue()));
+        }
+        Function<Number, Point2D> vld = Functions.forMap(locations);
         
         PajekNetWriter<Number,Number> pnw = new PajekNetWriter<Number,Number>();
-        pnw.save(graph1, testFilename, gl, MapTransformer.getInstance(nr), vld);
+        pnw.save(graph1, testFilename, gl, Functions.forMap(nr), vld);
         
         Graph<Number,Number> graph2 = pnr.load(testFilename, graphFactory);
-        Transformer<Number, String> pl = pnr.getVertexLabeller();
+        Function<Number, String> pl = pnr.getVertexLabeller();
         List<Number> id2 = new ArrayList<Number>(graph2.getVertices());
-        Transformer<Number,Point2D> vld2 = pnr.getVertexLocationTransformer();
+        Function<Number,Point2D> vld2 = pnr.getVertexLocationTransformer();
         
         assertEquals(graph1.getVertexCount(), graph2.getVertexCount());
         assertEquals(graph1.getEdgeCount(), graph2.getEdgeCount());
-        
+
         // test vertex labels and locations
         for (int i = 0; i < graph1.getVertexCount(); i++)
         {
             Number v1 = id.get(i);
             Number v2 = id2.get(i);
-            assertEquals(gl.transform(v1), pl.transform(v2));
-            assertEquals(vld.transform(v1), vld2.transform(v2));
+            assertEquals(gl.apply(v1), pl.apply(v2));
+            assertEquals(vld.apply(v1), vld2.apply(v2));
         }
         
         // test edge weights
-        Transformer<Number,Number> nr2 = pnr.getEdgeWeightTransformer();
+        Function<Number,Number> nr2 = pnr.getEdgeWeightTransformer();
         for (Number e2 : graph2.getEdges()) 
         {
             Pair<Number> endpoints = graph2.getEndpoints(e2);
@@ -356,7 +352,7 @@ public class PajekNetIOTest extends TestCase
             Number v2_1 = id.get(id2.indexOf(v2_2));
             Number e1 = graph1.findEdge(v1_1, v2_1);
             assertNotNull(e1);
-            assertEquals(nr.get(e1).floatValue(), nr2.transform(e2).floatValue(), 0.0001);
+            assertEquals(nr.get(e1).floatValue(), nr2.apply(e2).floatValue(), 0.0001);
         }
 
         pnw.save(graph2, testFilename2, pl, nr2, vld2);
@@ -419,7 +415,7 @@ public class PajekNetIOTest extends TestCase
         }
     }
 
-    private class GreekLabels<V> implements Transformer<V,String>
+    private class GreekLabels<V> implements Function<V,String>
     {
         private List<V> id; 
         
@@ -428,7 +424,7 @@ public class PajekNetIOTest extends TestCase
             this.id = id;
         }
         
-        public String transform(V v)
+        public String apply(V v)
         {
             return vertex_labels[id.indexOf(v)];
         }

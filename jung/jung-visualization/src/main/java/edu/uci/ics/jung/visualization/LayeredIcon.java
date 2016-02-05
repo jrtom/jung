@@ -18,6 +18,7 @@ import javax.swing.ImageIcon;
  * @author Tom Nelson
  *
  */
+@SuppressWarnings("serial")
 public class LayeredIcon extends ImageIcon {
 
 	Set<Icon> iconSet = new LinkedHashSet<Icon>();

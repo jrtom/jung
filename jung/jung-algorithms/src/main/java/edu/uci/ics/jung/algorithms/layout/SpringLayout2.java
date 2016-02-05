@@ -3,7 +3,7 @@
  * California All rights reserved.
  * 
  * This software is open-source under the BSD license; see either "license.txt"
- * or http://jung.sourceforge.net/license.txt for a description.
+ * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  */
 package edu.uci.ics.jung.algorithms.layout;
 
@@ -11,7 +11,7 @@ import java.awt.Dimension;
 import java.awt.geom.Point2D;
 import java.util.ConcurrentModificationException;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 import edu.uci.ics.jung.graph.Graph;
 
@@ -39,8 +39,8 @@ public class SpringLayout2<V, E> extends SpringLayout<V,E>
      * Constructor for a SpringLayout for a raw graph with associated
      * dimension--the input knows how big the graph is. Defaults to the unit
      * length function.
+	 * @param g the graph on which the layout algorithm is to operate
      */
-    @SuppressWarnings("unchecked")
     public SpringLayout2(Graph<V,E> g) {
         super(g);
     }
@@ -51,7 +51,7 @@ public class SpringLayout2<V, E> extends SpringLayout<V,E>
      * @param g the {@code Graph} to lay out
      * @param length_function provides a length for each edge
      */
-    public SpringLayout2(Graph<V,E> g, Transformer<E, Integer> length_function)
+    public SpringLayout2(Graph<V,E> g, Function<E, Integer> length_function)
     {
         super(g, length_function);
     }
@@ -86,9 +86,9 @@ public class SpringLayout2<V, E> extends SpringLayout<V,E>
             try {
                 for (V v : getGraph().getVertices()) {
                     if (isLocked(v)) continue;
-                    SpringVertexData vd = springVertexData.get(v);
+                    SpringVertexData vd = springVertexData.getUnchecked(v);
                     if(vd == null) continue;
-                    Point2D xyd = transform(v);
+                    Point2D xyd = apply(v);
                     
                     vd.dx += vd.repulsiondx + vd.edgedx;
                     vd.dy += vd.repulsiondy + vd.edgedy;

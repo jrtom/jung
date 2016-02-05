@@ -5,7 +5,7 @@
 *
 * This software is open-source under the BSD license; see either
 * "license.txt" or
-* http://jung.sourceforge.net/license.txt for a description.
+* https://github.com/jrtom/jung/blob/master/LICENSE for a description.
 */
 package edu.uci.ics.jung.algorithms.shortestpath;
 
@@ -103,7 +103,6 @@ public class UnweightedShortestPath<V, E>
                 	{
                 		if (neighbor.equals(vertex))
                 			continue;
-//	                    V neighbor = mGraph.getOpposite(vertex, incomingEdge);
 	
 	                    Number predDistanceVal = distances.get(neighbor);
 	
@@ -142,6 +141,8 @@ public class UnweightedShortestPath<V, E>
      * from this vertex are invalidated by changes to the graph.
      * 
      * @see #reset()
+     * 
+     * @param v the vertex for which distances should be cleared
      */
     public void reset(V v)
     {

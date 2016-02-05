@@ -3,7 +3,7 @@
  * California All rights reserved.
  *
  * This software is open-source under the BSD license; see either "license.txt"
- * or http://jung.sourceforge.net/license.txt for a description.
+ * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  *
  * Created on Jul 6, 2005
  */
@@ -38,8 +38,8 @@ public abstract class AbstractGraphMousePlugin implements GraphMousePlugin {
     protected Cursor cursor;
     
     /**
-     * create an instance with passed values
-     * @param modifiers
+     * Creates an instance with the specified mouse event modifiers.
+     * @param modifiers the mouse event modifiers to use
      */
     public AbstractGraphMousePlugin(int modifiers) {
         this.modifiers = modifiers;

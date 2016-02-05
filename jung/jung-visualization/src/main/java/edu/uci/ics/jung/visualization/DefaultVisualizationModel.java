@@ -5,7 +5,7 @@
 *
 * This software is open-source under the BSD license; see either
 * "license.txt" or
-* http://jung.sourceforge.net/license.txt for a description.
+* https://github.com/jrtom/jung/blob/master/LICENSE for a description.
 */
 package edu.uci.ics.jung.visualization;
 
@@ -59,8 +59,8 @@ public class DefaultVisualizationModel<V, E> implements VisualizationModel<V,E>,
 	}
     
 	/**
-	 * 
-	 * @param layout
+	 * Create an instance with the specified layout and dimension.
+	 * @param layout the layout to use
 	 * @param d The preferred size of the View that will display this graph
 	 */
 	public DefaultVisualizationModel(Layout<V,E> layout, Dimension d) {

@@ -7,13 +7,13 @@
 *
 * This software is open-source under the BSD license; see either
 * "license.txt" or
-* http://jung.sourceforge.net/license.txt for a description.
+* https://github.com/jrtom/jung/blob/master/LICENSE for a description.
 */
 package edu.uci.ics.jung.visualization.decorators;
 
 import java.awt.Paint;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 import edu.uci.ics.jung.visualization.picking.PickedInfo;
 
@@ -22,7 +22,7 @@ import edu.uci.ics.jung.visualization.picking.PickedInfo;
  * parameters given in the constructor, so that picked and
  * non-picked vertices can be made to look different.
  */
-public class PickableVertexPaintTransformer<V> implements Transformer<V,Paint> {
+public class PickableVertexPaintTransformer<V> implements Function<V,Paint> {
 
     protected Paint fill_paint;
     protected Paint picked_paint;
@@ -31,7 +31,6 @@ public class PickableVertexPaintTransformer<V> implements Transformer<V,Paint> {
     /**
      * 
      * @param pi            specifies which vertices report as "picked"
-     * @param draw_paint    <code>Paint</code> used to draw vertex shapes
      * @param fill_paint    <code>Paint</code> used to fill vertex shapes
      * @param picked_paint  <code>Paint</code> used to fill picked vertex shapes
      */
@@ -45,7 +44,7 @@ public class PickableVertexPaintTransformer<V> implements Transformer<V,Paint> {
         this.picked_paint = picked_paint;
     }
 
-    public Paint transform(V v)
+    public Paint apply(V v)
     {
         if (pi.isPicked(v))
             return picked_paint;

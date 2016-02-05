@@ -7,7 +7,7 @@
  *
  * This software is open-source under the BSD license; see either
  * "license.txt" or
- * http://jung.sourceforge.net/license.txt for a description.
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  */
 package edu.uci.ics.jung.graph;
 
@@ -38,15 +38,15 @@ import edu.uci.ics.jung.graph.util.Pair;
  * 
  * <p>Definitions (with respect to a given vertex <code>v</code>):
  * <ul>
- * <li/><b>incoming edge</b> of <code>v</code>: an edge that can be traversed 
+ * <li><b>incoming edge</b> of <code>v</code>: an edge that can be traversed 
  * from a neighbor of <code>v</code> to reach <code>v</code>
- * <li/><b>outgoing edge</b> of <code>v</code>: an edge that can be traversed
+ * <li><b>outgoing edge</b> of <code>v</code>: an edge that can be traversed
  * from <code>v</code> to reach some neighbor of <code>v</code> 
- * <li/><b>predecessor</b> of <code>v</code>: a vertex at the other end of an
+ * <li><b>predecessor</b> of <code>v</code>: a vertex at the other end of an
  * incoming edge of <code>v</code>
- * <li/><b>successor</b> of <code>v</code>: a vertex at the other end of an 
+ * <li><b>successor</b> of <code>v</code>: a vertex at the other end of an 
  * outgoing edge of <code>v</code>
- * <li/>
+ * <li>
  * </ul> 
  * 
  * @author Joshua O'Madadhain
@@ -152,7 +152,7 @@ public interface Graph<V,E> extends Hypergraph<V,E>
      * <code>d</code> is an outgoing edge.
      * <code>directed_edge</code> is guaranteed to be a directed edge if 
      * its <code>EdgeType</code> is <code>DIRECTED</code>. 
-     * @param directed_edge
+     * @param directed_edge the edge whose source is to be returned
      * @return  the source of <code>directed_edge</code> if it is a directed edge in this graph, or <code>null</code> otherwise
      */
     V getSource(E directed_edge);
@@ -164,8 +164,8 @@ public interface Graph<V,E> extends Hypergraph<V,E>
      * incident to <code>d</code> for which  
      * <code>d</code> is an incoming edge.
      * <code>directed_edge</code> is guaranteed to be a directed edge if 
-     * its <code>EdgeType</code> is <code>DIRECTED</code>. 
-     * @param directed_edge
+     * its <code>EdgeType</code> is <code>DIRECTED</code>.
+     * @param directed_edge the edge whose destination is to be returned
      * @return  the destination of <code>directed_edge</code> if it is a directed edge in this graph, or <code>null</code> otherwise
      */
     V getDest(E directed_edge);
@@ -191,7 +191,7 @@ public interface Graph<V,E> extends Hypergraph<V,E>
     /**
      * Adds edge <code>e</code> to this graph such that it connects 
      * vertex <code>v1</code> to <code>v2</code>.
-     * Equivalent to <code>addEdge(e, new Pair<V>(v1, v2))</code>.
+     * Equivalent to <code>addEdge(e, new Pair(v1, v2))</code>.
      * If this graph does not contain <code>v1</code>, <code>v2</code>, 
      * or both, implementations may choose to either silently add 
      * the vertices to the graph or throw an <code>IllegalArgumentException</code>.
@@ -211,7 +211,7 @@ public interface Graph<V,E> extends Hypergraph<V,E>
     /**
      * Adds edge <code>e</code> to this graph such that it connects 
      * vertex <code>v1</code> to <code>v2</code>.
-     * Equivalent to <code>addEdge(e, new Pair<V>(v1, v2))</code>.
+     * Equivalent to <code>addEdge(e, new Pair(v1, v2))</code>.
      * If this graph does not contain <code>v1</code>, <code>v2</code>, 
      * or both, implementations may choose to either silently add 
      * the vertices to the graph or throw an <code>IllegalArgumentException</code>.
@@ -230,7 +230,7 @@ public interface Graph<V,E> extends Hypergraph<V,E>
     boolean addEdge(E e, V v1, V v2, EdgeType edgeType);
 
     /**
-     * Returns the endpoints of <code>edge</code> as a <code>Pair<V></code>.
+     * Returns the endpoints of <code>edge</code> as a <code>Pair</code>.
      * @param edge the edge whose endpoints are to be returned
      * @return the endpoints (incident vertices) of <code>edge</code>
      */

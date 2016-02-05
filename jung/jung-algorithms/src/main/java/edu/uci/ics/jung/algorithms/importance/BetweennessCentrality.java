@@ -5,19 +5,18 @@
 *
 * This software is open-source under the BSD license; see either
 * "license.txt" or
-* http://jung.sourceforge.net/license.txt for a description.
+* https://github.com/jrtom/jung/blob/master/LICENSE for a description.
 */
 package edu.uci.ics.jung.algorithms.importance;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Stack;
-
-import org.apache.commons.collections15.Buffer;
-import org.apache.commons.collections15.buffer.UnboundedFifoBuffer;
 
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.UndirectedGraph;
@@ -66,10 +65,10 @@ public class BetweennessCentrality<V,E> extends AbstractRanker<V,E> {
 
     	Map<V,BetweennessData> decorator = new HashMap<V,BetweennessData>();
     	Map<V,Number> bcVertexDecorator = 
-    		vertexRankScores.get(getRankScoreKey());
+    		vertexRankScores.getUnchecked(getRankScoreKey());
     	bcVertexDecorator.clear();
     	Map<E,Number> bcEdgeDecorator = 
-    		edgeRankScores.get(getRankScoreKey());
+    		edgeRankScores.getUnchecked(getRankScoreKey());
     	bcEdgeDecorator.clear();
         
         Collection<V> vertices = graph.getVertices();
@@ -82,7 +81,7 @@ public class BetweennessCentrality<V,E> extends AbstractRanker<V,E> {
             decorator.get(s).distance = 0;
 
             Stack<V> stack = new Stack<V>();
-            Buffer<V> queue = new UnboundedFifoBuffer<V>();
+            Queue<V> queue = new LinkedList<V>();
             queue.add(s);
 
             while (!queue.isEmpty()) {
@@ -145,7 +144,7 @@ public class BetweennessCentrality<V,E> extends AbstractRanker<V,E> {
     private void initializeData(Graph<V,E> g, Map<V,BetweennessData> decorator) {
         for (V vertex : g.getVertices()) {
 
-        	Map<V,Number> bcVertexDecorator = vertexRankScores.get(getRankScoreKey());
+        	Map<V,Number> bcVertexDecorator = vertexRankScores.getUnchecked(getRankScoreKey());
         	if(bcVertexDecorator.containsKey(vertex) == false) {
         		bcVertexDecorator.put(vertex, 0.0);
         	}
@@ -153,7 +152,7 @@ public class BetweennessCentrality<V,E> extends AbstractRanker<V,E> {
         }
         for (E e : g.getEdges()) {
 
-        	Map<E,Number> bcEdgeDecorator = edgeRankScores.get(getRankScoreKey());
+        	Map<E,Number> bcEdgeDecorator = edgeRankScores.getUnchecked(getRankScoreKey());
         	if(bcEdgeDecorator.containsKey(e) == false) {
         		bcEdgeDecorator.put(e, 0.0);
         	}

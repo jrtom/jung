@@ -3,29 +3,22 @@
  * California All rights reserved.
  *
  * This software is open-source under the BSD license; see either "license.txt"
- * or http://jung.sourceforge.net/license.txt for a description.
+ * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  *
  * Created on Jun 17, 2005
  */
 
 package edu.uci.ics.jung.visualization;
 
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.Shape;
-import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
-
-import javax.imageio.ImageIO;
 
 
 /**
- * Provides factory methods that, given a BufferedImage, an Image,
+ * Provides Supplier methods that, given a BufferedImage, an Image,
  * or the fileName of an image, will return a java.awt.Shape that
  * is the contiguous traced outline of the opaque part of the image.
  * This could be used to define an image for use in a Vertex, where
@@ -51,67 +44,11 @@ public class PivotingImageShaper {
      */
     static int firstx = 0;
     
-    public static Shape getShape(String fileName) {
-        return getShape(fileName, Integer.MAX_VALUE);
-    }
-    public static Shape getShape(String fileName, int max) {
-        BufferedImage image = null;
-        try {
-            image = ImageIO.read(FourPassImageShaper.class.getResource(fileName));
-        } catch(IOException ex) {
-            ex.printStackTrace();
-        }
-        return getShape(image, max);
-    }
     
     /**
      * Given an image, possibly with a transparent background, return
      * the Shape of the opaque part of the image
-     * @param image
-     * @return the Shape
-     */
-    public static Shape getShape(Image image) {
-        return getShape(image, Integer.MAX_VALUE);
-    }
-    public static Shape getShape(Image image, int max) {
-        BufferedImage bi = 
-            new BufferedImage(image.getWidth(null), image.getHeight(null), 
-                    BufferedImage.TYPE_INT_ARGB);
-        Graphics g = bi.createGraphics();
-        g.drawImage(image, 0, 0, null);
-        g.dispose();
-        return getShape(bi, max);
-    }
-    
-    /**
-     * Given an image, possibly with a transparent background, return
-     * the Shape of the opaque part of the image
-     * @param image
-     * @return the Shape
-     */
-    public static Shape getShape(BufferedImage image, int max) {
-        
-        float width = image.getWidth();
-        float height = image.getHeight();
-        if(width > max || height > max) {
-            BufferedImage smaller = 
-                new BufferedImage(max, max, BufferedImage.TYPE_INT_ARGB);
-            Graphics g = smaller.createGraphics();
-            AffineTransform at = AffineTransform.getScaleInstance(max/width,max/height);
-            AffineTransform back = AffineTransform.getScaleInstance(width/max,height/max);
-            Graphics2D g2 = (Graphics2D)g;
-            g2.drawImage(image, at, null);
-            g2.dispose();
-            return back.createTransformedShape(getShape(smaller));
-        } else {
-            return getShape(image);
-        }
-    }
-    
-    /**
-     * Given an image, possibly with a transparent background, return
-     * the Shape of the opaque part of the image
-     * @param image
+     * @param image the image whose shape is being returned
      * @return the Shape
      */
     public static Shape getShape(BufferedImage image) {

@@ -3,7 +3,7 @@
  * California All rights reserved.
  * 
  * This software is open-source under the BSD license; see either "license.txt"
- * or http://jung.sourceforge.net/license.txt for a description.
+ * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  */
 /*
  * Created on Jul 2, 2003
@@ -50,6 +50,7 @@ public class TestGraphs {
 	 * the graph is a {@link DirectedSparseMultigraph DirectedSparseMultigraph},
 	 * otherwise, it is an {@link UndirectedSparseMultigraph UndirectedSparseMultigraph}.
 	 * 
+	 * @param directed true iff the graph created is to have directed edges
 	 * @return a graph consisting of eight edges and ten nodes.
 	 */
 	public static Graph<String, Number> createTestGraph(boolean directed) {
@@ -68,8 +69,10 @@ public class TestGraphs {
 	}
 
     /**
-     * Returns a graph consisting of a chain of <code>vertex_count - 1</code> vertices
-     * plus one isolated vertex.
+     * @param chain_length the length of the chain of vertices to add to the returned graph
+     * @param isolate_count the number of isolated vertices to add to the returned graph
+     * @return a graph consisting of a chain of {@code chain_length} vertices
+     *     and {@code isolate_count} isolated vertices.
      */
     public static Graph<String,Number> createChainPlusIsolates(int chain_length, int isolate_count)
     {
@@ -96,9 +99,13 @@ public class TestGraphs {
 	/**
 	 * Creates a sample directed acyclic graph by generating several "layers",
 	 * and connecting nodes (randomly) to nodes in earlier (but never later)
-	 * layers. Each layer has some random number of nodes in it 1 less than n
-	 * less than maxNodesPerLayer.
+	 * layers.  The number of vertices in each layer is a random value in the range
+	 * [1, maxNodesPerLayer].
 	 * 
+	 * @param layers the number of layers of vertices to create in the graph
+	 * @param maxNodesPerLayer the maximum number of vertices to put in any layer
+	 * @param linkprob the probability that this method will add an edge from a vertex in layer
+	 *     <i>k</i> to a vertex in layer <i>k+1</i>
 	 * @return the created graph
 	 */
 	public static Graph<String,Number> createDirectedAcyclicGraph(
@@ -218,7 +225,7 @@ public class TestGraphs {
 	}
 
     /**
-     * Returns a small graph with directed and undirected edges, and parallel edges.
+     * @return a small graph with directed and undirected edges, and parallel edges.
      */
     public static Graph<String, Number> getSmallGraph() {
         Graph<String, Number> graph = 

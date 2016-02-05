@@ -3,7 +3,7 @@
  * California All rights reserved.
  * 
  * This software is open-source under the BSD license; see either "license.txt"
- * or http://jung.sourceforge.net/license.txt for a description.
+ * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  * 
  */
 package edu.uci.ics.jung.samples;
@@ -22,9 +22,10 @@ import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.commons.collections15.Factory;
-import org.apache.commons.collections15.Transformer;
 import org.xml.sax.SAXException;
+
+import com.google.common.base.Function;
+import com.google.common.base.Supplier;
 
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.graph.DirectedGraph;
@@ -57,22 +58,21 @@ public class GraphFromGraphMLDemo {
     VisualizationViewer<Number, Number> vv;
     
     /**
-     * create an instance of a simple graph with controls to
-     * demo the zoom features.
-     * @throws SAXException 
-     * @throws ParserConfigurationException 
-     * @throws IOException 
-     * 
+     * Creates an instance showing a simple graph with controls to demonstrate the zoom features.
+     * @param filename the file containing the graph data we're reading
+     * @throws ParserConfigurationException if a SAX parser cannot be constructed
+     * @throws SAXException if the SAX parser factory cannot be constructed
+     * @throws IOException if the file cannot be read
      */
     public GraphFromGraphMLDemo(String filename) throws ParserConfigurationException, SAXException, IOException {
         
-    	Factory<Number> vertexFactory = new Factory<Number>() {
+    	Supplier<Number> vertexFactory = new Supplier<Number>() {
     		int n = 0;
-    		public Number create() { return n++; }
+    		public Number get() { return n++; }
     	};
-    	Factory<Number> edgeFactory = new Factory<Number>() {
+    	Supplier<Number> edgeFactory = new Supplier<Number>() {
     		int n = 0;
-    		public Number create() { return n++; }
+    		public Number get() { return n++; }
     	};
     	
     	GraphMLReader<DirectedGraph<Number,Number>, Number, Number> gmlr = 
@@ -92,13 +92,13 @@ public class GraphFromGraphMLDemo {
         				false));
         
         // add my listeners for ToolTips
-        vv.setVertexToolTipTransformer(new ToStringLabeller<Number>());
-        vv.setEdgeToolTipTransformer(new Transformer<Number,String>() {
-			public String transform(Number edge) {
+        vv.setVertexToolTipTransformer(new ToStringLabeller());
+        vv.setEdgeToolTipTransformer(new Function<Number,String>() {
+			public String apply(Number edge) {
 				return "E"+graph.getEndpoints(edge).toString();
 			}});
         
-        vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller<Number>());
+        vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
         vv.getRenderer().getVertexLabelRenderer().setPositioner(new InsidePositioner());
         vv.getRenderer().getVertexLabelRenderer().setPosition(Renderer.VertexLabel.Position.AUTO);
         
@@ -162,10 +162,10 @@ public class GraphFromGraphMLDemo {
     }
 
     /**
-     * a driver for this demo
-     * @throws IOException 
-     * @throws SAXException 
-     * @throws ParserConfigurationException 
+     * @param args if this contains at least one element, the first will be used as the file to read
+     * @throws ParserConfigurationException if a SAX parser cannot be constructed
+     * @throws SAXException if the SAX parser factory cannot be constructed
+     * @throws IOException if the file cannot be read
      */
     public static void main(String[] args) throws ParserConfigurationException, SAXException, IOException 
     {

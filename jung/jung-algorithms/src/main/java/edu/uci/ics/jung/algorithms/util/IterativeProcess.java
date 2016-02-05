@@ -5,7 +5,7 @@
 *
 * This software is open-source under the BSD license; see either
 * "license.txt" or
-* http://jung.sourceforge.net/license.txt for a description.
+* https://github.com/jrtom/jung/blob/master/LICENSE for a description.
 */
 package edu.uci.ics.jung.algorithms.util;
 
@@ -86,28 +86,28 @@ public abstract class IterativeProcess implements IterativeContext {
     }
 
     /**
-     * Returns the desired precision.
+     * @return the desired precision.
      */
     public double getDesiredPrecision() {
         return desiredPrecision;
     }
 
     /**
-     * Returns the number of iterations performed.
+     * @return the number of iterations performed.
      */
     public int getIterations() {
         return iterations;
     }
 
     /**
-     * Returns the maximum allowed number of iterations.
+     * @return the maximum allowed number of iterations.
      */
     public int getMaximumIterations() {
         return maximumIterations;
     }
 
     /**
-     * Returns the attained precision.
+     * @return the attained precision.
      */
     public double getPrecision() {
         return precision;
@@ -155,7 +155,7 @@ public abstract class IterativeProcess implements IterativeContext {
     }
 
     /**
-     * Defines the desired precision.
+     * @param prec the desired precision.
      */
     public void setDesiredPrecision(double prec) throws IllegalArgumentException {
         if (prec <= 0)
@@ -164,7 +164,7 @@ public abstract class IterativeProcess implements IterativeContext {
     }
 
     /**
-     * Defines the maximum allowed number of iterations.
+     * @param maxIter the maximum allowed number of iterations
      */
     public void setMaximumIterations(int maxIter) throws IllegalArgumentException {
         if (maxIter < 1)

@@ -7,14 +7,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections15.Factory;
+import com.google.common.base.Supplier;
 
 import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.graph.util.Pair;
 
 /**
- * An implementation of <code>Tree<V,E></code> that delegates to
- * a specified instance of <code>DirectedGraph<V,E></code>.
+ * An implementation of <code>Tree</code> that delegates to
+ * a specified instance of <code>DirectedGraph</code>.
  * @author Tom Nelson
  *
  * @param <V> the vertex type
@@ -24,13 +24,13 @@ import edu.uci.ics.jung.graph.util.Pair;
 public class DelegateTree<V,E> extends GraphDecorator<V,E> implements Tree<V,E>
 {
     /**
-     * Returns a {@code Factory} that creates an instance of this graph type.
-     * @param <V> the vertex type for the graph factory
-     * @param <E> the edge type for the graph factory
+     * @param <V> the vertex type for the graph Supplier
+     * @param <E> the edge type for the graph Supplier
+     * @return a {@code Supplier} that creates an instance of this graph type.
      */
-    public static final <V,E> Factory<Tree<V,E>> getFactory() {
-		return new Factory<Tree<V,E>> () {
-			public Tree<V,E> create() {
+    public static final <V,E> Supplier<Tree<V,E>> getFactory() {
+		return new Supplier<Tree<V,E>> () {
+			public Tree<V,E> get() {
 				return new DelegateTree<V,E>(new DirectedSparseMultigraph<V,E>());
 			}
 		};
@@ -50,8 +50,8 @@ public class DelegateTree<V,E> extends GraphDecorator<V,E> implements Tree<V,E>
 	 * create an instance with passed values.
 	 * @param graphFactory must create a DirectedGraph to use as a delegate
 	 */
-	public DelegateTree(Factory<DirectedGraph<V,E>> graphFactory) {
-		super(graphFactory.create());
+	public DelegateTree(Supplier<DirectedGraph<V,E>> graphFactory) {
+		super(graphFactory.get());
         this.vertex_depths = new HashMap<V, Integer>();
 	}
 	
@@ -59,11 +59,10 @@ public class DelegateTree<V,E> extends GraphDecorator<V,E> implements Tree<V,E>
 	 * Creates a new <code>DelegateTree</code> which delegates to <code>graph</code>.
 	 * Assumes that <code>graph</code> is already a tree; if it's not, future behavior
 	 * of this instance is undefined.
+	 * @param graph the graph to which this instance will delegate operations.
 	 */
 	public DelegateTree(DirectedGraph<V,E> graph) {
 		super(graph);
-//		if(graph.getVertexCount() != 0) throw new IllegalArgumentException(
-//			"Passed DirectedGraph must be empty");
         this.vertex_depths = new HashMap<V, Integer>();
 	}
 	
@@ -125,7 +124,7 @@ public class DelegateTree<V,E> extends GraphDecorator<V,E> implements Tree<V,E>
 	/**
 	 * remove the passed node, and all nodes that are descendants of the
 	 * passed node.
-	 * @param vertex
+	 * @param vertex the vertex to remove
 	 * @return <code>true</code> iff the tree was modified 
 	 * @see edu.uci.ics.jung.graph.Graph#removeVertex(java.lang.Object)
 	 */
@@ -292,8 +291,7 @@ public class DelegateTree<V,E> extends GraphDecorator<V,E> implements Tree<V,E>
 	}
 
 	/**
-	 * Returns <code>true</code> if <code>v</code> is neither 
-	 * a leaf nor the root of this tree.
+	 * @param v the vertex to test
 	 * @return <code>true</code> if <code>v</code> is neither 
      * a leaf nor the root of this tree
 	 */
@@ -304,10 +302,8 @@ public class DelegateTree<V,E> extends GraphDecorator<V,E> implements Tree<V,E>
 	}
 
 	/**
-	 * Returns <code>true</code> if the passed node has no
-	 * children.
-	 * @return <code>true</code> if the passed node has no
-     * children
+	 * @param v the vertex to test
+	 * @return <code>true</code> if {@code v} has no children
 	 */
 	public boolean isLeaf(V v) {
         if (!delegate.containsVertex(v))
@@ -316,8 +312,8 @@ public class DelegateTree<V,E> extends GraphDecorator<V,E> implements Tree<V,E>
 	}
 
 	/**
-	 * computes whether the passed node is a root node
-	 * (has no children)
+	 * @param v the vertex to test
+	 * @return <code>true</code> if {@code v} has no parent
 	 */
 	public boolean isRoot(V v) {
         if (!delegate.containsVertex(v))

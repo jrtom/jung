@@ -3,12 +3,12 @@
  * California All rights reserved.
  *
  * This software is open-source under the BSD license; see either "license.txt"
- * or http://jung.sourceforge.net/license.txt for a description.
+ * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  *
  */
 package edu.uci.ics.jung.visualization.util;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 /**
  * A utility to wrap long lines, creating html strings
@@ -17,7 +17,7 @@ import org.apache.commons.collections15.Transformer;
  * @author Tom Nelson - tomnelson@dev.java.net
  *
  */
-public class LabelWrapper implements Transformer<String,String> {
+public class LabelWrapper implements Function<String,String> {
 
 	int lineLength;
 	public static final String breaker = "<p>";
@@ -41,7 +41,7 @@ public class LabelWrapper implements Transformer<String,String> {
 	/**
 	 * call 'wrap' to transform the passed String
 	 */
-	public String transform(String str) {
+	public String apply(String str) {
 		if(str != null) {
 			return wrap(str);
 		} else {

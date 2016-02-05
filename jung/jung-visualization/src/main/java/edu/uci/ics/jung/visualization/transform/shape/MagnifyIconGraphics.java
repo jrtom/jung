@@ -3,7 +3,7 @@
  * California All rights reserved.
  *
  * This software is open-source under the BSD license; see either "license.txt"
- * or http://jung.sourceforge.net/license.txt for a description.
+ * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  *
  * Created on Jul 11, 2005
  */
@@ -35,8 +35,8 @@ public class MagnifyIconGraphics extends TransformingFlatnessGraphics {
         this(transformer, null);
     }
     
-    public MagnifyIconGraphics(BidirectionalTransformer transformer, Graphics2D delegate) {
-        super(transformer, delegate);
+    public MagnifyIconGraphics(BidirectionalTransformer Function, Graphics2D delegate) {
+        super(Function, delegate);
     }
     
     public void draw(Icon icon, Component c, Shape clip, int x, int y) {

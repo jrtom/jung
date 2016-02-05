@@ -5,7 +5,7 @@
  *
  * This software is open-source under the BSD license; see either
  * "license.txt" or
- * http://jung.sourceforge.net/license.txt for a description.
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  * Created on Mar 8, 2005
  *
  */
@@ -75,7 +75,7 @@ public class ScalingGraphMousePlugin extends AbstractGraphMousePlugin
 	public void mouseWheelMoved(MouseWheelEvent e) {
         boolean accepted = checkModifiers(e);
         if(accepted == true) {
-            VisualizationViewer vv = (VisualizationViewer)e.getSource();
+            VisualizationViewer<?, ?> vv = (VisualizationViewer<?, ?>)e.getSource();
             Point2D mouse = e.getPoint();
             Point2D center = vv.getCenter();
             int amount = e.getWheelRotation();

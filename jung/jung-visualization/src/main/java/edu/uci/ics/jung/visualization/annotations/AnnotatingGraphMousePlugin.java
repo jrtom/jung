@@ -5,7 +5,7 @@
  *
  * This software is open-source under the BSD license; see either
  * "license.txt" or
- * http://jung.sourceforge.net/license.txt for a description.
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  *
  */
 package edu.uci.ics.jung.visualization.annotations;
@@ -91,15 +91,19 @@ public class AnnotatingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
     protected boolean added = false;
     
     /**
-	 * create an instance with default settings
-	 */
+     * Create an instance with defaults for primary (button 1) and secondary 
+     * (button 1 + shift) selection.
+     * @param rc the RenderContext for which this plugin will be used
+     */
 	public AnnotatingGraphMousePlugin(RenderContext<V,E> rc) {
 	    this(rc, InputEvent.BUTTON1_MASK, 
 	    		InputEvent.BUTTON1_MASK | InputEvent.SHIFT_MASK);
 	}
 
 	/**
-	 * create an instance with overides
+	 * Create an instance with the specified primary and secondary selection
+	 * mechanisms.
+     * @param rc the RenderContext for which this plugin will be used
 	 * @param selectionModifiers for primary selection
 	 * @param additionalModifiers for additional selection
 	 */
@@ -110,7 +114,6 @@ public class AnnotatingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
         this.basicTransformer = rc.getMultiLayerTransformer();
         this.additionalModifiers = additionalModifiers;
         this.lensPaintable = new LensPaintable();
-//        this.annotationPaintable = new AnnotationPaintable(rc);
         this.annotationManager = new AnnotationManager(rc);
         this.cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR);
     }
@@ -158,7 +161,7 @@ public class AnnotatingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
 	 */
     @SuppressWarnings("unchecked")
     public void mousePressed(MouseEvent e) {
-    	VisualizationViewer<V,E> vv = (VisualizationViewer)e.getSource();
+    	VisualizationViewer<V,E> vv = (VisualizationViewer<V,E>)e.getSource();
     	down = e.getPoint();
     	
 		if(added == false) {
@@ -177,7 +180,7 @@ public class AnnotatingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
     			annotationManager.add(layer, annotation);
     		}
     	} else if(e.getModifiers() == additionalModifiers) {
-    		Annotation annotation = annotationManager.getAnnotation(down);
+    		Annotation<?> annotation = annotationManager.getAnnotation(down);
     		annotationManager.remove(annotation);
     	} else if(e.getModifiers() == modifiers) {
     		rectangularShape.setFrameFromDiagonal(down,down);
@@ -193,7 +196,7 @@ public class AnnotatingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
 	 */
     @SuppressWarnings("unchecked")
     public void mouseReleased(MouseEvent e) {
-        VisualizationViewer<V,E> vv = (VisualizationViewer)e.getSource();
+        VisualizationViewer<V,E> vv = (VisualizationViewer<V, E>)e.getSource();
     	if(e.isPopupTrigger()) {
     		String annotationString = JOptionPane.showInputDialog(vv,"Annotation:");
     		if(annotationString != null && annotationString.length() > 0) {
@@ -226,7 +229,7 @@ public class AnnotatingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
 	 */
     @SuppressWarnings("unchecked")
     public void mouseDragged(MouseEvent e) {
-        VisualizationViewer<V,E> vv = (VisualizationViewer)e.getSource();
+        VisualizationViewer<V,E> vv = (VisualizationViewer<V, E>)e.getSource();
 
     	Point2D out = e.getPoint();
     	if(e.getModifiers() == additionalModifiers) {

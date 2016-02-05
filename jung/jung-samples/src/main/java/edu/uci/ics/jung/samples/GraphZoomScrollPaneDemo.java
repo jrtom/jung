@@ -3,7 +3,7 @@
  * California All rights reserved.
  * 
  * This software is open-source under the BSD license; see either "license.txt"
- * or http://jung.sourceforge.net/license.txt for a description.
+ * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  * 
  */
 package edu.uci.ics.jung.samples;
@@ -15,6 +15,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.awt.Paint;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -24,8 +25,8 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import org.apache.commons.collections15.Transformer;
-import org.apache.commons.collections15.functors.ConstantTransformer;
+import com.google.common.base.Function;
+import com.google.common.base.Functions;
 
 import edu.uci.ics.jung.algorithms.layout.KKLayout;
 import edu.uci.ics.jung.graph.DirectedSparseGraph;
@@ -51,7 +52,7 @@ import edu.uci.ics.jung.visualization.renderers.BasicVertexLabelRenderer.InsideP
  * vertical scrollbars.
  *
  * <p>This demo also shows ToolTips on graph vertices and edges,
- * and a key listener to change graph mouse modes.</p>
+ * and a key listener to change graph mouse modes.
  * 
  * @author Tom Nelson
  * 
@@ -137,18 +138,18 @@ public class GraphZoomScrollPaneDemo {
         				Color.white, Color.blue,
         				vv.getPickedVertexState(),
         				false));
-        vv.getRenderContext().setEdgeDrawPaintTransformer(new ConstantTransformer(Color.lightGray));
-        vv.getRenderContext().setArrowFillPaintTransformer(new ConstantTransformer(Color.lightGray));
-        vv.getRenderContext().setArrowDrawPaintTransformer(new ConstantTransformer(Color.lightGray));
+        vv.getRenderContext().setEdgeDrawPaintTransformer(Functions.<Paint>constant(Color.lightGray));
+        vv.getRenderContext().setArrowFillPaintTransformer(Functions.<Paint>constant(Color.lightGray));
+        vv.getRenderContext().setArrowDrawPaintTransformer(Functions.<Paint>constant(Color.lightGray));
         
         // add my listeners for ToolTips
-        vv.setVertexToolTipTransformer(new ToStringLabeller<String>());
-        vv.setEdgeToolTipTransformer(new Transformer<Number,String>() {
-			public String transform(Number edge) {
+        vv.setVertexToolTipTransformer(new ToStringLabeller());
+        vv.setEdgeToolTipTransformer(new Function<Number,String>() {
+			public String apply(Number edge) {
 				return "E"+graph.getEndpoints(edge).toString();
 			}});
         
-        vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller<String>());
+        vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
         vv.getRenderer().getVertexLabelRenderer().setPositioner(new InsidePositioner());
         vv.getRenderer().getVertexLabelRenderer().setPosition(Renderer.VertexLabel.Position.AUTO);
         vv.setForeground(Color.lightGray);
@@ -253,9 +254,6 @@ public class GraphZoomScrollPaneDemo {
     		}
     }
 
-    /**
-     * a driver for this demo
-     */
     public static void main(String[] args) 
     {
         new GraphZoomScrollPaneDemo();

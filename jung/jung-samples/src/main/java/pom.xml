@@ -1,0 +1,123 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>jung-samples</artifactId>
+  <packaging>jar</packaging>
+  <version>2.0.1</version>
+  <url>http://jung.sourceforge.net/site/jung-samples</url>
+  <name>jung-samples</name>
+  <description>
+  Sample programs using jung2. Nearly all jung2 capabilities are demonstrated here.
+  Please study the source code for these examples prior to asking how to do something.
+  </description>
+	<parent>
+		<groupId>net.sf.jung</groupId>
+		<artifactId>jung2</artifactId>
+		<version>2.0.1</version>
+	</parent>
+
+	<profiles>
+		<profile>
+			<id>no-assembly</id>
+			<activation>
+				<property>
+					<name>no_assembly</name>
+				</property>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-jar-plugin</artifactId>
+						<configuration>
+							<archive>
+								<manifest>
+									<mainClass>edu.uci.ics.jung.samples.VertexImageShaperDemo</mainClass>
+									<addClasspath>true</addClasspath>
+								</manifest>
+							</archive>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<!--  build with assembly - this is the default -->
+			<id>assembly</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-jar-plugin</artifactId>
+						<configuration>
+							<archive>
+								<manifest>
+									<mainClass>edu.uci.ics.jung.samples.VertexImageShaperDemo</mainClass>
+									<addClasspath>true</addClasspath>
+								</manifest>
+							</archive>
+						</configuration>
+					</plugin>
+					<plugin>
+						<artifactId>maven-assembly-plugin</artifactId>
+						<version>2.1</version>
+						<executions>
+							<execution>
+								<phase>package</phase>
+								<goals>
+									<goal>single</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<descriptor>src/main/assembly/assembly.xml</descriptor>
+
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+  
+  
+  <dependencies>
+  
+  	<dependency>
+		<groupId>net.sf.jung</groupId>
+		<artifactId>jung-api</artifactId>
+		<version>${project.version}</version>
+		<scope>compile</scope>
+	</dependency>
+	
+  	<dependency>
+		<groupId>net.sf.jung</groupId>
+		<artifactId>jung-visualization</artifactId>
+		<version>${project.version}</version>
+		<scope>compile</scope>
+	</dependency>
+	
+  	<dependency>
+		<groupId>net.sf.jung</groupId>
+		<artifactId>jung-graph-impl</artifactId>
+		<version>${project.version}</version>
+		<scope>compile</scope>
+	</dependency>
+
+	<dependency>
+		<groupId>net.sf.jung</groupId>
+		<artifactId>jung-algorithms</artifactId>
+		<version>${project.version}</version>
+		<scope>compile</scope>
+	</dependency>
+	
+	<dependency>
+		<groupId>net.sf.jung</groupId>
+		<artifactId>jung-io</artifactId>
+		<version>${project.version}</version>
+		<scope>compile</scope>
+	</dependency>
+	
+   </dependencies>
+</project>

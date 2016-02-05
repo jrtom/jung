@@ -7,7 +7,7 @@
  *
  * This software is open-source under the BSD license; see either
  * "license.txt" or
- * http://jung.sourceforge.net/license.txt for a description.
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  */
 package edu.uci.ics.jung.graph.util;
 
@@ -30,11 +30,11 @@ public interface EdgeIndexFunction<V,E> {
      * Returns <code>e</code>'s index in <code>graph</code>.
      * The index of <code>e</code> is defined as its position in some 
      * consistent ordering of <code>e</code> and all edges parallel to <code>e</code>.
-     * @param graph the graph in which the edge is to be queried
+     * @param graph the graph with respect to which the index is calculated
      * @param e the edge whose index is to be queried
      * @return <code>e</code>'s index in <code>graph</code>
      */
-    int getIndex(Graph<V,E> graph, E e);
+    int getIndex(Graph<V, E> graph, E e);
     
     /**
      * Resets the indices for <code>edge</code> and its parallel edges in <code>graph</code>.

@@ -3,7 +3,7 @@
  * California All rights reserved.
  *
  * This software is open-source under the BSD license; see either "license.txt"
- * or http://jung.sourceforge.net/license.txt for a description.
+ * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  *
  * Created on Aug 23, 2005
  */
@@ -11,15 +11,16 @@
 package edu.uci.ics.jung.visualization.layout;
 
 import java.awt.geom.Point2D;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.event.ChangeListener;
 
-import org.apache.commons.collections15.Transformer;
-import org.apache.commons.collections15.functors.ChainedTransformer;
-import org.apache.commons.collections15.functors.CloneTransformer;
-import org.apache.commons.collections15.map.LazyMap;
+import com.google.common.base.Function;
+import com.google.common.base.Functions;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.algorithms.layout.LayoutDecorator;
@@ -38,41 +39,40 @@ import edu.uci.ics.jung.visualization.util.DefaultChangeEventSupport;
  * @author Tom Nelson 
  *
  */
-public class ObservableCachingLayout<V, E> extends LayoutDecorator<V,E> implements ChangeEventSupport, Caching {
+public class ObservableCachingLayout<V, E> extends LayoutDecorator<V,E> 
+	implements ChangeEventSupport, Caching, LayoutEventSupport<V,E> {
     
-    protected ChangeEventSupport changeSupport =
-        new DefaultChangeEventSupport(this);
+    protected ChangeEventSupport changeSupport = new DefaultChangeEventSupport(this);
     
-    protected Map<V,Point2D> locationMap;
+    protected LoadingCache<V, Point2D> locations;
+    
+    private List<LayoutChangeListener<V,E>> layoutChangeListeners = 
+    	new ArrayList<LayoutChangeListener<V,E>>();
 
     public ObservableCachingLayout(Layout<V, E> delegate) {
     	super(delegate);
-    	this.locationMap = LazyMap.<V,Point2D>decorate(new HashMap<V,Point2D>(), 
-    			new ChainedTransformer<V, Point2D>(new Transformer[]{delegate, CloneTransformer.<Point2D>getInstance()}));
+		Function<V, Point2D> chain = Functions.<V, Point2D, Point2D> compose(
+				new Function<Point2D, Point2D>() {
+					public Point2D apply(Point2D p) {
+						return (Point2D) p.clone();
+					}
+				},
+				delegate);
+		this.locations = CacheBuilder.newBuilder().build(CacheLoader.from(chain));
     }
     
-    /**
-     * @see edu.uci.ics.jung.algorithms.layout.Layout#step()
-     */
     @Override
     public void step() {
     	super.step();
     	fireStateChanged();
     }
 
-    /**
-	 * 
-	 * @see edu.uci.ics.jung.algorithms.layout.Layout#initialize()
-	 */
 	@Override
     public void initialize() {
 		super.initialize();
 		fireStateChanged();
 	}
 	
-    /**
-     * @see edu.uci.ics.jung.algorithms.util.IterativeContext#done()
-     */
     @Override
     public boolean done() {
     	if(delegate instanceof IterativeContext) {
@@ -82,15 +82,11 @@ public class ObservableCachingLayout<V, E> extends LayoutDecorator<V,E> implemen
     }
 
 
-	/**
-	 * @param v
-	 * @param location
-	 * @see edu.uci.ics.jung.algorithms.layout.Layout#setLocation(java.lang.Object, java.awt.geom.Point2D)
-	 */
 	@Override
     public void setLocation(V v, Point2D location) {
 		super.setLocation(v, location);
 		fireStateChanged();
+		fireLayoutChanged(v);
 	}
 
     public void addChangeListener(ChangeListener l) {
@@ -115,17 +111,30 @@ public class ObservableCachingLayout<V, E> extends LayoutDecorator<V,E> implemen
     }
 
 	public void clear() {
-		this.locationMap.clear();
+		this.locations.invalidateAll();
 	}
 
 	public void init() {
 	}
 
-	/* (non-Javadoc)
-	 * @see edu.uci.ics.jung.visualization.layout.LayoutDecorator#transform(java.lang.Object)
-	 */
-	@Override
-	public Point2D transform(V v) {
-		return locationMap.get(v);
+	public Point2D apply(V v) {
+		return locations.getUnchecked(v);
+	}
+
+	private void fireLayoutChanged(V v) {
+		LayoutEvent<V,E> evt = new LayoutEvent<V,E>(v, this.getGraph());
+		for(LayoutChangeListener<V,E> listener : layoutChangeListeners) {
+			listener.layoutChanged(evt);
+		}
+	}
+	
+	public void addLayoutChangeListener(LayoutChangeListener<V, E> listener) {
+		layoutChangeListeners.add(listener);
+		
+	}
+
+	public void removeLayoutChangeListener(LayoutChangeListener<V, E> listener) {
+		layoutChangeListeners.remove(listener);
+		
 	}
 }

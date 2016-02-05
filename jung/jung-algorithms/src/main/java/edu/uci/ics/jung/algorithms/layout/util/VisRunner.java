@@ -3,7 +3,7 @@
  * California All rights reserved.
  *
  * This software is open-source under the BSD license; see either "license.txt"
- * or http://jung.sourceforge.net/license.txt for a description.
+ * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  *
  * 
  */
@@ -36,6 +36,7 @@ public class VisRunner implements Relaxer, Runnable {
 	
 	/**
 	 * Creates an instance for the specified process.
+	 * @param process the process (generally a layout) for which this instance is created
 	 */
 	public VisRunner(IterativeContext process) {
 		this.process = process;

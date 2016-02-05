@@ -7,7 +7,7 @@
  *
  * This software is open-source under the BSD license; see either
  * "license.txt" or
- * http://jung.sourceforge.net/license.txt for a description.
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  */
 package edu.uci.ics.jung.algorithms.scoring;
 
@@ -21,7 +21,7 @@ package edu.uci.ics.jung.algorithms.scoring;
 public interface VertexScorer<V, S>
 {
     /**
-     * Returns the algorithm's score for this vertex.
+     * @param v the vertex whose score is requested
      * @return the algorithm's score for this vertex
      */
     public S getVertexScore(V v);

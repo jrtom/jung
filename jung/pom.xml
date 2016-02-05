@@ -1,22 +1,22 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>net.sf.jung</groupId>
-	<artifactId>jung2</artifactId>
+	<artifactId>jung</artifactId>
 	<packaging>pom</packaging>
-	<version>2.0.2-SNAPSHOT</version>
-	<name>jung2</name>
-	<url>http://jung.sourceforge.net/site</url>
+	<version>2.1</version>
+	<name>jung</name>
+	<url>http://jrtom.github.io/jung/</url>
 	<licenses>
 		<license>
 			<name>The BSD License</name>
-			<url>http://jung.sourceforge.net/license.txt</url>
+			<url>https://github.com/jrtom/jung/blob/master/LICENSE</url>
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
 	<scm>
-		<url>http://jung.cvs.sourceforge.net/jung/jung2</url>
-		<developerConnection>scm:cvs:ext:tomnelson@jung.cvs.sourceforge.net:/cvsroot/jung:jung2</developerConnection>
-		<tag>${cvsTag}</tag>
+		<url>https://github.com/jrtom/jung</url>
+		<connection>scm:git:git://github.com/jrtom/jung.git</connection>
+		<developerConnection>scm:git:git://github.com/jrtom/jung.git</developerConnection>
 	</scm>
 	<description>
 		JUNG the Java Universal Network/Graph Framework--is a software
@@ -53,8 +53,8 @@
 		<developer>
 			<id>eflat</id>
 			<name>Joshua</name>
-			<email>e-flat@sf.net</email>
-			<url>http://www.ics.uci.edu/~jmadden/</url>
+			<email>joshua.omadadhain+maven@gmail.com</email>
+			<url>https://sites.google.com/site/joshuaomadadhain</url>
 			<organization>Google</organization>
 			<organizationUrl>http://www.google.com</organizationUrl>
 			<timezone>-8</timezone>
@@ -94,35 +94,7 @@
 				<role>Developer</role>
 			</roles>
 		</developer>
-		<!--  
-			<developer>
-			<id>jason</id>
-			<name>Jason</name>
-			<email>jason@sf.net</email>
-			<url />
-			<organization>BAH</organization>
-			<organizationUrl />
-			<timezone>-4</timezone>
-			<roles>
-			<role>Developer</role>
-			</roles>
-			</developer>
-		-->
 	</developers>
-	<mailingLists>
-		<mailingList>
-			<name>jung-support</name>
-			<subscribe>
-				https://lists.sourceforge.net/lists/listinfo/jung-support
-			</subscribe>
-		</mailingList>
-		<!--
-			<mailingList>
-			<name>open discussion</name>
-			<subscribe>https://sourceforge.net/forum/forum.php?forum_id=252062&f_feedback=1</subscribe>
-			</mailingList>
-		-->
-	</mailingLists>
 
 	<build>
 		<plugins>
@@ -137,6 +109,7 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-source-plugin</artifactId>
+				<version>2.4</version>
 				<groupId>org.apache.maven.plugins</groupId>
 				<configuration>
 					<includePom>true</includePom>
@@ -215,15 +188,11 @@
 		</dependency>
 	</dependencies>
 
-    <!--  maven profiles are used to control what gets built. The default is to build the awt/swing version
-          by specifying properties, you can build other versions:
-          mvn install -Dj3d   - will build the java3d/jai version
-          mvn install -Dall   - will build everything (CAUTION: This will result in a set of incompatible libraries)
-    -->
 	<profiles>
 		<profile>
 			<id>all</id>
 			<activation>
+				<activeByDefault>true</activeByDefault>
 				<property>
 					<name>all</name>
 				</property>
@@ -235,46 +204,6 @@
 				<module>jung-io</module>
 				<module>jung-visualization</module>
 				<module>jung-samples</module>
-				<module>jung-jai</module>
-				<module>jung-jai-samples</module>
-				<module>jung-3d</module>
-				<module>jung-3d-demos</module>
-			</modules>
-		</profile>
-		<profile>
-		<!--  build the awt/swing version - this is the default -->
-			<id>awt</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
-			<modules>
-				<module>jung-api</module>
-				<module>jung-graph-impl</module>
-				<module>jung-algorithms</module>
-				<module>jung-io</module>
-				<module>jung-visualization</module>
-				<module>jung-samples</module>
-			</modules>
-		</profile>
-		<profile>
-		<!--  build the java3d/jai version (still experimental) -->
-			<id>j3d</id>
-			<activation>
-				<property>
-					<name>j3d</name>
-				</property>
-			</activation>
-			<modules>
-				<module>jung-api</module>
-				<module>jung-graph-impl</module>
-				<module>jung-algorithms</module>
-				<module>jung-io</module>
-				<module>jung-visualization</module>
-				<module>jung-samples</module>
-				<module>jung-jai</module>
-				<module>jung-jai-samples</module>
-				<module>jung-3d</module>
-				<module>jung-3d-demos</module>
 			</modules>
 		</profile>
 	</profiles>

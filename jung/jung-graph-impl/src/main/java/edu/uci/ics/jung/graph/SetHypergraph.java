@@ -7,7 +7,7 @@
  *
  * This software is open-source under the BSD license; see either
  * "license.txt" or
- * http://jung.sourceforge.net/license.txt for a description.
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  */
 package edu.uci.ics.jung.graph;
 
@@ -20,7 +20,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.collections15.Factory;
+import com.google.common.base.Supplier;
 
 import edu.uci.ics.jung.graph.util.EdgeType;
 
@@ -41,9 +41,9 @@ public class SetHypergraph<V,H>
      * @param <H> edge type of the hypergraph to be created
      * @return a <code>Factory</code> which creates instances of this class
      */
-    public static <V,H> Factory<Hypergraph<V,H>> getFactory() {
-        return new Factory<Hypergraph<V,H>> () {
-            public Hypergraph<V,H> create() {
+    public static <V,H> Supplier<Hypergraph<V,H>> getFactory() {
+        return new Supplier<Hypergraph<V,H>> () {
+            public Hypergraph<V,H> get() {
                 return new SetHypergraph<V,H>();
             }
         };

@@ -5,7 +5,7 @@
  *
  * This software is open-source under the BSD license; see either
  * "license.txt" or
- * http://jung.sourceforge.net/license.txt for a description.
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  */
 
 package edu.uci.ics.jung.io.graphml.parser;
@@ -33,7 +33,6 @@ public class PortElementParser<G extends Hypergraph<V,E>,V,E> extends AbstractEl
         super(parserContext);
     }
     
-    @SuppressWarnings("unchecked")
     public PortMetadata parse(XMLEventReader xmlEventReader, StartElement start)
             throws GraphIOException {
 
@@ -43,9 +42,10 @@ public class PortElementParser<G extends Hypergraph<V,E>,V,E> extends AbstractEl
             PortMetadata port = new PortMetadata();
 
             // Parse the attributes.
-            Iterator iterator = start.getAttributes();
+            @SuppressWarnings("unchecked")
+            Iterator<Attribute> iterator = start.getAttributes();
             while (iterator.hasNext()) {
-                Attribute attribute = (Attribute) iterator.next();
+                Attribute attribute = iterator.next();
                 String name = attribute.getName().getLocalPart();
                 String value = attribute.getValue();
                 if (port.getName() == null && GraphMLConstants.NAME_NAME.equals(name)) {

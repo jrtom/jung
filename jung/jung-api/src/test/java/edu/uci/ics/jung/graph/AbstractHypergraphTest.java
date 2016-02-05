@@ -7,7 +7,7 @@
  *
  * This software is open-source under the BSD license; see either
  * "license.txt" or
- * http://jung.sourceforge.net/license.txt for a description.
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  */
 package edu.uci.ics.jung.graph;
 
@@ -16,17 +16,17 @@ import java.util.Collection;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.collections15.Factory;
+import com.google.common.base.Supplier;
 
 import edu.uci.ics.jung.graph.util.Pair;
 
 
 public abstract class AbstractHypergraphTest extends TestCase
 {
-    protected Factory<? extends Hypergraph<Integer,Character>> factory;
+    protected Supplier<? extends Hypergraph<Integer,Character>> factory;
     protected Hypergraph<Integer,Character> h;
     
-    public AbstractHypergraphTest(Factory<? extends Hypergraph<Integer,Character>> factory)
+    public AbstractHypergraphTest(Supplier<? extends Hypergraph<Integer,Character>> factory)
     {
         this.factory = factory;
     }
@@ -43,10 +43,10 @@ public abstract class AbstractHypergraphTest extends TestCase
     /**
      * test for the following:
      * <ul>
-     * <li/>add successful iff arg is not present
-     * <li/>count increases by 1 iff add is successful
-     * <li/>null vertex argument actively rejected
-     * <li/>vertex reported as present iff add is successful
+     * <li>add successful iff arg is not present
+     * <li>count increases by 1 iff add is successful
+     * <li>null vertex argument actively rejected
+     * <li>vertex reported as present iff add is successful
      * </ul>
      */
     public void testAddVertex()
@@ -75,11 +75,11 @@ public abstract class AbstractHypergraphTest extends TestCase
     /**
      * test for the following:
      * <ul>
-     * <li/>add successful iff edge is not present 
-     * <li/>edge count increases by 1 iff add successful
-     * <li/>null edge arg actively rejected
-     * <li/>edge reported as present iff add is successful
-     * <li/>throw if edge is present with different endpoints
+     * <li>add successful iff edge is not present 
+     * <li>edge count increases by 1 iff add successful
+     * <li>null edge arg actively rejected
+     * <li>edge reported as present iff add is successful
+     * <li>throw if edge is present with different endpoints
      * </ul>
      */
     public void testAddEdge()
@@ -122,8 +122,8 @@ public abstract class AbstractHypergraphTest extends TestCase
     /**
      * test for the following:
      * <ul>
-     * <li/>if Graph, reject # of endpoints != 2
-     * <li/>otherwise, accept any number of endpoints >= 0
+     * <li>if Graph, reject # of endpoints != 2
+     * <li>otherwise, accept any number of endpoints >= 0
      * 
      * </ul>
      *
@@ -154,9 +154,9 @@ public abstract class AbstractHypergraphTest extends TestCase
     /**
      * should return null if any of the following is true
      * <ul>
-     * <li/>v1 is null 
-     * <li/>v2 is null
-     * <li/>there is no edge connecting v1 to v2 in this graph
+     * <li>v1 is null 
+     * <li>v2 is null
+     * <li>there is no edge connecting v1 to v2 in this graph
      * </ul>
      * otherwise should return _an_ edge connecting v1 to v2.
      * May be directed or undirected (depending on the graph);

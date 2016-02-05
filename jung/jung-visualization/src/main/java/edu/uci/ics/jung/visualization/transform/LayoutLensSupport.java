@@ -3,7 +3,7 @@
  * California All rights reserved.
  *
  * This software is open-source under the BSD license; see either "license.txt"
- * or http://jung.sourceforge.net/license.txt for a description.
+ * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  *
  * Created on Jul 21, 2005
  */
@@ -33,13 +33,17 @@ public class LayoutLensSupport<V,E> extends AbstractLensSupport<V,E>
 	protected GraphElementAccessor<V,E> pickSupport;
 	
     public LayoutLensSupport(VisualizationViewer<V,E> vv) {
-        this(vv, new HyperbolicTransformer(vv, vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT)),
-                new ModalLensGraphMouse());
+        this(vv, new HyperbolicTransformer(
+        		vv, vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT)),
+             new ModalLensGraphMouse());
     }
+    
     /**
-     * create the base class, setting common members and creating
-     * a custom GraphMouse
-     * @param vv the VisualizationViewer to work on
+     * Create an instance with the specified parameters.
+     * 
+     * @param vv the visualization viewer used for rendering
+     * @param lensTransformer the lens transformer to use
+     * @param lensGraphMouse the lens input handler
      */
     public LayoutLensSupport(VisualizationViewer<V,E> vv, LensTransformer lensTransformer,
             ModalGraphMouse lensGraphMouse) {

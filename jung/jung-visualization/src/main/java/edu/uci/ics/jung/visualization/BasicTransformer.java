@@ -32,7 +32,7 @@ public class BasicTransformer implements MultiLayerTransformer,
         new MutableAffineTransformer(new AffineTransform());
 
     /**
-     * Creates an instance and notifies the view and layout transformers to listen to
+     * Creates an instance and notifies the view and layout Functions to listen to
      * changes published by this instance.
      */
     public BasicTransformer() {
@@ -41,157 +41,96 @@ public class BasicTransformer implements MultiLayerTransformer,
 		layoutTransformer.addChangeListener(this);
 	}
 
-    /**
-	 * @see edu.uci.ics.jung.visualization.MultiLayerTransformer#setViewTransformer(edu.uci.ics.jung.visualization.transform.MutableTransformer)
-	 */
-    protected void setViewTransformer(MutableTransformer transformer) {
+    protected void setViewTransformer(MutableTransformer Function) {
         this.viewTransformer.removeChangeListener(this);
-        this.viewTransformer = transformer;
+        this.viewTransformer = Function;
         this.viewTransformer.addChangeListener(this);
     }
 
-    /* (non-Javadoc)
-	 * @see edu.uci.ics.jung.visualization.MultiLayerTransformer#setLayoutTransformer(edu.uci.ics.jung.visualization.transform.MutableTransformer)
-	 */
-    protected void setLayoutTransformer(MutableTransformer transformer) {
+    protected void setLayoutTransformer(MutableTransformer Function) {
         this.layoutTransformer.removeChangeListener(this);
-        this.layoutTransformer = transformer;
+        this.layoutTransformer = Function;
         this.layoutTransformer.addChangeListener(this);
     }
 
 
-	/* (non-Javadoc)
-	 * @see edu.uci.ics.jung.visualization.MultiLayerTransformer#getLayoutTransformer()
-	 */
 	protected MutableTransformer getLayoutTransformer() {
 		return layoutTransformer;
 	}
 
-	/* (non-Javadoc)
-	 * @see edu.uci.ics.jung.visualization.MultiLayerTransformer#getViewTransformer()
-	 */
 	protected MutableTransformer getViewTransformer() {
 		return viewTransformer;
 	}
 
-	/* (non-Javadoc)
-	 * @see edu.uci.ics.jung.visualization.MultiLayerTransformer#inverseTransform(java.awt.geom.Point2D)
-	 */
 	public Point2D inverseTransform(Point2D p) {
 	    return inverseLayoutTransform(inverseViewTransform(p));
 	}
 	
-	/* (non-Javadoc)
-	 * @see edu.uci.ics.jung.visualization.MultiLayerTransformer#inverseViewTransform(java.awt.geom.Point2D)
-	 */
 	protected Point2D inverseViewTransform(Point2D p) {
 	    return viewTransformer.inverseTransform(p);
 	}
 
-    /* (non-Javadoc)
-	 * @see edu.uci.ics.jung.visualization.MultiLayerTransformer#inverseLayoutTransform(java.awt.geom.Point2D)
-	 */
     protected Point2D inverseLayoutTransform(Point2D p) {
         return layoutTransformer.inverseTransform(p);
     }
 
-	/* (non-Javadoc)
-	 * @see edu.uci.ics.jung.visualization.MultiLayerTransformer#transform(java.awt.geom.Point2D)
-	 */
 	public Point2D transform(Point2D p) {
 	    return viewTransform(layoutTransform(p));
 	}
     
-    /* (non-Javadoc)
-	 * @see edu.uci.ics.jung.visualization.MultiLayerTransformer#viewTransform(java.awt.geom.Point2D)
-	 */
     protected Point2D viewTransform(Point2D p) {
         return viewTransformer.transform(p);
     }
     
-    /* (non-Javadoc)
-	 * @see edu.uci.ics.jung.visualization.MultiLayerTransformer#layoutTransform(java.awt.geom.Point2D)
-	 */
     protected Point2D layoutTransform(Point2D p) {
         return layoutTransformer.transform(p);
     }
     
-	/* (non-Javadoc)
-	 * @see edu.uci.ics.jung.visualization.MultiLayerTransformer#inverseTransform(java.awt.Shape)
-	 */
 	public Shape inverseTransform(Shape shape) {
 	    return inverseLayoutTransform(inverseViewTransform(shape));
 	}
 	
-	/* (non-Javadoc)
-	 * @see edu.uci.ics.jung.visualization.MultiLayerTransformer#inverseViewTransform(java.awt.Shape)
-	 */
 	protected Shape inverseViewTransform(Shape shape) {
 	    return viewTransformer.inverseTransform(shape);
 	}
 
-    /* (non-Javadoc)
-	 * @see edu.uci.ics.jung.visualization.MultiLayerTransformer#inverseLayoutTransform(java.awt.Shape)
-	 */
     protected Shape inverseLayoutTransform(Shape shape) {
         return layoutTransformer.inverseTransform(shape);
     }
 
-	/* (non-Javadoc)
-	 * @see edu.uci.ics.jung.visualization.MultiLayerTransformer#transform(java.awt.Shape)
-	 */
 	public Shape transform(Shape shape) {
 	    return viewTransform(layoutTransform(shape));
 	}
     
-    /* (non-Javadoc)
-	 * @see edu.uci.ics.jung.visualization.MultiLayerTransformer#viewTransform(java.awt.Shape)
-	 */
     protected Shape viewTransform(Shape shape) {
         return viewTransformer.transform(shape);
     }
     
-    /* (non-Javadoc)
-	 * @see edu.uci.ics.jung.visualization.MultiLayerTransformer#layoutTransform(java.awt.Shape)
-	 */
     protected Shape layoutTransform(Shape shape) {
         return layoutTransformer.transform(shape);
     }
     
-    /* (non-Javadoc)
-	 * @see edu.uci.ics.jung.visualization.MultiLayerTransformer#setToIdentity()
-	 */
     public void setToIdentity() {
     	layoutTransformer.setToIdentity();
     	viewTransformer.setToIdentity();
     }
     
-    /* (non-Javadoc)
-     */
     public void addChangeListener(ChangeListener l) {
         changeSupport.addChangeListener(l);
     }
     
-    /* (non-Javadoc)
-     */
     public void removeChangeListener(ChangeListener l) {
         changeSupport.removeChangeListener(l);
     }
     
-    /* (non-Javadoc)
-     */
     public ChangeListener[] getChangeListeners() {
         return changeSupport.getChangeListeners();
     }
 
-    /* (non-Javadoc)
-     */
     public void fireStateChanged() {
         changeSupport.fireStateChanged();
     }   
     
-	/* (non-Javadoc)
-     */
 	public void stateChanged(ChangeEvent e) {
 	    fireStateChanged();
 	}
@@ -208,9 +147,9 @@ public class BasicTransformer implements MultiLayerTransformer,
 		return null;
 	}
 
-	public void setTransformer(Layer layer, MutableTransformer transformer) {
-		if(layer == Layer.LAYOUT) setLayoutTransformer(transformer);
-		if(layer == Layer.VIEW) setViewTransformer(transformer);
+	public void setTransformer(Layer layer, MutableTransformer Function) {
+		if(layer == Layer.LAYOUT) setLayoutTransformer(Function);
+		if(layer == Layer.VIEW) setViewTransformer(Function);
 		
 	}
 
@@ -231,5 +170,4 @@ public class BasicTransformer implements MultiLayerTransformer,
 		if(layer == Layer.VIEW) return inverseViewTransform(shape);
 		return null;
 	}
-
 }

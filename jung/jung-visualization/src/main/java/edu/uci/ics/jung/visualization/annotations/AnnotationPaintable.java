@@ -3,7 +3,7 @@
  * California All rights reserved.
  *
  * This software is open-source under the BSD license; see either "license.txt"
- * or http://jung.sourceforge.net/license.txt for a description.
+ * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  *
  * 
  */
@@ -39,8 +39,8 @@ import edu.uci.ics.jung.visualization.transform.MutableTransformer;
  */
 public class AnnotationPaintable implements Paintable {
 	
-	@SuppressWarnings("unchecked")
-    protected Set<Annotation> annotations = new HashSet<Annotation>();
+    @SuppressWarnings("rawtypes")
+	protected Set<Annotation> annotations = new HashSet<Annotation>();
     protected AnnotationRenderer annotationRenderer;
 
 	protected RenderContext<?,?> rc;
@@ -57,29 +57,26 @@ public class AnnotationPaintable implements Paintable {
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
-    public void add(Annotation annotation) {
+    public void add(Annotation<?> annotation) {
 		annotations.add(annotation);
 	}
 	
-	@SuppressWarnings("unchecked")
-    public void remove(Annotation annotation) {
+    public void remove(Annotation<?> annotation) {
 		annotations.remove(annotation);
 	}
 	
     /**
 	 * @return the annotations
 	 */
-	@SuppressWarnings("unchecked")
-    public Set<Annotation> getAnnotations() {
+    @SuppressWarnings("rawtypes")
+	public Set<Annotation> getAnnotations() {
 		return Collections.unmodifiableSet(annotations);
 	}
 
-	@SuppressWarnings("unchecked")
     public void paint(Graphics g) {
     	Graphics2D g2d = (Graphics2D)g;
         Color oldColor = g.getColor();
-        for(Annotation annotation : annotations) {
+        for(Annotation<?> annotation : annotations) {
         	Object ann = annotation.getAnnotation();
         	if(ann instanceof Shape) {
             	Shape shape = (Shape)ann;

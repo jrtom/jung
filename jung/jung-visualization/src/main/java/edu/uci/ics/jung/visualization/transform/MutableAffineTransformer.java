@@ -3,7 +3,7 @@
  * California All rights reserved.
  *
  * This software is open-source under the BSD license; see either "license.txt"
- * or http://jung.sourceforge.net/license.txt for a description.
+ * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  *
  * Created on Apr 16, 2005
  */
@@ -39,13 +39,14 @@ implements MutableTransformer, ShapeTransformer, ChangeEventSupport {
     
     /**
      * create an instance that does not transform points
-     *
      */
     public MutableAffineTransformer() {
         // nothing left to do
     }
+
     /**
      * Create an instance with the supplied transform
+     * @param transform the transform to use
      */
     public MutableAffineTransformer(AffineTransform transform) {
         super(transform);
@@ -54,12 +55,14 @@ implements MutableTransformer, ShapeTransformer, ChangeEventSupport {
     public String toString() {
         return "MutableAffineTransformer using "+transform;
     }
+
     /**
      * setter for the scale
      * fires a PropertyChangeEvent with the AffineTransforms representing
      * the previous and new values for scale and offset
-     * @param scalex
-     * @param scaley
+     * @param scalex the amount to scale in the x direction
+     * @param scaley the amount to scale in the y direction
+     * @param from the point to transform
      */
     public void scale(double scalex, double scaley, Point2D from) {
         AffineTransform xf = AffineTransform.getTranslateInstance(from.getX(),from.getY());
@@ -74,8 +77,9 @@ implements MutableTransformer, ShapeTransformer, ChangeEventSupport {
      * setter for the scale
      * fires a PropertyChangeEvent with the AffineTransforms representing
      * the previous and new values for scale and offset
-     * @param scalex
-     * @param scaley
+     * @param scalex the amount to scale in the x direction
+     * @param scaley the amount to scale in the y direction
+     * @param from the point to transform
      */
     public void setScale(double scalex, double scaley, Point2D from) {
         transform.setToIdentity();
@@ -86,6 +90,7 @@ implements MutableTransformer, ShapeTransformer, ChangeEventSupport {
      * shears the transform by passed parameters
      * @param shx x value to shear
      * @param shy y value to shear
+     * @param from the point to transform
      */
     public void shear(double shx, double shy, Point2D from) {
         inverse = null;
@@ -98,11 +103,11 @@ implements MutableTransformer, ShapeTransformer, ChangeEventSupport {
     }
     
     /**
-     * replace the Transform's translate x and y values
+     * Replace the Transform's translate x and y values
      * with the passed values, leaving the scale values
-     * unchanged
-     * @param tx the x value 
-     * @param ty the y value
+     * unchanged.
+     * @param tx the x value of the translation
+     * @param ty the y value of the translation
      */
     public void setTranslate(double tx, double ty) {
         float scalex = (float) transform.getScaleX();
@@ -131,6 +136,8 @@ implements MutableTransformer, ShapeTransformer, ChangeEventSupport {
     
     /**
      * preconcatenates the rotation at the supplied point with the current transform
+     * @param theta the angle by which to rotate the point
+     * @param from the point to transform
      */
     public void rotate(double theta, Point2D from) {
         AffineTransform rotate = 
@@ -143,6 +150,9 @@ implements MutableTransformer, ShapeTransformer, ChangeEventSupport {
     
     /**
      * rotates the current transform at the supplied points
+     * @param radians angle by which to rotate the supplied coordinates
+     * @param x the x coordinate of the point to transform
+     * @param y the y coordinate of the point to transform
      */
     public void rotate(double radians, double x, double y) {
         inverse = null;

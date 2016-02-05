@@ -5,7 +5,7 @@
  *
  * This software is open-source under the BSD license; see either
  * "license.txt" or
- * http://jung.sourceforge.net/license.txt for a description.
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  * Created on Mar 8, 2005
  *
  */
@@ -29,36 +29,51 @@ import edu.uci.ics.jung.visualization.transform.MutableTransformer;
 public class LensMagnificationGraphMousePlugin extends AbstractGraphMousePlugin
     implements MouseWheelListener {
 
-    protected float floor = 1.0f;
-    
-    protected float ceiling = 5.0f;
-    
-    protected float delta = .2f;
+    protected final float floor;
+    protected final float ceiling;
+    protected final float delta;
     
 	/**
-	 * create an instance with default zoom in/out values
+	 * Creates an instance with modifier of CTRL_MASK, and default min/max/delta zoom values
+	 * of 1/4/0.2.
 	 */
 	public LensMagnificationGraphMousePlugin() {
 	    this(MouseEvent.CTRL_MASK);
 	}
     
-    /**
-     * create an instance with passed modifiers
-     * @param modifiers
-     */
+	/**
+	 * Creates an instance with modifier of CTRL_MASK, and the specified zoom parameters.
+	 * @param floor the minimum zoom value
+	 * @param ceiling the maximum zoom value
+	 * @param delta the change in zoom value caused by each mouse event
+	 */
     public LensMagnificationGraphMousePlugin(float floor, float ceiling, float delta) {
         this(MouseEvent.CTRL_MASK, floor, ceiling, delta);
     }
     
+    /**
+     * Creates an instance with the specified modifiers and the default min/max/delta zoom values
+     * of 1/4/0.2.
+     * @param modifiers the mouse event modifiers to specify
+     */
     public LensMagnificationGraphMousePlugin(int modifiers) {
         this(modifiers, 1.0f, 4.0f, .2f);
     }
+    
+	/**
+	 * Creates an instance with the specified mouse event modifiers and zoom parameters.
+     * @param modifiers the mouse event modifiers to specify
+	 * @param floor the minimum zoom value
+	 * @param ceiling the maximum zoom value
+	 * @param delta the change in zoom value caused by each mouse event
+	 */
     public LensMagnificationGraphMousePlugin(int modifiers, float floor, float ceiling, float delta) {
         super(modifiers);
         this.floor = floor;
         this.ceiling = ceiling;
         this.delta = delta;
     }
+
     /**
      * override to check equality with a mask
      */
@@ -83,9 +98,11 @@ public class LensMagnificationGraphMousePlugin extends AbstractGraphMousePlugin
         boolean accepted = checkModifiers(e);
         float delta = this.delta;
         if(accepted == true) {
-            VisualizationViewer vv = (VisualizationViewer)e.getSource();
-            MutableTransformer modelTransformer = vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT);
-            MutableTransformer viewTransformer = vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.VIEW);
+            VisualizationViewer<?, ?> vv = (VisualizationViewer<?, ?>)e.getSource();
+            MutableTransformer modelTransformer = vv.getRenderContext().getMultiLayerTransformer()
+            	.getTransformer(Layer.LAYOUT);
+            MutableTransformer viewTransformer = vv.getRenderContext().getMultiLayerTransformer()
+            	.getTransformer(Layer.VIEW);
             int amount = e.getWheelRotation();
             if(amount < 0) {
                 delta = -delta;

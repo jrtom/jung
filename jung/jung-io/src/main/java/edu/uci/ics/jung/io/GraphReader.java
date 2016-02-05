@@ -5,7 +5,7 @@
  *
  * This software is open-source under the BSD license; see either
  * "license.txt" or
- * http://jung.sourceforge.net/license.txt for a description.
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  */
 
 package edu.uci.ics.jung.io;
@@ -19,9 +19,9 @@ import edu.uci.ics.jung.graph.Hypergraph;
  * 
  * @param <G>
  *            the graph type
- * @param <V>
+ * @param <V> the vertex type
  *            the vertex type
- * @param <E>
+ * @param <V> the edge type
  *            the edge type
  */
 public interface GraphReader<G extends Hypergraph<V, E>, V, E> {

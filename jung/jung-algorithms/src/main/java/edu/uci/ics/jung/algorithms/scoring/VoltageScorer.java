@@ -7,7 +7,7 @@
  *
  * This software is open-source under the BSD license; see either
  * "license.txt" or
- * http://jung.sourceforge.net/license.txt for a description.
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  */
 package edu.uci.ics.jung.algorithms.scoring;
 
@@ -16,7 +16,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 import edu.uci.ics.jung.algorithms.scoring.util.UniformDegreeWeight;
 import edu.uci.ics.jung.graph.Hypergraph;
@@ -34,17 +34,17 @@ import edu.uci.ics.jung.graph.Hypergraph;
  * 
  * <p>A few notes about this algorithm's interpretation of the graph data: 
  * <ul>
- * <li/>Higher edge weights are interpreted as indicative of greater 
+ * <li>Higher edge weights are interpreted as indicative of greater 
  * influence/effect than lower edge weights.  
- * <li/>Negative edge weights (and negative "source" voltages) invalidate
+ * <li>Negative edge weights (and negative "source" voltages) invalidate
  * the interpretation of the resultant values as voltages.  However, this 
  * algorithm will not reject graphs with negative edge weights or source voltages.
- * <li/>Parallel edges are equivalent to a single edge whose weight is the 
+ * <li>Parallel edges are equivalent to a single edge whose weight is the 
  * sum of the weights on the parallel edges.
- * <li/>Current flows along undirected edges in both directions, 
+ * <li>Current flows along undirected edges in both directions, 
  * but only flows along directed edges in the direction of the edge.
  * </ul>
- * </p> 
+ *  
  */
 public class VoltageScorer<V, E> extends AbstractIterativeScorer<V, E, Double>
         implements VertexScorer<V, Double>
@@ -60,7 +60,7 @@ public class VoltageScorer<V, E> extends AbstractIterativeScorer<V, E, Double>
      * @param source_voltages the (fixed) voltage for each source
      * @param sinks the vertices whose voltages are tied to 0
      */
-    public VoltageScorer(Hypergraph<V, E> g, Transformer<E, ? extends Number> edge_weights, 
+    public VoltageScorer(Hypergraph<V, E> g, Function<? super E, ? extends Number> edge_weights, 
             Map<V, ? extends Number> source_voltages, Collection<V> sinks)
     {
         super(g, edge_weights);
@@ -77,7 +77,7 @@ public class VoltageScorer<V, E> extends AbstractIterativeScorer<V, E, Double>
      * @param sources the vertices whose voltages are tied to 1
      * @param sinks the vertices whose voltages are tied to 0
      */
-    public VoltageScorer(Hypergraph<V, E> g, Transformer<E, ? extends Number> edge_weights, 
+    public VoltageScorer(Hypergraph<V, E> g, Function<? super E, ? extends Number> edge_weights, 
             Collection<V> sources, Collection<V> sinks)
     {
         super(g, edge_weights);
@@ -137,7 +137,7 @@ public class VoltageScorer<V, E> extends AbstractIterativeScorer<V, E, Double>
      * @param source the vertex whose voltage is tied to 1
      * @param sink the vertex whose voltage is tied to 0
      */
-    public VoltageScorer(Hypergraph<V,E> g, Transformer<E, ? extends Number> edge_weights, 
+    public VoltageScorer(Hypergraph<V,E> g, Function<? super E, ? extends Number> edge_weights, 
     		V source, V sink)
     {
         this(g, edge_weights, Collections.singletonMap(source, 1.0), Collections.singletonList(sink));

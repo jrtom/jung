@@ -3,7 +3,7 @@
  * California All rights reserved.
  * 
  * This software is open-source under the BSD license; see either "license.txt"
- * or http://jung.sourceforge.net/license.txt for a description.
+ * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  * Created on Feb 2, 2005
  *
  */
@@ -57,7 +57,7 @@ import edu.uci.ics.jung.visualization.transform.shape.Intersector;
  */
 @SuppressWarnings("serial")
 public class GraphZoomScrollPane extends JPanel {
-    protected VisualizationViewer vv;
+    protected VisualizationViewer<?, ?> vv;
     protected JScrollBar horizontalScrollBar;
     protected JScrollBar verticalScrollBar;
     protected JComponent corner;
@@ -67,9 +67,9 @@ public class GraphZoomScrollPane extends JPanel {
     /**
      * Create an instance of the GraphZoomScrollPane to contain the
      * VisualizationViewer
-     * @param vv
+     * @param vv the VisualizationViewer for which this instance is to be created
      */
-    public GraphZoomScrollPane(VisualizationViewer vv) {
+    public GraphZoomScrollPane(VisualizationViewer<?, ?> vv) {
         super(new BorderLayout());
         this.vv = vv;
         addComponentListener(new ResizeListener());        
@@ -85,8 +85,8 @@ public class GraphZoomScrollPane extends JPanel {
         vv.addChangeListener(
                 new ChangeListener(){
             public void stateChanged(ChangeEvent evt) {
-                VisualizationViewer vv = 
-                    (VisualizationViewer)evt.getSource();
+                VisualizationViewer<?, ?> vv = 
+                    (VisualizationViewer<?, ?>)evt.getSource();
                 setScrollBars(vv);
             }
         });
@@ -147,7 +147,7 @@ public class GraphZoomScrollPane extends JPanel {
      * a ChangeEvent from the VisualizationViewer
      * @param xform the transform of the VisualizationViewer
      */
-    private void setScrollBars(VisualizationViewer vv) {
+    private void setScrollBars(VisualizationViewer<?, ?> vv) {
         Dimension d = vv.getGraphLayout().getSize();
         Rectangle2D vvBounds = vv.getBounds();
         
@@ -178,7 +178,6 @@ public class GraphZoomScrollPane extends JPanel {
         scrollBarsMayControlAdjusting = true;
     }
     
-    @SuppressWarnings("unchecked")
     protected void setScrollBarValues(Rectangle rectangle, 
             Point2D h0, Point2D h1, 
             Point2D v0, Point2D v1) {
@@ -196,7 +195,7 @@ public class GraphZoomScrollPane extends JPanel {
         int val = 0;
         int max;
         
-        Set points = intersector.getPoints();
+        Set<Point2D> points = intersector.getPoints();
         Point2D first = null;
         Point2D second = null;
         

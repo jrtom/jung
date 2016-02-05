@@ -3,7 +3,7 @@
  * California All rights reserved.
  *
  * This software is open-source under the BSD license; see either "license.txt"
- * or http://jung.sourceforge.net/license.txt for a description.
+ * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  *
  * Created on Jul 3, 2005
  */
@@ -17,8 +17,8 @@ import edu.uci.ics.jung.visualization.transform.shape.ShapeTransformer;
 import edu.uci.ics.jung.visualization.util.ChangeEventSupport;
 
 /**
- * Provides an API for the mutation of a transformer
- * and for adding listeners for changes on the transformer
+ * Provides an API for the mutation of a Function
+ * and for adding listeners for changes on the Function
  * 
  * @author Tom Nelson 
  *

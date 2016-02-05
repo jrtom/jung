@@ -5,7 +5,7 @@
  *
  * This software is open-source under the BSD license; see either
  * "license.txt" or
- * http://jung.sourceforge.net/license.txt for a description.
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  * Created on Apr 24, 2008
  *  
  */
@@ -29,9 +29,9 @@ import edu.uci.ics.jung.visualization.VisualizationServer;
  * the closest element to see whether it contains the pick point.
  * Possible unexpected odd behaviors:
  * <ul>
- * <li/>If the elements overlap, this mechanism may pick another element than the one that's 
+ * <li>If the elements overlap, this mechanism may pick another element than the one that's 
  * "on top" (rendered last) if the pick point is closer to the center of an obscured vertex.
- * <li/>If element shapes are not convex, then this mechanism may return <code>null</code>
+ * <li>If element shapes are not convex, then this mechanism may return <code>null</code>
  * even if the pick point is inside some element's shape, if the pick point is closer
  * to the center of another element.
  * </ul>
@@ -63,6 +63,7 @@ public class ClosestShapePickSupport<V,E> implements GraphElementAccessor<V,E> {
      * Create a <code>ShapePickSupport</code> with the <code>vv</code>
      * VisualizationServer and default pick footprint.
      * The footprint defaults to 2.
+     * @param vv source of the current <code>Layout</code>.
 	 */
 	public ClosestShapePickSupport(VisualizationServer<V,E> vv) 
 	{
@@ -91,7 +92,7 @@ public class ClosestShapePickSupport<V,E> implements GraphElementAccessor<V,E> {
 		    {
                 for(V v : layout.getGraph().getVertices()) 
                 {
-		            Point2D p = layout.transform(v);
+		            Point2D p = layout.apply(v);
 		            double dx = p.getX() - x;
 		            double dy = p.getY() - y;
 		            double dist = dx * dx + dy * dy;
@@ -109,9 +110,9 @@ public class ClosestShapePickSupport<V,E> implements GraphElementAccessor<V,E> {
 		// now check to see whether (x,y) is in the shape for this vertex.
 		
 		// get the vertex shape
-        Shape shape = vv.getRenderContext().getVertexShapeTransformer().transform(closest);
+        Shape shape = vv.getRenderContext().getVertexShapeTransformer().apply(closest);
         // get the vertex location
-        Point2D p = layout.transform(closest);
+        Point2D p = layout.apply(closest);
         // transform the vertex location to screen coords
         p = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, p);
         

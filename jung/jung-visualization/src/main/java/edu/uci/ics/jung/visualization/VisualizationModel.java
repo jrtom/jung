@@ -3,7 +3,7 @@
  * California All rights reserved.
  *
  * This software is open-source under the BSD license; see either "license.txt"
- * or http://jung.sourceforge.net/license.txt for a description.
+ * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  *
  * Created on May 4, 2005
  */
@@ -26,11 +26,11 @@ import edu.uci.ics.jung.visualization.util.ChangeEventSupport;
  */
 public interface VisualizationModel<V, E> extends ChangeEventSupport {
 
-
 	Relaxer getRelaxer();
-    /**
+
+	/**
      * set the graph Layout
-     * @param layout
+     * @param layout the layout to use
      */
     void setGraphLayout(Layout<V,E> layout);
     
@@ -38,19 +38,20 @@ public interface VisualizationModel<V, E> extends ChangeEventSupport {
      * Sets the graph Layout and initialize the Layout size to
      * the passed dimensions. The passed Dimension will often be
      * the size of the View that will display the graph.
-     * @param layout
-     * @param d
+     * @param layout the layout to use
+     * @param d the dimensions to use
      */
     void setGraphLayout(Layout<V,E> layout, Dimension d);
 
     /**
-     * Returns the current graph layout.
+     * @return the current graph layout
      */
     Layout<V,E> getGraphLayout();
 
     /**
      * Register <code>l</code> as a listeners to changes in the model. The View registers
      * in order to repaint itself when the model changes.
+     * @param l the listener to add
      */
     void addChangeListener(ChangeListener l);
 
@@ -68,5 +69,4 @@ public interface VisualizationModel<V, E> extends ChangeEventSupport {
      *         array if no listeners have been added
      */
     ChangeListener[] getChangeListeners();
-
 }

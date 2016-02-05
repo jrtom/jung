@@ -7,7 +7,7 @@
  *
  * This software is open-source under the BSD license; see either
  * "license.txt" or
- * http://jung.sourceforge.net/license.txt for a description.
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  */
 package edu.uci.ics.jung.graph.util;
 
@@ -27,7 +27,7 @@ import edu.uci.ics.jung.graph.Graph;
  * 
  * <p>At this time, users are responsible for resetting the indices 
  * (by calling <code>reset()</code>) if changes to the
- * graph make it appropriate.</p>
+ * graph make it appropriate.
  * 
  * @author Joshua O'Madadhain
  * @author Tom Nelson
@@ -41,9 +41,9 @@ public class DefaultParallelEdgeIndexFunction<V,E> implements EdgeIndexFunction<
     }
     
     /**
-     * Returns an instance of this class.
      * @param <V> the vertex type
      * @param <E> the edge type
+     * @return an instance of this class
      */
     public static <V,E> DefaultParallelEdgeIndexFunction<V,E> getInstance() {
         return new DefaultParallelEdgeIndexFunction<V,E>();
@@ -54,7 +54,7 @@ public class DefaultParallelEdgeIndexFunction<V,E> implements EdgeIndexFunction<
      * Calculates the indices for <code>e</code> and for all edges parallel
      * to <code>e</code>, if they are not already assigned.
      */
-    public int getIndex(Graph<V,E> graph, E e)
+    public int getIndex(Graph<V, E> graph, E e)
     {
     	
         Integer index = edge_index.get(Context.<Graph<V,E>,E>getInstance(graph,e));
@@ -124,7 +124,9 @@ public class DefaultParallelEdgeIndexFunction<V,E> implements EdgeIndexFunction<
      * Resets the indices for this edge and its parallel edges.
      * Should be invoked when an edge parallel to <code>e</code>
      * has been added or removed.
-     * @param e
+     * @param graph the graph for which the indices are to be reset
+     * @param e the edge whose indices are to be reset
+     * 
      */
     public void reset(Graph<V,E> graph, E e) {
     	Pair<V> endpoints = graph.getEndpoints(e);

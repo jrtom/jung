@@ -5,7 +5,7 @@
  *
  * This software is open-source under the BSD license; see either
  * "license.txt" or
- * http://jung.sourceforge.net/license.txt for a description.
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  */
 /*
  * Created on Feb 17, 2004
@@ -31,8 +31,8 @@ public class MouseListenerTranslator<V, E> extends MouseAdapter {
 	private GraphMouseListener<V> gel;
 
 	/**
-	 * @param gel
-	 * @param vv
+	 * @param gel listens for mouse events
+	 * @param vv the viewer used for visualization
 	 */
 	public MouseListenerTranslator(GraphMouseListener<V> gel, VisualizationViewer<V,E> vv) {
 		this.gel = gel;

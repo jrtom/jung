@@ -7,7 +7,7 @@
  *
  * This software is open-source under the BSD license; see either
  * "license.txt" or
- * http://jung.sourceforge.net/license.txt for a description.
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  */
 package edu.uci.ics.jung.visualization.decorators;
 
@@ -16,7 +16,8 @@ import java.awt.GradientPaint;
 import java.awt.Paint;
 import java.awt.geom.Point2D;
 
-import org.apache.commons.collections15.Predicate;
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.algorithms.util.SelfLoopEdgePredicate;
@@ -39,7 +40,7 @@ import edu.uci.ics.jung.visualization.transform.BidirectionalTransformer;
  * @author Joshua O'Madadhain
  */
 public class GradientEdgePaintTransformer<V, E> 
-	implements org.apache.commons.collections15.Transformer<E,Paint>
+	implements Function<E,Paint>
 {
     protected Color c1;
     protected Color c2;
@@ -56,14 +57,14 @@ public class GradientEdgePaintTransformer<V, E>
         this.transformer = vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT);
     }
     
-    public Paint transform(E e)
+    public Paint apply(E e)
     {
         Layout<V, E> layout = vv.getGraphLayout();
         Pair<V> p = layout.getGraph().getEndpoints(e);
         V b = p.getFirst();
         V f = p.getSecond();
-        Point2D pb = transformer.transform(layout.transform(b));
-        Point2D pf = transformer.transform(layout.transform(f));
+        Point2D pb = transformer.transform(layout.apply(b));
+        Point2D pf = transformer.transform(layout.apply(f));
         float xB = (float) pb.getX();
         float yB = (float) pb.getY();
         float xF = (float) pf.getX();
@@ -72,7 +73,7 @@ public class GradientEdgePaintTransformer<V, E>
             xF = (xF + xB) / 2;
             yF = (yF + yB) / 2;
         } 
-        if(selfLoop.evaluate(Context.<Graph<V,E>,E>getInstance(layout.getGraph(), e))) {
+        if(selfLoop.apply(Context.<Graph<V,E>,E>getInstance(layout.getGraph(), e))) {
         	yF += 50;
         	xF += 50;
         }
@@ -84,6 +85,8 @@ public class GradientEdgePaintTransformer<V, E>
      * Returns <code>c1</code>.  Subclasses may override
      * this method to enable more complex behavior (e.g., for
      * picked edges).
+     * @param e the edge for which a color is to be retrieved
+     * @return the constructor-supplied color {@code c1}
      */
     protected Color getColor1(E e)
     {
@@ -94,6 +97,8 @@ public class GradientEdgePaintTransformer<V, E>
      * Returns <code>c2</code>.  Subclasses may override
      * this method to enable more complex behavior (e.g., for
      * picked edges).
+     * @param e the edge for which a color is to be retrieved
+     * @return the constructor-supplied color {@code c2}
      */
     protected Color getColor2(E e)
     {

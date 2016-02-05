@@ -1,7 +1,6 @@
 package edu.uci.ics.jung.graph;
 
-import org.apache.commons.collections15.Factory;
-
+import com.google.common.base.Supplier;
 
 public class SparseTreeTest extends AbstractSparseTreeTest {
 
@@ -12,9 +11,9 @@ public class SparseTreeTest extends AbstractSparseTreeTest {
 	protected void setUp() throws Exception {
 		super.setUp();
 		graphFactory = DirectedSparseMultigraph.<String,Integer>getFactory();
-		edgeFactory = new Factory<Integer>() {
+		edgeFactory = new Supplier<Integer>() {
 			int i=0;
-			public Integer create() {
+			public Integer get() {
 				return i++;
 			}};
 		tree = new DelegateTree<String,Integer>(graphFactory);

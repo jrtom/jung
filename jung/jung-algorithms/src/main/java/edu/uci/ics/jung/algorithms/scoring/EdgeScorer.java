@@ -7,7 +7,7 @@
  *
  * This software is open-source under the BSD license; see either
  * "license.txt" or
- * http://jung.sourceforge.net/license.txt for a description.
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  */
 package edu.uci.ics.jung.algorithms.scoring;
 
@@ -21,7 +21,7 @@ package edu.uci.ics.jung.algorithms.scoring;
 public interface EdgeScorer<E, S>
 {
     /**
-     * Returns the algorithm's score for this edge.
+     * @param e the edge whose score is requested
      * @return the algorithm's score for this edge
      */
     public S getEdgeScore(E e);

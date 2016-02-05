@@ -3,7 +3,7 @@
  * California All rights reserved.
  *
  * This software is open-source under the BSD license; see either "license.txt"
- * or http://jung.sourceforge.net/license.txt for a description.
+ * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  *
  * Created on Apr 14, 2005
  */
@@ -23,11 +23,9 @@ import javax.swing.border.EmptyBorder;
 
 /**
  * DefaultVertexLabelRenderer is similar to the cell renderers
- * used by the JTable and JTree jfc classes.
+ * used by the JTable and JTree JFC classes.
  * 
  * @author Tom Nelson
- *
- * 
  */
 @SuppressWarnings("serial")
 public class DefaultVertexLabelRenderer extends JLabel implements
@@ -39,6 +37,8 @@ public class DefaultVertexLabelRenderer extends JLabel implements
      
     /**
      * Creates a default table cell renderer.
+     * 
+     * @param pickedVertexLabelColor the color to use for rendering the labels of picked vertices
      */
     public DefaultVertexLabelRenderer(Color pickedVertexLabelColor) {
         this.pickedVertexLabelColor = pickedVertexLabelColor;
@@ -70,7 +70,7 @@ public class DefaultVertexLabelRenderer extends JLabel implements
 
     /**
      * Notification from the <code>UIManager</code> that the look and feel
-     * [L&F] has changed.
+     * has changed.
      * Replaces the current UI object with the latest version from the 
      * <code>UIManager</code>.
      *

@@ -7,14 +7,14 @@
  *
  * This software is open-source under the BSD license; see either
  * "license.txt" or
- * http://jung.sourceforge.net/license.txt for a description.
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  */
 package edu.uci.ics.jung.algorithms.scoring;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 import edu.uci.ics.jung.algorithms.shortestpath.DijkstraDistance;
 import edu.uci.ics.jung.algorithms.shortestpath.Distance;
@@ -50,7 +50,7 @@ public class DistanceCentralityScorer<V,E> implements VertexScorer<V, Double>
     
     /**
      * The cache for the output results.  Null encodes "not yet calculated",
-     * < 0 encodes "no such distance exists".
+     * &lt; 0 encodes "no such distance exists".
      */
     protected Map<V, Double> output;
     
@@ -132,7 +132,7 @@ public class DistanceCentralityScorer<V,E> implements VertexScorer<V, Double>
      * to itself should be included in its score.
      */
     public DistanceCentralityScorer(Hypergraph<V,E> graph, 
-            Transformer<E, ? extends Number> edge_weights, boolean averaging,
+            Function<E, ? extends Number> edge_weights, boolean averaging,
             boolean ignore_missing, boolean ignore_self_distances)
     {
         this(graph, new DijkstraDistance<V,E>(graph, edge_weights), averaging,
@@ -149,7 +149,7 @@ public class DistanceCentralityScorer<V,E> implements VertexScorer<V, Double>
      * all v-distances or the mean v-distance.
      */
     public DistanceCentralityScorer(Hypergraph<V,E> graph, 
-            Transformer<E, ? extends Number> edge_weights, boolean averaging)
+            Function<E, ? extends Number> edge_weights, boolean averaging)
     {
         this(graph, new DijkstraDistance<V,E>(graph, edge_weights), averaging,
         	true, true);

@@ -10,7 +10,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import org.apache.commons.collections15.Factory;
+import com.google.common.base.Supplier;
 
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.SparseMultigraph;
@@ -33,22 +33,22 @@ public class TestBarabasiAlbert extends TestCase {
         int num_tests = 10;
         int num_timesteps = 10;
         
-        Factory<Graph<Integer,Number>> graphFactory =
-        	new Factory<Graph<Integer,Number>>() {
-        	public Graph<Integer,Number> create() {
+        Supplier<Graph<Integer,Number>> graphFactory =
+        	new Supplier<Graph<Integer,Number>>() {
+        	public Graph<Integer,Number> get() {
         		return new SparseMultigraph<Integer,Number>();
         	}
         };
-    	Factory<Integer> vertexFactory = 
-    		new Factory<Integer>() {
+    	Supplier<Integer> vertexFactory = 
+    		new Supplier<Integer>() {
     			int count;
-				public Integer create() {
+				public Integer get() {
 					return count++;
 				}};
-		Factory<Number> edgeFactory = 
-		    new Factory<Number>() {
+		Supplier<Number> edgeFactory = 
+		    new Supplier<Number>() {
 			    int count;
-				public Number create() {
+				public Number get() {
 					return count++;
 				}};
 
@@ -58,7 +58,7 @@ public class TestBarabasiAlbert extends TestCase {
 	    for (int i = 1; i <= num_tests; i++) {
 	        
 	        generator.evolveGraph(num_timesteps);
-	        Graph<Integer, Number> graph = generator.create();
+	        Graph<Integer, Number> graph = generator.get();
 	        assertEquals(graph.getVertexCount(), (i*num_timesteps) + init_vertices);
 	        assertEquals(graph.getEdgeCount(), edges_to_add_per_timestep * (i*num_timesteps));
 	    }

@@ -7,7 +7,7 @@
  *
  * This software is open-source under the BSD license; see either
  * "license.txt" or
- * http://jung.sourceforge.net/license.txt for a description.
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  */
 package edu.uci.ics.jung.visualization.util;
 
@@ -17,7 +17,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.apache.commons.collections15.Predicate;
+import com.google.common.base.Predicate;
 
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.EdgeIndexFunction;
@@ -32,24 +32,31 @@ import edu.uci.ics.jung.graph.util.Pair;
  *
  */
 public class PredicatedParallelEdgeIndexFunction<V,E> implements EdgeIndexFunction<V,E> {
-	
     protected Map<E, Integer> edge_index = new HashMap<E, Integer>();
     protected Predicate<E> predicate;
     
+	/**
+     * @param graph the graph with respect to which the index is calculated
+	 */
     private PredicatedParallelEdgeIndexFunction() {
     }
     
     public static <V,E> PredicatedParallelEdgeIndexFunction<V,E> getInstance() {
         return new PredicatedParallelEdgeIndexFunction<V,E>();
     }
+
     /**
      * Returns the index for the specified edge.
      * Calculates the indices for <code>e</code> and for all edges parallel
      * to <code>e</code>.
+     * @param graph the graph with respect to which the index is calculated
+     * @param e the edge whose index is to be calculated
+     * 
+     * @return the index of the edge with respect to this index function
      */
-    public int getIndex(Graph<V,E> graph, E e) {
+    public int getIndex(Graph<V, E> graph, E e) {
     	
-    	if(predicate.evaluate(e)) {
+    	if(predicate.apply(e)) {
     		return 0;
     	}
         Integer index = edge_index.get(e);
@@ -113,16 +120,10 @@ public class PredicatedParallelEdgeIndexFunction<V,E> implements EdgeIndexFuncti
     	return count;
     }
 
-	/**
-	 * @return the predicate
-	 */
 	public Predicate<E> getPredicate() {
 		return predicate;
 	}
 
-	/**
-	 * @param predicate the predicate to set
-	 */
 	public void setPredicate(Predicate<E> predicate) {
 		this.predicate = predicate;
 	}
@@ -130,8 +131,9 @@ public class PredicatedParallelEdgeIndexFunction<V,E> implements EdgeIndexFuncti
 	/**
      * Resets the indices for this edge and its parallel edges.
      * Should be invoked when an edge parallel to <code>e</code>
-     * has been added or removed.
-     * @param e
+     * has been added or removed in this graph.
+     * @param graph the graph with respect to which the index is calculated
+     * @param e the edge whose indices are to be reset for {@code graph}
      */
     public void reset(Graph<V,E> graph, E e) {
     	Pair<V> endpoints = graph.getEndpoints(e);

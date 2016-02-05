@@ -3,7 +3,7 @@
  * California All rights reserved.
  *
  * This software is open-source under the BSD license; see either "license.txt"
- * or http://jung.sourceforge.net/license.txt for a description.
+ * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  *
  * Created on Aug 23, 2005
  */
@@ -20,10 +20,6 @@ import edu.uci.ics.jung.visualization.RenderContext;
 
 public class CenterEdgeArrowRenderingSupport<V,E> implements EdgeArrowRenderingSupport<V,E> {
 
-    /**
-     * Returns a transform to position the arrowhead on this edge shape at the
-     * point where it intersects the passed vertex shape.
-     */
     public AffineTransform getArrowTransform(RenderContext<V,E> rc, Shape edgeShape, Shape vertexShape) {
     	GeneralPath path = new GeneralPath(edgeShape);
         float[] seg = new float[6];
@@ -57,24 +53,18 @@ public class CenterEdgeArrowRenderingSupport<V,E> implements EdgeArrowRenderingS
         return at;
     }
 
-    /**
-     * Returns a transform to position the arrowhead on this edge shape at the
-     * point where it intersects the passed vertex shape.
-     */
     public AffineTransform getReverseArrowTransform(RenderContext<V,E> rc, Shape edgeShape, Shape vertexShape) {
         return getReverseArrowTransform(rc, edgeShape, vertexShape, true);
     }
             
     /**
-     * <p>Returns a transform to position the arrowhead on this edge shape at the
-     * point where it intersects the passed vertex shape.</p>
+     * Returns a transform to position the arrowhead on this edge shape at the
+     * point where it intersects the passed vertex shape.
      * 
-     * <p>The Loop edge is a special case because its staring point is not inside
-     * the vertex. The passedGo flag handles this case.</p>
-     * 
-     * @param path
-     * @param vertexShape
-     * @param passedGo - used only for Loop edges
+     * @param rc the rendering context used for rendering the arrow
+     * @param edgeShape the shape used to draw the edge
+     * @param vertexShape the shape used to draw the vertex
+     * @param passedGo (ignored in this implementation)
      */
     public AffineTransform getReverseArrowTransform(RenderContext<V,E> rc, Shape edgeShape, Shape vertexShape,
             boolean passedGo) {
@@ -109,15 +99,6 @@ public class CenterEdgeArrowRenderingSupport<V,E> implements EdgeArrowRenderingS
         return at;
     }
 
-    /**
-     * This is used for the arrow of a directed and for one of the
-     * arrows for non-directed edges
-     * Get a transform to place the arrow shape on the passed edge at the
-     * point where it intersects the passed shape
-     * @param edgeShape
-     * @param vertexShape
-     * @return
-     */
     public AffineTransform getArrowTransform(RenderContext<V,E> rc, Line2D edgeShape, Shape vertexShape) {
         
         // find the midpoint of the edgeShape line, and use it to make the transform
@@ -134,15 +115,8 @@ public class CenterEdgeArrowRenderingSupport<V,E> implements EdgeArrowRenderingS
         return at;
     }
 
-    /**
-     * This is used for the reverse-arrow of a non-directed edge
-     * get a transform to place the arrow shape on the passed edge at the
-     * point where it intersects the passed shape
-     * @param edgeShape
-     * @param vertexShape
-     * @return
-     */
-    protected AffineTransform getReverseArrowTransform(RenderContext<V,E> rc, Line2D edgeShape, Shape vertexShape) {
+    protected AffineTransform getReverseArrowTransform(RenderContext<V,E> rc,
+    		Line2D edgeShape, Shape vertexShape) {
         // find the midpoint of the edgeShape line, and use it to make the transform
         Line2D left = new Line2D.Float();
         Line2D right = new Line2D.Float();
@@ -181,5 +155,4 @@ public class CenterEdgeArrowRenderingSupport<V,E> implements EdgeArrowRenderingS
             right.setLine(mx, my, x2, y2);
         }
     }
-
 }

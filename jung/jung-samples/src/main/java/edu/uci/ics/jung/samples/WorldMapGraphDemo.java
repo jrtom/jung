@@ -3,7 +3,7 @@
  * California All rights reserved.
  * 
  * This software is open-source under the BSD license; see either "license.txt"
- * or http://jung.sourceforge.net/license.txt for a description.
+ * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  * 
  */
 package edu.uci.ics.jung.samples;
@@ -29,8 +29,8 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import org.apache.commons.collections15.Transformer;
-import org.apache.commons.collections15.functors.ChainedTransformer;
+import com.google.common.base.Function;
+import com.google.common.base.Functions;
 
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.algorithms.layout.StaticLayout;
@@ -123,10 +123,14 @@ public class WorldMapGraphDemo extends JApplet {
         Dimension layoutSize = new Dimension(2000,1000);
         
         Layout<String,Number> layout = new StaticLayout<String,Number>(graph,
-        		new ChainedTransformer(new Transformer[]{
-        				new CityTransformer(map),
-        				new LatLonPixelTransformer(new Dimension(2000,1000))
-        		}));
+        		Functions.<String,String[],Point2D>compose(
+        				new LatLonPixelTransformer(new Dimension(2000,1000)),
+        				new CityTransformer(map))
+        		);
+//        		new ChainedTransformer(new Function[]{
+//        				new CityTransformer(map),
+//        				new LatLonPixelTransformer(new Dimension(2000,1000))
+//        		}));
         	
         layout.setSize(layoutSize);
         vv =  new VisualizationViewer<String,Number>(layout,
@@ -163,8 +167,8 @@ public class WorldMapGraphDemo extends JApplet {
         
         // add my listeners for ToolTips
         vv.setVertexToolTipTransformer(new ToStringLabeller());
-        vv.setEdgeToolTipTransformer(new Transformer<Number,String>() {
-			public String transform(Number edge) {
+        vv.setEdgeToolTipTransformer(new Function<Number,String>() {
+			public String apply(Number edge) {
 				return "E"+graph.getEndpoints(edge).toString();
 			}});
         
@@ -174,16 +178,13 @@ public class WorldMapGraphDemo extends JApplet {
         
         final GraphZoomScrollPane panel = new GraphZoomScrollPane(vv);
         add(panel);
-        final AbstractModalGraphMouse graphMouse = new DefaultModalGraphMouse();
+        final AbstractModalGraphMouse graphMouse = new DefaultModalGraphMouse<String, Number>();
         vv.setGraphMouse(graphMouse);
         
         vv.addKeyListener(graphMouse.getModeKeyListener());
         vv.setToolTipText("<html><center>Type 'p' for Pick mode<p>Type 't' for Transform mode");
         
         final ScalingControl scaler = new CrossoverScalingControl();
-        
-//        vv.scaleToLayout(scaler);
-
 
         JButton plus = new JButton("+");
         plus.addActionListener(new ActionListener() {
@@ -240,7 +241,7 @@ public class WorldMapGraphDemo extends JApplet {
     	return cityList.get((int)(Math.random()*m));
     }
     
-    static class CityTransformer implements Transformer<String,String[]> {
+    static class CityTransformer implements Function<String,String[]> {
 
     	Map<String,String[]> map;
     	public CityTransformer(Map<String,String[]> map) {
@@ -250,12 +251,12 @@ public class WorldMapGraphDemo extends JApplet {
     	/**
     	 * transform airport code to latlon string
     	 */
-		public String[] transform(String city) {
+		public String[] apply(String city) {
 			return map.get(city);
 		}
     }
     
-    static class LatLonPixelTransformer implements Transformer<String[],Point2D> {
+    static class LatLonPixelTransformer implements Function<String[],Point2D> {
     	Dimension d;
     	int startOffset;
     	
@@ -265,7 +266,7 @@ public class WorldMapGraphDemo extends JApplet {
     	/**
     	 * transform a lat
     	 */
-		public Point2D transform(String[] latlon) {
+		public Point2D apply(String[] latlon) {
 			double latitude = 0;
 			double longitude = 0;
 			String[] lat = latlon[0].split(" ");
@@ -293,9 +294,6 @@ public class WorldMapGraphDemo extends JApplet {
     	
     }
 
-    /**
-     * a driver for this demo
-     */
     public static void main(String[] args) {
         // create a frome to hold the graph
         final JFrame frame = new JFrame();

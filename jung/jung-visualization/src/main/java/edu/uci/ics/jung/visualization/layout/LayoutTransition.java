@@ -20,10 +20,6 @@ public class LayoutTransition<V,E> implements IterativeContext {
 	protected int counter = 0;
 	protected VisualizationViewer<V,E> vv;
 
-	/**
-	 * @param startLayout
-	 * @param endLayout
-	 */
 	public LayoutTransition(VisualizationViewer<V,E> vv, Layout<V, E> startLayout, Layout<V, E> endLayout) {
 		this.vv = vv;
 		this.startLayout = startLayout;
@@ -44,8 +40,8 @@ public class LayoutTransition<V,E> implements IterativeContext {
 	public void step() {
 		Graph<V,E> g = transitionLayout.getGraph();
 		for(V v : g.getVertices()) {
-			Point2D tp = transitionLayout.transform(v);
-			Point2D fp = endLayout.transform(v);
+			Point2D tp = transitionLayout.apply(v);
+			Point2D fp = endLayout.apply(v);
 			double dx = (fp.getX()-tp.getX())/(count-counter);
 			double dy = (fp.getY()-tp.getY())/(count-counter);
 			transitionLayout.setLocation(v, 

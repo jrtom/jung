@@ -7,14 +7,14 @@
  *
  * This software is open-source under the BSD license; see either
  * "license.txt" or
- * http://jung.sourceforge.net/license.txt for a description.
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  */
 package edu.uci.ics.jung.algorithms.scoring;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 import edu.uci.ics.jung.algorithms.scoring.util.DelegateToEdgeTransformer;
 import edu.uci.ics.jung.algorithms.scoring.util.VEPair;
@@ -35,7 +35,7 @@ public abstract class AbstractIterativeScorer<V,E,T> implements IterativeContext
     protected int max_iterations;
     
     /**
-     * Minimum change from one step to the next; if all changes are <= tolerance, 
+     * Minimum change from one step to the next; if all changes are &le; tolerance, 
      * no further updates will occur.
      * Defaults to 0.001.
      */
@@ -54,7 +54,7 @@ public abstract class AbstractIterativeScorer<V,E,T> implements IterativeContext
     /**
      * The edge weights used by this algorithm.
      */
-    protected Transformer<VEPair<V,E>, ? extends Number> edge_weights;
+    protected Function<VEPair<V,E>, ? extends Number> edge_weights;
     
     /**
      * Indicates whether the output and current values are in a 'swapped' state.
@@ -133,7 +133,8 @@ public abstract class AbstractIterativeScorer<V,E,T> implements IterativeContext
      * @param g the graph for which the instance is to be created
      * @param edge_weights the edge weights for this instance
      */
-    public AbstractIterativeScorer(Hypergraph<V,E> g, Transformer<E, ? extends Number> edge_weights)
+    public AbstractIterativeScorer(Hypergraph<V,E> g, 
+    		Function<? super E, ? extends Number> edge_weights)
     {
         this.graph = g;
         this.max_iterations = 100;
@@ -219,9 +220,8 @@ public abstract class AbstractIterativeScorer<V,E,T> implements IterativeContext
 
     /**
      * Updates the value for <code>v</code>.
-     * This is the key 
      * @param v the vertex whose value is to be updated
-     * @return
+     * @return the updated value
      */
     protected abstract double update(V v);
 
@@ -290,20 +290,20 @@ public abstract class AbstractIterativeScorer<V,E,T> implements IterativeContext
     }
     
     /**
-     * Returns the Transformer that this instance uses to associate edge weights with each edge.
-     * @return the Transformer that associates an edge weight with each edge
+     * Returns the Function that this instance uses to associate edge weights with each edge.
+     * @return the Function that associates an edge weight with each edge
      */
-    public Transformer<VEPair<V,E>, ? extends Number> getEdgeWeights()
+    public Function<VEPair<V,E>, ? extends Number> getEdgeWeights()
     {
         return edge_weights;
     }
 
     /**
-     * Sets the Transformer that this instance uses to associate edge weights with each edge
-     * @param edge_weights the Transformer to use to associate an edge weight with each edge
+     * Sets the Function that this instance uses to associate edge weights with each edge
+     * @param edge_weights the Function to use to associate an edge weight with each edge
      * @see edu.uci.ics.jung.algorithms.scoring.util.UniformDegreeWeight
      */
-    public void setEdgeWeights(Transformer<E, ? extends Number> edge_weights)
+    public void setEdgeWeights(Function<? super E, ? extends Number> edge_weights)
     {
         this.edge_weights = new DelegateToEdgeTransformer<V,E>(edge_weights);
     }
@@ -316,13 +316,13 @@ public abstract class AbstractIterativeScorer<V,E,T> implements IterativeContext
      */
     protected Number getEdgeWeight(V v, E e)
     {
-        return edge_weights.transform(new VEPair<V,E>(v,e));
+        return edge_weights.apply(new VEPair<V,E>(v,e));
     }
     
     /**
      * Collects the 'potential' from v (its current value) if it has no outgoing edges; this
      * can then be redistributed among the other vertices as a means of normalization.
-     * @param v
+     * @param v the vertex whose potential is being collected
      */
     protected void collectDisappearingPotential(V v) {}
 
@@ -360,6 +360,8 @@ public abstract class AbstractIterativeScorer<V,E,T> implements IterativeContext
      * the graph is a binary relation or if hyperedges are treated as self-loops,
      * the value returned is {@code graph.getIncidentCount(e)}; otherwise it is
      * {@code graph.getIncidentCount(e) - 1}.
+     * @param e the edge whose incident edge count is requested
+     * @return the edge count, adjusted based on how hyperedges are treated
      */
     protected int getAdjustedIncidentCount(E e) 
     {

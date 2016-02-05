@@ -3,7 +3,7 @@
  * California All rights reserved.
  *
  * This software is open-source under the BSD license; see either "license.txt"
- * or http://jung.sourceforge.net/license.txt for a description.
+ * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  *
  * Created on Jul 9, 2005
  */
@@ -16,8 +16,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections15.Transformer;
-import org.apache.commons.collections15.map.LazyMap;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 
 import edu.uci.ics.jung.graph.Forest;
 import edu.uci.ics.jung.graph.util.TreeUtils;
@@ -33,17 +34,18 @@ import edu.uci.ics.jung.graph.util.TreeUtils;
  */
 public class BalloonLayout<V,E> extends TreeLayout<V,E> {
 
-    protected Map<V,PolarPoint> polarLocations =
-    	LazyMap.decorate(new HashMap<V, PolarPoint>(),
-    			new Transformer<V,PolarPoint>() {
-					public PolarPoint transform(V arg0) {
-						return new PolarPoint();
-					}});
+    protected LoadingCache<V, PolarPoint> polarLocations
+    	= CacheBuilder.newBuilder().build(new CacheLoader<V, PolarPoint>() {
+    		public PolarPoint load(V vertex) {
+    			return new PolarPoint();
+    		}
+	});
     
     protected Map<V,Double> radii = new HashMap<V,Double>();
     
     /**
      * Creates an instance based on the input forest.
+     * @param g the forest on which this layout will operate
      */
     public BalloonLayout(Forest<V,E> g) 
     {
@@ -106,15 +108,15 @@ public class BalloonLayout<V,E> extends TreeLayout<V,E> {
     }
 
 	/**
-	 * Returns the coordinates of {@code v}'s parent, or the
-	 * center of this layout's area if it's a root.
+	 * @param v the vertex whose center is to be returned
+	 * @return the coordinates of {@code v}'s parent, or the center of this layout's area if it's a root.
 	 */
 	public Point2D getCenter(V v) {
 		V parent = graph.getParent(v);
 		if(parent == null) {
 			return getCenter();
 		}
-		return locations.get(parent);
+		return locations.getUnchecked(parent);
 	}
 
 	@Override
@@ -122,7 +124,7 @@ public class BalloonLayout<V,E> extends TreeLayout<V,E> {
 		Point2D c = getCenter(v);
 		Point2D pv = new Point2D.Double(location.getX()-c.getX(),location.getY()-c.getY());
 		PolarPoint newLocation = PolarPoint.cartesianToPolar(pv);
-		polarLocations.get(v).setLocation(newLocation);
+		polarLocations.getUnchecked(v).setLocation(newLocation);
 		
 		Point2D center = getCenter(v);
 		pv.setLocation(pv.getX()+center.getX(), pv.getY()+center.getY());
@@ -130,8 +132,8 @@ public class BalloonLayout<V,E> extends TreeLayout<V,E> {
 	}
 
 	@Override
-    public Point2D transform(V v) {
-		return locations.get(v);
+    public Point2D apply(V v) {
+		return locations.getUnchecked(v);
 	}
 
 	/**

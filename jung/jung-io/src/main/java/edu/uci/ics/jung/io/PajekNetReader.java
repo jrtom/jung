@@ -7,7 +7,7 @@
  *
  * This software is open-source under the BSD license; see either
  * "license.txt" or
- * http://jung.sourceforge.net/license.txt for a description.
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  */
 package edu.uci.ics.jung.io;
 
@@ -21,9 +21,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import org.apache.commons.collections15.Factory;
-import org.apache.commons.collections15.Predicate;
-import org.apache.commons.collections15.functors.OrPredicate;
+import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
+import com.google.common.base.Supplier;
 
 import edu.uci.ics.jung.algorithms.util.MapSettableTransformer;
 import edu.uci.ics.jung.algorithms.util.SettableTransformer;
@@ -39,13 +39,13 @@ import edu.uci.ics.jung.graph.util.EdgeType;
  * <p>If the edge constraints specify that the graph is strictly undirected,
  * and an "*Arcs" section is encountered, or if the edge constraints specify that the 
  * graph is strictly directed, and an "*Edges" section is encountered,
- * an <code>IllegalArgumentException</code> is thrown.</p>
+ * an <code>IllegalArgumentException</code> is thrown.
  * 
  * <p>If the edge constraints do not permit parallel edges, only the first encountered
- * of a set of parallel edges will be read; subsequent edges in that set will be ignored.</p>
+ * of a set of parallel edges will be read; subsequent edges in that set will be ignored.
  * 
  * <p>More restrictive edge constraints will cause vertices to be generated
- * that are more time- and space-efficient.</p>
+ * that are more time- and space-efficient.
  * 
  * At the moment, only supports the 
  * part of the specification that defines: 
@@ -57,13 +57,13 @@ import edu.uci.ics.jung.graph.util.EdgeType;
  * <li> edge weights (not compatible with edges specified in list form)
  * <br><b>note</b>: this version of PajekNetReader does not support multiple edge 
  * weights, as PajekNetFile does; this behavior is consistent with the NET format. 
- * <li/> vertex locations (x and y; z coordinate is ignored)
+ * <li> vertex locations (x and y; z coordinate is ignored)
  * </ul> <p>
  *
  * Here is an example format for a directed graph without edge weights 
  * and edges specified in list form: <br>
  * <pre>
- * *vertices <# of vertices> 
+ * *vertices [# of vertices] 
  * 1 "a" 
  * 2 "b" 
  * 3 "c" 
@@ -75,7 +75,7 @@ import edu.uci.ics.jung.graph.util.EdgeType;
  * Here is an example format for an undirected graph with edge weights 
  * and edges specified in non-list form: <br>
  * <pre>
- * *vertices <# of vertices> 
+ * *vertices [# of vertices] 
  * 1 "a" 
  * 2 "b" 
  * 3 "c" 
@@ -91,8 +91,8 @@ import edu.uci.ics.jung.graph.util.EdgeType;
  */
 public class PajekNetReader<G extends Graph<V,E>,V,E>
 {
-	protected Factory<V> vertex_factory;
-	protected Factory<E> edge_factory;
+	protected Supplier<V> vertex_factory;
+	protected Supplier<E> edge_factory;
 
     /**
      * The map for vertex labels (if any) created by this class.
@@ -115,56 +115,65 @@ public class PajekNetReader<G extends Graph<V,E>,V,E>
     private static final Predicate<String> a_pred = new StartsWithPredicate("*arcs");
     private static final Predicate<String> e_pred = new StartsWithPredicate("*edges");
     private static final Predicate<String> t_pred = new StartsWithPredicate("*");
-    private static final Predicate<String> c_pred = OrPredicate.getInstance(a_pred, e_pred);
+    private static final Predicate<String> c_pred = Predicates.or(a_pred, e_pred);
     protected static final Predicate<String> l_pred = ListTagPred.getInstance();
     
     /**
      * Creates a PajekNetReader instance with the specified vertex and edge factories.
-     * @param vertex_factory the factory to use to create vertex objects
-     * @param edge_factory the factory to use to create edge objects
+     * @param vertex_factory the Supplier to use to create vertex objects
+     * @param edge_factory the Supplier to use to create edge objects
      */
-    public PajekNetReader(Factory<V> vertex_factory, Factory<E> edge_factory) 
+    public PajekNetReader(Supplier<V> vertex_factory, Supplier<E> edge_factory) 
     { 
         this.vertex_factory = vertex_factory;
         this.edge_factory = edge_factory;
     }
 
     /**
-     * Creates a PajekNetReader instance with the specified edge factory,
+     * Creates a PajekNetReader instance with the specified edge Supplier,
      * and whose vertex objects correspond to the integer IDs assigned in the file.
      * Note that this requires <code>V</code> to be assignment-compatible with
      * an <code>Integer</code> value.
-     * @param edge_factory the factory to use to create edge objects
+     * @param edge_factory the Supplier to use to create edge objects
      */
-    public PajekNetReader(Factory<E> edge_factory)
+    public PajekNetReader(Supplier<E> edge_factory)
     {
         this(null, edge_factory);
     }
     
     /**
      * Returns the graph created by parsing the specified file, as created
-     * by the specified factory.
-     * @throws IOException
+     * by the specified Supplier.
+     * @param filename the file from which the graph is to be read
+     * @param graph_factory used to provide a graph instance
+     * @return a graph parsed from the specified file
+     * @throws IOException if the graph cannot be loaded
      */
-    public G load(String filename, Factory<? extends G> graph_factory) throws IOException
+    public G load(String filename, Supplier<? extends G> graph_factory) throws IOException
     {
-        return load(new FileReader(filename), graph_factory.create());
+        return load(new FileReader(filename), graph_factory.get());
     }
     
     /**
      * Returns the graph created by parsing the specified reader, as created
-     * by the specified factory.
-     * @throws IOException
+     * by the specified Supplier.
+     * @param reader the reader instance from which the graph is to be read
+     * @param graph_factory used to provide a graph instance
+     * @return a graph parsed from the specified reader
+     * @throws IOException if the graph cannot be loaded
      */
-    public G load(Reader reader, Factory<? extends G> graph_factory) throws IOException
+    public G load(Reader reader, Supplier<? extends G> graph_factory) throws IOException
     {
-        return load(reader, graph_factory.create());
+        return load(reader, graph_factory.get());
     }
 
     /**
      * Returns the graph created by parsing the specified file, by populating the
      * specified graph.
-     * @throws IOException
+     * @param filename the file from which the graph is to be read
+     * @param g the graph instance to populate
+     * @return a graph parsed from the specified file
+     * @throws IOException if the graph cannot be loaded
      */
     public G load(String filename, G g) throws IOException
     {
@@ -184,7 +193,10 @@ public class PajekNetReader<G extends Graph<V,E>,V,E>
      * <code>g</code> only accepts directed edges, any undirected edges in the 
      * input are ignored.
      * 
-     * @throws IOException
+     * @param reader the reader from which the graph is to be read
+     * @param g the graph instance to populate
+     * @return a graph parsed from the specified reader
+     * @throws IOException if the graph cannot be loaded
      */
     public G load(Reader reader, G g) throws IOException
     {
@@ -204,7 +216,7 @@ public class PajekNetReader<G extends Graph<V,E>,V,E>
         if (vertex_factory != null)
         {
             for (int i = 1; i <= num_vertices; i++)
-                g.addVertex(vertex_factory.create());
+                g.addVertex(vertex_factory.get());
             id = new ArrayList<V>(g.getVertices());
         }
 
@@ -213,7 +225,7 @@ public class PajekNetReader<G extends Graph<V,E>,V,E>
         while (br.ready())
         {
             curLine = br.readLine();
-            if (curLine == null || t_pred.evaluate(curLine))
+            if (curLine == null || t_pred.apply(curLine))
                 break;
             if (curLine == "") // skip blank lines
                 continue;
@@ -312,19 +324,19 @@ public class PajekNetReader<G extends Graph<V,E>,V,E>
     
     
     @SuppressWarnings("unchecked")
-    private String readArcsOrEdges(String curLine, BufferedReader br, Graph<V,E> g, List<V> id, Factory<E> edge_factory)
+    private String readArcsOrEdges(String curLine, BufferedReader br, Graph<V,E> g, List<V> id, Supplier<E> edge_factory)
         throws IOException
     {
         String nextLine = curLine;
         
         // in case we're not there yet (i.e., format tag isn't arcs or edges)
-        if (! c_pred.evaluate(curLine))
+        if (! c_pred.apply(curLine))
             nextLine = skip(br, c_pred);
 
         boolean reading_arcs = false;
         boolean reading_edges = false;
         EdgeType directedness = null;
-        if (a_pred.evaluate(nextLine))
+        if (a_pred.apply(nextLine))
         {
             if (g instanceof UndirectedGraph) {
                 throw new IllegalArgumentException("Supplied undirected-only graph cannot be populated with directed edges");
@@ -333,7 +345,7 @@ public class PajekNetReader<G extends Graph<V,E>,V,E>
                 directedness = EdgeType.DIRECTED;
             }
         }
-        if (e_pred.evaluate(nextLine))
+        if (e_pred.apply(nextLine))
         {
             if (g instanceof DirectedGraph)
                 throw new IllegalArgumentException("Supplied directed-only graph cannot be populated with undirected edges");
@@ -345,12 +357,12 @@ public class PajekNetReader<G extends Graph<V,E>,V,E>
         if (!(reading_arcs || reading_edges))
             return nextLine;
         
-        boolean is_list = l_pred.evaluate(nextLine);
+        boolean is_list = l_pred.apply(nextLine);
 
         while (br.ready())
         {
             nextLine = br.readLine();
-            if (nextLine == null || t_pred.evaluate(nextLine))
+            if (nextLine == null || t_pred.apply(nextLine))
                 break;
             if (curLine == "") // skip blank lines
                 continue;
@@ -385,7 +397,7 @@ public class PajekNetReader<G extends Graph<V,E>,V,E>
 
     @SuppressWarnings("unchecked")
     protected E createAddEdge(StringTokenizer st, V v1, 
-            EdgeType directed, Graph<V,E> g, List<V> id, Factory<E> edge_factory)
+            EdgeType directed, Graph<V,E> g, List<V> id, Supplier<E> edge_factory)
     {
         int vid2 = Integer.parseInt(st.nextToken()) - 1;
         V v2;
@@ -393,7 +405,7 @@ public class PajekNetReader<G extends Graph<V,E>,V,E>
           v2 = id.get(vid2);
         else
           v2 = (V)new Integer(vid2);
-        E e = edge_factory.create();
+        E e = edge_factory.get();
 
         // don't error-check this: let the graph implementation do whatever it's going to do 
         // (add the edge, replace the existing edge, throw an exception--depends on the graph implementation)
@@ -405,7 +417,10 @@ public class PajekNetReader<G extends Graph<V,E>,V,E>
      * Returns the first line read from <code>br</code> for which <code>p</code> 
      * returns <code>true</code>, or <code>null</code> if there is no
      * such line.
-     * @throws IOException
+     * @param br the reader from which the graph is being read
+     * @param p predicate specifying what line to accept
+     * @return the first line from {@code br} that matches {@code p}, or null
+     * @throws IOException if an error is encountered while reading from {@code br}
      */
     protected String skip(BufferedReader br, Predicate<String> p) throws IOException
     {
@@ -415,7 +430,7 @@ public class PajekNetReader<G extends Graph<V,E>,V,E>
             if (curLine == null)
                 break;
             curLine = curLine.trim();
-            if (p.evaluate(curLine))
+            if (p.apply(curLine))
                 return curLine;
         }
         return null;
@@ -434,7 +449,7 @@ public class PajekNetReader<G extends Graph<V,E>,V,E>
             this.tag = s;
         }
         
-        public boolean evaluate(String str) {
+        public boolean apply(String str) {
             return (str != null && str.toLowerCase().startsWith(tag));
         }
     }
@@ -459,7 +474,7 @@ public class PajekNetReader<G extends Graph<V,E>,V,E>
             return instance;
         }
         
-        public boolean evaluate(String s)
+        public boolean apply(String s)
         {
             return (s != null && s.toLowerCase().endsWith("list"));
         }
@@ -473,7 +488,8 @@ public class PajekNetReader<G extends Graph<V,E>,V,E>
 	}
 
 	/**
-	 * Provides a transformer which will be used to write out the vertex locations.
+	 * Provides a Function which will be used to write out the vertex locations.
+	 * @param vertex_locations a container for the vertex locations
 	 */
 	public void setVertexLocationTransformer(SettableTransformer<V, Point2D> vertex_locations)
 	{
@@ -481,14 +497,15 @@ public class PajekNetReader<G extends Graph<V,E>,V,E>
 	}
 	
 	/**
-	 * Returns a transformer from vertices to their labels.
+	 * @return a mapping from vertices to their labels
 	 */
 	public SettableTransformer<V, String> getVertexLabeller() {
 		return vertex_labels;
 	}
 	
 	/**
-	 * Provides a transformer which will be used to write out the vertex labels.
+	 * Provides a Function which will be used to write out the vertex labels.
+	 * @param vertex_labels a container for the vertex labels
 	 */
 	public void setVertexLabeller(SettableTransformer<V, String> vertex_labels)
 	{
@@ -496,7 +513,7 @@ public class PajekNetReader<G extends Graph<V,E>,V,E>
 	}
     
 	/**
-	 * Returns a transformer from edges to their weights.
+	 * @return a mapping from edges to their weights
 	 */
 	public SettableTransformer<E, Number> getEdgeWeightTransformer() 
 	{
@@ -504,7 +521,8 @@ public class PajekNetReader<G extends Graph<V,E>,V,E>
 	}
 	
 	/**
-	 * Provides a transformer which will be used to write out edge weights.
+	 * Provides a Function which will be used to write out edge weights.
+	 * @param edge_weights a container for the edge weights
 	 */
 	public void setEdgeWeightTransformer(SettableTransformer<E, Number> edge_weights)
 	{

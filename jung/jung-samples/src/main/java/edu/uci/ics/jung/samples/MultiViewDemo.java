@@ -3,7 +3,7 @@
  * California All rights reserved.
  * 
  * This software is open-source under the BSD license; see either "license.txt"
- * or http://jung.sourceforge.net/license.txt for a description.
+ * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  * 
  */
 package edu.uci.ics.jung.samples;
@@ -16,6 +16,7 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.GridLayout;
+import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
@@ -29,7 +30,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-import org.apache.commons.collections15.functors.ConstantTransformer;
+import com.google.common.base.Functions;
 
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.algorithms.layout.GraphElementAccessor;
@@ -79,24 +80,24 @@ public class MultiViewDemo extends JApplet {
     VisualizationViewer<String,Number> vv3;
     
     /**
-     * the normal transformer
+     * the normal Function
      */
-//    MutableTransformer transformer;
+//    MutableTransformer Function;
     
     Dimension preferredSize = new Dimension(300,300);
     
     final String messageOne = "The mouse wheel will scale the model's layout when activated"+
-    " in View 1. Since all three views share the same layout transformer, all three views will"+
+    " in View 1. Since all three views share the same layout Function, all three views will"+
     " show the same scaling of the layout.";
     
     final String messageTwo = "The mouse wheel will scale the view when activated in"+
-    " View 2. Since all three views share the same view transformer, all three views will be affected.";
+    " View 2. Since all three views share the same view Function, all three views will be affected.";
     
     final String messageThree = "   The mouse wheel uses a 'crossover' feature in View 3."+
     " When the combined layout and view scale is greater than '1', the model's layout will be scaled."+
-    " Since all three views share the same layout transformer, all three views will show the same "+
+    " Since all three views share the same layout Function, all three views will show the same "+
     " scaling of the layout.\n   When the combined scale is less than '1', the scaling function"+
-    " crosses over to the view, and then, since all three views share the same view transformer,"+
+    " crosses over to the view, and then, since all three views share the same view Function,"+
     " all three views will show the same scaling.";
     
     JTextArea textArea;
@@ -125,17 +126,17 @@ public class MultiViewDemo extends JApplet {
         vv2 = new VisualizationViewer<String,Number>(visualizationModel, preferredSize);
         vv3 = new VisualizationViewer<String,Number>(visualizationModel, preferredSize);
         
-        vv1.getRenderContext().setEdgeShapeTransformer(new EdgeShape.Line<String,Number>());
+        vv1.getRenderContext().setEdgeShapeTransformer(EdgeShape.line(graph));
         vv2.getRenderContext().setVertexShapeTransformer(
-        		new ConstantTransformer(new Rectangle2D.Float(-6,-6,12,12)));
+        		Functions.<Shape>constant(new Rectangle2D.Float(-6,-6,12,12)));
 
-        vv2.getRenderContext().setEdgeShapeTransformer(new EdgeShape.QuadCurve<String,Number>());
+        vv2.getRenderContext().setEdgeShapeTransformer(EdgeShape.quadCurve(graph));
         
-        vv3.getRenderContext().setEdgeShapeTransformer(new EdgeShape.CubicCurve<String,Number>());
+        vv3.getRenderContext().setEdgeShapeTransformer(EdgeShape.cubicCurve(graph));
 
-//        transformer = vv1.getLayoutTransformer();
-//        vv2.setLayoutTransformer(transformer);
-//        vv3.setLayoutTransformer(transformer);
+//        Function = vv1.getLayoutTransformer();
+//        vv2.setLayoutTransformer(Function);
+//        vv3.setLayoutTransformer(Function);
 //        
 //        vv2.setViewTransformer(vv1.getViewTransformer());
 //        vv3.setViewTransformer(vv1.getViewTransformer());
@@ -217,10 +218,10 @@ public class MultiViewDemo extends JApplet {
         
         // create a GraphMouse for each view
         // each one has a different scaling plugin
-        DefaultModalGraphMouse gm1 = new DefaultModalGraphMouse() {
+        DefaultModalGraphMouse<String,Number> gm1 = new DefaultModalGraphMouse<String,Number>() {
             protected void loadPlugins() {
-                pickingPlugin = new PickingGraphMousePlugin();
-                animatedPickingPlugin = new AnimatedPickingGraphMousePlugin();
+                pickingPlugin = new PickingGraphMousePlugin<String,Number>();
+                animatedPickingPlugin = new AnimatedPickingGraphMousePlugin<String,Number>();
                 translatingPlugin = new TranslatingGraphMousePlugin(InputEvent.BUTTON1_MASK);
                 scalingPlugin = new ScalingGraphMousePlugin(new LayoutScalingControl(), 0);
                 rotatingPlugin = new RotatingGraphMousePlugin();
@@ -231,10 +232,10 @@ public class MultiViewDemo extends JApplet {
             }
         };
 
-        DefaultModalGraphMouse gm2 = new DefaultModalGraphMouse() {
+        DefaultModalGraphMouse<String,Number> gm2 = new DefaultModalGraphMouse<String,Number>() {
             protected void loadPlugins() {
-                pickingPlugin = new PickingGraphMousePlugin();
-                animatedPickingPlugin = new AnimatedPickingGraphMousePlugin();
+                pickingPlugin = new PickingGraphMousePlugin<String,Number>();
+                animatedPickingPlugin = new AnimatedPickingGraphMousePlugin<String,Number>();
                 translatingPlugin = new TranslatingGraphMousePlugin(InputEvent.BUTTON1_MASK);
                 scalingPlugin = new ScalingGraphMousePlugin(new ViewScalingControl(), 0);
                 rotatingPlugin = new RotatingGraphMousePlugin();
@@ -246,7 +247,7 @@ public class MultiViewDemo extends JApplet {
        	
         };
 
-        DefaultModalGraphMouse gm3 = new DefaultModalGraphMouse() {};
+        DefaultModalGraphMouse<String,Number> gm3 = new DefaultModalGraphMouse<String,Number>() {};
         
         vv1.setGraphMouse(gm1);
         vv2.setGraphMouse(gm2);
@@ -296,9 +297,9 @@ public class MultiViewDemo extends JApplet {
         int swidth;
         int sheight;
         String str;
-        VisualizationViewer vv;
+        VisualizationViewer<String,Number> vv;
         
-        public BannerLabel(VisualizationViewer vv, String label) {
+        public BannerLabel(VisualizationViewer<String,Number> vv, String label) {
             this.vv = vv;
             this.str = label;
         }
@@ -324,10 +325,6 @@ public class MultiViewDemo extends JApplet {
         }
     }
 
-
-    /**
-     * a driver for this demo
-     */
     public static void main(String[] args) {
         JFrame f = new JFrame();
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

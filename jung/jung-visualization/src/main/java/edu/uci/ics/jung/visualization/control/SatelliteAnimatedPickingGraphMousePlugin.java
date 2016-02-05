@@ -5,7 +5,7 @@
  *
  * This software is open-source under the BSD license; see either
  * "license.txt" or
- * http://jung.sourceforge.net/license.txt for a description.
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  * Created on Mar 8, 2005
  *
  */
@@ -52,14 +52,14 @@ public class SatelliteAnimatedPickingGraphMousePlugin<V,E> extends AnimatedPicki
     @SuppressWarnings("unchecked")
     public void mouseReleased(MouseEvent e) {
     		if (e.getModifiers() == modifiers) {
-			final VisualizationViewer<V,E> vv = (VisualizationViewer) e.getSource();
+			final VisualizationViewer<V,E> vv = (VisualizationViewer<V, E>) e.getSource();
 			if (vv instanceof SatelliteVisualizationViewer) {
 				final VisualizationViewer<V,E> vvMaster = 
-					((SatelliteVisualizationViewer) vv).getMaster();
+					((SatelliteVisualizationViewer<V, E>) vv).getMaster();
 
 				if (vertex != null) {
 					Layout<V,E> layout = vvMaster.getGraphLayout();
-					Point2D q = layout.transform(vertex);
+					Point2D q = layout.apply(vertex);
 					Point2D lvc = 
 						vvMaster.getRenderContext().getMultiLayerTransformer().inverseTransform(Layer.LAYOUT, vvMaster.getCenter());
 					final double dx = (lvc.getX() - q.getX()) / 10;

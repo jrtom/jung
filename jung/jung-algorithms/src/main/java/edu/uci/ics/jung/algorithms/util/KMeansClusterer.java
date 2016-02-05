@@ -5,7 +5,7 @@
  *
  * This software is open-source under the BSD license; see either
  * "license.txt" or
- * http://jung.sourceforge.net/license.txt for a description.
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  */
 /*
  * Created on Aug 9, 2004
@@ -31,8 +31,8 @@ import java.util.Set;
  * <code>cluster</code> will terminate when either of the two following
  * conditions is true:
  * <ul>
- * <li/>the number of iterations is &gt; <code>max_iterations</code> 
- * <li/>none of the centroids has moved as much as <code>convergence_threshold</code>
+ * <li>the number of iterations is &gt; <code>max_iterations</code> 
+ * <li>none of the centroids has moved as much as <code>convergence_threshold</code>
  * since the previous iteration
  * </ul>
  * 
@@ -45,8 +45,10 @@ public class KMeansClusterer<T>
     protected Random rand;
 
     /**
-     * Creates an instance whose termination conditions are set according
-     * to the parameters.  
+     * Creates an instance which will terminate when either the maximum number of 
+     * iterations has been reached, or all changes are smaller than the convergence threshold.
+     * @param max_iterations the maximum number of iterations to employ
+     * @param convergence_threshold the smallest change we want to track
      */
     public KMeansClusterer(int max_iterations, double convergence_threshold)
     {
@@ -65,7 +67,7 @@ public class KMeansClusterer<T>
     }
 
     /**
-     * Returns the maximum number of iterations.
+     * @return the maximum number of iterations
      */
     public int getMaxIterations()
     {
@@ -73,7 +75,7 @@ public class KMeansClusterer<T>
     }
 
     /**
-     * Sets the maximum number of iterations.
+     * @param max_iterations the maximum number of iterations
      */
     public void setMaxIterations(int max_iterations)
     {
@@ -84,7 +86,7 @@ public class KMeansClusterer<T>
     }
 
     /**
-     * Returns the convergence threshold.
+     * @return the convergence threshold
      */
     public double getConvergenceThreshold()
     {
@@ -92,8 +94,7 @@ public class KMeansClusterer<T>
     }
 
     /**
-     * Sets the convergence threshold.
-     * @param convergence_threshold
+     * @param convergence_threshold the convergence threshold
      */
     public void setConvergenceThreshold(double convergence_threshold)
     {
@@ -108,10 +109,12 @@ public class KMeansClusterer<T>
      * Returns a <code>Collection</code> of clusters, where each cluster is
      * represented as a <code>Map</code> of <code>Objects</code> to locations
      * in d-dimensional space.
-     * @param object_locations  a map of the Objects to cluster, to
+     * @param object_locations  a map of the items to cluster, to
      * <code>double</code> arrays that specify their locations in d-dimensional space.
      * @param num_clusters  the number of clusters to create
-     * @throws NotEnoughClustersException
+     * @return a clustering of the input objects in d-dimensional space
+     * @throws NotEnoughClustersException if {@code num_clusters} is larger than the number of
+     *     distinct points in object_locations
      */
     @SuppressWarnings("unchecked")
     public Collection<Map<T, double[]>> cluster(Map<T, double[]> object_locations, int num_clusters)
@@ -225,6 +228,7 @@ public class KMeansClusterer<T>
     /**
      * Sets the seed used by the internal random number generator.
      * Enables consistent outputs.
+     * @param random_seed the random seed to use
      */
     public void setSeed(int random_seed)
     {

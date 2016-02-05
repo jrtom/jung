@@ -5,7 +5,7 @@
  *
  * This software is open-source under the BSD license; see either
  * "license.txt" or
- * http://jung.sourceforge.net/license.txt for a description.
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  */
 /*
  * Created on Apr 21, 2004
@@ -15,8 +15,8 @@ package edu.uci.ics.jung.algorithms.transformation;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.apache.commons.collections15.Factory;
-import org.apache.commons.collections15.Predicate;
+import com.google.common.base.Predicate;
+import com.google.common.base.Supplier;
 
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.Hypergraph;
@@ -30,12 +30,12 @@ import edu.uci.ics.jung.graph.KPartiteGraph;
  * a partition of vertices which will become the vertices of the new graph, copying
  * these vertices into the new graph, and then connecting those vertices whose
  * original analogues were connected indirectly through elements
- * of other partitions.</p>
+ * of other partitions.
  * 
  * <p>A "folded" graph is derived from a hypergraph by creating vertices based on
  * either the vertices or the hyperedges of the original graph, and connecting 
  * vertices in the new graph if their corresponding vertices/hyperedges share a 
- * connection with a common hyperedge/vertex.</p>   
+ * connection with a common hyperedge/vertex.   
  * 
  * @author Danyel Fisher
  * @author Joshua O'Madadhain
@@ -53,26 +53,26 @@ public class FoldingTransformer<V,E>
      * 
      * <p>The vertices of the new graph are the same as the vertices of the
      * appropriate partition in the old graph; the edges in the new graph are
-     * created by the input edge <code>Factory</code>.</p>
+     * created by the input edge <code>Factory</code>.
      * 
      * <p>If there is more than 1 such vertex <code>c</code> for a given pair
      * <code>(a,b)</code>, the type of the output graph will determine whether
-     * it will contain parallel edges or not.</p>
+     * it will contain parallel edges or not.
      * 
-     * <p>This function will not create self-loops.</p>
+     * <p>This function will not create self-loops.
      * 
      * @param <V> vertex type
      * @param <E> input edge type
      * @param g input k-partite graph
      * @param p predicate specifying vertex partition
-     * @param graph_factory factory used to create the output graph 
-     * @param edge_factory factory used to create the edges in the new graph
+     * @param graph_factory Supplier used to create the output graph 
+     * @param edge_factory Supplier used to create the edges in the new graph
      * @return a copy of the input graph folded with respect to the input partition
      */
     public static <V,E> Graph<V,E> foldKPartiteGraph(KPartiteGraph<V,E> g, Predicate<V> p, 
-            Factory<Graph<V,E>> graph_factory, Factory<E> edge_factory)
+            Supplier<Graph<V,E>> graph_factory, Supplier<E> edge_factory)
     {
-        Graph<V,E> newGraph = graph_factory.create();
+        Graph<V,E> newGraph = graph_factory.get();
 
         // get vertices for the specified partition
         Collection<V> vertices = g.getVertices(p);
@@ -86,7 +86,7 @@ public class FoldingTransformer<V,E>
                     if (!vertices.contains(t) || t.equals(v)) 
                         continue;
                     newGraph.addVertex(t);
-                    newGraph.addEdge(edge_factory.create(), v, t);
+                    newGraph.addEdge(edge_factory.get(), v, t);
                 }
             }
         }
@@ -105,22 +105,22 @@ public class FoldingTransformer<V,E>
      * 
      * <p>The vertices of the new graph are the same as the vertices of the
      * appropriate partition in the old graph; the edges in the new graph are
-     * collections of the intermediate vertices <code>c</code>.</p>
+     * collections of the intermediate vertices <code>c</code>.
      * 
-     * <p>This function will not create self-loops.</p>
+     * <p>This function will not create self-loops.
      * 
      * @param <V> vertex type
      * @param <E> input edge type
      * @param g input k-partite graph
      * @param p predicate specifying vertex partition
-     * @param graph_factory factory used to create the output graph 
+     * @param graph_factory Supplier used to create the output graph 
      * @return the result of folding g into unipartite graph whose vertices
      * are those of the <code>p</code> partition of g
      */
     public static <V,E> Graph<V, Collection<V>> foldKPartiteGraph(KPartiteGraph<V,E> g, Predicate<V> p, 
-            Factory<Graph<V, Collection<V>>> graph_factory)
+            Supplier<Graph<V, Collection<V>>> graph_factory)
     {
-        Graph<V, Collection<V>> newGraph = graph_factory.create();
+        Graph<V, Collection<V>> newGraph = graph_factory.get();
 
         // get vertices for the specified partition, copy into new graph
         Collection<V> vertices = g.getVertices(p);
@@ -156,21 +156,21 @@ public class FoldingTransformer<V,E>
      * <code>h</code>, and <code>a</code> 
      * is connected to <code>b</code> in the new graph if the corresponding vertices
      * in <code>h</code> are connected by a hyperedge.  Thus, each hyperedge with 
-     * <i>k</i> vertices in <code>h</code> induces a <i>k</i>-clique in the new graph.</p>
+     * <i>k</i> vertices in <code>h</code> induces a <i>k</i>-clique in the new graph.
      * 
      * <p>The edges of the new graph consist of collections of each hyperedge that connected
-     * the corresponding vertex pair in the original graph.</p>
+     * the corresponding vertex pair in the original graph.
      * 
      * @param <V> vertex type
      * @param <E> input edge type
      * @param h hypergraph to be folded
-     * @param graph_factory factory used to generate the output graph
+     * @param graph_factory Supplier used to generate the output graph
      * @return a copy of the input graph where hyperedges are replaced by cliques
      */
     public static <V,E> Graph<V, Collection<E>> foldHypergraphEdges(Hypergraph<V,E> h, 
-            Factory<Graph<V, Collection<E>>> graph_factory)
+            Supplier<Graph<V, Collection<E>>> graph_factory)
     {
-        Graph<V, Collection<E>> target = graph_factory.create();
+        Graph<V, Collection<E>> target = graph_factory.get();
 
         for (V v : h.getVertices())
             target.addVertex(v);
@@ -192,21 +192,21 @@ public class FoldingTransformer<V,E>
      * <code>h</code>, and <code>a</code> 
      * is connected to <code>b</code> in the new graph if the corresponding vertices
      * in <code>h</code> are connected by a hyperedge.  Thus, each hyperedge with 
-     * <i>k</i> vertices in <code>h</code> induces a <i>k</i>-clique in the new graph.</p>
+     * <i>k</i> vertices in <code>h</code> induces a <i>k</i>-clique in the new graph.
      * 
-     * <p>The edges of the new graph are generated by the specified edge factory.</p>
+     * <p>The edges of the new graph are generated by the specified edge Supplier.
      * 
      * @param <V> vertex type
      * @param <E> input edge type
      * @param h hypergraph to be folded
-     * @param graph_factory factory used to generate the output graph
-     * @param edge_factory factory used to create the new edges 
+     * @param graph_factory Supplier used to generate the output graph
+     * @param edge_factory Supplier used to create the new edges 
      * @return a copy of the input graph where hyperedges are replaced by cliques
      */
     public static <V,E> Graph<V,E> foldHypergraphEdges(Hypergraph<V,E> h, 
-            Factory<Graph<V,E>> graph_factory, Factory<E> edge_factory)
+            Supplier<Graph<V,E>> graph_factory, Supplier<E> edge_factory)
     {
-        Graph<V,E> target = graph_factory.create();
+        Graph<V,E> target = graph_factory.get();
 
         for (V v : h.getVertices())
             target.addVertex(v);
@@ -216,7 +216,7 @@ public class FoldingTransformer<V,E>
             ArrayList<V> incident = new ArrayList<V>(h.getIncidentVertices(e));
             for (int i = 0; i < incident.size(); i++)
                 for (int j = i+1; j < incident.size(); j++)
-                    target.addEdge(edge_factory.create(), incident.get(i), incident.get(j));
+                    target.addEdge(edge_factory.get(), incident.get(i), incident.get(j));
         }
         return target;
     }
@@ -230,23 +230,23 @@ public class FoldingTransformer<V,E>
      * <code>h</code>, and <code>a</code> 
      * is connected to <code>b</code> in the new graph if the corresponding edges
      * in <code>h</code> have a vertex in common.  Thus, each vertex incident to  
-     * <i>k</i> edges in <code>h</code> induces a <i>k</i>-clique in the new graph.</p>
+     * <i>k</i> edges in <code>h</code> induces a <i>k</i>-clique in the new graph.
      * 
-     * <p>The edges of the new graph are created by the specified factory.</p>
+     * <p>The edges of the new graph are created by the specified Supplier.
      * 
      * @param <V> vertex type
      * @param <E> input edge type
      * @param <F> output edge type
      * @param h hypergraph to be folded
-     * @param graph_factory factory used to generate the output graph
-     * @param edge_factory factory used to generate the output edges
+     * @param graph_factory Supplier used to generate the output graph
+     * @param edge_factory Supplier used to generate the output edges
      * @return a transformation of the input graph whose vertices correspond to the input's hyperedges 
      * and edges are induced by hyperedges sharing vertices in the input
      */
     public static <V,E,F> Graph<E,F> foldHypergraphVertices(Hypergraph<V,E> h, 
-            Factory<Graph<E,F>> graph_factory, Factory<F> edge_factory)
+            Supplier<Graph<E,F>> graph_factory, Supplier<F> edge_factory)
     {
-        Graph<E,F> target = graph_factory.create();
+        Graph<E,F> target = graph_factory.get();
         
         for (E e : h.getEdges())
             target.addVertex(e);
@@ -256,7 +256,7 @@ public class FoldingTransformer<V,E>
             ArrayList<E> incident = new ArrayList<E>(h.getIncidentEdges(v));
             for (int i = 0; i < incident.size(); i++)
                 for (int j = i+1; j < incident.size(); j++)
-                    target.addEdge(edge_factory.create(), incident.get(i), incident.get(j));
+                    target.addEdge(edge_factory.get(), incident.get(i), incident.get(j));
         }
         
         return target;
@@ -271,20 +271,20 @@ public class FoldingTransformer<V,E>
      * <code>h</code>, and <code>a</code> 
      * is connected to <code>b</code> in the new graph if the corresponding edges
      * in <code>h</code> have a vertex in common.  Thus, each vertex incident to  
-     * <i>k</i> edges in <code>h</code> induces a <i>k</i>-clique in the new graph.</p>
+     * <i>k</i> edges in <code>h</code> induces a <i>k</i>-clique in the new graph.
      * 
      * <p>The edges of the new graph consist of collections of each vertex incident to 
-     * the corresponding hyperedge pair in the original graph.</p>
+     * the corresponding hyperedge pair in the original graph.
      * 
      * @param h hypergraph to be folded
-     * @param graph_factory factory used to generate the output graph
+     * @param graph_factory Supplier used to generate the output graph
      * @return a transformation of the input graph whose vertices correspond to the input's hyperedges 
      * and edges are induced by hyperedges sharing vertices in the input
      */
     public Graph<E,Collection<V>> foldHypergraphVertices(Hypergraph<V,E> h, 
-            Factory<Graph<E,Collection<V>>> graph_factory)
+            Supplier<Graph<E,Collection<V>>> graph_factory)
     {
-        Graph<E,Collection<V>> target = graph_factory.create();
+        Graph<E,Collection<V>> target = graph_factory.get();
 
         for (E e : h.getEdges())
             target.addVertex(e);

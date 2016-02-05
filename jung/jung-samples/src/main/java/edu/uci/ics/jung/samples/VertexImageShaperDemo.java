@@ -3,7 +3,7 @@
  * California All rights reserved.
  * 
  * This software is open-source under the BSD license; see either "license.txt"
- * or http://jung.sourceforge.net/license.txt for a description.
+ * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  * 
  */
 package edu.uci.ics.jung.samples;
@@ -24,7 +24,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,23 +38,18 @@ import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
-import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.algorithms.layout.util.RandomLocationTransformer;
 import edu.uci.ics.jung.graph.DirectedSparseGraph;
 import edu.uci.ics.jung.graph.util.EdgeType;
-import edu.uci.ics.jung.visualization.FourPassImageShaper;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
-import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.LayeredIcon;
-import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
-import edu.uci.ics.jung.visualization.decorators.DefaultVertexIconTransformer;
 import edu.uci.ics.jung.visualization.decorators.EllipseVertexShapeTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
@@ -66,7 +60,7 @@ import edu.uci.ics.jung.visualization.renderers.BasicVertexRenderer;
 import edu.uci.ics.jung.visualization.renderers.Checkmark;
 import edu.uci.ics.jung.visualization.renderers.DefaultEdgeLabelRenderer;
 import edu.uci.ics.jung.visualization.renderers.DefaultVertexLabelRenderer;
-import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
+import edu.uci.ics.jung.visualization.util.ImageShapeUtils;
 
 /**
  * Demonstrates the use of images to represent graph vertices.
@@ -155,7 +149,7 @@ public class VertexImageShaperDemo extends JApplet {
         // Instead, just let vv use the Renderer it already has
         vv.getRenderer().setVertexRenderer(new DemoRenderer<Number,Number>());
 
-        Transformer<Number,Paint> vpf = 
+        Function<Number,Paint> vpf = 
             new PickableVertexPaintTransformer<Number>(vv.getPickedVertexState(), Color.white, Color.yellow);
         vv.getRenderContext().setVertexFillPaintTransformer(vpf);
         vv.getRenderContext().setEdgeDrawPaintTransformer(new PickableEdgePaintTransformer<Number>(vv.getPickedEdgeState(), Color.black, Color.cyan));
@@ -163,12 +157,12 @@ public class VertexImageShaperDemo extends JApplet {
         vv.setBackground(Color.white);
         
         
-        final Transformer<Number,String> vertexStringerImpl = 
+        final Function<Number,String> vertexStringerImpl = 
             new VertexStringerImpl<Number,String>(map);
         vv.getRenderContext().setVertexLabelTransformer(vertexStringerImpl);
         vv.getRenderContext().setVertexLabelRenderer(new DefaultVertexLabelRenderer(Color.cyan));
         vv.getRenderContext().setEdgeLabelRenderer(new DefaultEdgeLabelRenderer(Color.cyan));
-//        vv.getRenderContext().setEdgeLabelTransformer(new Transformer<Number,String>() {
+//        vv.getRenderContext().setEdgeLabelTransformer(new Function<Number,String>() {
 //        	URL url = getClass().getResource("/images/lightning-s.gif");
 //			public String transform(Number input) {
 //				
@@ -179,12 +173,10 @@ public class VertexImageShaperDemo extends JApplet {
         // features on and off. For a real application, use VertexIconShapeTransformer instead.
         final DemoVertexIconShapeTransformer<Number> vertexIconShapeTransformer =
             new DemoVertexIconShapeTransformer<Number>(new EllipseVertexShapeTransformer<Number>());
-        
-        final DemoVertexIconTransformer<Number> vertexIconTransformer =
-        	new DemoVertexIconTransformer<Number>();
-        
         vertexIconShapeTransformer.setIconMap(iconMap);
-        vertexIconTransformer.setIconMap(iconMap);
+
+        final DemoVertexIconTransformer<Number> vertexIconTransformer
+        	= new DemoVertexIconTransformer<Number>(iconMap);
         
         vv.getRenderContext().setVertexShapeTransformer(vertexIconShapeTransformer);
         vv.getRenderContext().setVertexIconTransformer(vertexIconTransformer);
@@ -228,7 +220,7 @@ public class VertexImageShaperDemo extends JApplet {
         });
 
         // add a listener for ToolTips
-        vv.setVertexToolTipTransformer(new ToStringLabeller<Number>());
+        vv.setVertexToolTipTransformer(new ToStringLabeller());
         
         Container content = getContentPane();
         final GraphZoomScrollPane panel = new GraphZoomScrollPane(vv);
@@ -281,7 +273,7 @@ public class VertexImageShaperDemo extends JApplet {
             }
         });
         
-        JComboBox modeBox = graphMouse.getModeComboBox();
+        JComboBox<?> modeBox = graphMouse.getModeComboBox();
         JPanel modePanel = new JPanel();
         modePanel.setBorder(BorderFactory.createTitledBorder("Mouse Mode"));
         modePanel.add(modeBox);
@@ -310,16 +302,17 @@ public class VertexImageShaperDemo extends JApplet {
      *
      */
     public static class PickWithIconListener<V> implements ItemListener {
-        DefaultVertexIconTransformer<V> imager;
+        Function<V, Icon> imager;
         Icon checked;
         
-        public PickWithIconListener(DefaultVertexIconTransformer<V> imager) {
+        public PickWithIconListener(Function<V, Icon> imager) {
             this.imager = imager;
             checked = new Checkmark();
         }
 
         public void itemStateChanged(ItemEvent e) {
-            Icon icon = imager.transform((V)e.getItem());
+            @SuppressWarnings("unchecked")
+			Icon icon = imager.apply((V)e.getItem());
             if(icon != null && icon instanceof LayeredIcon) {
                 if(e.getStateChange() == ItemEvent.SELECTED) {
                     ((LayeredIcon)icon).add(checked);
@@ -337,7 +330,7 @@ public class VertexImageShaperDemo extends JApplet {
      *
      *
      */
-    public static class VertexStringerImpl<V,S> implements Transformer<V,String> {
+    public static class VertexStringerImpl<V,S> implements Function<V,String> {
         
         Map<V,String> map = new HashMap<V,String>();
         
@@ -350,7 +343,7 @@ public class VertexImageShaperDemo extends JApplet {
         /* (non-Javadoc)
          * @see edu.uci.ics.jung.graph.decorators.VertexStringer#getLabel(edu.uci.ics.jung.graph.Vertex)
          */
-        public String transform(V v) {
+        public String apply(V v) {
             if(isEnabled()) {
                 return map.get(v);
             } else {
@@ -405,16 +398,20 @@ public class VertexImageShaperDemo extends JApplet {
     }
 
     /** 
-     * this class exists only to provide settings to turn on/off shapes and image fill
+     * This class exists only to provide settings to turn on/off shapes and image fill
      * in this demo.
-     * In a real application, use DefaultVertexIconTransformer instead.
      * 
+     * <p>For a real application, just use {@code Functions.forMap(iconMap)} to provide a
+     * {@code Function<V, Icon>}.
      */
-    public static class DemoVertexIconTransformer<V> extends DefaultVertexIconTransformer<V>
-    	implements Transformer<V,Icon> {
-        
+    public static class DemoVertexIconTransformer<V> implements Function<V,Icon> {
         boolean fillImages = true;
         boolean outlineImages = false;
+        Map<V, Icon> iconMap = new HashMap<V, Icon>();
+        
+        public DemoVertexIconTransformer(Map<V, Icon> iconMap) {
+        	this.iconMap = iconMap;
+        }
 
         /**
          * @return Returns the fillImages.
@@ -436,7 +433,7 @@ public class VertexImageShaperDemo extends JApplet {
             this.outlineImages = outlineImages;
         }
         
-        public Icon transform(V v) {
+        public Icon apply(V v) {
             if(fillImages) {
                 return (Icon)iconMap.get(v);
             } else {
@@ -455,7 +452,7 @@ public class VertexImageShaperDemo extends JApplet {
         
         boolean shapeImages = true;
 
-        public DemoVertexIconShapeTransformer(Transformer<V,Shape> delegate) {
+        public DemoVertexIconShapeTransformer(Function<V,Shape> delegate) {
             super(delegate);
         }
 
@@ -483,7 +480,7 @@ public class VertexImageShaperDemo extends JApplet {
 				Shape shape = shapeMap.get(image);
 				if (shape == null) {
 					if (shapeImages) {
-						shape = FourPassImageShaper.getShape(image, 30);
+						shape = ImageShapeUtils.getShape(image, 30);
 					} else {
 						shape = new Rectangle2D.Float(0, 0, 
 								image.getWidth(null), image.getHeight(null));
@@ -500,7 +497,7 @@ public class VertexImageShaperDemo extends JApplet {
 				}
 				return shape;
 			} else {
-				return delegate.transform(v);
+				return delegate.apply(v);
 			}
 		}
     }
@@ -515,38 +512,35 @@ public class VertexImageShaperDemo extends JApplet {
      *
      */
     class DemoRenderer<V,E> extends BasicVertexRenderer<V,E> {
-        public void paintIconForVertex(RenderContext<V,E> rc, V v, Layout<V,E> layout) {
-        	
-            Point2D p = layout.transform(v);
-            p = rc.getMultiLayerTransformer().transform(Layer.LAYOUT, p);
-            float x = (float)p.getX();
-            float y = (float)p.getY();
-
-            GraphicsDecorator g = rc.getGraphicsContext();
-            boolean outlineImages = false;
-            Transformer<V,Icon> vertexIconFunction = rc.getVertexIconTransformer();
-            
-            if(vertexIconFunction instanceof DemoVertexIconTransformer) {
-                outlineImages = ((DemoVertexIconTransformer<V>)vertexIconFunction).isOutlineImages();
-            }
-            Icon icon = vertexIconFunction.transform(v);
-            if(icon == null || outlineImages) {
-                
-                Shape s = AffineTransform.getTranslateInstance(x,y).
-                    createTransformedShape(rc.getVertexShapeTransformer().transform(v));
-                paintShapeForVertex(rc, v, s);
-            }
-            if(icon != null) {
-                int xLoc = (int) (x - icon.getIconWidth()/2);
-                int yLoc = (int) (y - icon.getIconHeight()/2);
-                icon.paintIcon(rc.getScreenDevice(), g.getDelegate(), xLoc, yLoc);
-            }
-        }
+//        public void paintIconForVertex(RenderContext<V,E> rc, V v, Layout<V,E> layout) {
+//        	
+//            Point2D p = layout.transform(v);
+//            p = rc.getMultiLayerTransformer().transform(Layer.LAYOUT, p);
+//            float x = (float)p.getX();
+//            float y = (float)p.getY();
+//
+//            GraphicsDecorator g = rc.getGraphicsContext();
+//            boolean outlineImages = false;
+//            Function<V,Icon> vertexIconFunction = rc.getVertexIconTransformer();
+//            
+//            if(vertexIconFunction instanceof DemoVertexIconTransformer) {
+//                outlineImages = ((DemoVertexIconTransformer<V>)vertexIconFunction).isOutlineImages();
+//            }
+//            Icon icon = vertexIconFunction.transform(v);
+//            if(icon == null || outlineImages) {
+//                
+//                Shape s = AffineTransform.getTranslateInstance(x,y).
+//                    createTransformedShape(rc.getVertexShapeTransformer().transform(v));
+//                paintShapeForVertex(rc, v, s);
+//            }
+//            if(icon != null) {
+//                int xLoc = (int) (x - icon.getIconWidth()/2);
+//                int yLoc = (int) (y - icon.getIconHeight()/2);
+//                icon.paintIcon(rc.getScreenDevice(), g.getDelegate(), xLoc, yLoc);
+//            }
+//        }
     }
     
-    /**
-	 * a driver for this demo
-	 */
     public static void main(String[] args) {
         JFrame frame = new JFrame();
         Container content = frame.getContentPane();

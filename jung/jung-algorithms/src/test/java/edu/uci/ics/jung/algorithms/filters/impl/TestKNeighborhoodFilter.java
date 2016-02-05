@@ -43,19 +43,19 @@ public class TestKNeighborhoodFilter extends TestCase {
 
 	public void testIn() {
 		Filter<Number,Number> filter = new KNeighborhoodFilter<Number,Number>(0, 2, EdgeType.IN);
-		Graph<Number,Number> result = filter.transform(graph);
+		Graph<Number,Number> result = filter.apply(graph);
 		assertEquals(result.getVertexCount(), 4);
 		assertEquals(result.getEdgeCount(), 5);
 	}
 	public void testOut() {
 		Filter<Number,Number> filter = new KNeighborhoodFilter<Number,Number>(0, 2, EdgeType.OUT);
-		Graph<Number,Number> result = filter.transform(graph);
+		Graph<Number,Number> result = filter.apply(graph);
 		assertEquals(result.getVertexCount(), 5);
 		assertEquals(result.getEdgeCount(), 5);
 	}
 	public void testInOut() {
 		Filter<Number,Number> filter = new KNeighborhoodFilter<Number,Number>(0, 2, EdgeType.IN_OUT);
-		Graph<Number,Number> result = filter.transform(graph);
+		Graph<Number,Number> result = filter.apply(graph);
 		assertEquals(result.getVertexCount(), 7);
 		assertEquals(result.getEdgeCount(), 8);
 	}

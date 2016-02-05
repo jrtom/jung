@@ -7,11 +7,11 @@
  *
  * This software is open-source under the BSD license; see either
  * "license.txt" or
- * http://jung.sourceforge.net/license.txt for a description.
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  */
 package edu.uci.ics.jung.visualization.decorators;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.Context;
@@ -23,15 +23,15 @@ import edu.uci.ics.jung.graph.util.EdgeType;
  * 
  * @author Joshua O'Madadhain
  */
-public class ConstantDirectionalEdgeValueTransformer<V,E> implements Transformer<Context<Graph<V,E>,E>,Number>
+public class ConstantDirectionalEdgeValueTransformer<V,E> implements Function<Context<Graph<V,E>,E>,Number>
 {
     protected Double undirected_value;
     protected Double directed_value;
 
     /**
      * 
-     * @param undirected
-     * @param directed
+     * @param undirected the value to return if the edge is undirected
+     * @param directed the value to return if the edge is directed
      */
     public ConstantDirectionalEdgeValueTransformer(double undirected, double directed)
     {
@@ -39,10 +39,7 @@ public class ConstantDirectionalEdgeValueTransformer<V,E> implements Transformer
         this.directed_value = new Double(directed);
     }
     
-    /**
-     * @see Transformer#transform(Object)
-     */
-    public Number transform(Context<Graph<V,E>,E> context) {
+    public Number apply(Context<Graph<V,E>,E> context) {
     	Graph<V,E> graph = context.graph;
     	E e = context.element;
         if (graph.getEdgeType(e) == EdgeType.DIRECTED)

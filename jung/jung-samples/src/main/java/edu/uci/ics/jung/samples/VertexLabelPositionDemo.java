@@ -3,7 +3,7 @@
  * California All rights reserved.
  * 
  * This software is open-source under the BSD license; see either "license.txt"
- * or http://jung.sourceforge.net/license.txt for a description.
+ * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  * 
  */
 package edu.uci.ics.jung.samples;
@@ -27,7 +27,6 @@ import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
-import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.TestGraphs;
 import edu.uci.ics.jung.visualization.DefaultVisualizationModel;
@@ -42,6 +41,7 @@ import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
+import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
 
 /**
  * Demonstrates vertex label positioning 
@@ -60,7 +60,7 @@ public class VertexLabelPositionDemo extends JApplet {
      */
     Graph<String,Number> graph;
     
-    Layout<String,Number> graphLayout;
+    FRLayout<String,Number> graphLayout;
     
     /**
      * the visual component and renderer for the graph
@@ -80,7 +80,7 @@ public class VertexLabelPositionDemo extends JApplet {
         graph = TestGraphs.getOneComponentGraph();
         
         graphLayout = new FRLayout<String,Number>(graph);
-        ((FRLayout)graphLayout).setMaxIterations(1000);
+        graphLayout.setMaxIterations(1000);
 
         Dimension preferredSize = new Dimension(600,600);
         
@@ -107,7 +107,8 @@ public class VertexLabelPositionDemo extends JApplet {
         /**
          * the regular graph mouse for the normal view
          */
-        final DefaultModalGraphMouse graphMouse = new DefaultModalGraphMouse();
+        final DefaultModalGraphMouse<String,Number> graphMouse
+        	= new DefaultModalGraphMouse<String,Number>();
 
         vv.setGraphMouse(graphMouse);
         vv.addKeyListener(graphMouse.getModeKeyListener());
@@ -131,7 +132,7 @@ public class VertexLabelPositionDemo extends JApplet {
         JMenuBar menubar = new JMenuBar();
         menubar.add(graphMouse.getModeMenu());
         gzsp.setCorner(menubar);
-        JComboBox cb = new JComboBox();
+        JComboBox<Position> cb = new JComboBox<Position>();
         cb.addItem(Renderer.VertexLabel.Position.N);
         cb.addItem(Renderer.VertexLabel.Position.NE);
         cb.addItem(Renderer.VertexLabel.Position.E);
@@ -163,9 +164,6 @@ public class VertexLabelPositionDemo extends JApplet {
         content.add(controls, BorderLayout.SOUTH);
     }
 
-    /**
-     * a driver for this demo
-     */
     public static void main(String[] args) {
         JFrame f = new JFrame();
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

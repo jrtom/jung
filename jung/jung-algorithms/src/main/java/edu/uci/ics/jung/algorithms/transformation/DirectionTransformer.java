@@ -5,14 +5,14 @@
  *
  * This software is open-source under the BSD license; see either
  * "license.txt" or
- * http://jung.sourceforge.net/license.txt for a description.
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  */
 /*
  * Created on Apr 21, 2004
  */
 package edu.uci.ics.jung.algorithms.transformation;
 
-import org.apache.commons.collections15.Factory;
+import com.google.common.base.Supplier;
 
 import edu.uci.ics.jung.graph.DirectedGraph;
 import edu.uci.ics.jung.graph.Graph;
@@ -21,7 +21,7 @@ import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.graph.util.Pair;
 
 /**
- * <p>Functions for transforming graphs into directed or undirected graphs.</p>
+ * <p>Functions for transforming graphs into directed or undirected graphs.
  * 
  * 
  * @author Danyel Fisher
@@ -36,9 +36,9 @@ public class DirectionTransformer
      * visualization tasks).
      * Specifically:
      * <ul>
-     * <li/>Vertices are copied from <code>graph</code>.
-     * <li/>Directed edges are 'converted' into a single new undirected edge in the new graph.
-     * <li/>Each undirected edge (if any) in <code>graph</code> is 'recreated' with a new undirected edge in the new
+     * <li>Vertices are copied from <code>graph</code>.
+     * <li>Directed edges are 'converted' into a single new undirected edge in the new graph.
+     * <li>Each undirected edge (if any) in <code>graph</code> is 'recreated' with a new undirected edge in the new
      * graph if <code>create_new</code> is true, or copied from <code>graph</code> otherwise.
      * </ul>
      * 
@@ -46,13 +46,15 @@ public class DirectionTransformer
      * @param create_new specifies whether existing undirected edges are to be copied or recreated
      * @param graph_factory used to create the new graph object
      * @param edge_factory used to create new edges
+     * @param <V> the vertex type
+     * @param <E> the edge type
      * @return          the transformed <code>Graph</code>
      */
     public static <V,E> UndirectedGraph<V,E> toUndirected(Graph<V,E> graph, 
-    		Factory<UndirectedGraph<V,E>> graph_factory,
-            Factory<E> edge_factory, boolean create_new)
+    		Supplier<UndirectedGraph<V,E>> graph_factory,
+            Supplier<E> edge_factory, boolean create_new)
     {
-        UndirectedGraph<V,E> out = graph_factory.create();
+        UndirectedGraph<V,E> out = graph_factory.get();
         
         for (V v : graph.getVertices())
             out.addVertex(v);
@@ -64,7 +66,7 @@ public class DirectionTransformer
             V v2 = endpoints.getSecond();
             E to_add;
             if (graph.getEdgeType(e) == EdgeType.DIRECTED || create_new)
-                to_add = edge_factory.create();
+                to_add = edge_factory.get();
             else
                 to_add = e;
             out.addEdge(to_add, v1, v2, EdgeType.UNDIRECTED);
@@ -77,9 +79,9 @@ public class DirectionTransformer
      * into a directed graph.  
      * Specifically:
      * <ul>
-     * <li/>Vertices are copied from <code>graph</code>.
-     * <li/>Undirected edges are 'converted' into two new antiparallel directed edges in the new graph.
-     * <li/>Each directed edge (if any) in <code>graph</code> is 'recreated' with a new edge in the new
+     * <li>Vertices are copied from <code>graph</code>.
+     * <li>Undirected edges are 'converted' into two new antiparallel directed edges in the new graph.
+     * <li>Each directed edge (if any) in <code>graph</code> is 'recreated' with a new edge in the new
      * graph if <code>create_new</code> is true, or copied from <code>graph</code> otherwise.
      * </ul>
      * 
@@ -87,12 +89,14 @@ public class DirectionTransformer
      * @param create_new specifies whether existing directed edges are to be copied or recreated
      * @param graph_factory used to create the new graph object
      * @param edge_factory used to create new edges
+     * @param <V> the vertex type
+     * @param <E> the edge type
      * @return          the transformed <code>Graph</code>
      */
-    public static <V,E> Graph<V,E> toDirected(Graph<V,E> graph, Factory<DirectedGraph<V,E>> graph_factory,
-            Factory<E> edge_factory, boolean create_new)
+    public static <V,E> Graph<V,E> toDirected(Graph<V,E> graph, Supplier<DirectedGraph<V,E>> graph_factory,
+            Supplier<E> edge_factory, boolean create_new)
     {
-        DirectedGraph<V,E> out = graph_factory.create();
+        DirectedGraph<V,E> out = graph_factory.get();
         
         for (V v : graph.getVertices())
             out.addVertex(v);
@@ -104,14 +108,14 @@ public class DirectionTransformer
             {
                 V v1 = endpoints.getFirst();
                 V v2 = endpoints.getSecond();
-                out.addEdge(edge_factory.create(), v1, v2, EdgeType.DIRECTED);
-                out.addEdge(edge_factory.create(), v2, v1, EdgeType.DIRECTED);
+                out.addEdge(edge_factory.get(), v1, v2, EdgeType.DIRECTED);
+                out.addEdge(edge_factory.get(), v2, v1, EdgeType.DIRECTED);
             }
             else // if the edge is directed, just add it 
             {
                 V source = graph.getSource(e);
                 V dest = graph.getDest(e);
-                E to_add = create_new ? edge_factory.create() : e;
+                E to_add = create_new ? edge_factory.get() : e;
                 out.addEdge(to_add, source, dest, EdgeType.DIRECTED);
             }
                 

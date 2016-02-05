@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>jung-api</artifactId>
   <packaging>jar</packaging>
-  <version>2.0.2-SNAPSHOT</version>
+  <version>2.1</version>
   <url>http://jung.sourceforge.net/site/jung-api</url>
   <name>jung-api</name>
   <description>
@@ -12,7 +12,7 @@
   <parent>
     <groupId>net.sf.jung</groupId>
     <artifactId>jung2</artifactId>
-    <version>2.0.2-SNAPSHOT</version>
+    <version>2.1</version>
   </parent>
   <build>
    	<plugins>
@@ -38,10 +38,9 @@
   </build>
   <dependencies>
       <dependency>
-      <groupId>net.sourceforge.collections</groupId>
-      <artifactId>collections-generic</artifactId>
-      <version>4.01</version>
-		<scope>compile</scope>      
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>11.0.2</version>
     </dependency>
   </dependencies>
 

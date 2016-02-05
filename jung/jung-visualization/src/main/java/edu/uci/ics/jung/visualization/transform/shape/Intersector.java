@@ -3,7 +3,7 @@
  * California All rights reserved.
  * 
  * This software is open-source under the BSD license; see either "license.txt"
- * or http://jung.sourceforge.net/license.txt for a description.
+ * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  * 
  */
 package edu.uci.ics.jung.visualization.transform.shape;
@@ -19,16 +19,11 @@ public class Intersector {
     protected Rectangle rectangle;
     Line2D line;
     Set<Point2D> points = new HashSet<Point2D>();
-    /**
-     * @param rectangle
-     */
+
     public Intersector(Rectangle rectangle) {
         this.rectangle = rectangle;
     }
-    /**
-     * @param rectangle
-     * @param line
-     */
+
     public Intersector(Rectangle rectangle, Line2D line) {
         this.rectangle = rectangle;
        intersectLine(line);
@@ -98,7 +93,7 @@ public class Intersector {
     public Line2D getLine() {
         return line;
     }
-    public Set getPoints() {
+    public Set<Point2D> getPoints() {
         return points;
     }
     public Rectangle getRectangle() {

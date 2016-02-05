@@ -37,7 +37,7 @@ public interface Relaxer {
 	void stop();
 
 	/**
-	 * Sets the sleep time.
+	 * @param i the sleep time between iterations, in milliseconds
 	 */
 	void setSleepTime(long i);
 }

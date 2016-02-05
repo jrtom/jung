@@ -7,33 +7,20 @@
  *
  * This software is open-source under the BSD license; see either
  * "license.txt" or
- * http://jung.sourceforge.net/license.txt for a description.
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  */
 package edu.uci.ics.jung.graph;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-import org.apache.commons.collections15.Factory;
-
-import edu.uci.ics.jung.graph.DirectedOrderedSparseMultigraph;
-import edu.uci.ics.jung.graph.DirectedSparseGraph;
-import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
-import edu.uci.ics.jung.graph.Hypergraph;
-import edu.uci.ics.jung.graph.OrderedSparseMultigraph;
-import edu.uci.ics.jung.graph.SetHypergraph;
-import edu.uci.ics.jung.graph.SortedSparseMultigraph;
-import edu.uci.ics.jung.graph.SparseGraph;
-import edu.uci.ics.jung.graph.SparseMultigraph;
-import edu.uci.ics.jung.graph.UndirectedOrderedSparseMultigraph;
-import edu.uci.ics.jung.graph.UndirectedSparseGraph;
-import edu.uci.ics.jung.graph.UndirectedSparseMultigraph;
+import com.google.common.base.Supplier;
 
 
 public class HypergraphTest extends AbstractHypergraphTest
 {
     
-    public HypergraphTest(Factory<? extends Hypergraph<Integer,Character>> factory)
+    public HypergraphTest(Supplier<? extends Hypergraph<Integer,Character>> factory)
     {
         super(factory);
     }
@@ -41,8 +28,8 @@ public class HypergraphTest extends AbstractHypergraphTest
     @Override
     public void setUp()
     {
-        h = factory.create();
-        System.out.println(h.getClass().getSimpleName());
+        h = factory.get();
+//        System.out.println(h.getClass().getSimpleName());
     }
     
     public static Test suite()

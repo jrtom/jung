@@ -3,7 +3,7 @@
  * California All rights reserved.
  *
  * This software is open-source under the BSD license; see either "license.txt"
- * or http://jung.sourceforge.net/license.txt for a description.
+ * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  *
  * 
  */
@@ -39,14 +39,14 @@ public class Animator implements Runnable {
 	}
 
 	/**
-	 * @return the relaxerThreadSleepTime
+	 * @return the relaxer thread sleep time
 	 */
 	public long getSleepTime() {
 		return sleepTime;
 	}
 
 	/**
-	 * @param relaxerThreadSleepTime the relaxerThreadSleepTime to set
+	 * @param sleepTime the relaxer thread sleep time to set
 	 */
 	public void setSleepTime(long sleepTime) {
 		this.sleepTime = sleepTime;

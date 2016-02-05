@@ -7,7 +7,7 @@
  *
  * This software is open-source under the BSD license; see either
  * "license.txt" or
- * http://jung.sourceforge.net/license.txt for a description.
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  */
 package edu.uci.ics.jung.algorithms.util;
 
@@ -26,13 +26,14 @@ public class MapSettableTransformer<I, O> implements SettableTransformer<I, O>
     
     /**
      * Creates an instance based on <code>m</code>.
+     * @param m the map on which this instance is based
      */
     public MapSettableTransformer(Map<I,O> m)
     {
         this.map = m;
     }
 
-    public O transform(I input)
+    public O apply(I input)
     {
         return map.get(input);
     }

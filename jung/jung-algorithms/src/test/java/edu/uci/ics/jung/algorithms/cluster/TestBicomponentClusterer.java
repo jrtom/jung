@@ -5,7 +5,7 @@
 *
 * This software is open-source under the BSD license; see either
 * "license.txt" or
-* http://jung.sourceforge.net/license.txt for a description.
+* https://github.com/jrtom/jung/blob/master/LICENSE for a description.
 */
 package edu.uci.ics.jung.algorithms.cluster;
 
@@ -220,7 +220,7 @@ public class TestBicomponentClusterer extends TestCase {
     public void testComponents(UndirectedGraph<String,Number> graph, String[] vertices, List<Set<String>> c)
     {
         BicomponentClusterer<String,Number> finder = new BicomponentClusterer<String,Number>();
-        Set<Set<String>> bicomponents = finder.transform(graph);
+        Set<Set<String>> bicomponents = finder.apply(graph);
         
         // check number of components
         assertEquals(bicomponents.size(), c.size());

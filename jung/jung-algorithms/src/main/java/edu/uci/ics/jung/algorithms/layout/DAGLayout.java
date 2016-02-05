@@ -5,7 +5,7 @@
  *
  * This software is open-source under the BSD license; see either
  * "license.txt" or
- * http://jung.sourceforge.net/license.txt for a description.
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  *
  * Created on Dec 4, 2003
  */
@@ -13,7 +13,6 @@ package edu.uci.ics.jung.algorithms.layout;
 
 import java.awt.Dimension;
 import java.awt.geom.Point2D;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -69,23 +68,20 @@ public class DAGLayout<V, E> extends SpringLayout<V,E> {
 	int incrementsLeft;
 	final int COOL_DOWN_INCREMENTS = 200;
 
-	/**
-	 * Creates an instance for the specified graph.
-	 */
 	public DAGLayout(Graph<V,E> g) {
 		super(g);
 	}
 
 	/**
-	 * setRoot calculates the level of each vertex in the graph. Level 0 is
-	 * allocated to any vertex with no successors. Level n+1 is allocated to
+	 * Calculates the level of each vertex in the graph. Level 0 is
+	 * allocated to each vertex with no successors. Level n+1 is allocated to
 	 * any vertex whose successors' maximum level is n.
 	 */
-	public void setRoot(Graph<V,E> g) {
+	public void setRoot() {
 		numRoots = 0;
+		Graph<V, E> g = getGraph();
 		for(V v : g.getVertices()) {
-			Collection<V> successors = getGraph().getSuccessors(v);
-			if (successors.size() == 0) {
+			if (g.getSuccessors(v).isEmpty()) {
 				setRoot(v);
 				numRoots++;
 			}
@@ -94,6 +90,7 @@ public class DAGLayout<V, E> extends SpringLayout<V,E> {
 
 	/**
 	 * Set vertex v to be level 0.
+	 * @param v the vertex to set as root
 	 */
 	public void setRoot(V v) {
 		minLevels.put(v, new Integer(0));
@@ -106,7 +103,7 @@ public class DAGLayout<V, E> extends SpringLayout<V,E> {
 	 * that all predecessors of v have a level which is at least one greater
 	 * than the level of v.
 	 *
-	 * @param v
+	 * @param v the vertex whose minimum level is to be calculated
 	 */
 	public void propagateMinimumLevel(V v) {
 		int level = minLevels.get(v).intValue();
@@ -127,11 +124,11 @@ public class DAGLayout<V, E> extends SpringLayout<V,E> {
 	}
 
 	/**
-	 * Sets random locations for a vertex within the dimensions of the space.
-	 * This overrides the method in AbstractLayout
+	 * Sets a random location for a vertex within the dimensions of the space.
 	 *
-	 * @param coord
-	 * @param d
+	 * @param v the vertex whose position is to be set
+	 * @param coord the coordinates of the vertex once the position has been set
+	 * @param d the dimensions of the space
 	 */
 	private void initializeLocation(
 		V v,
@@ -149,7 +146,7 @@ public class DAGLayout<V, E> extends SpringLayout<V,E> {
 	public void setSize(Dimension size) {
 		super.setSize(size);
 		for(V v : getGraph().getVertices()) {
-			initializeLocation(v,transform(v),getSize());
+			initializeLocation(v,apply(v),getSize());
 		}
 	}
 
@@ -159,7 +156,7 @@ public class DAGLayout<V, E> extends SpringLayout<V,E> {
 	@Override
 	public void initialize() {
 		super.initialize();
-		setRoot(getGraph());
+		setRoot();
 	}
 
 	/**
@@ -178,8 +175,8 @@ public class DAGLayout<V, E> extends SpringLayout<V,E> {
 			for(V v : getGraph().getVertices()) {
 				if (isLocked(v))
 					continue;
-				SpringLayout.SpringVertexData vd = springVertexData.get(v);
-				Point2D xyd = transform(v);
+				SpringLayout.SpringVertexData vd = springVertexData.getUnchecked(v);
+				Point2D xyd = apply(v);
 
 				int width = getSize().width;
 				int height = getSize().height;
@@ -260,10 +257,13 @@ public class DAGLayout<V, E> extends SpringLayout<V,E> {
 	/**
 	 * Override forceMove so that if someone moves a node, we can re-layout
 	 * everything.
+     * @param picked the vertex whose location is to be set
+     * @param x the x coordinate of the location to set
+     * @param y the y coordinate of the location to set
 	 */
 	@Override
 	public void setLocation(V picked, double x, double y) {
-		Point2D coord = transform(picked);
+		Point2D coord = apply(picked);
 		coord.setLocation(x,y);
 		stoppingIncrements = false;
 	}
@@ -271,12 +271,12 @@ public class DAGLayout<V, E> extends SpringLayout<V,E> {
 	/**
 	 * Override forceMove so that if someone moves a node, we can re-layout
 	 * everything.
+     * @param picked the vertex whose location is to be set
+     * @param p the location to set
 	 */
 	@Override
 	public void setLocation(V picked, Point2D p) {
-		Point2D coord = transform(picked);
-		coord.setLocation(p);
-		stoppingIncrements = false;
+		setLocation(picked, p.getX(), p.getY());
 	}
 
 	/**
@@ -291,8 +291,8 @@ public class DAGLayout<V, E> extends SpringLayout<V,E> {
 			V v1 = endpoints.getFirst();
 			V v2 = endpoints.getSecond();
 
-			Point2D p1 = transform(v1);
-			Point2D p2 = transform(v2);
+			Point2D p1 = apply(v1);
+			Point2D p2 = apply(v2);
 			double vx = p1.getX() - p2.getX();
 			double vy = p1.getY() - p2.getY();
 			double len = Math.sqrt(vx * vx + vy * vy);
@@ -303,9 +303,7 @@ public class DAGLayout<V, E> extends SpringLayout<V,E> {
 			int level2 =
 				minLevels.get(v2).intValue();
 
-			// desiredLen *= Math.pow( 1.1, (v1.degree() + v2.degree()) );
-//          double desiredLen = getLength(e);
-			double desiredLen = lengthFunction.transform(e);
+			double desiredLen = lengthFunction.apply(e);
 
 			// round from zero, if needed [zero would be Bad.].
 			len = (len == 0) ? .0001 : len;
@@ -325,18 +323,13 @@ public class DAGLayout<V, E> extends SpringLayout<V,E> {
 			if (level1 != level2)
 				f = f / Math.pow(Math.abs(level2 - level1), 1.5);
 
-			// f= Math.min( 0, f );
-
 			// the actual movement distance 'dx' is the force multiplied by the
 			// distance to go.
 			double dx = f * vx;
 			double dy = f * vy;
 			SpringVertexData v1D, v2D;
-			v1D = springVertexData.get(v1);
-			v2D = springVertexData.get(v2);
-
-//			SpringEdgeData<E> sed = getSpringEdgeData(e);
-//			sed.f = f;
+			v1D = springVertexData.getUnchecked(v1);
+			v2D = springVertexData.getUnchecked(v2);
 
 			v1D.edgedx += dx;
 			v1D.edgedy += dy;

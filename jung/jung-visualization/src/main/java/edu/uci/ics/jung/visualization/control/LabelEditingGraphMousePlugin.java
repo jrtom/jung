@@ -5,7 +5,7 @@
  *
  * This software is open-source under the BSD license; see either
  * "license.txt" or
- * http://jung.sourceforge.net/license.txt for a description.
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  * Created on Mar 8, 2005
  *
  */
@@ -16,15 +16,14 @@ import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.Point2D;
-import java.util.Map;
 
 import javax.swing.JOptionPane;
 
-import org.apache.commons.collections15.Transformer;
-import org.apache.commons.collections15.functors.MapTransformer;
+import com.google.common.base.Function;
 
 import edu.uci.ics.jung.algorithms.layout.GraphElementAccessor;
 import edu.uci.ics.jung.algorithms.layout.Layout;
+import edu.uci.ics.jung.algorithms.util.MapSettableTransformer;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 
@@ -54,9 +53,8 @@ public class LabelEditingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
 	}
 
 	/**
-	 * create an instance with overides
+	 * create an instance with overrides
 	 * @param selectionModifiers for primary selection
-	 * @param addToSelectionModifiers for additional selection
 	 */
     public LabelEditingGraphMousePlugin(int selectionModifiers) {
         super(selectionModifiers);
@@ -82,31 +80,33 @@ public class LabelEditingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
 	 */
     @SuppressWarnings("unchecked")
     public void mouseClicked(MouseEvent e) {
-    	if(e.getModifiers() == modifiers && e.getClickCount() == 2) {
-    		VisualizationViewer<V,E> vv = (VisualizationViewer)e.getSource();
+    	if (e.getModifiers() == modifiers && e.getClickCount() == 2) {
+    		VisualizationViewer<V,E> vv = (VisualizationViewer<V, E>)e.getSource();
     		GraphElementAccessor<V,E> pickSupport = vv.getPickSupport();
-    		if(pickSupport != null) {
-    			Transformer<V,String> vs = vv.getRenderContext().getVertexLabelTransformer();
-    			if(vs instanceof MapTransformer) {
-    				Map<V,String> map = ((MapTransformer)vs).getMap();
+    		if (pickSupport != null) {
+    			Function<? super V,String> vs = vv.getRenderContext().getVertexLabelTransformer();
+    			if (vs instanceof MapSettableTransformer) {
+    				MapSettableTransformer<? super V, String> mst =
+    					(MapSettableTransformer<? super V, String>)vs;
     				Layout<V,E> layout = vv.getGraphLayout();
     				// p is the screen point for the mouse event
     				Point2D p = e.getPoint();
 
     				V vertex = pickSupport.getVertex(layout, p.getX(), p.getY());
     				if(vertex != null) {
-    					String newLabel = vs.transform(vertex);
+    					String newLabel = vs.apply(vertex);
     					newLabel = JOptionPane.showInputDialog("New Vertex Label for "+vertex);
     					if(newLabel != null) {
-    						map.put(vertex, newLabel);
+    						mst.set(vertex, newLabel);
     						vv.repaint();
     					}
     					return;
     				}
     			}
-    			Transformer<E,String> es = vv.getRenderContext().getEdgeLabelTransformer();
-    			if(es instanceof MapTransformer) {
-    				Map<E,String> map = ((MapTransformer)es).getMap();
+    			Function<? super E,String> es = vv.getRenderContext().getEdgeLabelTransformer();
+    			if (es instanceof MapSettableTransformer) {
+    				MapSettableTransformer<? super E, String> mst =
+    					(MapSettableTransformer<? super E, String>)es;
     				Layout<V,E> layout = vv.getGraphLayout();
     				// p is the screen point for the mouse event
     				Point2D p = e.getPoint();
@@ -116,7 +116,7 @@ public class LabelEditingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
     				if(edge != null) {
     					String newLabel = JOptionPane.showInputDialog("New Edge Label for "+edge);
     					if(newLabel != null) {
-    						map.put(edge, newLabel);
+    						mst.set(edge, newLabel);
     						vv.repaint();
     					}
     					return;
@@ -133,7 +133,6 @@ public class LabelEditingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
 	 * 
 	 * clean up settings from mousePressed
 	 */
-    @SuppressWarnings("unchecked")
     public void mouseReleased(MouseEvent e) {
     }
     
@@ -149,13 +148,9 @@ public class LabelEditingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
     }
 
 	public void mouseEntered(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	public void mouseExited(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
 	}
 
 }

@@ -5,7 +5,7 @@
  *
  * This software is open-source under the BSD license; see either
  * "license.txt" or
- * http://jung.sourceforge.net/license.txt for a description.
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  */
 
 package edu.uci.ics.jung.io;
@@ -28,6 +28,8 @@ public class GraphIOException extends Exception {
 
     /**
      * Creates a new instance with the specified message and cause.
+     * @param message a description of the exception-triggering event
+     * @param cause the exception which triggered this one
      */
     public GraphIOException(String message, Throwable cause) {
         super(message, cause);
@@ -36,6 +38,7 @@ public class GraphIOException extends Exception {
     /**
      * Creates a new instance with the specified message and no
      * specified cause.
+     * @param message a description of the exception-triggering event
      */
     public GraphIOException(String message) {
         super(message);
@@ -43,6 +46,7 @@ public class GraphIOException extends Exception {
 
     /**
      * Creats a new instance with the specified cause and no specified message.
+     * @param cause the exception which triggered this one
      */
     public GraphIOException(Throwable cause) {
         super(cause);

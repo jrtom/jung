@@ -5,7 +5,7 @@
 *
 * This software is open-source under the BSD license; see either
 * "license.txt" or
-* http://jung.sourceforge.net/license.txt for a description.
+* https://github.com/jrtom/jung/blob/master/LICENSE for a description.
 */
 package edu.uci.ics.jung.algorithms.importance;
 
@@ -18,8 +18,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections15.Factory;
-import org.apache.commons.collections15.map.LazyMap;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 
 import edu.uci.ics.jung.algorithms.util.IterativeProcess;
 import edu.uci.ics.jung.graph.Graph;
@@ -48,20 +49,19 @@ public abstract class AbstractRanker<V,E> extends IterativeProcess {
     private boolean mRankNodes;
     private boolean mRankEdges;
     private boolean mNormalizeRankings;
-    protected Map<Object,Map<V, Number>> vertexRankScores = 
-    	LazyMap.decorate(
-    			new HashMap<Object,Map<V,Number>>(),
-    			new Factory<Map<V,Number>>() {
-					public Map<V,Number> create() {
-						return new HashMap<V,Number>();
-					}});
-    protected Map<Object,Map<E, Number>> edgeRankScores = 
-    	LazyMap.decorate(
-    			new HashMap<Object,Map<E,Number>>(),
-    			new Factory<Map<E,Number>>() {
-					public Map<E,Number> create() {
-						return new HashMap<E,Number>();
-					}});
+    protected LoadingCache<Object, Map<V, Number>> vertexRankScores
+    	= CacheBuilder.newBuilder().build(new CacheLoader<Object, Map<V, Number>>() {
+	    	public Map<V, Number> load(Object o) {
+	    		return new HashMap<V, Number>();
+	    	}
+	});
+    protected LoadingCache<Object, Map<E, Number>> edgeRankScores
+    	= CacheBuilder.newBuilder().build(new CacheLoader<Object, Map<E, Number>>() {
+	    	public Map<E, Number> load(Object o) {
+	    		return new HashMap<E, Number>();
+	    	}
+    });
+    
     private Map<E,Number> edgeWeights = new HashMap<E,Number>();
 
     protected void initialize(Graph<V,E> graph, boolean isNodeRanker, 
@@ -79,22 +79,23 @@ public abstract class AbstractRanker<V,E> extends IterativeProcess {
 	 * @return all rankScores
 	 */
 	public Map<Object,Map<V, Number>> getVertexRankScores() {
-		return vertexRankScores;
+		return vertexRankScores.asMap();
 	}
 
 	public Map<Object,Map<E, Number>> getEdgeRankScores() {
-		return edgeRankScores;
+		return edgeRankScores.asMap();
 	}
 
     /**
-	 * @return the rankScores
+     * @param key the rank score key whose scores are to be retrieved
+	 * @return the rank scores for the specified key
 	 */
 	public Map<V, Number> getVertexRankScores(Object key) {
-		return vertexRankScores.get(key);
+		return vertexRankScores.getUnchecked(key);
 	}
 
 	public Map<E, Number> getEdgeRankScores(Object key) {
-		return edgeRankScores.get(key);
+		return edgeRankScores.getUnchecked(key);
 	}
 
 	protected Collection<V> getVertices() {
@@ -114,7 +115,7 @@ public abstract class AbstractRanker<V,E> extends IterativeProcess {
     }
 
     /**
-     * Returns <code>true</code> if this ranker ranks nodes, and 
+     * @return <code>true</code> if this ranker ranks nodes, and 
      * <code>false</code> otherwise.
      */
     public boolean isRankingNodes() {
@@ -122,7 +123,7 @@ public abstract class AbstractRanker<V,E> extends IterativeProcess {
     }
 
     /**
-     * Returns <code>true</code> if this ranker ranks edges, and 
+     * @return <code>true</code> if this ranker ranks edges, and 
      * <code>false</code> otherwise.
      */
     public boolean isRankingEdges() {
@@ -147,7 +148,8 @@ public abstract class AbstractRanker<V,E> extends IterativeProcess {
     abstract public Object getRankScoreKey();
 
 
-    @Override
+	@SuppressWarnings("unchecked")
+	@Override
     protected void finalizeIterations() {
         List<Ranking<?>> sortedRankings = new ArrayList<Ranking<?>>();
 
@@ -157,7 +159,7 @@ public abstract class AbstractRanker<V,E> extends IterativeProcess {
                 Ranking<V> ranking = new Ranking<V>(id,getVertexRankScore(currentVertex),currentVertex);
                 sortedRankings.add(ranking);
                 if (mRemoveRankScoresOnFinalize) {
-                	this.vertexRankScores.get(getRankScoreKey()).remove(currentVertex);
+                	this.vertexRankScores.getUnchecked(getRankScoreKey()).remove(currentVertex);
                 }
                 id++;
                 onFinalize(currentVertex);
@@ -169,7 +171,7 @@ public abstract class AbstractRanker<V,E> extends IterativeProcess {
                 Ranking<E> ranking = new Ranking<E>(id,getEdgeRankScore(currentEdge),currentEdge);
                 sortedRankings.add(ranking);
                 if (mRemoveRankScoresOnFinalize) {
-                	this.edgeRankScores.get(getRankScoreKey()).remove(currentEdge);
+                	this.edgeRankScores.getUnchecked(getRankScoreKey()).remove(currentEdge);
                 }
                 id++;
                 onFinalize(currentEdge);
@@ -210,14 +212,16 @@ public abstract class AbstractRanker<V,E> extends IterativeProcess {
     }
 
     /**
-     * Given an edge or node, returns the corresponding rank score. This is a default
+     * Given a node, returns the corresponding rank score. This is a default
      * implementation of getRankScore which assumes the decorations are of type MutableDouble.
      * This method only returns legal values if <code>setRemoveRankScoresOnFinalize(false)</code> was called
      * prior to <code>evaluate()</code>.
+     * 
+     * @param v the node whose rank score is to be returned.
      * @return  the rank score value
      */
     public double getVertexRankScore(V v) {
-        Number rankScore = vertexRankScores.get(getRankScoreKey()).get(v);
+        Number rankScore = vertexRankScores.getUnchecked(getRankScoreKey()).get(v);
         if (rankScore != null) {
             return rankScore.doubleValue();
         } else {
@@ -226,11 +230,11 @@ public abstract class AbstractRanker<V,E> extends IterativeProcess {
     }
     
     public double getVertexRankScore(V v, Object key) {
-    	return vertexRankScores.get(key).get(v).doubleValue();
+    	return vertexRankScores.getUnchecked(key).get(v).doubleValue();
     }
 
     public double getEdgeRankScore(E e) {
-        Number rankScore = edgeRankScores.get(getRankScoreKey()).get(e);
+        Number rankScore = edgeRankScores.getUnchecked(getRankScoreKey()).get(e);
         if (rankScore != null) {
             return rankScore.doubleValue();
         } else {
@@ -239,15 +243,15 @@ public abstract class AbstractRanker<V,E> extends IterativeProcess {
     }
     
     public double getEdgeRankScore(E e, Object key) {
-    	return edgeRankScores.get(key).get(e).doubleValue();
+    	return edgeRankScores.getUnchecked(key).get(e).doubleValue();
     }
 
     protected void setVertexRankScore(V v, double rankValue, Object key) {
-    	vertexRankScores.get(key).put(v, rankValue);
+    	vertexRankScores.getUnchecked(key).put(v, rankValue);
     }
 
     protected void setEdgeRankScore(E e, double rankValue, Object key) {
-		edgeRankScores.get(key).put(e, rankValue);
+		edgeRankScores.getUnchecked(key).put(e, rankValue);
     }
 
     protected void setVertexRankScore(V v, double rankValue) {
@@ -259,19 +263,19 @@ public abstract class AbstractRanker<V,E> extends IterativeProcess {
     }
 
     protected void removeVertexRankScore(V v, Object key) {
-    	vertexRankScores.get(key).remove(v);
+    	vertexRankScores.getUnchecked(key).remove(v);
     }
 
     protected void removeEdgeRankScore(E e, Object key) {
-    	edgeRankScores.get(key).remove(e);
+    	edgeRankScores.getUnchecked(key).remove(e);
     }
 
     protected void removeVertexRankScore(V v) {
-    	vertexRankScores.get(getRankScoreKey()).remove(v);
+    	vertexRankScores.getUnchecked(getRankScoreKey()).remove(v);
     }
 
     protected void removeEdgeRankScore(E e) {
-    	edgeRankScores.get(getRankScoreKey()).remove(e);
+    	edgeRankScores.getUnchecked(getRankScoreKey()).remove(e);
     }
 
     protected double getEdgeWeight(E e) {
@@ -380,7 +384,7 @@ public abstract class AbstractRanker<V,E> extends IterativeProcess {
      * Allows the user to specify whether or not s/he wants the rankings to be normalized.
      * In some cases, this will have no effect since the algorithm doesn't allow normalization
      * as an option
-     * @param normalizeRankings
+     * @param normalizeRankings {@code true} iff the ranking are to be normalized
      */
     public void setNormalizeRankings(boolean normalizeRankings) {
         mNormalizeRankings = normalizeRankings;

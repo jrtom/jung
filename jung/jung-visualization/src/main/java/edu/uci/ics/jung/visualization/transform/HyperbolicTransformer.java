@@ -3,7 +3,7 @@
  * California All rights reserved.
  * 
  * This software is open-source under the BSD license; see either "license.txt"
- * or http://jung.sourceforge.net/license.txt for a description.
+ * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  * 
  */
 package edu.uci.ics.jung.visualization.transform;
@@ -20,30 +20,28 @@ import edu.uci.ics.jung.algorithms.layout.PolarPoint;
  * center spread out and points near the edges collapsed onto the
  * circumference of an ellipse.
  * 
- * HyperBolicTransformer is not an affine transform, but it uses an
+ * HyperbolicTransformer is not an affine transform, but it uses an
  * affine transform to cause translation, scaling, rotation, and shearing
  * while applying a non-affine hyperbolic filter in its transform and
  * inverseTransform methods.
  * 
  * @author Tom Nelson 
- *
- *
  */
 public class HyperbolicTransformer extends LensTransformer implements MutableTransformer {
-
-    
     /**
      * create an instance, setting values from the passed component
      * and registering to listen for size changes on the component
-     * @param component
+     * @param component the component used for rendering
      */
     public HyperbolicTransformer(Component component) {
         this(component, new MutableAffineTransformer());
     }
+
     /**
-     * create an instance with a possibly shared transform
-     * @param component
-     * @param delegate
+     * Create an instance with a possibly shared transform.
+     * 
+     * @param component the component used for rendering
+     * @param delegate the transformer to use
      */
     public HyperbolicTransformer(Component component, MutableTransformer delegate) {
     		super(component, delegate);

@@ -3,7 +3,7 @@
  * California All rights reserved.
  *
  * This software is open-source under the BSD license; see either "license.txt"
- * or http://jung.sourceforge.net/license.txt for a description.
+ * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  *
  * Created on Apr 16, 2005
  */
@@ -20,12 +20,12 @@ import edu.uci.ics.jung.visualization.transform.BidirectionalTransformer;
  * 
  * @author Tom Nelson 
  */
-public interface  ShapeTransformer extends BidirectionalTransformer {
+public interface ShapeTransformer extends BidirectionalTransformer {
     
     /**
      * map a shape from graph coordinate system to the
      * screen coordinate system
-     * @param shape
+     * @param shape the Shape to transform
      * @return a GeneralPath (Shape) representing the screen points of the shape
      */
     Shape transform(Shape shape);

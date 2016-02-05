@@ -3,7 +3,7 @@
  * California All rights reserved.
  *
  * This software is open-source under the BSD license; see either "license.txt"
- * or http://jung.sourceforge.net/license.txt for a description.
+ * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  *
  * Created on Aug 15, 2005
  */
@@ -39,11 +39,11 @@ public class SatelliteScalingGraphMousePlugin extends ScalingGraphMousePlugin {
     public void mouseWheelMoved(MouseWheelEvent e) {
         boolean accepted = checkModifiers(e);
         if(accepted == true) {
-            VisualizationViewer vv = (VisualizationViewer)e.getSource();
+            VisualizationViewer<?, ?> vv = (VisualizationViewer<?, ?>)e.getSource();
 
             if(vv instanceof SatelliteVisualizationViewer) {
-                VisualizationViewer vvMaster = 
-                    ((SatelliteVisualizationViewer)vv).getMaster();
+                VisualizationViewer<?, ?> vvMaster = 
+                    ((SatelliteVisualizationViewer<?, ?>)vv).getMaster();
 
                 int amount = e.getWheelRotation();
                 

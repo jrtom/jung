@@ -7,7 +7,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.collections15.Factory;
+import com.google.common.base.Supplier;
 
 import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.graph.util.Pair;
@@ -22,15 +22,15 @@ public abstract class AbstractOrderedSparseMultigraphTest extends TestCase {
     protected Number e12 = .3;
     protected Number e21 = .4;
 
-    protected Factory<Number> vertexFactory = new Factory<Number>() {
+    protected Supplier<Number> vertexFactory = new Supplier<Number>() {
     	int v=0;
-		public Number create() {
+		public Number get() {
 			return v++;
 		}
     };
-    protected Factory<Number> edgeFactory = new Factory<Number>() {
+    protected Supplier<Number> edgeFactory = new Supplier<Number>() {
     	int e=0;
-		public Number create() {
+		public Number get() {
 			return e++;
 		}
     };
@@ -75,13 +75,13 @@ public abstract class AbstractOrderedSparseMultigraphTest extends TestCase {
 
     public void testAddEdge() {
         int edgeCount = graph.getEdgeCount();
-        graph.addEdge(edgeFactory.create(), 0, 1);
+        graph.addEdge(edgeFactory.get(), 0, 1);
         assertEquals(graph.getEdgeCount(), edgeCount+1);
     }
     
     public void testNullEndpoint() {
     	try {
-    		graph.addEdge(edgeFactory.create(), new Pair<Number>(1,null));
+    		graph.addEdge(edgeFactory.get(), new Pair<Number>(1,null));
     		fail("should not be able to add an edge with a null endpoint");
     	} catch(IllegalArgumentException e) {
     		// all is well

@@ -5,7 +5,7 @@
 *
 * This software is open-source under the BSD license; see either
 * "license.txt" or
-* http://jung.sourceforge.net/license.txt for a description.
+* https://github.com/jrtom/jung/blob/master/LICENSE for a description.
 */
 package edu.uci.ics.jung.algorithms.util;
 
@@ -22,7 +22,7 @@ public interface IterativeContext
 	void step();
 
 	/**
-	 * Returns true if this iterative process is finished, and false otherwise.
+	 * @return {@code true} if this iterative process is finished, and {@code false} otherwise.
 	 */
 	boolean done();
 }

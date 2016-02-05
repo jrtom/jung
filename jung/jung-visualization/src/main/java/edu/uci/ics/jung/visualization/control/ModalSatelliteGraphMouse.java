@@ -3,7 +3,7 @@
  * California All rights reserved.
  *
  * This software is open-source under the BSD license; see either "license.txt"
- * or http://jung.sourceforge.net/license.txt for a description.
+ * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  *
  * Created on Aug 26, 2005
  */
@@ -16,6 +16,7 @@ import java.awt.event.InputEvent;
  * @author Tom Nelson 
  *
  */
+@SuppressWarnings("rawtypes")
 public class ModalSatelliteGraphMouse extends DefaultModalGraphMouse implements
         ModalGraphMouse {
 
@@ -27,7 +28,7 @@ public class ModalSatelliteGraphMouse extends DefaultModalGraphMouse implements
         super(in, out);
     }
     
-    protected void loadPlugins() {
+	protected void loadPlugins() {
         pickingPlugin = new PickingGraphMousePlugin();
         animatedPickingPlugin = new SatelliteAnimatedPickingGraphMousePlugin();
         translatingPlugin = new SatelliteTranslatingGraphMousePlugin(InputEvent.BUTTON1_MASK);

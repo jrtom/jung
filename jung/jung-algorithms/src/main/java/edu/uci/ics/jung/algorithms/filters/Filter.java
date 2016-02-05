@@ -5,11 +5,11 @@
 *
 * This software is open-source under the BSD license; see either
 * "license.txt" or
-* http://jung.sourceforge.net/license.txt for a description.
+* https://github.com/jrtom/jung/blob/master/LICENSE for a description.
 */
 package edu.uci.ics.jung.algorithms.filters;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 import edu.uci.ics.jung.graph.Graph;
 
@@ -23,4 +23,4 @@ import edu.uci.ics.jung.graph.Graph;
  * 
  * @author danyelf
  */
-public interface Filter<V,E> extends Transformer<Graph<V,E>, Graph<V,E>>{ }
+public interface Filter<V,E> extends Function<Graph<V,E>, Graph<V,E>>{ }

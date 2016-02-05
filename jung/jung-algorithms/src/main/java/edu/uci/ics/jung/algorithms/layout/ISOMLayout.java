@@ -5,24 +5,23 @@
 *
 * This software is open-source under the BSD license; see either
 * "license.txt" or
-* http://jung.sourceforge.net/license.txt for a description.
+* https://github.com/jrtom/jung/blob/master/LICENSE for a description.
 */
 package edu.uci.ics.jung.algorithms.layout;
-
-import edu.uci.ics.jung.algorithms.layout.util.RandomLocationTransformer;
-import edu.uci.ics.jung.algorithms.util.IterativeContext;
-import edu.uci.ics.jung.graph.Graph;
-
-import org.apache.commons.collections15.Factory;
-import org.apache.commons.collections15.map.LazyMap;
 
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.ConcurrentModificationException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+
+import edu.uci.ics.jung.algorithms.layout.util.RandomLocationTransformer;
+import edu.uci.ics.jung.algorithms.util.IterativeContext;
+import edu.uci.ics.jung.graph.Graph;
 
 /**
  * Implements a self-organizing map layout algorithm, based on Meyer's
@@ -32,12 +31,12 @@ import java.util.Map;
  */
 public class ISOMLayout<V, E> extends AbstractLayout<V,E> implements IterativeContext {
 
-	Map<V, ISOMVertexData> isomVertexData =
-		LazyMap.decorate(new HashMap<V, ISOMVertexData>(),
-				new Factory<ISOMVertexData>() {
-					public ISOMVertexData create() {
-						return new ISOMVertexData();
-					}});
+    protected LoadingCache<V, ISOMVertexData> isomVertexData =
+    	CacheBuilder.newBuilder().build(new CacheLoader<V, ISOMVertexData>() {
+	    	public ISOMVertexData load(V vertex) {
+	    		return new ISOMVertexData();
+	    	}
+    });
 
 	private int maxEpoch;
 	private int epoch;
@@ -59,16 +58,12 @@ public class ISOMLayout<V, E> extends AbstractLayout<V,E> implements IterativeCo
 	private String status = null;
 
 	/**
-	 * Returns the current number of epochs and execution status, as a string.
+	 * @return the current number of epochs and execution status, as a string.
 	 */
 	public String getStatus() {
 		return status;
 	}
 
-	/**
-	 * Creates an <code>ISOMLayout</code> instance for the specified graph <code>g</code>.
-	 * @param g
-	 */
 	public ISOMLayout(Graph<V,E> g) {
 		super(g);
 	}
@@ -107,7 +102,6 @@ public class ISOMLayout<V, E> extends AbstractLayout<V,E> implements IterativeCo
 			adjust();
 			updateParameters();
 			status += " status: running";
-
 		} else {
 			status += "adaption: " + adaption + "; ";
 			status += "status: done";
@@ -161,7 +155,7 @@ public class ISOMLayout<V, E> extends AbstractLayout<V,E> implements IterativeCo
 		while (!queue.isEmpty()) {
 			current = queue.remove(0);
 			ISOMVertexData currData = getISOMVertexData(current);
-			Point2D currXYData = transform(current);
+			Point2D currXYData = apply(current);
 
 			double dx = tempXYD.getX() - currXYData.getX();
 			double dy = tempXYD.getY() - currXYData.getY();
@@ -189,7 +183,7 @@ public class ISOMLayout<V, E> extends AbstractLayout<V,E> implements IterativeCo
 	}
 
 	protected ISOMVertexData getISOMVertexData(V v) {
-		return isomVertexData.get(v);
+		return isomVertexData.getUnchecked(v);
 	}
 
 	/**

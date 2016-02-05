@@ -3,14 +3,13 @@
  * California All rights reserved.
  *
  * This software is open-source under the BSD license; see either "license.txt"
- * or http://jung.sourceforge.net/license.txt for a description.
+ * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  *
  * Created on Apr 16, 2005
  */
 
 package edu.uci.ics.jung.visualization.transform;
 
-import java.awt.Shape;
 import java.awt.geom.Point2D;
 
 /**
@@ -22,33 +21,16 @@ import java.awt.geom.Point2D;
 public interface BidirectionalTransformer {
     
     /**
-     * convert the supplied graph coordinate to the 
-     * screen coordinate
+     * convert the supplied graph coordinate to the screen coordinate
      * @param p graph point to convert
      * @return screen point
      */
     Point2D transform(Point2D p);
     
     /**
-     * convert the supplied screen coordinate to the
-     * graph coordinate.
+     * convert the supplied screen coordinate to the graph coordinate.
      * @param p screen point to convert
      * @return the graph point
      */
     Point2D inverseTransform(Point2D p);
-    
-    /**
-     * 
-     * @param shape
-     * @return
-     */
-    Shape transform(Shape shape);
-    
-    /**
-     * 
-     * @param shape
-     * @return
-     */
-    Shape inverseTransform(Shape shape);
-    
 }

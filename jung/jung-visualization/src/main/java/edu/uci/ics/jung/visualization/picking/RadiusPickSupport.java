@@ -5,7 +5,7 @@
  *
  * This software is open-source under the BSD license; see either
  * "license.txt" or
- * http://jung.sourceforge.net/license.txt for a description.
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  */
 /*
  * Created on Mar 19, 2005
@@ -36,9 +36,9 @@ public class RadiusPickSupport<V, E>
     }
     
     /**
-     * the layout will always be provided by the VisualizationViewer
-     * this is supporting picking for
-     * @param maxDistance
+     * Creates an instance with the specified maximum distance.
+     * @param maxDistance the farthest that a vertex can be from the selection point
+     *     and still be 'picked'
      */
     public RadiusPickSupport(double maxDistance) {
         super(maxDistance);
@@ -59,9 +59,11 @@ public class RadiusPickSupport<V, E>
 	 * within a distance of <tt>maxDistance</tt>. Iterates through all
 	 * visible vertices and checks their distance from the click. Override this
 	 * method to provide a more efficient implementation.
-	 * @param x
-	 * @param y
-	 * @param maxDistance temporarily overrides member maxDistance
+     * @param layout the layout instance that records the positions for all vertices
+     * @param x the x coordinate of the pick point
+     * @param y the y coordinate of the pick point
+	 * @param maxDistance vertices whose from (x, y) is &gt; this cannot be returned
+     * @return the vertex whose center is closest to the pick point (x, y)
 	 */
 	public V getVertex(Layout<V,E> layout, double x, double y, double maxDistance) {
 	    return super.getVertex(layout, x, y, maxDistance);
@@ -70,6 +72,10 @@ public class RadiusPickSupport<V, E>
 	/**
 	 * Gets the edge nearest to the location of the (x,y) location selected.
 	 * Calls the longer form of the call.
+     * @param layout the layout instance that records the positions for all vertices
+     * @param x the x coordinate of the pick point
+     * @param y the y coordinate of the pick point
+     * @return the vertex whose center is closest to the pick point (x, y)
 	 */
 	public E getEdge(Layout<V,E> layout, double x, double y) {
 	    return getEdge(layout, x, y, this.maxDistance);
@@ -81,9 +87,9 @@ public class RadiusPickSupport<V, E>
 	 * visible edges and checks their distance from the click. Override this
 	 * method to provide a more efficient implementation.
 	 * 
-	 * @param x
-	 * @param y
-	 * @param maxDistance temporarily overrides member maxDistance
+     * @param x the x coordinate of the pick point
+     * @param y the y coordinate of the pick point
+	 * @param maxDistance vertices whose from (x, y) is &gt; this cannot be returned
 	 * @return Edge closest to the click.
 	 */
 	public E getEdge(Layout<V,E> layout, double x, double y, double maxDistance) {

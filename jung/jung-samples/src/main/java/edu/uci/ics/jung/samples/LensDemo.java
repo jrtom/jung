@@ -3,7 +3,7 @@
  * California All rights reserved.
  * 
  * This software is open-source under the BSD license; see either "license.txt"
- * or http://jung.sourceforge.net/license.txt for a description.
+ * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  * 
  */
 package edu.uci.ics.jung.samples;
@@ -43,9 +43,8 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.plaf.basic.BasicLabelUI;
 
-import org.apache.commons.collections15.Transformer;
-import org.apache.commons.collections15.TransformerUtils;
-import org.apache.commons.collections15.functors.ConstantTransformer;
+import com.google.common.base.Function;
+import com.google.common.base.Functions;
 
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
@@ -94,7 +93,7 @@ public class LensDemo extends JApplet {
      */
     Graph<String,Number> graph;
     
-    Layout<String,Number> graphLayout;
+    FRLayout<String,Number> graphLayout;
     
     /**
      * a grid shaped graph
@@ -139,12 +138,12 @@ public class LensDemo extends JApplet {
         graph = TestGraphs.getOneComponentGraph();
         
         graphLayout = new FRLayout<String,Number>(graph);
-        ((FRLayout)graphLayout).setMaxIterations(1000);
+        graphLayout.setMaxIterations(1000);
 
         Dimension preferredSize = new Dimension(600,600);
         Map<String,Point2D> map = new HashMap<String,Point2D>();
-        Transformer<String,Point2D> vlf =
-        	TransformerUtils.mapTransformer(map);
+        Function<String,Point2D> vlf =
+        	Functions.forMap(map);
         grid = this.generateVertexGrid(map, preferredSize, 25);
         gridLayout = new StaticLayout<String,Number>(grid, vlf, preferredSize);
         
@@ -160,9 +159,9 @@ public class LensDemo extends JApplet {
         
         vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
         
-        final Transformer<String,Shape> ovals = vv.getRenderContext().getVertexShapeTransformer();
-        final Transformer<String,Shape> squares = 
-        	new ConstantTransformer(new Rectangle2D.Float(-10,-10,20,20));
+        final Function<? super String,Shape> ovals = vv.getRenderContext().getVertexShapeTransformer();
+        final Function<? super String,Shape> squares = 
+        	Functions.<Shape>constant(new Rectangle2D.Float(-10,-10,20,20));
 
         // add a listener for ToolTips
         vv.setVertexToolTipTransformer(new ToStringLabeller());
@@ -174,7 +173,8 @@ public class LensDemo extends JApplet {
         /**
          * the regular graph mouse for the normal view
          */
-        final DefaultModalGraphMouse graphMouse = new DefaultModalGraphMouse();
+        final DefaultModalGraphMouse<String,Number> graphMouse
+        	= new DefaultModalGraphMouse<String,Number>();
 
         vv.setGraphMouse(graphMouse);
         vv.addKeyListener(graphMouse.getModeKeyListener());
@@ -282,7 +282,8 @@ public class LensDemo extends JApplet {
                 if(e.getStateChange() == ItemEvent.SELECTED) {
                     visualizationModel.setGraphLayout(graphLayout);
                     vv.getRenderContext().setVertexShapeTransformer(ovals);
-                    vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
+                    vv.getRenderContext().setVertexLabelTransformer(
+                    	new ToStringLabeller());
                     vv.repaint();
                 }
             }});
@@ -293,7 +294,7 @@ public class LensDemo extends JApplet {
                 if(e.getStateChange() == ItemEvent.SELECTED) {
                     visualizationModel.setGraphLayout(gridLayout);
                     vv.getRenderContext().setVertexShapeTransformer(squares);
-                    vv.getRenderContext().setVertexLabelTransformer(new ConstantTransformer(null));
+                    vv.getRenderContext().setVertexLabelTransformer(Functions.<String>constant(null));
                     vv.repaint();
                 }
             }});
@@ -438,12 +439,6 @@ public class LensDemo extends JApplet {
         }
     }
 
-
-
-
-    /**
-     * a driver for this demo
-     */
     public static void main(String[] args) {
         JFrame f = new JFrame();
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

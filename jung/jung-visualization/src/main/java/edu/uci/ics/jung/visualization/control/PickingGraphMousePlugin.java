@@ -5,7 +5,7 @@
  *
  * This software is open-source under the BSD license; see either
  * "license.txt" or
- * http://jung.sourceforge.net/license.txt for a description.
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  * Created on Mar 8, 2005
  *
  */
@@ -165,7 +165,7 @@ public class PickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
     @SuppressWarnings("unchecked")
     public void mousePressed(MouseEvent e) {
         down = e.getPoint();
-        VisualizationViewer<V,E> vv = (VisualizationViewer)e.getSource();
+        VisualizationViewer<V,E> vv = (VisualizationViewer<V, E>)e.getSource();
         GraphElementAccessor<V,E> pickSupport = vv.getPickSupport();
         PickedState<V> pickedVertexState = vv.getPickedVertexState();
         PickedState<E> pickedEdgeState = vv.getPickedEdgeState();
@@ -182,9 +182,9 @@ public class PickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
                     	pickedVertexState.clear();
                     	pickedVertexState.pick(vertex, true);
                     }
-                    // layout.getLocation applies the layout transformer so
-                    // q is transformed by the layout transformer only
-                    Point2D q = layout.transform(vertex);
+                    // layout.getLocation applies the layout Function so
+                    // q is transformed by the layout Function only
+                    Point2D q = layout.apply(vertex);
                     // transform the mouse point to graph coordinate system
                     Point2D gp = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(Layer.LAYOUT, ip);
 
@@ -210,9 +210,9 @@ public class PickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
                         vertex = null;
                     } else {
 
-                        // layout.getLocation applies the layout transformer so
-                        // q is transformed by the layout transformer only
-                        Point2D q = layout.transform(vertex);
+                        // layout.getLocation applies the layout Function so
+                        // q is transformed by the layout Function only
+                        Point2D q = layout.apply(vertex);
                         // translate mouse point to graph coord system
                         Point2D gp = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(Layer.LAYOUT, ip);
 
@@ -235,7 +235,7 @@ public class PickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
 	 */
     @SuppressWarnings("unchecked")
     public void mouseReleased(MouseEvent e) {
-        VisualizationViewer<V,E> vv = (VisualizationViewer)e.getSource();
+        VisualizationViewer<V,E> vv = (VisualizationViewer<V, E>)e.getSource();
         if(e.getModifiers() == modifiers) {
             if(down != null) {
                 Point2D out = e.getPoint();
@@ -271,7 +271,7 @@ public class PickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
     @SuppressWarnings("unchecked")
     public void mouseDragged(MouseEvent e) {
         if(locked == false) {
-            VisualizationViewer<V,E> vv = (VisualizationViewer)e.getSource();
+            VisualizationViewer<V,E> vv = (VisualizationViewer<V, E>)e.getSource();
             if(vertex != null) {
                 Point p = e.getPoint();
                 Point2D graphPoint = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(p);
@@ -282,7 +282,7 @@ public class PickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
                 PickedState<V> ps = vv.getPickedVertexState();
                 
                 for(V v : ps.getPicked()) {
-                    Point2D vp = layout.transform(v);
+                    Point2D vp = layout.apply(v);
                     vp.setLocation(vp.getX()+dx, vp.getY()+dy);
                     layout.setLocation(v, vp);
                 }
@@ -315,9 +315,13 @@ public class PickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
     }
     
     /**
-     * pick the vertices inside the rectangle created from points
-     * 'down' and 'out'
-     *
+     * pick the vertices inside the rectangle created from points 'down' and 'out' (two diagonally
+     * opposed corners of the rectangle)
+     * 
+     * @param vv the viewer containing the layout and picked state
+     * @param down one corner of the rectangle
+     * @param out the other corner of the rectangle
+     * @param clear whether to reset existing picked state
      */
     protected void pickContainedVertices(VisualizationViewer<V,E> vv, Point2D down, Point2D out, boolean clear) {
         

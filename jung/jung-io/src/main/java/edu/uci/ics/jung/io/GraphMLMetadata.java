@@ -5,17 +5,17 @@
  *
  * This software is open-source under the BSD license; see either
  * "license.txt" or
- * http://jung.sourceforge.net/license.txt for a description.
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  * Created on Jun 30, 2008
  * 
  */
 package edu.uci.ics.jung.io;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 /**
  * Maintains information relating to data for the specified type.
- * This includes a transformer from objects to their values,
+ * This includes a Function from objects to their values,
  * a default value, and a description.
  */
 public class GraphMLMetadata<T> 
@@ -31,20 +31,23 @@ public class GraphMLMetadata<T>
 	public String default_value;
 	
 	/**
-	 * A transformer from objects to string representations 
-	 * of their values.
+	 * A Function mapping objects to string representations of their values.
 	 */
-	public Transformer<T, String> transformer;
+	public Function<T, String> transformer;
 	
 	/**
 	 * Creates a new instance with the specified description,
-	 * default value, and transformer.
+	 * default value, and function.
+	 * 
+	 * @param description a textual description of the object
+	 * @param default_value the default value for the object, as a String
+	 * @param function maps objects of this type to string representations
 	 */
 	public GraphMLMetadata(String description, String default_value,
-			Transformer<T, String> transformer)
+			Function<T, String> function)
 	{
 		this.description = description;
-		this.transformer = transformer;
+		this.transformer = function;
 		this.default_value = default_value;
 	}
 }

@@ -7,7 +7,7 @@
  *
  * This software is open-source under the BSD license; see either
  * "license.txt" or
- * http://jung.sourceforge.net/license.txt for a description.
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  */
 package edu.uci.ics.jung.algorithms.scoring.util;
 
@@ -39,7 +39,7 @@ public class VEPair<V, E>
     }
     
     /**
-     * Returns the vertex of this pair.
+     * @return the vertex of this pair
      */
     public V getV()
     {
@@ -47,7 +47,7 @@ public class VEPair<V, E>
     }
     
     /**
-     * Returns the edge of this pair.
+     * @return the edge of this pair
      */
     public E getE()
     {

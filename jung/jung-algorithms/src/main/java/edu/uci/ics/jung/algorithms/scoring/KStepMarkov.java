@@ -5,13 +5,13 @@
  *
  * This software is open-source under the BSD license; see either
  * "license.txt" or
- * http://jung.sourceforge.net/license.txt for a description.
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  * Created on Aug 22, 2008
  * 
  */
 package edu.uci.ics.jung.algorithms.scoring;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 import edu.uci.ics.jung.algorithms.scoring.util.ScoringUtils;
 import edu.uci.ics.jung.graph.Hypergraph;
@@ -54,8 +54,8 @@ public class KStepMarkov<V,E> extends PageRankWithPriors<V,E>
 	 * @param vertex_priors the initial probability distribution (score assignment)
 	 * @param steps the number of times that {@code step()} will be called by {@code evaluate}
 	 */
-	public KStepMarkov(Hypergraph<V,E> graph, Transformer<E, ? extends Number> edge_weights, 
-					   Transformer<V, Double> vertex_priors, int steps)
+	public KStepMarkov(Hypergraph<V,E> graph, Function<E, ? extends Number> edge_weights, 
+					   Function<V, Double> vertex_priors, int steps)
 	{
 		super(graph, edge_weights, vertex_priors, 0);
 		initialize(steps);
@@ -70,7 +70,7 @@ public class KStepMarkov<V,E> extends PageRankWithPriors<V,E>
 	 * @param vertex_priors the initial probability distribution (score assignment)
 	 * @param steps the number of times that {@code step()} will be called by {@code evaluate}
 	 */
-	public KStepMarkov(Hypergraph<V,E> graph, Transformer<V, Double> vertex_priors, int steps)
+	public KStepMarkov(Hypergraph<V,E> graph, Function<V, Double> vertex_priors, int steps)
 	{
 		super(graph, vertex_priors, 0);
 		initialize(steps);
@@ -106,8 +106,9 @@ public class KStepMarkov<V,E> extends PageRankWithPriors<V,E>
 
 	/**
 	 * Specifies whether this instance should assign a score to each vertex
-	 * based on the 
-	 * @param cumulative
+	 * based on the sum over all steps of the probability for each step.
+	 * See the class-level documentation for details.
+	 * @param cumulative true if this instance should assign a cumulative score to each vertex
 	 */
 	public void setCumulative(boolean cumulative)
 	{

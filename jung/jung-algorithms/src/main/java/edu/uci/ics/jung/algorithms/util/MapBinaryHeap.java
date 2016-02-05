@@ -5,7 +5,7 @@
  *
  * This software is open-source under the BSD license; see either
  * "license.txt" or
- * http://jung.sourceforge.net/license.txt for a description.
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  */
 /*
  * 
@@ -23,7 +23,7 @@ import java.util.NoSuchElementException;
 import java.util.Queue;
 import java.util.Vector;
 
-import org.apache.commons.collections15.IteratorUtils;
+import com.google.common.collect.Iterators;
 
 /**
  * An array-based binary heap implementation of a priority queue, 
@@ -47,7 +47,8 @@ public class MapBinaryHeap<T>
 
     /**
      * Creates a <code>MapBinaryHeap</code> whose heap ordering
-     * is based on the ordering of the elements specified by <code>c</code>.
+     * is based on the ordering of the elements specified by <code>comp</code>.
+     * @param comp the comparator to use to order elements in the heap
      */
     public MapBinaryHeap(Comparator<T> comp)
     {
@@ -69,6 +70,7 @@ public class MapBinaryHeap<T>
      * collection whose heap ordering
      * will be based on the <i>natural ordering</i> of the elements,
      * which must be <code>Comparable</code>.
+     * @param c the collection of {@code Comparable} elements to add to the heap
      */
     public MapBinaryHeap(Collection<T> c)
     {
@@ -80,6 +82,8 @@ public class MapBinaryHeap<T>
      * Creates a <code>MapBinaryHeap</code> based on the specified collection 
      * whose heap ordering
      * is based on the ordering of the elements specified by <code>c</code>.
+     * @param c the collection of elements to add to the heap
+     * @param comp the comparator to use for items in {@code c}
      */
     public MapBinaryHeap(Collection<T> c, Comparator<T> comp)
     {
@@ -137,19 +141,8 @@ public class MapBinaryHeap<T>
 			return null;
 	}
 
-	/**
-	 * Removes the element at the top of this heap, and returns it.
-	 * @deprecated Use {@link MapBinaryHeap#poll()} 
-	 * or {@link MapBinaryHeap#remove()} instead.
-	 */
-	@Deprecated
-    public T pop() throws NoSuchElementException
-	{
-		return this.remove();
-	}
-
     /**
-     * Returns the size of this heap.
+     * @return the size of this heap
      */
     @Override
     public int size() 
@@ -161,7 +154,7 @@ public class MapBinaryHeap<T>
      * Informs the heap that this object's internal key value has been
      * updated, and that its place in the heap may need to be shifted
      * (up or down).
-     * @param o
+     * @param o the object whose key value has been updated
      */
     public void update(T o)
     {
@@ -174,9 +167,6 @@ public class MapBinaryHeap<T>
         percolateDown(new_idx);
     }
 
-    /**
-     * @see Collection#contains(java.lang.Object)
-     */
     @Override
     public boolean contains(Object o)
     {
@@ -317,7 +307,7 @@ public class MapBinaryHeap<T>
     @Override
     public Iterator<T> iterator()
     {
-        return IteratorUtils.<T>unmodifiableIterator(heap.iterator());
+        return Iterators.<T>unmodifiableIterator(heap.iterator());
     }
 
     /**

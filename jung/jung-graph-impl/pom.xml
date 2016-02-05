@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>jung-graph-impl</artifactId>
   <packaging>jar</packaging>
-  <version>2.0.2-SNAPSHOT</version>
+  <version>2.1</version>
   <url>http://jung.sourceforge.net/site/jung-graph-impl</url>
   <name>jung-graph-impl</name>
   <description>
@@ -11,7 +11,7 @@
   <parent>
     <groupId>net.sf.jung</groupId>
     <artifactId>jung2</artifactId>
-    <version>2.0.2-SNAPSHOT</version>
+    <version>2.1</version>
   </parent>
     <build>
    	<plugins>
@@ -44,12 +44,6 @@
 		<type>test-jar</type>
 		<scope>test</scope>
 	</dependency>
-    <dependency>
-      <groupId>net.sourceforge.collections</groupId>
-      <artifactId>collections-generic</artifactId>
-      <version>4.01</version>
-      <scope>compile</scope>
-    </dependency>
 
   </dependencies>
 </project>

@@ -3,7 +3,7 @@
  * California All rights reserved.
  * 
  * This software is open-source under the BSD license; see either "license.txt"
- * or http://jung.sourceforge.net/license.txt for a description.
+ * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  * 
  */
 package edu.uci.ics.jung.samples;
@@ -36,8 +36,8 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import org.apache.commons.collections15.Predicate;
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 
 import edu.uci.ics.jung.algorithms.layout.CircleLayout;
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
@@ -74,7 +74,7 @@ import edu.uci.ics.jung.visualization.util.PredicatedParallelEdgeIndexFunction;
  * 
  * Note that the collection types don't use generics in this
  * demo, because the vertices are of two types: String for plain
- * vertices, and Graph<String,Number> for the collapsed vertices.
+ * vertices, and {@code Graph<String, Number>} for the collapsed vertices.
  * 
  * @author Tom Nelson
  * 
@@ -103,19 +103,24 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
     /**
      * the graph
      */
-    Graph graph;
-    Graph collapsedGraph;
+    @SuppressWarnings("rawtypes")
+	Graph graph;
+    @SuppressWarnings("rawtypes")
+	Graph collapsedGraph;
 
     /**
      * the visual component and renderer for the graph
      */
-    VisualizationViewer vv;
+    @SuppressWarnings("rawtypes")
+	VisualizationViewer vv;
     
-    Layout layout;
+    @SuppressWarnings("rawtypes")
+	Layout layout;
     
     GraphCollapser collapser;
 
-    public VertexCollapseDemoWithLayouts() {
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+	public VertexCollapseDemoWithLayouts() {
         
         // create a simple graph for the demo
         graph = 
@@ -136,7 +141,7 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
         final Set exclusions = new HashSet();
         eif.setPredicate(new Predicate() {
 
-			public boolean evaluate(Object e) {
+			public boolean apply(Object e) {
 				
 				return exclusions.contains(e);
 			}});
@@ -153,11 +158,11 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
 			 * @see edu.uci.ics.jung.visualization.decorators.DefaultToolTipFunction#getToolTipText(java.lang.Object)
 			 */
 			@Override
-			public String transform(Object v) {
+			public String apply(Object v) {
 				if(v instanceof Graph) {
 					return ((Graph)v).getVertices().toString();
 				}
-				return super.transform(v);
+				return super.apply(v);
 			}});
         
         /**
@@ -204,7 +209,7 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
                     double sumx = 0;
                     double sumy = 0;
                     for(Object v : picked) {
-                    	Point2D p = (Point2D)layout.transform(v);
+                    	Point2D p = (Point2D)layout.apply(v);
                     	sumx += p.getX();
                     	sumy += p.getY();
                     }
@@ -324,7 +329,7 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
      * 
      * @author Tom Nelson
      *
-     * @param <V>
+     * @param <V> the vertex type
      */
     class ClusterVertexShapeFunction<V> extends EllipseVertexShapeTransformer<V> {
 
@@ -332,9 +337,10 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
             setSizeTransformer(new ClusterVertexSizeFunction<V>(20));
         }
         @Override
-        public Shape transform(V v) {
+        public Shape apply(V v) {
             if(v instanceof Graph) {
-                int size = ((Graph)v).getVertexCount();
+                @SuppressWarnings("rawtypes")
+				int size = ((Graph)v).getVertexCount();
                 if (size < 8) {   
                     int sides = Math.max(size, 3);
                     return factory.getRegularPolygon(v, sides);
@@ -343,7 +349,7 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
                     return factory.getRegularStar(v, size);
                 }
             }
-            return super.transform(v);
+            return super.apply(v);
         }
     }
     
@@ -352,15 +358,15 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
      * a collapsed collection of original vertices
      * @author Tom Nelson
      *
-     * @param <V>
+     * @param <V> the vertex type
      */
-    class ClusterVertexSizeFunction<V> implements Transformer<V,Integer> {
+    class ClusterVertexSizeFunction<V> implements Function<V,Integer> {
     	int size;
         public ClusterVertexSizeFunction(Integer size) {
             this.size = size;
         }
 
-        public Integer transform(V v) {
+        public Integer apply(V v) {
             if(v instanceof Graph) {
                 return 30;
             }
@@ -370,24 +376,25 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
 
 	private class LayoutChooser implements ActionListener
     {
-        private final JComboBox jcb;
-        private final VisualizationViewer vv;
+        private final JComboBox<?> jcb;
+        @SuppressWarnings("rawtypes")
+		private final VisualizationViewer vv;
 
-        private LayoutChooser(JComboBox jcb, VisualizationViewer vv)
+        private LayoutChooser(JComboBox<?> jcb, VisualizationViewer<Object, ?> vv)
         {
             super();
             this.jcb = jcb;
             this.vv = vv;
         }
 
+        @SuppressWarnings({ "unchecked", "rawtypes" })
         public void actionPerformed(ActionEvent arg0)
         {
             Object[] constructorArgs =
                 { collapsedGraph };
 
-            Class<? extends Layout> layoutC = 
+			Class<? extends Layout> layoutC = 
                 (Class<? extends Layout>) jcb.getSelectedItem();
-//            Class lay = layoutC;
             try
             {
                 Constructor<? extends Layout> constructor = layoutC
@@ -414,7 +421,7 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
     /**
      * @return
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private Class<? extends Layout>[] getCombos()
     {
         List<Class<? extends Layout>> layouts = new ArrayList<Class<? extends Layout>>();
@@ -427,9 +434,6 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
         return layouts.toArray(new Class[0]);
     }
 
-    /**
-     * a driver for this demo
-     */
     public static void main(String[] args) {
         JFrame f = new JFrame();
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

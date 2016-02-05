@@ -5,13 +5,13 @@
  *
  * This software is open-source under the BSD license; see either
  * "license.txt" or
- * http://jung.sourceforge.net/license.txt for a description.
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  * Created on Jul 14, 2008
  * 
  */
 package edu.uci.ics.jung.algorithms.scoring.util;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 import edu.uci.ics.jung.graph.Hypergraph;
 import edu.uci.ics.jung.graph.util.EdgeType;
@@ -28,22 +28,19 @@ import edu.uci.ics.jung.graph.util.EdgeType;
  *
  */
 public class UniformDegreeWeight<V, E> implements
-		Transformer<VEPair<V, E>, Double> 
+		Function<VEPair<V, E>, Double> 
 {
     private Hypergraph<V, E> graph;
     
     /**
-     * Creates an instance for the specified graph.
+     * @param graph the graph for which an instance is being created
      */
     public UniformDegreeWeight(Hypergraph<V, E> graph)
     {
         this.graph = graph;
     }
 
-	/**
-	 * @see org.apache.commons.collections15.Transformer#transform(java.lang.Object)
-	 */
-	public Double transform(VEPair<V, E> ve_pair) 
+	public Double apply(VEPair<V, E> ve_pair) 
 	{
 		E e = ve_pair.getE();
 		V v = ve_pair.getV();

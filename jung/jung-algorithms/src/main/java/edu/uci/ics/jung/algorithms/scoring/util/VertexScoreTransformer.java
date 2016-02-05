@@ -7,18 +7,18 @@
  *
  * This software is open-source under the BSD license; see either
  * "license.txt" or
- * http://jung.sourceforge.net/license.txt for a description.
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  */
 package edu.uci.ics.jung.algorithms.scoring.util;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 import edu.uci.ics.jung.algorithms.scoring.VertexScorer;
 
 /**
- * A Transformer convenience wrapper around VertexScorer.
+ * A Function convenience wrapper around VertexScorer.
  */
-public class VertexScoreTransformer<V, S> implements Transformer<V, S>
+public class VertexScoreTransformer<V, S> implements Function<V, S>
 {
     /**
      * The VertexScorer instance that provides the values returned by <code>transform</code>.
@@ -27,6 +27,7 @@ public class VertexScoreTransformer<V, S> implements Transformer<V, S>
 
     /**
      * Creates an instance based on the specified VertexScorer.
+     * @param vs the VertexScorer which will retrieve the score for each vertex
      */
     public VertexScoreTransformer(VertexScorer<V,S> vs)
     {
@@ -34,9 +35,10 @@ public class VertexScoreTransformer<V, S> implements Transformer<V, S>
     }
 
     /**
-     * Returns the score for this vertex.
+     * @param v the vertex whose score is being returned
+     * @return the score for this vertex.
      */
-    public S transform(V v)
+    public S apply(V v)
     {
         return vs.getVertexScore(v);
     }

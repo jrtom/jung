@@ -1,13 +1,13 @@
 package edu.uci.ics.jung.io.graphml;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 public class DummyVertex extends DummyGraphObjectBase {
     
-    public static class Factory implements Transformer<NodeMetadata, DummyVertex> {
+    public static class Factory implements Function<NodeMetadata, DummyVertex> {
         int n = 0;
 
-        public DummyVertex transform(NodeMetadata md) {
+        public DummyVertex apply(NodeMetadata md) {
             return new DummyVertex(n++);
         }
     }

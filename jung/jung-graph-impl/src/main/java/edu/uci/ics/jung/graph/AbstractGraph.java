@@ -7,7 +7,7 @@
  *
  * This software is open-source under the BSD license; see either
  * "license.txt" or
- * http://jung.sourceforge.net/license.txt for a description.
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  */
 package edu.uci.ics.jung.graph;
 
@@ -63,7 +63,10 @@ public abstract class AbstractGraph<V, E> implements Graph<V,E>, Serializable
 	/**
 	 * Adds {@code edge} to this graph with the specified {@code endpoints},
 	 * with the default edge type.
-	 * @return {@code} true iff the graph was modified as a result of this call
+	 * 
+	 * @param edge the edge to be added
+	 * @param endpoints the endpoints to be connected to this edge
+	 * @return {@code true} iff the graph was modified as a result of this call
 	 */
 	public boolean addEdge(E edge, Pair<? extends V> endpoints)
 	{
@@ -73,6 +76,10 @@ public abstract class AbstractGraph<V, E> implements Graph<V,E>, Serializable
     /**
      * Adds {@code edge} to this graph with the specified {@code endpoints}
      * and {@code EdgeType}.
+     * 
+	 * @param edge the edge to be added
+	 * @param endpoints the endpoints to be connected to this edge
+	 * @param edgeType the type of edge to add
      * @return {@code} true iff the graph was modified as a result of this call
      */
 	public abstract boolean addEdge(E edge, Pair<? extends V> endpoints, EdgeType edgeType);

@@ -5,7 +5,7 @@
  *
  * This software is open-source under the BSD license; see either
  * "license.txt" or
- * http://jung.sourceforge.net/license.txt for a description.
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  * Created on Mar 11, 2005
  *
  */
@@ -24,8 +24,6 @@ import java.util.Set;
 
 import edu.uci.ics.jung.algorithms.layout.GraphElementAccessor;
 import edu.uci.ics.jung.algorithms.layout.Layout;
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.util.Context;
 import edu.uci.ics.jung.graph.util.Pair;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationServer;
@@ -35,39 +33,22 @@ import edu.uci.ics.jung.visualization.transform.MutableTransformerDecorator;
  * ShapePickSupport provides access to Vertices and EdgeType based on
  * their actual shapes. 
  * 
+ * @param <V> the vertex type
+ * @param <E> the edge type
+ * 
  * @author Tom Nelson
- *
  */
 public class ViewLensShapePickSupport<V, E> extends ShapePickSupport<V,E>
 	implements GraphElementAccessor<V,E> {
 
-    /**
-     * Create an instance.
-     * The HasGraphLayout is used as the source of the current
-     * Graph Layout. The HasShapes
-     * is used to access the VertexShapes and the EdgeShapes
-     * @param hasGraphLayout source of the current layout.
-     * @param hasShapeFunctions source of Vertex and Edge shapes.
-     * @param pickSize how large to make the pick footprint for line edges
-     */
     public ViewLensShapePickSupport(VisualizationServer<V,E> vv, float pickSize) {
     	super(vv, pickSize);
     }
     
-    /**
-     * Create an instance.
-     * The pickSize footprint defaults to 2.
-     */
     public ViewLensShapePickSupport(VisualizationServer<V,E> vv) {
         this(vv, 2);
     }
 
-    /** 
-     * Iterates over Vertices, checking to see if x,y is contained in the
-     * Vertex's Shape. If (x,y) is contained in more than one vertex, use
-     * the vertex whose center is closest to the pick point.
-     * @see edu.uci.ics.jung.visualization.picking.PickSupport#getVertex(double, double)
-     */
     public V getVertex(Layout<V, E> layout, double x, double y) {
 
         V closest = null;
@@ -80,9 +61,9 @@ public class ViewLensShapePickSupport<V, E> extends ShapePickSupport<V,E>
             try {
                 for(V v : getFilteredVertices(layout)) {
                 	// get the shape
-                    Shape shape = vv.getRenderContext().getVertexShapeTransformer().transform(v);
+                    Shape shape = vv.getRenderContext().getVertexShapeTransformer().apply(v);
                     // transform the vertex location to screen coords
-                    Point2D p = layout.transform(v);
+                    Point2D p = layout.apply(v);
                     if(p == null) continue;
                     AffineTransform xform = 
                         AffineTransform.getTranslateInstance(p.getX(), p.getY());
@@ -127,12 +108,6 @@ public class ViewLensShapePickSupport<V, E> extends ShapePickSupport<V,E>
         return closest;
     }
 
-    /**
-     * returns the vertices that are contained in the passed shape.
-     * The shape is in screen coordinates, and the graph vertices
-     * are transformed to screen coordinates before they are tested
-     * for inclusion
-     */
     public Collection<V> getVertices(Layout<V, E> layout, Shape rectangle) {
     	Set<V> pickedVertices = new HashSet<V>();
     	
@@ -142,10 +117,10 @@ public class ViewLensShapePickSupport<V, E> extends ShapePickSupport<V,E>
         while(true) {
             try {
                 for(V v : getFilteredVertices(layout)) {
-                    Point2D p = layout.transform(v);
+                    Point2D p = layout.apply(v);
                     if(p == null) continue;
                    	// get the shape
-                    Shape shape = vv.getRenderContext().getVertexShapeTransformer().transform(v);
+                    Shape shape = vv.getRenderContext().getVertexShapeTransformer().apply(v);
 
                     AffineTransform xform = 
                         AffineTransform.getTranslateInstance(p.getX(), p.getY());
@@ -164,10 +139,7 @@ public class ViewLensShapePickSupport<V, E> extends ShapePickSupport<V,E>
         }
         return pickedVertices;
     }
-    /**
-     * return an edge whose shape intersects the 'pickArea' footprint of the passed
-     * x,y, coordinates.
-     */
+    
     public E getEdge(Layout<V, E> layout, double x, double y) {
 
         Point2D ip = ((MutableTransformerDecorator)vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.VIEW)).getDelegate().inverseTransform(new Point2D.Double(x,y));
@@ -189,9 +161,9 @@ public class ViewLensShapePickSupport<V, E> extends ShapePickSupport<V,E>
                     V v1 = pair.getFirst();
                     V v2 = pair.getSecond();
                     boolean isLoop = v1.equals(v2);
-                    Point2D p1 = layout.transform(v1);
+                    Point2D p1 = layout.apply(v1);
                     	//vv.getRenderContext().getBasicTransformer().transform(layout.transform(v1));
-                    Point2D p2 = layout.transform(v2);
+                    Point2D p2 = layout.apply(v2);
                     	//vv.getRenderContext().getBasicTransformer().transform(layout.transform(v2));
                     if(p1 == null || p2 == null) continue;
                     float x1 = (float) p1.getX();
@@ -202,11 +174,10 @@ public class ViewLensShapePickSupport<V, E> extends ShapePickSupport<V,E>
                     // translate the edge to the starting vertex
                     AffineTransform xform = AffineTransform.getTranslateInstance(x1, y1);
 
-                    Shape edgeShape = 
-                    	vv.getRenderContext().getEdgeShapeTransformer().transform(Context.<Graph<V,E>,E>getInstance(vv.getGraphLayout().getGraph(),e));
+                    Shape edgeShape = vv.getRenderContext().getEdgeShapeTransformer().apply(e);
                     if(isLoop) {
                         // make the loops proportional to the size of the vertex
-                        Shape s2 = vv.getRenderContext().getVertexShapeTransformer().transform(v2);
+                        Shape s2 = vv.getRenderContext().getVertexShapeTransformer().apply(v2);
                         Rectangle2D s2Bounds = s2.getBounds2D();
                         xform.scale(s2Bounds.getWidth(),s2Bounds.getHeight());
                         // move the loop so that the nadir is centered in the vertex

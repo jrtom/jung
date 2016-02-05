@@ -5,7 +5,7 @@
  *
  * This software is open-source under the BSD license; see either
  * "license.txt" or
- * http://jung.sourceforge.net/license.txt for a description.
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  * Created on Mar 8, 2005
  *
  */
@@ -60,7 +60,7 @@ implements MouseListener, MouseMotionListener {
      * @param e the event
      */
     public void mousePressed(MouseEvent e) {
-        VisualizationViewer vv = (VisualizationViewer)e.getSource();
+        VisualizationViewer<?, ?> vv = (VisualizationViewer<?, ?>)e.getSource();
         MutableTransformer vt = vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.VIEW);
         if(vt instanceof LensTransformer) {
         	vt = ((LensTransformer)vt).getDelegate();
@@ -78,7 +78,7 @@ implements MouseListener, MouseMotionListener {
     
     /**
      * called to change the location of the lens
-     * @param transformer
+     * @param Function
      * @param point
      */
     private void setViewCenter(MutableTransformer transformer, Point2D point) {
@@ -91,7 +91,7 @@ implements MouseListener, MouseMotionListener {
     
     /**
      * called to change the radius of the lens
-     * @param transformer
+     * @param Function
      * @param point
      */
     private void setViewRadius(MutableTransformer transformer, Point2D point) {
@@ -105,7 +105,7 @@ implements MouseListener, MouseMotionListener {
     
     /**
      * called to set up translating the lens center or changing the size
-     * @param transformer
+     * @param Function
      * @param point
      */
     private void testViewCenter(MutableTransformer transformer, Point2D point) {
@@ -141,7 +141,7 @@ implements MouseListener, MouseMotionListener {
      * @param e the event
      */
     public void mouseDragged(MouseEvent e) {
-        VisualizationViewer vv = (VisualizationViewer)e.getSource();
+        VisualizationViewer<?, ?> vv = (VisualizationViewer<?, ?>)e.getSource();
         MutableTransformer vt = vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.VIEW);
         if(vt instanceof LensTransformer) {
         	vt = ((LensTransformer)vt).getDelegate();

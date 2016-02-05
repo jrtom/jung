@@ -5,7 +5,7 @@
  *
  * This software is open-source under the BSD license; see either
  * "license.txt" or
- * http://jung.sourceforge.net/license.txt for a description.
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  * Created on Mar 8, 2005
  *
  */
@@ -29,7 +29,7 @@ import edu.uci.ics.jung.visualization.picking.PickedState;
 /** 
  * AnimatedPickingGraphMousePlugin supports the picking of one Graph
  * Vertex. When the mouse is released, the graph is translated so that
- * the picked Vertex is moved to the center of the view. This translateion
+ * the picked Vertex is moved to the center of the view. This translation
  * is conducted in an animation Thread so that the graph slides to its
  * new position
  * 
@@ -44,16 +44,15 @@ public class AnimatedPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlu
     protected V vertex;
     
     /**
-	 * create an instance with default modifiers
-	 * 
+	 * Creates an instance with default modifiers of BUTTON1_MASK and CTRL_MASK
 	 */
 	public AnimatedPickingGraphMousePlugin() {
 	    this(InputEvent.BUTTON1_MASK  | InputEvent.CTRL_MASK);
 	}
 
 	/**
-	 * create an instance, overriding the default modifiers
-	 * @param selectionModifiers
+	 * Creates an instance with the specified mouse event modifiers.
+	 * @param selectionModifiers the mouse event modifiers to use.
 	 */
     public AnimatedPickingGraphMousePlugin(int selectionModifiers) {
         super(selectionModifiers);
@@ -67,7 +66,7 @@ public class AnimatedPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlu
     @SuppressWarnings("unchecked")
     public void mousePressed(MouseEvent e) {
 		if (e.getModifiers() == modifiers) {
-			VisualizationViewer<V,E> vv = (VisualizationViewer) e.getSource();
+			VisualizationViewer<V,E> vv = (VisualizationViewer<V,E>) e.getSource();
 			GraphElementAccessor<V, E> pickSupport = vv.getPickSupport();
 			PickedState<V> pickedVertexState = vv.getPickedVertexState();
             Layout<V,E> layout = vv.getGraphLayout();
@@ -98,31 +97,37 @@ public class AnimatedPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlu
     public void mouseReleased(MouseEvent e) {
 		if (e.getModifiers() == modifiers) {
 			final VisualizationViewer<V,E> vv = (VisualizationViewer<V,E>) e.getSource();
+			Point2D newCenter = null;
 			if (vertex != null) {
+				// center the picked vertex
 				Layout<V,E> layout = vv.getGraphLayout();
-				Point2D q = layout.transform(vertex);
-				Point2D lvc = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(vv.getCenter());
-				final double dx = (lvc.getX() - q.getX()) / 10;
-				final double dy = (lvc.getY() - q.getY()) / 10;
+				newCenter = layout.apply(vertex);
+			} else {
+				// they did not pick a vertex to center, so
+				// just center the graph
+				newCenter = vv.getCenter();
+			}
+			Point2D lvc = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(vv.getCenter());
+			final double dx = (lvc.getX() - newCenter.getX()) / 10;
+			final double dy = (lvc.getY() - newCenter.getY()) / 10;
 
-				Runnable animator = new Runnable() {
+			Runnable animator = new Runnable() {
 
-					public void run() {
-						for (int i = 0; i < 10; i++) {
-							vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT).translate(dx, dy);
-							try {
-								Thread.sleep(100);
-							} catch (InterruptedException ex) {
-							}
+				public void run() {
+					for (int i = 0; i < 10; i++) {
+						vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT).translate(dx, dy);
+						try {
+							Thread.sleep(100);
+						} catch (InterruptedException ex) {
 						}
 					}
-				};
-				Thread thread = new Thread(animator);
-				thread.start();
-			}
+				}
+			};
+			Thread thread = new Thread(animator);
+			thread.start();
 		}
 	}
-     
+    
     public void mouseClicked(MouseEvent e) {
     }
 

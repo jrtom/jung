@@ -7,7 +7,7 @@
  *
  * This software is open-source under the BSD license; see either
  * "license.txt" or
- * http://jung.sourceforge.net/license.txt for a description.
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  */
 package edu.uci.ics.jung.graph;
 
@@ -18,15 +18,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections15.CollectionUtils;
-import org.apache.commons.collections15.Factory;
+import com.google.common.base.Supplier;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 
 import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.graph.util.Pair;
 
 /**
  * An implementation of <code>Tree</code> in which each vertex has
- * <= k children.  The value of 'k' is specified by the constructor
+ * &le; k children.  The value of 'k' is specified by the constructor
  * parameter.  A specific child (edge) can be retrieved directly by specifying the
  * index at which the child is located.  By default, new (child) vertices
  * are added at the lowest index available, if no index is specified.
@@ -42,13 +43,14 @@ public class OrderedKAryTree<V, E> extends AbstractTypedGraph<V, E> implements T
     protected int order;
     
     /**
-     * Returns a {@code Factory} that creates an instance of this graph type.
-     * @param <V> the vertex type for the graph factory
-     * @param <E> the edge type for the graph factory
+     * @param <V> the vertex type for the graph Supplier
+     * @param <E> the edge type for the graph Supplier
+     * @param order the maximum number of children ("k") that any vertex can have
+     * @return a {@code Supplier} that creates an instance of this graph type.
      */
-    public static <V,E> Factory<DirectedGraph<V,E>> getFactory(final int order) {
-        return new Factory<DirectedGraph<V,E>> () {
-            public DirectedGraph<V,E> create() {
+    public static <V,E> Supplier<DirectedGraph<V,E>> getFactory(final int order) {
+        return new Supplier<DirectedGraph<V,E>> () {
+            public DirectedGraph<V,E> get() {
                 return new OrderedKAryTree<V,E>(order);
             }
         };
@@ -56,6 +58,7 @@ public class OrderedKAryTree<V, E> extends AbstractTypedGraph<V, E> implements T
     
     /**
      * Creates a new instance with the specified order (maximum number of children).
+     * @param order the maximum number of children ("k") that any vertex can have
      */
     public OrderedKAryTree(int order)
     {
@@ -67,7 +70,8 @@ public class OrderedKAryTree<V, E> extends AbstractTypedGraph<V, E> implements T
     }
   
     /**
-     * Returns the number of children that {@code vertex} has.  
+     * @param vertex the vertex whose number of children is to be returned
+     * @return the number of children that {@code vertex} has
      * @see edu.uci.ics.jung.graph.Tree#getChildCount(java.lang.Object)
      */
     public int getChildCount(V vertex) {
@@ -84,10 +88,10 @@ public class OrderedKAryTree<V, E> extends AbstractTypedGraph<V, E> implements T
     }
   
     /**
-     * Returns the child edge of the vertex at index <code>index</code>.
-     * @param vertex
-     * @param index
-     * @return the child edge of the vertex at index <code>index</code>
+     * @param vertex the vertex whose child edge is to be returned
+     * @param index the index of the edge to be returned
+     * @return the child edge of {@code vertex} at index {@code index}, that is, 
+     *     its <i>i</i>th child edge.
      */
     public E getChildEdge(V vertex, int index) 
     {
@@ -108,7 +112,7 @@ public class OrderedKAryTree<V, E> extends AbstractTypedGraph<V, E> implements T
         	return null;
         List<E> edges = vertex_data.get(vertex).child_edges;
         return edges == null ? Collections.<E>emptySet() : 
-            CollectionUtils.unmodifiableCollection(edges);
+        	new ImmutableList.Builder<E>().addAll(edges).build();
     }
   
     /**
@@ -128,7 +132,7 @@ public class OrderedKAryTree<V, E> extends AbstractTypedGraph<V, E> implements T
         Collection<V> children = new ArrayList<V>(order);
         for (E edge : edges)
             children.add(this.getOpposite(vertex, edge));
-        return CollectionUtils.unmodifiableCollection(children);
+        return new ImmutableList.Builder<V>().addAll(children).build();
     }
   
     /**
@@ -200,6 +204,11 @@ public class OrderedKAryTree<V, E> extends AbstractTypedGraph<V, E> implements T
      * available position; if it is greater than or equal to the order of this
      * tree, an exception is thrown.
      * 
+     * @param e the edge to add
+     * @param parent the source of the edge to be added
+     * @param child the destination of the edge to be added
+     * @param index the position at which e is to be added as a child of {@code parent}
+     * @return {@code true} if the graph has been modified
      * @see edu.uci.ics.jung.graph.Graph#addEdge(java.lang.Object, java.lang.Object, java.lang.Object)
      */
 	public boolean addEdge(E e, V parent, V child, int index) 
@@ -612,6 +621,7 @@ public class OrderedKAryTree<V, E> extends AbstractTypedGraph<V, E> implements T
      * Returns the child of <code>vertex</code> at position <code>index</code> 
      * in this tree, or <code>null</code> if it has no child at that position.
      * @param vertex the vertex to query
+     * @param index the index of the child to return
      * @return the child of <code>vertex</code> at position <code>index</code> 
      * in this tree, or <code>null</code> if it has no child at that position
      * @throws ArrayIndexOutOfBoundsException if <code>index</code> is not in 
@@ -643,7 +653,8 @@ public class OrderedKAryTree<V, E> extends AbstractTypedGraph<V, E> implements T
      */
     public Collection<E> getEdges() 
     {
-    	return CollectionUtils.unmodifiableCollection(edge_vpairs.keySet());
+    	return new ImmutableSet.Builder<E>().addAll(edge_vpairs.keySet()).build();
+    	//CollectionUtils.unmodifiableCollection(edge_vpairs.keySet());
     }
   
     /**
@@ -732,7 +743,8 @@ public class OrderedKAryTree<V, E> extends AbstractTypedGraph<V, E> implements T
      */
     public Collection<V> getVertices() 
     {
-      return CollectionUtils.unmodifiableCollection(vertex_data.keySet());
+      return new ImmutableSet.Builder<V>().addAll(vertex_data.keySet()).build();
+      //CollectionUtils.unmodifiableCollection(vertex_data.keySet());
     }
   
     /**

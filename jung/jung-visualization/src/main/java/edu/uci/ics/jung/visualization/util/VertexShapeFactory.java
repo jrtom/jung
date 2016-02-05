@@ -3,7 +3,7 @@
  * California All rights reserved.
  * 
  * This software is open-source under the BSD license; see either "license.txt"
- * or http://jung.sourceforge.net/license.txt for a description.
+ * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  * 
  * Created on Jul 20, 2004
  */
@@ -17,16 +17,16 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
 
-import org.apache.commons.collections15.Transformer;
-import org.apache.commons.collections15.functors.ConstantTransformer;
+import com.google.common.base.Function;
+import com.google.common.base.Functions;
 
 /**
  * A utility class for generating <code>Shape</code>s for drawing vertices.  
  * The available shapes include rectangles, rounded rectangles, ellipses,
  * regular polygons, and regular stars.  The dimensions of the requested 
  * shapes are defined by the specified vertex size function (specified by
- * a <code>Transformer<V,Integer></code>) and vertex aspect ratio function 
- * (specified by a <code>Transformer<V,Float></code>) implementations: the width
+ * a {@code Function<? super V, Integer>}) and vertex aspect ratio function 
+ * (specified by a {@code Function<? super V, Float>}) implementations: the width
  * of the bounding box of the shape is given by the vertex size, and the
  * height is given by the size multiplied by the vertex's aspect ratio.
  *  
@@ -34,14 +34,16 @@ import org.apache.commons.collections15.functors.ConstantTransformer;
  */
 public class VertexShapeFactory<V>
 {
-    protected Transformer<V,Integer> vsf;
-    protected Transformer<V,Float> varf;
+    protected Function<? super V, Integer> vsf;
+    protected Function<? super V, Float> varf;
     
     /**
-     * Creates a <code>VertexShapeFactory</code> with the specified 
-     * vertex size and aspect ratio functions.
+     * Creates an instance with the specified vertex size and aspect ratio functions.
+     * 
+     * @param vsf provides a size (width) for each vertex
+     * @param varf provides a height/width ratio for each vertex
      */
-    public VertexShapeFactory(Transformer<V,Integer> vsf, Transformer<V,Float> varf)
+    public VertexShapeFactory(Function<? super V,Integer> vsf, Function<? super V,Float> varf)
     {
         this.vsf = vsf;
         this.varf = varf;
@@ -51,23 +53,26 @@ public class VertexShapeFactory<V>
      * Creates a <code>VertexShapeFactory</code> with a constant size of
      * 10 and a constant aspect ratio of 1.
      */
-    @SuppressWarnings("unchecked")
 	public VertexShapeFactory()
     {
-        this(new ConstantTransformer(10), 
-            new ConstantTransformer(1.0f));
+        this(Functions.constant(10), 
+            Functions.constant(1.0f));
     }
     
     private static final Rectangle2D theRectangle = new Rectangle2D.Float();
+
     /**
      * Returns a <code>Rectangle2D</code> whose width and 
      * height are defined by this instance's size and
      * aspect ratio functions for this vertex.
+     * 
+     * @param v the vertex for which the shape will be drawn
+     * @return a rectangle for this vertex
      */
     public Rectangle2D getRectangle(V v)
     {
-        float width = vsf.transform(v);
-        float height = width * varf.transform(v);
+        float width = vsf.apply(v);
+        float height = width * varf.apply(v);
         float h_offset = -(width / 2);
         float v_offset = -(height / 2);
         theRectangle.setFrame(h_offset, v_offset, width, height);
@@ -75,10 +80,14 @@ public class VertexShapeFactory<V>
     }
 
     private static final Ellipse2D theEllipse = new Ellipse2D.Float();
+
     /**
      * Returns a <code>Ellipse2D</code> whose width and 
      * height are defined by this instance's size and
      * aspect ratio functions for this vertex.
+     * 
+     * @param v the vertex for which the shape will be drawn
+     * @return an ellipse for this vertex
      */
     public Ellipse2D getEllipse(V v)
     {
@@ -93,6 +102,9 @@ public class VertexShapeFactory<V>
      * height are defined by this instance's size and
      * aspect ratio functions for this vertex.  The arc size is
      * set to be half the minimum of the height and width of the frame.
+     * 
+     * @param v the vertex for which the shape will be drawn
+     * @return an round rectangle for this vertex
      */
     public RoundRectangle2D getRoundRectangle(V v)
     {
@@ -104,12 +116,16 @@ public class VertexShapeFactory<V>
     }
     
     private static final GeneralPath thePolygon = new GeneralPath();
+
     /**
      * Returns a regular <code>num_sides</code>-sided 
      * <code>Polygon</code> whose bounding 
      * box's width and height are defined by this instance's size and
      * aspect ratio functions for this vertex.
-     * @param num_sides the number of sides of the polygon; must be >= 3.
+     * 
+     * @param v the vertex for which the shape will be drawn
+     * @param num_sides the number of sides of the polygon; must be &ge; 3.
+     * @return a regular polygon for this vertex
      */
     public Shape getRegularPolygon(V v, int num_sides)
     {
@@ -154,7 +170,10 @@ public class VertexShapeFactory<V>
      * points whose bounding 
      * box's width and height are defined by this instance's size and
      * aspect ratio functions for this vertex.
-     * @param num_points the number of points of the polygon; must be >= 5.
+     * 
+     * @param v the vertex for which the shape will be drawn
+     * @param num_points the number of points of the polygon; must be &ge; 5.
+     * @return an star shape for this vertex
      */
     public Shape getRegularStar(V v, int num_points)
     {

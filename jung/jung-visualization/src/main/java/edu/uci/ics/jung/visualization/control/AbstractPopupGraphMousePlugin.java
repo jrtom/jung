@@ -3,7 +3,7 @@
  * California All rights reserved.
  * 
  * This software is open-source under the BSD license; see either "license.txt"
- * or http://jung.sourceforge.net/license.txt for a description.
+ * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  * 
  */
 package edu.uci.ics.jung.visualization.control;
@@ -38,9 +38,6 @@ public abstract class AbstractPopupGraphMousePlugin extends AbstractGraphMousePl
         }
     }
     
-    /**
-     * @param e
-     */
     protected abstract void handlePopup(MouseEvent e);
     
     public void mouseClicked(MouseEvent e) {

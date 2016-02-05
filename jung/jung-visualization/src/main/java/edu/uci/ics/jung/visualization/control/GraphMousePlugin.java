@@ -3,7 +3,7 @@
  * California All rights reserved.
  *
  * This software is open-source under the BSD license; see either "license.txt"
- * or http://jung.sourceforge.net/license.txt for a description.
+ * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  *
  * Created on Jul 6, 2005
  */
@@ -20,22 +20,19 @@ import java.awt.event.MouseEvent;
 public interface GraphMousePlugin {
 
 	/**
-	 * return the mouse event modifiers that will activate this plugin
-	 * @return modifiers
+	 * @return the mouse event modifiers that will activate this plugin
 	 */
     int getModifiers();
 
     /**
-     * set the mouse event modifiers that will activate this plugin
-     * @param modifiers
+     * @param modifiers the mouse event modifiers that will activate this plugin
      */
     void setModifiers(int modifiers);
     
     /**
      * compare the set modifiers against those of the supplied event
      * @param e an event to compare to
-     * @return whether the member modifers match the event modifiers
+     * @return whether the member modifiers match the event modifiers
      */
     boolean checkModifiers(MouseEvent e);
-
 }

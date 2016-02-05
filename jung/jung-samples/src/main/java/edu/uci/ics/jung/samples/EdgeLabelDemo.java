@@ -3,7 +3,7 @@
  * California All rights reserved.
  * 
  * This software is open-source under the BSD license; see either "license.txt"
- * or http://jung.sourceforge.net/license.txt for a description.
+ * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  * 
  */
 package edu.uci.ics.jung.samples;
@@ -13,6 +13,7 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -35,7 +36,7 @@ import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 import edu.uci.ics.jung.algorithms.layout.CircleLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
@@ -48,7 +49,7 @@ import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
-import edu.uci.ics.jung.visualization.decorators.AbstractEdgeShapeTransformer;
+import edu.uci.ics.jung.visualization.decorators.ParallelEdgeShapeTransformer;
 import edu.uci.ics.jung.visualization.decorators.ConstantDirectionalEdgeValueTransformer;
 import edu.uci.ics.jung.visualization.decorators.EdgeShape;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
@@ -66,10 +67,6 @@ import edu.uci.ics.jung.visualization.renderers.VertexLabelRenderer;
  * 
  */
 public class EdgeLabelDemo extends JApplet {
-
-    /**
-	 * 
-	 */
 	private static final long serialVersionUID = -6077157664507049647L;
 
 	/**
@@ -109,8 +106,8 @@ public class EdgeLabelDemo extends JApplet {
         vertexLabelRenderer = vv.getRenderContext().getVertexLabelRenderer();
         edgeLabelRenderer = vv.getRenderContext().getEdgeLabelRenderer();
         
-        Transformer<Number,String> stringer = new Transformer<Number,String>(){
-            public String transform(Number e) {
+        Function<Number,String> stringer = new Function<Number,String>(){
+            public String apply(Number e) {
                 return "Edge:"+graph.getEndpoints(e).toString();
             }
         };
@@ -118,7 +115,7 @@ public class EdgeLabelDemo extends JApplet {
         vv.getRenderContext().setEdgeDrawPaintTransformer(new PickableEdgePaintTransformer<Number>(vv.getPickedEdgeState(), Color.black, Color.cyan));
         vv.getRenderContext().setVertexFillPaintTransformer(new PickableVertexPaintTransformer<Integer>(vv.getPickedVertexState(), Color.red, Color.yellow));
         // add my listener for ToolTips
-        vv.setVertexToolTipTransformer(new ToStringLabeller<Integer>());
+        vv.setVertexToolTipTransformer(new ToStringLabeller());
         
         // create a frome to hold the graph
         final GraphZoomScrollPane panel = new GraphZoomScrollPane(vv);
@@ -146,7 +143,7 @@ public class EdgeLabelDemo extends JApplet {
         lineButton.addItemListener(new ItemListener(){
             public void itemStateChanged(ItemEvent e) {
                 if(e.getStateChange() == ItemEvent.SELECTED) {
-                    vv.getRenderContext().setEdgeShapeTransformer(new EdgeShape.Line<Integer,Number>());
+                    vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.line(graph));
                     vv.repaint();
                 }
             }
@@ -156,7 +153,7 @@ public class EdgeLabelDemo extends JApplet {
         quadButton.addItemListener(new ItemListener(){
             public void itemStateChanged(ItemEvent e) {
                 if(e.getStateChange() == ItemEvent.SELECTED) {
-                    vv.getRenderContext().setEdgeShapeTransformer(new EdgeShape.QuadCurve<Integer,Number>());
+                    vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.quadCurve(graph));
                     vv.repaint();
                 }
             }
@@ -166,7 +163,7 @@ public class EdgeLabelDemo extends JApplet {
         cubicButton.addItemListener(new ItemListener(){
             public void itemStateChanged(ItemEvent e) {
                 if(e.getStateChange() == ItemEvent.SELECTED) {
-                    vv.getRenderContext().setEdgeShapeTransformer(new EdgeShape.CubicCurve<Integer,Number>());
+                    vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.cubicCurve(graph));
                     vv.repaint();
                 }
             }
@@ -211,15 +208,17 @@ public class EdgeLabelDemo extends JApplet {
             }
         };
         edgeOffsetSlider.addChangeListener(new ChangeListener() {
-
-            public void stateChanged(ChangeEvent e) {
+            @SuppressWarnings("rawtypes")
+			public void stateChanged(ChangeEvent e) {
                 JSlider s = (JSlider)e.getSource();
-                AbstractEdgeShapeTransformer<Integer,Number> aesf = 
-                    (AbstractEdgeShapeTransformer<Integer,Number>)vv.getRenderContext().getEdgeShapeTransformer();
-                aesf.setControlOffsetIncrement(s.getValue());
-                vv.repaint();
+                Function<? super Number, Shape> edgeShapeFunction
+                	= vv.getRenderContext().getEdgeShapeTransformer();
+                if (edgeShapeFunction instanceof ParallelEdgeShapeTransformer) {
+                	((ParallelEdgeShapeTransformer)edgeShapeFunction)
+                		.setControlOffsetIncrement(s.getValue());
+                	vv.repaint();
+                }
             }
-        	
         });
         
         Box controls = Box.createHorizontalBox();
@@ -339,9 +338,6 @@ public class EdgeLabelDemo extends JApplet {
         graph.addEdge(new Double(Math.random()), v[1], v[2]);
     }
 
-    /**
-     * a driver for this demo
-     */
     public static void main(String[] args) {
         JFrame frame = new JFrame();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

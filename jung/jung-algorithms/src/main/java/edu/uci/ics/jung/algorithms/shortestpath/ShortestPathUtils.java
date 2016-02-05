@@ -7,7 +7,7 @@
  *
  * This software is open-source under the BSD license; see either
  * "license.txt" or
- * http://jung.sourceforge.net/license.txt for a description.
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  */
 package edu.uci.ics.jung.algorithms.shortestpath;
 
@@ -23,11 +23,20 @@ import edu.uci.ics.jung.graph.util.Pair;
  */
 public class ShortestPathUtils
 {
-    /**
+	/**
      * Returns a <code>List</code> of the edges on the shortest path from 
      * <code>source</code> to <code>target</code>, in order of their
      * occurrence on this path.  
-     */
+	 * 
+	 * @param graph the graph for which the shortest path is defined
+	 * @param sp holder of the shortest path information
+	 * @param source the vertex from which the shortest path is measured
+	 * @param target the vertex to which the shortest path is measured
+	 * @param <V> the vertex type
+	 * @param <E> the edge type
+	 * @return the edges on the shortest path from {@code source} to {@code target},
+	 *     in the order traversed
+	 */
     public static <V, E> List<E> getPath(Graph<V,E> graph, ShortestPath<V,E> sp, V source, V target)
     {
         LinkedList<E> path = new LinkedList<E>();
@@ -47,7 +56,6 @@ public class ShortestPathUtils
             } else {
             	current = endpoints.getFirst();
             }
-            		//incoming.getOpposite(current);
         }
         return path;
     }

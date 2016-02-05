@@ -3,7 +3,7 @@
  * California All rights reserved.
  *
  * This software is open-source under the BSD license; see either "license.txt"
- * or http://jung.sourceforge.net/license.txt for a description.
+ * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  *
  * Created on Jul 21, 2005
  */
@@ -50,11 +50,7 @@ public class MagnifyImageLensSupport<V,E> extends AbstractLensSupport<V,E> {
         this(vv, new MagnifyShapeTransformer(vv),
                 new ModalLensGraphMouse());
     }
-    /**
-     * create the base class, setting common members and creating
-     * a custom GraphMouse
-     * @param vv the VisualizationViewer to work on
-     */
+    
     public MagnifyImageLensSupport(VisualizationViewer<V,E> vv, LensTransformer lensTransformer,
             ModalGraphMouse lensGraphMouse) {
         super(vv, lensGraphMouse);

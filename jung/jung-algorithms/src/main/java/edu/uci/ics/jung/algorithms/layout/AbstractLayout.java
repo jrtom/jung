@@ -3,7 +3,7 @@
  * California All rights reserved.
  * 
  * This software is open-source under the BSD license; see either "license.txt"
- * or http://jung.sourceforge.net/license.txt for a description.
+ * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  * 
  * Created on Jul 7, 2003
  * 
@@ -13,15 +13,14 @@ package edu.uci.ics.jung.algorithms.layout;
 import java.awt.Dimension;
 import java.awt.geom.Point2D;
 import java.util.ConcurrentModificationException;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.collections15.Transformer;
-import org.apache.commons.collections15.functors.ChainedTransformer;
-import org.apache.commons.collections15.functors.CloneTransformer;
-import org.apache.commons.collections15.map.LazyMap;
+import com.google.common.base.Function;
+import com.google.common.base.Functions;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 
 import edu.uci.ics.jung.graph.Graph;
 
@@ -38,27 +37,25 @@ import edu.uci.ics.jung.graph.Graph;
 abstract public class AbstractLayout<V, E> implements Layout<V,E> {
 
     /**
-     * a set of vertices that should not move in relation to the
-     * other vertices
+     * A set of vertices that are fixed in place and not affected by the layout algorithm
      */
 	private Set<V> dontmove = new HashSet<V>();
 
 	protected Dimension size;
 	protected Graph<V, E> graph;
 	protected boolean initialized;
-    
-    protected Map<V, Point2D> locations = 
-    	LazyMap.decorate(new HashMap<V, Point2D>(),
-    			new Transformer<V,Point2D>() {
-					public Point2D transform(V arg0) {
-						return new Point2D.Double();
-					}});
 
+    protected LoadingCache<V, Point2D> locations =
+    	CacheBuilder.newBuilder().build(new CacheLoader<V, Point2D>() {
+	    	public Point2D load(V vertex) {
+	    		return new Point2D.Double();
+	    	}
+    });
 
 	/**
-	 * Creates an instance which does not initialize the vertex locations.
+	 * Creates an instance for {@code graph} which does not initialize the vertex locations.
 	 * 
-	 * @param graph the graph for which the layout algorithm is to be created.
+	 * @param graph the graph on which the layout algorithm is to operate
 	 */
 	protected AbstractLayout(Graph<V, E> graph) {
 	    if (graph == null) 
@@ -68,26 +65,57 @@ abstract public class AbstractLayout<V, E> implements Layout<V,E> {
 		this.graph = graph;
 	}
 	
-    @SuppressWarnings("unchecked")
-    protected AbstractLayout(Graph<V,E> graph, Transformer<V,Point2D> initializer) {
+	/**
+	 * Creates an instance for {@code graph} which initializes the vertex locations
+	 * using {@code initializer}.
+	 * 
+	 * @param graph the graph on which the layout algorithm is to operate
+	 * @param initializer specifies the starting positions of the vertices
+	 */
+    protected AbstractLayout(Graph<V,E> graph, Function<V,Point2D> initializer) {
 		this.graph = graph;
-		Transformer<V, ? extends Object> chain = 
-			ChainedTransformer.getInstance(initializer, CloneTransformer.getInstance());
-		this.locations = LazyMap.decorate(new HashMap<V,Point2D>(), (Transformer<V,Point2D>)chain);
+		Function<V, Point2D> chain = 
+			Functions.<V,Point2D,Point2D>compose(
+					new Function<Point2D,Point2D>(){
+						public Point2D apply(Point2D p) {
+							return (Point2D)p.clone();
+						}}, 
+					initializer
+					);
+		this.locations = CacheBuilder.newBuilder().build(CacheLoader.from(chain)); 
 		initialized = true;
 	}
 	
+	/**
+	 * Creates an instance for {@code graph} which sets the size of the layout to {@code size}.
+	 * 
+	 * @param graph the graph on which the layout algorithm is to operate
+     * @param size the dimensions of the region in which the layout algorithm will place vertices
+	 */
 	protected AbstractLayout(Graph<V,E> graph, Dimension size) {
 		this.graph = graph;
 		this.size = size;
 	}
 	
-	@SuppressWarnings("unchecked")
-    protected AbstractLayout(Graph<V,E> graph, Transformer<V,Point2D> initializer, Dimension size) {
+	/**
+	 * Creates an instance for {@code graph} which initializes the vertex locations
+	 * using {@code initializer} and sets the size of the layout to {@code size}.
+	 * 
+	 * @param graph the graph on which the layout algorithm is to operate
+	 * @param initializer specifies the starting positions of the vertices
+     * @param size the dimensions of the region in which the layout algorithm will place vertices
+	 */
+    protected AbstractLayout(Graph<V,E> graph, Function<V,Point2D> initializer, Dimension size) {
 		this.graph = graph;
-		Transformer<V, ? extends Object> chain = 
-			ChainedTransformer.getInstance(initializer, CloneTransformer.getInstance());
-		this.locations = LazyMap.decorate(new HashMap<V,Point2D>(), (Transformer<V,Point2D>)chain);
+		Function<V, Point2D> chain = 
+			Functions.<V,Point2D,Point2D>compose(
+					new Function<Point2D,Point2D>(){
+						public Point2D apply(Point2D p) {
+							return (Point2D)p.clone();
+						}}, 
+					initializer
+					);
+		this.locations = CacheBuilder.newBuilder().build(CacheLoader.from(chain)); 
 		this.size = size;
 	}
     
@@ -138,14 +166,19 @@ abstract public class AbstractLayout<V, E> implements Layout<V,E> {
         return dontmove.contains(v);
     }
     
-    @SuppressWarnings("unchecked")
-    public void setInitializer(Transformer<V,Point2D> initializer) {
+    public void setInitializer(Function<V,Point2D> initializer) {
     	if(this.equals(initializer)) {
     		throw new IllegalArgumentException("Layout cannot be initialized with itself");
     	}
-		Transformer<V, ? extends Object> chain = 
-			ChainedTransformer.getInstance(initializer, CloneTransformer.getInstance());
-    	this.locations = LazyMap.decorate(new HashMap<V,Point2D>(), (Transformer<V, Point2D>)chain);
+		Function<V, Point2D> chain = 
+			Functions.<V,Point2D,Point2D>compose(
+					new Function<Point2D,Point2D>(){
+						public Point2D apply(Point2D p) {
+							return (Point2D)p.clone();
+						}}, 
+					initializer
+					);
+		this.locations = CacheBuilder.newBuilder().build(CacheLoader.from(chain)); 
     	initialized = true;
     }
     
@@ -167,16 +200,19 @@ abstract public class AbstractLayout<V, E> implements Layout<V,E> {
 	 * @return A Coordinates object with x and y locations.
 	 */
 	private Point2D getCoordinates(V v) {
-        return locations.get(v);
+        return locations.getUnchecked(v);
 	}
 	
-	public Point2D transform(V v) {
+	public Point2D apply(V v) {
 		return getCoordinates(v);
 	}
 	
 	/**
 	 * Returns the x coordinate of the vertex from the Coordinates object.
 	 * in most cases you will be better off calling transform(v).
+	 * 
+	 * @param v the vertex whose x coordinate is to be returned
+	 * @return the x coordinate of {@code v}
 	 */
 	public double getX(V v) {
         assert getCoordinates(v) != null : "Cannot getX for an unmapped vertex "+v;
@@ -186,6 +222,9 @@ abstract public class AbstractLayout<V, E> implements Layout<V,E> {
 	/**
 	 * Returns the y coordinate of the vertex from the Coordinates object.
 	 * In most cases you will be better off calling transform(v).
+	 * 
+	 * @param v the vertex whose y coordinate is to be returned
+	 * @return the y coordinate of {@code v}
 	 */
 	public double getY(V v) {
         assert getCoordinates(v) != null : "Cannot getY for an unmapped vertex "+v;
@@ -193,9 +232,9 @@ abstract public class AbstractLayout<V, E> implements Layout<V,E> {
 	}
 	
 	/**
-	 * @param v
-	 * @param xOffset
-	 * @param yOffset
+	 * @param v the vertex whose coordinates are to be offset
+	 * @param xOffset the change to apply to this vertex's x coordinate
+	 * @param yOffset the change to apply to this vertex's y coordinate
 	 */
 	protected void offsetVertex(V v, double xOffset, double yOffset) {
 		Point2D c = getCoordinates(v);
@@ -204,9 +243,7 @@ abstract public class AbstractLayout<V, E> implements Layout<V,E> {
 	}
 
 	/**
-	 * Accessor for the graph that represets all vertices.
-	 * 
-	 * @return the graph that contains all vertices.
+	 * @return the graph that this layout operates on
 	 */
 	public Graph<V, E> getGraph() {
 	    return graph;
@@ -214,9 +251,12 @@ abstract public class AbstractLayout<V, E> implements Layout<V,E> {
 	
 	/**
 	 * Forcibly moves a vertex to the (x,y) location by setting its x and y
-	 * locations to the inputted location. Does not add the vertex to the
+	 * locations to the specified location. Does not add the vertex to the
 	 * "dontmove" list, and (in the default implementation) does not make any
 	 * adjustments to the rest of the graph.
+	 * @param picked the vertex whose location is being set
+	 * @param x the x coordinate of the location to set
+	 * @param y the y coordinate of the location to set
 	 */
 	public void setLocation(V picked, double x, double y) {
 		Point2D coord = getCoordinates(picked);
@@ -230,6 +270,8 @@ abstract public class AbstractLayout<V, E> implements Layout<V,E> {
 
 	/**
 	 * Locks {@code v} in place if {@code state} is {@code true}, otherwise unlocks it.
+	 * @param v the vertex whose position is to be (un)locked
+	 * @param state {@code true} if the vertex is to be locked, {@code false} if to be unlocked
 	 */
 	public void lock(V v, boolean state) {
 		if(state == true) 
@@ -239,7 +281,7 @@ abstract public class AbstractLayout<V, E> implements Layout<V,E> {
 	}
 	
 	/**
-	 * Locks all vertices in place if {@code lock} is {@code true}, otherwise unlocks all vertices.
+	 * @param lock {@code true} to lock all vertices in place, {@code false} to unlock all vertices
 	 */
 	public void lock(boolean lock) {
 		for(V v : graph.getVertices()) {

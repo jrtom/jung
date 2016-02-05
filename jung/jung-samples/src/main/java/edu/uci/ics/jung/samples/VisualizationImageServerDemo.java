@@ -3,7 +3,7 @@
  * California All rights reserved.
  * 
  * This software is open-source under the BSD license; see either "license.txt"
- * or http://jung.sourceforge.net/license.txt for a description.
+ * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  * 
  */
 package edu.uci.ics.jung.samples;
@@ -12,6 +12,7 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Image;
+import java.awt.Paint;
 import java.awt.geom.Point2D;
 
 import javax.swing.Icon;
@@ -19,7 +20,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
-import org.apache.commons.collections15.functors.ConstantTransformer;
+import com.google.common.base.Functions;
 
 import edu.uci.ics.jung.algorithms.layout.KKLayout;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
@@ -66,9 +67,9 @@ public class VisualizationImageServerDemo {
         				Color.white, Color.blue,
         				vv.getPickedVertexState(),
         				false));
-        vv.getRenderContext().setEdgeDrawPaintTransformer(new ConstantTransformer(Color.lightGray));
-        vv.getRenderContext().setArrowFillPaintTransformer(new ConstantTransformer(Color.lightGray));
-        vv.getRenderContext().setArrowDrawPaintTransformer(new ConstantTransformer(Color.lightGray));
+        vv.getRenderContext().setEdgeDrawPaintTransformer(Functions.<Paint>constant(Color.lightGray));
+        vv.getRenderContext().setArrowFillPaintTransformer(Functions.<Paint>constant(Color.lightGray));
+        vv.getRenderContext().setArrowDrawPaintTransformer(Functions.<Paint>constant(Color.lightGray));
         
         vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
         vv.getRenderer().getVertexLabelRenderer().setPositioner(new InsidePositioner());
@@ -126,9 +127,6 @@ public class VisualizationImageServerDemo {
         graph.addEdge(new Double(Math.random()), v[5], v[4], EdgeType.DIRECTED);
     }
 
-    /**
-     * a driver for this demo
-     */
     public static void main(String[] args) 
     {
         new VisualizationImageServerDemo();

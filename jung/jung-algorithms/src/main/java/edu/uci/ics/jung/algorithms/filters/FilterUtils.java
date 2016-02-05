@@ -5,7 +5,7 @@
  *
  * This software is open-source under the BSD license; see either
  * "license.txt" or
- * http://jung.sourceforge.net/license.txt for a description.
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  * Created on Jun 7, 2008
  * 
  */
@@ -30,6 +30,7 @@ public class FilterUtils
 	 * 
 	 * @param <V> the vertex type
 	 * @param <E> the edge type
+	 * @param <G> the graph type
 	 * @param vertices the subset of <code>graph</code>'s vertices around 
 	 * which the subgraph is to be constructed
 	 * @param graph the graph whose subgraph is to be constructed
@@ -78,6 +79,7 @@ public class FilterUtils
 	 * Note that these vertex collections need not be disjoint.
 	 * @param <V> the vertex type
 	 * @param <E> the edge type
+	 * @param <G> the graph type
 	 * @param vertex_collections the collections of vertex collections to be
 	 * used to induce the subgraphs
 	 * @param graph the graph whose subgraphs are to be created

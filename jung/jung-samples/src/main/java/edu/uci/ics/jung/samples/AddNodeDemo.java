@@ -3,13 +3,28 @@
  * California All rights reserved.
  *
  * This software is open-source under the BSD license; see either "license.txt"
- * or http://jung.sourceforge.net/license.txt for a description.
+ * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  *
  * Created on May 10, 2004
  */
 
 
 package edu.uci.ics.jung.samples;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JRootPane;
+
+import com.google.common.base.Functions;
+
 import edu.uci.ics.jung.algorithms.layout.AbstractLayout;
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.algorithms.layout.FRLayout2;
@@ -25,21 +40,6 @@ import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
-
-import org.apache.commons.collections15.functors.ConstantTransformer;
-
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.Timer;
-import java.util.TimerTask;
-
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JRootPane;
 
 /**
  * Demonstrates visualization of a graph being actively updated.
@@ -100,19 +100,18 @@ public class AddNodeDemo extends javax.swing.JApplet {
         vv.setGraphMouse(new DefaultModalGraphMouse<Number,Number>());
 
         vv.getRenderer().getVertexLabelRenderer().setPosition(Renderer.VertexLabel.Position.CNTR);
-        vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller<Number>());
+        vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
         vv.setForeground(Color.white);
         getContentPane().add(vv);
         switchLayout = new JButton("Switch to SpringLayout");
         switchLayout.addActionListener(new ActionListener() {
 
-            @SuppressWarnings("unchecked")
             public void actionPerformed(ActionEvent ae) {
             	Dimension d = new Dimension(600,600);
                 if (switchLayout.getText().indexOf("Spring") > 0) {
                     switchLayout.setText("Switch to FRLayout");
                     layout = new SpringLayout<Number,Number>(g,
-                        new ConstantTransformer(EDGE_LENGTH));
+                        Functions.<Integer>constant(EDGE_LENGTH));
                     layout.setSize(d);
                     vv.getModel().setGraphLayout(layout, d);
                 } else {

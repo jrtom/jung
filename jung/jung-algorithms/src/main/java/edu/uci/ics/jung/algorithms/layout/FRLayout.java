@@ -3,32 +3,31 @@
  * California All rights reserved.
  *
  * This software is open-source under the BSD license; see either "license.txt"
- * or http://jung.sourceforge.net/license.txt for a description.
+ * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  */
 package edu.uci.ics.jung.algorithms.layout;
+
+import java.awt.Dimension;
+import java.awt.geom.Point2D;
+import java.util.ConcurrentModificationException;
+
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 
 import edu.uci.ics.jung.algorithms.layout.util.RandomLocationTransformer;
 import edu.uci.ics.jung.algorithms.util.IterativeContext;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.Pair;
 
-import org.apache.commons.collections15.Factory;
-import org.apache.commons.collections15.map.LazyMap;
-
-import java.awt.Dimension;
-import java.awt.geom.Point2D;
-import java.util.ConcurrentModificationException;
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Implements the Fruchterman-Reingold force-directed algorithm for node layout.
  * 
  * <p>Behavior is determined by the following settable parameters:
  * <ul>
- * <li/>attraction multiplier: how much edges try to keep their vertices together
- * <li/>repulsion multiplier: how much vertices try to push each other apart
- * <li/>maximum iterations: how many iterations this algorithm will use before stopping
+ * <li>attraction multiplier: how much edges try to keep their vertices together
+ * <li>repulsion multiplier: how much vertices try to push each other apart
+ * <li>maximum iterations: how many iterations this algorithm will use before stopping
  * </ul>
  * Each of the first two defaults to 0.75; the maximum number of iterations defaults to 700.
  *
@@ -46,11 +45,12 @@ public class FRLayout<V, E> extends AbstractLayout<V, E> implements IterativeCon
 
     private int mMaxIterations = 700;
 
-    private Map<V, FRVertexData> frVertexData =
-    	LazyMap.decorate(new HashMap<V,FRVertexData>(), new Factory<FRVertexData>() {
-    		public FRVertexData create() {
-    			return new FRVertexData();
-    		}});
+    protected LoadingCache<V, FRVertexData> frVertexData =
+    	CacheBuilder.newBuilder().build(new CacheLoader<V, FRVertexData>() {
+	    	public FRVertexData load(V vertex) {
+	    		return new FRVertexData();
+	    	}
+    });
 
     private double attraction_multiplier = 0.75;
 
@@ -62,16 +62,10 @@ public class FRLayout<V, E> extends AbstractLayout<V, E> implements IterativeCon
 
     private double max_dimension;
 
-    /**
-     * Creates an instance for the specified graph.
-     */
     public FRLayout(Graph<V, E> g) {
         super(g);
     }
 
-    /**
-     * Creates an instance of size {@code d} for the specified graph.
-     */
     public FRLayout(Graph<V, E> g, Dimension d) {
         super(g, new RandomLocationTransformer<V>(d), d);
         initialize();
@@ -87,16 +81,10 @@ public class FRLayout<V, E> extends AbstractLayout<V, E> implements IterativeCon
         max_dimension = Math.max(size.height, size.width);
 	}
 
-	/**
-	 * Sets the attraction multiplier.
-	 */
 	public void setAttractionMultiplier(double attraction) {
         this.attraction_multiplier = attraction;
     }
 
-	/**
-	 * Sets the repulsion multiplier.
-	 */
     public void setRepulsionMultiplier(double repulsion) {
         this.repulsion_multiplier = repulsion;
     }
@@ -178,7 +166,7 @@ public class FRLayout<V, E> extends AbstractLayout<V, E> implements IterativeCon
     protected synchronized void calcPositions(V v) {
         FRVertexData fvd = getFRData(v);
         if(fvd == null) return;
-        Point2D xyd = transform(v);
+        Point2D xyd = apply(v);
         double deltaLength = Math.max(EPSILON, fvd.norm());
 
         double newXDisp = fvd.getX() / deltaLength
@@ -223,8 +211,8 @@ public class FRLayout<V, E> extends AbstractLayout<V, E> implements IterativeCon
         	// both locked, do nothing
         	return;
         }
-        Point2D p1 = transform(v1);
-        Point2D p2 = transform(v2);
+        Point2D p1 = apply(v1);
+        Point2D p2 = apply(v2);
         if(p1 == null || p2 == null) return;
         double xDelta = p1.getX() - p2.getX();
         double yDelta = p1.getY() - p2.getY();
@@ -260,8 +248,8 @@ public class FRLayout<V, E> extends AbstractLayout<V, E> implements IterativeCon
 
 //                if (isLocked(v2)) continue;
                 if (v1 != v2) {
-                    Point2D p1 = transform(v1);
-                    Point2D p2 = transform(v2);
+                    Point2D p1 = apply(v1);
+                    Point2D p2 = apply(v2);
                     if(p1 == null || p2 == null) continue;
                     double xDelta = p1.getX() - p2.getX();
                     double yDelta = p1.getY() - p2.getY();
@@ -287,27 +275,23 @@ public class FRLayout<V, E> extends AbstractLayout<V, E> implements IterativeCon
         temperature *= (1.0 - currentIteration / (double) mMaxIterations);
     }
 
-    /**
-     * Sets the maximum number of iterations.
-     */
     public void setMaxIterations(int maxIterations) {
         mMaxIterations = maxIterations;
     }
 
     protected FRVertexData getFRData(V v) {
-        return frVertexData.get(v);
+        return frVertexData.getUnchecked(v);
     }
 
     /**
-     * This one is an incremental visualization.
+     * @return true
      */
     public boolean isIncremental() {
         return true;
     }
 
     /**
-     * Returns true once the current iteration has passed the maximum count,
-     * <tt>MAX_ITERATIONS</tt>.
+     * @return true once the current iteration has passed the maximum count.
      */
     public boolean done() {
         if (currentIteration > mMaxIterations || temperature < 1.0/max_dimension)
@@ -317,7 +301,8 @@ public class FRLayout<V, E> extends AbstractLayout<V, E> implements IterativeCon
         return false;
     }
 
-    protected static class FRVertexData extends Point2D.Double
+    @SuppressWarnings("serial")
+	protected static class FRVertexData extends Point2D.Double
     {
         protected void offset(double x, double y)
         {

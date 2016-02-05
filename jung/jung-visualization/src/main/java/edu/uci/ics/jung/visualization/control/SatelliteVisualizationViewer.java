@@ -3,7 +3,7 @@
  * California All rights reserved.
  *
  * This software is open-source under the BSD license; see either "license.txt"
- * or http://jung.sourceforge.net/license.txt for a description.
+ * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  *
  * Created on Aug 15, 2005
  */
@@ -18,7 +18,6 @@ import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 
 import edu.uci.ics.jung.visualization.Layer;
-import edu.uci.ics.jung.visualization.VisualizationModel;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.transform.MutableAffineTransformer;
 import edu.uci.ics.jung.visualization.transform.shape.ShapeTransformer;
@@ -45,43 +44,12 @@ public class SatelliteVisualizationViewer<V, E>
     protected VisualizationViewer<V,E> master;
     
     /**
-     * @param layout
-     * @param renderer
-     */
-    public SatelliteVisualizationViewer(VisualizationViewer<V,E> master) {
-        this(master, master.getModel());
-    }
-
-    /**
-     * @param layout
-     * @param renderer
-     * @param preferredSize
+     * @param master the master VisualizationViewer for which this is a satellite view
+     * @param preferredSize the specified size of the component
      */
     public SatelliteVisualizationViewer(VisualizationViewer<V,E> master,
-            Dimension preferredSize) {
-        this(master, master.getModel(), preferredSize);
-    }
-
-    /**
-     * used internally, as the sattellite should always share the model of
-     * the master
-     * @param model
-     * @param renderer
-     */
-    protected SatelliteVisualizationViewer(VisualizationViewer<V,E> master, VisualizationModel<V,E> model) {
-        this(master, model, new Dimension(300,300));
-    }
-
-    /**
-     * Used internally, as the satellite should always share the model of the master
-     * @param master the master view
-     * @param model
-     * @param renderer
-     * @param preferredSize
-     */
-    protected SatelliteVisualizationViewer(VisualizationViewer<V,E> master, VisualizationModel<V,E> model,
-            Dimension preferredSize) {
-        super(model, preferredSize);
+    		Dimension preferredSize) {
+        super(master.getModel(), preferredSize);
         this.master = master;
         
         // create a graph mouse with custom plugins to affect the master view

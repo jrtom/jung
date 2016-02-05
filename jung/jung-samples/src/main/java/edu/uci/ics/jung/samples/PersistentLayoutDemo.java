@@ -3,7 +3,7 @@
  * California All rights reserved.
  * 
  * This software is open-source under the BSD license; see either "license.txt"
- * or http://jung.sourceforge.net/license.txt for a description.
+ * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  * 
  */
 package edu.uci.ics.jung.samples;
@@ -22,7 +22,9 @@ import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.TestGraphs;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
+import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
+import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.layout.PersistentLayout;
 import edu.uci.ics.jung.visualization.layout.PersistentLayoutImpl;
@@ -71,9 +73,12 @@ public class PersistentLayoutDemo {
         
         // add my listener for ToolTips
         vv.setVertexToolTipTransformer(new ToStringLabeller());
-        DefaultModalGraphMouse gm = new DefaultModalGraphMouse();
+        DefaultModalGraphMouse<String,Number> gm = new DefaultModalGraphMouse<String,Number>();
         vv.setGraphMouse(gm);
+        final ScalingControl scaler = new CrossoverScalingControl();
         
+        vv.scaleToLayout(scaler);
+
         // create a frome to hold the graph
         final JFrame frame = new JFrame();
         frame.getContentPane().add(new GraphZoomScrollPane(vv));

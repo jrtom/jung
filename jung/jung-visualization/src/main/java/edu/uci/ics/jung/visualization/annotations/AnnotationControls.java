@@ -3,7 +3,7 @@
  * California All rights reserved.
  *
  * This software is open-source under the BSD license; see either "license.txt"
- * or http://jung.sourceforge.net/license.txt for a description.
+ * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  *
  * 
  */
@@ -44,8 +44,8 @@ public class AnnotationControls<V,E> {
 	}
 	
     @SuppressWarnings("serial")
-    public JComboBox getShapeBox() {
-    	JComboBox shapeBox = new JComboBox(
+    public JComboBox<Shape> getShapeBox() {
+    	JComboBox<Shape> shapeBox = new JComboBox<Shape>(
     			new Shape[] {
     					new Rectangle2D.Double(),
     					new RoundRectangle2D.Double(0,0,0,0,50,50),
@@ -53,7 +53,7 @@ public class AnnotationControls<V,E> {
     			});
     	shapeBox.setRenderer(new DefaultListCellRenderer() {
     		@Override
-            public Component getListCellRendererComponent(JList list, Object value,
+            public Component getListCellRendererComponent(JList<?> list, Object value,
     			int index, boolean isSelected, boolean hasFocus) {
     			String valueString = value.toString();
     			valueString = valueString.substring(0,valueString.indexOf("2D"));
@@ -87,8 +87,8 @@ public class AnnotationControls<V,E> {
     	return colorChooser;
     }
     
-    public JComboBox getLayerBox() {
-    	final JComboBox layerBox = new JComboBox(
+    public JComboBox<Annotation.Layer> getLayerBox() {
+    	final JComboBox<Annotation.Layer> layerBox = new JComboBox<Annotation.Layer>(
     			new Annotation.Layer[] {
     			Annotation.Layer.LOWER, Annotation.Layer.UPPER
     			});

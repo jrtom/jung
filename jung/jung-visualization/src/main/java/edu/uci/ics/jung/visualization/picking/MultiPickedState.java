@@ -3,7 +3,7 @@
  * California All rights reserved.
  * 
  * This software is open-source under the BSD license; see either "license.txt"
- * or http://jung.sourceforge.net/license.txt for a description.
+ * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  * 
  *
  * Created on Mar 28, 2005
@@ -33,9 +33,6 @@ public class MultiPickedState<T> extends AbstractPickedState<T> implements Picke
      */
     protected Set<T> picked = new LinkedHashSet<T>();
     
-    /**
-     * @see PickedState#pick(ArchetypeVertex, boolean)
-     */
     public boolean pick(T v, boolean state) {
         boolean prior_state = this.picked.contains(v);
         if (state) {
@@ -56,9 +53,6 @@ public class MultiPickedState<T> extends AbstractPickedState<T> implements Picke
         return prior_state;
     }
 
-    /**
-     * @see edu.uci.ics.jung.visualization.picking.PickedState#clearPickedVertices()
-     */
     public void clear() {
         Collection<T> unpicks = new ArrayList<T>(picked);
         for(T v : unpicks) {
@@ -68,16 +62,10 @@ public class MultiPickedState<T> extends AbstractPickedState<T> implements Picke
 
     }
 
-    /**
-     * @see edu.uci.ics.jung.visualization.picking.PickedState#getPickedEdges()
-     */
     public Set<T> getPicked() {
         return Collections.unmodifiableSet(picked);
     }
     
-    /**
-     * @see edu.uci.ics.jung.visualization.picking.PickedState#isPicked(ArchetypeEdge)
-     */
     public boolean isPicked(T e) {
         return picked.contains(e);
     }

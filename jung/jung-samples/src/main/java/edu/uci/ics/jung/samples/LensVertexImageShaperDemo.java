@@ -3,7 +3,7 @@
  * California All rights reserved.
  * 
  * This software is open-source under the BSD license; see either "license.txt"
- * or http://jung.sourceforge.net/license.txt for a description.
+ * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  * 
  */
 package edu.uci.ics.jung.samples;
@@ -37,7 +37,8 @@ import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
+import com.google.common.base.Functions;
 
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.graph.DirectedSparseGraph;
@@ -47,8 +48,8 @@ import edu.uci.ics.jung.visualization.LayeredIcon;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
+import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
-import edu.uci.ics.jung.visualization.decorators.DefaultVertexIconTransformer;
 import edu.uci.ics.jung.visualization.decorators.EllipseVertexShapeTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
@@ -157,14 +158,14 @@ public class LensVertexImageShaperDemo extends JApplet {
         layout.setMaxIterations(100);
         vv =  new VisualizationViewer<Number, Number>(layout, new Dimension(600,600));
         
-        Transformer<Number,Paint> vpf = 
+        Function<Number,Paint> vpf = 
             new PickableVertexPaintTransformer<Number>(vv.getPickedVertexState(), Color.white, Color.yellow);
         vv.getRenderContext().setVertexFillPaintTransformer(vpf);
         vv.getRenderContext().setEdgeDrawPaintTransformer(new PickableEdgePaintTransformer<Number>(vv.getPickedEdgeState(), Color.black, Color.cyan));
 
         vv.setBackground(Color.white);
         
-        final Transformer<Number,String> vertexStringerImpl = 
+        final Function<Number,String> vertexStringerImpl = 
             new VertexStringerImpl<Number>(map);
         vv.getRenderContext().setVertexLabelTransformer(vertexStringerImpl);
         vv.getRenderContext().setVertexLabelRenderer(new DefaultVertexLabelRenderer(Color.cyan));
@@ -175,11 +176,9 @@ public class LensVertexImageShaperDemo extends JApplet {
         final VertexIconShapeTransformer<Number> vertexImageShapeFunction =
             new VertexIconShapeTransformer<Number>(new EllipseVertexShapeTransformer<Number>());
 
-        final DefaultVertexIconTransformer<Number> vertexIconFunction =
-        	new DefaultVertexIconTransformer<Number>();
+        final Function<Number, Icon> vertexIconFunction = Functions.forMap(iconMap);
         
         vertexImageShapeFunction.setIconMap(iconMap);
-        vertexIconFunction.setIconMap(iconMap);
         
         vv.getRenderContext().setVertexShapeTransformer(vertexImageShapeFunction);
         vv.getRenderContext().setVertexIconTransformer(vertexIconFunction);
@@ -221,13 +220,14 @@ public class LensVertexImageShaperDemo extends JApplet {
         });
 
         // add a listener for ToolTips
-        vv.setVertexToolTipTransformer(new ToStringLabeller<Number>());
+        vv.setVertexToolTipTransformer(new ToStringLabeller());
         
         Container content = getContentPane();
         final GraphZoomScrollPane panel = new GraphZoomScrollPane(vv);
         content.add(panel);
         
-        final DefaultModalGraphMouse graphMouse = new DefaultModalGraphMouse();
+        final DefaultModalGraphMouse<Number, Number> graphMouse
+        	= new DefaultModalGraphMouse<Number, Number>();
         vv.setGraphMouse(graphMouse);
         
         
@@ -246,7 +246,7 @@ public class LensVertexImageShaperDemo extends JApplet {
             }
         });
         
-        JComboBox modeBox = graphMouse.getModeComboBox();
+        JComboBox<Mode> modeBox = graphMouse.getModeComboBox();
         JPanel modePanel = new JPanel();
         modePanel.setBorder(BorderFactory.createTitledBorder("Mouse Mode"));
         modePanel.add(modeBox);
@@ -322,7 +322,7 @@ public class LensVertexImageShaperDemo extends JApplet {
      *
      *
      */
-    class VertexStringerImpl<V> implements Transformer<V,String> {
+    class VertexStringerImpl<V> implements Function<V,String> {
 
         Map<V,String> map = new HashMap<V,String>();
         
@@ -335,7 +335,7 @@ public class LensVertexImageShaperDemo extends JApplet {
         /**
          * @see edu.uci.ics.jung.graph.decorators.VertexStringer#getLabel(edu.uci.ics.jung.graph.Vertex)
          */
-        public String transform(V v) {
+        public String apply(V v) {
             if(isEnabled()) {
                 return map.get(v);
             } else {
@@ -399,16 +399,16 @@ public class LensVertexImageShaperDemo extends JApplet {
     }
     
     public static class PickWithIconListener implements ItemListener {
-        DefaultVertexIconTransformer<Number> imager;
+        Function<Number, Icon> imager;
         Icon checked;
         
-        public PickWithIconListener(DefaultVertexIconTransformer<Number> imager) {
+        public PickWithIconListener(Function<Number, Icon> imager) {
             this.imager = imager;
             checked = new Checkmark(Color.red);
         }
 
         public void itemStateChanged(ItemEvent e) {
-            Icon icon = imager.transform((Number)e.getItem());
+            Icon icon = imager.apply((Number)e.getItem());
             if(icon != null && icon instanceof LayeredIcon) {
                 if(e.getStateChange() == ItemEvent.SELECTED) {
                     ((LayeredIcon)icon).add(checked);
@@ -419,10 +419,6 @@ public class LensVertexImageShaperDemo extends JApplet {
         }
     }
 
-
-    /**
-     * a driver for this demo
-     */
     public static void main(String[] args) {
         JFrame frame = new JFrame();
         Container content = frame.getContentPane();

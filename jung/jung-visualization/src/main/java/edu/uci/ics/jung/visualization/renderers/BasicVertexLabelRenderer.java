@@ -3,7 +3,7 @@
  * California All rights reserved.
  *
  * This software is open-source under the BSD license; see either "license.txt"
- * or http://jung.sourceforge.net/license.txt for a description.
+ * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  *
  * Created on Aug 23, 2005
  */
@@ -58,7 +58,7 @@ public class BasicVertexLabelRenderer<V,E> implements Renderer.VertexLabel<V,E> 
 	public Component prepareRenderer(RenderContext<V,E> rc, VertexLabelRenderer graphLabelRenderer, Object value, 
 			boolean isSelected, V vertex) {
 		return rc.getVertexLabelRenderer().<V>getVertexLabelRendererComponent(rc.getScreenDevice(), value, 
-				rc.getVertexFontTransformer().transform(vertex), isSelected, vertex);
+				rc.getVertexFontTransformer().apply(vertex), isSelected, vertex);
 	}
 
 	/**
@@ -71,10 +71,10 @@ public class BasicVertexLabelRenderer<V,E> implements Renderer.VertexLabel<V,E> 
      */
     public void labelVertex(RenderContext<V,E> rc, Layout<V,E> layout, V v, String label) {
     	Graph<V,E> graph = layout.getGraph();
-        if (rc.getVertexIncludePredicate().evaluate(Context.<Graph<V,E>,V>getInstance(graph,v)) == false) {
+        if (rc.getVertexIncludePredicate().apply(Context.<Graph<V,E>,V>getInstance(graph,v)) == false) {
         	return;
         }
-        Point2D pt = layout.transform(v);
+        Point2D pt = layout.apply(v);
         pt = rc.getMultiLayerTransformer().transform(Layer.LAYOUT, pt);
 
         float x = (float) pt.getX();
@@ -86,7 +86,7 @@ public class BasicVertexLabelRenderer<V,E> implements Renderer.VertexLabel<V,E> 
         Dimension d = component.getPreferredSize();
         AffineTransform xform = AffineTransform.getTranslateInstance(x, y);
         
-    	Shape shape = rc.getVertexShapeTransformer().transform(v);
+    	Shape shape = rc.getVertexShapeTransformer().apply(v);
     	shape = xform.createTransformedShape(shape);
     	if(rc.getGraphicsContext() instanceof TransformingGraphics) {
     		BidirectionalTransformer transformer = ((TransformingGraphics)rc.getGraphicsContext()).getTransformer();

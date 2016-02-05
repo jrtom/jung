@@ -3,7 +3,7 @@
  * California All rights reserved.
  *
  * This software is open-source under the BSD license; see either "license.txt"
- * or http://jung.sourceforge.net/license.txt for a description.
+ * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  *
  * Created on Jul 11, 2005
  */
@@ -71,7 +71,7 @@ public class Graphics2DWrapper {
     /* (non-Javadoc)
      * @see java.awt.Graphics2D#addRenderingHints(java.util.Map)
      */
-    public void addRenderingHints(Map hints) {
+    public void addRenderingHints(Map<?,?> hints) {
         delegate.addRenderingHints(hints);
     }
 
@@ -611,7 +611,7 @@ public class Graphics2DWrapper {
     /* (non-Javadoc)
      * @see java.awt.Graphics2D#setRenderingHints(java.util.Map)
      */
-    public void setRenderingHints(Map hints) {
+    public void setRenderingHints(Map<?,?> hints) {
         delegate.setRenderingHints(hints);
     }
 

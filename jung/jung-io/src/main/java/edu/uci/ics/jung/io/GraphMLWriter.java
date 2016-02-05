@@ -7,7 +7,7 @@
  *
  * This software is open-source under the BSD license; see either
  * "license.txt" or
- * http://jung.sourceforge.net/license.txt for a description.
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  */
 package edu.uci.ics.jung.io;
 
@@ -19,8 +19,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.collections15.Transformer;
-import org.apache.commons.collections15.TransformerUtils;
+import com.google.common.base.Function;
+import com.google.common.base.Functions;
 
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.Hypergraph;
@@ -33,53 +33,49 @@ import edu.uci.ics.jung.graph.util.Pair;
  *
  * Current known issues: 
  * <ul>
- * <li/>Only supports one graph per output file.
- * <li/>Does not indent lines for text-format readability.
+ * <li>Only supports one graph per output file.
+ * <li>Does not indent lines for text-format readability.
  * </ul>
  * 
  */
 public class GraphMLWriter<V,E> 
 {
-    protected Transformer<V, String> vertex_ids;
-    protected Transformer<E, String> edge_ids;
+    protected Function<? super V, String> vertex_ids;
+    protected Function<? super E, String> edge_ids;
     protected Map<String, GraphMLMetadata<Hypergraph<V,E>>> graph_data;
     protected Map<String, GraphMLMetadata<V>> vertex_data;
     protected Map<String, GraphMLMetadata<E>> edge_data;
-    protected Transformer<V, String> vertex_desc;
-    protected Transformer<E, String> edge_desc;
-    protected Transformer<Hypergraph<V,E>, String> graph_desc;
+    protected Function<? super V, String> vertex_desc;
+    protected Function<? super E, String> edge_desc;
+    protected Function<? super Hypergraph<V,E>, String> graph_desc;
 	protected boolean directed;
 	protected int nest_level;
     
-	/**
-	 * 
-	 */
-	@SuppressWarnings("unchecked")
 	public GraphMLWriter() 
 	{
-	    vertex_ids = new Transformer<V,String>()
+	    vertex_ids = new Function<V,String>()
 	    { 
-	        public String transform(V v) 
+	        public String apply(V v) 
 	        { 
 	            return v.toString(); 
 	        }
 	    };
-	    edge_ids = TransformerUtils.nullTransformer();
+	    edge_ids = Functions.constant(null);
 	    graph_data = Collections.emptyMap();
         vertex_data = Collections.emptyMap();
         edge_data = Collections.emptyMap();
-        vertex_desc = TransformerUtils.nullTransformer();
-        edge_desc = TransformerUtils.nullTransformer();
-        graph_desc = TransformerUtils.nullTransformer();
+        vertex_desc = Functions.constant(null);
+        edge_desc = Functions.constant(null);
+        graph_desc = Functions.constant(null);
         nest_level = 0;
 	}
 	
 	
 	/**
-	 * 
-	 * @param graph
-	 * @param w
-	 * @throws IOException 
+	 * Writes {@code graph} out using {@code w}.
+	 * @param graph the graph to write out
+	 * @param w the writer instance to which the graph data will be written out
+	 * @throws IOException if writing the graph fails
 	 */
 	public void save(Hypergraph<V,E> graph, Writer w) throws IOException
 	{
@@ -109,15 +105,15 @@ public class GraphMLWriter<V,E>
             bw.write("undirected\">\n");
 
         // write graph description, if any
-		String desc = graph_desc.transform(graph);
+		String desc = graph_desc.apply(graph);
 		if (desc != null)
 			bw.write("<desc>" + desc + "</desc>\n");
 		
 		// write graph data out if any
 		for (String key : graph_data.keySet())
 		{
-			Transformer<Hypergraph<V,E>, ?> t = graph_data.get(key).transformer;
-			Object value = t.transform(graph);
+			Function<Hypergraph<V,E>, ?> t = graph_data.get(key).transformer;
+			Object value = t.apply(graph);
 			if (value != null)
 				bw.write(format("data", "key", key, value.toString()) + "\n");
 		}
@@ -152,10 +148,10 @@ public class GraphMLWriter<V,E>
 	{
 		for (V v: graph.getVertices())
 		{
-			String v_string = String.format("<node id=\"%s\"", vertex_ids.transform(v));
+			String v_string = String.format("<node id=\"%s\"", vertex_ids.apply(v));
 			boolean closed = false;
 			// write description out if any
-			String desc = vertex_desc.transform(v);
+			String desc = vertex_desc.apply(v);
 			if (desc != null)
 			{
 				w.write(v_string + ">\n");
@@ -165,10 +161,10 @@ public class GraphMLWriter<V,E>
 			// write data out if any
 			for (String key : vertex_data.keySet())
 			{
-				Transformer<V, ?> t = vertex_data.get(key).transformer;
+				Function<V, ?> t = vertex_data.get(key).transformer;
 				if (t != null)
 				{
-    				Object value = t.transform(v);
+    				Object value = t.apply(v);
     				if (value != null)
     				{
     					if (!closed)
@@ -192,7 +188,7 @@ public class GraphMLWriter<V,E>
 		for (E e: g.getEdges())
 		{
 			Collection<V> vertices = g.getIncidentVertices(e);
-			String id = edge_ids.transform(e);
+			String id = edge_ids.apply(e);
 			String e_string;
 			boolean is_hyperedge = !(g instanceof Graph);
             if (is_hyperedge)
@@ -217,13 +213,13 @@ public class GraphMLWriter<V,E>
 					e_string += "directed=\"false\" ";
 				if (!directed && edge_type == EdgeType.DIRECTED)
 					e_string += "directed=\"true\" ";
-				e_string += "source=\"" + vertex_ids.transform(v1) + 
-					"\" target=\"" + vertex_ids.transform(v2) + "\"";
+				e_string += "source=\"" + vertex_ids.apply(v1) + 
+					"\" target=\"" + vertex_ids.apply(v2) + "\"";
 			}
 			
 			boolean closed = false;
 			// write description out if any
-			String desc = edge_desc.transform(e);
+			String desc = edge_desc.apply(e);
 			if (desc != null)
 			{
 				w.write(e_string + ">\n");
@@ -233,8 +229,8 @@ public class GraphMLWriter<V,E>
 			// write data out if any
 			for (String key : edge_data.keySet())
 			{
-				Transformer<E, ?> t = edge_data.get(key).transformer;
-				Object value = t.transform(e);
+				Function<E, ?> t = edge_data.get(key).transformer;
+				Object value = t.apply(e);
 				if (value != null)
 				{
 					if (!closed)
@@ -255,7 +251,7 @@ public class GraphMLWriter<V,E>
 						w.write(e_string + ">\n");
 						closed = true;
 					}
-					w.write("<endpoint node=\"" + vertex_ids.transform(v) + "\"/>\n");
+					w.write("<endpoint node=\"" + vertex_ids.apply(v) + "\"/>\n");
 				}
 			}
 			
@@ -314,9 +310,9 @@ public class GraphMLWriter<V,E>
 	 * the output of <code>toString</code> 
 	 * (and thus not guaranteed to be unique).
 	 * 
-	 * @param vertex_ids
+	 * @param vertex_ids a mapping from vertex to ID
 	 */
-	public void setVertexIDs(Transformer<V, String> vertex_ids) 
+	public void setVertexIDs(Function<V, String> vertex_ids) 
 	{
 		this.vertex_ids = vertex_ids;
 	}
@@ -327,15 +323,17 @@ public class GraphMLWriter<V,E>
 	 * If any edge ID is missing, no ID will be written out for the
 	 * corresponding edge.
 	 * 
-	 * @param edge_ids
+	 * @param edge_ids a mapping from edge to ID
 	 */
-	public void setEdgeIDs(Transformer<E, String> edge_ids) 
+	public void setEdgeIDs(Function<E, String> edge_ids) 
 	{
 		this.edge_ids = edge_ids;
 	}
 
 	/**
 	 * Provides a map from data type name to graph data.
+	 * 
+	 * @param graph_map map from data type name to graph data
 	 */
 	public void setGraphData(Map<String, GraphMLMetadata<Hypergraph<V,E>>> graph_map)
 	{
@@ -344,6 +342,8 @@ public class GraphMLWriter<V,E>
 	
     /**
      * Provides a map from data type name to vertex data.
+     * 
+     * @param vertex_map map from data type name to vertex data
      */
 	public void setVertexData(Map<String, GraphMLMetadata<V>> vertex_map)
 	{
@@ -352,6 +352,8 @@ public class GraphMLWriter<V,E>
 	
     /**
      * Provides a map from data type name to edge data.
+     * 
+     * @param edge_map map from data type name to edge data
      */
 	public void setEdgeData(Map<String, GraphMLMetadata<E>> edge_map)
 	{
@@ -360,9 +362,14 @@ public class GraphMLWriter<V,E>
 	
 	/**
 	 * Adds a new graph data specification.
+	 * 
+	 * @param id the ID of the data to add
+	 * @param description a description of the data to add
+	 * @param default_value a default value for the data type
+	 * @param graph_transformer a mapping from graphs to their string representations
 	 */
 	public void addGraphData(String id, String description, String default_value,
-			Transformer<Hypergraph<V,E>, String> graph_transformer)
+			Function<Hypergraph<V,E>, String> graph_transformer)
 	{
 		if (graph_data.equals(Collections.EMPTY_MAP))
 			graph_data = new HashMap<String, GraphMLMetadata<Hypergraph<V,E>>>();
@@ -370,11 +377,16 @@ public class GraphMLWriter<V,E>
 				default_value, graph_transformer));
 	}
 	
-    /**
-     * Adds a new vertex data specification.
-     */
+	/**
+	 * Adds a new vertex data specification.
+	 * 
+	 * @param id the ID of the data to add
+	 * @param description a description of the data to add
+	 * @param default_value a default value for the data type
+	 * @param vertex_transformer a mapping from vertices to their string representations
+	 */
 	public void addVertexData(String id, String description, String default_value,
-			Transformer<V, String> vertex_transformer)
+			Function<V, String> vertex_transformer)
 	{
 		if (vertex_data.equals(Collections.EMPTY_MAP))
 			vertex_data = new HashMap<String, GraphMLMetadata<V>>();
@@ -382,11 +394,16 @@ public class GraphMLWriter<V,E>
 				vertex_transformer));
 	}
 
-    /**
-     * Adds a new edge data specification.
-     */
+	/**
+	 * Adds a new edge data specification.
+	 * 
+	 * @param id the ID of the data to add
+	 * @param description a description of the data to add
+	 * @param default_value a default value for the data type
+	 * @param edge_transformer a mapping from edges to their string representations
+	 */
 	public void addEdgeData(String id, String description, String default_value,
-			Transformer<E, String> edge_transformer)
+			Function<E, String> edge_transformer)
 	{
 		if (edge_data.equals(Collections.EMPTY_MAP))
 			edge_data = new HashMap<String, GraphMLMetadata<E>>();
@@ -396,24 +413,27 @@ public class GraphMLWriter<V,E>
 
 	/**
 	 * Provides vertex descriptions.
+	 * @param vertex_desc a mapping from vertices to their descriptions
 	 */
-	public void setVertexDescriptions(Transformer<V, String> vertex_desc) 
+	public void setVertexDescriptions(Function<V, String> vertex_desc) 
 	{
 		this.vertex_desc = vertex_desc;
 	}
 
     /**
      * Provides edge descriptions.
+	 * @param edge_desc a mapping from edges to their descriptions
      */
-	public void setEdgeDescriptions(Transformer<E, String> edge_desc) 
+	public void setEdgeDescriptions(Function<E, String> edge_desc) 
 	{
 		this.edge_desc = edge_desc;
 	}
 
     /**
      * Provides graph descriptions.
+	 * @param graph_desc a mapping from graphs to their descriptions
      */
-	public void setGraphDescriptions(Transformer<Hypergraph<V,E>, String> graph_desc) 
+	public void setGraphDescriptions(Function<Hypergraph<V,E>, String> graph_desc) 
 	{
 		this.graph_desc = graph_desc;
 	}

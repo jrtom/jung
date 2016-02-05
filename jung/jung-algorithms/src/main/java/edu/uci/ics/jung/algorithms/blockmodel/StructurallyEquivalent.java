@@ -6,7 +6,7 @@
  *
  * This software is open-source under the BSD license; see either
  * "license.txt" or
- * http://jung.sourceforge.net/license.txt for a description.
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  */
 package edu.uci.ics.jung.algorithms.blockmodel;
 
@@ -20,8 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.collections15.CollectionUtils;
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.Pair;
@@ -42,9 +41,9 @@ import edu.uci.ics.jung.graph.util.Pair;
  * 
  * @author Danyel Fisher
  */
-public class StructurallyEquivalent<V,E> implements Transformer<Graph<V,E>, VertexPartition<V,E>> 
+public class StructurallyEquivalent<V,E> implements Function<Graph<V,E>, VertexPartition<V,E>> 
 {
-	public VertexPartition<V,E> transform(Graph<V,E> g) 
+	public VertexPartition<V,E> apply(Graph<V,E> g) 
 	{
 	    Set<Pair<V>> vertex_pairs = getEquivalentPairs(g);
 	    
@@ -66,8 +65,8 @@ public class StructurallyEquivalent<V,E> implements Transformer<Graph<V,E>, Vert
 
         // pick up the vertices which don't appear in intermediate; they are
         // singletons (equivalence classes of size 1)
-        Collection<V> singletons = CollectionUtils.subtract(g.getVertices(),
-                intermediate.keySet());
+        Collection<V> singletons = new ArrayList<V>(g.getVertices());
+        singletons.removeAll(intermediate.keySet());
         for (V v : singletons)
         {
             Set<V> v_set = Collections.singleton(v);
@@ -83,10 +82,9 @@ public class StructurallyEquivalent<V,E> implements Transformer<Graph<V,E>, Vert
 	 * equivalent: meaning that they connect to the exact same vertices. (Is
 	 * this regular equivalence, or whathaveyou?)
 	 * 
-	 * Returns a Set of Pairs of vertices, where all the vertices in the inner
+	 * @param g the graph whose equivalent pairs are to be generated
+	 * @return a Set of Pairs of vertices, where all the vertices in the inner
 	 * Pairs are equivalent.
-	 * 
-	 * @param g
 	 */
 	protected Set<Pair<V>> getEquivalentPairs(Graph<V,?> g) {
 
@@ -106,7 +104,7 @@ public class StructurallyEquivalent<V,E> implements Transformer<Graph<V,E>, Vert
 				if (alreadyEquivalent.contains(v2))
 					continue;
 
-				if (!canPossiblyCompare(v1, v2))
+				if (!canBeEquivalent(v1, v2))
 					continue;
 
 				if (isStructurallyEquivalent(g, v1, v2)) {
@@ -121,13 +119,11 @@ public class StructurallyEquivalent<V,E> implements Transformer<Graph<V,E>, Vert
 	}
 
 	/**
-	 * Checks whether a pair of vertices are structurally equivalent.
-	 * Specifically, whether v1's predecessors are equal to v2's predecessors,
-	 * and same for successors.
-	 * 
 	 * @param g the graph in which the structural equivalence comparison is to take place
 	 * @param v1 the vertex to check for structural equivalence to v2
 	 * @param v2 the vertex to check for structural equivalence to v1
+	 * @return {@code true} if {@code v1}'s predecessors/successors are equal to
+	 *     {@code v2}'s predecessors/successors
 	 */
 	protected boolean isStructurallyEquivalent(Graph<V,?> g, V v1, V v2) {
 		
@@ -166,13 +162,13 @@ public class StructurallyEquivalent<V,E> implements Transformer<Graph<V,E>, Vert
 
 	/**
 	 * This is a space for optimizations. For example, for a bipartite graph,
-	 * vertices from different partitions cannot possibly be compared.
+	 * vertices from different partitions cannot possibly be equivalent.
 	 * 
-	 * @param v1
-	 * @param v2
+	 * @param v1 the first vertex to compare
+	 * @param v2 the second vertex to compare
+	 * @return {@code true} if the vertices can be equivalent
 	 */
-	protected boolean canPossiblyCompare(V v1, V v2) {
+	protected boolean canBeEquivalent(V v1, V v2) {
 		return true;
 	}
-
 }

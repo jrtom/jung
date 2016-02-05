@@ -5,7 +5,7 @@
  *
  * This software is open-source under the BSD license; see either
  * "license.txt" or
- * http://jung.sourceforge.net/license.txt for a description.
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  */
 /*
  * Created on Dec 26, 2001
@@ -69,7 +69,7 @@ public class KNeighborhoodFilter<V,E> implements Filter<V,E> {
 	 * Constructs an unassembled graph containing the k-neighborhood around the root node(s).
 	 */
 	@SuppressWarnings("unchecked")
-	public Graph<V,E> transform(Graph<V,E> graph) {
+	public Graph<V,E> apply(Graph<V,E> graph) {
 		// generate a Set of Vertices we want
 		// add all to the UG
 		int currentDepth = 0;

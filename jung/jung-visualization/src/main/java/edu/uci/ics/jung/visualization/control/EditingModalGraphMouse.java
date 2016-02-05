@@ -17,7 +17,7 @@ import javax.swing.JMenu;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.plaf.basic.BasicIconFactory;
 
-import org.apache.commons.collections15.Factory;
+import com.google.common.base.Supplier;
 
 import edu.uci.ics.jung.visualization.MultiLayerTransformer;
 import edu.uci.ics.jung.visualization.RenderContext;
@@ -26,8 +26,8 @@ import edu.uci.ics.jung.visualization.annotations.AnnotatingGraphMousePlugin;
 public class EditingModalGraphMouse<V,E> extends AbstractModalGraphMouse 
 	implements ModalGraphMouse, ItemSelectable {
 
-	protected Factory<V> vertexFactory;
-	protected Factory<E> edgeFactory;
+	protected Supplier<V> vertexFactory;
+	protected Supplier<E> edgeFactory;
 	protected EditingGraphMousePlugin<V,E> editingPlugin;
 	protected LabelEditingGraphMousePlugin<V,E> labelEditingPlugin;
 	protected EditingPopupGraphMousePlugin<V,E> popupEditingPlugin;
@@ -36,21 +36,28 @@ public class EditingModalGraphMouse<V,E> extends AbstractModalGraphMouse
 	protected RenderContext<V,E> rc;
 
 	/**
-	 * create an instance with default values
-	 *
+	 * Creates an instance with the specified rendering context and vertex/edge factories,
+	 * and with default zoom in/out values of 1.1 and 1/1.1.
+	 * @param rc the rendering context
+	 * @param vertexFactory used to construct vertices
+	 * @param edgeFactory used to construct edges
 	 */
 	public EditingModalGraphMouse(RenderContext<V,E> rc,
-			Factory<V> vertexFactory, Factory<E> edgeFactory) {
+			Supplier<V> vertexFactory, Supplier<E> edgeFactory) {
 		this(rc, vertexFactory, edgeFactory, 1.1f, 1/1.1f);
 	}
 
 	/**
-	 * create an instance with passed values
-	 * @param in override value for scale in
-	 * @param out override value for scale out
+	 * Creates an instance with the specified rendering context and vertex/edge factories,
+	 * and with the specified zoom in/out values.
+	 * @param rc the rendering context
+	 * @param vertexFactory used to construct vertices
+	 * @param edgeFactory used to construct edges
+	 * @param in amount to zoom in by for each action
+	 * @param out amount to zoom out by for each action
 	 */
 	public EditingModalGraphMouse(RenderContext<V,E> rc,
-			Factory<V> vertexFactory, Factory<E> edgeFactory, float in, float out) {
+			Supplier<V> vertexFactory, Supplier<E> edgeFactory, float in, float out) {
 		super(in,out);
 		this.vertexFactory = vertexFactory;
 		this.edgeFactory = edgeFactory;
@@ -160,9 +167,10 @@ public class EditingModalGraphMouse<V,E> extends AbstractModalGraphMouse
 	 * @return the modeBox.
 	 */
 	@Override
-    public JComboBox getModeComboBox() {
+    public JComboBox<Mode> getModeComboBox() {
 		if(modeBox == null) {
-			modeBox = new JComboBox(new Mode[]{Mode.TRANSFORMING, Mode.PICKING, Mode.EDITING, Mode.ANNOTATING});
+			modeBox = new JComboBox<Mode>(
+				new Mode[]{Mode.TRANSFORMING, Mode.PICKING, Mode.EDITING, Mode.ANNOTATING});
 			modeBox.addItemListener(getModeListener());
 		}
 		modeBox.setSelectedItem(mode);

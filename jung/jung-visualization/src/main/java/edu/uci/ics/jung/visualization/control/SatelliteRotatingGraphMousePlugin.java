@@ -3,7 +3,7 @@
  * California All rights reserved.
  *
  * This software is open-source under the BSD license; see either "license.txt"
- * or http://jung.sourceforge.net/license.txt for a description.
+ * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  *
  * Created on Aug 15, 2005
  */
@@ -39,12 +39,12 @@ public class SatelliteRotatingGraphMousePlugin extends RotatingGraphMousePlugin 
      */
     public void mouseDragged(MouseEvent e) {
         if(down == null) return;
-        VisualizationViewer vv = (VisualizationViewer)e.getSource();
+        VisualizationViewer<?, ?> vv = (VisualizationViewer<?, ?>)e.getSource();
         boolean accepted = checkModifiers(e);
         if(accepted) {
             if(vv instanceof SatelliteVisualizationViewer) {
-                VisualizationViewer vvMaster = 
-                    ((SatelliteVisualizationViewer)vv).getMaster();
+                VisualizationViewer<?, ?> vvMaster = 
+                    ((SatelliteVisualizationViewer<?, ?>)vv).getMaster();
                 
                 MutableTransformer modelTransformerMaster = 
                 	vvMaster.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT);

@@ -3,7 +3,7 @@
  * California All rights reserved.
  * 
  * This software is open-source under the BSD license; see either "license.txt"
- * or http://jung.sourceforge.net/license.txt for a description.
+ * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  * 
  */
 package edu.uci.ics.jung.samples;
@@ -14,6 +14,8 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.Paint;
+import java.awt.Stroke;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -24,9 +26,8 @@ import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import org.apache.commons.collections15.Transformer;
-import org.apache.commons.collections15.functors.ChainedTransformer;
-import org.apache.commons.collections15.functors.ConstantTransformer;
+import com.google.common.base.Function;
+import com.google.common.base.Functions;
 
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
@@ -88,18 +89,17 @@ public class VertexLabelAsShapeDemo extends JApplet {
         
         // customize the render context
         vv.getRenderContext().setVertexLabelTransformer(
-        		// this chains together Transformers so that the html tags
+        		// this chains together Functions so that the html tags
         		// are prepended to the toString method output
-        		new ChainedTransformer<String,String>(new Transformer[]{
-        		new ToStringLabeller<String>(),
-        		new Transformer<String,String>() {
-					public String transform(String input) {
-						return "<html><center>Vertex<p>"+input;
-					}}}));
+        		Functions.<Object,String,String>compose(
+        				new Function<String,String>(){
+							public String apply(String input) {
+								return "<html><center>Vertex<p>"+input;
+							}}, new ToStringLabeller()));
         vv.getRenderContext().setVertexShapeTransformer(vlasr);
         vv.getRenderContext().setVertexLabelRenderer(new DefaultVertexLabelRenderer(Color.red));
-        vv.getRenderContext().setEdgeDrawPaintTransformer(new ConstantTransformer(Color.yellow));
-        vv.getRenderContext().setEdgeStrokeTransformer(new ConstantTransformer(new BasicStroke(2.5f)));
+        vv.getRenderContext().setEdgeDrawPaintTransformer(Functions.<Paint>constant(Color.yellow));
+        vv.getRenderContext().setEdgeStrokeTransformer(Functions.<Stroke>constant(new BasicStroke(2.5f)));
         
         // customize the renderer
         vv.getRenderer().setVertexRenderer(new GradientVertexRenderer<String,Number>(Color.gray, Color.white, true));
@@ -108,7 +108,7 @@ public class VertexLabelAsShapeDemo extends JApplet {
         vv.setBackground(Color.black);
         
         // add a listener for ToolTips
-        vv.setVertexToolTipTransformer(new ToStringLabeller<String>());
+        vv.setVertexToolTipTransformer(new ToStringLabeller());
         
         final DefaultModalGraphMouse<String,Number> graphMouse = 
             new DefaultModalGraphMouse<String,Number>();
@@ -120,7 +120,7 @@ public class VertexLabelAsShapeDemo extends JApplet {
         GraphZoomScrollPane gzsp = new GraphZoomScrollPane(vv);
         content.add(gzsp);
         
-        JComboBox modeBox = graphMouse.getModeComboBox();
+        JComboBox<?> modeBox = graphMouse.getModeComboBox();
         modeBox.addItemListener(graphMouse.getModeListener());
         graphMouse.setMode(ModalGraphMouse.Mode.TRANSFORMING);
         
@@ -149,9 +149,6 @@ public class VertexLabelAsShapeDemo extends JApplet {
         content.add(controls, BorderLayout.SOUTH);
     }
     
-    /**
-     * a driver for this demo
-     */
     public static void main(String[] args) {
         JFrame f = new JFrame();
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

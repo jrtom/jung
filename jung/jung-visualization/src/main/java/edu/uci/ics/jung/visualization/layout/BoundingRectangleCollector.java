@@ -9,7 +9,6 @@ import java.util.List;
 
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.util.Context;
 import edu.uci.ics.jung.graph.util.Pair;
 import edu.uci.ics.jung.visualization.RenderContext;
 
@@ -43,16 +42,16 @@ public class BoundingRectangleCollector<V,E>  {
 			Pair<V> endpoints = graph.getEndpoints(e);
 			V v1 = endpoints.getFirst();
 			V v2 = endpoints.getSecond();
-			Point2D p1 = layout.transform(v1);
-			Point2D p2 = layout.transform(v2);
+			Point2D p1 = layout.apply(v1);
+			Point2D p2 = layout.apply(v2);
 			float x1 = (float)p1.getX();
 			float y1 = (float)p1.getY();
 			float x2 = (float)p2.getX();
 			float y2 = (float)p2.getY();
 			
 			boolean isLoop = v1.equals(v2);
-			Shape s2 = rc.getVertexShapeTransformer().transform(v2);
-			Shape edgeShape = rc.getEdgeShapeTransformer().transform(Context.<Graph<V,E>,E>getInstance(graph,e));
+			Shape s2 = rc.getVertexShapeTransformer().apply(v2);
+			Shape edgeShape = rc.getEdgeShapeTransformer().apply(e);
 
 			AffineTransform xform = AffineTransform.getTranslateInstance(x1,y1);
 			
@@ -74,8 +73,8 @@ public class BoundingRectangleCollector<V,E>  {
 		}
 		
 		for(V v : graph.getVertices()) {
-			Shape shape = rc.getVertexShapeTransformer().transform(v);
-			Point2D p = layout.transform(v);
+			Shape shape = rc.getVertexShapeTransformer().apply(v);
+			Point2D p = layout.apply(v);
 //			p = rc.getMultiLayerTransformer().transform(Layer.LAYOUT, p);
 			float x = (float)p.getX();
 			float y = (float)p.getY();

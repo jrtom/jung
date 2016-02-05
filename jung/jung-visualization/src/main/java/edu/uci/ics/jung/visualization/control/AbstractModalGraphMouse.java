@@ -5,7 +5,7 @@
  *
  * This software is open-source under the BSD license; see either
  * "license.txt" or
- * http://jung.sourceforge.net/license.txt for a description.
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  * Created on Mar 8, 2005
  *
  */
@@ -70,7 +70,7 @@ public abstract class AbstractModalGraphMouse extends PluggableGraphMouse
     /**
      * a JComboBox control available to set the mode
      */
-    protected JComboBox modeBox;
+    protected JComboBox<Mode> modeBox;
     /**
      * a menu available to set the mode
      */
@@ -144,7 +144,7 @@ public abstract class AbstractModalGraphMouse extends PluggableGraphMouse
         add(rotatingPlugin);
         add(shearingPlugin);
     }
-
+    
     /**
      * @param zoomAtMouse The zoomAtMouse to set.
      */
@@ -188,9 +188,9 @@ public abstract class AbstractModalGraphMouse extends PluggableGraphMouse
 	/**
 	 * @return Returns the modeBox.
 	 */
-    public JComboBox getModeComboBox() {
+    public JComboBox<Mode> getModeComboBox() {
         if(modeBox == null) {
-            modeBox = new JComboBox(new Mode[]{Mode.TRANSFORMING, Mode.PICKING});
+            modeBox = new JComboBox<Mode>(new Mode[]{Mode.TRANSFORMING, Mode.PICKING});
             modeBox.addItemListener(getModeListener());
         }
         modeBox.setSelectedItem(mode);
