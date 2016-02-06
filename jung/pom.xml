@@ -48,6 +48,9 @@
     provided which allow users to focus their attention, or their
     algorithms, on specific portions of the graph.
   </description>
+  <prerequisites>
+    <maven>3.1.1</maven>
+  </prerequisites>
   <developers>
     <developer>
       <id>eflat</id>
@@ -95,9 +98,7 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>2.0</version>
         <configuration>
           <source>1.5</source>
           <target>1.5</target>
@@ -109,8 +110,6 @@
       </plugin>
       <plugin>
         <artifactId>maven-source-plugin</artifactId>
-        <version>2.4</version>
-        <groupId>org.apache.maven.plugins</groupId>
         <configuration>
           <includePom>true</includePom>
         </configuration>
@@ -161,15 +160,16 @@
     </plugins>
   </reporting>
   <distributionManagement>
+    <snapshotRepository>
+      <id>sonatype-nexus-snapshots</id>
+      <name>Sonatype Nexus Snapshots</name>
+      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+    </snapshotRepository>
     <repository>
-      <id>jung.sf.net</id>
-      <name>sourceforge staging repo</name>
-      <url>${sfRepoUrl}</url>
+      <id>sonatype-nexus-staging</id>
+      <name>Nexus Release Repository</name>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
     </repository>
-    <site>
-      <id>jung.sf.net</id>
-      <url>${sfSiteUrl}</url>
-    </site>
   </distributionManagement>
   <dependencies>
     <dependency>
