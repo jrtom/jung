@@ -1,3 +1,5 @@
+# Per https://docs.travis-ci.com/user/languages/java
+
 sudo: false
 
 language: java
@@ -7,9 +9,13 @@ jdk:
   - oraclejdk7
   - openjdk7
 
-install: mvn -B install -U -DskipTests=true
+install:
+  cd jung
+  mvn -B install -U -DskipTests=true
 
-script: mvn -B verify -U -Dmaven.javadoc.skip=true
+script:
+  cd jung
+  mvn -B verify -U -Dmaven.javadoc.skip=true
 
 cache:
   directories:
