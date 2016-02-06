@@ -1,0 +1,27 @@
+# Per https://docs.travis-ci.com/user/languages/java
+
+sudo: false
+
+language: java
+
+jdk:
+  - oraclejdk8
+  - oraclejdk7
+  - openjdk7
+
+install:
+  cd jung
+  mvn -B install -U -DskipTests=true
+
+script:
+  cd jung
+  mvn -B verify -U -Dmaven.javadoc.skip=true
+
+cache:
+  directories:
+  - $HOME/.m2
+
+branches:
+  except:
+    - gh-pages
+
