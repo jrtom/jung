@@ -60,6 +60,7 @@
     <maven>3.1.1</maven>
   </prerequisites>
   <properties>
+    <!-- TODO(cgruber): Audit and update dependencies, particularly google deps. -->
     <junit.version>3.8.1</junit.version>
     <guava.version>11.0.2</guava.version>
     <woodstox.version>3.2.6</woodstox.version>
