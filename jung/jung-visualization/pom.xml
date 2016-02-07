@@ -8,7 +8,7 @@
     <version>2.1-SNAPSHOT</version>
   </parent>
   <artifactId>jung-visualization</artifactId>
-  <description>Core visualization support for the jung2 project</description>
+  <description>Core visualization support for the JUNG project</description>
 
   <dependencies>
     <dependency>

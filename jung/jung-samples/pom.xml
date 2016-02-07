@@ -9,7 +9,7 @@
   </parent>
   <artifactId>jung-samples</artifactId>
   <description>
-    Sample programs using jung2. Nearly all jung2 capabilities are demonstrated here.
+    Sample programs using JUNG. Nearly all JUNG capabilities are demonstrated here.
     Please study the source code for these examples prior to asking how to do something.
   </description>
 

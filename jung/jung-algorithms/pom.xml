@@ -7,7 +7,7 @@
     <version>2.1-SNAPSHOT</version>
   </parent>
   <artifactId>jung-algorithms</artifactId>
-  <description> Algorithms for the jung2 project</description>
+  <description> Algorithms for the JUNG project</description>
 
   <dependencies>
     <dependency>
