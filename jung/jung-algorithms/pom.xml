@@ -1,33 +1,14 @@
 <?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>jung</artifactId>
     <groupId>net.sf.jung</groupId>
+    <artifactId>jung-parent</artifactId>
     <version>2.1-SNAPSHOT</version>
   </parent>
-  <modelVersion>4.0.0</modelVersion>
   <artifactId>jung-algorithms</artifactId>
-  <name>jung-algorithms</name>
-  <version>2.1-SNAPSHOT</version>
-  <url>http://jung.sourceforge.net/site/jung-algorithms</url>
-  <description>
-  Algorithms for the jung2 project
-  </description>
-  <build>
-   	<plugins>
- 	  <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <configuration>
-          <archive>
-            <manifest>
-              <addClasspath>true</addClasspath>
-            </manifest>
-          </archive>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
+  <description> Algorithms for the jung2 project</description>
+
   <dependencies>
     <dependency>
       <groupId>net.sf.jung</groupId>
@@ -41,5 +22,11 @@
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
+
 </project>
