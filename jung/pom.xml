@@ -51,6 +51,14 @@
   <prerequisites>
     <maven>3.1.1</maven>
   </prerequisites>
+  <modules>
+    <module>jung-api</module>
+    <module>jung-graph-impl</module>
+    <module>jung-algorithms</module>
+    <module>jung-io</module>
+    <module>jung-visualization</module>
+    <module>jung-samples</module>
+  </modules>  
   <developers>
     <developer>
       <id>eflat</id>
@@ -183,14 +191,6 @@
           <name>all</name>
         </property>
       </activation>
-      <modules>
-        <module>jung-api</module>
-        <module>jung-graph-impl</module>
-        <module>jung-algorithms</module>
-        <module>jung-io</module>
-        <module>jung-visualization</module>
-        <module>jung-samples</module>
-      </modules>
     </profile>
     <profile>
       <id>sonatype-oss-release</id>
@@ -233,13 +233,6 @@
           </plugin>
         </plugins>
       </build>
-      <modules>
-        <module>jung-api</module>
-        <module>jung-graph-impl</module>
-        <module>jung-algorithms</module>
-        <module>jung-io</module>
-        <module>jung-visualization</module>
-      </modules>
     </profile>
   </profiles>
 </project>
