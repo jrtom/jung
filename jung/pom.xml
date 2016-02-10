@@ -64,7 +64,6 @@
     <junit.version>3.8.1</junit.version>
     <guava.version>11.0.2</guava.version>
     <woodstox.version>3.2.6</woodstox.version>
-    <colt.version>1.2.0</colt.version>
   </properties>
   <developers>
     <developer>
@@ -115,11 +114,6 @@
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
         <version>${guava.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>colt</groupId>
-        <artifactId>colt</artifactId>
-        <version>${colt.version}</version>
       </dependency>
       <dependency>
         <groupId>org.codehaus.woodstox</groupId>

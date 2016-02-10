@@ -27,12 +27,9 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>colt</groupId>
-      <artifactId>colt</artifactId>
-    </dependency>
-    <dependency>
-        <groupId>org.codehaus.woodstox</groupId>
-        <artifactId>wstx-asl</artifactId>
+      <groupId>org.codehaus.woodstox</groupId>
+      <artifactId>wstx-asl</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>net.sf.jung</groupId>
