@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>net.sf.jung</groupId>
-  <artifactId>jung</artifactId>
-  <packaging>pom</packaging>
+  <artifactId>jung-parent</artifactId>
   <version>2.1-SNAPSHOT</version>
-  <name>jung</name>
+  <packaging>pom</packaging>
   <url>http://jrtom.github.io/jung/</url>
   <licenses>
     <license>
@@ -48,9 +48,6 @@
     provided which allow users to focus their attention, or their
     algorithms, on specific portions of the graph.
   </description>
-  <prerequisites>
-    <maven>3.1.1</maven>
-  </prerequisites>
   <modules>
     <module>jung-api</module>
     <module>jung-graph-impl</module>
@@ -58,7 +55,16 @@
     <module>jung-io</module>
     <module>jung-visualization</module>
     <module>jung-samples</module>
-  </modules>  
+  </modules>
+  <prerequisites>
+    <maven>3.1.1</maven>
+  </prerequisites>
+  <properties>
+    <!-- TODO(cgruber): Audit and update dependencies, particularly google deps. -->
+    <junit.version>3.8.1</junit.version>
+    <guava.version>11.0.2</guava.version>
+    <woodstox.version>3.2.6</woodstox.version>
+  </properties>
   <developers>
     <developer>
       <id>eflat</id>
@@ -77,11 +83,8 @@
       <id>offkey</id>
       <name>Danyel</name>
       <email>offkey@sf.net</email>
-      <url/>
       <organization>Microsoft Research</organization>
-      <organizationUrl>
-	http://research.microsoft.com
-      </organizationUrl>
+      <organizationUrl>http://research.microsoft.com</organizationUrl>
       <timezone>-8</timezone>
       <roles>
         <role>Owner</role>
@@ -92,17 +95,33 @@
       <id>tomnelson</id>
       <name>Tom</name>
       <email>tomnelson@sf.net</email>
-      <url/>
       <organization>ICCI</organization>
-      <organizationUrl>
-        http://www.intergratedcc.com
-      </organizationUrl>
+      <organizationUrl>http://www.intergratedcc.com</organizationUrl>
       <timezone>-5</timezone>
       <roles>
         <role>Developer</role>
       </roles>
     </developer>
   </developers>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>${junit.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>${guava.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.codehaus.woodstox</groupId>
+        <artifactId>wstx-asl</artifactId>
+        <version>${woodstox.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
   <build>
     <pluginManagement>
       <plugins>
@@ -116,6 +135,13 @@
         <plugin>
           <artifactId>maven-jar-plugin</artifactId>
           <version>2.5</version>
+          <configuration>
+            <archive>
+              <manifest>
+                <addClasspath>true</addClasspath>
+              </manifest>
+            </archive>
+          </configuration>
         </plugin>
         <plugin>
           <artifactId>maven-release-plugin</artifactId>
@@ -133,7 +159,6 @@
       <plugin>
         <!-- generates aggregated javadoc for root project -->
         <artifactId>maven-javadoc-plugin</artifactId>
-        <groupId>org.apache.maven.plugins</groupId>
         <version>2.0</version>
         <configuration>
           <aggregate>true</aggregate>
@@ -174,24 +199,7 @@
       <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
     </repository>
   </distributionManagement>
-  <dependencies>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>3.8.1</version>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
   <profiles>
-    <profile>
-      <id>all</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-        <property>
-          <name>all</name>
-        </property>
-      </activation>
-    </profile>
     <profile>
       <id>sonatype-oss-release</id>
       <build>
