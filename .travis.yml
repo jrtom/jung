@@ -10,11 +10,9 @@ jdk:
   - openjdk7
 
 install:
-  - cd ${TRAVIS_BUILD_DIR}/jung
   - mvn -B install -U -DskipTests=true
 
 script:
-  - cd ${TRAVIS_BUILD_DIR}/jung
   - mvn -B verify -U -Dmaven.javadoc.skip=true
 
 cache:
