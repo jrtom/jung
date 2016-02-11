@@ -10,10 +10,14 @@ jdk:
   - openjdk7
 
 install:
+  - mvn -v
   - mvn -B install -U -DskipTests=true
 
 script:
   - mvn -B verify -U -Dmaven.javadoc.skip=true
+
+deploy:
+  - tools/deploy_snapshot.sh
 
 cache:
   directories:
@@ -22,4 +26,8 @@ cache:
 branches:
   except:
     - gh-pages
+
+env:
+  -  secure: "NDo4XChHfDY25A3ottwS4lrlCQbB4Uyi2oyxxWVfyFGOkN/WoncWX7nlI6EFFYHxY0bEodiN29PBGndrIcwCB0vcFh/0eTSUFUNIfCYLGgkwsaslzkEtRflOX9MM4OsNNesKGQmIxXk3enOCGrrzhKdmT+PnEuOojj0AUeyrqEYBxZBGghmets6iu6VSZmSK64MjcwhyTE4SF8a3zP0S6+8QWwg6+FuQ5LGkDfI8oBcAaJZEgfhT72xWKuyEQkjo7+isMJHI6hW1TnxRAa7/SFO2qo6tHvqKSDTrHVQUBOiCbvoKBCVZcdi8H3jHz3FkqguZwqH/LCGo5isRXTtQecy46Izy1OC8og5xC/EWFVxkQ09jJRmJlpGuWsyPhGTsIupM9sEZ2lbPa/RNwu3Y+nw9f34OmemK29+n+kBWMtvjM0KmlwlOcMYdSS+L9zpJdLI+ezau/2bVlH7Z1xNYRq5dOaaqpSE/plPrGDUcK3RKilt91uW8xJqNIFKQ89lKfEP9kj1a/c4RDTj5tKRWV+w4Ib8K8sJsP2TUONMMl2y1D50Be+hE+nVDR/qsJxdR6mJuIN2o/Kb4qrHxjVQE35kkpdJdlogErNsoY8MeZrorBpLThcEHiaiOm/5Fpf5WDTegNEx2Ruu8ldPT8IT5Bj0BmpfTVmgLK44aPaZ9W9g="
+  -  secure: "CDhKCFRZHNubFRp0DBqxC/s7QvN/h19inqol4iIwekfhPGiDp/688WCTASDk2IX1UbAB+IDZ/cb/Sq6n4y3ocD45op+nJkofcnO27Q32iR+eBmgn5FT4zCE70yUCrKRDG89+ijv2aazXZ4s7RmZNnxWtGl0HltSyvx3xOm99/MwaxcVkTQmOrtewNh4lgX5hHQOinPRA9ALt5dN3LQ136cnQxycrXOLH8snp9H3VwcBxFd3eXbNSeVRJ+nzn+XHRoJ4EZELoMZNcn+VNAbBL9V7qrtnGBLabFx2UbQuSAdLj0K4fVTzJjS8j/Fd03VmXz+C0k0ssstj7C+tsZpu0vNQLXx0V4hmn3PiGnzts1Hl13mduiNd2s9sy1Sg8z3fQ8JSzkJjJ5D2YzseuBtUXO37Rw3D4DZ5IQlfJnNJzEXYSQ9cWmSg+KW+x76+0d8sqIWQf+wQMKBFhpNdmJZU9riGL4KYQhS5z/AP59LJw0QUx/qUq9mff4k1yeb17YJKQPKZ1GcM8tHe27sAWav+2YRJCCnFW7qqp4e+Vh0xYiMh1XDOxrsOzF+YIXoRasIQSkEtTniFBJd1k5EcBUsMynclk20m0N92SeC5hZ4dkQ0EtJ2d2uGesrixU5gm4Y4sTUDt43E1feXvlYag++qOBLL/Iq148WwqE6AohrydcDJw="
 
