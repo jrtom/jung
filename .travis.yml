@@ -16,7 +16,7 @@ install:
 script:
   - mvn -B verify -U -Dmaven.javadoc.skip=true
 
-deploy:
+after_success:
   - tools/deploy_snapshot.sh
 
 cache:
