@@ -17,7 +17,7 @@ script:
   - mvn -B verify -U -Dmaven.javadoc.skip=true
 
 after_success:
-  - tools/deploy_snapshot.sh
+  - tools/deploy_snapshots.sh
 
 cache:
   directories:
