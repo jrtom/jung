@@ -191,7 +191,7 @@ public class TestGraphMLReader2 {
         Assert.assertEquals("n2", edges.get(0).getEndpoints().get(2).getNode());
     }
 
-    @Test(expected = GraphIOException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testInvalidGraphFactory() throws Exception {
 
         // Need a hypergraph
@@ -208,6 +208,8 @@ public class TestGraphMLReader2 {
                 + "<endpoint node=\"n0\"/>" + "<endpoint node=\"n1\"/>"
                 + "<endpoint node=\"n2\"/>" + "</hyperedge>" + "</graphml>";
 
+	// This will attempt to add an edge with an invalid number of incident vertices (3)
+	// for an UndirectedGraph, which should trigger an IllegalArgumentException.
         readGraph(xml, new DummyGraphObjectBase.UndirectedSparseGraphFactory(),
                 new DummyVertex.Factory(), new DummyEdge.EdgeFactory(), new DummyEdge.HyperEdgeFactory());
     }
