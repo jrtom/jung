@@ -24,6 +24,8 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.common.base.Function;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
 
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.visualization.util.Caching;
@@ -64,14 +66,9 @@ public class PersistentLayoutImpl<V, E> extends ObservableCachingLayout<V,E>
      */
     public PersistentLayoutImpl(Layout<V,E> layout) {
         super(layout);
-        this.locations = new HashMap<V, Point>();
-        // TODO(jrtom): replace this with Maps.asMap(vertices, factory)
-        // once we depend on Guava 14.0.1 or later; right now we have Guava v11
-        Function<V, Point> factory = new RandomPointFactory<V>(getSize());
-        for (V v : layout.getGraph().getVertices()) {
-        	locations.put(v, factory.apply(v));
-        }
-
+	this.locations = Maps.asMap(
+	    ImmutableSet.copyOf(layout.getGraph().getVertices()),
+	    new RandomPointFactory<V>(getSize()));
         this.dontmove = new HashSet<V>();
     }
 

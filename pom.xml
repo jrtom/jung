@@ -62,8 +62,7 @@
   <properties>
     <!-- TODO(cgruber): Audit and update dependencies, particularly google deps. -->
     <junit.version>3.8.1</junit.version>
-    <guava.version>11.0.2</guava.version>
-    <woodstox.version>3.2.6</woodstox.version>
+    <guava.version>19.0</guava.version>
   </properties>
   <developers>
     <developer>
@@ -114,11 +113,6 @@
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
         <version>${guava.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.codehaus.woodstox</groupId>
-        <artifactId>wstx-asl</artifactId>
-        <version>${woodstox.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

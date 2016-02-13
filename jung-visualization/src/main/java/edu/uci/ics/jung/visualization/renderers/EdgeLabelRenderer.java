@@ -13,7 +13,6 @@ package edu.uci.ics.jung.visualization.renderers;
 import java.awt.Component;
 import java.awt.Font;
 
-import javax.annotation.Nullable;
 import javax.swing.JComponent;
 
 /**
@@ -37,8 +36,8 @@ public interface EdgeLabelRenderer {
 	 * @param <E> the edge type
 	 * @return the component used for drawing the label
 	 */
-    <E> Component getEdgeLabelRendererComponent(@Nullable JComponent component,
-    		@Nullable Object value, Font font, boolean isSelected, E edge);
+    <E> Component getEdgeLabelRendererComponent(JComponent component,
+    		Object value, Font font, boolean isSelected, E edge);
     
     boolean isRotateEdgeLabels();
     
