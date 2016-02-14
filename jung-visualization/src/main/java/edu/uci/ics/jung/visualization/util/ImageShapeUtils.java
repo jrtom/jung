@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2015, the JUNG Project and the Regents of the University of
- * California.  All rights reserved.
+ * Copyright (c) 2015, The JUNG Authors
+ * All rights reserved.
  *
  * This software is open-source under the BSD license; see either "license.txt"
  * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.

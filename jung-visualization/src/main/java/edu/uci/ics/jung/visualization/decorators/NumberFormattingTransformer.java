@@ -1,8 +1,8 @@
 /*
  * Created on Feb 16, 2009
  *
- * Copyright (c) 2009, the JUNG Project and the Regents of the University 
- * of California
+ * Copyright (c) 2009, The JUNG Authors 
+ *
  * All rights reserved.
  *
  * This software is open-source under the BSD license; see either
