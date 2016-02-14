@@ -2,8 +2,8 @@
 package edu.uci.ics.jung.algorithms.generators.random;
 
 /*
-* Copyright (c) 2009, the JUNG Project and the Regents of the University 
-* of California
+* Copyright (c) 2009, The JUNG Authors 
+*
 * All rights reserved.
 *
 * This software is open-source under the BSD license; see either
