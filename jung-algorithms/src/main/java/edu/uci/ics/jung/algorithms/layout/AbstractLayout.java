@@ -18,6 +18,7 @@ import java.util.Set;
 
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
+import com.google.common.base.Preconditions;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -215,7 +216,7 @@ abstract public class AbstractLayout<V, E> implements Layout<V,E> {
 	 * @return the x coordinate of {@code v}
 	 */
 	public double getX(V v) {
-        assert getCoordinates(v) != null : "Cannot getX for an unmapped vertex "+v;
+        Preconditions.checkNotNull(getCoordinates(v), "Cannot getX for an unmapped vertex "+v);
         return getCoordinates(v).getX();
 	}
 
@@ -227,7 +228,7 @@ abstract public class AbstractLayout<V, E> implements Layout<V,E> {
 	 * @return the y coordinate of {@code v}
 	 */
 	public double getY(V v) {
-        assert getCoordinates(v) != null : "Cannot getY for an unmapped vertex "+v;
+        Preconditions.checkNotNull(getCoordinates(v), "Cannot getY for an unmapped vertex "+v);
         return getCoordinates(v).getY();
 	}
 	
