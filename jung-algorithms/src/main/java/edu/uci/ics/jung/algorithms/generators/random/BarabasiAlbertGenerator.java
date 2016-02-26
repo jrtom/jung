@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
 
 import edu.uci.ics.jung.algorithms.generators.EvolvingGraphGenerator;
@@ -101,10 +102,10 @@ public class BarabasiAlbertGenerator<V,E> implements EvolvingGraphGenerator<V,E>
     		int init_vertices, int numEdgesToAttach, 
             int seed, Set<V> seedVertices)
     {
-        assert init_vertices > 0 : "Number of initial unconnected 'seed' vertices " + 
-                    "must be positive";
-        assert numEdgesToAttach > 0 : "Number of edges to attach " +
-                    "at each time step must be positive";
+        Preconditions.checkArgument(init_vertices > 0,
+            "Number of initial unconnected 'seed' vertices must be positive");
+        Preconditions.checkArgument(numEdgesToAttach > 0, 
+            "Number of edges to attach at each time step must be positive");
         
         mNumEdgesToAttachPerStep = numEdgesToAttach;
         mRandom = new Random(seed);

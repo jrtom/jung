@@ -9,6 +9,8 @@
  */
 package edu.uci.ics.jung.visualization.subLayout;
 
+import com.google.common.base.Preconditions;
+
 import java.util.Collection;
 import java.util.logging.Logger;
 
@@ -112,13 +114,13 @@ public class GraphCollapser  {
                             // i need a new v1
                             Object originalV1 = originalGraph.getEndpoints(edge).getFirst();
                             Object newV1 = findVertex(graph, originalV1);
-                            assert newV1 != null : "newV1 for "+originalV1+" was not found!";
+                            Preconditions.checkState(newV1 != null, "newV1 for "+originalV1+" was not found!");
                             graph.addEdge(edge, newV1, v2, inGraph.getEdgeType(edge));
                         } else if(clusterGraph.equals(v2)) {
                             // i need a new v2
                             Object originalV2 = originalGraph.getEndpoints(edge).getSecond();
                             Object newV2 = findVertex(graph, originalV2);
-                            assert newV2 != null : "newV2 for "+originalV2+" was not found!";
+                            Preconditions.checkState(newV2 != null, "newV2 for "+originalV2+" was not found!");
                             graph.addEdge(edge, v1, newV2, inGraph.getEdgeType(edge));
                         } else {
                         	graph.addEdge(edge, v1, v2, inGraph.getEdgeType(edge));

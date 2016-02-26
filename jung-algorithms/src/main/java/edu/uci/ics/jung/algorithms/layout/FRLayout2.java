@@ -12,6 +12,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ConcurrentModificationException;
 
+import com.google.common.base.Preconditions;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -183,7 +184,8 @@ public class FRLayout2<V, E> extends AbstractLayout<V, E> implements IterativeCo
         double newXDisp = fvd.getX() / deltaLength
                 * Math.min(deltaLength, temperature);
 
-        assert Double.isNaN(newXDisp) == false : "Unexpected mathematical result in FRLayout:calcPositions [xdisp]";
+        Preconditions.checkState(!Double.isNaN(newXDisp),
+            "Unexpected mathematical result in FRLayout:calcPositions [xdisp]");
 
         double newYDisp = fvd.getY() / deltaLength
                 * Math.min(deltaLength, temperature);
@@ -218,7 +220,8 @@ public class FRLayout2<V, E> extends AbstractLayout<V, E> implements IterativeCo
 
         double force = deltaLength  / attraction_constant;
 
-        assert Double.isNaN(force) == false : "Unexpected mathematical result in FRLayout:calcPositions [force]";
+        Preconditions.checkState(!Double.isNaN(force),
+            "Unexpected mathematical result in FRLayout:calcPositions [force]");
 
         double dx = xDelta * force;
         double dy = yDelta * force;
@@ -264,7 +267,8 @@ public class FRLayout2<V, E> extends AbstractLayout<V, E> implements IterativeCo
                     
                     double forceOverDeltaLength = force / deltaLength;
                     
-                    assert Double.isNaN(force) == false : "Unexpected mathematical result in FRLayout:calcPositions [repulsion]";
+                    Preconditions.checkState(!Double.isNaN(force),
+                        "Unexpected mathematical result in FRLayout:calcPositions [repulsion]");
                     
                     if(v2_locked) {
                     	// double the offset for v1, as v2 will not be moving in
