@@ -24,8 +24,9 @@ cache:
   - ${HOME}/.m2
 
 branches:
-  except:
-    - gh-pages
+  only:
+    - master
+    - /^release.*$/
 
 env:
   global:
