@@ -14,7 +14,7 @@ At a high level, the steps involved are as follows:
   * Push the tag to github
 
 
-Each step has some ideosyncracies, and follows below.
+Each step has some idiosyncracies, and follows below.
 
 > ***Note:*** *Any specific version numbers should be assumed to be examples and the real,
 > current version numbers should be substituted.*
@@ -97,12 +97,12 @@ incremented.
 Update the versions of the project, like so (changing version numbers):
 
 ```shell
-mvn version:set version:commit -DnewVersion=2.1
+mvn versions:set versions:commit -DnewVersion=2.1
 git commit
 ```
 
 This will set all versions of projects connected in <module> sections from
-the parent pom - in short, all the parts of theproject will be set to be (and
+the parent pom - in short, all the parts of the project will be set to be (and
 depend on) `2.1`.
 
 ### Tag the release
@@ -118,7 +118,7 @@ git tag jung-2.1
 A convenience script exists to properly run a standard `mvn deploy` run
 (which pushes built artifacts to the staging repository).  It also activates
 the release profile which ensures that the GnuPG plugin is run, signing the
-binaries per Sonatype's requriements, adds in the generation of -javadoc and
+binaries per Sonatype's requirements, adds in the generation of -javadoc and
 -sources jars, etc.
 
 It's parameter is the label for your GnuPG key which can be seen by running
