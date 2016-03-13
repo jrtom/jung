@@ -123,7 +123,7 @@ public abstract class AbstractHypergraphTest extends TestCase
      * test for the following:
      * <ul>
      * <li>if Graph, reject # of endpoints != 2
-     * <li>otherwise, accept any number of endpoints >= 0
+     * <li>otherwise, accept any (non-negative) number of endpoints
      * 
      * </ul>
      *
