@@ -134,7 +134,7 @@ uid                  Some User (Maven Deployments) <foo@bar.com>
 Given the above example, you would then run:
 
 ```shell
-util/mvn-deploy.sh E4382034
+tools/mvn-deploy.sh E4382034
 ```
 
 ... and the script will kick off the maven job, pausing when it first needs to
