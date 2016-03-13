@@ -22,6 +22,7 @@ public class NotRandom extends Random
 	
 	/**
 	 * Creates an instance with the specified sample size.
+	 * @param size the sample size
 	 */
 	public NotRandom(int size)
 	{
@@ -32,7 +33,7 @@ public class NotRandom extends Random
 	 * Returns the post-incremented value of the internal counter modulo n.
 	 */
 	@Override
-    public int nextInt(int n)
+  public int nextInt(int n)
 	{
 		return i++ % n;
 	}
@@ -42,7 +43,7 @@ public class NotRandom extends Random
 	 * {@code size}, divided by {@code size}.
 	 */
 	@Override
-    public double nextDouble()
+  public double nextDouble()
 	{
 		return (d++ % size) / (double)size; 
 	}
@@ -52,9 +53,8 @@ public class NotRandom extends Random
 	 * {@code size}, divided by {@code size}.
 	 */
 	@Override
-    public float nextFloat()
+  public float nextFloat()
 	{
 		return (d++ % size) / (float)size; 
 	}
-
 }
