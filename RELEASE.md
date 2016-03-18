@@ -208,3 +208,4 @@ deleted.
 
 [GPG]: http://blog.sonatype.com/2010/01/how-to-generate-pgp-signatures-with-maven
 [OSSRH Guide]: http://central.sonatype.org/pages/ossrh-guide.html
+[settings.xml]: https://books.sonatype.com/nexus-book/reference/_adding_credentials_to_your_maven_settings.html
