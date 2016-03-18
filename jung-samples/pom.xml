@@ -8,6 +8,7 @@
     <version>2.1-SNAPSHOT</version>
   </parent>
   <artifactId>jung-samples</artifactId>
+  <name>JUNG - Samples</name>
   <description>
     Sample programs using JUNG. Nearly all JUNG capabilities are demonstrated here.
     Please study the source code for these examples prior to asking how to do something.
