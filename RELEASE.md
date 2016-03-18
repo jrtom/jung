@@ -33,6 +33,9 @@ maven central repository.  To push bits to sonatype requires:
   1. an account on oss.sonatype.org
   2. permission for that account to push to your groupId
   3. a pgp certificate (via gnupg) with a published public key
+  4. a [${HOME}/.m2/settings.xml][settings.xml] file containing the credentials
+     for the account created in step #1, associated with the server id
+     `sonatype-nexus-staging`
 
 The administrative steps above are all documented in Sonatype's
 [OSSRH Guide]. The GPG instructions particular to this process can be found
@@ -205,3 +208,4 @@ deleted.
 
 [GPG]: http://blog.sonatype.com/2010/01/how-to-generate-pgp-signatures-with-maven
 [OSSRH Guide]: http://central.sonatype.org/pages/ossrh-guide.html
+[settings.xml]: https://books.sonatype.com/nexus-book/reference/_adding_credentials_to_your_maven_settings.html
