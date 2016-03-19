@@ -13,15 +13,18 @@ extensive built-in capabilities of the Java API, as well as those of other exist
 The most recent version of JUNG is [version 2.1](https://github.com/jrtom/jung/releases/tag/jung-2.1), released 18 March 2016.
 *   [Javadoc](http://jrtom.github.io/jung/javadoc/index.html)
 
-To add a dependency on this release of JUNG using Maven, use the following:
+To add a dependency on this release of JUNG using Maven, use the following for each JUNG subpackage that you need:
 
 ```xml
 <dependency>
   <groupId>net.sf.jung</groupId>
-  <artifactId>jung</artifactId>
+  <artifactId>jung-[subpackage]</artifactId>
   <version>2.1</version>
 </dependency>
 ```
+
+where `jung-[subpackage]` may be `jung-api`, `jung-graph-impl`, `jung-io`, `jung-algorithms`, `jung-visualization`, or `jung-samples`.
+
 
 ### Snapshots
 
