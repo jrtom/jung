@@ -4,7 +4,7 @@
   <parent>
     <groupId>net.sf.jung</groupId>
     <artifactId>jung-parent</artifactId>
-    <version>2.1-SNAPSHOT</version>
+    <version>2.2-SNAPSHOT</version>
   </parent>
   <artifactId>jung-algorithms</artifactId>
   <name>JUNG - Algorithms</name>
