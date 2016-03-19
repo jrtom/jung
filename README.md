@@ -43,10 +43,10 @@ Snapshots of JUNG built from the `master` branch are available through Maven usi
 
 ### Contributions
 
-JUNG is currently administered primarily by @jrtom, one of the original co-creators of the JUNG project.  However, this is not precisely his day job.  :)
+JUNG is currently administered primarily by @jrtom, one of the original co-creators of the JUNG project.
 
 Bug fixes (with tests) are appreciated and will generally be acted upon pretty quickly if the fix is a clear win.  
 
-If you'd like to add a feature, or suggest a way that things could be done better, more cleanly, or more efficiently, we really appreciate it, we encourage you to open an issue, and you're welcome to create a branch to show off a proof of concept.
+If you'd like to add a feature, or suggest a way that things could be done better, more cleanly, or more efficiently, we really appreciate it, we encourage you to [open an issue](https://github.com/jrtom/jung/issues/new), and you're welcome to make a pull request to show off a proof of concept.
 
-However, at the moment we're largely focused on some big architectural changes that are going to touch essentially everything in JUNG.  Once those changes land, we'll have more time and energy available to consider other changes, and this policy itself will change.
+However, at the moment we're largely focused on some big architectural changes that are going to touch essentially everything in JUNG.  Once those changes land, we'll have more time and energy available to consider other changes.
