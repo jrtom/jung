@@ -240,7 +240,7 @@ public class GraphMLReader2<G extends Hypergraph<V, E>, V, E> implements
                 if(fileReader==null && inputStream != null) {
                     xmlEventReader = Supplier.createXMLEventReader(inputStream);
                 } else {
-                    xmlEventReader = factory.createXMLEventReader(fileReader);
+                    xmlEventReader = Supplier.createXMLEventReader(fileReader);
                 }
                 xmlEventReader = Supplier.createFilteredReader(xmlEventReader,
                         new GraphMLEventFilter());
