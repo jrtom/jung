@@ -12,6 +12,7 @@ package edu.uci.ics.jung.io.graphml;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.io.InputStream;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
@@ -60,6 +61,7 @@ public class GraphMLReader2<G extends Hypergraph<V, E>, V, E> implements
     protected boolean initialized;
     final protected GraphMLDocument document = new GraphMLDocument();
     final protected ElementParserRegistry<G,V,E> parserRegistry;
+    private InputStream inputStream ;
 
     /**
      * Constructs a GraphML reader around the given reader. This constructor
@@ -123,6 +125,67 @@ public class GraphMLReader2<G extends Hypergraph<V, E>, V, E> implements
     }
 
     /**
+     * Constructs a GraphML reader around the given reader. This constructor
+     * requires the user to supply transformation functions to convert from the
+     * GraphML metadata to Graph, Vertex, Edge instances. These Function
+     * functions can be used as purely factories (i.e. the metadata is
+     * disregarded) or can use the metadata to set particular fields in the
+     * objects.
+     *
+     * @param inputStream          the inputstream for the input GraphML document.
+     * @param graphTransformer     Transformation function to convert from GraphML GraphMetadata
+     *                             to graph objects. This must be non-null.
+     * @param vertexTransformer    Transformation function to convert from GraphML NodeMetadata
+     *                             to vertex objects. This must be non-null.
+     * @param edgeTransformer      Transformation function to convert from GraphML EdgeMetadata
+     *                             to edge objects. This must be non-null.
+     * @param hyperEdgeTransformer Transformation function to convert from GraphML
+     *                             HyperEdgeMetadata to edge objects. This must be non-null.
+     * @throws IllegalArgumentException thrown if any of the arguments are null.
+     */
+    public GraphMLReader2(InputStream inputStream,
+                          Function<GraphMetadata, G> graphTransformer,
+                          Function<NodeMetadata, V> vertexTransformer,
+                          Function<EdgeMetadata, E> edgeTransformer,
+                          Function<HyperEdgeMetadata, E> hyperEdgeTransformer) {
+
+        if (inputStream == null) {
+            throw new IllegalArgumentException(
+                    "Argument inputStream must be non-null");
+        }        
+        
+        if (graphTransformer == null) {
+            throw new IllegalArgumentException(
+            "Argument graphTransformer must be non-null");
+        }        
+
+        if (vertexTransformer == null) {
+            throw new IllegalArgumentException(
+                    "Argument vertexTransformer must be non-null");
+        }        
+        
+        if (edgeTransformer == null) {
+            throw new IllegalArgumentException(
+                    "Argument edgeTransformer must be non-null");
+        }        
+        
+        if (hyperEdgeTransformer == null) {
+            throw new IllegalArgumentException(
+                    "Argument hyperEdgeTransformer must be non-null");
+        }
+        
+        this.inputStream = inputStream;
+        this.graphTransformer = graphTransformer;
+        this.vertexTransformer = vertexTransformer;
+        this.edgeTransformer = edgeTransformer;
+        this.hyperEdgeTransformer = hyperEdgeTransformer;
+        
+        // Create the parser registry.
+        this.parserRegistry = new ElementParserRegistry<G,V,E>(document.getKeyMap(), 
+                graphTransformer, vertexTransformer, edgeTransformer, hyperEdgeTransformer);
+    }
+
+    /**
      * Gets the current Function that is being used for graph objects.
      *
      * @return the current Function.
@@ -174,7 +237,11 @@ public class GraphMLReader2<G extends Hypergraph<V, E>, V, E> implements
 
                 // Create the event reader.
                 XMLInputFactory Supplier = XMLInputFactory.newInstance();
-                xmlEventReader = Supplier.createXMLEventReader(fileReader);
+                if(fileReader==null && inputStream != null) {
+                    xmlEventReader = Supplier.createXMLEventReader(inputStream);
+                } else {
+                    xmlEventReader = Supplier.createXMLEventReader(fileReader);
+                }
                 xmlEventReader = Supplier.createFilteredReader(xmlEventReader,
                         new GraphMLEventFilter());
 
@@ -204,6 +271,10 @@ public class GraphMLReader2<G extends Hypergraph<V, E>, V, E> implements
             if (fileReader != null) {
                 fileReader.close();
             }
+            
+            if (inputStream != null) {
+                inputStream.close();
+            }
 
         } catch (IOException e) {
             throw new GraphIOException(e);
@@ -211,6 +282,7 @@ public class GraphMLReader2<G extends Hypergraph<V, E>, V, E> implements
             throw new GraphIOException(e);
         } finally {
             fileReader = null;
+            inputStream = null;
             xmlEventReader = null;
             graphTransformer = null;
             vertexTransformer = null;
