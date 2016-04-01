@@ -136,7 +136,6 @@ public class BasicVisualizationServer<V, E> extends JPanel
      */
 	public BasicVisualizationServer(Layout<V,E> layout) {
 	    this(new DefaultVisualizationModel<V,E>(layout));
-	    renderContext = new PluggableRenderContext<V,E>(layout.getGraph());
 	}
 	
     /**
@@ -147,7 +146,6 @@ public class BasicVisualizationServer<V, E> extends JPanel
      */
 	public BasicVisualizationServer(Layout<V,E> layout, Dimension preferredSize) {
 	    this(new DefaultVisualizationModel<V,E>(layout, preferredSize), preferredSize);
-	    renderContext = new PluggableRenderContext<V,E>(layout.getGraph());
 	}
 	
 	/**
