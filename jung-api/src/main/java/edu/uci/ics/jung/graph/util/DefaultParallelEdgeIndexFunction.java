@@ -58,7 +58,8 @@ public class DefaultParallelEdgeIndexFunction<V,E> implements EdgeIndexFunction<
      */
     public int getIndex(Graph<V, E> graph, E e)
     {
-    	checkNotNull(graph);
+    	checkNotNull(graph, "graph must not be null");
+    	checkNotNull(e, "'e' must not be null");
         Integer index = edge_index.get(Context.<Graph<V,E>,E>getInstance(graph,e));
         	//edge_index.get(e);
         if(index == null) {
