@@ -11,6 +11,8 @@
  */
 package edu.uci.ics.jung.graph.util;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -56,7 +58,8 @@ public class DefaultParallelEdgeIndexFunction<V,E> implements EdgeIndexFunction<
      */
     public int getIndex(Graph<V, E> graph, E e)
     {
-    	
+    	checkNotNull(graph, "graph must not be null");
+    	checkNotNull(e, "'e' must not be null");
         Integer index = edge_index.get(Context.<Graph<V,E>,E>getInstance(graph,e));
         	//edge_index.get(e);
         if(index == null) {

@@ -131,7 +131,7 @@ public class EdgeShape<V,E> {
     private int getIndex(E e, EdgeIndexFunction<V, E> edgeIndexFunction) {
     	return edgeIndexFunction == null
     			? 1
-    			: edgeIndexFunction.getIndex(null, e);
+    			: edgeIndexFunction.getIndex(graph, e);
     }
     
     /**

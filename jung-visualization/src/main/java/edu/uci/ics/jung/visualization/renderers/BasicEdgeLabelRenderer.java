@@ -78,7 +78,7 @@ public class BasicEdgeLabelRenderer<V,E> implements Renderer.EdgeLabel<V,E> {
         
         double parallelOffset = 1;
 
-        parallelOffset += rc.getParallelEdgeIndexFunction().getIndex(null, e);
+        parallelOffset += rc.getParallelEdgeIndexFunction().getIndex(graph, e);
 
         parallelOffset *= d.height;
         if(edgeShape instanceof Ellipse2D) {
