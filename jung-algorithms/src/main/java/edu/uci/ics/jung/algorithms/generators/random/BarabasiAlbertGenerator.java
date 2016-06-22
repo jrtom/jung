@@ -78,6 +78,7 @@ import edu.uci.ics.jung.graph.util.Pair;
  * @author Scott White
  * @author Joshua O'Madadhain
  * @author Tom Nelson - adapted to jung2
+ * @author James Marchant
  */
 public class BarabasiAlbertGenerator<V, E> implements EvolvingGraphGenerator<V, E> {
 	private Graph<V, E> mGraph = null;

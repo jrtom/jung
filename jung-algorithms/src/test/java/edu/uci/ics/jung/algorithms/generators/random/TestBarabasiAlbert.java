@@ -1,8 +1,11 @@
-package edu.uci.ics.jung.algorithms.generators.random;
-
-/**
- * @author W. Giordano, Scott White
+/*
+ * Copyright (c) 2016, the JUNG Project and the Regents of the University 
+ * of California.  All rights reserved.
+ *
+ * This software is open-source under the BSD license; see
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  */
+package edu.uci.ics.jung.algorithms.generators.random;
 
 import java.util.HashSet;
 
@@ -19,6 +22,11 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+/**
+ * @author W. Giordano
+ * @author Scott White
+ * @author James Marchant
+ */
 public class TestBarabasiAlbert extends TestCase {
 	protected Supplier<Graph<Integer, Number>> graphFactory;
 	protected Supplier<Integer> vertexFactory;
