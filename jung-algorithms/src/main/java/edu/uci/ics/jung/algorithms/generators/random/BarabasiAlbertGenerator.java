@@ -210,6 +210,14 @@ public class BarabasiAlbertGenerator<V, E> implements EvolvingGraphGenerator<V, 
 		/* Generate the probability distribution */
 		Map<V, Double> item_weights = new HashMap<V, Double>();
 		for (V v : preexistingNodes) {
+			/*
+			 * as preexistingNodes is a view onto the vertex set, it will
+			 * contain the new node. In the construction of Barabasi-Albert,
+			 * there should be no self-loops.
+			 */
+			if (v == newVertex)
+				continue;
+
 			double degree;
 			double denominator;
 

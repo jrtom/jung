@@ -18,6 +18,8 @@ import edu.uci.ics.jung.graph.SparseGraph;
 import edu.uci.ics.jung.graph.SparseMultigraph;
 import edu.uci.ics.jung.graph.UndirectedSparseGraph;
 import edu.uci.ics.jung.graph.UndirectedSparseMultigraph;
+import edu.uci.ics.jung.graph.util.EdgeType;
+import edu.uci.ics.jung.graph.util.Pair;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -139,6 +141,42 @@ public class TestBarabasiAlbert extends TestCase {
 		graphFactory = new Supplier<Graph<Integer, Number>>() {
 			public Graph<Integer, Number> get() {
 				return new UndirectedSparseGraph<Integer, Number>();
+			}
+		};
+
+		generateAndTestSizeOfBarabasiAlbertGraph(graphFactory, vertexFactory, edgeFactory, init_vertices,
+				edges_to_add_per_timestep, random_seed, num_tests);
+	}
+
+	/**
+	 * Due to the way the Barabasi-Albert algorithm works there should be no
+	 * opportunities for the generation of self-loops within the graph.
+	 */
+	public void testNoSelfLoops() {
+		graphFactory = new Supplier<Graph<Integer, Number>>() {
+			public Graph<Integer, Number> get() {
+				return new UndirectedSparseGraph<Integer, Number>() {
+					private static final long serialVersionUID = 1L;
+
+					/**
+					 * This anonymous class works as an UndirectedSparseGraph
+					 * but will not accept edges that connect a vertex to
+					 * itself.
+					 */
+					@Override
+					public boolean addEdge(Number edge, Pair<? extends Integer> endpoints, EdgeType edgeType) {
+						if (endpoints == null)
+							throw new IllegalArgumentException("endpoints may not be null");
+
+						Integer v1 = endpoints.getFirst();
+						Integer v2 = endpoints.getSecond();
+
+						if (v1.equals(v2))
+							throw new IllegalArgumentException("No self-loops");
+						else
+							return super.addEdge(edge, endpoints, edgeType);
+					}
+				};
 			}
 		};
 
