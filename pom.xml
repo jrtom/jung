@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
@@ -61,9 +61,25 @@
     <maven>3.1.1</maven>
   </prerequisites>
   <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <java.source>1.6</java.source>
+    <java.target>1.6</java.target>
+
     <!-- TODO(cgruber): Audit and update dependencies, particularly google deps. -->
-    <junit.version>3.8.1</junit.version>
+    <junit.version>4.12</junit.version>
     <guava.version>19.0</guava.version>
+    
+    <cobertura.plugin.version>2.7</cobertura.plugin.version>
+    <compiler.plugin.version>3.5.1</compiler.plugin.version>
+    <gpg.plugin.version>1.6</gpg.plugin.version>
+    <jar.plugin.version>2.6</jar.plugin.version>
+    <javadoc.plugin.version>2.10.4</javadoc.plugin.version>
+    <jxr.plugin.version>2.5</jxr.plugin.version>
+    <pmd.plugin.version>3.6</pmd.plugin.version>
+    <release.plugin.version>2.5.3</release.plugin.version>
+    <surefire.plugin.version>2.19.1</surefire.plugin.version>
+    <source.plugin.version>3.0.1</source.plugin.version>    
   </properties>
   <developers>
     <developer>
@@ -122,15 +138,15 @@
       <plugins>
         <plugin>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.5.1</version>
+          <version>${compiler.plugin.version}</version>
           <configuration>
-            <source>1.6</source>
-            <target>1.6</target>
+            <source>${java.source}</source>
+            <target>${java.target}</target>
           </configuration>
         </plugin>
         <plugin>
           <artifactId>maven-jar-plugin</artifactId>
-          <version>2.6</version>
+          <version>${jar.plugin.version}</version>
           <configuration>
             <archive>
               <manifest>
@@ -141,7 +157,7 @@
         </plugin>
         <plugin>
           <artifactId>maven-release-plugin</artifactId>
-          <version>2.5.3</version>
+          <version>{release.plugin.version}</version>
           <configuration>
             <mavenExecutorId>forked-path</mavenExecutorId>
             <useReleaseProfile>false</useReleaseProfile>
@@ -156,7 +172,7 @@
       <plugin>
         <!-- generates aggregated javadoc for root project -->
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>2.10.3</version>
+        <version>${javadoc.plugin.version}</version>
         <configuration>
           <aggregate>true</aggregate>
           <links>
@@ -167,24 +183,24 @@
       </plugin>
       <plugin>
         <artifactId>maven-surefire-report-plugin</artifactId>
-        <version>2.19.1</version>
+        <version>${surefire.plugin.version}</version>
       </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>cobertura-maven-plugin</artifactId>
-        <version>2.7</version>
+        <version>${cobertura.plugin.version}</version>
       </plugin>
       <plugin>
         <artifactId>maven-pmd-plugin</artifactId>
-        <version>3.6</version>
+        <version>${pmd.plugin.version}</version>
         <configuration>
-          <targetJdk>1.5</targetJdk>
+          <targetJdk>${java.target}</targetJdk>
           <linkXref>true</linkXref>
         </configuration>
       </plugin>
       <plugin>
         <artifactId>maven-jxr-plugin</artifactId>
-        <version>2.5</version>
+        <version>${jxr.plugin.version}</version>
       </plugin>
     </plugins>
   </reporting>
@@ -207,7 +223,7 @@
         <plugins>
           <plugin>
             <artifactId>maven-source-plugin</artifactId>
-            <version>3.0.0</version>
+            <version>${source.plugin.version}</version>
             <executions>
               <execution>
                 <id>attach-sources</id>
@@ -219,7 +235,7 @@
           </plugin>
           <plugin>
             <artifactId>maven-javadoc-plugin</artifactId>
-            <version>2.10.3</version>
+            <version>${javadoc.plugin.version}</version>
             <executions>
               <execution>
                 <id>attach-javadocs</id>
@@ -231,7 +247,7 @@
           </plugin>
           <plugin>
             <artifactId>maven-gpg-plugin</artifactId>
-            <version>1.6</version>
+            <version>${gpg.plugin.version}</version>
             <executions>
               <execution>
                 <id>sign-artifacts</id>
