@@ -11,15 +11,15 @@ extensive built-in capabilities of the Java API, as well as those of other exist
 
 ### Latest Release
 
-The most recent version of JUNG is [version 2.1](https://github.com/jrtom/jung/releases/tag/jung-2.1), released 18 March 2016.
+The most recent version of JUNG is [version 2.1.1](https://github.com/jrtom/jung/releases/tag/jung-2.1.1), released 7 September 2016.
 *   [Javadoc](http://jrtom.github.io/jung/javadoc/index.html)
-*   [Maven Search Repository](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22net.sf.jung%22%20AND%20v%3A%222.1%22%20AND%20(a%3A%22jung-api%22%20OR%20a%3A%22jung-graph-impl%22%20OR%20a%3A%22jung-visualization%22%20OR%20a%3A%22jung-algorithms%22%20OR%20a%3A%22jung-samples%22%20OR%20a%3A%22jung-io%22))
-    *   `jung-api`: [jar](http://search.maven.org/remotecontent?filepath=net/sf/jung/jung-api/2.1/jung-api-2.1.jar), [source jar](http://search.maven.org/remotecontent?filepath=net/sf/jung/jung-api/2.1/jung-api-2.1-sources.jar), [documentation jar](http://search.maven.org/remotecontent?filepath=net/sf/jung/jung-api/2.1/jung-api-2.1-javadoc.jar)
-    *   `jung-graph-impl`: [jar](http://search.maven.org/remotecontent?filepath=net/sf/jung/jung-graph-impl/2.1/jung-graph-impl-2.1.jar), [source jar](http://search.maven.org/remotecontent?filepath=net/sf/jung/jung-graph-impl/2.1/jung-graph-impl-2.1-sources.jar), [documentation jar](http://search.maven.org/remotecontent?filepath=net/sf/jung/jung-graph-impl/2.1/jung-graph-impl-2.1-javadoc.jar)
-    *   `jung-algorithms`: [jar](http://search.maven.org/remotecontent?filepath=net/sf/jung/jung-algorithms/2.1/jung-algorithms-2.1.jar), [source jar](http://search.maven.org/remotecontent?filepath=net/sf/jung/jung-algorithms/2.1/jung-algorithms-2.1-sources.jar), [documentation jar](http://search.maven.org/remotecontent?filepath=net/sf/jung/jung-algorithms/2.1/jung-algorithms-2.1-javadoc.jar)
-    *   `jung-io`: [jar](http://search.maven.org/remotecontent?filepath=net/sf/jung/jung-io/2.1/jung-io-2.1.jar), [source jar](http://search.maven.org/remotecontent?filepath=net/sf/jung/jung-io/2.1/jung-io-2.1-sources.jar), [documentation jar](http://search.maven.org/remotecontent?filepath=net/sf/jung/jung-io/2.1/jung-io-2.1-javadoc.jar)
-    *   `jung-visualization`: [jar](http://search.maven.org/remotecontent?filepath=net/sf/jung/jung-visualization/2.1/jung-visualization-2.1.jar), [source jar](http://search.maven.org/remotecontent?filepath=net/sf/jung/jung-visualization/2.1/jung-visualization-2.1-sources.jar), [documentation jar](http://search.maven.org/remotecontent?filepath=net/sf/jung/jung-visualization/2.1/jung-visualization-2.1-javadoc.jar)
-    *   `jung-samples`: [jar](http://search.maven.org/remotecontent?filepath=net/sf/jung/jung-samples/2.1/jung-samples-2.1.jar), [source jar](http://search.maven.org/remotecontent?filepath=net/sf/jung/jung-samples/2.1/jung-samples-2.1-sources.jar), [documentation jar](http://search.maven.org/remotecontent?filepath=net/sf/jung/jung-samples/2.1/jung-samples-2.1-javadoc.jar)
+*   [Maven Search Repository](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22net.sf.jung%22%20AND%20v%3A%222.1.1%22%20AND%20(a%3A%22jung-api%22%20OR%20a%3A%22jung-graph-impl%22%20OR%20a%3A%22jung-visualization%22%20OR%20a%3A%22jung-algorithms%22%20OR%20a%3A%22jung-samples%22%20OR%20a%3A%22jung-io%22))
+    *   `jung-api`: [jar](http://search.maven.org/remotecontent?filepath=net/sf/jung/jung-api/2.1.1/jung-api-2.1.1.jar), [source jar](http://search.maven.org/remotecontent?filepath=net/sf/jung/jung-api/2.1.1/jung-api-2.1.1-sources.jar), [documentation jar](http://search.maven.org/remotecontent?filepath=net/sf/jung/jung-api/2.1.1/jung-api-2.1.1-javadoc.jar)
+    *   `jung-graph-impl`: [jar](http://search.maven.org/remotecontent?filepath=net/sf/jung/jung-graph-impl/2.1.1/jung-graph-impl-2.1.1.jar), [source jar](http://search.maven.org/remotecontent?filepath=net/sf/jung/jung-graph-impl/2.1.1/jung-graph-impl-2.1.1-sources.jar), [documentation jar](http://search.maven.org/remotecontent?filepath=net/sf/jung/jung-graph-impl/2.1.1/jung-graph-impl-2.1.1-javadoc.jar)
+    *   `jung-algorithms`: [jar](http://search.maven.org/remotecontent?filepath=net/sf/jung/jung-algorithms/2.1.1/jung-algorithms-2.1.1.jar), [source jar](http://search.maven.org/remotecontent?filepath=net/sf/jung/jung-algorithms/2.1.1/jung-algorithms-2.1.1-sources.jar), [documentation jar](http://search.maven.org/remotecontent?filepath=net/sf/jung/jung-algorithms/2.1.1/jung-algorithms-2.1.1-javadoc.jar)
+    *   `jung-io`: [jar](http://search.maven.org/remotecontent?filepath=net/sf/jung/jung-io/2.1.1/jung-io-2.1.1.jar), [source jar](http://search.maven.org/remotecontent?filepath=net/sf/jung/jung-io/2.1.1/jung-io-2.1.1-sources.jar), [documentation jar](http://search.maven.org/remotecontent?filepath=net/sf/jung/jung-io/2.1.1/jung-io-2.1.1-javadoc.jar)
+    *   `jung-visualization`: [jar](http://search.maven.org/remotecontent?filepath=net/sf/jung/jung-visualization/2.1.1/jung-visualization-2.1.1.jar), [source jar](http://search.maven.org/remotecontent?filepath=net/sf/jung/jung-visualization/2.1.1/jung-visualization-2.1.1-sources.jar), [documentation jar](http://search.maven.org/remotecontent?filepath=net/sf/jung/jung-visualization/2.1.1/jung-visualization-2.1.1-javadoc.jar)
+    *   `jung-samples`: [jar](http://search.maven.org/remotecontent?filepath=net/sf/jung/jung-samples/2.1.1/jung-samples-2.1.1.jar), [source jar](http://search.maven.org/remotecontent?filepath=net/sf/jung/jung-samples/2.1.1/jung-samples-2.1.1-sources.jar), [documentation jar](http://search.maven.org/remotecontent?filepath=net/sf/jung/jung-samples/2.1.1/jung-samples-2.1.1-javadoc.jar)
 
 To add a dependency on this release of JUNG using Maven, use the following for each JUNG subpackage that you need:
 
@@ -27,7 +27,7 @@ To add a dependency on this release of JUNG using Maven, use the following for e
 <dependency>
   <groupId>net.sf.jung</groupId>
   <artifactId>jung-[subpackage]</artifactId>
-  <version>2.1</version>
+  <version>2.1.1</version>
 </dependency>
 ```
 
