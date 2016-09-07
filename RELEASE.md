@@ -98,7 +98,7 @@ Version properties will be generated and look like this:
 ...
 ```
 
-For release, it's best to avoid updating older verisions at the last minute, as
+For release, it's best to avoid updating older versions at the last minute, as
 this requires more testing and investigation than one typically does at release.
 But releases are gated on any -SNAPSHOT dependencies, so these should be
 incremented.
