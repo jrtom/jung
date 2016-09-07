@@ -63,8 +63,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <java.source>1.6</java.source>
-    <java.target>1.6</java.target>
+    <java.version>1.6</java.version>
 
     <!-- TODO(cgruber): Audit and update dependencies, particularly google deps. -->
     <junit.version>4.12</junit.version>
@@ -140,8 +139,8 @@
           <artifactId>maven-compiler-plugin</artifactId>
           <version>${compiler.plugin.version}</version>
           <configuration>
-            <source>${java.source}</source>
-            <target>${java.target}</target>
+            <source>${java.version}</source>
+            <target>${java.version}</target>
           </configuration>
         </plugin>
         <plugin>
@@ -194,7 +193,7 @@
         <artifactId>maven-pmd-plugin</artifactId>
         <version>${pmd.plugin.version}</version>
         <configuration>
-          <targetJdk>${java.target}</targetJdk>
+          <targetJdk>${java.version}</targetJdk>
           <linkXref>true</linkXref>
         </configuration>
       </plugin>
