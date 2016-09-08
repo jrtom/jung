@@ -87,7 +87,7 @@ public class EditingGraphMousePlugin<V,E> extends AbstractGraphMousePlugin imple
                 	this.createMode = Creating.EDGE;
                 	Graph<V,E> graph = vv.getModel().getGraphLayout().getGraph();
                 	// set default edge type
-                	EdgeType = graph.getDefaultEdgeType();
+                	EdgeType edgeType = graph.getDefaultEdgeType();
                     if((e.getModifiers() & MouseEvent.SHIFT_MASK) != 0
                     		&& graph instanceof UndirectedGraph == false) {
                         edgeType = EdgeType.DIRECTED;
