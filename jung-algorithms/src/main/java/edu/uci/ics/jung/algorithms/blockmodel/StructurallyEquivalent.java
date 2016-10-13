@@ -21,8 +21,8 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.common.base.Function;
+import com.google.common.graph.Graph;
 
-import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.Pair;
 
 /**
@@ -41,9 +41,9 @@ import edu.uci.ics.jung.graph.util.Pair;
  * 
  * @author Danyel Fisher
  */
-public class StructurallyEquivalent<V,E> implements Function<Graph<V,E>, VertexPartition<V,E>> 
+public class StructurallyEquivalent<V> implements Function<Graph<V>, VertexPartition<V>> 
 {
-	public VertexPartition<V,E> apply(Graph<V,E> g) 
+	public VertexPartition<V> apply(Graph<V> g) 
 	{
 	    Set<Pair<V>> vertex_pairs = getEquivalentPairs(g);
 	    
@@ -65,7 +65,7 @@ public class StructurallyEquivalent<V,E> implements Function<Graph<V,E>, VertexP
 
         // pick up the vertices which don't appear in intermediate; they are
         // singletons (equivalence classes of size 1)
-        Collection<V> singletons = new ArrayList<V>(g.getVertices());
+        Collection<V> singletons = new ArrayList<V>(g.nodes());
         singletons.removeAll(intermediate.keySet());
         for (V v : singletons)
         {
@@ -74,7 +74,7 @@ public class StructurallyEquivalent<V,E> implements Function<Graph<V,E>, VertexP
             rv.add(v_set);
         }
 
-        return new VertexPartition<V, E>(g, intermediate, rv);
+        return new VertexPartition<V>(g, intermediate, rv);
 	}
 
 	/**
@@ -86,12 +86,12 @@ public class StructurallyEquivalent<V,E> implements Function<Graph<V,E>, VertexP
 	 * @return a Set of Pairs of vertices, where all the vertices in the inner
 	 * Pairs are equivalent.
 	 */
-	protected Set<Pair<V>> getEquivalentPairs(Graph<V,?> g) {
+	protected Set<Pair<V>> getEquivalentPairs(Graph<V> g) {
 
 		Set<Pair<V>> rv = new HashSet<Pair<V>>();
 		Set<V> alreadyEquivalent = new HashSet<V>();
 
-		List<V> l = new ArrayList<V>(g.getVertices());
+		List<V> l = new ArrayList<V>(g.nodes());
 
 		for (V v1 : l)
 		{
@@ -125,21 +125,21 @@ public class StructurallyEquivalent<V,E> implements Function<Graph<V,E>, VertexP
 	 * @return {@code true} if {@code v1}'s predecessors/successors are equal to
 	 *     {@code v2}'s predecessors/successors
 	 */
-	protected boolean isStructurallyEquivalent(Graph<V,?> g, V v1, V v2) {
+	protected boolean isStructurallyEquivalent(Graph<V> g, V v1, V v2) {
 		
-		if( g.degree(v1) != g.degree(v2)) {
+		if (g.degree(v1) != g.degree(v2)) {
 			return false;
 		}
 
-		Set<V> n1 = new HashSet<V>(g.getPredecessors(v1));
+		Set<V> n1 = new HashSet<V>(g.predecessors(v1));
 		n1.remove(v2);
 		n1.remove(v1);
-		Set<V> n2 = new HashSet<V>(g.getPredecessors(v2));
+		Set<V> n2 = new HashSet<V>(g.predecessors(v2));
 		n2.remove(v1);
 		n2.remove(v2);
 
-		Set<V> o1 = new HashSet<V>(g.getSuccessors(v1));
-		Set<V> o2 = new HashSet<V>(g.getSuccessors(v2));
+		Set<V> o1 = new HashSet<V>(g.successors(v1));
+		Set<V> o2 = new HashSet<V>(g.successors(v2));
 		o1.remove(v1);
 		o1.remove(v2);
 		o2.remove(v1);
@@ -151,10 +151,10 @@ public class StructurallyEquivalent<V,E> implements Function<Graph<V,E>, VertexP
 			return b;
 		
 		// if there's a directed edge v1->v2 then there's a directed edge v2->v1
-		b &= ( g.isSuccessor(v1, v2) == g.isSuccessor(v2, v1));
+		b &= (g.successors(v1).contains(v2) == g.successors(v2).contains(v1));
 		
 		// self-loop check
-		b &= ( g.isSuccessor(v1, v1) == g.isSuccessor(v2, v2));
+		b &= (g.successors(v1).contains(v1) == g.successors(v2).contains(v2));
 
 		return b;
 
