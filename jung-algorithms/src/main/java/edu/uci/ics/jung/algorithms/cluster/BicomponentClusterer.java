@@ -17,11 +17,12 @@ import java.util.Set;
 import java.util.Stack;
 
 import com.google.common.base.Function;
+import com.google.common.graph.EndpointPair;
+import com.google.common.graph.Graph;
 
-import edu.uci.ics.jung.graph.UndirectedGraph;
 
 /**
- * Finds all biconnected components (bicomponents) of an undirected graph.  
+ * Finds all biconnected components (bicomponents) of an graph, <b>ignoring edge direction</b>.  
  * A graph is a biconnected component if 
  * at least 2 vertices must be removed in order to disconnect the graph.  (Graphs 
  * consisting of one vertex, or of two connected vertices, are also biconnected.)  Biconnected
@@ -33,12 +34,12 @@ import edu.uci.ics.jung.graph.UndirectedGraph;
  * 
  * @author Joshua O'Madadhain
  */
-public class BicomponentClusterer<V,E> implements Function<UndirectedGraph<V,E>, Set<Set<V>>> 
+public class BicomponentClusterer<V,E> implements Function<Graph<V>, Set<Set<V>>> 
 {
     protected Map<V,Number> dfs_num;
     protected Map<V,Number> high;
     protected Map<V,V> parents;
-    protected Stack<E> stack;
+    protected Stack<EndpointPair<V>> stack;
     protected int converse_depth;
 
     /**
@@ -49,37 +50,37 @@ public class BicomponentClusterer<V,E> implements Function<UndirectedGraph<V,E>,
 
     /**
     * Extracts the bicomponents from the graph.
-    * @param theGraph the graph whose bicomponents are to be extracted
+    * @param graph the graph whose bicomponents are to be extracted
     * @return the <code>ClusterSet</code> of bicomponents
     */
-    public Set<Set<V>> apply(UndirectedGraph<V,E> theGraph) 
+    public Set<Set<V>> apply(Graph<V> graph) 
     {
     	Set<Set<V>> bicomponents = new LinkedHashSet<Set<V>>();
 
-        if (theGraph.getVertices().isEmpty())
+        if (graph.nodes().isEmpty())
             return bicomponents;
 
         // initialize DFS number for each vertex to 0
         dfs_num = new HashMap<V,Number>();
-        for (V v : theGraph.getVertices())
+        for (V v : graph.nodes())
         {
         	dfs_num.put(v, 0);
         }
 
-        for (V v : theGraph.getVertices())
+        for (V v : graph.nodes())
         {
             if (dfs_num.get(v).intValue() == 0) // if we haven't hit this vertex yet...
             {
                 high = new HashMap<V,Number>();
-                stack = new Stack<E>();
+                stack = new Stack<EndpointPair<V>>();
                 parents = new HashMap<V,V>();
-                converse_depth = theGraph.getVertexCount();
+                converse_depth = graph.nodes().size();
                 // find the biconnected components for this subgraph, starting from v
-                findBiconnectedComponents(theGraph, v, bicomponents);
+                findBiconnectedComponents(graph, v, bicomponents);
                 
                 // if we only visited one vertex, this method won't have
                 // ID'd it as a biconnected component, so mark it as one
-                if (theGraph.getVertexCount() - converse_depth == 1)
+                if (graph.nodes().size() - converse_depth == 1)
                 {
                     Set<V> s = new HashSet<V>();
                     s.add(v);
@@ -123,23 +124,23 @@ public class BicomponentClusterer<V,E> implements Function<UndirectedGraph<V,E>,
      * @param v the starting place for searching for biconnected components
      * @param bicomponents storage for the biconnected components found by this algorithm
      */
-    protected void findBiconnectedComponents(UndirectedGraph<V,E> g, V v, Set<Set<V>> bicomponents)
+    protected void findBiconnectedComponents(Graph<V> g, V v, Set<Set<V>> bicomponents)
     {
         int v_dfs_num = converse_depth;
         dfs_num.put(v, v_dfs_num);
         converse_depth--;
         high.put(v, v_dfs_num);
 
-        for (V w : g.getNeighbors(v))
+        for (V w : g.adjacentNodes(v))
         {
-            int w_dfs_num = dfs_num.get(w).intValue();//get(w, dfs_num);
-            E vw = g.findEdge(v,w);
+            int w_dfs_num = dfs_num.get(w).intValue();
+            EndpointPair<V> vw = EndpointPair.unordered(v, w);
             if (w_dfs_num == 0) // w hasn't yet been visited
             {
                 parents.put(w, v); // v is w's parent in the DFS tree
                 stack.push(vw);
                 findBiconnectedComponents(g, w, bicomponents);
-                int w_high = high.get(w).intValue();//get(w, high);
+                int w_high = high.get(w).intValue();
                 if (w_high <= v_dfs_num)
                 {
                     // v disconnects w from the rest of the graph,
@@ -147,13 +148,14 @@ public class BicomponentClusterer<V,E> implements Function<UndirectedGraph<V,E>,
                     // thus, everything between the top of the stack and
                     // v is part of a single biconnected component
                     Set<V> bicomponent = new HashSet<V>();
-                    E e;
+                    EndpointPair<V> endpoints;
                     do
                     {
-                        e = stack.pop();
-                        bicomponent.addAll(g.getIncidentVertices(e));
+                        endpoints = stack.pop();
+                        bicomponent.add(endpoints.nodeU());
+                        bicomponent.add(endpoints.nodeV());
                     }
-                    while (e != vw);
+                    while (!endpoints.equals(vw));
                     bicomponents.add(bicomponent);
                 }
                 high.put(v, Math.max(w_high, high.get(v).intValue()));
