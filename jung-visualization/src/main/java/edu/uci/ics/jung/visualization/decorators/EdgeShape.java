@@ -34,10 +34,18 @@ import edu.uci.ics.jung.visualization.util.ArrowFactory;
  * An interface for decorators that return a 
  * <code>Shape</code> for a specified edge.
  * 
- * All edge shapes must be defined so that their endpoints are at
+ * <p>All edge shapes must be defined so that their endpoints are at
  * (0,0) and (1,0). They will be scaled, rotated and translated into
  * position by the PluggableRenderer.
+ *
+ * <p>Examples for getting {@code EdgeShape} instances:
+ * <ul>
+ * <li>EdgeShape<V, E> lineShape = EdgeShape.line(graph);
+ * <li>EdgeShape<V, E> quadCurveShape = EdgeShape.quadCurve(graph);
+ * <li>(etc.)
+ * </ul>
  *  
+ * @author Joshua O'Madadhain
  * @author Tom Nelson
  * @param <V> the vertex type
  * @param <E> the edge type
@@ -98,8 +106,8 @@ public class EdgeShape<V,E> {
         return new EdgeShape<V, E>(graph).new QuadCurve();
 	}
 	
-	public static <V, E> EdgeShape<V, E>.QuadCurve cubicCurve(Graph<V, E> graph) {
-        return new EdgeShape<V, E>(graph).new QuadCurve();
+	public static <V, E> EdgeShape<V, E>.CubicCurve cubicCurve(Graph<V, E> graph) {
+        return new EdgeShape<V, E>(graph).new CubicCurve();
 	}
 	
 	public static <V, E> EdgeShape<V, E>.Orthogonal orthogonal(Graph<V, E> graph) {
