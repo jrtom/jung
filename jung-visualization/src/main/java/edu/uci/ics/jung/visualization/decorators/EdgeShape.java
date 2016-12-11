@@ -106,7 +106,7 @@ public class EdgeShape<V,E> {
         return new EdgeShape<V, E>(graph).new QuadCurve();
 	}
 	
-	public static <V, E> EdgeShape<V, E>.QuadCurve cubicCurve(Graph<V, E> graph) {
+	public static <V, E> EdgeShape<V, E>.CubicCurve cubicCurve(Graph<V, E> graph) {
         return new EdgeShape<V, E>(graph).new CubicCurve();
 	}
 	
