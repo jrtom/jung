@@ -66,10 +66,11 @@ public class DijkstraDistance<V,E> implements Distance<V>
 {
     protected Hypergraph<V,E> g;
     protected Function<? super E,? extends Number> nev;
-    protected Map<V,SourceData> sourceMap;   // a map of source vertices to an instance of SourceData
+    protected LinkedHashMap<V,SourceData> sourceMap;   // a map of source vertices to an instance of SourceData
     protected boolean cached;
     protected double max_distance;
     protected int max_targets;
+    protected int max_cache_size;
     
     /**
      * <p>Creates an instance of <code>DijkstraShortestPath</code> for 
@@ -80,11 +81,32 @@ public class DijkstraDistance<V,E> implements Distance<V>
      * @param g     the graph on which distances will be calculated
      * @param nev   the class responsible for returning weights for edges
      * @param cached    specifies whether the results are to be cached
+     * @param max_cache_size    the maximum number of from-to combinations cached, to control memory usage
+     */
+    public DijkstraDistance(Hypergraph<V,E> g, Function<? super E,? extends Number> nev, boolean cached, int max_cache_size) {
+        this.g = g;
+        this.nev = nev;
+        this.sourceMap = new LinkedHashMap<V,SourceData>();
+        this.cached = cached;
+        this.max_cache_size = max_cache_size;
+        this.max_distance = Double.POSITIVE_INFINITY;
+        this.max_targets = Integer.MAX_VALUE;
+    }
+
+    /**
+     * <p>Creates an instance of <code>DijkstraShortestPath</code> for
+     * the specified graph and the specified method of extracting weights
+     * from edges, which caches results locally if and only if
+     * <code>cached</code> is <code>true</code>.
+     *
+     * @param g     the graph on which distances will be calculated
+     * @param nev   the class responsible for returning weights for edges
+     * @param cached    specifies whether the results are to be cached
      */
     public DijkstraDistance(Hypergraph<V,E> g, Function<? super E,? extends Number> nev, boolean cached) {
         this.g = g;
         this.nev = nev;
-        this.sourceMap = new HashMap<V,SourceData>();
+        this.sourceMap = new LinkedHashMap<V,SourceData>();
         this.cached = cached;
         this.max_distance = Double.POSITIVE_INFINITY;
         this.max_targets = Integer.MAX_VALUE;
@@ -99,7 +121,7 @@ public class DijkstraDistance<V,E> implements Distance<V>
      * @param nev   the class responsible for returning weights for edges
      */
     public DijkstraDistance(Hypergraph<V,E> g, Function<? super E,? extends Number> nev) {
-        this(g, nev, true);
+        this(g, nev, true, Integer.MAX_VALUE);
     }
     
     /**
@@ -110,7 +132,7 @@ public class DijkstraDistance<V,E> implements Distance<V>
      * @param g     the graph on which distances will be calculated
      */ 
     public DijkstraDistance(Graph<V,E> g) {
-        this(g, Functions.constant(1), true);
+        this(g, Functions.constant(1), true, Integer.MAX_VALUE);
     }
 
     /**
@@ -120,9 +142,22 @@ public class DijkstraDistance<V,E> implements Distance<V>
      * 
      * @param g     the graph on which distances will be calculated
      * @param cached    specifies whether the results are to be cached
+     * @param max_cache_size    the maximum number of from-to combinations cached, to control memory usage
      */ 
+    public DijkstraDistance(Graph<V,E> g, boolean cached, int max_cache_size) {
+        this(g, Functions.constant(1), cached, max_cache_size);
+    }
+
+    /**
+     * <p>Creates an instance of <code>DijkstraShortestPath</code> for
+     * the specified unweighted graph (that is, all weights 1) which
+     * caches results locally.
+     *
+     * @param g     the graph on which distances will be calculated
+     * @param cached    specifies whether the results are to be cached
+     */
     public DijkstraDistance(Graph<V,E> g, boolean cached) {
-        this(g, Functions.constant(1), cached);
+        this(g, Functions.constant(1), cached, Integer.MAX_VALUE);
     }
     
     /**
@@ -294,6 +329,9 @@ public class DijkstraDistance<V,E> implements Distance<V>
         			Math.min(g.getVertexCount(), max_targets));
         if (!cached)
             reset(source);
+
+        if (cached)
+            resizeCache();
         
         return distanceMap;
     }
@@ -363,6 +401,9 @@ public class DijkstraDistance<V,E> implements Distance<V>
                 
         if (!cached)
             reset(source);
+
+        if (cached)
+            resizeCache();
         
         return distanceMap;        
     }
@@ -436,7 +477,7 @@ public class DijkstraDistance<V,E> implements Distance<V>
      */
     public void reset()
     {
-        sourceMap = new HashMap<V,SourceData>();
+        sourceMap = new LinkedHashMap<V,SourceData>();
     }
         
     /**
@@ -463,6 +504,19 @@ public class DijkstraDistance<V,E> implements Distance<V>
     public void reset(V source)
     {
         sourceMap.put(source, null);
+    }
+
+    /**
+     *
+     * COMMENTS
+     *
+     */
+    public void resizeCache(){
+
+        if (sourceMap.size() > max_cache_size){
+            sourceMap.remove(sourceMap.keySet().iterator().next()); // remove the first FROM - TO combination in the cache
+        }
+
     }
 
     /**
