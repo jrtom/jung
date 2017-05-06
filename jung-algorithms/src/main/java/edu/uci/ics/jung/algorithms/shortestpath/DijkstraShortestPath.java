@@ -46,6 +46,22 @@ public class DijkstraShortestPath<V,E> extends DijkstraDistance<V,E> implements 
      * @param g     the graph on which distances will be calculated
      * @param nev   the class responsible for returning weights for edges
      * @param cached    specifies whether the results are to be cached
+     * @param max_cache_size    the maximum number of from-to combinations cached, to control memory usage
+     */
+    public DijkstraShortestPath(Graph<V,E> g, Function<E, ? extends Number> nev, boolean cached, int max_cache_size)
+    {
+        super(g, nev, cached, max_cache_size);
+    }
+
+    /**
+     * <p>Creates an instance of <code>DijkstraShortestPath</code> for
+     * the specified graph and the specified method of extracting weights
+     * from edges, which caches results locally if and only if
+     * <code>cached</code> is <code>true</code>.
+     *
+     * @param g     the graph on which distances will be calculated
+     * @param nev   the class responsible for returning weights for edges
+     * @param cached    specifies whether the results are to be cached
      */
     public DijkstraShortestPath(Graph<V,E> g, Function<E, ? extends Number> nev, boolean cached)
     {
@@ -89,7 +105,21 @@ public class DijkstraShortestPath<V,E> extends DijkstraDistance<V,E> implements 
     {
         super(g, cached);
     }
-    
+
+    /**
+     * <p>Creates an instance of <code>DijkstraShortestPath</code> for
+     * the specified unweighted graph (that is, all weights 1) which
+     * caches results locally.
+     *
+     * @param g     the graph on which distances will be calculated
+     * @param cached    specifies whether the results are to be cached
+     * @param max_cache_size    the maximum number of from-to combinations cached, to control memory usage
+     */
+    public DijkstraShortestPath(Graph<V,E> g, boolean cached,int max_cache_size)
+    {
+        super(g, cached, max_cache_size);
+    }
+
     @Override
     protected SourceData getSourceData(V source)
     {
@@ -132,6 +162,9 @@ public class DijkstraShortestPath<V,E> extends DijkstraDistance<V,E> implements 
         
         if (!cached)
             reset(source);
+
+        if (cached)
+            resizeCache();
         
         return incomingEdge;
 	}
@@ -196,7 +229,14 @@ public class DijkstraShortestPath<V,E> extends DijkstraDistance<V,E> implements 
             path.addFirst(incoming);
             current = ((Graph<V,E>)g).getOpposite(current, incoming);
         }
-		return path;
+
+        if (!cached)
+            reset(source);
+
+        if (cached)
+            resizeCache();
+
+        return path;
 	}
 
     
@@ -235,6 +275,9 @@ public class DijkstraShortestPath<V,E> extends DijkstraDistance<V,E> implements 
         
         if (!cached)
             reset(source);
+
+        if (cached)
+            resizeCache();
         
         return incomingEdgeMap;        
 	}
