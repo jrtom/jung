@@ -8,9 +8,11 @@
 * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
 */
 package edu.uci.ics.jung.algorithms.shortestpath;
-import java.util.Collection;
+import java.util.function.BiFunction;
 
 import com.google.common.base.Function;
+import com.google.common.graph.Graph;
+import com.google.common.graph.Network;
 
 import edu.uci.ics.jung.algorithms.scoring.ClosenessCentrality;
 import edu.uci.ics.jung.algorithms.scoring.util.VertexScoreTransformer;
@@ -61,7 +63,7 @@ public class DistanceStatistics
 	 * @param <E> the edge type
 	 * @return a map from each vertex to the mean distance to each other (reachable) vertex
 	 */
-    public static <V,E> Function<V,Double> averageDistances(Hypergraph<V,E> graph, Distance<V> d)
+    public static <V,E> Function<V,Double> averageDistances(Network<V,E> graph, Distance<V> d)
     {
     	final ClosenessCentrality<V,E> cc = new ClosenessCentrality<V,E>(graph, d);
     	return new VertexScoreTransformer<V, Double>(cc);
@@ -79,10 +81,10 @@ public class DistanceStatistics
 	 * @param <E> the edge type
 	 * @return a map from each vertex to the mean distance to each other (reachable) vertex
      */
-    public static <V,E> Function<V, Double> averageDistances(Hypergraph<V,E> g)
+    public static <V,E> Function<V, Double> averageDistances(Network<V,E> g)
     {
     	final ClosenessCentrality<V,E> cc = new ClosenessCentrality<V,E>(g, 
-    			new UnweightedShortestPath<V,E>(g));
+    			new UnweightedShortestPath<V>(g.asGraph()));
         return new VertexScoreTransformer<V, Double>(cc);
     }
     
@@ -102,27 +104,26 @@ public class DistanceStatistics
 	 * @param d the distance metric to use for the calculation
 	 * @param use_max if {@code true}, return the maximum shortest path length for all graphs;
 	 *     otherwise, return {@code Double.POSITIVE_INFINITY} for disconnected graphs
-	 * @param <V> the vertex type
-	 * @param <E> the edge type
+	 * @param <N> the vertex type
 	 * @return the longest distance from any vertex to any other
      */
-    public static <V, E> double diameter(Hypergraph<V,E> g, Distance<V> d, boolean use_max)
+    public static <N> double diameter(Graph<N> g, BiFunction<N, N, ? extends Number> d, boolean use_max)
     {
         double diameter = 0;
-        Collection<V> vertices = g.getVertices();
-        for(V v : vertices) {
-            for(V w : vertices) {
-
-                if (v.equals(w) == false) // don't include self-distances
+        // TODO: provide an undirected version
+        for(N v : g.nodes()) {
+            for(N w : g.nodes()) {
+                if (v.equals(w)) {
+                	continue;  // don't include self-distances
+                }
+                Number dist = d.apply(v, w);
+                if (dist == null)
                 {
-                    Number dist = d.getDistance(v, w);
-                    if (dist == null)
-                    {
-                        if (!use_max)
-                            return Double.POSITIVE_INFINITY;
-                    }
-                    else
-                        diameter = Math.max(diameter, dist.doubleValue());
+                    if (!use_max)
+                        return Double.POSITIVE_INFINITY;
+                }
+                else {
+                    diameter = Math.max(diameter, dist.doubleValue());
                 }
             }
         }
@@ -136,30 +137,28 @@ public class DistanceStatistics
      * of the length of the shortest path from <code>u</code> to 
      * <code>v</code>, or <code>Double.POSITIVE_INFINITY</code>
      * if any of these distances do not exist.
-     * @see #diameter(Hypergraph, Distance, boolean)
+     * @see #diameter(Graph, BiFunction, boolean)
      * 
 	 * @param g the graph for which distances are to be calculated
-	 * @param d the distance metric to use for the calculation
-	 * @param <V> the vertex type
-	 * @param <E> the edge type
+	 * @param distance the distance metric to use for the calculation
+	 * @param <N> the vertex type
 	 * @return the longest distance from any vertex to any other
      */
-    public static <V, E> double diameter(Hypergraph<V,E> g, Distance<V> d)
+    public static <N> double diameter(Graph<N> g, BiFunction<N, N, ? extends Number> distance)
     {
-        return diameter(g, d, false);
+        return diameter(g, distance, false);
     }
     
     /**
      * Returns the diameter of <code>g</code>, ignoring edge weights.
-     * @see #diameter(Hypergraph, Distance, boolean)
+     * @see #diameter(Graph, BiFunction, boolean)
      * 
 	 * @param g the graph for which distances are to be calculated
-	 * @param <V> the vertex type
-	 * @param <E> the edge type
+	 * @param <N> the vertex type
 	 * @return the longest distance from any vertex to any other
      */
-    public static <V, E> double diameter(Hypergraph<V,E> g)
+    public static <N> double diameter(Graph<N> g)
     {
-        return diameter(g, new UnweightedShortestPath<V,E>(g));
+        return diameter(g, new UnweightedShortestPath<N>(g)::getDistance);
     }
 }

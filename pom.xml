@@ -63,12 +63,10 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <java.version>1.6</java.version>
+    <java.version>1.8</java.version>
 
-    <!-- TODO(cgruber): Audit and update dependencies, particularly google deps. -->
     <junit.version>4.12</junit.version>
-    <guava.version>20.0-SNAPSHOT</guava.version>
-    
+    <guava.version>22.0</guava.version>
     <cobertura.plugin.version>2.7</cobertura.plugin.version>
     <compiler.plugin.version>3.5.1</compiler.plugin.version>
     <gpg.plugin.version>1.6</gpg.plugin.version>
@@ -175,8 +173,7 @@
         <configuration>
           <aggregate>true</aggregate>
           <links>
-            <link>http://docs.oracle.com/javaee/6/api/</link>
-            <link>http://docs.oracle.com/javase/6/docs/api/</link>
+            <link>http://docs.oracle.com/javase/8/docs/api/</link>
           </links>
         </configuration>
       </plugin>

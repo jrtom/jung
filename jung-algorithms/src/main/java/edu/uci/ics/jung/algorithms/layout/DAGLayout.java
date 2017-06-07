@@ -16,37 +16,37 @@ import java.awt.geom.Point2D;
 import java.util.HashMap;
 import java.util.Map;
 
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.util.Pair;
+import com.google.common.graph.EndpointPair;
+import com.google.common.graph.Graph;
 
 /**
  * An implementation of {@code Layout} suitable for tree-like directed
  * acyclic graphs. Parts of it will probably not terminate if the graph is
  * cyclic! The layout will result in directed edges pointing generally upwards.
- * Any vertices with no successors are considered to be level 0, and tend
- * towards the top of the layout. Any vertex has a level one greater than the
+ * Any nodes with no successors are considered to be level 0, and tend
+ * towards the top of the layout. Any node has a level one greater than the
  * maximum level of all its successors.
  *
  *
  * @author John Yesberg
  */
-public class DAGLayout<V, E> extends SpringLayout<V,E> {
+public class DAGLayout<N> extends SpringLayout<N> {
 
     /**
-     * Each vertex has a minimumLevel. Any vertex with no successors has
-     * minimumLevel of zero. The minimumLevel of any vertex must be strictly
-     * greater than the minimumLevel of its parents. (Vertex A is a parent of
-     * Vertex B iff there is an edge from B to A.) Typically, a vertex will
+     * Each node has a minimumLevel. Any node with no successors has
+     * minimumLevel of zero. The minimumLevel of any node must be strictly
+     * greater than the minimumLevel of its parents. (node A is a parent of
+     * node B iff there is an edge from B to A.) Typically, a node will
      * have a minimumLevel which is one greater than the minimumLevel of its
-     * parent's. However, if the vertex has two parents, its minimumLevel will
+     * parent's. However, if the node has two parents, its minimumLevel will
      * be one greater than the maximum of the parents'. We need to calculate
-     * the minimumLevel for each vertex. When we layout the graph, vertices
+     * the minimumLevel for each node. When we layout the graph, nodes
      * cannot be drawn any higher than the minimumLevel. The graphHeight of a
      * graph is the greatest minimumLevel that is used. We will modify the
      * SpringLayout calculations so that nodes cannot move above their assigned
      * minimumLevel.
      */
-	private Map<V,Number> minLevels = new HashMap<V,Number>();
+	private Map<N,Number> minLevels = new HashMap<N,Number>();
 	// Simpler than the "pair" technique.
 	static int graphHeight;
 	static int numRoots;
@@ -68,46 +68,46 @@ public class DAGLayout<V, E> extends SpringLayout<V,E> {
 	int incrementsLeft;
 	final int COOL_DOWN_INCREMENTS = 200;
 
-	public DAGLayout(Graph<V,E> g) {
+	public DAGLayout(Graph<N> g) {
 		super(g);
 	}
 
 	/**
-	 * Calculates the level of each vertex in the graph. Level 0 is
-	 * allocated to each vertex with no successors. Level n+1 is allocated to
-	 * any vertex whose successors' maximum level is n.
+	 * Calculates the level of each node in the graph. Level 0 is
+	 * allocated to each node with no successors. Level n+1 is allocated to
+	 * any node whose successors' maximum level is n.
 	 */
 	public void setRoot() {
 		numRoots = 0;
-		Graph<V, E> g = getGraph();
-		for(V v : g.getVertices()) {
-			if (g.getSuccessors(v).isEmpty()) {
-				setRoot(v);
+		Graph<N> g = graph;
+		for(N node : g.nodes()) {
+			if (g.successors(node).isEmpty()) {
+				setRoot(node);
 				numRoots++;
 			}
 		}
 	}
 
 	/**
-	 * Set vertex v to be level 0.
-	 * @param v the vertex to set as root
+	 * Set node v to be level 0.
+	 * @param v the node to set as root
 	 */
-	public void setRoot(V v) {
-		minLevels.put(v, new Integer(0));
+	public void setRoot(N node) {
+		minLevels.put(node, new Integer(0));
 		// set all the levels.
-		propagateMinimumLevel(v);
+		propagateMinimumLevel(node);
 	}
 
 	/**
-	 * A recursive method for allocating the level for each vertex. Ensures
+	 * A recursive method for allocating the level for each node. Ensures
 	 * that all predecessors of v have a level which is at least one greater
 	 * than the level of v.
 	 *
-	 * @param v the vertex whose minimum level is to be calculated
+	 * @param v the node whose minimum level is to be calculated
 	 */
-	public void propagateMinimumLevel(V v) {
-		int level = minLevels.get(v).intValue();
-		for(V child : getGraph().getPredecessors(v)) {
+	public void propagateMinimumLevel(N node) {
+		int level = minLevels.get(node).intValue();
+		for(N child : graph.predecessors(node)) {
 			int oldLevel, newLevel;
 			Number o = minLevels.get(child);
 			if (o != null)
@@ -124,18 +124,18 @@ public class DAGLayout<V, E> extends SpringLayout<V,E> {
 	}
 
 	/**
-	 * Sets a random location for a vertex within the dimensions of the space.
+	 * Sets a random location for a node within the dimensions of the space.
 	 *
-	 * @param v the vertex whose position is to be set
-	 * @param coord the coordinates of the vertex once the position has been set
+	 * @param v the node whose position is to be set
+	 * @param coord the coordinates of the node once the position has been set
 	 * @param d the dimensions of the space
 	 */
 	private void initializeLocation(
-		V v,
+		N node,
 		Point2D coord,
 		Dimension d) {
 
-		int level = minLevels.get(v).intValue();
+		int level = minLevels.get(node).intValue();
 		int minY = (int) (level * d.getHeight() / (graphHeight * SPACEFACTOR));
 		double x = Math.random() * d.getWidth();
 		double y = Math.random() * (d.getHeight() - minY) + minY;
@@ -145,8 +145,8 @@ public class DAGLayout<V, E> extends SpringLayout<V,E> {
 	@Override
 	public void setSize(Dimension size) {
 		super.setSize(size);
-		for(V v : getGraph().getVertices()) {
-			initializeLocation(v,apply(v),getSize());
+		for(N node : nodes()) {
+			initializeLocation(node,apply(node),getSize());
 		}
 	}
 
@@ -172,18 +172,18 @@ public class DAGLayout<V, E> extends SpringLayout<V,E> {
 
 		synchronized (getSize()) {
 
-			for(V v : getGraph().getVertices()) {
-				if (isLocked(v))
+			for(N node : nodes()) {
+				if (isLocked(node))
 					continue;
-				SpringLayout.SpringVertexData vd = springVertexData.getUnchecked(v);
-				Point2D xyd = apply(v);
+				SpringLayout.SpringNodeData vd = springNodeData.getUnchecked(node);
+				Point2D xyd = apply(node);
 
 				int width = getSize().width;
 				int height = getSize().height;
 
 				// (JY addition: three lines are new)
 				int level =
-					minLevels.get(v).intValue();
+					minLevels.get(node).intValue();
 				int minY = (int) (level * height / (graphHeight * SPACEFACTOR));
 				int maxY =
 					level == 0
@@ -194,7 +194,7 @@ public class DAGLayout<V, E> extends SpringLayout<V,E> {
 				vd.dx += 2 * vd.repulsiondx + vd.edgedx;
 				vd.dy += vd.repulsiondy + vd.edgedy;
 
-				// JY Addition: Attract the vertex towards it's minimumLevel
+				// JY Addition: Attract the node towards it's minimumLevel
 				// height.
 				double delta = xyd.getY() - minY;
 				vd.dy -= delta * LEVELATTRACTIONRATE;
@@ -257,12 +257,12 @@ public class DAGLayout<V, E> extends SpringLayout<V,E> {
 	/**
 	 * Override forceMove so that if someone moves a node, we can re-layout
 	 * everything.
-     * @param picked the vertex whose location is to be set
+     * @param picked the node whose location is to be set
      * @param x the x coordinate of the location to set
      * @param y the y coordinate of the location to set
 	 */
 	@Override
-	public void setLocation(V picked, double x, double y) {
+	public void setLocation(N picked, double x, double y) {
 		Point2D coord = apply(picked);
 		coord.setLocation(x,y);
 		stoppingIncrements = false;
@@ -271,11 +271,11 @@ public class DAGLayout<V, E> extends SpringLayout<V,E> {
 	/**
 	 * Override forceMove so that if someone moves a node, we can re-layout
 	 * everything.
-     * @param picked the vertex whose location is to be set
+     * @param picked the node whose location is to be set
      * @param p the location to set
 	 */
 	@Override
-	public void setLocation(V picked, Point2D p) {
+	public void setLocation(N picked, Point2D p) {
 		setLocation(picked, p.getX(), p.getY());
 	}
 
@@ -286,24 +286,23 @@ public class DAGLayout<V, E> extends SpringLayout<V,E> {
 	 */
 	@Override
 	protected void relaxEdges() {
-		for(E e : getGraph().getEdges()) {
-		    Pair<V> endpoints = getGraph().getEndpoints(e);
-			V v1 = endpoints.getFirst();
-			V v2 = endpoints.getSecond();
+		for(EndpointPair<N> endpoints : graph.edges()) {
+			N node1 = endpoints.nodeU();
+			N node2 = endpoints.nodeV();
 
-			Point2D p1 = apply(v1);
-			Point2D p2 = apply(v2);
+			Point2D p1 = apply(node1);
+			Point2D p2 = apply(node2);
 			double vx = p1.getX() - p2.getX();
 			double vy = p1.getY() - p2.getY();
 			double len = Math.sqrt(vx * vx + vy * vy);
 
 			// JY addition.
 			int level1 =
-				minLevels.get(v1).intValue();
+				minLevels.get(node1).intValue();
 			int level2 =
-				minLevels.get(v2).intValue();
+				minLevels.get(node2).intValue();
 
-			double desiredLen = lengthFunction.apply(e);
+			double desiredLen = lengthFunction.apply(endpoints);
 
 			// round from zero, if needed [zero would be Bad.].
 			len = (len == 0) ? .0001 : len;
@@ -312,11 +311,10 @@ public class DAGLayout<V, E> extends SpringLayout<V,E> {
 			// is made smaller as the current actual length gets larger.
 			// why?
 
-			// System.out.println("Desired : " + getLength( e ));
 			double f = force_multiplier * (desiredLen - len) / len;
 
 			f = f * Math.pow(stretch / 100.0,
-					(getGraph().degree(v1) + getGraph().degree(v2) -2));
+					(graph.degree(node1) + graph.degree(node2) -2));
 
 			// JY addition. If this is an edge which stretches a long way,
 			// don't be so concerned about it.
@@ -327,9 +325,9 @@ public class DAGLayout<V, E> extends SpringLayout<V,E> {
 			// distance to go.
 			double dx = f * vx;
 			double dy = f * vy;
-			SpringVertexData v1D, v2D;
-			v1D = springVertexData.getUnchecked(v1);
-			v2D = springVertexData.getUnchecked(v2);
+			SpringNodeData v1D, v2D;
+			v1D = springNodeData.getUnchecked(node1);
+			v2D = springNodeData.getUnchecked(node2);
 
 			v1D.edgedx += dx;
 			v1D.edgedy += dy;

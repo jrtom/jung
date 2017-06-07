@@ -11,63 +11,62 @@
 package edu.uci.ics.jung.algorithms.layout;
 import java.awt.Dimension;
 import java.awt.geom.Point2D;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.collect.Iterables;
+import com.google.common.graph.Graph;
 
-import edu.uci.ics.jung.graph.Forest;
 import edu.uci.ics.jung.graph.util.TreeUtils;
 
 /**
  * A {@code Layout} implementation that assigns positions to {@code Tree} or 
- * {@code Forest} vertices using associations with nested circles ("balloons").  
+ * {@code Network} nodes using associations with nested circles ("balloons").  
  * A balloon is nested inside another balloon if the first balloon's subtree
  * is a subtree of the second balloon's subtree.
  * 
  * @author Tom Nelson 
  *  
  */
-public class BalloonLayout<V,E> extends TreeLayout<V,E> {
+public class BalloonLayout<N> extends TreeLayout<N> {
 
-    protected LoadingCache<V, PolarPoint> polarLocations
-    	= CacheBuilder.newBuilder().build(new CacheLoader<V, PolarPoint>() {
-    		public PolarPoint load(V vertex) {
+    protected LoadingCache<N, PolarPoint> polarLocations
+    	= CacheBuilder.newBuilder().build(new CacheLoader<N, PolarPoint>() {
+    		public PolarPoint load(N node) {
     			return new PolarPoint();
     		}
 	});
     
-    protected Map<V,Double> radii = new HashMap<V,Double>();
+    protected Map<N,Double> radii = new HashMap<N,Double>();
     
     /**
-     * Creates an instance based on the input forest.
-     * @param g the forest on which this layout will operate
+     * Creates an instance based on the input Network.
+     * @param g the Network on which this layout will operate
      */
-    public BalloonLayout(Forest<V,E> g) 
+    public BalloonLayout(Graph<N> g) 
     {
         super(g);
     }
     
     protected void setRootPolars() 
     {
-        List<V> roots = TreeUtils.getRoots(graph);
+        Set<N> roots = TreeUtils.roots(graph);
         if(roots.size() == 1) {
     		// its a Tree
-    		V root = roots.get(0);
+    		N root = Iterables.getOnlyElement(roots);
     		setRootPolar(root);
-            setPolars(new ArrayList<V>(graph.getChildren(root)),
-                    getCenter(), getSize().width/2);
+            setPolars(graph.successors(root), getCenter(), getSize().width/2);
     	} else if (roots.size() > 1) {
-    		// its a Forest
+    		// its a Network
     		setPolars(roots, getCenter(), getSize().width/2);
     	}
     }
     
-    protected void setRootPolar(V root) {
+    protected void setRootPolar(N root) {
     	PolarPoint pp = new PolarPoint(0,0);
     	Point2D p = getCenter();
     	polarLocations.put(root, pp);
@@ -75,7 +74,7 @@ public class BalloonLayout<V,E> extends TreeLayout<V,E> {
     }
     
 
-    protected void setPolars(List<V> kids, Point2D parentLocation, double parentRadius) {
+    protected void setPolars(Set<N> kids, Point2D parentLocation, double parentRadius) {
 
     	int childCount = kids.size();
     	if(childCount == 0) return;
@@ -86,9 +85,9 @@ public class BalloonLayout<V,E> extends TreeLayout<V,E> {
 
     	double rand = Math.random();
 
-    	for(int i=0; i< childCount; i++) {
-    		V child = kids.get(i);
-    		double theta = i* 2*Math.PI/childCount + rand;
+    	int i = 0;
+    	for (N child : kids) {
+    		double theta = i++ * 2 * Math.PI/childCount + rand;
     		radii.put(child, childRadius);
     		
     		PolarPoint pp = new PolarPoint(theta, radius);
@@ -97,7 +96,8 @@ public class BalloonLayout<V,E> extends TreeLayout<V,E> {
     		Point2D p = PolarPoint.polarToCartesian(pp);
     		p.setLocation(p.getX()+parentLocation.getX(), p.getY()+parentLocation.getY());
     		locations.put(child, p);
-    		setPolars(new ArrayList<V>(graph.getChildren(child)), p, childRadius);
+
+    		setPolars(graph.successors(child), p, childRadius);
     	}
     }
 
@@ -108,38 +108,38 @@ public class BalloonLayout<V,E> extends TreeLayout<V,E> {
     }
 
 	/**
-	 * @param v the vertex whose center is to be returned
-	 * @return the coordinates of {@code v}'s parent, or the center of this layout's area if it's a root.
+	 * @param v the node whose center is to be returned
+	 * @return the coordinates of {@code node}'s parent, or the center of this layout's area if it's a root.
 	 */
-	public Point2D getCenter(V v) {
-		V parent = graph.getParent(v);
-		if(parent == null) {
+	public Point2D getCenter(N node) {
+		N parent = Iterables.getOnlyElement(graph.predecessors(node), null);
+		if (parent == null) {
 			return getCenter();
 		}
 		return locations.getUnchecked(parent);
 	}
 
 	@Override
-    public void setLocation(V v, Point2D location) {
-		Point2D c = getCenter(v);
+    public void setLocation(N node, Point2D location) {
+		Point2D c = getCenter(node);
 		Point2D pv = new Point2D.Double(location.getX()-c.getX(),location.getY()-c.getY());
 		PolarPoint newLocation = PolarPoint.cartesianToPolar(pv);
-		polarLocations.getUnchecked(v).setLocation(newLocation);
+		polarLocations.getUnchecked(node).setLocation(newLocation);
 		
-		Point2D center = getCenter(v);
+		Point2D center = getCenter(node);
 		pv.setLocation(pv.getX()+center.getX(), pv.getY()+center.getY());
-		locations.put(v, pv);
+		locations.put(node, pv);
 	}
 
 	@Override
-    public Point2D apply(V v) {
-		return locations.getUnchecked(v);
+    public Point2D apply(N node) {
+		return locations.getUnchecked(node);
 	}
 
 	/**
 	 * @return the radii
 	 */
-	public Map<V, Double> getRadii() {
+	public Map<N, Double> getRadii() {
 		return radii;
 	}
 }

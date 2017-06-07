@@ -34,15 +34,16 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.ToolTipManager;
 
+import com.google.common.graph.Network;
+
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
-import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.TestGraphs;
 import edu.uci.ics.jung.visualization.DefaultVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationModel;
-import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
+import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.SatelliteVisualizationViewer;
@@ -111,19 +112,19 @@ public class SatelliteViewDemo<V, E> extends JApplet {
     public SatelliteViewDemo() {
         
         // create a simple graph for the demo
-        Graph<String, Number> graph = TestGraphs.getOneComponentGraph();
+        Network<String, Number> graph = TestGraphs.getOneComponentGraph();
         
         // the preferred sizes for the two views
         Dimension preferredSize1 = new Dimension(600,600);
         Dimension preferredSize2 = new Dimension(300, 300);
         
         // create one layout for the graph
-        FRLayout<String,Number> layout = new FRLayout<String,Number>(graph);
+        FRLayout<String> layout = new FRLayout<String>(graph.asGraph());
         layout.setMaxIterations(500);
         
         // create one model that both views will share
         VisualizationModel<String,Number> vm =
-            new DefaultVisualizationModel<String,Number>(layout, preferredSize1);
+            new DefaultVisualizationModel<String,Number>(graph, layout, preferredSize1);
         
         // create 2 views that share the same model
         final VisualizationViewer<String,Number> vv1 = 
@@ -135,7 +136,7 @@ public class SatelliteViewDemo<V, E> extends JApplet {
         vv1.getRenderContext().setVertexFillPaintTransformer(new PickableVertexPaintTransformer<String>(vv1.getPickedVertexState(), Color.red, Color.yellow));
         vv2.getRenderContext().setEdgeDrawPaintTransformer(new PickableEdgePaintTransformer<Number>(vv2.getPickedEdgeState(), Color.black, Color.cyan));
         vv2.getRenderContext().setVertexFillPaintTransformer(new PickableVertexPaintTransformer<String>(vv2.getPickedVertexState(), Color.red, Color.yellow));
-        vv1.getRenderer().setVertexRenderer(new GradientVertexRenderer<String,Number>(Color.red, Color.white, true));
+        vv1.getRenderer().setVertexRenderer(new GradientVertexRenderer<String>(vv1, Color.red, Color.white, true));
         vv1.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
         vv1.getRenderer().getVertexLabelRenderer().setPosition(Renderer.VertexLabel.Position.CNTR);
         

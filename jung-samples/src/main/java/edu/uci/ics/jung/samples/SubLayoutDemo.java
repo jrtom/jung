@@ -36,6 +36,11 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import com.google.common.graph.EndpointPair;
+import com.google.common.graph.MutableNetwork;
+import com.google.common.graph.Network;
+import com.google.common.graph.NetworkBuilder;
+
 import edu.uci.ics.jung.algorithms.layout.AggregateLayout;
 import edu.uci.ics.jung.algorithms.layout.CircleLayout;
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
@@ -43,7 +48,6 @@ import edu.uci.ics.jung.algorithms.layout.KKLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.algorithms.layout.SpringLayout;
 import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.util.Pair;
 import edu.uci.ics.jung.graph.util.TestGraphs;
 import edu.uci.ics.jung.visualization.DefaultVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
@@ -91,9 +95,9 @@ public class SubLayoutDemo extends JApplet {
     /**
      * the graph
      */
-    Graph<String,Number> graph;
+    Network<String,Number> graph;
     
-    Map<Graph<String,Number>,Dimension> sizes = new HashMap<Graph<String,Number>,Dimension>();
+    Map<Network<String,Number>,Dimension> sizes = new HashMap<Network<String,Number>,Dimension>();
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
 	Class<Layout>[] layoutClasses = new Class[] {
@@ -104,7 +108,7 @@ public class SubLayoutDemo extends JApplet {
      */
     VisualizationViewer<String,Number> vv;
 
-    AggregateLayout<String,Number> clusteringLayout;
+    AggregateLayout<String> clusteringLayout;
     
     Dimension subLayoutSize;
     
@@ -124,19 +128,21 @@ public class SubLayoutDemo extends JApplet {
         graph = TestGraphs.getOneComponentGraph();
 
         // ClusteringLayout is a decorator class that delegates
-        // to another layout, but can also sepately manage the
+        // to another layout, but can also separately manage the
         // layout of sub-sets of vertices in circular clusters.
-        clusteringLayout = new AggregateLayout<String,Number>(new FRLayout<String,Number>(graph));
-        	//new SubLayoutDecorator<String,Number>(new FRLayout<String,Number>(graph));
+        clusteringLayout = new AggregateLayout<String>(new FRLayout<String>(graph.asGraph()));
+        	//new SubLayoutDecorator<String,Number>(new FRLayout<String>(graph.asGraph()));
 
         Dimension preferredSize = new Dimension(600,600);
         final VisualizationModel<String,Number> visualizationModel = 
-            new DefaultVisualizationModel<String,Number>(clusteringLayout, preferredSize);
+            new DefaultVisualizationModel<String,Number>(graph, clusteringLayout, preferredSize);
         vv =  new VisualizationViewer<String,Number>(visualizationModel, preferredSize);
         
         ps = vv.getPickedVertexState();
-        vv.getRenderContext().setEdgeDrawPaintTransformer(new PickableEdgePaintTransformer<Number>(vv.getPickedEdgeState(), Color.black, Color.red));
-        vv.getRenderContext().setVertexFillPaintTransformer(new PickableVertexPaintTransformer<String>(vv.getPickedVertexState(), 
+        vv.getRenderContext().setEdgeDrawPaintTransformer(
+        		new PickableEdgePaintTransformer<Number>(vv.getPickedEdgeState(), Color.black, Color.red));
+        vv.getRenderContext().setVertexFillPaintTransformer(
+        		new PickableVertexPaintTransformer<String>(vv.getPickedVertexState(), 
                 Color.red, Color.yellow));
         vv.setBackground(Color.white);
         
@@ -202,7 +208,7 @@ public class SubLayoutDemo extends JApplet {
 					@SuppressWarnings({ "unchecked", "rawtypes" })
 					Class<CircleLayout> clazz = (Class<CircleLayout>)e.getItem();
 					try {
-						Layout<String,Number> layout = getLayoutFor(clazz, graph);
+						Layout<String> layout = getLayoutFor(clazz, graph);
 						layout.setInitializer(vv.getGraphLayout());
 						clusteringLayout.setDelegate(layout);
 						vv.setGraphLayout(clusteringLayout);
@@ -319,7 +325,7 @@ public class SubLayoutDemo extends JApplet {
     }
     
     @SuppressWarnings({ "rawtypes", "unchecked" })
-	private Layout<String, Number> getLayoutFor(Class<CircleLayout> layoutClass, Graph<String, Number> graph) throws Exception {
+	private Layout<String> getLayoutFor(Class<CircleLayout> layoutClass, Network<String, Number> graph) throws Exception {
     	Object[] args = new Object[]{graph};
     	Constructor<CircleLayout> constructor = layoutClass.getConstructor(new Class[] {Graph.class});
     	return  constructor.newInstance(args);
@@ -333,7 +339,6 @@ public class SubLayoutDemo extends JApplet {
     	cluster(false);
     }
 
-    @SuppressWarnings("unchecked")
 	private void cluster(boolean state) {
     	if(state == true) {
     		// put the picked vertices into a new sublayout 
@@ -351,22 +356,23 @@ public class SubLayoutDemo extends JApplet {
     			y /= picked.size();
 				center.setLocation(x,y);
 
-    			Graph<String, Number> subGraph;
+    			MutableNetwork<String, Number> subGraph;
     			try {
-    				subGraph = graph.getClass().newInstance();
+    				subGraph = NetworkBuilder.from(graph).build();
     				for(String vertex : picked) {
-    					subGraph.addVertex(vertex);
-    					Collection<Number> incidentEdges = graph.getIncidentEdges(vertex);
-    					for(Number edge : incidentEdges) {
-    						Pair<String> endpoints = graph.getEndpoints(edge);
-    						if(picked.containsAll(endpoints)) {
+    					subGraph.addNode(vertex);
+    					for(Number edge : graph.incidentEdges(vertex)) {
+    						EndpointPair<String> endpoints = graph.incidentNodes(edge);
+    						String nodeU = endpoints.nodeU();
+    						String nodeV = endpoints.nodeV();
+    						if(picked.contains(nodeU) && picked.contains(nodeV)) {
     							// put this edge into the subgraph
-    							subGraph.addEdge(edge, endpoints.getFirst(), endpoints.getSecond());
+    							subGraph.addEdge(nodeU, nodeV, edge);
     						}
     					}
     				}
 
-    				Layout<String,Number> subLayout = getLayoutFor(subLayoutType, subGraph);
+    				Layout<String> subLayout = getLayoutFor(subLayoutType, subGraph);
     				subLayout.setInitializer(vv.getGraphLayout());
     				subLayout.setSize(subLayoutSize);
     				clusteringLayout.put(subLayout,center);

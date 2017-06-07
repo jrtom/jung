@@ -37,18 +37,14 @@ import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 
 import com.google.common.base.Functions;
-import com.google.common.base.Supplier;
 
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.algorithms.layout.PolarPoint;
 import edu.uci.ics.jung.algorithms.layout.RadialTreeLayout;
 import edu.uci.ics.jung.algorithms.layout.TreeLayout;
-import edu.uci.ics.jung.graph.DelegateForest;
-import edu.uci.ics.jung.graph.DelegateTree;
-import edu.uci.ics.jung.graph.DirectedGraph;
-import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
-import edu.uci.ics.jung.graph.Forest;
-import edu.uci.ics.jung.graph.Tree;
+import edu.uci.ics.jung.graph.CTreeNetwork;
+import edu.uci.ics.jung.graph.MutableCTreeNetwork;
+import edu.uci.ics.jung.graph.TreeNetworkBuilder;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationServer;
@@ -75,36 +71,8 @@ public class L2RTreeLayoutDemo extends JApplet {
     /**
      * the graph
      */
-    Forest<String,Integer> graph;
+    CTreeNetwork<String,Integer> graph;
     
-    Supplier<DirectedGraph<String,Integer>> graphFactory = 
-    	new Supplier<DirectedGraph<String,Integer>>() {
-
-			public DirectedGraph<String, Integer> get() {
-				return new DirectedSparseMultigraph<String,Integer>();
-			}
-		};
-			
-		Supplier<Tree<String,Integer>> treeFactory =
-		new Supplier<Tree<String,Integer>> () {
-
-		public Tree<String, Integer> get() {
-			return new DelegateTree<String,Integer>(graphFactory);
-		}
-	};
-	
-	Supplier<Integer> edgeFactory = new Supplier<Integer>() {
-		int i=0;
-		public Integer get() {
-			return i++;
-		}};
-    
-    Supplier<String> vertexFactory = new Supplier<String>() {
-    	int i=0;
-		public String get() {
-			return "V"+i++;
-		}};
-
     /**
      * the visual component and renderer for the graph
      */
@@ -114,21 +82,19 @@ public class L2RTreeLayoutDemo extends JApplet {
     
     String root;
     
-    TreeLayout<String,Integer> treeLayout;
+    TreeLayout<String> treeLayout;
     
-    RadialTreeLayout<String,Integer> radialLayout;
+    RadialTreeLayout<String> radialLayout;
 
     public L2RTreeLayoutDemo() {
         
         // create a simple graph for the demo
-        graph = new DelegateForest<String,Integer>();
-
-        createTree();
+        graph = createTree();
         
-        treeLayout = new TreeLayout<String,Integer>(graph);
-        radialLayout = new RadialTreeLayout<String,Integer>(graph);
+        treeLayout = new TreeLayout<String>(graph.asGraph());
+        radialLayout = new RadialTreeLayout<String>(graph.asGraph());
         radialLayout.setSize(new Dimension(600,600));
-        vv =  new VisualizationViewer<String,Integer>(treeLayout, new Dimension(600,600));
+        vv = new VisualizationViewer<String,Integer>(graph, treeLayout, new Dimension(600,600));
         vv.setBackground(Color.white);
         vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.quadCurve(graph));
         vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
@@ -206,7 +172,7 @@ public class L2RTreeLayoutDemo extends JApplet {
     }
     
     private void setLtoR(VisualizationViewer<String,Integer> vv) {
-    	Layout<String,Integer> layout = vv.getModel().getGraphLayout();
+    	Layout<String> layout = vv.getModel().getGraphLayout();
     	Dimension d = layout.getSize();
     	Point2D center = new Point2D.Double(d.width/2, d.height/2);
     	vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT).rotate(-Math.PI/2, center);
@@ -223,7 +189,7 @@ public class L2RTreeLayoutDemo extends JApplet {
     	private Collection<Double> getDepths() {
     		Set<Double> depths = new HashSet<Double>();
     		Map<String,PolarPoint> polarLocations = radialLayout.getPolarLocations();
-    		for(String v : graph.getVertices()) {
+    		for(String v : graph.nodes()) {
     			PolarPoint pp = polarLocations.get(v);
     			depths.add(pp.getRadius());
     		}
@@ -253,37 +219,43 @@ public class L2RTreeLayoutDemo extends JApplet {
     /**
      * 
      */
-    private void createTree() {
-    	graph.addVertex("V0");
-    	graph.addEdge(edgeFactory.get(), "V0", "V1");
-    	graph.addEdge(edgeFactory.get(), "V0", "V2");
-    	graph.addEdge(edgeFactory.get(), "V1", "V4");
-    	graph.addEdge(edgeFactory.get(), "V2", "V3");
-    	graph.addEdge(edgeFactory.get(), "V2", "V5");
-    	graph.addEdge(edgeFactory.get(), "V4", "V6");
-    	graph.addEdge(edgeFactory.get(), "V4", "V7");
-    	graph.addEdge(edgeFactory.get(), "V3", "V8");
-    	graph.addEdge(edgeFactory.get(), "V6", "V9");
-    	graph.addEdge(edgeFactory.get(), "V4", "V10");
+    private CTreeNetwork<String, Integer> createTree() {
+    	MutableCTreeNetwork<String, Integer> tree =
+    			TreeNetworkBuilder.builder().expectedNodeCount(27).build();
     	
-       	graph.addVertex("A0");
-       	graph.addEdge(edgeFactory.get(), "A0", "A1");
-       	graph.addEdge(edgeFactory.get(), "A0", "A2");
-       	graph.addEdge(edgeFactory.get(), "A0", "A3");
+    	tree.addNode("root");
+    	
+    	int edgeId = 0;
+    	tree.addEdge("root", "V0", edgeId++);
+    	tree.addEdge("V0", "V1", edgeId++);
+    	tree.addEdge("V0", "V2", edgeId++);
+    	tree.addEdge("V1", "V4", edgeId++);
+    	tree.addEdge("V2", "V3", edgeId++);
+    	tree.addEdge("V2", "V5", edgeId++);
+    	tree.addEdge("V4", "V6", edgeId++);
+    	tree.addEdge("V4", "V7", edgeId++);
+    	tree.addEdge("V3", "V8", edgeId++);
+    	tree.addEdge("V6", "V9", edgeId++);
+    	tree.addEdge("V4", "V10", edgeId++);
+    	
+    	tree.addEdge("root", "A0", edgeId++);
+       	tree.addEdge("A0", "A1", edgeId++);
+       	tree.addEdge("A0", "A2", edgeId++);
+       	tree.addEdge("A0", "A3", edgeId++);
        	
-       	graph.addVertex("B0");
-    	graph.addEdge(edgeFactory.get(), "B0", "B1");
-    	graph.addEdge(edgeFactory.get(), "B0", "B2");
-    	graph.addEdge(edgeFactory.get(), "B1", "B4");
-    	graph.addEdge(edgeFactory.get(), "B2", "B3");
-    	graph.addEdge(edgeFactory.get(), "B2", "B5");
-    	graph.addEdge(edgeFactory.get(), "B4", "B6");
-    	graph.addEdge(edgeFactory.get(), "B4", "B7");
-    	graph.addEdge(edgeFactory.get(), "B3", "B8");
-    	graph.addEdge(edgeFactory.get(), "B6", "B9");
-       	
+    	tree.addEdge("root", "B0", edgeId++);
+    	tree.addEdge("B0", "B1", edgeId++);
+    	tree.addEdge("B0", "B2", edgeId++);
+    	tree.addEdge("B1", "B4", edgeId++);
+    	tree.addEdge("B2", "B3", edgeId++);
+    	tree.addEdge("B2", "B5", edgeId++);
+    	tree.addEdge("B4", "B6", edgeId++);
+    	tree.addEdge("B4", "B7", edgeId++);
+    	tree.addEdge("B3", "B8", edgeId++);
+    	tree.addEdge("B6", "B9", edgeId++);
+    	
+    	return tree;
     }
-
 
     public static void main(String[] args) {
         JFrame frame = new JFrame();

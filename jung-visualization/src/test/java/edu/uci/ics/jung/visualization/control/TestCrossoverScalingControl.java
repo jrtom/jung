@@ -2,11 +2,13 @@ package edu.uci.ics.jung.visualization.control;
 
 import java.awt.geom.Point2D;
 
-import junit.framework.TestCase;
+import com.google.common.graph.Network;
+import com.google.common.graph.NetworkBuilder;
+
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
-import edu.uci.ics.jung.graph.SparseGraph;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 import edu.uci.ics.jung.visualization.VisualizationServer;
+import junit.framework.TestCase;
 
 public class TestCrossoverScalingControl extends TestCase {
 
@@ -20,7 +22,8 @@ public class TestCrossoverScalingControl extends TestCase {
 	@Override
     public void setUp() {
 		sc = new CrossoverScalingControl();
-		vv = new BasicVisualizationServer(new FRLayout(new SparseGraph()));
+		Network<?, ?> network = NetworkBuilder.directed().build();
+		vv = new BasicVisualizationServer(network, new FRLayout(network.asGraph()));
 	}
 	public void testCrossover() {
 		crossover = 2.0f;

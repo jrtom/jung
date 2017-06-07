@@ -15,6 +15,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
 
+import com.google.common.graph.Network;
+
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.algorithms.layout.util.Relaxer;
 import edu.uci.ics.jung.algorithms.layout.util.VisRunner;
@@ -30,7 +32,7 @@ import edu.uci.ics.jung.visualization.util.DefaultChangeEventSupport;
  * 
  * @author Tom Nelson
  */
-public class DefaultVisualizationModel<V, E> implements VisualizationModel<V,E>, ChangeEventSupport {
+public class DefaultVisualizationModel<N, E> implements VisualizationModel<N, E>, ChangeEventSupport {
     
     ChangeEventSupport changeSupport = new DefaultChangeEventSupport(this);
 
@@ -42,20 +44,22 @@ public class DefaultVisualizationModel<V, E> implements VisualizationModel<V,E>,
 	/**
 	 * the layout algorithm currently in use
 	 */
-	protected Layout<V,E> layout;
+	protected Layout<N> layout;
 	
 	/**
 	 * listens for changes in the layout, forwards to the viewer
 	 *
 	 */
     protected ChangeListener changeListener;
+
+    private final Network<N, E> network;
     
     /**
      * 
-     * @param layout The Layout to apply, with its associated Graph
+     * @param layout The Layout to apply, with its associated Network
      */
-	public DefaultVisualizationModel(Layout<V,E> layout) {
-        this(layout, null);
+	public DefaultVisualizationModel(Network<N, E> network, Layout<N> layout) {
+        this(network, layout, null);
 	}
     
 	/**
@@ -63,7 +67,8 @@ public class DefaultVisualizationModel<V, E> implements VisualizationModel<V,E>,
 	 * @param layout the layout to use
 	 * @param d The preferred size of the View that will display this graph
 	 */
-	public DefaultVisualizationModel(Layout<V,E> layout, Dimension d) {
+	public DefaultVisualizationModel(Network<N, E> network, Layout<N> layout, Dimension d) {
+		this.network = network;
         if(changeListener == null) {
             changeListener = new ChangeListener() {
                 public void stateChanged(ChangeEvent e) {
@@ -79,7 +84,7 @@ public class DefaultVisualizationModel<V, E> implements VisualizationModel<V,E>,
 	 * @param layout   the new layout to use
 	 * @param viewSize the size of the View that will display this layout
 	 */
-	public void setGraphLayout(Layout<V,E> layout, Dimension viewSize) {
+	public void setGraphLayout(Layout<N> layout, Dimension viewSize) {
 		// remove listener from old layout
 	    if(this.layout != null && this.layout instanceof ChangeEventSupport) {
 	        ((ChangeEventSupport)this.layout).removeChangeListener(changeListener);
@@ -88,7 +93,7 @@ public class DefaultVisualizationModel<V, E> implements VisualizationModel<V,E>,
 	    if(layout instanceof ChangeEventSupport) {
 	    	this.layout = layout;
 	    } else {
-	    	this.layout = new ObservableCachingLayout<V,E>(layout);
+	    	this.layout = new ObservableCachingLayout<N>(network.asGraph(), layout);
 	    }
 		
 		((ChangeEventSupport)this.layout).addChangeListener(changeListener);
@@ -106,10 +111,14 @@ public class DefaultVisualizationModel<V, E> implements VisualizationModel<V,E>,
         	relaxer.stop();
         	relaxer = null;
         }
-        if(layout instanceof IterativeContext) {
+//        Layout<N> decoratedLayout = (layout instanceof LayoutDecorator)
+//        	? ((LayoutDecorator<N>) layout).getDelegate()
+//        	: layout;
+        if (layout instanceof IterativeContext) {
         	layout.initialize();
             if(relaxer == null) {
             	relaxer = new VisRunner((IterativeContext)this.layout);
+//            	relaxer = new VisRunner((IterativeContext) decoratedLayout);
             	relaxer.prerelax();
             	relaxer.relax();
             }
@@ -121,17 +130,21 @@ public class DefaultVisualizationModel<V, E> implements VisualizationModel<V,E>,
 	 * set the graph Layout and if it is not already initialized, initialize
 	 * it to the default VisualizationViewer preferred size of 600x600
 	 */
-	public void setGraphLayout(Layout<V,E> layout) {
+	public void setGraphLayout(Layout<N> layout) {
 	    setGraphLayout(layout, null);
 	}
 
     /**
 	 * Returns the current graph layout.
 	 */
-	public Layout<V,E> getGraphLayout() {
+	public Layout<N> getGraphLayout() {
 	        return layout;
 	}
 
+	public Network<N, E> getNetwork() {
+		return network;
+	}
+	
 	/**
 	 * @return the relaxer
 	 */

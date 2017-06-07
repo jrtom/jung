@@ -16,17 +16,9 @@ package edu.uci.ics.jung.visualization.util;
  *
  */
 public interface Caching {
-	
-	/**
-	 * ititialize resources for a cache
-	 *
-	 */
-	void init();
-	
 	/**
 	 * clear cache
 	 *
 	 */
 	void clear();
-
 }

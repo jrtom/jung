@@ -14,19 +14,14 @@ package edu.uci.ics.jung.io;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
-
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.Hypergraph;
-import edu.uci.ics.jung.graph.UndirectedGraph;
-import edu.uci.ics.jung.graph.util.EdgeType;
-import edu.uci.ics.jung.graph.util.Pair;
+import com.google.common.graph.EndpointPair;
+import com.google.common.graph.Network;
 
 /**
  * Writes graphs out in GraphML format.
@@ -42,12 +37,12 @@ public class GraphMLWriter<V,E>
 {
     protected Function<? super V, String> vertex_ids;
     protected Function<? super E, String> edge_ids;
-    protected Map<String, GraphMLMetadata<Hypergraph<V,E>>> graph_data;
+    protected Map<String, GraphMLMetadata<Network<V,E>>> graph_data;
     protected Map<String, GraphMLMetadata<V>> vertex_data;
     protected Map<String, GraphMLMetadata<E>> edge_data;
     protected Function<? super V, String> vertex_desc;
     protected Function<? super E, String> edge_desc;
-    protected Function<? super Hypergraph<V,E>, String> graph_desc;
+    protected Function<? super Network<V,E>, String> graph_desc;
 	protected boolean directed;
 	protected int nest_level;
     
@@ -73,11 +68,11 @@ public class GraphMLWriter<V,E>
 	
 	/**
 	 * Writes {@code graph} out using {@code w}.
-	 * @param graph the graph to write out
+	 * @param g the graph to write out
 	 * @param w the writer instance to which the graph data will be written out
 	 * @throws IOException if writing the graph fails
 	 */
-	public void save(Hypergraph<V,E> graph, Writer w) throws IOException
+	public void save(Network<V, E> g, Writer w) throws IOException
 	{
 		BufferedWriter bw = new BufferedWriter(w);
 
@@ -98,31 +93,32 @@ public class GraphMLWriter<V,E>
 		// write out graph-level information
 		// set edge default direction
 		bw.write("<graph edgedefault=\"");
-		directed = !(graph instanceof UndirectedGraph);
-        if (directed)
+		if (g.isDirected()) {
             bw.write("directed\">\n");
-        else 
+		}
+        else { 
             bw.write("undirected\">\n");
+		}
 
         // write graph description, if any
-		String desc = graph_desc.apply(graph);
+		String desc = graph_desc.apply(g);
 		if (desc != null)
 			bw.write("<desc>" + desc + "</desc>\n");
 		
 		// write graph data out if any
 		for (String key : graph_data.keySet())
 		{
-			Function<Hypergraph<V,E>, ?> t = graph_data.get(key).transformer;
-			Object value = t.apply(graph);
+			Function<Network<V,E>, ?> t = graph_data.get(key).transformer;
+			Object value = t.apply(g);
 			if (value != null)
 				bw.write(format("data", "key", key, value.toString()) + "\n");
 		}
         
 		// write vertex information
-        writeVertexData(graph, bw);
+        writeVertexData(g, bw);
 		
 		// write edge information
-        writeEdgeData(graph, bw);
+        writeEdgeData(g, bw);
 
         // close graph
         bw.write("</graph>\n");
@@ -132,11 +128,6 @@ public class GraphMLWriter<V,E>
         bw.close();
 	}
 
-//	public boolean save(Collection<Hypergraph<V,E>> graphs, Writer w)
-//	{
-//		return true;
-//	}
-
 	protected void writeIndentedText(BufferedWriter w, String to_write) throws IOException
 	{
 	    for (int i = 0; i < nest_level; i++)
@@ -144,9 +135,9 @@ public class GraphMLWriter<V,E>
 	    w.write(to_write);
 	}
 	
-	protected void writeVertexData(Hypergraph<V,E> graph, BufferedWriter w) throws IOException
+	protected void writeVertexData(Network<V,E> graph, BufferedWriter w) throws IOException
 	{
-		for (V v: graph.getVertices())
+		for (V v: graph.nodes())
 		{
 			String v_string = String.format("<node id=\"%s\"", vertex_ids.apply(v));
 			boolean closed = false;
@@ -183,39 +174,20 @@ public class GraphMLWriter<V,E>
 		}
 	}
 
-	protected void writeEdgeData(Hypergraph<V,E> g, Writer w) throws IOException
+	protected void writeEdgeData(Network<V,E> g, Writer w) throws IOException
 	{
-		for (E e: g.getEdges())
+		for (E e: g.edges())
 		{
-			Collection<V> vertices = g.getIncidentVertices(e);
+			EndpointPair<V> endpoints = g.incidentNodes(e);
 			String id = edge_ids.apply(e);
 			String e_string;
-			boolean is_hyperedge = !(g instanceof Graph);
-            if (is_hyperedge)
-            {
-                e_string = "<hyperedge ";
-                // add ID if present
-                if (id != null)
-                    e_string += "id=\"" + id + "\" ";
-            }
-            else
-			{
-				Pair<V> endpoints = new Pair<V>(vertices);
-				V v1 = endpoints.getFirst();
-				V v2 = endpoints.getSecond();
-				e_string = "<edge ";
-				// add ID if present
-				if (id != null)
-					e_string += "id=\"" + id + "\" ";
-				// add edge type if doesn't match default
-				EdgeType edge_type = g.getEdgeType(e);
-				if (directed && edge_type == EdgeType.UNDIRECTED)
-					e_string += "directed=\"false\" ";
-				if (!directed && edge_type == EdgeType.DIRECTED)
-					e_string += "directed=\"true\" ";
-				e_string += "source=\"" + vertex_ids.apply(v1) + 
-					"\" target=\"" + vertex_ids.apply(v2) + "\"";
-			}
+			e_string = "<edge ";
+			// add ID if present
+			if (id != null)
+				e_string += "id=\"" + id + "\" ";
+			// add edge type if doesn't match default
+			e_string += "source=\"" + vertex_ids.apply(endpoints.nodeU()) + 
+				"\" target=\"" + vertex_ids.apply(endpoints.nodeV()) + "\"";
 			
 			boolean closed = false;
 			// write description out if any
@@ -241,27 +213,11 @@ public class GraphMLWriter<V,E>
 					w.write(format("data", "key", key, value.toString()) + "\n");
 				}
 			}
-			// if this is a hyperedge, write endpoints out if any
-			if (is_hyperedge)
-			{
-				for (V v : vertices)
-				{
-					if (!closed)
-					{
-						w.write(e_string + ">\n");
-						closed = true;
-					}
-					w.write("<endpoint node=\"" + vertex_ids.apply(v) + "\"/>\n");
-				}
-			}
 			
 			if (!closed)
 				w.write(e_string + "/>\n"); // no contents; close the edge with "/>"
 			else
-			    if (is_hyperedge)
-			        w.write("</hyperedge>\n");
-			    else
-			        w.write("</edge>\n");
+				w.write("</edge>\n");
 		}
 	}
 
@@ -335,7 +291,7 @@ public class GraphMLWriter<V,E>
 	 * 
 	 * @param graph_map map from data type name to graph data
 	 */
-	public void setGraphData(Map<String, GraphMLMetadata<Hypergraph<V,E>>> graph_map)
+	public void setGraphData(Map<String, GraphMLMetadata<Network<V,E>>> graph_map)
 	{
 		graph_data = graph_map;
 	}
@@ -369,11 +325,11 @@ public class GraphMLWriter<V,E>
 	 * @param graph_transformer a mapping from graphs to their string representations
 	 */
 	public void addGraphData(String id, String description, String default_value,
-			Function<Hypergraph<V,E>, String> graph_transformer)
+			Function<Network<V,E>, String> graph_transformer)
 	{
 		if (graph_data.equals(Collections.EMPTY_MAP))
-			graph_data = new HashMap<String, GraphMLMetadata<Hypergraph<V,E>>>();
-		graph_data.put(id, new GraphMLMetadata<Hypergraph<V,E>>(description, 
+			graph_data = new HashMap<String, GraphMLMetadata<Network<V,E>>>();
+		graph_data.put(id, new GraphMLMetadata<Network<V,E>>(description, 
 				default_value, graph_transformer));
 	}
 	
@@ -433,7 +389,7 @@ public class GraphMLWriter<V,E>
      * Provides graph descriptions.
 	 * @param graph_desc a mapping from graphs to their descriptions
      */
-	public void setGraphDescriptions(Function<Hypergraph<V,E>, String> graph_desc) 
+	public void setGraphDescriptions(Function<Network<V,E>, String> graph_desc) 
 	{
 		this.graph_desc = graph_desc;
 	}

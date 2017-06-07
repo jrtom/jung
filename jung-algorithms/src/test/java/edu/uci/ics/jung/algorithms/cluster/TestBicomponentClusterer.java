@@ -14,12 +14,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.google.common.graph.Graph;
+import com.google.common.graph.GraphBuilder;
+import com.google.common.graph.MutableGraph;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.UndirectedGraph;
-import edu.uci.ics.jung.graph.UndirectedSparseMultigraph;
 
 
 /**
@@ -37,9 +38,9 @@ public class TestBicomponentClusterer extends TestCase {
 
     public void testExtract0() throws Exception
     {
-        UndirectedGraph<String,Number> graph = new UndirectedSparseMultigraph<String,Number>();
+        MutableGraph<String> graph = GraphBuilder.undirected().build();
         String[] v = {"0"};
-        graph.addVertex(v[0]);
+        graph.addNode(v[0]);
         
         List<Set<String>> c = new ArrayList<Set<String>>();
         c.add(0, new HashSet<String>());
@@ -54,11 +55,9 @@ public class TestBicomponentClusterer extends TestCase {
 
     public void testExtractEdge() throws Exception
     {
-        UndirectedGraph<String,Number> graph = new UndirectedSparseMultigraph<String,Number>();
+        MutableGraph<String> graph = GraphBuilder.undirected().build();
         String[] v = {"0","1"}; 
-        graph.addVertex(v[0]);
-        graph.addVertex(v[1]);
-        graph.addEdge(0, v[0], v[1]);
+        graph.putEdge(v[0], v[1]);
         
         List<Set<String>> c = new ArrayList<Set<String>>();
         c.add(0, new HashSet<String>());
@@ -75,15 +74,10 @@ public class TestBicomponentClusterer extends TestCase {
     
     public void testExtractV() throws Exception
     {
-        UndirectedGraph<String,Number> graph = new UndirectedSparseMultigraph<String,Number>();
-        String[] v = new String[3];
-        for (int i = 0; i < 3; i++)
-        {
-            v[i] = ""+i;
-            graph.addVertex(v[i]);
-        }
-        graph.addEdge(0, v[0], v[1]);
-        graph.addEdge(1, v[0], v[2]);
+        MutableGraph<String> graph = GraphBuilder.undirected().build();
+        String[] v = {"0","1","2"};
+        graph.putEdge(v[0], v[1]);
+        graph.putEdge(v[0], v[2]);
         
         List<Set<String>> c = new ArrayList<Set<String>>();
         c.add(0, new HashSet<String>());
@@ -106,7 +100,7 @@ public class TestBicomponentClusterer extends TestCase {
         testComponents(graph, v, c);
     }
     
-    public void createEdges(String[] v, int[][] edge_array, Graph<String,Number> g)
+    public void createEdges(String[] v, int[][] edge_array, MutableGraph<String> g)
     {
         for (int k = 0; k < edge_array.length; k++)
         {
@@ -115,17 +109,17 @@ public class TestBicomponentClusterer extends TestCase {
             String v1 = getVertex(v, i, g);
             String v2 = getVertex(v, j, g);
             
-            g.addEdge(k, v1, v2);
+            g.putEdge(v1, v2);
         }
     }
     
-    public String getVertex(String[] v_array, int i, Graph<String,Number> g)
+    public String getVertex(String[] v_array, int i, MutableGraph<String> g)
     {
         String v = v_array[i];
         if (v == null)
         {
         	v_array[i] = Character.toString((char)('0'+i));
-            g.addVertex(v_array[i]);
+            g.addNode(v_array[i]);
             v = v_array[i];
         }
         return v;
@@ -134,7 +128,7 @@ public class TestBicomponentClusterer extends TestCase {
 	public void testExtract1() {
         String[] v = new String[6];
         int[][] edges1 = {{0,1}, {0,5}, {0,3}, {0,4}, {1,5}, {3,4}, {2,3}};
-        UndirectedGraph<String,Number> graph = new UndirectedSparseMultigraph<String,Number>();
+        MutableGraph<String> graph = GraphBuilder.undirected().build();
         createEdges(v, edges1, graph);
         
         List<Set<String>> c = new ArrayList<Set<String>>();
@@ -173,7 +167,7 @@ public class TestBicomponentClusterer extends TestCase {
     public void testExtract2() {
         String[] v = new String[9];
         int[][] edges1 = {{0,2}, {0,4}, {1,0}, {2,1}, {3,0}, {4,3}, {5,3}, {6,7}, {6,8}, {8,7}};
-        UndirectedGraph<String,Number> graph = new UndirectedSparseMultigraph<String,Number>();
+        MutableGraph<String> graph = GraphBuilder.undirected().build();
         createEdges(v, edges1, graph);
         
         List<Set<String>> c = new ArrayList<Set<String>>();
@@ -217,7 +211,7 @@ public class TestBicomponentClusterer extends TestCase {
         testComponents(graph, v, c);
 	}
 
-    public void testComponents(UndirectedGraph<String,Number> graph, String[] vertices, List<Set<String>> c)
+    public void testComponents(Graph<String> graph, String[] vertices, List<Set<String>> c)
     {
         BicomponentClusterer<String,Number> finder = new BicomponentClusterer<String,Number>();
         Set<Set<String>> bicomponents = finder.apply(graph);
@@ -258,7 +252,7 @@ public class TestBicomponentClusterer extends TestCase {
         for(Set<String> set : bicomponents) {
         	collapsedSet.addAll(set);
         }
-        for (String v : graph.getVertices())
+        for (String v : graph.nodes())
         {
         	assertTrue(collapsedSet.contains(v));
 //        	assertFalse(((LinkedHashSet)vset).get(v).isEmpty());

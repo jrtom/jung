@@ -16,13 +16,15 @@ package edu.uci.ics.jung.algorithms.layout;
 import java.awt.Dimension;
 import java.awt.geom.Point2D;
 import java.util.ConcurrentModificationException;
+import java.util.function.BiFunction;
+
+import com.google.common.graph.Graph;
 
 import edu.uci.ics.jung.algorithms.layout.util.RandomLocationTransformer;
 import edu.uci.ics.jung.algorithms.shortestpath.Distance;
 import edu.uci.ics.jung.algorithms.shortestpath.DistanceStatistics;
 import edu.uci.ics.jung.algorithms.shortestpath.UnweightedShortestPath;
 import edu.uci.ics.jung.algorithms.util.IterativeContext;
-import edu.uci.ics.jung.graph.Graph;
 
 /**
  * Implements the Kamada-Kawai algorithm for node layout.
@@ -33,7 +35,7 @@ import edu.uci.ics.jung.graph.Graph;
  *
  * @author Masanori Harada
  */
-public class KKLayout<V,E> extends AbstractLayout<V,E> implements IterativeContext {
+public class KKLayout<N> extends AbstractLayout<N> implements IterativeContext {
 
 	private double EPSILON = 0.1d;
 
@@ -46,19 +48,21 @@ public class KKLayout<V,E> extends AbstractLayout<V,E> implements IterativeConte
 	private double[][] dm;     // distance matrix
 
 	private boolean adjustForGravity = true;
-	private boolean exchangeVertices = true;
+	private boolean exchangenodes = true;
 
-	private V[] vertices;
+	private N[] nodes;
 	private Point2D[] xydata;
+	
+	private final Graph<N> graph;
 
     /**
-     * Retrieves graph distances between vertices of the visible graph
+     * Retrieves graph distances between nodes of the visible graph
      */
-    protected Distance<V> distance;
+    protected BiFunction<N, N, Number> distance;
 
     /**
      * The diameter of the visible graph. In other words, the maximum over all pairs
-     * of vertices of the length of the shortest path between a and bf the visible graph.
+     * of nodes of the length of the shortest path between a and bf the visible graph.
      */
 	protected double diameter;
 
@@ -69,23 +73,24 @@ public class KKLayout<V,E> extends AbstractLayout<V,E> implements IterativeConte
 
     /**
      * A multiplicative factor which specifies the fraction of the graph's diameter to be 
-     * used as the inter-vertex distance between disconnected vertices.
+     * used as the inter-node distance between disconnected nodes.
      */
     private double disconnected_multiplier = 0.5;
     
-	public KKLayout(Graph<V,E> g) 
+	public KKLayout(Graph<N> g) 
     {
-        this(g, new UnweightedShortestPath<V,E>(g));
+        this(g, new UnweightedShortestPath<N>(g));
 	}
 
 	/**
 	 * Creates an instance for the specified graph and distance metric.
 	 * @param g the graph on which the layout algorithm is to operate
-	 * @param distance specifies the distance between pairs of vertices
+	 * @param distance specifies the distance between pairs of nodes
 	 */
-    public KKLayout(Graph<V,E> g, Distance<V> distance){
+    public KKLayout(Graph<N> g, Distance<N> distance){
         super(g);
-        this.distance = distance;
+        this.graph = g;
+        this.distance = (x, y) -> distance.getDistance(x, y);
     }
 
     /**
@@ -98,7 +103,7 @@ public class KKLayout<V,E> extends AbstractLayout<V,E> implements IterativeConte
     
     /**
      * @param disconnected_multiplier a multiplicative factor that specifies the fraction of the
-     *     graph's diameter to be used as the inter-vertex distance between disconnected vertices
+     *     graph's diameter to be used as the inter-node distance between disconnected nodes
      */
     public void setDisconnectedDistanceMultiplier(double disconnected_multiplier){
         this.disconnected_multiplier = disconnected_multiplier;
@@ -141,18 +146,18 @@ public class KKLayout<V,E> extends AbstractLayout<V,E> implements IterativeConte
         	double height = size.getHeight();
     		double width = size.getWidth();
 
-    		int n = graph.getVertexCount();
+    		int n = graph.nodes().size();
     		dm = new double[n][n];
-    		vertices = (V[])graph.getVertices().toArray();
+    		nodes = (N[])graph.nodes().toArray();
     		xydata = new Point2D[n];
 
-    		// assign IDs to all visible vertices
+    		// assign IDs to all visible nodes
     		while(true) {
     			try {
     				int index = 0;
-    				for(V v : graph.getVertices()) {
-    					Point2D xyd = apply(v);
-    					vertices[index] = v;
+    				for(N node : graph.nodes()) {
+    					Point2D xyd = apply(node);
+    					nodes[index] = node;
     					xydata[index] = xyd;
     					index++;
     				}
@@ -160,7 +165,7 @@ public class KKLayout<V,E> extends AbstractLayout<V,E> implements IterativeConte
     			} catch(ConcurrentModificationException cme) {}
     		}
 
-    		diameter = DistanceStatistics.<V,E>diameter(graph, distance, true);
+    		diameter = DistanceStatistics.<N>diameter(graph, distance, true);
 
     		double L0 = Math.min(height, width);
     		L = (L0 / diameter) * length_factor;  // length_factor used to be hardcoded to 0.9
@@ -168,8 +173,8 @@ public class KKLayout<V,E> extends AbstractLayout<V,E> implements IterativeConte
 
     		for (int i = 0; i < n - 1; i++) {
     			for (int j = i + 1; j < n; j++) {
-    				Number d_ij = distance.getDistance(vertices[i], vertices[j]);
-    				Number d_ji = distance.getDistance(vertices[j], vertices[i]);
+    				Number d_ij = distance.apply(nodes[i], nodes[j]);
+    				Number d_ji = distance.apply(nodes[j], nodes[i]);
     				double dist = diameter * disconnected_multiplier;
     				if (d_ij != null)
     					dist = Math.min(d_ij.doubleValue(), dist);
@@ -185,20 +190,20 @@ public class KKLayout<V,E> extends AbstractLayout<V,E> implements IterativeConte
 		try {
 			currentIteration++;
 			double energy = calcEnergy();
-			status = "Kamada-Kawai V=" + getGraph().getVertexCount()
-			+ "(" + getGraph().getVertexCount() + ")"
+			status = "Kamada-Kawai N=" + graph.nodes().size()
+			+ "(" + graph.nodes().size() + ")"
 			+ " IT: " + currentIteration
 			+ " E=" + energy
 			;
 
-			int n = getGraph().getVertexCount();
+			int n = graph.nodes().size();
 			if (n == 0)
 				return;
 
 			double maxDeltaM = 0;
 			int pm = -1;            // the node having max deltaM
 			for (int i = 0; i < n; i++) {
-				if (isLocked(vertices[i]))
+				if (isLocked(nodes[i]))
 					continue;
 				double deltam = calcDeltaM(i);
 
@@ -222,13 +227,13 @@ public class KKLayout<V,E> extends AbstractLayout<V,E> implements IterativeConte
 			if (adjustForGravity)
 				adjustForGravity();
 
-			if (exchangeVertices && maxDeltaM < EPSILON) {
+			if (exchangenodes && maxDeltaM < EPSILON) {
 				energy = calcEnergy();
 				for (int i = 0; i < n - 1; i++) {
-					if (isLocked(vertices[i]))
+					if (isLocked(nodes[i]))
 						continue;
 					for (int j = i + 1; j < n; j++) {
-						if (isLocked(vertices[j]))
+						if (isLocked(nodes[j]))
 							continue;
 						double xenergy = calcEnergyIfExchanged(i, j);
 						if (energy > xenergy) {
@@ -248,7 +253,7 @@ public class KKLayout<V,E> extends AbstractLayout<V,E> implements IterativeConte
 	}
 
 	/**
-	 * Shift all vertices so that the center of gravity is located at
+	 * Shift all nodes so that the center of gravity is located at
 	 * the center of the screen.
 	 */
 	public void adjustForGravity() {
@@ -273,7 +278,7 @@ public class KKLayout<V,E> extends AbstractLayout<V,E> implements IterativeConte
 	@Override
 	public void setSize(Dimension size) {
 		if(initialized == false)
-			setInitializer(new RandomLocationTransformer<V>(size));
+			setInitializer(new RandomLocationTransformer<N>(size));
 		super.setSize(size);
 	}
 
@@ -287,19 +292,19 @@ public class KKLayout<V,E> extends AbstractLayout<V,E> implements IterativeConte
 
 	/**
 	 * Enable or disable the local minimum escape technique by
-	 * exchanging vertices.
+	 * exchanging nodes.
 	 * @param on iff the local minimum escape technique is to be enabled
 	 */
-	public void setExchangeVertices(boolean on) {
-		exchangeVertices = on;
+	public void setExchangenodes(boolean on) {
+		exchangenodes = on;
 	}
 
-	public boolean getExchangeVertices() {
-		return exchangeVertices;
+	public boolean getExchangenodes() {
+		return exchangenodes;
 	}
 
 	/**
-	 * Determines a step to new position of the vertex m.
+	 * Determines a step to new position of the node m.
 	 */
 	private double[] calcDeltaXY(int m) {
 		double dE_dxm = 0;
@@ -309,7 +314,7 @@ public class KKLayout<V,E> extends AbstractLayout<V,E> implements IterativeConte
 		double d2E_dymdxm = 0;
 		double d2E_d2ym = 0;
 
-		for (int i = 0; i < vertices.length; i++) {
+		for (int i = 0; i < nodes.length; i++) {
 			if (i != m) {
                 
                 double dist = dm[m][i];
@@ -337,12 +342,12 @@ public class KKLayout<V,E> extends AbstractLayout<V,E> implements IterativeConte
 	}
 
 	/**
-	 * Calculates the gradient of energy function at the vertex m.
+	 * Calculates the gradient of energy function at the node m.
 	 */
 	private double calcDeltaM(int m) {
 		double dEdxm = 0;
 		double dEdym = 0;
-		for (int i = 0; i < vertices.length; i++) {
+		for (int i = 0; i < nodes.length; i++) {
 			if (i != m) {
                 double dist = dm[m][i];
 				double l_mi = L * dist;
@@ -365,8 +370,8 @@ public class KKLayout<V,E> extends AbstractLayout<V,E> implements IterativeConte
 	 */
 	private double calcEnergy() {
 		double energy = 0;
-		for (int i = 0; i < vertices.length - 1; i++) {
-			for (int j = i + 1; j < vertices.length; j++) {
+		for (int i = 0; i < nodes.length - 1; i++) {
+			for (int j = i + 1; j < nodes.length; j++) {
                 double dist = dm[i][j];
 				double l_ij = L * dist;
 				double k_ij = K / (dist * dist);
@@ -384,14 +389,14 @@ public class KKLayout<V,E> extends AbstractLayout<V,E> implements IterativeConte
 
 	/**
 	 * Calculates the energy function E as if positions of the
-	 * specified vertices are exchanged.
+	 * specified nodes are exchanged.
 	 */
 	private double calcEnergyIfExchanged(int p, int q) {
 		if (p >= q)
 			throw new RuntimeException("p should be < q");
 		double energy = 0;		// < 0
-		for (int i = 0; i < vertices.length - 1; i++) {
-			for (int j = i + 1; j < vertices.length; j++) {
+		for (int i = 0; i < nodes.length - 1; i++) {
+			for (int j = i + 1; j < nodes.length; j++) {
 				int ii = i;
 				int jj = j;
 				if (i == p) ii = q;

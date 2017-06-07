@@ -12,9 +12,9 @@
 package edu.uci.ics.jung.algorithms.scoring;
 
 import com.google.common.base.Function;
+import com.google.common.graph.Network;
 
 import edu.uci.ics.jung.algorithms.scoring.util.UniformDegreeWeight;
-import edu.uci.ics.jung.graph.Hypergraph;
 
 /**
  * A generalization of PageRank that permits non-uniformly-distributed random jumps.
@@ -42,7 +42,7 @@ public class PageRankWithPriors<V, E>
      * @param vertex_priors the prior probabilities for each vertex
      * @param alpha the probability of executing a 'random jump' at each step
      */
-    public PageRankWithPriors(Hypergraph<V,E> graph, 
+    public PageRankWithPriors(Network<V, E> graph, 
     		Function<E, ? extends Number> edge_weights, 
             Function<V, Double> vertex_priors, double alpha)
     {
@@ -57,7 +57,7 @@ public class PageRankWithPriors<V, E>
      * @param vertex_priors the prior probabilities for each vertex
      * @param alpha the probability of executing a 'random jump' at each step
      */
-    public PageRankWithPriors(Hypergraph<V,E> graph, 
+    public PageRankWithPriors(Network<V, E> graph, 
     		Function<V, Double> vertex_priors, double alpha)
     {
         super(graph, vertex_priors, alpha);
@@ -73,19 +73,9 @@ public class PageRankWithPriors<V, E>
         collectDisappearingPotential(v);
         
         double v_input = 0;
-        for (E e : graph.getInEdges(v))
-        {
-        	// For graphs, the code below is equivalent to 
-//          V w = graph.getOpposite(v, e);
-//          total_input += (getCurrentValue(w) * getEdgeWeight(w,e).doubleValue());
-        	// For hypergraphs, this divides the potential coming from w 
-        	// by the number of vertices in the connecting edge e.
-        	int incident_count = getAdjustedIncidentCount(e);
-        	for (V w : graph.getIncidentVertices(e)) 
-        	{
-        		if (!w.equals(v) || hyperedges_are_self_loops) 
-        			v_input += (getCurrentValue(w) * 
-        					getEdgeWeight(w,e).doubleValue() / incident_count);
+        for (V u : graph.predecessors(v)) {
+        	for (E e : graph.edgesConnecting(u, v)) {
+        		v_input += (getCurrentValue(u) * getEdgeWeight(u, e).doubleValue());
         	}
         }
         
@@ -110,7 +100,7 @@ public class PageRankWithPriors<V, E>
         // distribute disappearing potential according to priors
         if (disappearing_potential > 0)
         {
-            for (V v : graph.getVertices())
+            for (V v : graph.nodes())
             {
                 setOutputValue(v, getOutputValue(v) + 
                         (1 - alpha) * (disappearing_potential * getVertexPrior(v)));

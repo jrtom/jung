@@ -9,24 +9,22 @@
  */
 package edu.uci.ics.jung.algorithms.generators.random;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.graph.MutableNetwork;
+import com.google.common.graph.NetworkBuilder;
 
-import edu.uci.ics.jung.algorithms.generators.EvolvingGraphGenerator;
 import edu.uci.ics.jung.algorithms.util.WeightedChoice;
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.MultiGraph;
-import edu.uci.ics.jung.graph.util.EdgeType;
-import edu.uci.ics.jung.graph.util.Pair;
 
 /**
  * <p>
@@ -80,214 +78,152 @@ import edu.uci.ics.jung.graph.util.Pair;
  * @author Tom Nelson - adapted to jung2
  * @author James Marchant
  */
-public class BarabasiAlbertGenerator<V, E> implements EvolvingGraphGenerator<V, E> {
-	private Graph<V, E> mGraph = null;
-	private int mNumEdgesToAttachPerStep;
-	private int mElapsedTimeSteps;
-	private Random mRandom;
-	protected List<V> vertex_index;
-	protected int init_vertices;
-	protected Map<V, Integer> index_vertex;
-	protected Supplier<Graph<V, E>> graphFactory;
-	protected Supplier<V> vertexFactory;
-	protected Supplier<E> edgeFactory;
+// TODO(jrtom): decide whether EvolvingGraphGenerator is actually necessary for this to extend
+public class BarabasiAlbertGenerator<N, E> {
+    private int mNumEdgesToAttachPerStep;
+    private int mElapsedTimeSteps;
+    private Random mRandom;
+    protected Supplier<N> vertexFactory;
+    protected Supplier<E> edgeFactory;
+    protected ImmutableSet<N> seedNodes;
+    private MutableNetwork<N, E> graph;
+    
+    /**
+     * Constructs a new instance of the generator.
+     * 
+     * @param graphBuilder builder for graph instances
+     * @param vertexFactory factory for vertices of the appropriate type
+     * @param edgeFactory factory for edges of the appropriate type
+     * @param init_vertices     number of unconnected 'seed' vertices that the graph should start with
+     * @param numEdgesToAttach the number of edges that should be attached from the
+     * new vertex to pre-existing vertices at each time step
+     * @param seed  random number seed
+     */
+    // TODO(jrtom): consider using a Builder pattern here
+    public BarabasiAlbertGenerator(NetworkBuilder<Object, Object> graphBuilder,
+    		Supplier<N> vertexFactory,
+    		Supplier<E> edgeFactory,
+    		int init_vertices, int numEdgesToAttach, 
+            int seed)
+    {
+    	this.vertexFactory = checkNotNull(vertexFactory);
+    	this.edgeFactory = checkNotNull(edgeFactory);
+        checkArgument(init_vertices > 0,
+            "Number of initial unconnected 'seed' vertices must be positive");
+        checkArgument(numEdgesToAttach > 0, 
+            "Number of edges to attach at each time step must be positive");
+		checkArgument(numEdgesToAttach <= init_vertices,
+				"Number of edges to attach at each time step must be <= the number of initial vertices");
+		this.graph = graphBuilder.build();
+        
+        mNumEdgesToAttachPerStep = numEdgesToAttach;
+        mRandom = new Random(seed);
+        this.vertexFactory = vertexFactory;
+        initialize(init_vertices);
+    }
 
-	/**
-	 * Constructs a new instance of the generator.
-	 * 
-	 * @param graphFactory
-	 *            factory for graphs of the appropriate type
-	 * @param vertexFactory
-	 *            factory for vertices of the appropriate type
-	 * @param edgeFactory
-	 *            factory for edges of the appropriate type
-	 * @param init_vertices
-	 *            number of unconnected 'seed' vertices that the graph should
-	 *            start with
-	 * @param numEdgesToAttach
-	 *            the number of edges that should be attached from the new
-	 *            vertex to pre-existing vertices at each time step
-	 * @param seed
-	 *            random number seed
-	 * @param seedVertices
-	 *            storage for the seed vertices that this graph creates
-	 */
-	// TODO: seedVertices is a bizarre way of exposing that information,
-	// refactor
-	public BarabasiAlbertGenerator(Supplier<Graph<V, E>> graphFactory, Supplier<V> vertexFactory,
-			Supplier<E> edgeFactory, int init_vertices, int numEdgesToAttach, int seed, Set<V> seedVertices) {
-		Preconditions.checkArgument(init_vertices > 0,
-				"Number of initial unconnected 'seed' vertices must be positive");
-		Preconditions.checkArgument(numEdgesToAttach > 0,
-				"Number of edges to attach at each time step must be positive");
-		Preconditions.checkArgument(numEdgesToAttach <= init_vertices,
-				"Number of edges to attach at each time step must less than or equal to the number of initial vertices");
+    /**
+     * Constructs a new instance of the generator, whose output will be an undirected graph,
+     * and which will use the current time as a seed for the random number generation.
+     * 
+     * @param vertexFactory factory for vertices of the appropriate type
+     * @param edgeFactory factory for edges of the appropriate type
+     * @param init_vertices     number of vertices that the graph should start with
+     * @param numEdgesToAttach the number of edges that should be attached from the
+     * new vertex to pre-existing vertices at each time step
+     */
+    public BarabasiAlbertGenerator(NetworkBuilder<Object, Object> graphBuilder,
+    		Supplier<N> vertexFactory,
+    		Supplier<E> edgeFactory,
+    		int init_vertices, int numEdgesToAttach) {
+        this(graphBuilder, vertexFactory, edgeFactory, init_vertices, numEdgesToAttach,
+        		(int) System.currentTimeMillis());
+    }
+    
+    private void initialize(int init_vertices) {
+    	ImmutableSet.Builder<N> seedBuilder = ImmutableSet.builder();
+    	
+        for (int i = 0; i < init_vertices; i++) {
+            N v = vertexFactory.get();
+            seedBuilder.add(v);
+            graph.addNode(v);
+        }
+        
+        seedNodes = seedBuilder.build();
+        mElapsedTimeSteps = 0;
+    }
 
-		mNumEdgesToAttachPerStep = numEdgesToAttach;
-		mRandom = new Random(seed);
-		this.graphFactory = graphFactory;
-		this.vertexFactory = vertexFactory;
-		this.edgeFactory = edgeFactory;
-		this.init_vertices = init_vertices;
-		initialize(seedVertices);
-	}
-
-	/**
-	 * Constructs a new instance of the generator, whose output will be an
-	 * undirected graph, and which will use the current time as a seed for the
-	 * random number generation.
-	 * 
-	 * @param graphFactory
-	 *            factory for graphs of the appropriate type
-	 * @param vertexFactory
-	 *            factory for vertices of the appropriate type
-	 * @param edgeFactory
-	 *            factory for edges of the appropriate type
-	 * @param init_vertices
-	 *            number of vertices that the graph should start with
-	 * @param numEdgesToAttach
-	 *            the number of edges that should be attached from the new
-	 *            vertex to pre-existing vertices at each time step
-	 * @param seedVertices
-	 *            storage for the seed vertices that this graph creates
-	 */
-	public BarabasiAlbertGenerator(Supplier<Graph<V, E>> graphFactory, Supplier<V> vertexFactory,
-			Supplier<E> edgeFactory, int init_vertices, int numEdgesToAttach, Set<V> seedVertices) {
-		this(graphFactory, vertexFactory, edgeFactory, init_vertices, numEdgesToAttach,
-				(int) System.currentTimeMillis(), seedVertices);
-	}
-
-	private void initialize(Set<V> seedVertices) {
-		mGraph = graphFactory.get();
-
-		vertex_index = new ArrayList<V>(2 * init_vertices);
-		index_vertex = new HashMap<V, Integer>(2 * init_vertices);
-		for (int i = 0; i < init_vertices; i++) {
-			V v = vertexFactory.get();
-			mGraph.addVertex(v);
-			vertex_index.add(v);
-			index_vertex.put(v, i);
-			seedVertices.add(v);
-		}
-
-		mElapsedTimeSteps = 0;
-	}
-
-	public void evolveGraph(int numTimeSteps) {
-
-		for (int i = 0; i < numTimeSteps; i++) {
-			evolveGraph();
-			mElapsedTimeSteps++;
-		}
-	}
-
-	private void evolveGraph() {
-		Collection<V> preexistingNodes = mGraph.getVertices();
-		V newVertex = vertexFactory.get();
-
-		mGraph.addVertex(newVertex);
-
-		// generate and store the new edges; don't add them to the graph
-		// yet because we don't want to bias the degree calculations
-		// (all new edges in a timestep should be added in parallel)
-		Set<Pair<V>> added_pairs = createRandomEdges(preexistingNodes, newVertex, mNumEdgesToAttachPerStep);
-
-		for (Pair<V> pair : added_pairs) {
-			V v1 = pair.getFirst();
-			V v2 = pair.getSecond();
-			if (mGraph.getDefaultEdgeType() != EdgeType.UNDIRECTED || !mGraph.isNeighbor(v1, v2))
-				mGraph.addEdge(edgeFactory.get(), pair);
-		}
-		// now that we're done attaching edges to this new vertex,
-		// add it to the index
-		vertex_index.add(newVertex);
-		index_vertex.put(newVertex, new Integer(vertex_index.size() - 1));
-	}
-
-	private Set<Pair<V>> createRandomEdges(Collection<V> preexistingNodes, V newVertex, int numEdges) {
-		Set<Pair<V>> added_pairs = new HashSet<Pair<V>>(numEdges * 3);
-
-		/* Generate the probability distribution */
-		Map<V, Double> item_weights = new HashMap<V, Double>();
-		for (V v : preexistingNodes) {
-			/*
-			 * as preexistingNodes is a view onto the vertex set, it will
-			 * contain the new node. In the construction of Barabasi-Albert,
-			 * there should be no self-loops.
-			 */
-			if (v == newVertex)
-				continue;
-
+    private WeightedChoice<N> buildNodeProbabilities() {
+    	Map<N, Double> item_weights = new HashMap<N, Double>();
+		for (N v : graph.nodes()) {
 			double degree;
 			double denominator;
 
-			/*
-			 * Attachment probability is dependent on whether the graph is
-			 * directed or undirected.
-			 * 
-			 * Subtract 1 from numVertices because we don't want to count
-			 * newVertex (which has already been added to the graph, but not to
-			 * vertex_index).
-			 */
-			if (mGraph.getDefaultEdgeType() == EdgeType.UNDIRECTED) {
-				degree = mGraph.degree(v);
-				denominator = (2 * mGraph.getEdgeCount()) + mGraph.getVertexCount() - 1;
+			// Attachment probability is dependent on whether the graph is
+			// directed or undirected.
+			if (graph.isDirected()) {
+				degree = graph.inDegree(v);
+				denominator = graph.edges().size() + graph.nodes().size();
 			} else {
-				degree = mGraph.inDegree(v);
-				denominator = mGraph.getEdgeCount() + mGraph.getVertexCount() - 1;
+				degree = graph.degree(v);
+				denominator = (2 * graph.edges().size()) + graph.nodes().size();
 			}
 
 			double prob = (degree + 1) / denominator;
 			item_weights.put(v, prob);
 		}
-		WeightedChoice<V> nodeProbabilities = new WeightedChoice<V>(item_weights, mRandom);
+    	WeightedChoice<N> nodeProbabilities = new WeightedChoice<N>(item_weights, mRandom);
 
-		for (int i = 0; i < numEdges; i++) {
-			createRandomEdge(preexistingNodes, newVertex, added_pairs, nodeProbabilities);
-		}
+    	return nodeProbabilities;
+    }
 
-		return added_pairs;
-	}
+    
+    private List<N> generateAdjacentNodes(int edgesToAdd) {
+    	Preconditions.checkArgument(edgesToAdd >= 1);
+        WeightedChoice<N> nodeChooser = buildNodeProbabilities();
+        List<N> adjacentNodes = new ArrayList<N>(edgesToAdd);
+        while (adjacentNodes.size() < edgesToAdd) {
+        	N attach_point = nodeChooser.nextItem();
+            
+            // if parallel edges are not allowed, skip this node if already present
+            if (!graph.allowsParallelEdges() && adjacentNodes.contains(attach_point)) {
+            	continue;
+            }
+            
+            adjacentNodes.add(attach_point);
+        }
+        return adjacentNodes;
+    }
 
-	private void createRandomEdge(Collection<V> preexistingNodes, V newVertex, Set<Pair<V>> added_pairs,
-			WeightedChoice<V> weightedProbabilities) {
-		V attach_point;
-		boolean created_edge = false;
-		Pair<V> endpoints;
+    public void evolveGraph(int numTimeSteps) {
+        for (int i = 0; i < numTimeSteps; i++) {
+            N newVertex = vertexFactory.get();
 
-		do {
-			attach_point = weightedProbabilities.nextItem();
+            // determine the nodes to connect to newVertex before connecting anything, because
+            // we don't want to bias the degree calculations
+            // note: because we don't add newVertex to the graph until after identifying the
+            // adjacent nodes, we don't need to worry about creating a self-loop
+            List<N> adjacentNodes = generateAdjacentNodes(mNumEdgesToAttachPerStep);
+            graph.addNode(newVertex);
+            
+            for (N node : adjacentNodes)
+            {
+          		graph.addEdge(newVertex, node, edgeFactory.get());
+            }
+            
+            mElapsedTimeSteps++;
+        }
+    }
 
-			endpoints = new Pair<V>(newVertex, attach_point);
+    public int numIterations() {
+        return mElapsedTimeSteps;
+    }
 
-			/*
-			 * If parallel edges are not allowed, skip attach_point if
-			 * <newVertex, attach_point> already exists; note that because of
-			 * the way the new node's edges are added, we only need to check the
-			 * list of candidate edges for duplicates.
-			 */
-			if (!(mGraph instanceof MultiGraph)) {
-				if (added_pairs.contains(endpoints))
-					continue;
-				if (mGraph.getDefaultEdgeType() == EdgeType.UNDIRECTED
-						&& added_pairs.contains(new Pair<V>(attach_point, newVertex)))
-					continue;
-			}
-			created_edge = true;
-		} while (!created_edge);
-
-		added_pairs.add(endpoints);
-
-		if (mGraph.getDefaultEdgeType() == EdgeType.UNDIRECTED) {
-			added_pairs.add(new Pair<V>(attach_point, newVertex));
-		}
-	}
-
-	public int numIterations() {
-		return mElapsedTimeSteps;
-	}
-
-	public Graph<V, E> get() {
-		return mGraph;
-	}
+    public MutableNetwork<N, E> get() {
+        return graph;
+    }
+    
+    public ImmutableSet<N> seedNodes() {
+    	return seedNodes;
+    }
 }

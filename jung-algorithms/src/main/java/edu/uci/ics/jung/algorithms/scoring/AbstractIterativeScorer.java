@@ -11,15 +11,17 @@
  */
 package edu.uci.ics.jung.algorithms.scoring;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
+import com.google.common.graph.Network;
 
 import edu.uci.ics.jung.algorithms.scoring.util.DelegateToEdgeTransformer;
 import edu.uci.ics.jung.algorithms.scoring.util.VEPair;
 import edu.uci.ics.jung.algorithms.util.IterativeContext;
-import edu.uci.ics.jung.graph.Hypergraph;
 
 /**
  * An abstract class for algorithms that assign scores to vertices based on iterative methods.
@@ -44,7 +46,7 @@ public abstract class AbstractIterativeScorer<V,E,T> implements IterativeContext
     /**
      * The graph on which the calculations are to be made.
      */
-    protected Hypergraph<V,E> graph;
+    protected Network<V,E> graph;
     
     /**
      * The total number of iterations used so far.
@@ -55,12 +57,6 @@ public abstract class AbstractIterativeScorer<V,E,T> implements IterativeContext
      * The edge weights used by this algorithm.
      */
     protected Function<VEPair<V,E>, ? extends Number> edge_weights;
-    
-    /**
-     * Indicates whether the output and current values are in a 'swapped' state.
-     * Intended for internal use only.
-     */
-    protected boolean output_reversed;
     
     /**
      * The map in which the output values are stored.
@@ -79,9 +75,6 @@ public abstract class AbstractIterativeScorer<V,E,T> implements IterativeContext
      * Defaults to true.
      */
     private boolean accept_disconnected_graph;
-
-
-    protected boolean hyperedges_are_self_loops = false;
 
     /**
      * Sets the output value for this vertex.
@@ -133,7 +126,7 @@ public abstract class AbstractIterativeScorer<V,E,T> implements IterativeContext
      * @param g the graph for which the instance is to be created
      * @param edge_weights the edge weights for this instance
      */
-    public AbstractIterativeScorer(Hypergraph<V,E> g, 
+    public AbstractIterativeScorer(Network<V, E> g, 
     		Function<? super E, ? extends Number> edge_weights)
     {
         this.graph = g;
@@ -151,7 +144,7 @@ public abstract class AbstractIterativeScorer<V,E,T> implements IterativeContext
      * by that subclass.
      * @param g the graph for which the instance is to be created
      */
-    public AbstractIterativeScorer(Hypergraph<V,E> g)
+    public AbstractIterativeScorer(Network<V, E> g)
     {
     	this.graph = g;
         this.max_iterations = 100;
@@ -166,7 +159,6 @@ public abstract class AbstractIterativeScorer<V,E,T> implements IterativeContext
     {
         this.total_iterations = 0;
         this.max_delta = Double.MIN_VALUE;
-        this.output_reversed = true;
         this.current_values = new HashMap<V, T>();
         this.output = new HashMap<V, T>();
     }
@@ -197,8 +189,9 @@ public abstract class AbstractIterativeScorer<V,E,T> implements IterativeContext
     public void step()
     {
         swapOutputForCurrent();
+        max_delta = 0;
         
-        for (V v : graph.getVertices())
+        for (V v : graph.nodes())
         {
             double diff = update(v);
             updateMaxDelta(v, diff);
@@ -215,7 +208,6 @@ public abstract class AbstractIterativeScorer<V,E,T> implements IterativeContext
         Map<V, T> tmp = output;
         output = current_values;
         current_values = tmp;
-        output_reversed = !output_reversed;
     }
 
     /**
@@ -232,14 +224,20 @@ public abstract class AbstractIterativeScorer<V,E,T> implements IterativeContext
     
     protected void afterStep() {}
     
+    @Override
     public T getVertexScore(V v)
     {
-        if (!graph.containsVertex(v))
-            throw new IllegalArgumentException("Vertex " + v + " not an element of this graph");
+    	Preconditions.checkArgument(graph.nodes().contains(v),
+    			"Vertex %s not an element of this graph", v.toString());
         
         return output.get(v);
     }
 
+    @Override
+    public Map<V, T> vertexScores() {
+    	return Collections.unmodifiableMap(output);
+    }
+    
     /**
      * Returns the maximum number of iterations that this instance will use.
      * @return the maximum number of iterations that <code>evaluate</code> will use
@@ -342,29 +340,5 @@ public abstract class AbstractIterativeScorer<V,E,T> implements IterativeContext
     public boolean isDisconnectedGraphOK()
     {
         return this.accept_disconnected_graph;
-    }
-    
-    /**
-     * Specifies whether hyperedges are to be treated as self-loops.  If they
-     * are, then potential will flow along a hyperedge a vertex to itself, 
-     * just as it does to all other vertices incident to that hyperedge. 
-     * @param arg if {@code true}, hyperedges are treated as self-loops
-     */
-    public void setHyperedgesAreSelfLoops(boolean arg) 
-    {
-    	this.hyperedges_are_self_loops = arg;
-    }
-
-    /**
-     * Returns the effective number of vertices incident to this edge.  If
-     * the graph is a binary relation or if hyperedges are treated as self-loops,
-     * the value returned is {@code graph.getIncidentCount(e)}; otherwise it is
-     * {@code graph.getIncidentCount(e) - 1}.
-     * @param e the edge whose incident edge count is requested
-     * @return the edge count, adjusted based on how hyperedges are treated
-     */
-    protected int getAdjustedIncidentCount(E e) 
-    {
-        return graph.getIncidentCount(e) - (hyperedges_are_self_loops ? 0 : 1);
     }
 }

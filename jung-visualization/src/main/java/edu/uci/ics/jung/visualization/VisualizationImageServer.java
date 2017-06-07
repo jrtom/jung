@@ -18,6 +18,8 @@ import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.google.common.graph.Network;
+
 import edu.uci.ics.jung.algorithms.layout.Layout;
 
 /**
@@ -39,8 +41,8 @@ public class VisualizationImageServer<V,E> extends BasicVisualizationServer<V,E>
      * @param layout the Layout instance; provides the vertex locations
      * @param preferredSize the preferred size of the image
      */
-    public VisualizationImageServer(Layout<V,E> layout, Dimension preferredSize) {
-        super(layout, preferredSize);
+    public VisualizationImageServer(Network<V, E> network, Layout<V> layout, Dimension preferredSize) {
+        super(network, layout, preferredSize);
         setSize(preferredSize);
         renderingHints.put(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         addNotify();

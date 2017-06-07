@@ -9,6 +9,8 @@ package edu.uci.ics.jung.visualization.renderers;
 
 import java.util.ConcurrentModificationException;
 
+import com.google.common.graph.Network;
+
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.visualization.RenderContext;
 
@@ -24,25 +26,31 @@ import edu.uci.ics.jung.visualization.RenderContext;
  */
 public class BasicRenderer<V,E> implements Renderer<V, E> {
 	
-    Renderer.Vertex<V,E> vertexRenderer = new BasicVertexRenderer<V,E>();
-    Renderer.VertexLabel<V,E> vertexLabelRenderer = new BasicVertexLabelRenderer<V,E>();
-    Renderer.Edge<V,E> edgeRenderer = new BasicEdgeRenderer<V,E>();
-    Renderer.EdgeLabel<V,E> edgeLabelRenderer = new BasicEdgeLabelRenderer<V,E>();
+    protected Renderer.Vertex<V> vertexRenderer;
+    protected Renderer.VertexLabel<V> vertexLabelRenderer;
+    protected Renderer.Edge<V, E> edgeRenderer;
+    protected Renderer.EdgeLabel<V, E> edgeLabelRenderer;
+
+	protected final Layout<V> layout;
+	protected final RenderContext<V, E> renderContext;
+	
+	public BasicRenderer(Layout<V> layout, RenderContext<V, E> rc) {
+		this.layout = layout;
+		this.renderContext = rc;
+	    this.vertexRenderer = new BasicVertexRenderer<V>(layout, rc);
+	    this.vertexLabelRenderer = new BasicVertexLabelRenderer<V>(layout, rc);
+	    this.edgeRenderer = new BasicEdgeRenderer<V,E>(layout, rc);
+	    this.edgeLabelRenderer = new BasicEdgeLabelRenderer<V,E>(layout, rc);
+	}
     
-	public void render(RenderContext<V, E> renderContext, Layout<V, E> layout) {
-		
+    @Override
+	public void render() {
+		Network<V, E> network = renderContext.getNetwork();
 		// paint all the edges
         try {
-        	for(E e : layout.getGraph().getEdges()) {
-
-		        renderEdge(
-		                renderContext,
-		                layout,
-		                e);
-		        renderEdgeLabel(
-		                renderContext,
-		                layout,
-		                e);
+        	for(E e : network.edges()) {
+		        renderEdge(e);
+		        renderEdgeLabel(e);
         	}
         } catch(ConcurrentModificationException cme) {
         	renderContext.getScreenDevice().repaint();
@@ -50,39 +58,32 @@ public class BasicRenderer<V,E> implements Renderer<V, E> {
 		
 		// paint all the vertices
         try {
-        	for(V v : layout.getGraph().getVertices()) {
-
-		    	renderVertex(
-		                renderContext,
-                        layout,
-		                v);
-		    	renderVertexLabel(
-		                renderContext,
-                        layout,
-		                v);
+        	for(V v : network.nodes()) {
+		    	renderVertex(v);
+		    	renderVertexLabel(v);
         	}
         } catch(ConcurrentModificationException cme) {
             renderContext.getScreenDevice().repaint();
         }
 	}
 
-    public void renderVertex(RenderContext<V,E> rc, Layout<V,E> layout, V v) {
-        vertexRenderer.paintVertex(rc, layout, v);
+    public void renderVertex(V v) {
+        vertexRenderer.paintVertex(v);
     }
     
-    public void renderVertexLabel(RenderContext<V,E> rc, Layout<V,E> layout, V v) {
-        vertexLabelRenderer.labelVertex(rc, layout, v, rc.getVertexLabelTransformer().apply(v));
+    public void renderVertexLabel(V v) {
+        vertexLabelRenderer.labelVertex(v, renderContext.getVertexLabelTransformer().apply(v));
     }
     
-    public void renderEdge(RenderContext<V,E> rc, Layout<V,E> layout, E e) {
-    	edgeRenderer.paintEdge(rc, layout, e);
+    public void renderEdge(E e) {
+    	edgeRenderer.paintEdge(e);
     }
     
-    public void renderEdgeLabel(RenderContext<V,E> rc, Layout<V,E> layout, E e) {
-    	edgeLabelRenderer.labelEdge(rc, layout, e, rc.getEdgeLabelTransformer().apply(e));
+    public void renderEdgeLabel(E e) {
+    	edgeLabelRenderer.labelEdge(e, renderContext.getEdgeLabelTransformer().apply(e));
     }
     
-    public void setVertexRenderer(Renderer.Vertex<V,E> r) {
+    public void setVertexRenderer(Renderer.Vertex<V> r) {
     	this.vertexRenderer = r;
     }
 
@@ -107,7 +108,7 @@ public class BasicRenderer<V,E> implements Renderer<V, E> {
 	/**
 	 * @return the vertexLabelRenderer
 	 */
-	public Renderer.VertexLabel<V, E> getVertexLabelRenderer() {
+	public Renderer.VertexLabel<V> getVertexLabelRenderer() {
 		return vertexLabelRenderer;
 	}
 
@@ -115,7 +116,7 @@ public class BasicRenderer<V,E> implements Renderer<V, E> {
 	 * @param vertexLabelRenderer the vertexLabelRenderer to set
 	 */
 	public void setVertexLabelRenderer(
-			Renderer.VertexLabel<V, E> vertexLabelRenderer) {
+			Renderer.VertexLabel<V> vertexLabelRenderer) {
 		this.vertexLabelRenderer = vertexLabelRenderer;
 	}
 
@@ -129,7 +130,7 @@ public class BasicRenderer<V,E> implements Renderer<V, E> {
 	/**
 	 * @return the vertexRenderer
 	 */
-	public Renderer.Vertex<V, E> getVertexRenderer() {
+	public Renderer.Vertex<V> getVertexRenderer() {
 		return vertexRenderer;
 	}
 

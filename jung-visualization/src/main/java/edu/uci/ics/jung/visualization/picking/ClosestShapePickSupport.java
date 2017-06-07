@@ -16,13 +16,13 @@ import java.awt.geom.Point2D;
 import java.util.Collection;
 import java.util.ConcurrentModificationException;
 
-import edu.uci.ics.jung.algorithms.layout.GraphElementAccessor;
+import edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationServer;
 
 /**
- * A <code>GraphElementAccessor</code> that finds the closest element to 
+ * A <code>NetworkElementAccessor</code> that finds the closest element to 
  * the pick point, and returns it if it is within the element's shape.
  * This is best suited to elements with convex shapes that do not overlap.
  * It differs from <code>ShapePickSupport</code> in that it only checks
@@ -40,7 +40,7 @@ import edu.uci.ics.jung.visualization.VisualizationServer;
  * (overlapping elements or non-convex shapes) is true, then <code>ShapePickSupport</code>
  * and this class should have the same behavior.
  */
-public class ClosestShapePickSupport<V,E> implements GraphElementAccessor<V,E> {
+public class ClosestShapePickSupport<V,E> implements NetworkElementAccessor<V,E> {
 	
 	protected VisualizationServer<V,E> vv;
 	protected float pickSize;
@@ -71,18 +71,20 @@ public class ClosestShapePickSupport<V,E> implements GraphElementAccessor<V,E> {
 	}
 
 	/**
-	 * @see edu.uci.ics.jung.algorithms.layout.GraphElementAccessor#getEdge(edu.uci.ics.jung.algorithms.layout.Layout, double, double)
+	 * @see edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor#getEdge(double, double)
 	 */
-	public E getEdge(Layout<V,E> layout, double x, double y) 
+	public E getEdge(double x, double y) 
 	{
 		return null;
 	}
 
 	/**
-	 * @see edu.uci.ics.jung.algorithms.layout.GraphElementAccessor#getVertex(edu.uci.ics.jung.algorithms.layout.Layout, double, double)
+	 * @see edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor#getNode(double, double)
 	 */
-	public V getVertex(Layout<V,E> layout, double x, double y) 
+	@Override
+	public V getNode(double x, double y) 
 	{
+    	Layout<V> layout = vv.getGraphLayout();
 		// first, find the closest vertex to (x,y)
 		double minDistance = Double.MAX_VALUE;
         V closest = null;
@@ -90,7 +92,7 @@ public class ClosestShapePickSupport<V,E> implements GraphElementAccessor<V,E> {
 		{
 		    try 
 		    {
-                for(V v : layout.getGraph().getVertices()) 
+                for(V v : vv.getModel().getNetwork().nodes()) 
                 {
 		            Point2D p = layout.apply(v);
 		            double dx = p.getX() - x;
@@ -126,9 +128,10 @@ public class ClosestShapePickSupport<V,E> implements GraphElementAccessor<V,E> {
 	}
 
 	/**
-	 * @see edu.uci.ics.jung.algorithms.layout.GraphElementAccessor#getVertices(edu.uci.ics.jung.algorithms.layout.Layout, java.awt.Shape)
+	 * @see edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor#getNodes(java.awt.Shape)
 	 */
-	public Collection<V> getVertices(Layout<V,E> layout, Shape rectangle) 
+	@Override
+	public Collection<V> getNodes(Shape rectangle) 
 	{
 		// FIXME: RadiusPickSupport and ShapePickSupport are not using the same mechanism!
 		// talk to Tom and make sure I understand which should be used.

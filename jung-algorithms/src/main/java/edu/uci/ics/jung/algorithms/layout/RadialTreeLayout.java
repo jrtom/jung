@@ -14,7 +14,7 @@ import java.awt.geom.Point2D;
 import java.util.HashMap;
 import java.util.Map;
 
-import edu.uci.ics.jung.graph.Forest;
+import com.google.common.graph.Graph;
 
 /**
  * A radial layout for Tree or Forest graphs.
@@ -22,26 +22,26 @@ import edu.uci.ics.jung.graph.Forest;
  * @author Tom Nelson 
  *  
  */
-public class RadialTreeLayout<V,E> extends TreeLayout<V,E> {
+public class RadialTreeLayout<N> extends TreeLayout<N> {
 
-    protected Map<V,PolarPoint> polarLocations;
+    protected Map<N,PolarPoint> polarLocations;
 
-    public RadialTreeLayout(Forest<V,E> g) {
+    public RadialTreeLayout(Graph<N> g) {
     	this(g, DEFAULT_DISTX, DEFAULT_DISTY);
     }
 
-    public RadialTreeLayout(Forest<V,E> g, int distx) {
+    public RadialTreeLayout(Graph<N> g, int distx) {
         this(g, distx, DEFAULT_DISTY);
     }
 
-    public RadialTreeLayout(Forest<V,E> g, int distx, int disty) {
+    public RadialTreeLayout(Graph<N> g, int distx, int disty) {
     	super(g, distx, disty);
     }
     
 	@Override
     protected void buildTree() {
 	    super.buildTree();
-	    this.polarLocations = new HashMap<V, PolarPoint>();
+	    this.polarLocations = new HashMap<N, PolarPoint>();
         setRadialLocations();
     }
 
@@ -52,34 +52,34 @@ public class RadialTreeLayout<V,E> extends TreeLayout<V,E> {
     }
 
     @Override
-    protected void setCurrentPositionFor(V vertex) {
-    	locations.getUnchecked(vertex).setLocation(m_currentPoint);
+    protected void setCurrentPositionFor(N node) {
+    	locations.getUnchecked(node).setLocation(m_currentPoint);
     }
 
 	@Override
-    public void setLocation(V v, Point2D location)
+    public void setLocation(N node, Point2D location)
     {
         Point2D c = getCenter();
         Point2D pv = new Point2D.Double(location.getX() - c.getX(), 
                 location.getY() - c.getY());
         PolarPoint newLocation = PolarPoint.cartesianToPolar(pv);
-        PolarPoint currentLocation = polarLocations.get(v);
+        PolarPoint currentLocation = polarLocations.get(node);
         if (currentLocation == null)
-        	polarLocations.put(v, newLocation);
+        	polarLocations.put(node, newLocation);
         else
         	currentLocation.setLocation(newLocation);
      }
 	
 	/**
-	 * @return a map from vertices to their locations in polar coordinates.
+	 * @return a map from nodes to their locations in polar coordinates.
 	 */
-	public Map<V,PolarPoint> getPolarLocations() {
+	public Map<N,PolarPoint> getPolarLocations() {
 		return polarLocations;
 	}
 
 	@Override
-    public Point2D apply(V v) {
-		PolarPoint pp = polarLocations.get(v);
+    public Point2D apply(N node) {
+		PolarPoint pp = polarLocations.get(node);
 		double centerX = getSize().getWidth()/2;
 		double centerY = getSize().getHeight()/2;
 		Point2D cartesian = PolarPoint.polarToCartesian(pp);
@@ -105,12 +105,12 @@ public class RadialTreeLayout<V,E> extends TreeLayout<V,E> {
 		double theta = 2*Math.PI/maxx;
 
 		double deltaRadius = size.width/2/maxy;
-		for(Map.Entry<V, Point2D> entry : locations.asMap().entrySet()) {
-			V v = entry.getKey();
+		for(Map.Entry<N, Point2D> entry : locations.asMap().entrySet()) {
+			N node = entry.getKey();
 			Point2D p = entry.getValue();
 			PolarPoint polarPoint =
 					new PolarPoint(p.getX()*theta, (p.getY() - this.distY)*deltaRadius);
-			polarLocations.put(v, polarPoint);
+			polarLocations.put(node, polarPoint);
 		}
 	}
 }

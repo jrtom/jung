@@ -16,7 +16,6 @@ import java.awt.geom.Point2D;
 import com.google.common.base.Function;
 
 import edu.uci.ics.jung.algorithms.util.IterativeContext;
-import edu.uci.ics.jung.graph.Graph;
 
 /**
  * a pure decorator for the Layout interface. Intended to be overridden
@@ -25,26 +24,26 @@ import edu.uci.ics.jung.graph.Graph;
  * @author Tom Nelson 
  *
  */
-public abstract class LayoutDecorator<V, E> implements Layout<V, E>, IterativeContext {
+public abstract class LayoutDecorator<N> implements Layout<N>, IterativeContext {
     
-    protected Layout<V, E> delegate;
+    protected Layout<N> delegate;
     
 	/**
 	 * Creates an instance backed by the specified {@code delegate}.
 	 * @param delegate the layout to which this instance is delegating
 	 */
-    public LayoutDecorator(Layout<V, E> delegate) {
+    public LayoutDecorator(Layout<N> delegate) {
         this.delegate = delegate;
     }
 
     /**
      * @return the backing (delegate) layout.
      */
-    public Layout<V,E> getDelegate() {
+    public Layout<N> getDelegate() {
         return delegate;
     }
 
-    public void setDelegate(Layout<V,E> delegate) {
+    public void setDelegate(Layout<N> delegate) {
         this.delegate = delegate;
     }
 
@@ -58,24 +57,20 @@ public abstract class LayoutDecorator<V, E> implements Layout<V, E>, IterativeCo
 		delegate.initialize();
 	}
 
-	public void setInitializer(Function<V, Point2D> initializer) {
+	public void setInitializer(Function<N, Point2D> initializer) {
 		delegate.setInitializer(initializer);
 	}
 
-	public void setLocation(V v, Point2D location) {
-		delegate.setLocation(v, location);
+	public void setLocation(N node, Point2D location) {
+		delegate.setLocation(node, location);
 	}
 
     public Dimension getSize() {
         return delegate.getSize();
     }
 
-    public Graph<V, E> getGraph() {
-        return delegate.getGraph();
-    }
-
-    public Point2D transform(V v) {
-        return delegate.apply(v);
+    public Point2D transform(N node) {
+        return delegate.apply(node);
     }
 
     public boolean done() {
@@ -85,12 +80,12 @@ public abstract class LayoutDecorator<V, E> implements Layout<V, E>, IterativeCo
     	return true;
     }
 
-    public void lock(V v, boolean state) {
-        delegate.lock(v, state);
+    public void lock(N node, boolean state) {
+        delegate.lock(node, state);
     }
 
-    public boolean isLocked(V v) {
-        return delegate.isLocked(v);
+    public boolean isLocked(N node) {
+        return delegate.isLocked(node);
     }
     
     public void setSize(Dimension d) {
@@ -99,9 +94,5 @@ public abstract class LayoutDecorator<V, E> implements Layout<V, E>, IterativeCo
 
     public void reset() {
     	delegate.reset();
-    }
-    
-    public void setGraph(Graph<V, E> graph) {
-        delegate.setGraph(graph);
     }
 }

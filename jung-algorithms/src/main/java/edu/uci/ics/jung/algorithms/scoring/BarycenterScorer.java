@@ -12,9 +12,10 @@
 package edu.uci.ics.jung.algorithms.scoring;
 
 import com.google.common.base.Function;
+import com.google.common.graph.Graph;
+import com.google.common.graph.Network;
 
 import edu.uci.ics.jung.algorithms.shortestpath.Distance;
-import edu.uci.ics.jung.graph.Hypergraph;
 
 /**
  * Assigns scores to each vertex according to the sum of its distances to all other vertices.
@@ -26,7 +27,7 @@ public class BarycenterScorer<V,E> extends DistanceCentralityScorer<V, E>
      * @param graph the input graph
      * @param distance the distance metric to use
      */
-    public BarycenterScorer(Hypergraph<V,E> graph, Distance<V> distance)
+    public BarycenterScorer(Network<V,E> graph, Distance<V> distance)
     {
         super(graph, distance, false);
     }
@@ -37,7 +38,7 @@ public class BarycenterScorer<V,E> extends DistanceCentralityScorer<V, E>
      * @param graph the input graph
      * @param edge_weights the edge weights to use to calculate vertex/vertex distances
      */
-    public BarycenterScorer(Hypergraph<V,E> graph, Function<E, ? extends Number> edge_weights)
+    public BarycenterScorer(Network<V,E> graph, Function<E, ? extends Number> edge_weights)
     {
         super(graph, edge_weights, false);
     }
@@ -48,7 +49,7 @@ public class BarycenterScorer<V,E> extends DistanceCentralityScorer<V, E>
      * graph is unweighted. 
      * @param graph the input graph
      */
-    public BarycenterScorer(Hypergraph<V,E> graph)
+    public BarycenterScorer(Graph<V> graph)
     {
         super(graph, false);
     }

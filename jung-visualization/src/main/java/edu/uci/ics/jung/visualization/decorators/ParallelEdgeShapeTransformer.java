@@ -21,20 +21,20 @@ import edu.uci.ics.jung.graph.util.EdgeIndexFunction;
  *  
  * @author Tom Nelson
  */
-public abstract class ParallelEdgeShapeTransformer<V,E> implements Function<E, Shape> {
+public abstract class ParallelEdgeShapeTransformer<E> implements Function<E, Shape> {
     /** Specifies the distance between control points for edges being drawn in parallel. */
     protected float control_offset_increment = 20.f;
-    protected EdgeIndexFunction<V,E> edgeIndexFunction;
+    protected EdgeIndexFunction<E> edgeIndexFunction;
     
     public void setControlOffsetIncrement(float y) {
         control_offset_increment = y;
     }
     
-    public void setEdgeIndexFunction(EdgeIndexFunction<V,E> edgeIndexFunction) {
+    public void setEdgeIndexFunction(EdgeIndexFunction<E> edgeIndexFunction) {
     	this.edgeIndexFunction = edgeIndexFunction;
     }
     
-    public EdgeIndexFunction<V,E> getEdgeIndexFunction() {
+    public EdgeIndexFunction<E> getEdgeIndexFunction() {
     	return edgeIndexFunction;
     }
 }

@@ -16,8 +16,8 @@ import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.geom.RectangularShape;
 
-import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
+import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 /**
  * A class to make it easy to add an

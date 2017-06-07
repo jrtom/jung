@@ -19,50 +19,51 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.graph.Graph;
+import com.google.common.graph.Graphs;
 
-import edu.uci.ics.jung.graph.Forest;
-import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.TreeUtils;
 
 /**
  * @author Karlheinz Toni
  * @author Tom Nelson - converted to jung2
  */
-public class TreeLayout<V,E> implements Layout<V,E> {
+public class TreeLayout<N> implements Layout<N> {
 
 	protected Dimension size = new Dimension(600,600);
-	protected Forest<V,E> graph;
-	protected Map<V,Integer> basePositions = new HashMap<V,Integer>();
+	protected Graph<N> graph;
+	protected Map<N,Integer> basePositions = new HashMap<N,Integer>();
 
-    protected LoadingCache<V, Point2D> locations =
-    	CacheBuilder.newBuilder().build(new CacheLoader<V, Point2D>() {
-	    	public Point2D load(V vertex) {
+    protected LoadingCache<N, Point2D> locations =
+    	CacheBuilder.newBuilder().build(new CacheLoader<N, Point2D>() {
+	    	public Point2D load(N node) {
 	    		return new Point2D.Double();
 	    	}
     });
     
-    protected transient Set<V> alreadyDone = new HashSet<V>();
+    protected transient Set<N> alreadyDone = new HashSet<N>();
 
     /**
-     * The default horizontal vertex spacing.  Initialized to 50.
+     * The default horizontal node spacing.  Initialized to 50.
      */
     public static int DEFAULT_DISTX = 50;
     
     /**
-     * The default vertical vertex spacing.  Initialized to 50.
+     * The default vertical node spacing.  Initialized to 50.
      */
     public static int DEFAULT_DISTY = 50;
     
     /**
-     * The horizontal vertex spacing.  Defaults to {@code DEFAULT_XDIST}.
+     * The horizontal node spacing.  Defaults to {@code DEFAULT_XDIST}.
      */
     protected int distX = 50;
     
     /**
-     * The vertical vertex spacing.  Defaults to {@code DEFAULT_YDIST}.
+     * The vertical node spacing.  Defaults to {@code DEFAULT_YDIST}.
      */
     protected int distY = 50;
     
@@ -72,7 +73,7 @@ public class TreeLayout<V,E> implements Layout<V,E> {
      * Creates an instance for the specified graph with default X and Y distances.
 	 * @param g the graph on which the layout algorithm is to operate
      */
-    public TreeLayout(Forest<V,E> g) {
+    public TreeLayout(Graph<N> g) {
     	this(g, DEFAULT_DISTX, DEFAULT_DISTY);
     }
 
@@ -82,7 +83,7 @@ public class TreeLayout<V,E> implements Layout<V,E> {
 	 * @param g the graph on which the layout algorithm is to operate
 	 * @param distx the horizontal spacing between adjacent siblings
      */
-    public TreeLayout(Forest<V,E> g, int distx) {
+    public TreeLayout(Graph<N> g, int distx) {
         this(g, distx, DEFAULT_DISTY);
     }
 
@@ -92,12 +93,12 @@ public class TreeLayout<V,E> implements Layout<V,E> {
 	 * @param distx the horizontal spacing between adjacent siblings
 	 * @param disty the vertical spacing between adjacent siblings
      */
-    public TreeLayout(Forest<V,E> g, int distx, int disty) {
-        if (g == null)
-            throw new IllegalArgumentException("Graph must be non-null");
-        if (distx < 1 || disty < 1)
-            throw new IllegalArgumentException("X and Y distances must each be positive");
-    	this.graph = g;
+    public TreeLayout(Graph<N> g, int distx, int disty) {
+    	this.graph = Preconditions.checkNotNull(g);
+    	Preconditions.checkArgument(distx >= 1, "X distance must be positive");
+    	Preconditions.checkArgument(disty >= 1, "Y distance must be positive");
+//		Preconditions.checkArgument(TreeUtils.isForestShaped(g), "Input graph must be forest-shaped: \n%s", g);
+		Preconditions.checkArgument(!Graphs.hasCycle(g), "Input graph must not contain cycles: \n%s", g);
         this.distX = distx;
         this.distY = disty;
         buildTree();
@@ -105,34 +106,33 @@ public class TreeLayout<V,E> implements Layout<V,E> {
     
 	protected void buildTree() {
         this.m_currentPoint = new Point(0, 20);
-        Collection<V> roots = TreeUtils.getRoots(graph);
-        if (roots.size() > 0 && graph != null) {
-       		calculateDimensionX(roots);
-       		for(V v : roots) {
-        		calculateDimensionX(v);
-        		m_currentPoint.x += this.basePositions.get(v)/2 + this.distX;
-        		buildTree(v, this.m_currentPoint.x);
-        	}
-        }
+        Set<N> roots = TreeUtils.roots(graph);
+        Preconditions.checkArgument(roots.size() > 0);
+   		calculateDimensionX(roots);
+   		for (N node : roots) {
+    		calculateDimensionX(node);
+    		m_currentPoint.x += this.basePositions.get(node)/2 + this.distX;
+    		buildTree(node, this.m_currentPoint.x);
+    	}
     }
 
-    protected void buildTree(V v, int x) {
+    protected void buildTree(N node, int x) {
 
-        if (alreadyDone.add(v)) {
+        if (alreadyDone.add(node)) {
             //go one level further down
             this.m_currentPoint.y += this.distY;
             this.m_currentPoint.x = x;
 
-            this.setCurrentPositionFor(v);
+            this.setCurrentPositionFor(node);
 
-            int sizeXofCurrent = basePositions.get(v);
+            int sizeXofCurrent = basePositions.get(node);
 
             int lastX = x - sizeXofCurrent / 2;
 
             int sizeXofChild;
             int startXofChild;
 
-            for (V element : graph.getSuccessors(v)) {
+            for (N element : graph.successors(node)) {
                 sizeXofChild = this.basePositions.get(element);
                 startXofChild = lastX + sizeXofChild / 2;
                 buildTree(element, startXofChild);
@@ -142,35 +142,35 @@ public class TreeLayout<V,E> implements Layout<V,E> {
         }
     }
     
-    private int calculateDimensionX(V v) {
+    private int calculateDimensionX(N node) {
 
         int size = 0;
-        int childrenNum = graph.getSuccessors(v).size();
+        int childrenNum = graph.successors(node).size();
 
         if (childrenNum != 0) {
-            for (V element : graph.getSuccessors(v)) {
+            for (N element : graph.successors(node)) {
                 size += calculateDimensionX(element) + distX;
             }
         }
         size = Math.max(0, size - distX);
-        basePositions.put(v, size);
+        basePositions.put(node, size);
 
         return size;
     }
 
-    private int calculateDimensionX(Collection<V> roots) {
+    private int calculateDimensionX(Collection<N> roots) {
 
     	int size = 0;
-    	for(V v : roots) {
-    		int childrenNum = graph.getSuccessors(v).size();
+    	for(N node : roots) {
+    		int childrenNum = graph.successors(node).size();
 
     		if (childrenNum != 0) {
-    			for (V element : graph.getSuccessors(v)) {
+    			for (N element : graph.successors(node)) {
     				size += calculateDimensionX(element) + distX;
     			}
     		}
     		size = Math.max(0, size - distX);
-    		basePositions.put(v, size);
+    		basePositions.put(node, size);
     	}
 
     	return size;
@@ -183,10 +183,10 @@ public class TreeLayout<V,E> implements Layout<V,E> {
      */
     public void setSize(Dimension size) {
         throw new UnsupportedOperationException("Size of TreeLayout is set" +
-                " by vertex spacing in constructor");
+                " by node spacing in constructor");
     }
 
-    protected void setCurrentPositionFor(V vertex) {
+    protected void setCurrentPositionFor(N node) {
     	int x = m_currentPoint.x;
     	int y = m_currentPoint.y;
     	if(x < 0) size.width -= x;
@@ -197,13 +197,9 @@ public class TreeLayout<V,E> implements Layout<V,E> {
     	if(y < 0) size.height -= y;
     	if(y > size.height-distY) 
     		size.height = y + distY;
-    	locations.getUnchecked(vertex).setLocation(m_currentPoint);
+    	locations.getUnchecked(node).setLocation(m_currentPoint);
 
     }
-
-	public Graph<V,E> getGraph() {
-		return graph;
-	}
 
 	public Dimension getSize() {
 		return size;
@@ -213,26 +209,17 @@ public class TreeLayout<V,E> implements Layout<V,E> {
 
 	}
 
-	public boolean isLocked(V v) {
+	public boolean isLocked(N node) {
 		return false;
 	}
 
-	public void lock(V v, boolean state) {
+	public void lock(N node, boolean state) {
 	}
 
 	public void reset() {
 	}
 
-	public void setGraph(Graph<V,E> graph) {
-		if(graph instanceof Forest) {
-			this.graph = (Forest<V,E>)graph;
-			buildTree();
-		} else {
-			throw new IllegalArgumentException("graph must be a Forest");
-		}
-	}
-
-	public void setInitializer(Function<V, Point2D> initializer) {
+	public void setInitializer(Function<N, Point2D> initializer) {
 	}
 	
     /**
@@ -242,11 +229,16 @@ public class TreeLayout<V,E> implements Layout<V,E> {
 		return new Point2D.Double(size.getWidth()/2,size.getHeight()/2);
 	}
 
-	public void setLocation(V v, Point2D location) {
-		locations.getUnchecked(v).setLocation(location);
+	public void setLocation(N node, Point2D location) {
+		locations.getUnchecked(node).setLocation(location);
 	}
 	
-	public Point2D apply(V v) {
-		return locations.getUnchecked(v);
+	public Point2D apply(N node) {
+		return locations.getUnchecked(node);
+	}
+
+	@Override
+	public Set<N> nodes() {
+		return graph.nodes();
 	}
 }

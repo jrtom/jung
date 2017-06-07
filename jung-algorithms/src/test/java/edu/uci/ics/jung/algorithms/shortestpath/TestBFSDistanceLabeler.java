@@ -9,13 +9,13 @@
 */
 package edu.uci.ics.jung.algorithms.shortestpath;
 
+import com.google.common.graph.GraphBuilder;
+import com.google.common.graph.MutableGraph;
+
 import junit.framework.Assert;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import edu.uci.ics.jung.algorithms.shortestpath.BFSDistanceLabeler;
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.UndirectedSparseMultigraph;
 
 /**
  * @author Scott White, adapted to jung2 by Tom Nelson
@@ -31,22 +31,21 @@ public class TestBFSDistanceLabeler extends TestCase {
 	}
 
 	public void test() {
-        Graph<Number,Number> graph = new UndirectedSparseMultigraph<Number,Number>();
+        MutableGraph<Number> graph = GraphBuilder.undirected().build();
         for(int i=0; i<6; i++) {
-        	graph.addVertex(i);
+        	graph.addNode(i);
         }
-        int j = 0;
-        graph.addEdge(j++,0,1);
-        graph.addEdge(j++,0,5);
-        graph.addEdge(j++,0,3);
-        graph.addEdge(j++,0,4);
-        graph.addEdge(j++,1,5);
-        graph.addEdge(j++,3,4);
-        graph.addEdge(j++,3,2);
-        graph.addEdge(j++,5,2);
+        graph.putEdge(0,1);
+        graph.putEdge(0,5);
+        graph.putEdge(0,3);
+        graph.putEdge(0,4);
+        graph.putEdge(1,5);
+        graph.putEdge(3,4);
+        graph.putEdge(3,2);
+        graph.putEdge(5,2);
         Number root = 0;
 
-		BFSDistanceLabeler<Number,Number> labeler = new BFSDistanceLabeler<Number,Number>();
+		BFSDistanceLabeler<Number> labeler = new BFSDistanceLabeler<Number>();
 		labeler.labelDistances(graph,root);
 
 		Assert.assertEquals(labeler.getPredecessors(root).size(),0);

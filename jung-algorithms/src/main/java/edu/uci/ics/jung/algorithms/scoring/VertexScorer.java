@@ -11,6 +11,7 @@
  */
 package edu.uci.ics.jung.algorithms.scoring;
 
+import java.util.Map;
 
 /**
  * An interface for algorithms that assign scores to vertices.
@@ -25,4 +26,6 @@ public interface VertexScorer<V, S>
      * @return the algorithm's score for this vertex
      */
     public S getVertexScore(V v);
+    
+    public Map<V, S> vertexScores();
 }

@@ -16,8 +16,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 
-import edu.uci.ics.jung.algorithms.layout.GraphElementAccessor;
-import edu.uci.ics.jung.algorithms.layout.Layout;
+import edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 
 /**
@@ -50,11 +49,11 @@ public class MouseListenerTranslator<V, E> extends MouseAdapter {
 	    // adjust for scale and offset in the VisualizationViewer
 	    Point2D p = point;
 	    	//vv.getRenderContext().getBasicTransformer().inverseViewTransform(point);
-	    GraphElementAccessor<V,E> pickSupport = vv.getPickSupport();
-        Layout<V,E> layout = vv.getGraphLayout();
+	    NetworkElementAccessor<V,E> pickSupport = vv.getPickSupport();
+//        Layout<V> layout = vv.getGraphLayout();
 	    V v = null;
 	    if(pickSupport != null) {
-	        v = pickSupport.getVertex(layout, p.getX(), p.getY());
+	        v = pickSupport.getNode(p.getX(), p.getY());
 	    } 
 	    return v;
 	}

@@ -12,9 +12,9 @@
 package edu.uci.ics.jung.algorithms.scoring;
 
 import com.google.common.base.Function;
+import com.google.common.graph.Network;
 
 import edu.uci.ics.jung.algorithms.scoring.util.ScoringUtils;
-import edu.uci.ics.jung.graph.Graph;
 
 /**
  * Assigns hub and authority scores to each vertex depending on the topology of
@@ -83,9 +83,9 @@ public class HITS<V,E> extends HITSWithPriors<V,E>
      * and of an authority increasing the score of all hubs (not just those connected
      * via links)
      */
-    public HITS(Graph<V,E> g, Function<E, Double> edge_weights, double alpha)
+    public HITS(Network<V,E> g, Function<E, Double> edge_weights, double alpha)
     {
-        super(g, edge_weights, ScoringUtils.getHITSUniformRootPrior(g.getVertices()), alpha);
+        super(g, edge_weights, ScoringUtils.getHITSUniformRootPrior(g.nodes()), alpha);
     }
 
     /**
@@ -96,9 +96,9 @@ public class HITS<V,E> extends HITSWithPriors<V,E>
      * and of an authority increasing the score of all hubs (not just those connected
      * via links)
      */
-    public HITS(Graph<V,E> g, double alpha)
+    public HITS(Network<V,E> g, double alpha)
     {
-        super(g, ScoringUtils.getHITSUniformRootPrior(g.getVertices()), alpha);
+        super(g, ScoringUtils.getHITSUniformRootPrior(g.nodes()), alpha);
     }
 
     /**
@@ -106,7 +106,7 @@ public class HITS<V,E> extends HITSWithPriors<V,E>
      * and alpha is set to 0.
      * @param g the input graph
      */
-    public HITS(Graph<V,E> g)
+    public HITS(Network<V,E> g)
     {
         this(g, 0.0);
     }

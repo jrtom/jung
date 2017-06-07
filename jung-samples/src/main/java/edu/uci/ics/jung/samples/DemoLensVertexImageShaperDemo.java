@@ -39,9 +39,11 @@ import javax.swing.JRadioButton;
 
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
+import com.google.common.graph.MutableNetwork;
+import com.google.common.graph.Network;
+import com.google.common.graph.NetworkBuilder;
 
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
-import edu.uci.ics.jung.graph.DirectedSparseGraph;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.LayeredIcon;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
@@ -85,7 +87,7 @@ import edu.uci.ics.jung.visualization.transform.shape.MagnifyImageLensSupport;
  */
 public class DemoLensVertexImageShaperDemo extends JApplet {
 
-	   /**
+	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 5432239991020505763L;
@@ -93,18 +95,28 @@ public class DemoLensVertexImageShaperDemo extends JApplet {
 	/**
      * the graph
      */
-    DirectedSparseGraph<Number, Number> graph;
+    Network<Integer, Double> graph;
 
     /**
      * the visual component and renderer for the graph
      */
-    VisualizationViewer<Number,Number> vv;
+    VisualizationViewer<Integer, Double> vv;
     
     /**
      * some icon names to use
      */
     String[] iconNames = {
-            "sample2"
+    		"apple",
+    		"gamespcgames",
+    		"graphics3",
+    		"humor",
+    		"inputdevices",
+    		"linux",
+    		"music",
+    		"os",
+    		"privacy",
+    		"wireless",
+    		"x"
     };
     
     LensSupport viewSupport;
@@ -119,61 +131,62 @@ public class DemoLensVertexImageShaperDemo extends JApplet {
     public DemoLensVertexImageShaperDemo() {
         
         // create a simple graph for the demo
-        graph = new DirectedSparseGraph<Number,Number>();
-        Number[] vertices = createVertices(1);
+        graph = createGraph();
+        
+        
         
         // a Map for the labels
-        Map<Number,String> map = new HashMap<Number,String>();
-        for(int i=0; i<vertices.length; i++) {
-            map.put(vertices[i], iconNames[i%iconNames.length]);
+        Map<Integer, String> map = new HashMap<Integer, String>();
+        for(int i=0; i < graph.nodes().size(); i++) {
+            map.put(i, iconNames[i%iconNames.length]);
         }
         
         // a Map for the Icons
-        Map<Number,Icon> iconMap = new HashMap<Number,Icon>();
-        for(int i=0; i<vertices.length; i++) {
-            String name = "/images/topic"+iconNames[i]+".gif";
+        Map<Integer, Icon> iconMap = new HashMap<Integer, Icon>();
+        for(int i=0; i < graph.nodes().size(); i++) {
+            String name = "/images/topic"+iconNames[i % iconNames.length]+".gif";
             try {
                 Icon icon = 
                     new LayeredIcon(new ImageIcon(DemoLensVertexImageShaperDemo.class.getResource(name)).getImage());
-                iconMap.put(vertices[i], icon);
+                iconMap.put(i, icon);
             } catch(Exception ex) {
                 System.err.println("You need slashdoticons.jar in your classpath to see the image "+name);
             }
         }
         
-        createEdges(vertices);
         
-        FRLayout<Number, Number> layout = new FRLayout<Number, Number>(graph);
+        FRLayout<Integer> layout = new FRLayout<Integer>(graph.asGraph());
         layout.setMaxIterations(100);
-        vv =  new VisualizationViewer<Number, Number>(layout, new Dimension(600,600));
+        vv =  new VisualizationViewer<Integer, Double>(graph, layout, new Dimension(600,600));
         
-        Function<Number,Paint> vpf = 
-            new PickableVertexPaintTransformer<Number>(vv.getPickedVertexState(), Color.white, Color.yellow);
+        Function<Integer, Paint> vpf = 
+            new PickableVertexPaintTransformer<Integer>(vv.getPickedVertexState(), Color.white, Color.yellow);
         vv.getRenderContext().setVertexFillPaintTransformer(vpf);
-        vv.getRenderContext().setEdgeDrawPaintTransformer(new PickableEdgePaintTransformer<Number>(vv.getPickedEdgeState(), Color.black, Color.cyan));
+        vv.getRenderContext().setEdgeDrawPaintTransformer(
+        		new PickableEdgePaintTransformer<Double>(vv.getPickedEdgeState(), Color.black, Color.cyan));
 
         vv.setBackground(Color.white);
         
-        final Function<Number,String> vertexStringerImpl = 
-            new VertexStringerImpl<Number>(map);
+        final Function<Integer, String> vertexStringerImpl = 
+            new VertexStringerImpl<Integer>(map);
         vv.getRenderContext().setVertexLabelTransformer(vertexStringerImpl);
         vv.getRenderContext().setVertexLabelRenderer(new DefaultVertexLabelRenderer(Color.cyan));
         vv.getRenderContext().setEdgeLabelRenderer(new DefaultEdgeLabelRenderer(Color.cyan));
         
         
         // features on and off. For a real application, use VertexIconAndShapeFunction instead.
-        final VertexIconShapeTransformer<Number> vertexImageShapeFunction =
-            new VertexIconShapeTransformer<Number>(new EllipseVertexShapeTransformer<Number>());
+        final VertexIconShapeTransformer<Integer> vertexImageShapeFunction =
+            new VertexIconShapeTransformer<Integer>(new EllipseVertexShapeTransformer<Integer>());
         vertexImageShapeFunction.setIconMap(iconMap);
 
-        final Function<Number, Icon> vertexIconFunction = Functions.forMap(iconMap);
+        final Function<Integer, Icon> vertexIconFunction = Functions.forMap(iconMap);
         
         vv.getRenderContext().setVertexShapeTransformer(vertexImageShapeFunction);
         vv.getRenderContext().setVertexIconTransformer(vertexIconFunction);
         
         // Get the pickedState and add a listener that will decorate the
         // Vertex images with a checkmark icon when they are picked
-        PickedState<Number> ps = vv.getPickedVertexState();
+        PickedState<Integer> ps = vv.getPickedVertexState();
         ps.addItemListener(new PickWithIconListener(vertexIconFunction));
         
         vv.addPostRenderPaintable(new VisualizationViewer.Paintable(){
@@ -192,7 +205,9 @@ public class DemoLensVertexImageShaperDemo extends JApplet {
                     metrics = g.getFontMetrics(font);
                     swidth = metrics.stringWidth(str);
                     sheight = metrics.getMaxAscent()+metrics.getMaxDescent();
-                    x = (d.width-swidth)/2;
+                    System.out.println("dimension width: " + d.width);
+                    System.out.println("string width: " + swidth);
+                    x = 100; // (d.width-swidth) / 2;
                     y = (int)(d.height-sheight*1.5);
                 }
                 g.setFont(font);
@@ -213,8 +228,8 @@ public class DemoLensVertexImageShaperDemo extends JApplet {
         final GraphZoomScrollPane panel = new GraphZoomScrollPane(vv);
         content.add(panel);
         
-        final DefaultModalGraphMouse<Number, Number> graphMouse
-        	= new DefaultModalGraphMouse<Number, Number>();
+        final DefaultModalGraphMouse<Integer, Double> graphMouse
+        	= new DefaultModalGraphMouse<Integer, Double>();
         vv.setGraphMouse(graphMouse);
         
         
@@ -248,12 +263,9 @@ public class DemoLensVertexImageShaperDemo extends JApplet {
         controls.add(modePanel);
         content.add(controls, BorderLayout.SOUTH);
         
-        this.viewSupport = new MagnifyImageLensSupport<Number,Number>(vv);
-//        	new ViewLensSupport<Number,Number>(vv, new HyperbolicShapeTransformer(vv, 
-//        		vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.VIEW)), 
-//                new ModalLensGraphMouse());
+        this.viewSupport = new MagnifyImageLensSupport<Integer, Double>(vv);
 
-        this.modelSupport = new LayoutLensSupport<Number,Number>(vv);
+        this.modelSupport = new LayoutLensSupport<Integer, Double>(vv);
         
         graphMouse.addItemListener(modelSupport.getGraphMouse().getModeListener());
         graphMouse.addItemListener(viewSupport.getGraphMouse().getModeListener());
@@ -345,57 +357,42 @@ public class DemoLensVertexImageShaperDemo extends JApplet {
         }
     }
     
-    /**
-     * create some vertices
-     * @param count how many to create
-     * @return the Vertices in an array
-     */
-    private Number[] createVertices(int count) {
-        Number[] v = new Number[count];
-        for (int i = 0; i < count; i++) {
-            v[i] = new Integer(i);
-            graph.addVertex(v[i]);
-        }
-        return v;
-    }
-
-    /**
-     * create edges for this demo graph
-     * @param v an array of Vertices to connect
-     */
-    void createEdges(Number[] v) {
-//        graph.addEdge(new Double(Math.random()), v[0], v[1], EdgeType.DIRECTED);
-//        graph.addEdge(new Double(Math.random()), v[3], v[0], EdgeType.DIRECTED);
-//        graph.addEdge(new Double(Math.random()), v[0], v[4], EdgeType.DIRECTED);
-//        graph.addEdge(new Double(Math.random()), v[4], v[5], EdgeType.DIRECTED);
-//        graph.addEdge(new Double(Math.random()), v[5], v[3], EdgeType.DIRECTED);
-//        graph.addEdge(new Double(Math.random()), v[2], v[1], EdgeType.DIRECTED);
-//        graph.addEdge(new Double(Math.random()), v[4], v[1], EdgeType.DIRECTED);
-//        graph.addEdge(new Double(Math.random()), v[8], v[2], EdgeType.DIRECTED);
-//        graph.addEdge(new Double(Math.random()), v[3], v[8], EdgeType.DIRECTED);
-//        graph.addEdge(new Double(Math.random()), v[6], v[7], EdgeType.DIRECTED);
-//        graph.addEdge(new Double(Math.random()), v[7], v[5], EdgeType.DIRECTED);
-//        graph.addEdge(new Double(Math.random()), v[0], v[9], EdgeType.DIRECTED);
-//        graph.addEdge(new Double(Math.random()), v[9], v[8], EdgeType.DIRECTED);
-//        graph.addEdge(new Double(Math.random()), v[7], v[6], EdgeType.DIRECTED);
-//        graph.addEdge(new Double(Math.random()), v[6], v[5], EdgeType.DIRECTED);
-//        graph.addEdge(new Double(Math.random()), v[4], v[2], EdgeType.DIRECTED);
-//        graph.addEdge(new Double(Math.random()), v[5], v[4], EdgeType.DIRECTED);
-//        graph.addEdge(new Double(Math.random()), v[4], v[10], EdgeType.DIRECTED);
-//        graph.addEdge(new Double(Math.random()), v[10], v[4], EdgeType.DIRECTED);
+    Network<Integer, Double> createGraph() {
+    	MutableNetwork<Integer, Double> graph = NetworkBuilder.directed().build();
+        graph.addEdge(0, 1, new Double(Math.random()));
+        graph.addEdge(3, 0, new Double(Math.random()));
+        graph.addEdge(0, 4, new Double(Math.random()));
+        graph.addEdge(4, 5, new Double(Math.random()));
+        graph.addEdge(5, 3, new Double(Math.random()));
+        graph.addEdge(2, 1, new Double(Math.random()));
+        graph.addEdge(4, 1, new Double(Math.random()));
+        graph.addEdge(8, 2, new Double(Math.random()));
+        graph.addEdge(3, 8, new Double(Math.random()));
+        graph.addEdge(6, 7, new Double(Math.random()));
+        graph.addEdge(7, 5, new Double(Math.random()));
+        graph.addEdge(0, 9, new Double(Math.random()));
+        graph.addEdge(9, 8, new Double(Math.random()));
+        graph.addEdge(7, 6, new Double(Math.random()));
+        graph.addEdge(6, 5, new Double(Math.random()));
+        graph.addEdge(4, 2, new Double(Math.random()));
+        graph.addEdge(5, 4, new Double(Math.random()));
+        graph.addEdge(4, 10, new Double(Math.random()));
+        graph.addEdge(10, 4, new Double(Math.random()));
+        
+        return graph;
     }
     
     public static class PickWithIconListener implements ItemListener {
-        Function<Number, Icon> imager;
+        Function<Integer, Icon> imager;
         Icon checked;
         
-        public PickWithIconListener(Function<Number, Icon> imager) {
+        public PickWithIconListener(Function<Integer, Icon> imager) {
             this.imager = imager;
             checked = new Checkmark(Color.red);
         }
 
         public void itemStateChanged(ItemEvent e) {
-            Icon icon = imager.apply((Number)e.getItem());
+            Icon icon = imager.apply((Integer)e.getItem());
             if(icon != null && icon instanceof LayeredIcon) {
                 if(e.getStateChange() == ItemEvent.SELECTED) {
                     ((LayeredIcon)icon).add(checked);

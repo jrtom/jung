@@ -22,10 +22,11 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import com.google.common.graph.Network;
+
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.algorithms.layout.ISOMLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
-import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.TestGraphs;
 import edu.uci.ics.jung.visualization.DefaultVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
@@ -54,7 +55,7 @@ public class TwoModelDemo extends JApplet {
      /**
      * the graph
      */
-    Graph<String,Number> graph;
+    Network<String,Number> graph;
 
     /**
      * the visual components and renderers for the graph
@@ -81,14 +82,14 @@ public class TwoModelDemo extends JApplet {
         graph = TestGraphs.getOneComponentGraph();
         
         // create two layouts for the one graph, one layout for each model
-        Layout<String,Number> layout1 = new FRLayout<String,Number>(graph);
-        Layout<String,Number> layout2 = new ISOMLayout<String,Number>(graph);
+        Layout<String> layout1 = new FRLayout<String>(graph.asGraph());
+        Layout<String> layout2 = new ISOMLayout<String, Number>(graph);
 
         // create the two models, each with a different layout
         VisualizationModel<String,Number> vm1 =
-            new DefaultVisualizationModel<String,Number>(layout1, preferredSize);
+            new DefaultVisualizationModel<String,Number>(graph, layout1, preferredSize);
         VisualizationModel<String,Number> vm2 = 
-            new DefaultVisualizationModel<String,Number>(layout2, preferredSize);
+            new DefaultVisualizationModel<String,Number>(graph, layout2, preferredSize);
 
         // create the two views, one for each model
         // they share the same renderer

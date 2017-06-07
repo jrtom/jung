@@ -27,11 +27,11 @@ import javax.swing.JPanel;
 
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
+import com.google.common.graph.MutableNetwork;
+import com.google.common.graph.Network;
+import com.google.common.graph.NetworkBuilder;
 
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
-import edu.uci.ics.jung.graph.DirectedSparseGraph;
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
@@ -57,7 +57,7 @@ public class UnicodeLabelDemo {
     /**
      * the graph
      */
-    Graph<Integer,Number> graph;
+    Network<Integer,Number> graph;
 
     /**
      * the visual component and renderer for the graph
@@ -69,13 +69,11 @@ public class UnicodeLabelDemo {
     public UnicodeLabelDemo() {
         
         // create a simple graph for the demo
-        graph = new DirectedSparseGraph<Integer,Number>();
-        Integer[] v = createVertices(10);
-        createEdges(v);
+        graph = createGraph();
         Map<Integer, Icon> iconMap = new HashMap<Integer, Icon>();
         
-        vv =  new VisualizationViewer<Integer,Number>(new FRLayout<Integer,Number>(graph));
-        vv.getRenderContext().setVertexLabelTransformer(new UnicodeVertexStringer<Integer>(v));
+        vv =  new VisualizationViewer<Integer,Number>(graph, new FRLayout<Integer>(graph.asGraph()));
+        vv.getRenderContext().setVertexLabelTransformer(new UnicodeVertexStringer());
         vv.getRenderContext().setVertexLabelRenderer(new DefaultVertexLabelRenderer(Color.cyan));
         vv.getRenderContext().setEdgeLabelRenderer(new DefaultEdgeLabelRenderer(Color.cyan));
         VertexIconShapeTransformer<Integer> vertexIconShapeFunction =
@@ -83,10 +81,14 @@ public class UnicodeLabelDemo {
         Function<Integer, Icon> vertexIconFunction = Functions.forMap(iconMap);
         vv.getRenderContext().setVertexShapeTransformer(vertexIconShapeFunction);
         vv.getRenderContext().setVertexIconTransformer(vertexIconFunction);
-        loadImages(v, iconMap);
+        loadImages(iconMap);
         vertexIconShapeFunction.setIconMap(iconMap);
-        vv.getRenderContext().setVertexFillPaintTransformer(new PickableVertexPaintTransformer<Integer>(vv.getPickedVertexState(), Color.white,  Color.yellow));
-        vv.getRenderContext().setEdgeDrawPaintTransformer(new PickableEdgePaintTransformer<Number>(vv.getPickedEdgeState(), Color.black, Color.lightGray));
+        vv.getRenderContext().setVertexFillPaintTransformer(
+        		new PickableVertexPaintTransformer<Integer>(
+        				vv.getPickedVertexState(), Color.white,  Color.yellow));
+        vv.getRenderContext().setEdgeDrawPaintTransformer(
+        		new PickableEdgePaintTransformer<Number>(
+        				vv.getPickedEdgeState(), Color.black, Color.lightGray));
 
         vv.setBackground(Color.white);
 
@@ -140,10 +142,10 @@ public class UnicodeLabelDemo {
     }
     
     
-    class UnicodeVertexStringer<V> implements Function<V,String> {
+    class UnicodeVertexStringer implements Function<Integer,String> {
 
-        Map<V,String> map = new HashMap<V,String>();
-        Map<V,Icon> iconMap = new HashMap<V,Icon>();
+        Map<Integer,String> map = new HashMap<Integer,String>();
+        Map<Integer,Icon> iconMap = new HashMap<Integer,Icon>();
         String[] labels = {
                 "\u0057\u0065\u006C\u0063\u006F\u006D\u0065\u0020\u0074\u006F\u0020JUNG\u0021",               
                 "\u6B22\u8FCE\u4F7F\u7528\u0020\u0020JUNG\u0021",
@@ -155,67 +157,54 @@ public class UnicodeLabelDemo {
                "\u0042\u0069\u0065\u006E\u0076\u0065\u006E\u0069\u0064\u0061\u0020\u0061\u0020JUNG\u0021"
         };
         
-        public UnicodeVertexStringer(V[] vertices) {
-            for(int i=0; i<vertices.length; i++) {
-                map.put(vertices[i], labels[i%labels.length]);
-            }
+        public UnicodeVertexStringer() {
+        	for (Integer node : graph.nodes()) {
+                map.put(node, labels[node.intValue() % labels.length]);
+        	}
         }
         
         /**
          * @see edu.uci.ics.jung.graph.decorators.VertexStringer#getLabel(edu.uci.ics.jung.graph.Vertex)
          */
-        public String getLabel(V v) {
+        public String getLabel(Integer v) {
             if(showLabels) {
-                return (String)map.get(v);
+                return map.get(v);
             } else {
                 return "";
             }
         }
         
-		public String apply(V input) {
+		public String apply(Integer input) {
 			return getLabel(input);
 		}
     }
     
-    /**
-     * create some vertices
-     * @param count how many to create
-     * @return the Vertices in an array
-     */
-    private Integer[] createVertices(int count) {
-        Integer[] v = new Integer[count];
-        for (int i = 0; i < count; i++) {
-            v[i] = new Integer(i);
-            graph.addVertex(v[i]);
-        }
-        return v;
+    Network<Integer, Number> createGraph() {
+    	MutableNetwork<Integer, Number> graph = NetworkBuilder.directed().build();
+        graph.addEdge(0, 1, new Double(Math.random()));
+        graph.addEdge(3, 0, new Double(Math.random()));
+        graph.addEdge(0, 4, new Double(Math.random()));
+        graph.addEdge(4, 5, new Double(Math.random()));
+        graph.addEdge(5, 3, new Double(Math.random()));
+        graph.addEdge(2, 1, new Double(Math.random()));
+        graph.addEdge(4, 1, new Double(Math.random()));
+        graph.addEdge(8, 2, new Double(Math.random()));
+        graph.addEdge(3, 8, new Double(Math.random()));
+        graph.addEdge(6, 7, new Double(Math.random()));
+        graph.addEdge(7, 5, new Double(Math.random()));
+        graph.addEdge(0, 9, new Double(Math.random()));
+        graph.addEdge(9, 8, new Double(Math.random()));
+        graph.addEdge(7, 6, new Double(Math.random()));
+        graph.addEdge(6, 5, new Double(Math.random()));
+        graph.addEdge(4, 2, new Double(Math.random()));
+        graph.addEdge(5, 4, new Double(Math.random()));
+        graph.addEdge(4, 10, new Double(Math.random()));
+        graph.addEdge(10, 4, new Double(Math.random()));
+        
+        return graph;
     }
 
-    /**
-     * create edges for this demo graph
-     * @param v an array of Vertices to connect
-     */
-    void createEdges(Integer[] v) {
-        graph.addEdge(new Double(Math.random()), v[0], v[1], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[0], v[3], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[0], v[4], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[4], v[5], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[3], v[5], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[1], v[2], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[1], v[4], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[8], v[2], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[3], v[8], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[6], v[7], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[7], v[5], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[0], v[9], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[9], v[8], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[7], v[6], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[6], v[5], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[4], v[2], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[5], v[4], EdgeType.DIRECTED);
-    }
-
-    protected void loadImages(Integer[] vertices, Map<Integer,Icon> imageMap) {
+    protected void loadImages(Map<Integer,Icon> imageMap) {
         
         ImageIcon[] icons = null;
         try {
@@ -231,8 +220,9 @@ public class UnicodeLabelDemo {
         } catch(Exception ex) {
             System.err.println("You need flags.jar in your classpath to see the flag icons.");
         }
-        for(int i=0; icons != null && i<vertices.length; i++) {
-            imageMap.put(vertices[i],icons[i%icons.length]);
+        for (Integer node : graph.nodes()) {
+        	int i = node.intValue();
+            imageMap.put(node, icons[i % icons.length]);
         }
     }
 

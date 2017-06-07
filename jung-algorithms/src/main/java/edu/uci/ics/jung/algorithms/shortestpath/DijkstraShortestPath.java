@@ -18,8 +18,8 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.common.base.Function;
-
-import edu.uci.ics.jung.graph.Graph;
+import com.google.common.base.Preconditions;
+import com.google.common.graph.Network;
 
 /**
  * <p>Calculates distances and shortest paths using Dijkstra's   
@@ -37,6 +37,8 @@ import edu.uci.ics.jung.graph.Graph;
  */
 public class DijkstraShortestPath<V,E> extends DijkstraDistance<V,E> implements ShortestPath<V,E>
 {
+	// TODO: refactor the heck out of this and of DijkstraDistance
+	
     /**
      * <p>Creates an instance of <code>DijkstraShortestPath</code> for 
      * the specified graph and the specified method of extracting weights 
@@ -47,7 +49,7 @@ public class DijkstraShortestPath<V,E> extends DijkstraDistance<V,E> implements 
      * @param nev   the class responsible for returning weights for edges
      * @param cached    specifies whether the results are to be cached
      */
-    public DijkstraShortestPath(Graph<V,E> g, Function<E, ? extends Number> nev, boolean cached)
+    public DijkstraShortestPath(Network<V,E> g, Function<E, ? extends Number> nev, boolean cached)
     {
         super(g, nev, cached);
     }
@@ -60,7 +62,7 @@ public class DijkstraShortestPath<V,E> extends DijkstraDistance<V,E> implements 
      * @param g     the graph on which distances will be calculated
      * @param nev   the class responsible for returning weights for edges
      */
-    public DijkstraShortestPath(Graph<V,E> g, Function<E, ? extends Number> nev)
+    public DijkstraShortestPath(Network<V,E> g, Function<E, ? extends Number> nev)
     {
         super(g, nev);
     }
@@ -72,7 +74,7 @@ public class DijkstraShortestPath<V,E> extends DijkstraDistance<V,E> implements 
      * 
      * @param g     the graph on which distances will be calculated
      */ 
-    public DijkstraShortestPath(Graph<V,E> g)
+    public DijkstraShortestPath(Network<V,E> g)
     {
         super(g);
     }
@@ -85,7 +87,7 @@ public class DijkstraShortestPath<V,E> extends DijkstraDistance<V,E> implements 
      * @param g     the graph on which distances will be calculated
      * @param cached    specifies whether the results are to be cached
      */ 
-    public DijkstraShortestPath(Graph<V,E> g, boolean cached)
+    public DijkstraShortestPath(Network<V, E> g, boolean cached)
     {
         super(g, cached);
     }
@@ -114,17 +116,16 @@ public class DijkstraShortestPath<V,E> extends DijkstraDistance<V,E> implements 
      */
 	public E getIncomingEdge(V source, V target)
 	{
-        if (!g.containsVertex(source))
-            throw new IllegalArgumentException("Specified source vertex " + 
-                    source + " is not part of graph " + g);
-        
-        if (!g.containsVertex(target))
-            throw new IllegalArgumentException("Specified target vertex " + 
-                    target + " is not part of graph " + g);
+    	Preconditions.checkArgument(
+    		g.nodes().contains(target),
+    		"Specified target vertex %s  is not part of graph %s", target, g);
+    	Preconditions.checkArgument(
+    		g.nodes().contains(source),
+    		"Specified source vertex %s  is not part of graph %s", source, g);
 
         Set<V> targets = new HashSet<V>();
         targets.add(target);
-        singleSourceShortestPath(source, targets, g.getVertexCount());
+        singleSourceShortestPath(source, targets, g.nodes().size());
         @SuppressWarnings("unchecked")
 		Map<V,E> incomingEdgeMap = 
             ((SourcePathData)sourceMap.get(source)).incomingEdges;
@@ -150,7 +151,7 @@ public class DijkstraShortestPath<V,E> extends DijkstraDistance<V,E> implements 
      */
     public Map<V,E> getIncomingEdgeMap(V source)
 	{
-		return getIncomingEdgeMap(source, g.getVertexCount());
+		return getIncomingEdgeMap(source, g.nodes().size());
 	}
 
     /**
@@ -167,13 +168,12 @@ public class DijkstraShortestPath<V,E> extends DijkstraDistance<V,E> implements 
      */
 	public List<E> getPath(V source, V target)
 	{
-		if(!g.containsVertex(source)) 
-            throw new IllegalArgumentException("Specified source vertex " + 
-                    source + " is not part of graph " + g);
-        
-		if(!g.containsVertex(target)) 
-            throw new IllegalArgumentException("Specified target vertex " + 
-                    target + " is not part of graph " + g);
+    	Preconditions.checkArgument(
+        		g.nodes().contains(target),
+        		"Specified target vertex %s  is not part of graph %s", target, g);
+    	Preconditions.checkArgument(
+    		g.nodes().contains(source),
+    		"Specified source vertex %s  is not part of graph %s", source, g);
         
         LinkedList<E> path = new LinkedList<E>();
 
@@ -182,7 +182,7 @@ public class DijkstraShortestPath<V,E> extends DijkstraDistance<V,E> implements 
         // wipe out results if results are not cached
         Set<V> targets = new HashSet<V>();
         targets.add(target);
-        singleSourceShortestPath(source, targets, g.getVertexCount());
+        singleSourceShortestPath(source, targets, g.nodes().size());
         @SuppressWarnings("unchecked")
 		Map<V,E> incomingEdges = 
             ((SourcePathData)sourceMap.get(source)).incomingEdges;
@@ -194,7 +194,7 @@ public class DijkstraShortestPath<V,E> extends DijkstraDistance<V,E> implements 
         {
             E incoming = incomingEdges.get(current);
             path.addFirst(incoming);
-            current = ((Graph<V,E>)g).getOpposite(current, incoming);
+            current = g.incidentNodes(incoming).adjacentNode(current);
         }
 		return path;
 	}
@@ -219,13 +219,12 @@ public class DijkstraShortestPath<V,E> extends DijkstraDistance<V,E> implements 
      */
 	public LinkedHashMap<V,E> getIncomingEdgeMap(V source, int numDests)
 	{
-        if (g.getVertices().contains(source) == false)
-            throw new IllegalArgumentException("Specified source vertex " + 
-                    source + " is not part of graph " + g);
-
-        if (numDests < 1 || numDests > g.getVertexCount())
-            throw new IllegalArgumentException("numDests must be >= 1 " + 
-            "and <= g.numVertices()");
+    	Preconditions.checkArgument(
+    		g.nodes().contains(source),
+    		"Specified source vertex %s  is not part of graph %s", source, g);
+    	Preconditions.checkArgument(
+			numDests >= 1 && numDests <= g.nodes().size(),
+			"number of destinations must be in [1, %d]", g.nodes().size());
 
         singleSourceShortestPath(source, null, numDests);
         

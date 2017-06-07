@@ -19,8 +19,6 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
 import edu.uci.ics.jung.algorithms.layout.Layout;
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.util.Context;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.transform.BidirectionalTransformer;
@@ -28,17 +26,16 @@ import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
 import edu.uci.ics.jung.visualization.transform.shape.ShapeTransformer;
 import edu.uci.ics.jung.visualization.transform.shape.TransformingGraphics;
 
-public class BasicVertexLabelRenderer<V,E> implements Renderer.VertexLabel<V,E> {
+public class BasicVertexLabelRenderer<V> implements Renderer.VertexLabel<V> {
 
 	protected Position position = Position.SE;
 	private Positioner positioner = new OutsidePositioner();
+	protected final Layout<V> layout;
+	protected final RenderContext<V, ?> renderContext;
 	
-	public BasicVertexLabelRenderer() {
-		super();
-	}
-
-	public BasicVertexLabelRenderer(Position position) {
-		this.position = position;
+	public BasicVertexLabelRenderer(Layout<V> layout, RenderContext<V, ?> rc) {
+		this.layout = layout;
+		this.renderContext = rc;
 	}
 
 	/**
@@ -55,10 +52,10 @@ public class BasicVertexLabelRenderer<V,E> implements Renderer.VertexLabel<V,E> 
 		this.position = position;
 	}
 
-	public Component prepareRenderer(RenderContext<V,E> rc, VertexLabelRenderer graphLabelRenderer, Object value, 
+	public Component prepareRenderer(VertexLabelRenderer graphLabelRenderer, Object value, 
 			boolean isSelected, V vertex) {
-		return rc.getVertexLabelRenderer().<V>getVertexLabelRendererComponent(rc.getScreenDevice(), value, 
-				rc.getVertexFontTransformer().apply(vertex), isSelected, vertex);
+		return renderContext.getVertexLabelRenderer().<V>getVertexLabelRendererComponent(renderContext.getScreenDevice(), value, 
+				renderContext.getVertexFontTransformer().apply(vertex), isSelected, vertex);
 	}
 
 	/**
@@ -69,27 +66,26 @@ public class BasicVertexLabelRenderer<V,E> implements Renderer.VertexLabel<V,E> 
 	 * is active, the label is centered on the position of the vertex; otherwise
      * the label is offset slightly.
      */
-    public void labelVertex(RenderContext<V,E> rc, Layout<V,E> layout, V v, String label) {
-    	Graph<V,E> graph = layout.getGraph();
-        if (rc.getVertexIncludePredicate().apply(Context.<Graph<V,E>,V>getInstance(graph,v)) == false) {
+    public void labelVertex(V v, String label) {
+        if (renderContext.getVertexIncludePredicate().apply(v) == false) {
         	return;
         }
         Point2D pt = layout.apply(v);
-        pt = rc.getMultiLayerTransformer().transform(Layer.LAYOUT, pt);
+        pt = renderContext.getMultiLayerTransformer().transform(Layer.LAYOUT, pt);
 
         float x = (float) pt.getX();
         float y = (float) pt.getY();
 
-        Component component = prepareRenderer(rc, rc.getVertexLabelRenderer(), label,
-        		rc.getPickedVertexState().isPicked(v), v);
-        GraphicsDecorator g = rc.getGraphicsContext();
+        Component component = prepareRenderer(renderContext.getVertexLabelRenderer(), label,
+        		renderContext.getPickedVertexState().isPicked(v), v);
+        GraphicsDecorator g = renderContext.getGraphicsContext();
         Dimension d = component.getPreferredSize();
         AffineTransform xform = AffineTransform.getTranslateInstance(x, y);
         
-    	Shape shape = rc.getVertexShapeTransformer().apply(v);
+    	Shape shape = renderContext.getVertexShapeTransformer().apply(v);
     	shape = xform.createTransformedShape(shape);
-    	if(rc.getGraphicsContext() instanceof TransformingGraphics) {
-    		BidirectionalTransformer transformer = ((TransformingGraphics)rc.getGraphicsContext()).getTransformer();
+    	if(renderContext.getGraphicsContext() instanceof TransformingGraphics) {
+    		BidirectionalTransformer transformer = ((TransformingGraphics)renderContext.getGraphicsContext()).getTransformer();
     		if(transformer instanceof ShapeTransformer) {
     			ShapeTransformer shapeTransformer = (ShapeTransformer)transformer;
     			shape = shapeTransformer.transform(shape);
@@ -99,15 +95,15 @@ public class BasicVertexLabelRenderer<V,E> implements Renderer.VertexLabel<V,E> 
 
     	Point p = null;
     	if(position == Position.AUTO) {
-    		Dimension vvd = rc.getScreenDevice().getSize();
+    		Dimension vvd = renderContext.getScreenDevice().getSize();
     		if(vvd.width == 0 || vvd.height == 0) {
-    			vvd = rc.getScreenDevice().getPreferredSize();
+    			vvd = renderContext.getScreenDevice().getPreferredSize();
     		}
     		p = getAnchorPoint(bounds, d, positioner.getPosition(x, y, vvd));
     	} else {
     		p = getAnchorPoint(bounds, d, position);
     	}
-        g.draw(component, rc.getRendererPane(), p.x, p.y, d.width, d.height, true);
+        g.draw(component, renderContext.getRendererPane(), p.x, p.y, d.width, d.height, true);
     }
     
     protected Point getAnchorPoint(Rectangle2D vertexBounds, Dimension labelSize, Position position) {

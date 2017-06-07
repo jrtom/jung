@@ -22,11 +22,11 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import com.google.common.base.Function;
+import com.google.common.graph.MutableNetwork;
+import com.google.common.graph.Network;
+import com.google.common.graph.NetworkBuilder;
 
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
-import edu.uci.ics.jung.graph.DirectedSparseGraph;
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
@@ -49,7 +49,7 @@ public class DrawnIconVertexDemo {
     /**
      * the graph
      */
-    Graph<Integer,Number> graph;
+    Network<Integer,Number> graph;
 
     /**
      * the visual component and renderer for the graph
@@ -59,11 +59,9 @@ public class DrawnIconVertexDemo {
     public DrawnIconVertexDemo() {
         
         // create a simple graph for the demo
-        graph = new DirectedSparseGraph<Integer,Number>();
-        Integer[] v = createVertices(10);
-        createEdges(v);
+        graph = createGraph();
         
-        vv =  new VisualizationViewer<Integer,Number>(new FRLayout<Integer,Number>(graph));
+        vv =  new VisualizationViewer<Integer,Number>(graph, new FRLayout<Integer>(graph.asGraph()));
         vv.getRenderContext().setVertexLabelTransformer(new Function<Integer,String>(){
 
 			public String apply(Integer v) {
@@ -151,43 +149,29 @@ public class DrawnIconVertexDemo {
         frame.setVisible(true);
     }
     
-    
-    /**
-     * create some vertices
-     * @param count how many to create
-     * @return the Vertices in an array
-     */
-    private Integer[] createVertices(int count) {
-        Integer[] v = new Integer[count];
-        for (int i = 0; i < count; i++) {
-            v[i] = new Integer(i);
-            graph.addVertex(v[i]);
-        }
-        return v;
-    }
-
-    /**
-     * create edges for this demo graph
-     * @param v an array of Vertices to connect
-     */
-    void createEdges(Integer[] v) {
-        graph.addEdge(new Double(Math.random()), v[0], v[1], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[0], v[3], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[0], v[4], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[4], v[5], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[3], v[5], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[1], v[2], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[1], v[4], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[8], v[2], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[3], v[8], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[6], v[7], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[7], v[5], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[0], v[9], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[9], v[8], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[7], v[6], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[6], v[5], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[4], v[2], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[5], v[4], EdgeType.DIRECTED);
+    Network<Integer, Number> createGraph() {
+    	MutableNetwork<Integer, Number> graph = NetworkBuilder.directed().build();
+        graph.addEdge(0, 1, new Double(Math.random()));
+        graph.addEdge(3, 0, new Double(Math.random()));
+        graph.addEdge(0, 4, new Double(Math.random()));
+        graph.addEdge(4, 5, new Double(Math.random()));
+        graph.addEdge(5, 3, new Double(Math.random()));
+        graph.addEdge(2, 1, new Double(Math.random()));
+        graph.addEdge(4, 1, new Double(Math.random()));
+        graph.addEdge(8, 2, new Double(Math.random()));
+        graph.addEdge(3, 8, new Double(Math.random()));
+        graph.addEdge(6, 7, new Double(Math.random()));
+        graph.addEdge(7, 5, new Double(Math.random()));
+        graph.addEdge(0, 9, new Double(Math.random()));
+        graph.addEdge(9, 8, new Double(Math.random()));
+        graph.addEdge(7, 6, new Double(Math.random()));
+        graph.addEdge(6, 5, new Double(Math.random()));
+        graph.addEdge(4, 2, new Double(Math.random()));
+        graph.addEdge(5, 4, new Double(Math.random()));
+        graph.addEdge(4, 10, new Double(Math.random()));
+        graph.addEdge(10, 4, new Double(Math.random()));
+        
+        return graph;
     }
 
     public static void main(String[] args) 

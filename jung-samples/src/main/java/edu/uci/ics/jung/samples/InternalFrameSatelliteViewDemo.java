@@ -24,9 +24,10 @@ import javax.swing.JInternalFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import com.google.common.graph.Network;
+
 import edu.uci.ics.jung.algorithms.layout.ISOMLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
-import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.TestGraphs;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
@@ -77,7 +78,7 @@ public class InternalFrameSatelliteViewDemo {
     /**
      * the graph
      */
-    Graph<String,Number> graph;
+    Network<String,Number> graph;
 
     /**
      * the visual component and renderer for the graph
@@ -99,9 +100,9 @@ public class InternalFrameSatelliteViewDemo {
         // create a simple graph for the demo
         graph = TestGraphs.getOneComponentGraph();
 
-        Layout<String,Number> layout = new ISOMLayout<String,Number>(graph);
+        Layout<String> layout = new ISOMLayout<String, Number>(graph);
 
-        vv = new VisualizationViewer<String,Number>(layout, new Dimension(600,600));
+        vv = new VisualizationViewer<String,Number>(graph, layout, new Dimension(600,600));
         vv.getRenderContext().setEdgeDrawPaintTransformer(new PickableEdgePaintTransformer<Number>(vv.getPickedEdgeState(), Color.black, Color.cyan));
         vv.getRenderContext().setVertexFillPaintTransformer(new PickableVertexPaintTransformer<String>(vv.getPickedVertexState(), Color.red, Color.yellow));
 

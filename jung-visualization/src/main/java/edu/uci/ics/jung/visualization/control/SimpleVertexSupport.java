@@ -2,10 +2,11 @@ package edu.uci.ics.jung.visualization.control;
 
 import java.awt.geom.Point2D;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
+import com.google.common.graph.MutableNetwork;
 
 import edu.uci.ics.jung.algorithms.layout.Layout;
-import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 
 /** 
@@ -27,10 +28,12 @@ public class SimpleVertexSupport<V,E> implements VertexSupport<V,E> {
 	
 	public void startVertexCreate(BasicVisualizationServer<V, E> vv,
 			Point2D point) {
+		Preconditions.checkState(vv.getModel().getNetwork() instanceof MutableNetwork<?, ?>,
+				"graph must be mutable");
 		V newVertex = vertexFactory.get();
-		Layout<V,E> layout = vv.getGraphLayout();
-		Graph<V,E> graph = layout.getGraph();
-		graph.addVertex(newVertex);
+		Layout<V> layout = vv.getGraphLayout();
+		MutableNetwork<V,E> graph = (MutableNetwork<V, E>) vv.getModel().getNetwork();
+		graph.addNode(newVertex);
 		layout.setLocation(newVertex, vv.getRenderContext().getMultiLayerTransformer().inverseTransform(point));
 		vv.repaint();
 	}

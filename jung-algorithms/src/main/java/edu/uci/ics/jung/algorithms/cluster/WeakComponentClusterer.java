@@ -16,8 +16,8 @@ import java.util.Queue;
 import java.util.Set;
 
 import com.google.common.base.Function;
+import com.google.common.graph.Network;
 
-import edu.uci.ics.jung.graph.Graph;
 
 
 
@@ -32,18 +32,18 @@ import edu.uci.ics.jung.graph.Graph;
  * Running time: O(|V| + |E|) where |V| is the number of vertices and |E| is the number of edges.
  * @author Scott White
  */
-public class WeakComponentClusterer<V,E> implements Function<Graph<V,E>, Set<Set<V>>> 
+public class WeakComponentClusterer<V,E> implements Function<Network<V,E>, Set<Set<V>>> 
 {
 	/**
      * Extracts the weak components from a graph.
      * @param graph the graph whose weak components are to be extracted
      * @return the list of weak components
      */
-    public Set<Set<V>> apply(Graph<V,E> graph) {
+    public Set<Set<V>> apply(Network<V,E> graph) {
 
         Set<Set<V>> clusterSet = new HashSet<Set<V>>();
 
-        HashSet<V> unvisitedVertices = new HashSet<V>(graph.getVertices());
+        HashSet<V> unvisitedVertices = new HashSet<V>(graph.nodes());
 
         while (!unvisitedVertices.isEmpty()) {
         	Set<V> cluster = new HashSet<V>();
@@ -56,7 +56,7 @@ public class WeakComponentClusterer<V,E> implements Function<Graph<V,E>, Set<Set
 
             while (!queue.isEmpty()) {
                 V currentVertex = queue.remove();
-                Collection<V> neighbors = graph.getNeighbors(currentVertex);
+                Collection<V> neighbors = graph.adjacentNodes(currentVertex);
 
                 for(V neighbor : neighbors) {
                     if (unvisitedVertices.contains(neighbor)) {

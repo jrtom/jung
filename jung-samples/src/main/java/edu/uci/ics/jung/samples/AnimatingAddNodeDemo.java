@@ -25,6 +25,8 @@ import javax.swing.JFrame;
 import javax.swing.JRootPane;
 
 import com.google.common.base.Functions;
+import com.google.common.graph.MutableNetwork;
+import com.google.common.graph.NetworkBuilder;
 
 import edu.uci.ics.jung.algorithms.layout.AbstractLayout;
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
@@ -34,11 +36,9 @@ import edu.uci.ics.jung.algorithms.layout.StaticLayout;
 import edu.uci.ics.jung.algorithms.layout.util.Relaxer;
 import edu.uci.ics.jung.algorithms.layout.util.VisRunner;
 import edu.uci.ics.jung.algorithms.util.IterativeContext;
-import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.ObservableGraph;
-import edu.uci.ics.jung.graph.event.GraphEvent;
-import edu.uci.ics.jung.graph.event.GraphEventListener;
+import edu.uci.ics.jung.graph.ObservableNetwork;
+import edu.uci.ics.jung.graph.event.NetworkEvent;
+import edu.uci.ics.jung.graph.event.NetworkEventListener;
 import edu.uci.ics.jung.graph.util.Graphs;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
@@ -59,11 +59,11 @@ public class AnimatingAddNodeDemo extends javax.swing.JApplet {
 	 */
 	private static final long serialVersionUID = -5345319851341875800L;
 
-	private Graph<Number,Number> g = null;
+	private MutableNetwork<Number,Number> g = null;
 
     private VisualizationViewer<Number,Number> vv = null;
 
-    private AbstractLayout<Number,Number> layout = null;
+    private AbstractLayout<Number> layout = null;
 
     Timer timer;
 
@@ -77,27 +77,27 @@ public class AnimatingAddNodeDemo extends javax.swing.JApplet {
     public void init() {
 
         //create a graph
-    	Graph<Number,Number> ig = Graphs.<Number,Number>synchronizedDirectedGraph(new DirectedSparseMultigraph<Number,Number>());
+    	MutableNetwork<Number,Number> original = NetworkBuilder.directed().allowsParallelEdges(true).build();
+    	MutableNetwork<Number,Number> ig = Graphs.synchronizedNetwork(original);
+        ObservableNetwork<Number,Number> og = new ObservableNetwork<Number,Number>(ig);
+        og.addGraphEventListener(new NetworkEventListener<Number,Number>() {
 
-        ObservableGraph<Number,Number> og = new ObservableGraph<Number,Number>(ig);
-        og.addGraphEventListener(new GraphEventListener<Number,Number>() {
-
-			public void handleGraphEvent(GraphEvent<Number, Number> evt) {
+			public void handleGraphEvent(NetworkEvent<Number, Number> evt) {
 				System.err.println("got "+evt);
 
 			}});
         this.g = og;
         //create a graphdraw
-        layout = new FRLayout<Number,Number>(g);
+        layout = new FRLayout<Number>(g.asGraph());
         layout.setSize(new Dimension(600,600));
 		Relaxer relaxer = new VisRunner((IterativeContext)layout);
 		relaxer.stop();
 		relaxer.prerelax();
 
-		Layout<Number,Number> staticLayout =
-			new StaticLayout<Number,Number>(g, layout);
+		Layout<Number> staticLayout =
+			new StaticLayout<Number>(g.asGraph(), layout);
 
-        vv = new VisualizationViewer<Number,Number>(staticLayout, new Dimension(600,600));
+        vv = new VisualizationViewer<Number,Number>(ig, staticLayout, new Dimension(600,600));
 
         JRootPane rp = this.getRootPane();
         rp.putClientProperty("defeatSystemEventQueueCheck", Boolean.TRUE);
@@ -133,13 +133,13 @@ public class AnimatingAddNodeDemo extends javax.swing.JApplet {
                 if (switchLayout.getText().indexOf("Spring") > 0) {
                     switchLayout.setText("Switch to FRLayout");
                     layout =
-                    	new SpringLayout<Number,Number>(g, Functions.constant(EDGE_LENGTH));
+                    	new SpringLayout<Number>(g.asGraph(), Functions.constant(EDGE_LENGTH));
                     layout.setSize(d);
             		Relaxer relaxer = new VisRunner((IterativeContext)layout);
             		relaxer.stop();
             		relaxer.prerelax();
-            		StaticLayout<Number,Number> staticLayout =
-            			new StaticLayout<Number,Number>(g, layout);
+            		StaticLayout<Number> staticLayout =
+            			new StaticLayout<Number>(g.asGraph(), layout);
     				LayoutTransition<Number,Number> lt =
     					new LayoutTransition<Number,Number>(vv, vv.getGraphLayout(),
     							staticLayout);
@@ -149,13 +149,13 @@ public class AnimatingAddNodeDemo extends javax.swing.JApplet {
 
                 } else {
                     switchLayout.setText("Switch to SpringLayout");
-                    layout = new FRLayout<Number,Number>(g, d);
+                    layout = new FRLayout<Number>(g.asGraph(), d);
                     layout.setSize(d);
             		Relaxer relaxer = new VisRunner((IterativeContext)layout);
             		relaxer.stop();
             		relaxer.prerelax();
-            		StaticLayout<Number,Number> staticLayout =
-            			new StaticLayout<Number,Number>(g, layout);
+            		StaticLayout<Number> staticLayout =
+            			new StaticLayout<Number>(g.asGraph(), layout);
     				LayoutTransition<Number,Number> lt =
     					new LayoutTransition<Number,Number>(vv, vv.getGraphLayout(),
     							staticLayout);
@@ -188,23 +188,23 @@ public class AnimatingAddNodeDemo extends javax.swing.JApplet {
     	vv.getRenderContext().getPickedEdgeState().clear();
         try {
 
-            if (g.getVertexCount() < 100) {
+            if (g.nodes().size() < 100) {
                 //add a vertex
-                Integer v1 = new Integer(g.getVertexCount());
+                Integer v1 = new Integer(g.nodes().size());
 
-                g.addVertex(v1);
+                g.addNode(v1);
                 vv.getRenderContext().getPickedVertexState().pick(v1, true);
 
                 // wire it to some edges
                 if (v_prev != null) {
-                	Integer edge = g.getEdgeCount();
+                	Integer edge = g.edges().size();
                 	vv.getRenderContext().getPickedEdgeState().pick(edge, true);
-                    g.addEdge(edge, v_prev, v1);
+                    g.addEdge(v_prev, v1, edge);
                     // let's connect to a random vertex, too!
-                    int rand = (int) (Math.random() * g.getVertexCount());
-                    edge = g.getEdgeCount();
+                    int rand = (int) (Math.random() * g.nodes().size());
+                    edge = g.edges().size();
                 	vv.getRenderContext().getPickedEdgeState().pick(edge, true);
-                   g.addEdge(edge, v1, rand);
+                   g.addEdge(v1, rand, edge);
                 }
 
                 v_prev = v1;
@@ -214,8 +214,8 @@ public class AnimatingAddNodeDemo extends javax.swing.JApplet {
         		Relaxer relaxer = new VisRunner((IterativeContext)layout);
         		relaxer.stop();
         		relaxer.prerelax();
-        		StaticLayout<Number,Number> staticLayout =
-        			new StaticLayout<Number,Number>(g, layout);
+        		StaticLayout<Number> staticLayout =
+        			new StaticLayout<Number>(g.asGraph(), layout);
 				LayoutTransition<Number,Number> lt =
 					new LayoutTransition<Number,Number>(vv, vv.getGraphLayout(),
 							staticLayout);

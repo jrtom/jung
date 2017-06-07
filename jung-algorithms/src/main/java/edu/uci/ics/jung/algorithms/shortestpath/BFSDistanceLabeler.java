@@ -18,7 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import edu.uci.ics.jung.graph.Hypergraph;
+import com.google.common.base.Preconditions;
+import com.google.common.graph.Graph;
 
 /**
  * Labels each node in the graph according to the BFS distance from the start node(s). If nodes are unreachable, then
@@ -28,27 +29,28 @@ import edu.uci.ics.jung.graph.Hypergraph;
  * Running time is: O(m)
  * @author Scott White
  */
-public class BFSDistanceLabeler<V, E> {
+// TODO: update or replace
+public class BFSDistanceLabeler<N> {
 
-    private Map<V, Number> distanceDecorator = new HashMap<V,Number>();
-    private List<V> mCurrentList;
-    private Set<V> mUnvisitedVertices;
-    private List<V> mVerticesInOrderVisited;
-    private Map<V,HashSet<V>> mPredecessorMap;
+    private Map<N, Integer> distanceDecorator = new HashMap<N, Integer>();
+    private List<N> mCurrentList;
+    private Set<N> mUnvisitedVertices;
+    private List<N> mVerticesInOrderVisited;
+    private Map<N,HashSet<N>> mPredecessorMap;
 
 	/**
 	 * Creates a new BFS labeler for the specified graph and root set
 	 * The distances are stored in the corresponding Vertex objects and are of type MutableInteger
 	 */
 	public BFSDistanceLabeler() {
-		mPredecessorMap = new HashMap<V,HashSet<V>>();
+		mPredecessorMap = new HashMap<N,HashSet<N>>();
 	}
 
     /**
      * Returns the list of vertices visited in order of traversal
      * @return the list of vertices
      */
-    public List<V> getVerticesInOrderVisited() {
+    public List<N> getVerticesInOrderVisited() {
         return mVerticesInOrderVisited;
     }
 
@@ -56,7 +58,7 @@ public class BFSDistanceLabeler<V, E> {
      * Returns the set of all vertices that were not visited
      * @return the list of unvisited vertices
      */
-    public Set<V> getUnvisitedVertices() {
+    public Set<N> getUnvisitedVertices() {
         return mUnvisitedVertices;
     }
 
@@ -66,12 +68,14 @@ public class BFSDistanceLabeler<V, E> {
      * @param v the vertex whose distance is to be retrieved
      * @return the shortest distance from any node in the root set to v
      */
-    public int getDistance(Hypergraph<V,E> g, V v) {
-        if (!g.getVertices().contains(v)) {
+    public int getDistance(Graph<N> g, N v) {
+    	Preconditions.checkArgument(g.nodes().contains(v),
+    			"Vertex %s is not contained in the graph %s", v, g);
+        if (!g.nodes().contains(v)) {
             throw new IllegalArgumentException("Vertex is not contained in the graph.");
         }
 
-        return distanceDecorator.get(v).intValue();
+        return distanceDecorator.get(v);
     }
 
     /**
@@ -79,20 +83,20 @@ public class BFSDistanceLabeler<V, E> {
      * @param v the vertex whose predecessors are to be retrieved
      * @return the set of predecessors
      */
-    public Set<V> getPredecessors(V v) {
+    public Set<N> getPredecessors(N v) {
         return mPredecessorMap.get(v);
     }
 
-    protected void initialize(Hypergraph<V,E> g, Set<V> rootSet) {
-        mVerticesInOrderVisited = new ArrayList<V>();
-        mUnvisitedVertices = new HashSet<V>();
-        for(V currentVertex : g.getVertices()) {
+    protected void initialize(Graph<N> g, Set<N> rootSet) {
+        mVerticesInOrderVisited = new ArrayList<N>();
+        mUnvisitedVertices = new HashSet<N>();
+        for(N currentVertex : g.nodes()) {
             mUnvisitedVertices.add(currentVertex);
-            mPredecessorMap.put(currentVertex,new HashSet<V>());
+            mPredecessorMap.put(currentVertex,new HashSet<N>());
         }
 
-        mCurrentList = new ArrayList<V>();
-        for(V v : rootSet) {
+        mCurrentList = new ArrayList<N>();
+        for(N v : rootSet) {
             distanceDecorator.put(v, new Integer(0));
             mCurrentList.add(v);
             mUnvisitedVertices.remove(v);
@@ -100,8 +104,8 @@ public class BFSDistanceLabeler<V, E> {
         }
     }
 
-    private void addPredecessor(V predecessor,V sucessor) {
-        HashSet<V> predecessors = mPredecessorMap.get(sucessor);
+    private void addPredecessor(N predecessor,N successor) {
+        HashSet<N> predecessors = mPredecessorMap.get(successor);
         predecessors.add(predecessor);
     }
 
@@ -112,16 +116,16 @@ public class BFSDistanceLabeler<V, E> {
      * @param graph the graph to label
      * @param rootSet the set of starting vertices to traverse from
      */
-    public void labelDistances(Hypergraph<V,E> graph, Set<V> rootSet) {
+    public void labelDistances(Graph<N> graph, Set<N> rootSet) {
 
         initialize(graph,rootSet);
 
         int distance = 1;
         while (true) {
-            List<V> newList = new ArrayList<V>();
-            for(V currentVertex : mCurrentList) {
-            	if(graph.containsVertex(currentVertex)) {
-            		for(V next : graph.getSuccessors(currentVertex)) {
+            List<N> newList = new ArrayList<N>();
+            for(N currentVertex : mCurrentList) {
+            	if(graph.nodes().contains(currentVertex)) {
+            		for(N next : graph.successors(currentVertex)) {
             			visitNewVertex(currentVertex,next, distance, newList);
             		}
             	}
@@ -131,7 +135,7 @@ public class BFSDistanceLabeler<V, E> {
             distance++;
         }
 
-        for(V v : mUnvisitedVertices) {
+        for(N v : mUnvisitedVertices) {
             distanceDecorator.put(v,new Integer(-1));
         }
     }
@@ -142,11 +146,11 @@ public class BFSDistanceLabeler<V, E> {
      *  @param graph the graph to label
      * @param root the single starting vertex to traverse from
      */
-    public void labelDistances(Hypergraph<V,E> graph, V root) {
+    public void labelDistances(Graph<N> graph, N root) {
         labelDistances(graph, Collections.singleton(root));
     }
 
-    private void visitNewVertex(V predecessor, V neighbor, int distance, List<V> newList) {
+    private void visitNewVertex(N predecessor, N neighbor, int distance, List<N> newList) {
         if (mUnvisitedVertices.contains(neighbor)) {
             distanceDecorator.put(neighbor, new Integer(distance));
             newList.add(neighbor);
@@ -164,7 +168,7 @@ public class BFSDistanceLabeler<V, E> {
      * Must be called after {@code labelDistances} in order to contain valid data.
      * @return a map from vertices to minimum distances from the original source(s)
      */
-    public Map<V, Number> getDistanceDecorator() {
+    public Map<N, Integer> getDistanceDecorator() {
         return distanceDecorator;
     }
 }

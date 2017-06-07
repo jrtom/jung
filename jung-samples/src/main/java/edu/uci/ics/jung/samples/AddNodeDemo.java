@@ -24,17 +24,19 @@ import javax.swing.JFrame;
 import javax.swing.JRootPane;
 
 import com.google.common.base.Functions;
+import com.google.common.graph.MutableNetwork;
+import com.google.common.graph.NetworkBuilder;
 
 import edu.uci.ics.jung.algorithms.layout.AbstractLayout;
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.algorithms.layout.FRLayout2;
+import edu.uci.ics.jung.algorithms.layout.Layout;
+import edu.uci.ics.jung.algorithms.layout.LayoutDecorator;
 import edu.uci.ics.jung.algorithms.layout.SpringLayout;
 import edu.uci.ics.jung.algorithms.layout.util.Relaxer;
-import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.ObservableGraph;
-import edu.uci.ics.jung.graph.event.GraphEvent;
-import edu.uci.ics.jung.graph.event.GraphEventListener;
+import edu.uci.ics.jung.graph.ObservableNetwork;
+import edu.uci.ics.jung.graph.event.NetworkEvent;
+import edu.uci.ics.jung.graph.event.NetworkEventListener;
 import edu.uci.ics.jung.graph.util.Graphs;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
@@ -53,11 +55,11 @@ public class AddNodeDemo extends javax.swing.JApplet {
 	 */
 	private static final long serialVersionUID = -5345319851341875800L;
 
-	private Graph<Number,Number> g = null;
+	private MutableNetwork<Number,Number> g = null;
 
     private VisualizationViewer<Number,Number> vv = null;
 
-    private AbstractLayout<Number,Number> layout = null;
+    private AbstractLayout<Number> layout = null;
 
     Timer timer;
 
@@ -73,21 +75,31 @@ public class AddNodeDemo extends javax.swing.JApplet {
     public void init() {
 
         //create a graph
-    	Graph<Number,Number> ig = Graphs.<Number,Number>synchronizedDirectedGraph(new DirectedSparseMultigraph<Number,Number>());
-
-        ObservableGraph<Number,Number> og = new ObservableGraph<Number,Number>(ig);
-        og.addGraphEventListener(new GraphEventListener<Number,Number>() {
-
-			public void handleGraphEvent(GraphEvent<Number, Number> evt) {
-				System.err.println("got "+evt);
-
+    	MutableNetwork<Number,Number> original = NetworkBuilder.directed().allowsParallelEdges(true).allowsSelfLoops(true).build();
+    	MutableNetwork<Number,Number> ig = Graphs.synchronizedNetwork(original);
+        ObservableNetwork<Number,Number> og = new ObservableNetwork<Number,Number>(ig);
+        og.addGraphEventListener(new NetworkEventListener<Number,Number>() {
+			public void handleGraphEvent(NetworkEvent<Number, Number> evt) {
+				switch (evt.getType()) {
+				case EDGE_ADDED:
+				case EDGE_REMOVED:
+					NetworkEvent.Edge<Number, Number> edgeEvent = (NetworkEvent.Edge<Number, Number>) evt;
+					System.err.println("got " + evt + " with endpoints: " + original.incidentNodes(edgeEvent.getEdge()));
+					break;
+				case VERTEX_ADDED:
+				case VERTEX_REMOVED:
+					System.err.println("got " + evt);
+					break;
+				default:
+					throw new IllegalArgumentException("Unrecognized event type: " + evt);
+				}
 			}});
         this.g = og;
         //create a graphdraw
-        layout = new FRLayout2<Number,Number>(g);
+        layout = new FRLayout2<Number>(g.asGraph());
 //        ((FRLayout)layout).setMaxIterations(200);
 
-        vv = new VisualizationViewer<Number,Number>(layout, new Dimension(600,600));
+        vv = new VisualizationViewer<Number,Number>(g, layout, new Dimension(600,600));
 
         JRootPane rp = this.getRootPane();
         rp.putClientProperty("defeatSystemEventQueueCheck", Boolean.TRUE);
@@ -110,14 +122,20 @@ public class AddNodeDemo extends javax.swing.JApplet {
             	Dimension d = new Dimension(600,600);
                 if (switchLayout.getText().indexOf("Spring") > 0) {
                     switchLayout.setText("Switch to FRLayout");
-                    layout = new SpringLayout<Number,Number>(g,
+                    layout = new SpringLayout<Number>(g.asGraph(),
                         Functions.<Integer>constant(EDGE_LENGTH));
                     layout.setSize(d);
                     vv.getModel().setGraphLayout(layout, d);
+                    Layout<Number> delegateLayout = ((LayoutDecorator<Number>) vv.getModel().getGraphLayout()).getDelegate();
+                    System.err.println("layout: " + delegateLayout.getClass().getName());
+//                    vv.repaint();
                 } else {
                     switchLayout.setText("Switch to SpringLayout");
-                    layout = new FRLayout<Number,Number>(g, d);
+                    layout = new FRLayout<Number>(g.asGraph(), d);
                     vv.getModel().setGraphLayout(layout, d);
+                    Layout<Number> delegateLayout = ((LayoutDecorator<Number>) vv.getModel().getGraphLayout()).getDelegate();
+                    System.err.println("layout: " + delegateLayout.getClass().getName());
+//                    vv.repaint();
                 }
             }
         });
@@ -141,22 +159,21 @@ public class AddNodeDemo extends javax.swing.JApplet {
 
         try {
 
-            if (g.getVertexCount() < 100) {
+            if (g.nodes().size() < 100) {
             	layout.lock(true);
-                //add a vertex
-                Integer v1 = new Integer(g.getVertexCount());
+                Integer v1 = g.nodes().size();
 
                 Relaxer relaxer = vv.getModel().getRelaxer();
                 relaxer.pause();
-                g.addVertex(v1);
+                g.addNode(v1);
                 System.err.println("added node " + v1);
 
                 // wire it to some edges
                 if (v_prev != null) {
-                    g.addEdge(g.getEdgeCount(), v_prev, v1);
+                    g.addEdge(v_prev, v1, g.edges().size());
                     // let's connect to a random vertex, too!
-                    int rand = (int) (Math.random() * g.getVertexCount());
-                    g.addEdge(g.getEdgeCount(), v1, rand);
+                    int rand = (int) (Math.random() * g.nodes().size());
+                    g.addEdge(v1, rand, g.edges().size());
                 }
 
                 v_prev = v1;

@@ -19,6 +19,7 @@ import java.awt.event.ActionListener;
 import java.awt.geom.Point2D;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import javax.swing.BorderFactory;
@@ -31,12 +32,12 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import com.google.common.base.Function;
-import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
+import com.google.common.graph.Network;
 
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.util.Pair;
 import edu.uci.ics.jung.graph.util.TestGraphs;
 import edu.uci.ics.jung.visualization.DefaultVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
@@ -61,7 +62,7 @@ import edu.uci.ics.jung.visualization.util.PredicatedParallelEdgeIndexFunction;
  * 
  * Note that the collection types don't use generics in this
  * demo, because the vertices are of two types: String for plain
- * vertices, and {@code Graph<String,Number>} for the collapsed vertices.
+ * vertices, and {@code Network<String,Number>} for the collapsed vertices.
  * 
  * @author Tom Nelson
  * 
@@ -90,7 +91,7 @@ public class VertexCollapseDemo extends JApplet {
     /**
      * the graph
      */
-    Graph graph;
+    Network graph;
 
     /**
      * the visual component and renderer for the graph
@@ -101,31 +102,25 @@ public class VertexCollapseDemo extends JApplet {
     
     GraphCollapser collapser;
 
+    // FIXME: make sure I did the right thing with the graph handling (see VertexCollapseDemoWithLayouts)
     public VertexCollapseDemo() {
         
         // create a simple graph for the demo
-        graph = 
-            TestGraphs.getOneComponentGraph();
+        graph = TestGraphs.getOneComponentGraph();
         collapser = new GraphCollapser(graph);
         
-        layout = new FRLayout(graph);
+        layout = new FRLayout(graph.asGraph());
 
         Dimension preferredSize = new Dimension(400,400);
         final VisualizationModel visualizationModel = 
-            new DefaultVisualizationModel(layout, preferredSize);
+            new DefaultVisualizationModel(graph, layout, preferredSize);
         vv =  new VisualizationViewer(visualizationModel, preferredSize);
         
         vv.getRenderContext().setVertexShapeTransformer(new ClusterVertexShapeFunction());
         
-        final PredicatedParallelEdgeIndexFunction eif = PredicatedParallelEdgeIndexFunction.getInstance();
         final Set exclusions = new HashSet();
-        eif.setPredicate(new Predicate() {
-
-			public boolean apply(Object e) {
-				
-				return exclusions.contains(e);
-			}});
-        
+        final PredicatedParallelEdgeIndexFunction eif
+        	= new PredicatedParallelEdgeIndexFunction(graph, Predicates.in(exclusions));
         
         vv.getRenderContext().setParallelEdgeIndexFunction(eif);
 
@@ -178,10 +173,8 @@ public class VertexCollapseDemo extends JApplet {
             public void actionPerformed(ActionEvent e) {
                 Collection picked = new HashSet(vv.getPickedVertexState().getPicked());
                 if(picked.size() > 1) {
-                    Graph inGraph = layout.getGraph();
-                    Graph clusterGraph = collapser.getClusterGraph(inGraph, picked);
-
-                    Graph g = collapser.collapse(layout.getGraph(), clusterGraph);
+                    Network clusterGraph = collapser.getClusterGraph(graph, picked);
+                    Network g = collapser.collapse(graph, clusterGraph);
                     double sumx = 0;
                     double sumy = 0;
                     for(Object v : picked) {
@@ -191,7 +184,7 @@ public class VertexCollapseDemo extends JApplet {
                     }
                     Point2D cp = new Point2D.Double(sumx/picked.size(), sumy/picked.size());
                     vv.getRenderContext().getParallelEdgeIndexFunction().reset();
-                    layout.setGraph(g);
+                    layout = new FRLayout(g.asGraph());
                     layout.setLocation(clusterGraph, cp);
                     vv.getPickedVertexState().clear();
                     vv.repaint();
@@ -202,28 +195,31 @@ public class VertexCollapseDemo extends JApplet {
         compressEdges.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
-				Collection picked = vv.getPickedVertexState().getPicked();
+				Set picked = vv.getPickedVertexState().getPicked();
 				if(picked.size() == 2) {
-					Pair pair = new Pair(picked);
-					Graph graph = layout.getGraph();
-					Collection edges = new HashSet(graph.getIncidentEdges(pair.getFirst()));
-					edges.retainAll(graph.getIncidentEdges(pair.getSecond()));
+					Iterator pickedIter = picked.iterator();
+					Object nodeU = pickedIter.next();
+					Object nodeV = pickedIter.next();
+					Network graph = vv.getModel().getNetwork();
+					Collection edges = new HashSet(graph.incidentEdges(nodeU));
+					edges.retainAll(graph.incidentEdges(nodeV));
 					exclusions.addAll(edges);
 					vv.repaint();
 				}
-				
 			}});
         
         JButton expandEdges = new JButton("Expand Edges");
         expandEdges.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
-				Collection picked = vv.getPickedVertexState().getPicked();
-				if(picked.size() == 2) {
-					Pair pair = new Pair(picked);
-					Graph graph = layout.getGraph();
-					Collection edges = new HashSet(graph.getIncidentEdges(pair.getFirst()));
-					edges.retainAll(graph.getIncidentEdges(pair.getSecond()));
+				Set picked = vv.getPickedVertexState().getPicked();
+				if (picked.size() == 2) {
+					Iterator pickedIter = picked.iterator();
+					Object nodeU = pickedIter.next();
+					Object nodeV = pickedIter.next();
+					Network graph = vv.getModel().getNetwork();
+					Collection edges = new HashSet(graph.incidentEdges(nodeU));
+					edges.retainAll(graph.incidentEdges(nodeV));
 					exclusions.removeAll(edges);
 					vv.repaint();
 				}
@@ -238,9 +234,10 @@ public class VertexCollapseDemo extends JApplet {
                 for(Object v : picked) {
                     if(v instanceof Graph) {
                         
-                        Graph g = collapser.expand(layout.getGraph(), (Graph)v);
+                        Network g = collapser.expand(vv.getModel().getNetwork(), (Network) v);
                         vv.getRenderContext().getParallelEdgeIndexFunction().reset();
-                        layout.setGraph(g);
+                        layout = new FRLayout(g.asGraph());
+//                        layout.setGraph(g);
                     }
                     vv.getPickedVertexState().clear();
                    vv.repaint();
@@ -251,7 +248,8 @@ public class VertexCollapseDemo extends JApplet {
         reset.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
-                layout.setGraph(graph);
+                layout = new FRLayout(vv.getModel().getNetwork().asGraph());
+//                layout.setGraph(graph);
                 exclusions.clear();
                 vv.repaint();
             }});

@@ -11,20 +11,18 @@
  */
 package edu.uci.ics.jung.visualization.decorators;
 
+import static edu.uci.ics.jung.graph.util.Graphs.isSelfLoop;
+
 import java.awt.Color;
 import java.awt.GradientPaint;
 import java.awt.Paint;
 import java.awt.geom.Point2D;
 
 import com.google.common.base.Function;
-import com.google.common.base.Predicate;
+import com.google.common.graph.EndpointPair;
+import com.google.common.graph.Network;
 
 import edu.uci.ics.jung.algorithms.layout.Layout;
-import edu.uci.ics.jung.algorithms.util.SelfLoopEdgePredicate;
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.util.Context;
-import edu.uci.ics.jung.graph.util.EdgeType;
-import edu.uci.ics.jung.graph.util.Pair;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.transform.BidirectionalTransformer;
@@ -39,41 +37,40 @@ import edu.uci.ics.jung.visualization.transform.BidirectionalTransformer;
  * 
  * @author Joshua O'Madadhain
  */
-public class GradientEdgePaintTransformer<V, E> 
-	implements Function<E,Paint>
+public class GradientEdgePaintTransformer<N, E> implements Function<E,Paint>
 {
     protected Color c1;
     protected Color c2;
-    protected VisualizationViewer<V,E> vv;
+    protected Network<N, E> graph;
+    protected Layout<N> layout;
     protected BidirectionalTransformer transformer;
-    protected Predicate<Context<Graph<V,E>,E>> selfLoop = new SelfLoopEdgePredicate<V,E>();
 
     public GradientEdgePaintTransformer(Color c1, Color c2, 
-            VisualizationViewer<V,E> vv)
+            VisualizationViewer<N, E> vv)
     {
         this.c1 = c1;
         this.c2 = c2;
-        this.vv = vv;
+        this.graph = vv.getModel().getNetwork();
+        this.layout = vv.getGraphLayout();
         this.transformer = vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT);
     }
     
     public Paint apply(E e)
     {
-        Layout<V, E> layout = vv.getGraphLayout();
-        Pair<V> p = layout.getGraph().getEndpoints(e);
-        V b = p.getFirst();
-        V f = p.getSecond();
+    	EndpointPair<N> endpoints = graph.incidentNodes(e);
+        N b = endpoints.nodeU();
+        N f = endpoints.nodeV();
         Point2D pb = transformer.transform(layout.apply(b));
         Point2D pf = transformer.transform(layout.apply(f));
         float xB = (float) pb.getX();
         float yB = (float) pb.getY();
         float xF = (float) pf.getX();
         float yF = (float) pf.getY();
-        if ((layout.getGraph().getEdgeType(e)) == EdgeType.UNDIRECTED)  {
+        if (!graph.isDirected()) {
             xF = (xF + xB) / 2;
             yF = (yF + yB) / 2;
         } 
-        if(selfLoop.apply(Context.<Graph<V,E>,E>getInstance(layout.getGraph(), e))) {
+        if (isSelfLoop(endpoints)) {
         	yF += 50;
         	xF += 50;
         }

@@ -35,17 +35,12 @@ import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
-import com.google.common.base.Supplier;
-
 import edu.uci.ics.jung.algorithms.layout.PolarPoint;
 import edu.uci.ics.jung.algorithms.layout.RadialTreeLayout;
 import edu.uci.ics.jung.algorithms.layout.TreeLayout;
-import edu.uci.ics.jung.graph.DelegateForest;
-import edu.uci.ics.jung.graph.DelegateTree;
-import edu.uci.ics.jung.graph.DirectedGraph;
-import edu.uci.ics.jung.graph.DirectedSparseGraph;
-import edu.uci.ics.jung.graph.Forest;
-import edu.uci.ics.jung.graph.Tree;
+import edu.uci.ics.jung.graph.CTreeNetwork;
+import edu.uci.ics.jung.graph.MutableCTreeNetwork;
+import edu.uci.ics.jung.graph.TreeNetworkBuilder;
 import edu.uci.ics.jung.visualization.DefaultVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.Layer;
@@ -76,44 +71,15 @@ import edu.uci.ics.jung.visualization.transform.shape.ViewLensSupport;
 @SuppressWarnings("serial")
 public class RadialTreeLensDemo extends JApplet {
 	
-	Forest<String,Integer> graph;
-
-	Supplier<DirectedGraph<String,Integer>> graphFactory = 
-		new Supplier<DirectedGraph<String,Integer>>() {
-
-		public DirectedGraph<String, Integer> get() {
-			return new DirectedSparseGraph<String,Integer>();
-		}
-	};
-
-	Supplier<Tree<String,Integer>> treeFactory =
-		new Supplier<Tree<String,Integer>> () {
-
-		public Tree<String, Integer> get() {
-			return new DelegateTree<String,Integer>(graphFactory);
-		}
-	};
-	Supplier<Integer> edgeFactory = new Supplier<Integer>() {
-		int i=0;
-		public Integer get() {
-			return i++;
-		}
-	};
-
-	Supplier<String> vertexFactory = new Supplier<String>() {
-		int i=0;
-		public String get() {
-			return "V"+i++;
-		}
-	};
+	CTreeNetwork<String,Integer> graph;
 
 	VisualizationServer.Paintable rings;
 
 	String root;
 
-	TreeLayout<String,Integer> layout;
+	TreeLayout<String> layout;
 
-	RadialTreeLayout<String,Integer> radialLayout;
+	RadialTreeLayout<String> radialLayout;
 
 	/**
 	 * the visual component and renderer for the graph
@@ -135,19 +101,16 @@ public class RadialTreeLensDemo extends JApplet {
     public RadialTreeLensDemo() {
         
         // create a simple graph for the demo
-        // create a simple graph for the demo
-        graph = new DelegateForest<String,Integer>();
-
-        createTree();
+        graph = createTree();
         
-        layout = new TreeLayout<String,Integer>(graph);
-        radialLayout = new RadialTreeLayout<String,Integer>(graph);
+        layout = new TreeLayout<String>(graph.asGraph());
+        radialLayout = new RadialTreeLayout<String>(graph.asGraph());
         radialLayout.setSize(new Dimension(600,600));
 
         Dimension preferredSize = new Dimension(600,600);
         
         final VisualizationModel<String,Integer> visualizationModel = 
-            new DefaultVisualizationModel<String,Integer>(radialLayout, preferredSize);
+            new DefaultVisualizationModel<String,Integer>(graph, radialLayout, preferredSize);
         vv =  new VisualizationViewer<String,Integer>(visualizationModel, preferredSize);
 
         PickedState<String> ps = vv.getPickedVertexState();
@@ -225,35 +188,42 @@ public class RadialTreeLensDemo extends JApplet {
         content.add(controls, BorderLayout.SOUTH);
     }
 
-    private void createTree() {
-    	graph.addVertex("V0");
-    	graph.addEdge(edgeFactory.get(), "V0", "V1");
-    	graph.addEdge(edgeFactory.get(), "V0", "V2");
-    	graph.addEdge(edgeFactory.get(), "V1", "V4");
-    	graph.addEdge(edgeFactory.get(), "V2", "V3");
-    	graph.addEdge(edgeFactory.get(), "V2", "V5");
-    	graph.addEdge(edgeFactory.get(), "V4", "V6");
-    	graph.addEdge(edgeFactory.get(), "V4", "V7");
-    	graph.addEdge(edgeFactory.get(), "V3", "V8");
-    	graph.addEdge(edgeFactory.get(), "V6", "V9");
-    	graph.addEdge(edgeFactory.get(), "V4", "V10");
+    private CTreeNetwork<String, Integer> createTree() {
+    	MutableCTreeNetwork<String, Integer> tree =
+    			TreeNetworkBuilder.builder().expectedNodeCount(27).build();
     	
-       	graph.addVertex("A0");
-       	graph.addEdge(edgeFactory.get(), "A0", "A1");
-       	graph.addEdge(edgeFactory.get(), "A0", "A2");
-       	graph.addEdge(edgeFactory.get(), "A0", "A3");
+    	tree.addNode("root");
+    	
+    	int edgeId = 0;
+    	tree.addEdge("root", "V0", edgeId++);
+    	tree.addEdge("V0", "V1", edgeId++);
+    	tree.addEdge("V0", "V2", edgeId++);
+    	tree.addEdge("V1", "V4", edgeId++);
+    	tree.addEdge("V2", "V3", edgeId++);
+    	tree.addEdge("V2", "V5", edgeId++);
+    	tree.addEdge("V4", "V6", edgeId++);
+    	tree.addEdge("V4", "V7", edgeId++);
+    	tree.addEdge("V3", "V8", edgeId++);
+    	tree.addEdge("V6", "V9", edgeId++);
+    	tree.addEdge("V4", "V10", edgeId++);
+    	
+    	tree.addEdge("root", "A0", edgeId++);
+       	tree.addEdge("A0", "A1", edgeId++);
+       	tree.addEdge("A0", "A2", edgeId++);
+       	tree.addEdge("A0", "A3", edgeId++);
        	
-       	graph.addVertex("B0");
-    	graph.addEdge(edgeFactory.get(), "B0", "B1");
-    	graph.addEdge(edgeFactory.get(), "B0", "B2");
-    	graph.addEdge(edgeFactory.get(), "B1", "B4");
-    	graph.addEdge(edgeFactory.get(), "B2", "B3");
-    	graph.addEdge(edgeFactory.get(), "B2", "B5");
-    	graph.addEdge(edgeFactory.get(), "B4", "B6");
-    	graph.addEdge(edgeFactory.get(), "B4", "B7");
-    	graph.addEdge(edgeFactory.get(), "B3", "B8");
-    	graph.addEdge(edgeFactory.get(), "B6", "B9");
-       	
+    	tree.addEdge("root", "B0", edgeId++);
+    	tree.addEdge("B0", "B1", edgeId++);
+    	tree.addEdge("B0", "B2", edgeId++);
+    	tree.addEdge("B1", "B4", edgeId++);
+    	tree.addEdge("B2", "B3", edgeId++);
+    	tree.addEdge("B2", "B5", edgeId++);
+    	tree.addEdge("B4", "B6", edgeId++);
+    	tree.addEdge("B4", "B7", edgeId++);
+    	tree.addEdge("B3", "B8", edgeId++);
+    	tree.addEdge("B6", "B9", edgeId++);
+    	
+       	return tree;
     }
 
     class Rings implements VisualizationServer.Paintable {
@@ -267,7 +237,7 @@ public class RadialTreeLensDemo extends JApplet {
     	private Collection<Double> getDepths() {
     		Set<Double> depths = new HashSet<Double>();
     		Map<String,PolarPoint> polarLocations = radialLayout.getPolarLocations();
-    		for(String v : graph.getVertices()) {
+    		for(String v : graph.nodes()) {
     			PolarPoint pp = polarLocations.get(v);
     			depths.add(pp.getRadius());
     		}

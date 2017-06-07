@@ -10,7 +10,7 @@ package edu.uci.ics.jung.visualization.transform.shape;
 
 import java.awt.Dimension;
 
-import edu.uci.ics.jung.algorithms.layout.GraphElementAccessor;
+import edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
@@ -36,7 +36,7 @@ public class ViewLensSupport<V,E> extends AbstractLensSupport<V,E>
     protected RenderContext<V,E> renderContext;
     protected GraphicsDecorator lensGraphicsDecorator;
     protected GraphicsDecorator savedGraphicsDecorator;
-    protected GraphElementAccessor<V,E> pickSupport;
+    protected NetworkElementAccessor<V,E> pickSupport;
     protected Renderer.Edge<V,E> savedEdgeRenderer;
     protected Renderer.Edge<V,E> reshapingEdgeRenderer;
 
@@ -52,7 +52,7 @@ public class ViewLensSupport<V,E> extends AbstractLensSupport<V,E>
         lensTransformer.setViewRadius(d.width/5);
         this.lensGraphicsDecorator = new TransformingFlatnessGraphics(lensTransformer);
         this.savedEdgeRenderer = vv.getRenderer().getEdgeRenderer();
-        this.reshapingEdgeRenderer = new ReshapingEdgeRenderer<V,E>();
+        this.reshapingEdgeRenderer = new ReshapingEdgeRenderer<V,E>(vv.getGraphLayout(), renderContext);
         this.reshapingEdgeRenderer.setEdgeArrowRenderingSupport(savedEdgeRenderer.getEdgeArrowRenderingSupport());
 
     }

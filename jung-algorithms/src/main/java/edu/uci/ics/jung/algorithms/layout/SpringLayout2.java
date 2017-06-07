@@ -12,8 +12,8 @@ import java.awt.geom.Point2D;
 import java.util.ConcurrentModificationException;
 
 import com.google.common.base.Function;
-
-import edu.uci.ics.jung.graph.Graph;
+import com.google.common.graph.EndpointPair;
+import com.google.common.graph.Graph;
 
 /**
  * The SpringLayout package represents a visualization of a set of nodes. The
@@ -26,7 +26,7 @@ import edu.uci.ics.jung.graph.Graph;
  * @author Danyel Fisher
  * @author Joshua O'Madadhain
  */
-public class SpringLayout2<V, E> extends SpringLayout<V,E> 
+public class SpringLayout2<N> extends SpringLayout<N> 
 {
     protected int currentIteration;
     protected int averageCounter;
@@ -41,7 +41,7 @@ public class SpringLayout2<V, E> extends SpringLayout<V,E>
      * length function.
 	 * @param g the graph on which the layout algorithm is to operate
      */
-    public SpringLayout2(Graph<V,E> g) {
+    public SpringLayout2(Graph<N> g) {
         super(g);
     }
 
@@ -51,7 +51,7 @@ public class SpringLayout2<V, E> extends SpringLayout<V,E>
      * @param g the {@code Graph} to lay out
      * @param length_function provides a length for each edge
      */
-    public SpringLayout2(Graph<V,E> g, Function<E, Integer> length_function)
+    public SpringLayout2(Graph<N> g, Function<EndpointPair<N>, Integer> length_function)
     {
         super(g, length_function);
     }
@@ -84,11 +84,11 @@ public class SpringLayout2<V, E> extends SpringLayout<V,E>
     protected void moveNodes() {
         synchronized (getSize()) {
             try {
-                for (V v : getGraph().getVertices()) {
-                    if (isLocked(v)) continue;
-                    SpringVertexData vd = springVertexData.getUnchecked(v);
+                for (N node : graph.nodes()) {
+                    if (isLocked(node)) continue;
+                    SpringNodeData vd = springNodeData.getUnchecked(node);
                     if(vd == null) continue;
-                    Point2D xyd = apply(v);
+                    Point2D xyd = apply(node);
                     
                     vd.dx += vd.repulsiondx + vd.edgedx;
                     vd.dy += vd.repulsiondy + vd.edgedy;

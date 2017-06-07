@@ -15,11 +15,11 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import com.google.common.base.Function;
 
 import edu.uci.ics.jung.algorithms.util.IterativeContext;
-import edu.uci.ics.jung.graph.Graph;
 
 /**
  * A {@code Layout} implementation that combines 
@@ -29,33 +29,33 @@ import edu.uci.ics.jung.graph.Graph;
  * 
  * @author Tom Nelson - tomnelson@dev.java.net
  *
- * @param <V> the vertex type
+ * @param <N> the node type
  * @param <E> the edge type
  */
-public class AggregateLayout<V, E> implements Layout<V,E>, IterativeContext {
+public class AggregateLayout<N> implements Layout<N>, IterativeContext {
 
-	protected Layout<V,E> delegate;
-	protected Map<Layout<V,E>,Point2D> layouts = new HashMap<Layout<V,E>,Point2D>();
+	protected Layout<N> delegate;
+	protected Map<Layout<N>,Point2D> layouts = new HashMap<Layout<N>,Point2D>();
 
 	/**
 	 * Creates an instance backed by the specified {@code delegate}.
 	 * @param delegate the layout to which this instance is delegating
 	 */
-	public AggregateLayout(Layout<V, E> delegate) {
+	public AggregateLayout(Layout<N> delegate) {
 		this.delegate = delegate;
 	}
 
 	/**
 	 * @return the delegate
 	 */
-	public Layout<V, E> getDelegate() {
+	public Layout<N> getDelegate() {
 		return delegate;
 	}
 
 	/**
 	 * @param delegate the delegate to set
 	 */
-	public void setDelegate(Layout<V, E> delegate) {
+	public void setDelegate(Layout<N> delegate) {
 		this.delegate = delegate;
 	}
 
@@ -65,7 +65,7 @@ public class AggregateLayout<V, E> implements Layout<V,E>, IterativeContext {
 	 * @param layout the layout algorithm to use as a sublayout
 	 * @param center the center of the coordinates for the sublayout
 	 */
-	public void put(Layout<V,E> layout, Point2D center) {
+	public void put(Layout<N> layout, Point2D center) {
 		layouts.put(layout,center);
 	}
 	
@@ -73,7 +73,7 @@ public class AggregateLayout<V, E> implements Layout<V,E>, IterativeContext {
 	 * @param layout the layout whose center is to be returned
 	 * @return the center of the passed layout
 	 */
-	public Point2D get(Layout<V,E> layout) {
+	public Point2D get(Layout<N> layout) {
 		return layouts.get(layout);
 	}
 	
@@ -81,7 +81,7 @@ public class AggregateLayout<V, E> implements Layout<V,E>, IterativeContext {
 	 * Removes {@code layout} from this instance.
 	 * @param layout the layout to remove
 	 */
-	public void remove(Layout<V,E> layout) {
+	public void remove(Layout<N> layout) {
 		layouts.remove(layout);
 	}
 	
@@ -92,8 +92,8 @@ public class AggregateLayout<V, E> implements Layout<V,E>, IterativeContext {
 		layouts.clear();
 	}
 	
-	public Graph<V, E> getGraph() {
-		return delegate.getGraph();
+	public Set<N> nodes() {
+		return delegate.nodes();
 	}
 
 	public Dimension getSize() {
@@ -102,58 +102,54 @@ public class AggregateLayout<V, E> implements Layout<V,E>, IterativeContext {
 
 	public void initialize() {
 		delegate.initialize();
-		for(Layout<V,E> layout : layouts.keySet()) {
+		for(Layout<N> layout : layouts.keySet()) {
 			layout.initialize();
 		}
 	}
 
 	/**
-	 * @param v the vertex whose locked state is to be returned
+	 * @param v the node whose locked state is to be returned
 	 * @return true if v is locked in any of the layouts, and false otherwise
 	 */
-	public boolean isLocked(V v) {
-		for(Layout<V,E> layout : layouts.keySet()) {
-			if (layout.isLocked(v)) {
+	public boolean isLocked(N node) {
+		for(Layout<N> layout : layouts.keySet()) {
+			if (layout.isLocked(node)) {
 				return true;
 			}
 		}
-		return delegate.isLocked(v);
+		return delegate.isLocked(node);
 	}
 
 	/**
-	 * Locks this vertex in the main layout and in any sublayouts whose graph contains
-	 * this vertex.
-	 * @param v the vertex whose locked state is to be set
-	 * @param state {@code true} if the vertex is to be locked, and {@code false} if unlocked
+	 * Locks this node in the main layout and in any sublayouts whose graph contains
+	 * this node.
+	 * @param v the node whose locked state is to be set
+	 * @param state {@code true} if the node is to be locked, and {@code false} if unlocked
 	 */
-	public void lock(V v, boolean state) {
-		for(Layout<V,E> layout : layouts.keySet()) {
-			if(layout.getGraph().getVertices().contains(v)) {
-				layout.lock(v, state);
+	public void lock(N node, boolean state) {
+		for(Layout<N> layout : layouts.keySet()) {
+			if(layout.nodes().contains(node)) {
+				layout.lock(node, state);
 			}
 		}
-		delegate.lock(v, state);
+		delegate.lock(node, state);
 	}
 
 	public void reset() {
-		for(Layout<V,E> layout : layouts.keySet()) {
+		for(Layout<N> layout : layouts.keySet()) {
 			layout.reset();
 		}
 		delegate.reset();
 	}
 
-	public void setGraph(Graph<V, E> graph) {
-		delegate.setGraph(graph);
-	}
-
-	public void setInitializer(Function<V, Point2D> initializer) {
+	public void setInitializer(Function<N, Point2D> initializer) {
 		delegate.setInitializer(initializer);
 	}
 
-	public void setLocation(V v, Point2D location) {
+	public void setLocation(N node, Point2D location) {
 		boolean wasInSublayout = false;
-		for(Layout<V,E> layout : layouts.keySet()) {
-			if(layout.getGraph().getVertices().contains(v)) {
+		for(Layout<N> layout : layouts.keySet()) {
+			if(layout.nodes().contains(node)) {
 				Point2D center = layouts.get(layout);
 				// transform by the layout itself, but offset to the
 				// center of the sublayout
@@ -162,12 +158,12 @@ public class AggregateLayout<V, E> implements Layout<V,E>, IterativeContext {
 				AffineTransform at = 
 					AffineTransform.getTranslateInstance(-center.getX()+d.width/2,-center.getY()+d.height/2);
 				Point2D localLocation = at.transform(location, null);
-				layout.setLocation(v, localLocation);
+				layout.setLocation(node, localLocation);
 				wasInSublayout = true;
 			}
 		}
-		if(wasInSublayout == false && getGraph().getVertices().contains(v)) {
-			delegate.setLocation(v, location);
+		if(wasInSublayout == false && nodes().contains(node)) {
+			delegate.setLocation(node, location);
 		}
 	}
 
@@ -178,20 +174,20 @@ public class AggregateLayout<V, E> implements Layout<V,E>, IterativeContext {
 	/**
 	 * @return a map from each {@code Layout} instance to its center point.
 	 */
-	public Map<Layout<V,E>,Point2D> getLayouts() {
+	public Map<Layout<N>,Point2D> getLayouts() {
 		return layouts;
 	}
 
 	/**
-	 * Returns the location of the vertex.  The location is specified first
+	 * Returns the location of the node.  The location is specified first
 	 * by the sublayouts, and then by the base layout if no sublayouts operate
-	 * on this vertex.
-	 * @return the location of the vertex
+	 * on this node.
+	 * @return the location of the node
 	 */
-	public Point2D apply(V v) {
+	public Point2D apply(N node) {
 		boolean wasInSublayout = false;
-		for(Layout<V,E> layout : layouts.keySet()) {
-			if(layout.getGraph().getVertices().contains(v)) {
+		for(Layout<N> layout : layouts.keySet()) {
+			if(layout.nodes().contains(node)) {
 				wasInSublayout = true;
 				Point2D center = layouts.get(layout);
 				// transform by the layout itself, but offset to the
@@ -200,11 +196,11 @@ public class AggregateLayout<V, E> implements Layout<V,E>, IterativeContext {
 				AffineTransform at = 
 					AffineTransform.getTranslateInstance(center.getX()-d.width/2,
 							center.getY()-d.height/2);
-				return at.transform(layout.apply(v),null);
+				return at.transform(layout.apply(node),null);
 			}
 		}
 		if(wasInSublayout == false) {
-			return delegate.apply(v);
+			return delegate.apply(node);
 		}
 		return null;
 	
@@ -214,7 +210,7 @@ public class AggregateLayout<V, E> implements Layout<V,E>, IterativeContext {
 	 * @return {@code true} iff the delegate layout and all sublayouts are done
 	 */
 	public boolean done() {
-		for (Layout<V,E> layout : layouts.keySet()) {
+		for (Layout<N> layout : layouts.keySet()) {
 			if (layout instanceof IterativeContext) {
 				if (! ((IterativeContext) layout).done() ) {
 					return false;
@@ -231,7 +227,7 @@ public class AggregateLayout<V, E> implements Layout<V,E>, IterativeContext {
 	 * Call step on any sublayout that is also an IterativeContext and is not done
 	 */
 	public void step() {
-		for(Layout<V,E> layout : layouts.keySet()) {
+		for(Layout<N> layout : layouts.keySet()) {
 			if(layout instanceof IterativeContext) {
 				IterativeContext context = (IterativeContext)layout;
 				if(context.done() == false) {
@@ -246,5 +242,4 @@ public class AggregateLayout<V, E> implements Layout<V,E>, IterativeContext {
 			}
 		}
 	}
-	
 }

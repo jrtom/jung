@@ -13,6 +13,7 @@ package edu.uci.ics.jung.visualization.layout;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.event.ChangeListener;
 
@@ -21,11 +22,11 @@ import com.google.common.base.Functions;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.graph.Graph;
 
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.algorithms.layout.LayoutDecorator;
 import edu.uci.ics.jung.algorithms.util.IterativeContext;
-import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.visualization.util.Caching;
 import edu.uci.ics.jung.visualization.util.ChangeEventSupport;
 import edu.uci.ics.jung.visualization.util.DefaultChangeEventSupport;
@@ -39,24 +40,22 @@ import edu.uci.ics.jung.visualization.util.DefaultChangeEventSupport;
  * @author Tom Nelson 
  *
  */
-public class ObservableCachingLayout<V, E> extends LayoutDecorator<V,E> 
-	implements ChangeEventSupport, Caching, LayoutEventSupport<V,E> {
+public class ObservableCachingLayout<V> extends LayoutDecorator<V> 
+	implements ChangeEventSupport, Caching, LayoutEventSupport<V> {
     
     protected ChangeEventSupport changeSupport = new DefaultChangeEventSupport(this);
+    protected Graph<V> graph;
     
     protected LoadingCache<V, Point2D> locations;
     
-    private List<LayoutChangeListener<V,E>> layoutChangeListeners = 
-    	new ArrayList<LayoutChangeListener<V,E>>();
+    private List<LayoutChangeListener<V>> layoutChangeListeners = 
+    	new ArrayList<LayoutChangeListener<V>>();
 
-    public ObservableCachingLayout(Layout<V, E> delegate) {
+    public ObservableCachingLayout(Graph<V> graph, Layout<V> delegate) {
     	super(delegate);
+    	this.graph = graph;
 		Function<V, Point2D> chain = Functions.<V, Point2D, Point2D> compose(
-				new Function<Point2D, Point2D>() {
-					public Point2D apply(Point2D p) {
-						return (Point2D) p.clone();
-					}
-				},
+				p -> (Point2D)p.clone(),
 				delegate);
 		this.locations = CacheBuilder.newBuilder().build(CacheLoader.from(chain));
     }
@@ -105,16 +104,8 @@ public class ObservableCachingLayout<V, E> extends LayoutDecorator<V,E>
         changeSupport.fireStateChanged();
     }
     
-    @Override
-    public void setGraph(Graph<V, E> graph) {
-        delegate.setGraph(graph);
-    }
-
 	public void clear() {
 		this.locations.invalidateAll();
-	}
-
-	public void init() {
 	}
 
 	public Point2D apply(V v) {
@@ -122,19 +113,22 @@ public class ObservableCachingLayout<V, E> extends LayoutDecorator<V,E>
 	}
 
 	private void fireLayoutChanged(V v) {
-		LayoutEvent<V,E> evt = new LayoutEvent<V,E>(v, this.getGraph());
-		for(LayoutChangeListener<V,E> listener : layoutChangeListeners) {
+		LayoutEvent<V> evt = new LayoutEvent<V>(v, graph);
+		for(LayoutChangeListener<V> listener : layoutChangeListeners) {
 			listener.layoutChanged(evt);
 		}
 	}
 	
-	public void addLayoutChangeListener(LayoutChangeListener<V, E> listener) {
+	public void addLayoutChangeListener(LayoutChangeListener<V> listener) {
 		layoutChangeListeners.add(listener);
-		
 	}
 
-	public void removeLayoutChangeListener(LayoutChangeListener<V, E> listener) {
+	public void removeLayoutChangeListener(LayoutChangeListener<V> listener) {
 		layoutChangeListeners.remove(listener);
-		
+	}
+
+	@Override
+	public Set<V> nodes() {
+		return graph.nodes();
 	}
 }

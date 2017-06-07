@@ -24,15 +24,16 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import com.google.common.graph.Network;
+
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
-import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.TestGraphs;
 import edu.uci.ics.jung.visualization.DefaultVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.VisualizationModel;
-import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
+import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.annotations.AnnotatingGraphMousePlugin;
 import edu.uci.ics.jung.visualization.annotations.AnnotatingModalGraphMouse;
 import edu.uci.ics.jung.visualization.annotations.AnnotationControls;
@@ -89,17 +90,17 @@ public class AnnotationsDemo<V, E> extends JApplet {
     public AnnotationsDemo() {
         
         // create a simple graph for the demo
-        Graph<String, Number> graph = TestGraphs.getOneComponentGraph();
+        Network<String, Number> graph = TestGraphs.getOneComponentGraph();
         
         // the preferred sizes for the two views
         Dimension preferredSize1 = new Dimension(600,600);
         
         // create one layout for the graph
-        FRLayout<String,Number> layout = new FRLayout<String,Number>(graph);
+        FRLayout<String> layout = new FRLayout<String>(graph.asGraph());
         layout.setMaxIterations(500);
         
         VisualizationModel<String,Number> vm =
-            new DefaultVisualizationModel<String,Number>(layout, preferredSize1);
+            new DefaultVisualizationModel<String,Number>(graph, layout, preferredSize1);
         
         // create 2 views that share the same model
         final VisualizationViewer<String,Number> vv = 

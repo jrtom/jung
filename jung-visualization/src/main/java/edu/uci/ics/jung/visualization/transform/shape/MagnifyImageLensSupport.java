@@ -12,7 +12,7 @@ package edu.uci.ics.jung.visualization.transform.shape;
 
 import java.awt.Dimension;
 
-import edu.uci.ics.jung.algorithms.layout.GraphElementAccessor;
+import edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
@@ -37,7 +37,7 @@ public class MagnifyImageLensSupport<V,E> extends AbstractLensSupport<V,E> {
     protected GraphicsDecorator savedGraphicsDecorator;
     protected Renderer<V,E> renderer;
     protected Renderer<V,E> transformingRenderer;
-    protected GraphElementAccessor<V,E> pickSupport;
+    protected NetworkElementAccessor<V,E> pickSupport;
     protected Renderer.Edge<V,E> savedEdgeRenderer;
     protected Renderer.Edge<V,E> reshapingEdgeRenderer;
 
@@ -57,11 +57,11 @@ public class MagnifyImageLensSupport<V,E> extends AbstractLensSupport<V,E> {
         this.renderContext = vv.getRenderContext();
         this.pickSupport = renderContext.getPickSupport();
         this.renderer = vv.getRenderer();
-        this.transformingRenderer = new BasicRenderer<V,E>();
+        this.transformingRenderer = new BasicRenderer<V,E>(vv.getGraphLayout(), renderContext);
         this.savedGraphicsDecorator = renderContext.getGraphicsContext();
         this.lensTransformer = lensTransformer;
         this.savedEdgeRenderer = vv.getRenderer().getEdgeRenderer();
-        this.reshapingEdgeRenderer = new ReshapingEdgeRenderer<V,E>();
+        this.reshapingEdgeRenderer = new ReshapingEdgeRenderer<V,E>(vv.getGraphLayout(), renderContext);
         this.reshapingEdgeRenderer.setEdgeArrowRenderingSupport(savedEdgeRenderer.getEdgeArrowRenderingSupport());
 
         Dimension d = vv.getSize();

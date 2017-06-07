@@ -25,11 +25,11 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import com.google.common.base.Function;
+import com.google.common.graph.MutableNetwork;
+import com.google.common.graph.Network;
+import com.google.common.graph.NetworkBuilder;
 
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
-import edu.uci.ics.jung.graph.DirectedGraph;
-import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
-import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
@@ -59,7 +59,7 @@ public class ImageEdgeLabelDemo extends JApplet {
 	/**
      * the graph
      */
-    DirectedGraph<Number, Number> graph;
+    Network<Number, Number> graph;
 
     /**
      * the visual component and renderer for the graph
@@ -69,12 +69,11 @@ public class ImageEdgeLabelDemo extends JApplet {
     public ImageEdgeLabelDemo() {
         
         // create a simple graph for the demo
-        graph = new DirectedSparseMultigraph<Number,Number>();
-        createGraph(VERTEX_COUNT);
+        graph = createGraph(VERTEX_COUNT);
         
-        FRLayout<Number, Number> layout = new FRLayout<Number, Number>(graph);
+        FRLayout<Number> layout = new FRLayout<Number>(graph.asGraph());
         layout.setMaxIterations(100);
-        vv =  new VisualizationViewer<Number, Number>(layout, new Dimension(400,400));
+        vv =  new VisualizationViewer<Number, Number>(graph, layout, new Dimension(400,400));
         
         vv.getRenderContext().setEdgeDrawPaintTransformer(new PickableEdgePaintTransformer<Number>(vv.getPickedEdgeState(), Color.black, Color.cyan));
 
@@ -133,30 +132,33 @@ public class ImageEdgeLabelDemo extends JApplet {
      * @param count how many to create
      * @return the Vertices in an array
      */
-    private void createGraph(int vertexCount) {
+    private Network<Number, Number> createGraph(int vertexCount) {
+    	MutableNetwork<Number, Number> graph = NetworkBuilder.directed().build();
         for (int i = 0; i < vertexCount; i++) {
-            graph.addVertex(i);
+            graph.addNode(i);
         }
     	int j=0;
-        graph.addEdge(j++, 0, 1, EdgeType.DIRECTED);
-        graph.addEdge(j++, 3, 0, EdgeType.DIRECTED);
-        graph.addEdge(j++, 0, 4, EdgeType.DIRECTED);
-        graph.addEdge(j++, 4, 5, EdgeType.DIRECTED);
-        graph.addEdge(j++, 5, 3, EdgeType.DIRECTED);
-        graph.addEdge(j++, 2, 1, EdgeType.DIRECTED);
-        graph.addEdge(j++, 4, 1, EdgeType.DIRECTED);
-        graph.addEdge(j++, 8, 2, EdgeType.DIRECTED);
-        graph.addEdge(j++, 3, 8, EdgeType.DIRECTED);
-        graph.addEdge(j++, 6, 7, EdgeType.DIRECTED);
-        graph.addEdge(j++, 7, 5, EdgeType.DIRECTED);
-        graph.addEdge(j++, 0, 9, EdgeType.DIRECTED);
-        graph.addEdge(j++, 9, 8, EdgeType.DIRECTED);
-        graph.addEdge(j++, 7, 6, EdgeType.DIRECTED);
-        graph.addEdge(j++, 6, 5, EdgeType.DIRECTED);
-        graph.addEdge(j++, 4, 2, EdgeType.DIRECTED);
-        graph.addEdge(j++, 5, 4, EdgeType.DIRECTED);
-        graph.addEdge(j++, 4, 10, EdgeType.DIRECTED);
-        graph.addEdge(j++, 10, 4, EdgeType.DIRECTED);
+        graph.addEdge(0, 1, j++);
+        graph.addEdge(3, 0, j++);
+        graph.addEdge(0, 4, j++);
+        graph.addEdge(4, 5, j++);
+        graph.addEdge(5, 3, j++);
+        graph.addEdge(2, 1, j++);
+        graph.addEdge(4, 1, j++);
+        graph.addEdge(8, 2, j++);
+        graph.addEdge(3, 8, j++);
+        graph.addEdge(6, 7, j++);
+        graph.addEdge(7, 5, j++);
+        graph.addEdge(0, 9, j++);
+        graph.addEdge(9, 8, j++);
+        graph.addEdge(7, 6, j++);
+        graph.addEdge(6, 5, j++);
+        graph.addEdge(4, 2, j++);
+        graph.addEdge(5, 4, j++);
+        graph.addEdge(4, 10, j++);
+        graph.addEdge(10, 4, j++);
+        
+        return graph;
     }
 
     public static void main(String[] args) {

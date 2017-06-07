@@ -35,11 +35,11 @@ import javax.swing.JPopupMenu;
 
 import com.google.common.base.Function;
 import com.google.common.base.Supplier;
+import com.google.common.graph.MutableNetwork;
+import com.google.common.graph.NetworkBuilder;
 
 import edu.uci.ics.jung.algorithms.layout.AbstractLayout;
 import edu.uci.ics.jung.algorithms.layout.StaticLayout;
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.SparseMultigraph;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.annotations.AnnotationControls;
@@ -70,9 +70,9 @@ public class GraphEditorDemo extends JApplet implements Printable {
 	/**
      * the graph
      */
-    Graph<Number,Number> graph;
+    MutableNetwork<Number,Number> graph;
     
-    AbstractLayout<Number,Number> layout;
+    AbstractLayout<Number> layout;
 
     /**
      * the visual component and renderer for the graph
@@ -137,12 +137,11 @@ public class GraphEditorDemo extends JApplet implements Printable {
     public GraphEditorDemo() {
         
         // create a simple graph for the demo
-        graph = new SparseMultigraph<Number,Number>();
+        graph = NetworkBuilder.directed().allowsParallelEdges(true).allowsSelfLoops(true).build();
 
-        this.layout = new StaticLayout<Number,Number>(graph, 
-        	new Dimension(600,600));
+        this.layout = new StaticLayout<Number>(graph.asGraph(),	new Dimension(600,600));
         
-        vv =  new VisualizationViewer<Number,Number>(layout);
+        vv =  new VisualizationViewer<Number,Number>(graph, layout);
         vv.setBackground(Color.white);
 
         Function<Object, String> labeller = new ToStringLabeller();
@@ -164,7 +163,6 @@ public class GraphEditorDemo extends JApplet implements Printable {
         // the EditingGraphMouse will pass mouse event coordinates to the
         // vertexLocations function to set the locations of the vertices as
         // they are created
-//        graphMouse.setVertexLocations(vertexLocations);
         vv.setGraphMouse(graphMouse);
         vv.addKeyListener(graphMouse.getModeKeyListener());
 

@@ -31,10 +31,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 import com.google.common.base.Functions;
+import com.google.common.graph.Network;
 
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
-import edu.uci.ics.jung.algorithms.layout.GraphElementAccessor;
-import edu.uci.ics.jung.graph.Graph;
+import edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.graph.util.TestGraphs;
 import edu.uci.ics.jung.visualization.DefaultVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
@@ -70,7 +70,7 @@ public class MultiViewDemo extends JApplet {
     /**
      * the graph
      */
-    Graph<String,Number> graph;
+    Network<String,Number> graph;
 
     /**
      * the visual components and renderers for the graph
@@ -114,12 +114,12 @@ public class MultiViewDemo extends JApplet {
         graph = TestGraphs.getOneComponentGraph();
         
         // create one layout for the graph
-        FRLayout<String,Number> layout = new FRLayout<String,Number>(graph);
+        FRLayout<String> layout = new FRLayout<String>(graph.asGraph());
         layout.setMaxIterations(1000);
         
         // create one model that all 3 views will share
         VisualizationModel<String,Number> visualizationModel =
-            new DefaultVisualizationModel<String,Number>(layout, preferredSize);
+            new DefaultVisualizationModel<String,Number>(graph, layout, preferredSize);
  
         // create 3 views that share the same model
         vv1 = new VisualizationViewer<String,Number>(visualizationModel, preferredSize);
@@ -154,7 +154,7 @@ public class MultiViewDemo extends JApplet {
         vv3.setBackground(Color.white);
         
         // create one pick support for all 3 views to share
-        GraphElementAccessor<String,Number> pickSupport = new ShapePickSupport<String,Number>(vv1);
+        NetworkElementAccessor<String,Number> pickSupport = new ShapePickSupport<String,Number>(vv1);
         vv1.setPickSupport(pickSupport);
         vv2.setPickSupport(pickSupport);
         vv3.setPickSupport(pickSupport);

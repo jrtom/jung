@@ -21,19 +21,19 @@ import com.google.common.base.Function;
 import edu.uci.ics.jung.algorithms.layout.StaticLayout;
 
 /**
- * Provides a random vertex location within the bounds of the Dimension property.
- * This provides a random location for unmapped vertices
+ * Provides a random node location within the bounds of the Dimension property.
+ * This provides a random location for unmapped nodes
  * the first time they are accessed.
  * 
  * <p><b>Note</b>: the generated values are not cached, so apply() will generate a new random
- * location for the passed vertex every time it is called.  If you want a consistent value,
+ * location for the passed node every time it is called.  If you want a consistent value,
  * wrap this layout's generated values in a {@link StaticLayout} instance.
  * 
  * @author Tom Nelson
  *
- * @param <V> the vertex type
+ * @param <N> the node type
  */
-public class RandomLocationTransformer<V> implements Function<V,Point2D> {
+public class RandomLocationTransformer<N> implements Function<N,Point2D> {
 	Dimension d;
 	Random random;
     
@@ -56,7 +56,7 @@ public class RandomLocationTransformer<V> implements Function<V,Point2D> {
     	this.random = new Random(seed);
     }
     
-    public Point2D apply(V v) {
+    public Point2D apply(N node) {
         return new Point2D.Double(random.nextDouble() * d.width, random.nextDouble() * d.height);
     }
 }

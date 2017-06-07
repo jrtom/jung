@@ -15,7 +15,6 @@ import java.awt.event.ActionListener;
 import java.awt.geom.Point2D;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.TreeSet;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -27,14 +26,17 @@ import javax.swing.SwingConstants;
 
 import com.google.common.base.Function;
 import com.google.common.base.Supplier;
+import com.google.common.graph.ElementOrder;
+import com.google.common.graph.EndpointPair;
+import com.google.common.graph.Graph;
+import com.google.common.graph.MutableNetwork;
+import com.google.common.graph.Network;
+import com.google.common.graph.NetworkBuilder;
 
 import edu.uci.ics.jung.algorithms.generators.random.EppsteinPowerLawGenerator;
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.algorithms.shortestpath.BFSDistanceLabeler;
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.SparseMultigraph;
-import edu.uci.ics.jung.graph.util.Pair;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
@@ -63,7 +65,7 @@ public class ShortestPathDemo extends JPanel {
 	 * Ending vertex
 	 */	
 	private String mTo;
-	private Graph<String,Number> mGraph;
+	private Network<String,Number> mGraph;
 	private Set<String> mPred;
 	
 	public ShortestPathDemo() {
@@ -71,8 +73,8 @@ public class ShortestPathDemo extends JPanel {
 		this.mGraph = getGraph();
 		setBackground(Color.WHITE);
 		// show graph
-        final Layout<String,Number> layout = new FRLayout<String,Number>(mGraph);
-        final VisualizationViewer<String,Number> vv = new VisualizationViewer<String,Number>(layout);
+        final Layout<String> layout = new FRLayout<String>(mGraph.asGraph());
+        final VisualizationViewer<String,Number> vv = new VisualizationViewer<String,Number>(mGraph, layout);
         vv.setBackground(Color.WHITE);
 
         vv.getRenderContext().setVertexDrawPaintTransformer(new MyVertexDrawPaintFunction<String>());
@@ -90,20 +92,17 @@ public class ShortestPathDemo extends JPanel {
                 if(mPred == null) return;
                 
                 // for all edges, paint edges that are in shortest path
-                for (Number e : layout.getGraph().getEdges()) {
-                    
-                    if(isBlessed(e)) {
-                        String v1 = mGraph.getEndpoints(e).getFirst();
-                        String v2 = mGraph.getEndpoints(e).getSecond();
+                for (Number e : mGraph.edges()) {
+                    if (isBlessed(e)) {
+                    	EndpointPair<String> endpoints = mGraph.incidentNodes(e);
+                        String v1 = endpoints.nodeU();
+                        String v2 = endpoints.nodeV();
                         Point2D p1 = layout.apply(v1);
                         Point2D p2 = layout.apply(v2);
                         p1 = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, p1);
                         p2 = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, p2);
                         Renderer<String,Number> renderer = vv.getRenderer();
-                        renderer.renderEdge(
-                                vv.getRenderContext(),
-                                layout,
-                                e);
+                        renderer.renderEdge(e);
                     }
                 }
             }
@@ -115,10 +114,10 @@ public class ShortestPathDemo extends JPanel {
         add(setUpControls(), BorderLayout.SOUTH);
 	}
 
-    boolean isBlessed( Number e ) {
-    	Pair<String> endpoints = mGraph.getEndpoints(e);
-		String v1= endpoints.getFirst()	;
-		String v2= endpoints.getSecond() ;
+    boolean isBlessed(Number e) {
+    	EndpointPair<String> endpoints = mGraph.incidentNodes(e);
+		String v1 = endpoints.nodeU();
+		String v2 = endpoints.nodeV();
 		return v1.equals(v2) == false && mPred.contains(v1) && mPred.contains(v2);
     }
     
@@ -128,8 +127,8 @@ public class ShortestPathDemo extends JPanel {
 	public class MyEdgePaintFunction implements Function<Number,Paint> {
 	    
 		public Paint apply(Number e) {
-			if ( mPred == null || mPred.size() == 0) return Color.BLACK;
-			if( isBlessed( e )) {
+			if (mPred == null || mPred.size() == 0) return Color.BLACK;
+			if (isBlessed(e)) {
 				return new Color(0.0f, 0.0f, 1.0f, 0.5f);//Color.BLUE;
 			} else {
 				return Color.LIGHT_GRAY;
@@ -208,13 +207,12 @@ public class ShortestPathDemo extends JPanel {
 	}
 
 	private Component getSelectionBox(final boolean from) {
-
-		Set<String> s = new TreeSet<String>();
-		
-		for (String v : mGraph.getVertices()) {
-			s.add(v);
+		String[] nodes = new String[mGraph.nodes().size()];
+		int i = 0;
+		for (String node : mGraph.nodes()) {
+			nodes[i++] = node;
 		}
-		final JComboBox<String> choices = new JComboBox<String>((String[]) s.toArray());
+		final JComboBox<String> choices = new JComboBox<String>(nodes);
 		choices.setSelectedIndex(-1);
 		choices.setBackground(Color.WHITE);
 		choices.addActionListener(new ActionListener() {
@@ -241,8 +239,8 @@ public class ShortestPathDemo extends JPanel {
 		if (mFrom == null || mTo == null) {
 			return;
 		}
-		BFSDistanceLabeler<String,Number> bdl = new BFSDistanceLabeler<String,Number>();
-		bdl.labelDistances(mGraph, mFrom);
+		BFSDistanceLabeler<String> bdl = new BFSDistanceLabeler<String>();
+		bdl.labelDistances(mGraph.asGraph(), mFrom);
 		mPred = new HashSet<String>();
 		
 		// grab a predecessor
@@ -268,27 +266,19 @@ public class ShortestPathDemo extends JPanel {
 	/**
 	 * @return the graph for this demo
 	 */
-	Graph<String,Number> getGraph() {
-
-		Graph<String,Number> g =
-			new EppsteinPowerLawGenerator<String,Number>(
-					new GraphFactory(), new VertexFactory(), new EdgeFactory(), 26, 50, 50).get();
-		Set<String> removeMe = new HashSet<String>();
-		for (String v : g.getVertices()) {
-            if ( g.degree(v) == 0 ) {
-                removeMe.add( v );
-            }
-        }
-		for(String v : removeMe) {
-			g.removeVertex(v);
+	Network<String,Number> getGraph() {
+		Graph<String> g =
+			new EppsteinPowerLawGenerator<String>(
+					new VertexFactory(), 26, 50, 50).get();
+		// convert this graph into a Network because the visualization system can't handle Graphs (yet)
+		MutableNetwork<String, Number> graph
+			= NetworkBuilder.undirected().nodeOrder(ElementOrder.<String>natural()).build();
+		EdgeFactory edgeFactory = new EdgeFactory();
+		// this implicitly removes any isolated nodes, as intended
+		for (EndpointPair<String> endpoints : g.edges()) {
+			graph.addEdge(endpoints.nodeU(), endpoints.nodeV(), edgeFactory.get());
 		}
-		return g;
-	}
-	
-	static class GraphFactory implements Supplier<Graph<String,Number>> {
-		public Graph<String,Number> get() {
-			return new SparseMultigraph<String,Number>();
-		}
+		return graph;
 	}
 	
 	static class VertexFactory implements Supplier<String> {
@@ -296,14 +286,12 @@ public class ShortestPathDemo extends JPanel {
 		public String get() {
 			return Character.toString(a++);
 		}
-		
 	}
+
 	static class EdgeFactory implements Supplier<Number> {
 		int count;
 		public Number get() {
 			return count++;
 		}
-		
 	}
-
 }

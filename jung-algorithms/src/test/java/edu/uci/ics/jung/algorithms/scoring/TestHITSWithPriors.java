@@ -12,39 +12,39 @@ package edu.uci.ics.jung.algorithms.scoring;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.google.common.graph.MutableNetwork;
+import com.google.common.graph.NetworkBuilder;
+
+import edu.uci.ics.jung.algorithms.scoring.util.ScoringUtils;
 import junit.framework.Assert;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import edu.uci.ics.jung.algorithms.scoring.util.ScoringUtils;
-import edu.uci.ics.jung.graph.DirectedGraph;
-import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 
 
 /**
  * Tests HITSWithPriors.
  */
 public class TestHITSWithPriors extends TestCase {
-
-	DirectedGraph<Number,Number> graph;
+	MutableNetwork<Number, Number> graph;
 	Set<Number> roots;
 	
     public static Test suite() {
         return new TestSuite(TestHITSWithPriors.class);
     }
-
+    
     @Override
     protected void setUp() {
-    	graph = new DirectedSparseMultigraph<Number,Number>();
+        graph = NetworkBuilder.directed().build();
     	for(int i=0; i<4; i++) {
-    		graph.addVertex(i);
+        	graph.addNode(i);
     	}
     	int j=0;
-    	graph.addEdge(j++, 0, 1);
-    	graph.addEdge(j++, 1, 2);
-    	graph.addEdge(j++, 2, 3);
-    	graph.addEdge(j++, 3, 0);
-    	graph.addEdge(j++, 2, 1);
+    	graph.addEdge(0, 1, j++);
+    	graph.addEdge(1, 2, j++);
+    	graph.addEdge(2, 3, j++);
+    	graph.addEdge(3, 0, j++);
+    	graph.addEdge(2, 1, j++);
 
         roots = new HashSet<Number>();
         roots.add(2);
@@ -61,7 +61,7 @@ public class TestHITSWithPriors extends TestCase {
 
         double hub_sum = 0;
         double auth_sum = 0;
-        for (Number n : graph.getVertices())
+        for (Number n : graph.nodes())
         {
             int i = n.intValue();
             double auth = ranker.getVertexScore(i).authority;

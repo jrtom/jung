@@ -14,6 +14,8 @@ import java.awt.Dimension;
 
 import javax.swing.event.ChangeListener;
 
+import com.google.common.graph.Network;
+
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.algorithms.layout.util.Relaxer;
 import edu.uci.ics.jung.visualization.util.ChangeEventSupport;
@@ -32,7 +34,7 @@ public interface VisualizationModel<V, E> extends ChangeEventSupport {
      * set the graph Layout
      * @param layout the layout to use
      */
-    void setGraphLayout(Layout<V,E> layout);
+    void setGraphLayout(Layout<V> layout);
     
     /**
      * Sets the graph Layout and initialize the Layout size to
@@ -41,12 +43,14 @@ public interface VisualizationModel<V, E> extends ChangeEventSupport {
      * @param layout the layout to use
      * @param d the dimensions to use
      */
-    void setGraphLayout(Layout<V,E> layout, Dimension d);
+    void setGraphLayout(Layout<V> layout, Dimension d);
 
     /**
      * @return the current graph layout
      */
-    Layout<V,E> getGraphLayout();
+    Layout<V> getGraphLayout();
+    
+    Network<V, E> getNetwork();
 
     /**
      * Register <code>l</code> as a listeners to changes in the model. The View registers
