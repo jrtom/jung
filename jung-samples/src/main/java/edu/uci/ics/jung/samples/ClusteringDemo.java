@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 import javax.swing.BorderFactory;
@@ -43,12 +42,14 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import com.google.common.base.Function;
 import com.google.common.base.Functions;
 import com.google.common.base.Supplier;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.graph.MutableNetwork;
+import com.google.common.graph.Network;
+import com.google.common.graph.NetworkBuilder;
 
 import edu.uci.ics.jung.algorithms.cluster.EdgeBetweennessClusterer;
 import edu.uci.ics.jung.algorithms.layout.AggregateLayout;
@@ -56,8 +57,6 @@ import edu.uci.ics.jung.algorithms.layout.CircleLayout;
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.algorithms.layout.util.Relaxer;
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.SparseMultigraph;
 import edu.uci.ics.jung.io.PajekNetReader;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
@@ -83,7 +82,10 @@ public class ClusteringDemo extends JApplet {
 			CacheBuilder.newBuilder().build(
 					CacheLoader.from(Functions.<Paint>constant(Color.blue))); 
 
-	public final Color[] similarColors =
+    private static final Stroke THIN = new BasicStroke(1);
+    private static final Stroke THICK= new BasicStroke(2);
+
+    public final Color[] similarColors =
 	{
 		new Color(216, 134, 134),
 		new Color(135, 137, 211),
@@ -136,52 +138,35 @@ public class ClusteringDemo extends JApplet {
             public Number get() { return n++; }
         };
 
-        PajekNetReader<Graph<Number, Number>, Number,Number> pnr = 
-            new PajekNetReader<Graph<Number, Number>, Number,Number>(vertexFactory, edgeFactory);
+        PajekNetReader<MutableNetwork<Number, Number>, Number,Number> pnr = 
+            new PajekNetReader<MutableNetwork<Number, Number>, Number,Number>(vertexFactory, edgeFactory);
         
-        final Graph<Number,Number> graph = new SparseMultigraph<Number, Number>();
+        final MutableNetwork<Number,Number> graph = NetworkBuilder.undirected().build();
         
         pnr.load(br, graph);
 
 		//Create a simple layout frame
         //specify the Fruchterman-Rheingold layout algorithm
-        final AggregateLayout<Number,Number> layout = 
-        	new AggregateLayout<Number,Number>(new FRLayout<Number,Number>(graph));
+        final AggregateLayout<Number> layout = 
+        	new AggregateLayout<Number>(new FRLayout<Number>(graph.asGraph()));
 
-		vv = new VisualizationViewer<Number,Number>(layout);
+		vv = new VisualizationViewer<Number,Number>(graph, layout);
 		vv.setBackground( Color.white );
 		//Tell the renderer to use our own customized color rendering
 		vv.getRenderContext().setVertexFillPaintTransformer(vertexPaints);
-		vv.getRenderContext().setVertexDrawPaintTransformer(new Function<Number,Paint>() {
-			public Paint apply(Number v) {
-				if(vv.getPickedVertexState().isPicked(v)) {
-					return Color.cyan;
-				} else {
-					return Color.BLACK;
-				}
-			}
-		});
+		vv.getRenderContext().setVertexDrawPaintTransformer(v -> 
+			vv.getPickedVertexState().isPicked(v) ? Color.CYAN : Color.BLACK);
 
 		vv.getRenderContext().setEdgeDrawPaintTransformer(edgePaints);
 
-		vv.getRenderContext().setEdgeStrokeTransformer(new Function<Number,Stroke>() {
-                protected final Stroke THIN = new BasicStroke(1);
-                protected final Stroke THICK= new BasicStroke(2);
-                public Stroke apply(Number e)
-                {
-                    Paint c = edgePaints.getUnchecked(e);
-                    if (c == Color.LIGHT_GRAY)
-                        return THIN;
-                    else 
-                        return THICK;
-                }
-            });
+		vv.getRenderContext().setEdgeStrokeTransformer(e -> 
+			edgePaints.getUnchecked(e) == Color.LIGHT_GRAY ? THIN : THICK);
 
 		//add restart button
 		JButton scramble = new JButton("Restart");
 		scramble.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				Layout<Number, Number> layout = vv.getGraphLayout();
+				Layout<Number> layout = vv.getGraphLayout();
 				layout.initialize();
 				Relaxer relaxer = vv.getModel().getRelaxer();
 				if(relaxer != null) {
@@ -203,7 +188,7 @@ public class ClusteringDemo extends JApplet {
         edgeBetweennessSlider.setBackground(Color.WHITE);
 		edgeBetweennessSlider.setPreferredSize(new Dimension(210, 50));
 		edgeBetweennessSlider.setPaintTicks(true);
-		edgeBetweennessSlider.setMaximum(graph.getEdgeCount());
+		edgeBetweennessSlider.setMaximum(graph.edges().size());
 		edgeBetweennessSlider.setMinimum(0);
 		edgeBetweennessSlider.setValue(0);
 		edgeBetweennessSlider.setMajorTickSpacing(10);
@@ -229,20 +214,20 @@ public class ClusteringDemo extends JApplet {
 		
 		groupVertices.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
-					clusterAndRecolor(layout, edgeBetweennessSlider.getValue(), 
+					clusterAndRecolor(layout, graph, edgeBetweennessSlider.getValue(), 
 							similarColors, e.getStateChange() == ItemEvent.SELECTED);
 					vv.repaint();
 			}});
 
 
-		clusterAndRecolor(layout, 0, similarColors, groupVertices.isSelected());
+		clusterAndRecolor(layout, graph, 0, similarColors, groupVertices.isSelected());
 
 		edgeBetweennessSlider.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				JSlider source = (JSlider) e.getSource();
 				if (!source.getValueIsAdjusting()) {
 					int numEdgesToRemove = source.getValue();
-					clusterAndRecolor(layout, numEdgesToRemove, similarColors,
+					clusterAndRecolor(layout, graph, numEdgesToRemove, similarColors,
 							groupVertices.isSelected());
 					sliderBorder.setTitle(
 						COMMANDSTRING + edgeBetweennessSlider.getValue());
@@ -268,21 +253,17 @@ public class ClusteringDemo extends JApplet {
 		content.add(south, BorderLayout.SOUTH);
 	}
 
-	public void clusterAndRecolor(AggregateLayout<Number,Number> layout,
+	public void clusterAndRecolor(AggregateLayout<Number> layout,
+		Network<Number, Number> graph,
 		int numEdgesToRemove,
 		Color[] colors, boolean groupClusters) {
-		//Now cluster the vertices by removing the top 50 edges with highest betweenness
-		//		if (numEdgesToRemove == 0) {
-		//			colorCluster( g.getVertices(), colors[0] );
-		//		} else {
-		
-		Graph<Number,Number> g = layout.getGraph();
+	
         layout.removeAll();
-
+       
 		EdgeBetweennessClusterer<Number,Number> clusterer =
 			new EdgeBetweennessClusterer<Number,Number>(numEdgesToRemove);
-		Set<Set<Number>> clusterSet = clusterer.apply(g);
-		List<Number> edges = clusterer.getEdgesRemoved();
+		Set<Set<Number>> clusterSet = clusterer.apply(graph);
+		Set<Number> edges = clusterer.getEdgesRemoved();
 
 		int i = 0;
 		//Set the colors of each node so that each cluster's vertices have the same color
@@ -297,15 +278,9 @@ public class ClusteringDemo extends JApplet {
 			}
 			i++;
 		}
-		for (Number e : g.getEdges()) {
-
-			if (edges.contains(e)) {
-				edgePaints.put(e, Color.lightGray);
-			} else {
-				edgePaints.put(e, Color.black);
-			}
+		for (Number e : graph.edges()) {
+			edgePaints.put(e, edges.contains(e) ? Color.LIGHT_GRAY : Color.BLACK);
 		}
-
 	}
 
 	private void colorCluster(Set<Number> vertices, Color c) {
@@ -314,15 +289,14 @@ public class ClusteringDemo extends JApplet {
 		}
 	}
 	
-	private void groupCluster(AggregateLayout<Number,Number> layout, Set<Number> vertices) {
-		if(vertices.size() < layout.getGraph().getVertexCount()) {
+	private void groupCluster(AggregateLayout<Number> layout, Set<Number> vertices) {
+		if(vertices.size() < vv.getModel().getNetwork().nodes().size()) {
 			Point2D center = layout.apply(vertices.iterator().next());
-			Graph<Number,Number> subGraph = SparseMultigraph.<Number,Number>getFactory().get();
+			MutableNetwork<Number,Number> subGraph = NetworkBuilder.undirected().build();
 			for(Number v : vertices) {
-				subGraph.addVertex(v);
+				subGraph.addNode(v);
 			}
-			Layout<Number,Number> subLayout = 
-				new CircleLayout<Number,Number>(subGraph);
+			Layout<Number> subLayout = new CircleLayout<Number>(subGraph.asGraph());
 			subLayout.setInitializer(vv.getGraphLayout());
 			subLayout.setSize(new Dimension(40,40));
 

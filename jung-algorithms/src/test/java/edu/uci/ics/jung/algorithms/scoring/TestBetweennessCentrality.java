@@ -11,12 +11,11 @@
  */
 package edu.uci.ics.jung.algorithms.scoring;
 
-import junit.framework.TestCase;
-
 import com.google.common.base.Function;
+import com.google.common.graph.MutableNetwork;
+import com.google.common.graph.NetworkBuilder;
 
-import edu.uci.ics.jung.graph.DirectedSparseGraph;
-import edu.uci.ics.jung.graph.Graph;
+import junit.framework.TestCase;
 
 /**
  *
@@ -100,17 +99,14 @@ public class TestBetweennessCentrality extends TestCase
     
     public void testWeighted()
     {
-    	Graph<Integer, Character> graph = new DirectedSparseGraph<Integer, Character>();
+    	MutableNetwork<Integer, Character> graph = NetworkBuilder.directed().build();
     	
-    	for(int i=0; i<5; i++) 
-    		graph.addVertex(i);
-
     	char edge='a';
-    	graph.addEdge(edge++, 0,1);
-    	graph.addEdge(edge++, 0,2);
-    	graph.addEdge(edge++, 2,3);
-    	graph.addEdge(edge++, 3,1);
-    	graph.addEdge(edge++, 1,4);
+    	graph.addEdge(0, 1, edge++);
+    	graph.addEdge(0, 2, edge++);
+    	graph.addEdge(2, 3, edge++);
+    	graph.addEdge(3, 1, edge++);
+    	graph.addEdge(1, 4, edge++);
 
     	final int weights[] = {1, 1, 1, 1, 1};
     	

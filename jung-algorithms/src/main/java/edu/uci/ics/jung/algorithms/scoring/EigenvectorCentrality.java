@@ -12,8 +12,7 @@
 package edu.uci.ics.jung.algorithms.scoring;
 
 import com.google.common.base.Function;
-
-import edu.uci.ics.jung.graph.Hypergraph;
+import com.google.common.graph.Network;
 
 /**
  * Calculates eigenvector centrality for each vertex in the graph.
@@ -32,7 +31,7 @@ public class EigenvectorCentrality<V,E> extends PageRank<V,E>
      * @param graph the graph for which the centrality is to be calculated
      * @param edge_weights the edge weights 
      */
-    public EigenvectorCentrality(Hypergraph<V,E> graph, 
+    public EigenvectorCentrality(Network<V,E> graph, 
     		Function<E, ? extends Number> edge_weights)
     {
         super(graph, edge_weights, 0);
@@ -44,7 +43,7 @@ public class EigenvectorCentrality<V,E> extends PageRank<V,E>
      * (Default edge weights: <code>UniformDegreeWeight</code>.)
      * @param graph the graph for which the centrality is to be calculated.
      */
-    public EigenvectorCentrality(Hypergraph<V,E> graph)
+    public EigenvectorCentrality(Network<V,E> graph)
     {
         super(graph, 0);
         acceptDisconnectedGraph(false);

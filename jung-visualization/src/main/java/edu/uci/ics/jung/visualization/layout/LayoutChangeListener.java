@@ -1,7 +1,7 @@
 package edu.uci.ics.jung.visualization.layout;
 
-public interface LayoutChangeListener<V, E> {
+public interface LayoutChangeListener<V> {
 	
-	void layoutChanged(LayoutEvent<V,E> evt);
+	void layoutChanged(LayoutEvent<V> evt);
 
 }

@@ -45,12 +45,13 @@ import javax.swing.plaf.basic.BasicLabelUI;
 
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
+import com.google.common.graph.MutableNetwork;
+import com.google.common.graph.Network;
+import com.google.common.graph.NetworkBuilder;
 
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.algorithms.layout.StaticLayout;
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.SparseGraph;
 import edu.uci.ics.jung.graph.util.TestGraphs;
 import edu.uci.ics.jung.visualization.DefaultVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
@@ -91,16 +92,16 @@ public class LensDemo extends JApplet {
     /**
      * the graph
      */
-    Graph<String,Number> graph;
+    Network<String,Number> graph;
     
-    FRLayout<String,Number> graphLayout;
+    FRLayout<String> graphLayout;
     
     /**
      * a grid shaped graph
      */
-    Graph<String,Number> grid;
+    Network<String,Number> grid;
     
-    Layout<String,Number> gridLayout;
+    Layout<String> gridLayout;
 
     /**
      * the visual component and renderer for the graph
@@ -137,7 +138,7 @@ public class LensDemo extends JApplet {
         // create a simple graph for the demo
         graph = TestGraphs.getOneComponentGraph();
         
-        graphLayout = new FRLayout<String,Number>(graph);
+        graphLayout = new FRLayout<String>(graph.asGraph());
         graphLayout.setMaxIterations(1000);
 
         Dimension preferredSize = new Dimension(600,600);
@@ -145,10 +146,10 @@ public class LensDemo extends JApplet {
         Function<String,Point2D> vlf =
         	Functions.forMap(map);
         grid = this.generateVertexGrid(map, preferredSize, 25);
-        gridLayout = new StaticLayout<String,Number>(grid, vlf, preferredSize);
+        gridLayout = new StaticLayout<String>(grid.asGraph(), vlf, preferredSize);
         
         final VisualizationModel<String,Number> visualizationModel = 
-            new DefaultVisualizationModel<String,Number>(graphLayout, preferredSize);
+            new DefaultVisualizationModel<String,Number>(graph, graphLayout, preferredSize);
         vv =  new VisualizationViewer<String,Number>(visualizationModel, preferredSize);
 
         PickedState<String> ps = vv.getPickedVertexState();
@@ -335,10 +336,10 @@ public class LensDemo extends JApplet {
         content.add(controls, BorderLayout.SOUTH);
     }
 
-    private Graph<String,Number> generateVertexGrid(Map<String,Point2D> vlf,
+    private Network<String,Number> generateVertexGrid(Map<String,Point2D> vlf,
             Dimension d, int interval) {
         int count = d.width/interval * d.height/interval;
-        Graph<String,Number> graph = new SparseGraph<String,Number>();
+        MutableNetwork<String,Number> graph = NetworkBuilder.directed().build();
         for(int i=0; i<count; i++) {
             int x = interval*i;
             int y = x / d.width * interval;
@@ -347,7 +348,7 @@ public class LensDemo extends JApplet {
             Point2D location = new Point2D.Float(x, y);
             String vertex = "v"+i;
             vlf.put(vertex, location);
-            graph.addVertex(vertex);
+            graph.addNode(vertex);
         }
         return graph;
     }

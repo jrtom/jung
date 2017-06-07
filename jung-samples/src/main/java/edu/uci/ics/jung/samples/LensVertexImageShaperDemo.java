@@ -39,10 +39,11 @@ import javax.swing.JRadioButton;
 
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
+import com.google.common.graph.MutableNetwork;
+import com.google.common.graph.Network;
+import com.google.common.graph.NetworkBuilder;
 
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
-import edu.uci.ics.jung.graph.DirectedSparseGraph;
-import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.LayeredIcon;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
@@ -86,7 +87,7 @@ import edu.uci.ics.jung.visualization.transform.shape.MagnifyImageLensSupport;
  */
 public class LensVertexImageShaperDemo extends JApplet {
 
-	   /**
+    /**
 	 * 
 	 */
 	private static final long serialVersionUID = 5432239991020505763L;
@@ -94,7 +95,7 @@ public class LensVertexImageShaperDemo extends JApplet {
 	/**
      * the graph
      */
-    DirectedSparseGraph<Number, Number> graph;
+    Network<Number, Number> graph;
 
     /**
      * the visual component and renderer for the graph
@@ -130,33 +131,29 @@ public class LensVertexImageShaperDemo extends JApplet {
     public LensVertexImageShaperDemo() {
         
         // create a simple graph for the demo
-        graph = new DirectedSparseGraph<Number,Number>();
-        Number[] vertices = createVertices(11);
+        graph = createGraph();
         
-        // a Map for the labels
+        // Maps for the labels and icons
         Map<Number,String> map = new HashMap<Number,String>();
-        for(int i=0; i<vertices.length; i++) {
-            map.put(vertices[i], iconNames[i%iconNames.length]);
-        }
-        
-        // a Map for the Icons
         Map<Number,Icon> iconMap = new HashMap<Number,Icon>();
-        for(int i=0; i<vertices.length; i++) {
-            String name = "/images/topic"+iconNames[i]+".gif";
-            try {
-                Icon icon = 
-                    new LayeredIcon(new ImageIcon(LensVertexImageShaperDemo.class.getResource(name)).getImage());
-                iconMap.put(vertices[i], icon);
-            } catch(Exception ex) {
-                System.err.println("You need slashdoticons.jar in your classpath to see the image "+name);
-            }
+        for (Number node : graph.nodes()) {
+        	int i = node.intValue();
+        	map.put(node, iconNames[i % iconNames.length]);
+        	
+			String name = "/images/topic" + iconNames[i] + ".gif";
+			try {
+				Icon icon = new LayeredIcon(
+						new ImageIcon(LensVertexImageShaperDemo.class.getResource(name)).getImage());
+				iconMap.put(node, icon);
+			} catch (Exception ex) {
+				System.err.println(
+						"You need slashdoticons.jar in your classpath to see the image " + name);
+			}
         }
         
-        createEdges(vertices);
-        
-        FRLayout<Number, Number> layout = new FRLayout<Number, Number>(graph);
+        FRLayout<Number> layout = new FRLayout<Number>(graph.asGraph());
         layout.setMaxIterations(100);
-        vv =  new VisualizationViewer<Number, Number>(layout, new Dimension(600,600));
+        vv =  new VisualizationViewer<Number, Number>(graph, layout, new Dimension(600,600));
         
         Function<Number,Paint> vpf = 
             new PickableVertexPaintTransformer<Number>(vv.getPickedVertexState(), Color.white, Color.yellow);
@@ -358,46 +355,31 @@ public class LensVertexImageShaperDemo extends JApplet {
         }
     }
     
-    /**
-     * create some vertices
-     * @param count how many to create
-     * @return the Vertices in an array
-     */
-    private Number[] createVertices(int count) {
-        Number[] v = new Number[count];
-        for (int i = 0; i < count; i++) {
-            v[i] = new Integer(i);
-            graph.addVertex(v[i]);
-        }
-        return v;
+    Network<Number, Number> createGraph() {
+    	MutableNetwork<Number, Number> graph = NetworkBuilder.directed().build();
+        graph.addEdge(0, 1, new Double(Math.random()));
+        graph.addEdge(3, 0, new Double(Math.random()));
+        graph.addEdge(0, 4, new Double(Math.random()));
+        graph.addEdge(4, 5, new Double(Math.random()));
+        graph.addEdge(5, 3, new Double(Math.random()));
+        graph.addEdge(2, 1, new Double(Math.random()));
+        graph.addEdge(4, 1, new Double(Math.random()));
+        graph.addEdge(8, 2, new Double(Math.random()));
+        graph.addEdge(3, 8, new Double(Math.random()));
+        graph.addEdge(6, 7, new Double(Math.random()));
+        graph.addEdge(7, 5, new Double(Math.random()));
+        graph.addEdge(0, 9, new Double(Math.random()));
+        graph.addEdge(9, 8, new Double(Math.random()));
+        graph.addEdge(7, 6, new Double(Math.random()));
+        graph.addEdge(6, 5, new Double(Math.random()));
+        graph.addEdge(4, 2, new Double(Math.random()));
+        graph.addEdge(5, 4, new Double(Math.random()));
+        graph.addEdge(4, 10, new Double(Math.random()));
+        graph.addEdge(10, 4, new Double(Math.random()));
+        
+        return graph;
     }
 
-    /**
-     * create edges for this demo graph
-     * @param v an array of Vertices to connect
-     */
-    void createEdges(Number[] v) {
-        graph.addEdge(new Double(Math.random()), v[0], v[1], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[3], v[0], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[0], v[4], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[4], v[5], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[5], v[3], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[2], v[1], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[4], v[1], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[8], v[2], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[3], v[8], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[6], v[7], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[7], v[5], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[0], v[9], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[9], v[8], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[7], v[6], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[6], v[5], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[4], v[2], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[5], v[4], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[4], v[10], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[10], v[4], EdgeType.DIRECTED);
-    }
-    
     public static class PickWithIconListener implements ItemListener {
         Function<Number, Icon> imager;
         Icon checked;

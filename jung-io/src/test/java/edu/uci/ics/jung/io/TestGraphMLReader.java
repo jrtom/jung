@@ -13,28 +13,24 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
-
-import junit.framework.Assert;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import org.xml.sax.SAXException;
 
 import com.google.common.base.Function;
 import com.google.common.base.Supplier;
 import com.google.common.collect.BiMap;
+import com.google.common.graph.MutableNetwork;
+import com.google.common.graph.Network;
+import com.google.common.graph.NetworkBuilder;
 
-import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.Hypergraph;
-import edu.uci.ics.jung.graph.SetHypergraph;
-import edu.uci.ics.jung.graph.UndirectedSparseGraph;
+import junit.framework.Assert;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
 
 /**
  * @author Scott White
@@ -43,10 +39,10 @@ import edu.uci.ics.jung.graph.UndirectedSparseGraph;
 public class TestGraphMLReader extends TestCase
 {
 
-    Supplier<Graph<Number, Number>> graphFactory;
+    Supplier<MutableNetwork<Number, Number>> graphFactory;
     Supplier<Number> vertexFactory;
     Supplier<Number> edgeFactory;
-    GraphMLReader<Graph<Number, Number>, Number, Number> gmlreader;
+    GraphMLReader<MutableNetwork<Number, Number>, Number, Number> gmlreader;
 
     public static Test suite()
     {
@@ -56,11 +52,14 @@ public class TestGraphMLReader extends TestCase
     @Override
     protected void setUp() throws ParserConfigurationException, SAXException
     {
-        graphFactory = new Supplier<Graph<Number, Number>>()
+        graphFactory = new Supplier<MutableNetwork<Number, Number>>()
         {
-            public Graph<Number, Number> get()
+            public MutableNetwork<Number, Number> get()
             {
-                return new DirectedSparseMultigraph<Number, Number>();
+                return NetworkBuilder.directed()
+                		.allowsSelfLoops(true)
+                		.allowsParallelEdges(true)
+                		.build();
             }
         };
         vertexFactory = new Supplier<Number>()
@@ -81,7 +80,7 @@ public class TestGraphMLReader extends TestCase
                 return n++;
             }
         };
-        gmlreader = new GraphMLReader<Graph<Number, Number>, Number, Number>(
+        gmlreader = new GraphMLReader<MutableNetwork<Number, Number>, Number, Number>(
                 vertexFactory, edgeFactory);
     }
 
@@ -89,10 +88,10 @@ public class TestGraphMLReader extends TestCase
     {
         String testFilename = "toy_graph.ml";
 
-        Graph<Number, Number> graph = loadGraph(testFilename);
+        Network<Number, Number> graph = loadGraph(testFilename);
 
-        Assert.assertEquals(graph.getVertexCount(), 3);
-        Assert.assertEquals(graph.getEdgeCount(), 3);
+        Assert.assertEquals(graph.nodes().size(), 3);
+        Assert.assertEquals(graph.edges().size(), 3);
 
         BiMap<Number, String> vertex_ids = gmlreader.getVertexIDs();
 
@@ -112,12 +111,12 @@ public class TestGraphMLReader extends TestCase
         Assert.assertEquals(name.apply(bob), "Bob");
         Assert.assertEquals(name.apply(sue), "Sue");
 
-        Assert.assertTrue(graph.isPredecessor(joe, bob));
-        Assert.assertTrue(graph.isPredecessor(bob, joe));
-        Assert.assertTrue(graph.isPredecessor(sue, joe));
-        Assert.assertFalse(graph.isPredecessor(joe, sue));
-        Assert.assertFalse(graph.isPredecessor(sue, bob));
-        Assert.assertFalse(graph.isPredecessor(bob, sue));
+        Assert.assertTrue(graph.predecessors(joe).contains(bob));
+        Assert.assertTrue(graph.predecessors(bob).contains(joe));
+        Assert.assertTrue(graph.predecessors(sue).contains(joe));
+        Assert.assertFalse(graph.predecessors(joe).contains(sue));
+        Assert.assertFalse(graph.predecessors(sue).contains(bob));
+        Assert.assertFalse(graph.predecessors(bob).contains(sue));
 
         File testFile = new File(testFilename);
         testFile.delete();
@@ -125,11 +124,11 @@ public class TestGraphMLReader extends TestCase
 
     public void testAttributes() throws IOException
     {
-        Graph<Number, Number> graph = new UndirectedSparseGraph<Number, Number>();
+        MutableNetwork<Number, Number> graph = NetworkBuilder.undirected().allowsSelfLoops(true).build();
         gmlreader.load("src/test/resources/edu/uci/ics/jung/io/graphml/attributes.graphml", graph);
 
-        Assert.assertEquals(graph.getVertexCount(), 6);
-        Assert.assertEquals(graph.getEdgeCount(), 7);
+        Assert.assertEquals(graph.nodes().size(), 6);
+        Assert.assertEquals(graph.edges().size(), 7);
 
         // test vertex IDs
         BiMap<Number, String> vertex_ids = gmlreader.getVertexIDs();
@@ -187,59 +186,8 @@ public class TestGraphMLReader extends TestCase
 
     }
 
-    public void testLoadHypergraph() throws IOException,
-            ParserConfigurationException, SAXException
-    {
-        Hypergraph<Number, Number> graph = new SetHypergraph<Number, Number>();
-        GraphMLReader<Hypergraph<Number, Number>, Number, Number> hyperreader = 
-            new GraphMLReader<Hypergraph<Number, Number>, Number, Number>(
-                vertexFactory, edgeFactory);
-        hyperreader.load("src/test/resources/edu/uci/ics/jung/io/graphml/hyper.graphml", graph);
 
-        Assert.assertEquals(graph.getVertexCount(), 7);
-        Assert.assertEquals(graph.getEdgeCount(), 4);
-
-        // n0
-        Set<Number> incident = new HashSet<Number>();
-        incident.add(0);
-        incident.add(3);
-        Assert.assertEquals(graph.getIncidentEdges(0), incident);
-
-        // n1
-        incident.clear();
-        incident.add(0);
-        incident.add(2);
-        Assert.assertEquals(graph.getIncidentEdges(1), incident);
-
-        // n2
-        incident.clear();
-        incident.add(0);
-        Assert.assertEquals(graph.getIncidentEdges(2), incident);
-
-        // n3
-        incident.clear();
-        incident.add(1);
-        incident.add(2);
-        Assert.assertEquals(graph.getIncidentEdges(3), incident);
-
-        // n4
-        incident.clear();
-        incident.add(1);
-        incident.add(3);
-        Assert.assertEquals(graph.getIncidentEdges(4), incident);
-
-        // n5
-        incident.clear();
-        incident.add(1);
-        Assert.assertEquals(graph.getIncidentEdges(5), incident);
-
-        // n6
-        incident.clear();
-        incident.add(1);
-        Assert.assertEquals(graph.getIncidentEdges(6), incident);
-    }
-
-    private Graph<Number, Number> loadGraph(String testFilename)
+    private Network<Number, Number> loadGraph(String testFilename)
             throws IOException
     {
         BufferedWriter writer = new BufferedWriter(new FileWriter(
@@ -256,20 +204,20 @@ public class TestGraphMLReader extends TestCase
         writer.write("</graph>\n");
         writer.close();
 
-        Graph<Number, Number> graph = graphFactory.get();
+        MutableNetwork<Number, Number> graph = graphFactory.get();
         gmlreader.load(testFilename, graph);
         return graph;
     }
 
 //    public void testSave() {
 //        String testFilename = "toy_graph.ml";
-//        Graph<Number,Number> oldGraph = loadGraph(testFilename);
+//        Network<Number,Number> oldGraph = loadGraph(testFilename);
 ////        GraphMLFile<Number,Number> graphmlFile = new GraphMLFile();
 //        String newFilename = testFilename + "_save";
 //        gmlreader.save(oldGraph,newFilename);
-//		Graph<Number,Number> newGraph = gmlreader.load(newFilename);
-//        Assert.assertEquals(oldGraph.getVertexCount(),newGraph.getVertexCount());
-//        Assert.assertEquals(oldGraph.getEdgeCount(),newGraph.getEdgeCount());
+//		Network<Number,Number> newGraph = gmlreader.load(newFilename);
+//        Assert.assertEquals(oldGraph.nodes().size(),newGraph.nodes().size());
+//        Assert.assertEquals(oldGraph.edges().size(),newGraph.edges().size());
 //        File testFile = new File(testFilename);
 //        testFile.delete();
 //        File newFile = new File(newFilename);

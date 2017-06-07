@@ -22,29 +22,28 @@ import java.util.List;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-
-import edu.uci.ics.jung.graph.Graph;
+import com.google.common.graph.Graph;
 
 
 
 /**
- * A {@code Layout} implementation that positions vertices equally spaced on a regular circle.
+ * A {@code Layout} implementation that positions nodes equally spaced on a regular circle.
  *
  * @author Masanori Harada
  */
-public class CircleLayout<V, E> extends AbstractLayout<V,E> {
+public class CircleLayout<N> extends AbstractLayout<N> {
 
 	private double radius;
-	private List<V> vertex_ordered_list;
+	private List<N> node_ordered_list;
 	
-    protected LoadingCache<V, CircleVertexData> circleVertexDatas =
-    	CacheBuilder.newBuilder().build(new CacheLoader<V, CircleVertexData>() {
-	    	public CircleVertexData load(V vertex) {
-	    		return new CircleVertexData();
+    protected LoadingCache<N, CircleNodeData> circleNodeDatas =
+    	CacheBuilder.newBuilder().build(new CacheLoader<N, CircleNodeData>() {
+	    	public CircleNodeData load(N node) {
+	    		return new CircleNodeData();
 	    	}
     });
 
-	public CircleLayout(Graph<V,E> g) {
+	public CircleLayout(Graph<N> g) {
 		super(g);
 	}
 
@@ -64,28 +63,28 @@ public class CircleLayout<V, E> extends AbstractLayout<V,E> {
 	}
 
 	/**
-	 * Sets the order of the vertices in the layout according to the ordering
+	 * Sets the order of the nodes in the layout according to the ordering
 	 * specified by {@code comparator}.
-	 * @param comparator the comparator to use to order the vertices
+	 * @param comparator the comparator to use to order the nodes
 	 */
-	public void setVertexOrder(Comparator<V> comparator)
+	public void setNodeOrder(Comparator<N> comparator)
 	{
-	    if (vertex_ordered_list == null)
-	        vertex_ordered_list = new ArrayList<V>(getGraph().getVertices());
-	    Collections.sort(vertex_ordered_list, comparator);
+	    if (node_ordered_list == null)
+	        node_ordered_list = new ArrayList<N>(nodes());
+	    Collections.sort(node_ordered_list, comparator);
 	}
 
     /**
-     * Sets the order of the vertices in the layout according to the ordering
-     * of {@code vertex_list}.
-     * @param vertex_list a list specifying the ordering of the vertices
+     * Sets the order of the nodes in the layout according to the ordering
+     * of {@code node_list}.
+     * @param node_list a list specifying the ordering of the nodes
      */
-	public void setVertexOrder(List<V> vertex_list)
+	public void setNodeOrder(List<N> node_list)
 	{
-	    if (!vertex_list.containsAll(getGraph().getVertices())) 
+	    if (!node_list.containsAll(nodes())) 
 	        throw new IllegalArgumentException("Supplied list must include " +
-	        		"all vertices of the graph");
-	    this.vertex_ordered_list = vertex_list;
+	        		"all nodes of the graph");
+	    this.node_ordered_list = node_list;
 	}
 	
 	public void reset() {
@@ -98,8 +97,8 @@ public class CircleLayout<V, E> extends AbstractLayout<V,E> {
 		
 		if (d != null) 
 		{
-		    if (vertex_ordered_list == null) 
-		        setVertexOrder(new ArrayList<V>(getGraph().getVertices()));
+		    if (node_ordered_list == null) 
+		        setNodeOrder(new ArrayList<N>(nodes()));
 
 			double height = d.getHeight();
 			double width = d.getWidth();
@@ -109,27 +108,27 @@ public class CircleLayout<V, E> extends AbstractLayout<V,E> {
 			}
 
 			int i = 0;
-			for (V v : vertex_ordered_list)
+			for (N node : node_ordered_list)
 			{
-				Point2D coord = apply(v);
+				Point2D coord = apply(node);
 
-				double angle = (2 * Math.PI * i) / vertex_ordered_list.size();
+				double angle = (2 * Math.PI * i) / node_ordered_list.size();
 
 				coord.setLocation(Math.cos(angle) * radius + width / 2,
 						Math.sin(angle) * radius + height / 2);
 
-				CircleVertexData data = getCircleData(v);
+				CircleNodeData data = getCircleData(node);
 				data.setAngle(angle);
 				i++;
 			}
 		}
 	}
 
-	protected CircleVertexData getCircleData(V v) {
-		return circleVertexDatas.getUnchecked(v);
+	protected CircleNodeData getCircleData(N node) {
+		return circleNodeDatas.getUnchecked(node);
 	}
 
-	protected static class CircleVertexData {
+	protected static class CircleNodeData {
 		private double angle;
 
 		protected double getAngle() {
@@ -142,7 +141,7 @@ public class CircleLayout<V, E> extends AbstractLayout<V,E> {
 
 		@Override
 		public String toString() {
-			return "CircleVertexData: angle=" + angle;
+			return "CircleNodeData: angle=" + angle;
 		}
 	}
 }

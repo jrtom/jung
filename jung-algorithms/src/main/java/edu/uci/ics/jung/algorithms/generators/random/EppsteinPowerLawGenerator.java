@@ -12,69 +12,67 @@ package edu.uci.ics.jung.algorithms.generators.random;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 import com.google.common.base.Supplier;
-
-import edu.uci.ics.jung.algorithms.generators.GraphGenerator;
-import edu.uci.ics.jung.graph.Graph;
+import com.google.common.graph.Graph;
+import com.google.common.graph.GraphBuilder;
+import com.google.common.graph.MutableGraph;
 
 /**
  * Graph generator that generates undirected graphs with power-law degree distributions.
+ * @author Joshua O'Madadhain
  * @author Scott White
  * @see "A Steady State Model for Graph Power Law by David Eppstein and Joseph Wang"
  */
-public class EppsteinPowerLawGenerator<V,E> implements GraphGenerator<V,E> {
-    private int mNumVertices;
-    private int mNumEdges;
+// TODO: decide whether GraphGenerator interface is useful
+public class EppsteinPowerLawGenerator<V> {
+    private int nodeCount;
+    private int edgeCount;
     private int mNumIterations;
     private double mMaxDegree;
     private Random mRandom;
-    private Supplier<Graph<V,E>> graphFactory;
     private Supplier<V> vertexFactory;
-    private Supplier<E> edgeFactory;
+    private List<V> nodes;
 
     /**
      * Creates an instance with the specified factories and specifications.
-     * @param graphFactory the Supplier to use to generate the graph
      * @param vertexFactory the Supplier to use to create vertices
-     * @param edgeFactory the Supplier to use to create edges
      * @param numVertices the number of vertices for the generated graph
      * @param numEdges the number of edges the generated graph will have, should be Theta(numVertices)
      * @param r the number of iterations to use; the larger the value the better the graph's degree
      * distribution will approximate a power-law
      */
-    public EppsteinPowerLawGenerator(Supplier<Graph<V,E>> graphFactory,
-    		Supplier<V> vertexFactory, Supplier<E> edgeFactory, 
+    public EppsteinPowerLawGenerator(Supplier<V> vertexFactory, 
     		int numVertices, int numEdges, int r) {
-    	this.graphFactory = graphFactory;
     	this.vertexFactory = vertexFactory;
-    	this.edgeFactory = edgeFactory;
-        mNumVertices = numVertices;
-        mNumEdges = numEdges;
+        nodeCount = numVertices;
+        edgeCount = numEdges;
         mNumIterations = r;
         mRandom = new Random();
     }
 
-    protected Graph<V,E> initializeGraph() {
-        Graph<V,E> graph = null;
-        graph = graphFactory.get();
-        for(int i=0; i<mNumVertices; i++) {
-        	graph.addVertex(vertexFactory.get());
+    protected MutableGraph<V> initializeGraph() {
+        MutableGraph<V> graph = GraphBuilder.undirected().build();
+        nodes = new ArrayList<V>(nodeCount);
+        for(int i=0; i<nodeCount; i++) {
+        	V node = vertexFactory.get();
+        	graph.addNode(node);
+        	nodes.add(node);
         }
-        List<V> vertices = new ArrayList<V>(graph.getVertices());
-        while (graph.getEdgeCount() < mNumEdges) {
-            V u = vertices.get((int) (mRandom.nextDouble() * mNumVertices));
-            V v = vertices.get((int) (mRandom.nextDouble() * mNumVertices));
-            if (!graph.isSuccessor(v,u)) {
-            	graph.addEdge(edgeFactory.get(), u, v);
+        while (graph.edges().size() < edgeCount) {
+            V u = nodes.get((int) (mRandom.nextDouble() * nodeCount));
+            V v = nodes.get((int) (mRandom.nextDouble() * nodeCount));
+            if (!u.equals(v)) {  // no self-loops 
+            	graph.putEdge(u, v);
             }
         }
 
         double maxDegree = 0;
-        for (V v : graph.getVertices()) {
+        for (V v : graph.nodes()) {
             maxDegree = Math.max(graph.degree(v),maxDegree);
         }
-        mMaxDegree = maxDegree; //(maxDegree+1)*(maxDegree)/2;
+        mMaxDegree = maxDegree;
 
         return graph;
     }
@@ -83,35 +81,41 @@ public class EppsteinPowerLawGenerator<V,E> implements GraphGenerator<V,E> {
      * Generates a graph whose degree distribution approximates a power-law.
      * @return the generated graph
      */
-    public Graph<V,E> get() {
-        Graph<V,E> graph = initializeGraph();
+    public Graph<V> get() {
+        MutableGraph<V> graph = initializeGraph();
 
-        List<V> vertices = new ArrayList<V>(graph.getVertices());
         for (int rIdx = 0; rIdx < mNumIterations; rIdx++) {
 
             V v = null;
-            int degree = 0;
             do {
-                v = vertices.get((int) (mRandom.nextDouble() * mNumVertices));
-                degree = graph.degree(v);
+                v = nodes.get((int) (mRandom.nextDouble() * nodeCount));
+            } while (graph.degree(v) == 0);
 
-            } while (degree == 0);
+            Set<V> neighbors = graph.adjacentNodes(v);
+            int neighborIndex = (int) (mRandom.nextDouble() * neighbors.size());
+            int i = 0;
+            V w = null;
+            for (V neighbor : graph.adjacentNodes(v)) {
+            	if (i++ == neighborIndex) {
+            		w = neighbor;
+            		break;
+            	}
+            }
 
-            List<E> edges = new ArrayList<E>(graph.getIncidentEdges(v));
-            E randomExistingEdge = edges.get((int) (mRandom.nextDouble()*degree));
-
-            // FIXME: look at email thread on a more efficient RNG for arbitrary distributions
+            // FIXME: use WeightedChoice (see BarabasiAlbert) for a more efficient impl
+            // for finding an edge
             
-            V x = vertices.get((int) (mRandom.nextDouble() * mNumVertices));
+            V x = nodes.get((int) (mRandom.nextDouble() * nodeCount));
             V y = null;
             do {
-                y = vertices.get((int) (mRandom.nextDouble() * mNumVertices));
-
+                y = nodes.get((int) (mRandom.nextDouble() * nodeCount));
             } while (mRandom.nextDouble() > ((graph.degree(y)+1)/mMaxDegree));
-
-            if (!graph.isSuccessor(y,x) && x != y) {
-                graph.removeEdge(randomExistingEdge);
-                graph.addEdge(edgeFactory.get(), x, y);
+            
+            // TODO: figure out why we sometimes have insufficient edges in the graph
+            // if we make the two clauses below part of the while condition above
+            if (!x.equals(y) && !graph.successors(x).contains(y)) {
+                graph.removeEdge(v, w);
+                graph.putEdge(x, y);
             }
         }
 

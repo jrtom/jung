@@ -11,6 +11,7 @@
  */
 package edu.uci.ics.jung.algorithms.scoring;
 
+import java.util.Map;
 
 /**
  * An interface for algorithms that assign scores to edges.
@@ -25,4 +26,6 @@ public interface EdgeScorer<E, S>
      * @return the algorithm's score for this edge
      */
     public S getEdgeScore(E e);
+    
+    public Map<E, S> edgeScores();
 }

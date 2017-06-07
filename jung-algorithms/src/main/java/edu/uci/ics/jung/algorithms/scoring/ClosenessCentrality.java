@@ -12,9 +12,10 @@
 package edu.uci.ics.jung.algorithms.scoring;
 
 import com.google.common.base.Function;
+import com.google.common.graph.Graph;
+import com.google.common.graph.Network;
 
 import edu.uci.ics.jung.algorithms.shortestpath.Distance;
-import edu.uci.ics.jung.graph.Hypergraph;
 
 /**
  * Assigns scores to each vertex based on the mean distance to each other vertex.
@@ -29,7 +30,7 @@ public class ClosenessCentrality<V,E> extends DistanceCentralityScorer<V,E>
      * @param graph the input
      * @param distance the vertex/vertex distance metric.
      */
-    public ClosenessCentrality(Hypergraph<V,E> graph, Distance<V> distance)
+    public ClosenessCentrality(Network<V,E> graph, Distance<V> distance)
     {
         super(graph, distance, true);
     }
@@ -39,7 +40,7 @@ public class ClosenessCentrality<V,E> extends DistanceCentralityScorer<V,E>
      * @param graph the input graph
      * @param edge_weights the edge weights to be used to determine vertex/vertex distances
      */
-    public ClosenessCentrality(Hypergraph<V,E> graph, Function<E, ? extends Number> edge_weights)
+    public ClosenessCentrality(Network<V,E> graph, Function<E, ? extends Number> edge_weights)
     {
         super(graph, edge_weights, true);
     }
@@ -48,7 +49,7 @@ public class ClosenessCentrality<V,E> extends DistanceCentralityScorer<V,E>
      * Creates an instance which measures distance on the graph without edge weights.
      * @param graph the graph whose vertices' centrality scores will be calculated
      */
-    public ClosenessCentrality(Hypergraph<V,E> graph)
+    public ClosenessCentrality(Graph<V> graph)
     {
         super(graph, true);
     }

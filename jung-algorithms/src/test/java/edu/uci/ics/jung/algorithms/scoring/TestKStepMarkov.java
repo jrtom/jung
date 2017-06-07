@@ -5,31 +5,30 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import junit.framework.TestCase;
-
 import com.google.common.base.Functions;
+import com.google.common.graph.MutableNetwork;
+import com.google.common.graph.NetworkBuilder;
 
 import edu.uci.ics.jung.algorithms.scoring.util.ScoringUtils;
-import edu.uci.ics.jung.graph.DirectedGraph;
-import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
+import junit.framework.TestCase;
 
 public class TestKStepMarkov extends TestCase 
 {
-	DirectedGraph<Number,Number> mGraph;
+	MutableNetwork<Number,Number> mGraph;
     double[][] mTransitionMatrix;
     Map<Number,Number> edgeWeights = new HashMap<Number,Number>();
 
     @Override
     protected void setUp()
     {
-        mGraph = new DirectedSparseMultigraph<Number,Number>();
+        mGraph = NetworkBuilder.directed().allowsParallelEdges(true).build();
         mTransitionMatrix = new double[][]
            {{0.0, 0.5, 0.5},
             {1.0/3.0, 0.0, 2.0/3.0},
             {1.0/3.0, 2.0/3.0, 0.0}};
 
         for (int i = 0; i < mTransitionMatrix.length; i++)
-        	mGraph.addVertex(i);
+        	mGraph.addNode(i);
 
         for (int i = 0; i < mTransitionMatrix.length; i++) {
             for (int j = 0; j < mTransitionMatrix[i].length; j++)
@@ -37,13 +36,14 @@ public class TestKStepMarkov extends TestCase
                 if (mTransitionMatrix[i][j] > 0)
                 {
                 	int edge = i*mTransitionMatrix.length+j;
-                	mGraph.addEdge(edge, i, j);
+                	mGraph.addEdge(i, j, edge);
                 	edgeWeights.put(edge, mTransitionMatrix[i][j]);
                 }
             }
         }
     }
 
+    // TODO(jrtom): this isn't actually testing anything
     public void testRanker() {
 
         Set<Number> priors = new HashSet<Number>();

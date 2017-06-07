@@ -42,5 +42,5 @@ public interface Distance<V>
 	 * @param source the vertex from which distances are to be measured
 	 * @return a {@code Map} of the distances from {@code source} to other vertices in the graph
 	 */
-	Map<V, Number> getDistanceMap(V source);
+	Map<V, ? extends Number> getDistanceMap(V source);
 }

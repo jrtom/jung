@@ -16,11 +16,11 @@ import com.google.common.base.Preconditions;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.graph.EndpointPair;
+import com.google.common.graph.Graph;
 
 import edu.uci.ics.jung.algorithms.layout.util.RandomLocationTransformer;
 import edu.uci.ics.jung.algorithms.util.IterativeContext;
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.util.Pair;
 
 /**
  * Implements the Fruchterman-Reingold force-directed algorithm for node layout.
@@ -29,8 +29,8 @@ import edu.uci.ics.jung.graph.util.Pair;
  * 
  * <p>Behavior is determined by the following settable parameters:
  * <ul>
- * <li>attraction multiplier: how much edges try to keep their vertices together
- * <li>repulsion multiplier: how much vertices try to push each other apart
+ * <li>attraction multiplier: how much edges try to keep their nodes together
+ * <li>repulsion multiplier: how much nodes try to push each other apart
  * <li>maximum iterations: how many iterations this algorithm will use before stopping
  * </ul>
  * Each of the first two defaults to 0.75; the maximum number of iterations defaults to 700.
@@ -42,7 +42,7 @@ import edu.uci.ics.jung.graph.util.Pair;
  * @author Tom Nelson
  * @author Scott White, Yan-Biao Boey, Danyel Fisher
  */
-public class FRLayout2<V, E> extends AbstractLayout<V, E> implements IterativeContext {
+public class FRLayout2<N> extends AbstractLayout<N> implements IterativeContext {
 
     private double forceConstant;
 
@@ -52,9 +52,9 @@ public class FRLayout2<V, E> extends AbstractLayout<V, E> implements IterativeCo
 
     private int maxIterations = 700;
     
-    protected LoadingCache<V, Point2D> frVertexData =
-    	CacheBuilder.newBuilder().build(new CacheLoader<V, Point2D>() {
-	    	public Point2D load(V vertex) {
+    protected LoadingCache<N, Point2D> frNodeData =
+    	CacheBuilder.newBuilder().build(new CacheLoader<N, Point2D>() {
+	    	public Point2D load(N node) {
 	    		return new Point2D.Double();
 	    	}
     });
@@ -73,12 +73,16 @@ public class FRLayout2<V, E> extends AbstractLayout<V, E> implements IterativeCo
     
     private boolean checked = false;
     
-    public FRLayout2(Graph<V, E> g) {
+    private final Graph<N> graph;
+    
+    public FRLayout2(Graph<N> g) {
         super(g);
+        this.graph = g;
     }
     
-    public FRLayout2(Graph<V, E> g, Dimension d) {
-        super(g, new RandomLocationTransformer<V>(d), d);
+    public FRLayout2(Graph<N> g, Dimension d) {
+        super(g, new RandomLocationTransformer<N>(d), d);
+        this.graph = g;
         max_dimension = Math.max(d.height, d.width);
         initialize();
     }
@@ -86,7 +90,7 @@ public class FRLayout2<V, E> extends AbstractLayout<V, E> implements IterativeCo
 	@Override
 	public void setSize(Dimension size) {
 		if(initialized == false) 
-			setInitializer(new RandomLocationTransformer<V>(size));
+			setInitializer(new RandomLocationTransformer<N>(size));
 		super.setSize(size);
 		double t = size.width/50.0;
 		innerBounds.setFrameFromDiagonal(t,t,size.width-t,size.height-t);
@@ -110,7 +114,6 @@ public class FRLayout2<V, E> extends AbstractLayout<V, E> implements IterativeCo
     }
 
     private void doInit() {
-    	Graph<V,E> graph = getGraph();
     	Dimension d = getSize();
     	if(graph != null && d != null) {
     		currentIteration = 0;
@@ -120,7 +123,7 @@ public class FRLayout2<V, E> extends AbstractLayout<V, E> implements IterativeCo
     			Math
     			.sqrt(d.getHeight()
     					* d.getWidth()
-    					/ graph.getVertexCount());
+    					/ graph.nodes().size());
 
     		attraction_constant = attraction_multiplier * forceConstant;
     		repulsion_constant = repulsion_multiplier * forceConstant;
@@ -131,7 +134,7 @@ public class FRLayout2<V, E> extends AbstractLayout<V, E> implements IterativeCo
 
     /**
      * Moves the iteration forward one notch, calculation attraction and
-     * repulsion between vertices and edges and cooling the temperature.
+     * repulsion between nodes and edges and cooling the temperature.
      */
     public synchronized void step() {
         currentIteration++;
@@ -142,8 +145,8 @@ public class FRLayout2<V, E> extends AbstractLayout<V, E> implements IterativeCo
         while(true) {
             
             try {
-                for(V v1 : getGraph().getVertices()) {
-                    calcRepulsion(v1);
+                for(N node1 : graph.nodes()) {
+                    calcRepulsion(node1);
                 }
                 break;
             } catch(ConcurrentModificationException cme) {}
@@ -154,8 +157,8 @@ public class FRLayout2<V, E> extends AbstractLayout<V, E> implements IterativeCo
          */
         while(true) {
             try {
-                for(E e : getGraph().getEdges()) {
-                    calcAttraction(e);
+                for(EndpointPair<N> endpoints : graph.edges()) {
+                    calcAttraction(endpoints);
                 }
                 break;
             } catch(ConcurrentModificationException cme) {}
@@ -164,9 +167,9 @@ public class FRLayout2<V, E> extends AbstractLayout<V, E> implements IterativeCo
 
         while(true) {
             try {    
-                for(V v : getGraph().getVertices()) {
-                    if (isLocked(v)) continue;
-                    calcPositions(v);
+                for(N node : graph.nodes()) {
+                    if (isLocked(node)) continue;
+                    calcPositions(node);
                 }
                 break;
             } catch(ConcurrentModificationException cme) {}
@@ -174,10 +177,10 @@ public class FRLayout2<V, E> extends AbstractLayout<V, E> implements IterativeCo
         cool();
     }
 
-    protected synchronized void calcPositions(V v) {
-        Point2D fvd = this.frVertexData.getUnchecked(v);
+    protected synchronized void calcPositions(N node) {
+        Point2D fvd = this.frNodeData.getUnchecked(node);
         if(fvd == null) return;
-        Point2D xyd = apply(v);
+        Point2D xyd = apply(node);
         double deltaLength = Math.max(EPSILON, 
         		Math.sqrt(fvd.getX()*fvd.getX()+fvd.getY()*fvd.getY()));
 
@@ -199,19 +202,18 @@ public class FRLayout2<V, E> extends AbstractLayout<V, E> implements IterativeCo
 
     }
 
-    protected void calcAttraction(E e) {
-    	Pair<V> endpoints = getGraph().getEndpoints(e);
-        V v1 = endpoints.getFirst();
-        V v2 = endpoints.getSecond();
-        boolean v1_locked = isLocked(v1);
-        boolean v2_locked = isLocked(v2);
+    protected void calcAttraction(EndpointPair<N> endpoints) {
+        N node1 = endpoints.nodeU();
+        N node2 = endpoints.nodeV();
+        boolean v1_locked = isLocked(node1);
+        boolean v2_locked = isLocked(node2);
         
-        if(v1_locked && v2_locked) {
+        if (v1_locked && v2_locked) {
         	// both locked, do nothing
         	return;
         }
-        Point2D p1 = apply(v1);
-        Point2D p2 = apply(v2);
+        Point2D p1 = apply(node1);
+        Point2D p2 = apply(node2);
         if(p1 == null || p2 == null) return;
         double xDelta = p1.getX() - p2.getX();
         double yDelta = p1.getY() - p2.getY();
@@ -225,16 +227,16 @@ public class FRLayout2<V, E> extends AbstractLayout<V, E> implements IterativeCo
 
         double dx = xDelta * force;
         double dy = yDelta * force;
-        Point2D fvd1 = frVertexData.getUnchecked(v1);
-        Point2D fvd2 = frVertexData.getUnchecked(v2);
-        if(v2_locked) {
+        Point2D fvd1 = frNodeData.getUnchecked(node1);
+        Point2D fvd2 = frNodeData.getUnchecked(node2);
+        if (v2_locked) {
         	// double the offset for v1, as v2 will not be moving in
         	// the opposite direction
         	fvd1.setLocation(fvd1.getX()-2*dx, fvd1.getY()-2*dy);
         } else {
         fvd1.setLocation(fvd1.getX()-dx, fvd1.getY()-dy);
         }
-        if(v1_locked) {
+        if (v1_locked) {
         	// double the offset for v2, as v1 will not be moving in
         	// the opposite direction
         	fvd2.setLocation(fvd2.getX()+2*dx, fvd2.getY()+2*dy);
@@ -243,20 +245,20 @@ public class FRLayout2<V, E> extends AbstractLayout<V, E> implements IterativeCo
     }
     }
 
-    protected void calcRepulsion(V v1) {
-        Point2D fvd1 = frVertexData.getUnchecked(v1);
+    protected void calcRepulsion(N node1) {
+        Point2D fvd1 = frNodeData.getUnchecked(node1);
         if(fvd1 == null) return;
         fvd1.setLocation(0, 0);
-        boolean v1_locked = isLocked(v1);
+        boolean v1_locked = isLocked(node1);
 
         try {
-            for(V v2 : getGraph().getVertices()) {
+            for(N node2 : graph.nodes()) {
 
-                boolean v2_locked = isLocked(v2);
+                boolean v2_locked = isLocked(node2);
             	if (v1_locked && v2_locked) continue;
-                if (v1 != v2) {
-                    Point2D p1 = apply(v1);
-                    Point2D p2 = apply(v2);
+                if (node1 != node2) {
+                    Point2D p1 = apply(node1);
+                    Point2D p2 = apply(node2);
                     if(p1 == null || p2 == null) continue;
                     double xDelta = p1.getX() - p2.getX();
                     double yDelta = p1.getY() - p2.getY();
@@ -282,7 +284,7 @@ public class FRLayout2<V, E> extends AbstractLayout<V, E> implements IterativeCo
             }
             }
         } catch(ConcurrentModificationException cme) {
-            calcRepulsion(v1);
+            calcRepulsion(node1);
         }
     }
 

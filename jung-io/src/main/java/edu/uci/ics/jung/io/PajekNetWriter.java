@@ -17,17 +17,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 
 import com.google.common.base.Function;
-
-import edu.uci.ics.jung.graph.DirectedGraph;
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.UndirectedGraph;
-import edu.uci.ics.jung.graph.util.EdgeType;
-import edu.uci.ics.jung.graph.util.Pair;
+import com.google.common.graph.EndpointPair;
+import com.google.common.graph.Network;
 
 /**
  * Writes graphs in the Pajek NET format.
@@ -58,7 +52,7 @@ public class PajekNetWriter<V,E>
      * @param vld mapping from vertices to locations
      * @throws IOException if the graph cannot be saved
      */
-    public void save(Graph<V,E> g, String filename, Function<V,String> vs, 
+    public void save(Network<V,E> g, String filename, Function<V,String> vs, 
             Function<E,Number> nev, Function<V,Point2D> vld) throws IOException
     {
         save(g, new FileWriter(filename), vs, nev, vld);
@@ -72,7 +66,7 @@ public class PajekNetWriter<V,E>
      * @param nev mapping from edges to weights
      * @throws IOException if the graph cannot be saved
      */
-    public void save(Graph<V,E> g, String filename, Function<V,String> vs, 
+    public void save(Network<V,E> g, String filename, Function<V,String> vs, 
             Function<E,Number> nev) throws IOException
     {
         save(g, new FileWriter(filename), vs, nev, null);
@@ -85,7 +79,7 @@ public class PajekNetWriter<V,E>
      * @param filename the filename of the file to write the graph to
      * @throws IOException if the graph cannot be saved
      */
-    public void save(Graph<V,E> g, String filename) throws IOException
+    public void save(Network<V,E> g, String filename) throws IOException
     {
         save(g, filename, null, null, null);
     }
@@ -97,7 +91,7 @@ public class PajekNetWriter<V,E>
      * @param w the writer instance to write the graph to
      * @throws IOException if the graph cannot be saved
      */
-    public void save(Graph<V,E> g, Writer w) throws IOException
+    public void save(Network<V,E> g, Writer w) throws IOException
     {
         save(g, w, null, null, null);
     }
@@ -110,7 +104,7 @@ public class PajekNetWriter<V,E>
      * @param nev mapping from edges to weights
      * @throws IOException if the graph cannot be saved
      */
-    public void save(Graph<V,E> g, Writer w, Function<V,String> vs, 
+    public void save(Network<V,E> g, Writer w, Function<V,String> vs, 
             Function<E,Number> nev) throws IOException
     {
         save(g, w, vs, nev, null);
@@ -125,7 +119,7 @@ public class PajekNetWriter<V,E>
      * @param vld mapping from vertices to locations (no locations are written if null)
      * @throws IOException if the graph cannot be saved
      */
-	public void save(Graph<V,E> graph, Writer w, Function<V,String> vs, 
+	public void save(Network<V,E> graph, Writer w, Function<V,String> vs, 
 	        Function<E,Number> nev, Function<V,Point2D> vld) throws IOException
     {
         /*
@@ -136,11 +130,11 @@ public class PajekNetWriter<V,E>
         BufferedWriter writer = new BufferedWriter(w);
         if (nev == null)
             nev = new Function<E, Number>() { public Number apply(E e) { return 1; } };
-        writer.write("*Vertices " + graph.getVertexCount());
+        writer.write("*Vertices " + graph.nodes().size());
         writer.newLine();
         
-        List<V> id = new ArrayList<V>(graph.getVertices());
-        for (V currentVertex : graph.getVertices())
+        List<V> id = new ArrayList<V>(graph.nodes());
+        for (V currentVertex : graph.nodes())
         {
             // convert from 0-based to 1-based index
             int v_id = id.indexOf(currentVertex) + 1;
@@ -160,59 +154,16 @@ public class PajekNetWriter<V,E>
             writer.newLine();
         }
 
-        Collection<E> d_set = new HashSet<E>();
-        Collection<E> u_set = new HashSet<E>();
+        writer.write(graph.isDirected() ? "*Arcs" : "*Edges");
+        writer.newLine();
 
-        boolean directed = graph instanceof DirectedGraph;
-
-        boolean undirected = graph instanceof UndirectedGraph;
-
-        // if it's strictly one or the other, no need to create extra sets
-        if (directed)
-            d_set.addAll(graph.getEdges());
-        if (undirected)
-            u_set.addAll(graph.getEdges());
-        if (!directed && !undirected) // mixed-mode graph
-        {
-        	u_set.addAll(graph.getEdges());
-        	d_set.addAll(graph.getEdges());
-        	for(E e : graph.getEdges()) {
-        		if(graph.getEdgeType(e) == EdgeType.UNDIRECTED) {
-        			d_set.remove(e);
-        		} else {
-        			u_set.remove(e);
-        		}
-        	}
-        }
-
-        // write out directed edges
-        if (!d_set.isEmpty())
-        {
-            writer.write("*Arcs");
-            writer.newLine();
-        }
-        for (E e : d_set)
-        {
-            int source_id = id.indexOf(graph.getEndpoints(e).getFirst()) + 1;
-            int target_id = id.indexOf(graph.getEndpoints(e).getSecond()) + 1;
+        for (E e : graph.edges()) {
+        	EndpointPair<V> endpoints = graph.incidentNodes(e);
+        	// convert from 0-based to 1-based index
+        	int nodeU_id = id.indexOf(endpoints.nodeU()) + 1;
+        	int nodeV_id = id.indexOf(endpoints.nodeV()) + 1;
             float weight = nev.apply(e).floatValue();
-            writer.write(source_id + " " + target_id + " " + weight);
-            writer.newLine();
-        }
-
-        // write out undirected edges
-        if (!u_set.isEmpty())
-        {
-            writer.write("*Edges");
-            writer.newLine();
-        }
-        for (E e : u_set)
-        {
-            Pair<V> endpoints = graph.getEndpoints(e);
-            int v1_id = id.indexOf(endpoints.getFirst()) + 1;
-            int v2_id = id.indexOf(endpoints.getSecond()) + 1;
-            float weight = nev.apply(e).floatValue();
-            writer.write(v1_id + " " + v2_id + " " + weight);
+            writer.write(nodeU_id + " " + nodeV_id + " " + weight);
             writer.newLine();
         }
         writer.close();

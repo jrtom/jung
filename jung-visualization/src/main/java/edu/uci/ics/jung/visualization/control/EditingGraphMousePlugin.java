@@ -9,11 +9,10 @@ import java.awt.geom.Point2D;
 import javax.swing.JComponent;
 
 import com.google.common.base.Supplier;
+import com.google.common.graph.Network;
 
-import edu.uci.ics.jung.algorithms.layout.GraphElementAccessor;
-import edu.uci.ics.jung.algorithms.layout.Layout;
+import edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.graph.DirectedGraph;
-import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.UndirectedGraph;
 import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
@@ -81,12 +80,12 @@ public class EditingGraphMousePlugin<V,E> extends AbstractGraphMousePlugin imple
             final VisualizationViewer<V,E> vv =
                 (VisualizationViewer<V,E>)e.getSource();
             final Point2D p = e.getPoint();
-            GraphElementAccessor<V,E> pickSupport = vv.getPickSupport();
+            NetworkElementAccessor<V,E> pickSupport = vv.getPickSupport();
             if(pickSupport != null) {
-                final V vertex = pickSupport.getVertex(vv.getModel().getGraphLayout(), p.getX(), p.getY());
+                final V vertex = pickSupport.getNode(p.getX(), p.getY());
                 if(vertex != null) { // get ready to make an edge
                 	this.createMode = Creating.EDGE;
-                	Graph<V,E> graph = vv.getModel().getGraphLayout().getGraph();
+                	Network<V,E> graph = vv.getModel().getNetwork();
                 	// set default edge type
                 	EdgeType edgeType = (graph instanceof DirectedGraph) ?
                 			EdgeType.DIRECTED : EdgeType.UNDIRECTED;
@@ -105,9 +104,8 @@ public class EditingGraphMousePlugin<V,E> extends AbstractGraphMousePlugin imple
     
     /**
      * If startVertex is non-null, and the mouse is released over an
-     * existing vertex, create an undirected edge from startVertex to
-     * the vertex under the mouse pointer. If shift was also pressed,
-     * create a directed edge instead.
+     * existing vertex, create an edge from startVertex to
+     * the vertex under the mouse pointer.
      */
     @SuppressWarnings("unchecked")
 	public void mouseReleased(MouseEvent e) {
@@ -115,14 +113,16 @@ public class EditingGraphMousePlugin<V,E> extends AbstractGraphMousePlugin imple
             final VisualizationViewer<V,E> vv =
                 (VisualizationViewer<V,E>)e.getSource();
             final Point2D p = e.getPoint();
-            Layout<V,E> layout = vv.getGraphLayout();
             if(createMode == Creating.EDGE) {
-                GraphElementAccessor<V,E> pickSupport = vv.getPickSupport();
+                NetworkElementAccessor<V,E> pickSupport = vv.getPickSupport();
                 V vertex = null;
-                if(pickSupport != null) {
-                    vertex = pickSupport.getVertex(layout, p.getX(), p.getY());
+                // TODO: how does it make any sense for pickSupport to be null in this scenario?
+                if (pickSupport != null) {
+                    vertex = pickSupport.getNode(p.getX(), p.getY());
                 }
-                edgeSupport.endEdgeCreate(vv, vertex);
+                if (vertex != null) {
+                	edgeSupport.endEdgeCreate(vv, vertex);
+                }
             } else if(createMode == Creating.VERTEX){
             	vertexSupport.endVertexCreate(vv, e.getPoint());
             }
@@ -166,7 +166,7 @@ public class EditingGraphMousePlugin<V,E> extends AbstractGraphMousePlugin imple
 		this.vertexSupport = vertexSupport;
 	}
 
-	public EdgeSupport<V,E> getEdgeSupport() {
+	public EdgeSupport<V,E> edgesupport() {
 		return edgeSupport;
 	}
 

@@ -1,13 +1,13 @@
 package edu.uci.ics.jung.visualization.layout;
 
-import edu.uci.ics.jung.graph.Graph;
+import com.google.common.graph.Graph;
 
-public class LayoutEvent<V,E> {
+public class LayoutEvent<V> {
 	
 	V vertex;
-	Graph<V,E> graph;
+	Graph<V> graph;
 
-	public LayoutEvent(V vertex, Graph<V, E> graph) {
+	public LayoutEvent(V vertex, Graph<V> graph) {
 		this.vertex = vertex;
 		this.graph = graph;
 	}
@@ -17,10 +17,10 @@ public class LayoutEvent<V,E> {
 	public void setVertex(V vertex) {
 		this.vertex = vertex;
 	}
-	public Graph<V, E> getGraph() {
+	public Graph<V> getGraph() {
 		return graph;
 	}
-	public void setGraph(Graph<V, E> graph) {
+	public void setGraph(Graph<V> graph) {
 		this.graph = graph;
 	}
 }

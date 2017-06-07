@@ -4,19 +4,16 @@
  */
 package edu.uci.ics.jung.algorithms.shortestpath;
 
+import com.google.common.base.Supplier;
+import com.google.common.collect.BiMap;
+import com.google.common.graph.GraphBuilder;
+import com.google.common.graph.MutableGraph;
+
+import edu.uci.ics.jung.algorithms.util.Indexer;
 import junit.framework.Assert;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-
-import com.google.common.base.Supplier;
-import com.google.common.collect.BiMap;
-
-import edu.uci.ics.jung.algorithms.util.Indexer;
-import edu.uci.ics.jung.graph.DirectedGraph;
-import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
-import edu.uci.ics.jung.graph.UndirectedGraph;
-import edu.uci.ics.jung.graph.UndirectedSparseMultigraph;
 
 /**
  * @author Scott White
@@ -30,12 +27,6 @@ public class TestUnweightedShortestPath extends TestCase
     		return "V"+count++;
     	}};
     	
-     private Supplier<Integer> edgeFactory =
-        	new Supplier<Integer>() {
-        	int count = 0;
-        	public Integer get() {
-        		return count++;
-        	}};
     BiMap<String,Integer> id;
 
     @Override
@@ -47,23 +38,22 @@ public class TestUnweightedShortestPath extends TestCase
 	}
 	
 	public void testUndirected() {
-		UndirectedGraph<String,Integer> ug = 
-			new UndirectedSparseMultigraph<String,Integer>();
+		MutableGraph<String> ug = GraphBuilder.undirected().allowsSelfLoops(true).build();
 		for(int i=0; i<5; i++) {
-			ug.addVertex(vertexFactory.get());
+			ug.addNode(vertexFactory.get());
 		}
-		id = Indexer.<String>create(ug.getVertices());
+		id = Indexer.<String>create(ug.nodes());
 
 //		GraphUtils.addVertices(ug,5);
 //		Indexer id = Indexer.getIndexer(ug);
-		ug.addEdge(edgeFactory.get(), id.inverse().get(0), id.inverse().get(1));
-		ug.addEdge(edgeFactory.get(), id.inverse().get(1), id.inverse().get(2));
-		ug.addEdge(edgeFactory.get(), id.inverse().get(2), id.inverse().get(3));
-		ug.addEdge(edgeFactory.get(), id.inverse().get(0), id.inverse().get(4));
-		ug.addEdge(edgeFactory.get(), id.inverse().get(4), id.inverse().get(3));
+		ug.putEdge(id.inverse().get(0), id.inverse().get(1));
+		ug.putEdge(id.inverse().get(1), id.inverse().get(2));
+		ug.putEdge(id.inverse().get(2), id.inverse().get(3));
+		ug.putEdge(id.inverse().get(0), id.inverse().get(4));
+		ug.putEdge(id.inverse().get(4), id.inverse().get(3));
 		
-		UnweightedShortestPath<String,Integer> usp = 
-			new UnweightedShortestPath<String,Integer>(ug);
+		UnweightedShortestPath<String> usp = 
+			new UnweightedShortestPath<String>(ug);
 		Assert.assertEquals(usp.getDistance(id.inverse().get(0),id.inverse().get(3)).intValue(),2);
 		Assert.assertEquals((usp.getDistanceMap(id.inverse().get(0)).get(id.inverse().get(3))).intValue(),2);
 		Assert.assertNull(usp.getIncomingEdgeMap(id.inverse().get(0)).get(id.inverse().get(0)));
@@ -71,21 +61,20 @@ public class TestUnweightedShortestPath extends TestCase
 	}
 	
 	public void testDirected() {
-			DirectedGraph<String,Integer> dg = 
-				new DirectedSparseMultigraph<String,Integer>();
+			MutableGraph<String> dg = GraphBuilder.directed().allowsSelfLoops(true).build();
 			for(int i=0; i<5; i++) {
-				dg.addVertex(vertexFactory.get());
+				dg.addNode(vertexFactory.get());
 			}
-			id = Indexer.<String>create(dg.getVertices());
-			dg.addEdge(edgeFactory.get(), id.inverse().get(0), id.inverse().get(1));
-			dg.addEdge(edgeFactory.get(), id.inverse().get(1), id.inverse().get(2));
-			dg.addEdge(edgeFactory.get(), id.inverse().get(2), id.inverse().get(3));
-			dg.addEdge(edgeFactory.get(), id.inverse().get(0), id.inverse().get(4));
-			dg.addEdge(edgeFactory.get(), id.inverse().get(4), id.inverse().get(3));
-			dg.addEdge(edgeFactory.get(), id.inverse().get(3), id.inverse().get(0));
+			id = Indexer.<String>create(dg.nodes());
+			dg.putEdge(id.inverse().get(0), id.inverse().get(1));
+			dg.putEdge(id.inverse().get(1), id.inverse().get(2));
+			dg.putEdge(id.inverse().get(2), id.inverse().get(3));
+			dg.putEdge(id.inverse().get(0), id.inverse().get(4));
+			dg.putEdge(id.inverse().get(4), id.inverse().get(3));
+			dg.putEdge(id.inverse().get(3), id.inverse().get(0));
 		
-			UnweightedShortestPath<String,Integer> usp = 
-				new UnweightedShortestPath<String,Integer>(dg);
+			UnweightedShortestPath<String> usp = 
+				new UnweightedShortestPath<String>(dg);
 			Assert.assertEquals(usp.getDistance(id.inverse().get(0),id.inverse().get(3)).intValue(),2);
 			Assert.assertEquals((usp.getDistanceMap(id.inverse().get(0)).get(id.inverse().get(3))).intValue(),2);
 			Assert.assertNull(usp.getIncomingEdgeMap(id.inverse().get(0)).get(id.inverse().get(0)));

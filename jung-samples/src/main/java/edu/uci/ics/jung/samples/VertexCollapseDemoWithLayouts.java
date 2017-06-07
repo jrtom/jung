@@ -10,7 +10,6 @@ package edu.uci.ics.jung.samples;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridLayout;
@@ -18,26 +17,24 @@ import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.Point2D;
-import java.lang.reflect.Constructor;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Iterator;
 import java.util.Set;
 
 import javax.swing.BorderFactory;
-import javax.swing.DefaultListCellRenderer;
 import javax.swing.JApplet;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
-import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
+import com.google.common.collect.Sets;
+import com.google.common.graph.Network;
 
 import edu.uci.ics.jung.algorithms.layout.CircleLayout;
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
@@ -46,8 +43,6 @@ import edu.uci.ics.jung.algorithms.layout.KKLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.algorithms.layout.SpringLayout;
 import edu.uci.ics.jung.algorithms.layout.SpringLayout2;
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.util.Pair;
 import edu.uci.ics.jung.graph.util.TestGraphs;
 import edu.uci.ics.jung.visualization.DefaultVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
@@ -74,7 +69,7 @@ import edu.uci.ics.jung.visualization.util.PredicatedParallelEdgeIndexFunction;
  * 
  * Note that the collection types don't use generics in this
  * demo, because the vertices are of two types: String for plain
- * vertices, and {@code Graph<String, Number>} for the collapsed vertices.
+ * vertices, and {@code Network<String, Number>} for the collapsed vertices.
  * 
  * @author Tom Nelson
  * 
@@ -104,10 +99,20 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
      * the graph
      */
     @SuppressWarnings("rawtypes")
-	Graph graph;
+	Network graph;
     @SuppressWarnings("rawtypes")
-	Graph collapsedGraph;
+	Network collapsedGraph;
 
+    enum Layouts {
+    	KAMADA_KAWAI,
+    	FRUCHTERMAN_REINGOLD,
+    	CIRCLE,
+    	SPRING,
+    	SPRING2,
+    	SELF_ORGANIZING_MAP
+    };
+    
+    
     /**
      * the visual component and renderer for the graph
      */
@@ -123,30 +128,26 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
 	public VertexCollapseDemoWithLayouts() {
         
         // create a simple graph for the demo
-        graph = 
-            TestGraphs.getOneComponentGraph();
+        graph = TestGraphs.getOneComponentGraph();
         collapsedGraph = graph;
         collapser = new GraphCollapser(graph);
         
-        layout = new FRLayout(graph);
+        layout = new FRLayout(graph.asGraph());
 
         Dimension preferredSize = new Dimension(400,400);
         final VisualizationModel visualizationModel = 
-            new DefaultVisualizationModel(layout, preferredSize);
+            new DefaultVisualizationModel(graph, layout, preferredSize);
         vv =  new VisualizationViewer(visualizationModel, preferredSize);
         
         vv.getRenderContext().setVertexShapeTransformer(new ClusterVertexShapeFunction());
         
-        final PredicatedParallelEdgeIndexFunction eif = PredicatedParallelEdgeIndexFunction.getInstance();
-        final Set exclusions = new HashSet();
-        eif.setPredicate(new Predicate() {
-
-			public boolean apply(Object e) {
-				
-				return exclusions.contains(e);
-			}});
-        
-        
+		final Set exclusions = new HashSet();
+		final PredicatedParallelEdgeIndexFunction eif
+			= new PredicatedParallelEdgeIndexFunction(graph, new Predicate() {
+				public boolean apply(Object e) {
+					return exclusions.contains(e);
+				}
+			});
         vv.getRenderContext().setParallelEdgeIndexFunction(eif);
 
         vv.setBackground(Color.white);
@@ -159,8 +160,8 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
 			 */
 			@Override
 			public String apply(Object v) {
-				if(v instanceof Graph) {
-					return ((Graph)v).getVertices().toString();
+				if(v instanceof Network) {
+					return ((Network)v).nodes().toString();
 				}
 				return super.apply(v);
 			}});
@@ -180,6 +181,21 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
         modeBox.addItemListener(graphMouse.getModeListener());
         graphMouse.setMode(ModalGraphMouse.Mode.PICKING);
         
+        Layouts[] combos = getCombos();
+        final JComboBox jcb = new JComboBox(combos);
+        // use a renderer to shorten the layout name presentation
+//        jcb.setRenderer(new DefaultListCellRenderer() {
+//            public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+//                String valueString = value.toString();
+//                valueString = valueString.substring(valueString.lastIndexOf('.')+1);
+//                return super.getListCellRendererComponent(list, valueString, index, isSelected,
+//                        cellHasFocus);
+//            }
+//        });
+        jcb.addActionListener(new LayoutChooser(jcb, vv));
+//        jcb.setSelectedItem(FRLayout.class);
+        jcb.setSelectedItem(Layouts.FRUCHTERMAN_REINGOLD);
+
         final ScalingControl scaler = new CrossoverScalingControl();
 
         JButton plus = new JButton("+");
@@ -199,13 +215,16 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
         collapse.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
+            	// FIXME: this is tricky (here and in VertexCollapseDemo): need to make sure that the "inGraph"
+            	// stays the right graph
                 Collection picked = new HashSet(vv.getPickedVertexState().getPicked());
                 if(picked.size() > 1) {
-                    Graph inGraph = layout.getGraph();
-                    Graph clusterGraph = collapser.getClusterGraph(inGraph, picked);
+//                    Network inGraph = layout.getGraph();
+//                    Network clusterGraph = collapser.getClusterGraph(inGraph, picked);
+                    Network clusterGraph = collapser.getClusterGraph(collapsedGraph, picked);
 
-                    Graph g = collapser.collapse(layout.getGraph(), clusterGraph);
-                    collapsedGraph = g;
+//                    Network g = collapser.collapse(layout.getGraph(), clusterGraph);
+                    collapsedGraph = collapser.collapse(collapsedGraph, clusterGraph);
                     double sumx = 0;
                     double sumy = 0;
                     for(Object v : picked) {
@@ -215,7 +234,9 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
                     }
                     Point2D cp = new Point2D.Double(sumx/picked.size(), sumy/picked.size());
                     vv.getRenderContext().getParallelEdgeIndexFunction().reset();
-                    layout.setGraph(g);
+//                    layout.setGraph(g);
+                    layout = createLayout((Layouts) jcb.getSelectedItem(), collapsedGraph);
+//                    layout.setGraph(collapsedGraph.asGraph());
                     layout.setLocation(clusterGraph, cp);
                     vv.getPickedVertexState().clear();
                     vv.repaint();
@@ -228,10 +249,16 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
 			public void actionPerformed(ActionEvent e) {
 				Collection picked = vv.getPickedVertexState().getPicked();
 				if(picked.size() == 2) {
-					Pair pair = new Pair(picked);
-					Graph graph = layout.getGraph();
-					Collection edges = new HashSet(graph.getIncidentEdges(pair.getFirst()));
-					edges.retainAll(graph.getIncidentEdges(pair.getSecond()));
+					Iterator pickedIter = picked.iterator();
+					Object nodeU = pickedIter.next();
+					Object nodeV = pickedIter.next();
+//					Pair pair = new Pair(picked);
+//					Network graph = layout.getGraph();
+					Set edges = Sets.intersection(
+							collapsedGraph.incidentEdges(nodeU),
+							collapsedGraph.incidentEdges(nodeV));
+//					Collection edges = new HashSet(graph.getIncidentEdges(pair.getFirst()));
+//					edges.retainAll(graph.getIncidentEdges(pair.getSecond()));
 					exclusions.addAll(edges);
 					vv.repaint();
 				}
@@ -244,10 +271,16 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
 			public void actionPerformed(ActionEvent e) {
 				Collection picked = vv.getPickedVertexState().getPicked();
 				if(picked.size() == 2) {
-					Pair pair = new Pair(picked);
-					Graph graph = layout.getGraph();
-					Collection edges = new HashSet(graph.getIncidentEdges(pair.getFirst()));
-					edges.retainAll(graph.getIncidentEdges(pair.getSecond()));
+					Iterator pickedIter = picked.iterator();
+					Object nodeU = pickedIter.next();
+					Object nodeV = pickedIter.next();
+//					Pair pair = new Pair(picked);
+//					Network graph = layout.getGraph();
+					Set edges = Sets.intersection(
+							collapsedGraph.incidentEdges(nodeU),
+							collapsedGraph.incidentEdges(nodeV));
+//					Collection edges = new HashSet(graph.getIncidentEdges(pair.getFirst()));
+//					edges.retainAll(graph.getIncidentEdges(pair.getSecond()));
 					exclusions.removeAll(edges);
 					vv.repaint();
 				}
@@ -260,11 +293,14 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
             public void actionPerformed(ActionEvent e) {
                 Collection picked = new HashSet(vv.getPickedVertexState().getPicked());
                 for(Object v : picked) {
-                    if(v instanceof Graph) {
-                        
-                        Graph g = collapser.expand(layout.getGraph(), (Graph)v);
+                    if(v instanceof Network) {
+//                        Network g = collapser.expand(layout.getGraph(), (Network)v);
+                        Network g = collapser.expand(collapsedGraph, (Network)v);
                         vv.getRenderContext().getParallelEdgeIndexFunction().reset();
-                        layout.setGraph(g);
+                        collapsedGraph = g;
+//                        vv.getModel() // FIXME: need a setNetwork?
+                        layout = createLayout((Layouts) jcb.getSelectedItem(), collapsedGraph);
+//                        layout.setGraph(g);
                     }
                     vv.getPickedVertexState().clear();
                    vv.repaint();
@@ -275,7 +311,8 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
         reset.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
-                layout.setGraph(graph);
+                layout = createLayout((Layouts) jcb.getSelectedItem(), graph);
+//                layout.setGraph(graph);
                 exclusions.clear();
                 vv.repaint();
             }});
@@ -286,19 +323,6 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
                 JOptionPane.showMessageDialog((JComponent)e.getSource(), instructions, "Help", JOptionPane.PLAIN_MESSAGE);
             }
         });
-        Class[] combos = getCombos();
-        final JComboBox jcb = new JComboBox(combos);
-        // use a renderer to shorten the layout name presentation
-        jcb.setRenderer(new DefaultListCellRenderer() {
-            public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-                String valueString = value.toString();
-                valueString = valueString.substring(valueString.lastIndexOf('.')+1);
-                return super.getListCellRendererComponent(list, valueString, index, isSelected,
-                        cellHasFocus);
-            }
-        });
-        jcb.addActionListener(new LayoutChooser(jcb, vv));
-        jcb.setSelectedItem(FRLayout.class);
 
 
         JPanel controls = new JPanel();
@@ -338,9 +362,9 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
         }
         @Override
         public Shape apply(V v) {
-            if(v instanceof Graph) {
+            if(v instanceof Network) {
                 @SuppressWarnings("rawtypes")
-				int size = ((Graph)v).getVertexCount();
+				int size = ((Network)v).nodes().size();
                 if (size < 8) {   
                     int sides = Math.max(size, 3);
                     return factory.getRegularPolygon(v, sides);
@@ -367,13 +391,32 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
         }
 
         public Integer apply(V v) {
-            if(v instanceof Graph) {
+            if(v instanceof Network) {
                 return 30;
             }
             return size;
         }
     }
 
+    private static <N, E> Layout<N> createLayout(Layouts layoutType, Network<N, E> network) {
+    	switch (layoutType) {
+			case CIRCLE:
+				return new CircleLayout<N>(network.asGraph());
+			case FRUCHTERMAN_REINGOLD:
+				return new FRLayout<N>(network.asGraph());
+			case KAMADA_KAWAI:
+				return new KKLayout<N>(network.asGraph());
+			case SELF_ORGANIZING_MAP:
+				return new ISOMLayout<N, E>(network);
+			case SPRING:
+				return new SpringLayout<N>(network.asGraph());
+			case SPRING2:
+				return new SpringLayout2<N>(network.asGraph());
+			default:
+				throw new IllegalArgumentException("Unrecognized layout type");
+    	}
+    }
+    
 	private class LayoutChooser implements ActionListener
     {
         private final JComboBox<?> jcb;
@@ -390,22 +433,24 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
         @SuppressWarnings({ "unchecked", "rawtypes" })
         public void actionPerformed(ActionEvent arg0)
         {
-            Object[] constructorArgs =
-                { collapsedGraph };
+//            Object[] constructorArgs =
+//                { collapsedGraph };
+        	Layouts layoutType = (Layouts) jcb.getSelectedItem();
 
-			Class<? extends Layout> layoutC = 
-                (Class<? extends Layout>) jcb.getSelectedItem();
+//			Class<? extends Layout> layoutC = 
+//                (Class<? extends Layout>) jcb.getSelectedItem();
             try
             {
-                Constructor<? extends Layout> constructor = layoutC
-                        .getConstructor(new Class[] {Graph.class});
-                Object o = constructor.newInstance(constructorArgs);
-                Layout l = (Layout) o;
-                l.setInitializer(vv.getGraphLayout());
-                l.setSize(vv.getSize());
-                layout = l;
+            	layout = createLayout(layoutType, collapsedGraph);
+//                Constructor<? extends Layout> constructor = layoutC
+//                        .getConstructor(new Class[] {Graph.class});
+//                Object o = constructor.newInstance(constructorArgs);
+//                Layout l = (Layout) o;
+                layout.setInitializer(vv.getGraphLayout());
+                layout.setSize(vv.getSize());
+//                layout = l;
 				LayoutTransition lt =
-					new LayoutTransition(vv, vv.getGraphLayout(), l);
+					new LayoutTransition(vv, vv.getGraphLayout(), layout);
 				Animator animator = new Animator(lt);
 				animator.start();
 				vv.getRenderContext().getMultiLayerTransformer().setToIdentity();
@@ -421,17 +466,18 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
     /**
      * @return
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    private Class<? extends Layout>[] getCombos()
+//    @SuppressWarnings({ "unchecked", "rawtypes" })
+    private Layouts[] getCombos()
     {
-        List<Class<? extends Layout>> layouts = new ArrayList<Class<? extends Layout>>();
-        layouts.add(KKLayout.class);
-        layouts.add(FRLayout.class);
-        layouts.add(CircleLayout.class);
-        layouts.add(SpringLayout.class);
-        layouts.add(SpringLayout2.class);
-        layouts.add(ISOMLayout.class);
-        return layouts.toArray(new Class[0]);
+    	return Layouts.values();
+//        List<Class<? extends Layout>> layouts = new ArrayList<Class<? extends Layout>>();
+//        layouts.add(KKLayout.class);
+//        layouts.add(FRLayout.class);
+//        layouts.add(CircleLayout.class);
+//        layouts.add(SpringLayout.class);
+//        layouts.add(SpringLayout2.class);
+//        layouts.add(ISOMLayout.class);
+//        return layouts.toArray(new Class[0]);
     }
 
     public static void main(String[] args) {

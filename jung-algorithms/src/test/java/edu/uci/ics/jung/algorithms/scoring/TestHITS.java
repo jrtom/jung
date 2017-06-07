@@ -9,12 +9,13 @@
 */
 package edu.uci.ics.jung.algorithms.scoring;
 
+import com.google.common.graph.MutableNetwork;
+import com.google.common.graph.NetworkBuilder;
+
 import junit.framework.Assert;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import edu.uci.ics.jung.graph.DirectedGraph;
-import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 
 
 /**
@@ -23,7 +24,7 @@ import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
  */
 public class TestHITS extends TestCase {
 
-	DirectedGraph<Number,Number> graph;
+	MutableNetwork<Number,Number> graph;
 	
     public static Test suite() {
         return new TestSuite(TestHITS.class);
@@ -31,19 +32,24 @@ public class TestHITS extends TestCase {
 
     @Override
     protected void setUp() {
-        graph = new DirectedSparseMultigraph<Number,Number>();
+        graph = NetworkBuilder.directed().allowsParallelEdges(true).build();
         for(int i=0; i<5; i++) {
-        	graph.addVertex(i);
+        	graph.addNode(i);
         }
 
         int j=0;
-        graph.addEdge(j++, 0, 1);
-        graph.addEdge(j++, 1, 2);
-        graph.addEdge(j++, 2, 3);
-        graph.addEdge(j++, 3, 0);
-        graph.addEdge(j++, 2, 1);
+        graph.addEdge(0, 1, j++);
+        graph.addEdge(1, 2, j++);
+        graph.addEdge(2, 3, j++);
+        graph.addEdge(3, 0, j++);
+        graph.addEdge(2, 1, j++);
     }
 
+    // TODO(jrtom): add tests for
+    // * undirected graph
+    // * self-loops
+    // * parallel edges
+    // * weighted edges
     public void testRanker() {
 
         HITS<Number,Number> ranker = new HITS<Number,Number>(graph);
@@ -87,7 +93,7 @@ public class TestHITS extends TestCase {
             	auth_sum += score.authority * score.authority;
             	hub_sum += score.hub * score.hub;
             }
-            Assert.assertEquals(auth_sum, 1.0, .0001);
+            Assert.assertEquals(auth_sum, 1.0, 0.0001);
             Assert.assertEquals(hub_sum, 1.0, 0.0001);
         }
         

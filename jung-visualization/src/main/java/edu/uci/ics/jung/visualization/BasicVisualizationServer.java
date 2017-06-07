@@ -31,7 +31,9 @@ import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import edu.uci.ics.jung.algorithms.layout.GraphElementAccessor;
+import com.google.common.graph.Network;
+
+import edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
@@ -71,7 +73,7 @@ public class BasicVisualizationServer<V, E> extends JPanel
 	/**
 	 * handles the actual drawing of graph elements
 	 */
-	protected Renderer<V,E> renderer = new BasicRenderer<V,E>();
+	protected Renderer<V,E> renderer;
 	
 	/**
 	 * rendering hints used in drawing. Anti-aliasing is on
@@ -134,9 +136,8 @@ public class BasicVisualizationServer<V, E> extends JPanel
      * 
      * @param layout		The Layout to apply, with its associated Graph
      */
-	public BasicVisualizationServer(Layout<V,E> layout) {
-	    this(new DefaultVisualizationModel<V,E>(layout));
-	    renderContext = new PluggableRenderContext<V,E>(layout.getGraph());
+	public BasicVisualizationServer(Network<V, E> network, Layout<V> layout) {
+	    this(new DefaultVisualizationModel<V,E>(network, layout));
 	}
 	
     /**
@@ -145,9 +146,8 @@ public class BasicVisualizationServer<V, E> extends JPanel
      * @param layout		The Layout to apply, with its associated Graph
      * @param preferredSize the preferred size of this View
      */
-	public BasicVisualizationServer(Layout<V,E> layout, Dimension preferredSize) {
-	    this(new DefaultVisualizationModel<V,E>(layout, preferredSize), preferredSize);
-	    renderContext = new PluggableRenderContext<V,E>(layout.getGraph());
+	public BasicVisualizationServer(Network<V, E> network, Layout<V> layout, Dimension preferredSize) {
+	    this(new DefaultVisualizationModel<V,E>(network, layout, preferredSize), preferredSize);
 	}
 	
 	/**
@@ -168,7 +168,8 @@ public class BasicVisualizationServer<V, E> extends JPanel
     public BasicVisualizationServer(VisualizationModel<V,E> model,
 	        Dimension preferredSize) {
 	    this.model = model;
-	    renderContext = new PluggableRenderContext<V,E>(model.getGraphLayout().getGraph());
+	    renderContext = new PluggableRenderContext<V,E>(model.getNetwork());
+	    renderer = new BasicRenderer<V,E>(model.getGraphLayout(), renderContext);
 	    model.addChangeListener(this);
 	    setDoubleBuffered(false);
 		this.addComponentListener(new VisualizationListener(this));
@@ -247,7 +248,7 @@ public class BasicVisualizationServer<V, E> extends JPanel
 	    return renderer;
 	}
 
-    public void setGraphLayout(Layout<V,E> layout) {
+    public void setGraphLayout(Layout<V> layout) {
     	Dimension viewSize = getPreferredSize();
     	if(this.isShowing()) {
     		viewSize = getSize();
@@ -266,7 +267,7 @@ public class BasicVisualizationServer<V, E> extends JPanel
 		}
     }
 	
-	public Layout<V,E> getGraphLayout() {
+	public Layout<V> getGraphLayout() {
 	        return model.getGraphLayout();
 	}
 	
@@ -311,7 +312,7 @@ public class BasicVisualizationServer<V, E> extends JPanel
         	renderContext.getGraphicsContext().setDelegate(g2d);
         }
         renderContext.setScreenDevice(this);
-	    Layout<V,E> layout = model.getGraphLayout();
+	    Layout<V> layout = model.getGraphLayout();
 
 		g2d.setRenderingHints(renderingHints);
 		
@@ -345,7 +346,7 @@ public class BasicVisualizationServer<V, E> extends JPanel
         	((Caching)layout).clear();
         }
         
-        renderer.render(renderContext, layout);
+        renderer.render();
 		
 		// if there are postRenderers set, do it
 		for(Paintable paintable : postRenderers) {
@@ -487,11 +488,11 @@ public class BasicVisualizationServer<V, E> extends JPanel
         pickedEdgeState.addItemListener(pickEventListener);
     }
     
-    public GraphElementAccessor<V,E> getPickSupport() {
+    public NetworkElementAccessor<V,E> getPickSupport() {
         return renderContext.getPickSupport();
     }
 
-    public void setPickSupport(GraphElementAccessor<V,E> pickSupport) {
+    public void setPickSupport(NetworkElementAccessor<V,E> pickSupport) {
         renderContext.setPickSupport(pickSupport);
     }
     

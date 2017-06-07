@@ -24,17 +24,13 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import com.google.common.base.Functions;
+import com.google.common.graph.Network;
 
 import edu.uci.ics.jung.algorithms.layout.KKLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.algorithms.layout.StaticLayout;
 import edu.uci.ics.jung.algorithms.layout.TreeLayout;
-import edu.uci.ics.jung.algorithms.shortestpath.MinimumSpanningForest2;
-import edu.uci.ics.jung.graph.DelegateForest;
-import edu.uci.ics.jung.graph.DelegateTree;
-import edu.uci.ics.jung.graph.Forest;
-import edu.uci.ics.jung.graph.Graph;
+import edu.uci.ics.jung.algorithms.shortestpath.MinimumSpanningTree;
 import edu.uci.ics.jung.graph.util.TestGraphs;
 import edu.uci.ics.jung.visualization.DefaultVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
@@ -69,8 +65,8 @@ public class MinimumSpanningTreeDemo extends JApplet {
      /**
      * the graph
      */
-    Graph<String,Number> graph;
-    Forest<String,Number> tree;
+    Network<String,Number> graph;
+    Network<String,Number> tree;
 
     /**
      * the visual components and renderers for the graph
@@ -97,29 +93,23 @@ public class MinimumSpanningTreeDemo extends JApplet {
         
         // create a simple graph for the demo
         // both models will share one graph
-        graph = 
-        	TestGraphs.getDemoGraph();
-        
-        MinimumSpanningForest2<String,Number> prim = 
-        	new MinimumSpanningForest2<String,Number>(graph,
-        		new DelegateForest<String,Number>(), DelegateTree.<String,Number>getFactory(),
-        		Functions.<Double>constant(1.0));
-        
-        tree = prim.getForest();
+        graph = TestGraphs.getDemoGraph();
+
+        tree = MinimumSpanningTree.extractFrom(graph, e -> 1.0);
         
         // create two layouts for the one graph, one layout for each model
-        Layout<String,Number> layout0 = new KKLayout<String,Number>(graph);
+        Layout<String> layout0 = new KKLayout<String>(graph.asGraph());
         layout0.setSize(preferredLayoutSize);
-        Layout<String,Number> layout1 = new TreeLayout<String,Number>(tree);
-        Layout<String,Number> layout2 = new StaticLayout<String,Number>(graph, layout1);
+        Layout<String> layout1 = new TreeLayout<String>(tree.asGraph());
+        Layout<String> layout2 = new StaticLayout<String>(graph.asGraph(), layout1);
 
         // create the two models, each with a different layout
         VisualizationModel<String,Number> vm0 =
-            new DefaultVisualizationModel<String,Number>(layout0, preferredSize);
+            new DefaultVisualizationModel<String,Number>(graph, layout0, preferredSize);
         VisualizationModel<String,Number> vm1 =
-            new DefaultVisualizationModel<String,Number>(layout1, preferredSizeRect);
+            new DefaultVisualizationModel<String,Number>(tree, layout1, preferredSizeRect);
         VisualizationModel<String,Number> vm2 = 
-            new DefaultVisualizationModel<String,Number>(layout2, preferredSizeRect);
+            new DefaultVisualizationModel<String,Number>(graph, layout2, preferredSizeRect);
         	
         // create the two views, one for each model
         // they share the same renderer
@@ -180,7 +170,7 @@ public class MinimumSpanningTreeDemo extends JApplet {
         vv2.setLayout(new BorderLayout());
         
         Font font = vv0.getFont().deriveFont(Font.BOLD, 16);
-        JLabel vv0Label = new JLabel("<html>Original Graph<p>using KKLayout");
+        JLabel vv0Label = new JLabel("<html>Original Network<p>using KKLayout");
         vv0Label.setFont(font);
         JLabel vv1Label = new JLabel("Minimum Spanning Trees");
         vv1Label.setFont(font);

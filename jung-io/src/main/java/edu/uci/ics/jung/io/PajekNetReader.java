@@ -21,16 +21,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.base.Supplier;
+import com.google.common.graph.MutableNetwork;
 
 import edu.uci.ics.jung.algorithms.util.MapSettableTransformer;
 import edu.uci.ics.jung.algorithms.util.SettableTransformer;
-import edu.uci.ics.jung.graph.DirectedGraph;
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.UndirectedGraph;
-import edu.uci.ics.jung.graph.util.EdgeType;
 
 
 /**
@@ -89,7 +87,7 @@ import edu.uci.ics.jung.graph.util.EdgeType;
  * @see "'Pajek - Program for Analysis and Visualization of Large Networks', Vladimir Batagelj and Andrej Mrvar, http://vlado.fmf.uni-lj.si/pub/networks/pajek/doc/pajekman.pdf"
  * @author Tom Nelson - converted to jung2
  */
-public class PajekNetReader<G extends Graph<V,E>,V,E>
+public class PajekNetReader<G extends MutableNetwork<V,E>,V,E>
 {
 	protected Supplier<V> vertex_factory;
 	protected Supplier<E> edge_factory;
@@ -213,11 +211,12 @@ public class PajekNetReader<G extends Graph<V,E>,V,E>
         st.nextToken(); // skip past "*vertices";
         int num_vertices = Integer.parseInt(st.nextToken());
         List<V> id = null;
+        // TODO: under what circumstances (if any) is it reasonable for vertex_factory to be null?
         if (vertex_factory != null)
         {
             for (int i = 1; i <= num_vertices; i++)
-                g.addVertex(vertex_factory.get());
-            id = new ArrayList<V>(g.getVertices());
+                g.addNode(vertex_factory.get());
+            id = new ArrayList<V>(g.nodes());
         }
 
         // read vertices until we see any Pajek format tag ('*...')
@@ -324,7 +323,8 @@ public class PajekNetReader<G extends Graph<V,E>,V,E>
     
     
     @SuppressWarnings("unchecked")
-    private String readArcsOrEdges(String curLine, BufferedReader br, Graph<V,E> g, List<V> id, Supplier<E> edge_factory)
+    private String readArcsOrEdges(String curLine, BufferedReader br, MutableNetwork<V,E> g,
+    		List<V> id, Supplier<E> edge_factory)
         throws IOException
     {
         String nextLine = curLine;
@@ -335,23 +335,17 @@ public class PajekNetReader<G extends Graph<V,E>,V,E>
 
         boolean reading_arcs = false;
         boolean reading_edges = false;
-        EdgeType directedness = null;
         if (a_pred.apply(nextLine))
         {
-            if (g instanceof UndirectedGraph) {
-                throw new IllegalArgumentException("Supplied undirected-only graph cannot be populated with directed edges");
-            } else {
-                reading_arcs = true;
-                directedness = EdgeType.DIRECTED;
-            }
+        	Preconditions.checkState(g.isDirected(),
+        			"Supplied undirected-only graph cannot be populated with directed edges");
+            reading_arcs = true;
         }
         if (e_pred.apply(nextLine))
         {
-            if (g instanceof DirectedGraph)
-                throw new IllegalArgumentException("Supplied directed-only graph cannot be populated with undirected edges");
-            else
-                reading_edges = true;
-            directedness = EdgeType.UNDIRECTED;
+        	Preconditions.checkState(!g.isDirected(),
+        			"Supplied directed-only graph cannot be populated with undirected edges");
+            reading_edges = true;
         }
         
         if (!(reading_arcs || reading_edges))
@@ -370,23 +364,25 @@ public class PajekNetReader<G extends Graph<V,E>,V,E>
             StringTokenizer st = new StringTokenizer(nextLine.trim());
             
             int vid1 = Integer.parseInt(st.nextToken()) - 1;
+            // FIXME: check for vid < 0
             V v1;
-            if (id != null)
+            if (id != null) {
               v1 = id.get(vid1);
+            }
             else
+              // TODO: wat (look for other (V) casts also)
               v1 = (V)new Integer(vid1);
-
             
             if (is_list) // one source, multiple destinations
             {
                 do
                 {
-                    createAddEdge(st, v1, directedness, g, id, edge_factory);
+                    createAddEdge(st, v1, g, id, edge_factory);
                 } while (st.hasMoreTokens());
             }
             else // one source, one destination, at most one weight
             {
-                E e = createAddEdge(st, v1, directedness, g, id, edge_factory);
+                E e = createAddEdge(st, v1, g, id, edge_factory);
                 // get the edge weight if we care
                 if (edge_weights != null && st.hasMoreTokens())
                     edge_weights.set(e, new Float(st.nextToken()));
@@ -396,8 +392,8 @@ public class PajekNetReader<G extends Graph<V,E>,V,E>
     }
 
     @SuppressWarnings("unchecked")
-    protected E createAddEdge(StringTokenizer st, V v1, 
-            EdgeType directed, Graph<V,E> g, List<V> id, Supplier<E> edge_factory)
+    protected E createAddEdge(StringTokenizer st, V v1, MutableNetwork<V,E> g,
+    		List<V> id, Supplier<E> edge_factory)
     {
         int vid2 = Integer.parseInt(st.nextToken()) - 1;
         V v2;
@@ -409,7 +405,7 @@ public class PajekNetReader<G extends Graph<V,E>,V,E>
 
         // don't error-check this: let the graph implementation do whatever it's going to do 
         // (add the edge, replace the existing edge, throw an exception--depends on the graph implementation)
-     	g.addEdge(e, v1, v2, directed);
+     	g.addEdge(v1, v2, e);
         return e;
     }
     

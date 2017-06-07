@@ -10,13 +10,9 @@ import javax.swing.JMenu;
 import javax.swing.JPopupMenu;
 
 import com.google.common.base.Supplier;
+import com.google.common.graph.MutableNetwork;
 
-import edu.uci.ics.jung.algorithms.layout.GraphElementAccessor;
-import edu.uci.ics.jung.algorithms.layout.Layout;
-import edu.uci.ics.jung.graph.DirectedGraph;
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.UndirectedGraph;
-import edu.uci.ics.jung.graph.util.EdgeType;
+import edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 
@@ -41,14 +37,13 @@ public class EditingPopupGraphMousePlugin<V,E> extends AbstractPopupGraphMousePl
 	protected void handlePopup(MouseEvent e) {
         final VisualizationViewer<V,E> vv =
             (VisualizationViewer<V,E>)e.getSource();
-        final Layout<V,E> layout = vv.getGraphLayout();
-        final Graph<V,E> graph = layout.getGraph();
+        final MutableNetwork<V,E> graph = (MutableNetwork<V, E>) vv.getModel().getNetwork();
         final Point2D p = e.getPoint();
-        GraphElementAccessor<V,E> pickSupport = vv.getPickSupport();
+        NetworkElementAccessor<V,E> pickSupport = vv.getPickSupport();
         if(pickSupport != null) {
             
-            final V vertex = pickSupport.getVertex(layout, p.getX(), p.getY());
-            final E edge = pickSupport.getEdge(layout, p.getX(), p.getY());
+            final V vertex = pickSupport.getNode(p.getX(), p.getY());
+            final E edge = pickSupport.getEdge(p.getX(), p.getY());
             final PickedState<V> pickedVertexState = vv.getPickedVertexState();
             final PickedState<E> pickedEdgeState = vv.getPickedEdgeState();
             
@@ -56,37 +51,23 @@ public class EditingPopupGraphMousePlugin<V,E> extends AbstractPopupGraphMousePl
             if(vertex != null) {
             	Set<V> picked = pickedVertexState.getPicked();
             	if(picked.size() > 0) {
-            		if(graph instanceof UndirectedGraph == false) {
-            			JMenu directedMenu = new JMenu("Create Directed Edge");
-            			popup.add(directedMenu);
-            			for(final V other : picked) {
-            				directedMenu.add(new AbstractAction("["+other+","+vertex+"]") {
-            					public void actionPerformed(ActionEvent e) {
-            						graph.addEdge(edgeFactory.get(),
-            								other, vertex, EdgeType.DIRECTED);
-            						vv.repaint();
-            					}
-            				});
-            			}
-            		}
-            		if(graph instanceof DirectedGraph == false) {
-            			JMenu undirectedMenu = new JMenu("Create Undirected Edge");
-            			popup.add(undirectedMenu);
-            			for(final V other : picked) {
-            				undirectedMenu.add(new AbstractAction("[" + other+","+vertex+"]") {
-            					public void actionPerformed(ActionEvent e) {
-            						graph.addEdge(edgeFactory.get(),
-            								other, vertex);
-            						vv.repaint();
-            					}
-            				});
-            			}
-            		}
+        			JMenu menu = new JMenu("Create "
+        					+ (graph.isDirected() ? "Directed" : "Undirected")
+        					+ " Edge");
+        			popup.add(menu);
+        			for(final V other : picked) {
+        				menu.add(new AbstractAction("["+other+","+vertex+"]") {
+        					public void actionPerformed(ActionEvent e) {
+        						graph.addEdge(other, vertex, edgeFactory.get());
+        						vv.repaint();
+        					}
+        				});
+        			}
                 }
                 popup.add(new AbstractAction("Delete Vertex") {
                     public void actionPerformed(ActionEvent e) {
                         pickedVertexState.pick(vertex, false);
-                        graph.removeVertex(vertex);
+                        graph.removeNode(vertex);
                         vv.repaint();
                     }});
             } else if(edge != null) {
@@ -100,8 +81,9 @@ public class EditingPopupGraphMousePlugin<V,E> extends AbstractPopupGraphMousePl
                 popup.add(new AbstractAction("Create Vertex") {
                     public void actionPerformed(ActionEvent e) {
                         V newVertex = vertexFactory.get();
-                        graph.addVertex(newVertex);
-                        layout.setLocation(newVertex, vv.getRenderContext().getMultiLayerTransformer().inverseTransform(p));
+                        graph.addNode(newVertex);
+                        vv.getGraphLayout().setLocation(newVertex,
+                        		vv.getRenderContext().getMultiLayerTransformer().inverseTransform(p));
                         vv.repaint();
                     }
                 });

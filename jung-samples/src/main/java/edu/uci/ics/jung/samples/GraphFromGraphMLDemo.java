@@ -26,10 +26,11 @@ import org.xml.sax.SAXException;
 
 import com.google.common.base.Function;
 import com.google.common.base.Supplier;
+import com.google.common.graph.MutableNetwork;
+import com.google.common.graph.NetworkBuilder;
 
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
-import edu.uci.ics.jung.graph.DirectedGraph;
-import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
+import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.io.GraphMLReader;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
@@ -39,9 +40,9 @@ import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.GraphMouseListener;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
+import edu.uci.ics.jung.visualization.renderers.BasicVertexLabelRenderer.InsidePositioner;
 import edu.uci.ics.jung.visualization.renderers.GradientVertexRenderer;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
-import edu.uci.ics.jung.visualization.renderers.BasicVertexLabelRenderer.InsidePositioner;
 
 
 /**
@@ -75,27 +76,27 @@ public class GraphFromGraphMLDemo {
     		public Number get() { return n++; }
     	};
     	
-    	GraphMLReader<DirectedGraph<Number,Number>, Number, Number> gmlr = 
-    	    new GraphMLReader<DirectedGraph<Number,Number>, Number, Number>(vertexFactory, edgeFactory);
-    	final DirectedGraph<Number,Number> graph = new DirectedSparseMultigraph<Number,Number>();
+    	GraphMLReader<MutableNetwork<Number,Number>, Number, Number> gmlr = 
+    	    new GraphMLReader<MutableNetwork<Number,Number>, Number, Number>(vertexFactory, edgeFactory);
+    	final MutableNetwork<Number,Number> graph = NetworkBuilder.directed().allowsSelfLoops(true).build();
     	gmlr.load(filename, graph);
     	
         // create a simple graph for the demo
-        vv =  new VisualizationViewer<Number,Number>(new FRLayout<Number,Number>(graph));
+    	Layout<Number> layout = new FRLayout<Number>(graph.asGraph());
+        vv =  new VisualizationViewer<Number,Number>(graph, layout);
 
         vv.addGraphMouseListener(new TestGraphMouseListener<Number>());
         vv.getRenderer().setVertexRenderer(
-        		new GradientVertexRenderer<Number,Number>(
+        		new GradientVertexRenderer<Number>(vv,
         				Color.white, Color.red, 
         				Color.white, Color.blue,
-        				vv.getPickedVertexState(),
         				false));
         
         // add my listeners for ToolTips
         vv.setVertexToolTipTransformer(new ToStringLabeller());
         vv.setEdgeToolTipTransformer(new Function<Number,String>() {
 			public String apply(Number edge) {
-				return "E"+graph.getEndpoints(edge).toString();
+				return "E"+graph.incidentNodes(edge).toString();
 			}});
         
         vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());

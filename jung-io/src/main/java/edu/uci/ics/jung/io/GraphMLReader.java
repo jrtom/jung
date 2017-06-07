@@ -14,8 +14,6 @@ package edu.uci.ics.jung.io;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -34,13 +32,10 @@ import org.xml.sax.helpers.DefaultHandler;
 import com.google.common.base.Supplier;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import com.google.common.graph.MutableNetwork;
 
 import edu.uci.ics.jung.algorithms.util.MapSettableTransformer;
 import edu.uci.ics.jung.algorithms.util.SettableTransformer;
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.Hypergraph;
-import edu.uci.ics.jung.graph.util.EdgeType;
-import edu.uci.ics.jung.graph.util.Pair;
 
 /**
  * Reads in data from a GraphML-formatted file and generates graphs based on
@@ -66,7 +61,7 @@ import edu.uci.ics.jung.graph.util.Pair;
  *
  * @see "http://graphml.graphdrawing.org/specification.html"
  */
-public class GraphMLReader<G extends Hypergraph<V,E>, V, E> extends DefaultHandler
+public class GraphMLReader<G extends MutableNetwork<V,E>, V, E> extends DefaultHandler
 {
     protected enum TagState {NO_TAG, VERTEX, EDGE, HYPEREDGE, ENDPOINT, GRAPH,
       DATA, KEY, DESC, DEFAULT_KEY, GRAPHML, OTHER}
@@ -74,7 +69,7 @@ public class GraphMLReader<G extends Hypergraph<V,E>, V, E> extends DefaultHandl
     protected enum KeyType {NONE, VERTEX, EDGE, GRAPH, ALL}
 
     protected SAXParser saxp;
-    protected EdgeType default_edgetype;
+    protected boolean default_directed;
     protected G current_graph;
     protected V current_vertex;
     protected E current_edge;
@@ -93,11 +88,12 @@ public class GraphMLReader<G extends Hypergraph<V,E>, V, E> extends DefaultHandl
     protected Map<E, String> edge_desc;
     protected Map<G, String> graph_desc;
     protected KeyType key_type;
-    protected Collection<V> hyperedge_vertices;
 
     protected List<G> graphs;
 
     protected StringBuilder current_text = new StringBuilder();
+    
+    // TODO(jrtom): replace graph supplier with NetworkBuilder, or just provide another overload?
     
     /**
      * Creates a <code>GraphMLReader</code> instance with the specified
@@ -221,8 +217,6 @@ public class GraphMLReader<G extends Hypergraph<V,E>, V, E> extends DefaultHandl
         this.edge_desc.clear();
 
         this.graph_desc.clear();
-
-        this.hyperedge_vertices.clear();
     }
 
     /**
@@ -241,8 +235,6 @@ public class GraphMLReader<G extends Hypergraph<V,E>, V, E> extends DefaultHandl
 
         this.graph_desc = new HashMap<G, String>();
         this.graph_metadata = new HashMap<String, GraphMLMetadata<G>>();
-
-        this.hyperedge_vertices = new ArrayList<V>();
     }
 
     protected void parse(Reader reader) throws IOException
@@ -297,11 +289,9 @@ public class GraphMLReader<G extends Hypergraph<V,E>, V, E> extends DefaultHandl
                     throw new SAXNotSupportedException("Endpoint refers to nonexistent node ID: " + node);
 
                 this.current_vertex = v;
-                hyperedge_vertices.add(v);
                 break;
 
             case EDGE:
-            case HYPEREDGE:
                 if (this.current_graph == null)
                     throw new SAXNotSupportedException("Graph must be defined prior to elements");
                 if (this.current_edge != null || this.current_vertex != null)
@@ -310,6 +300,9 @@ public class GraphMLReader<G extends Hypergraph<V,E>, V, E> extends DefaultHandl
                 createEdge(atts, state);
                 break;
 
+            case HYPEREDGE:
+            	throw new SAXNotSupportedException("Hyperedges not supported");
+                
             case GRAPH:
                 if (this.current_graph != null && graph_factory != null)
                     throw new SAXNotSupportedException("Nesting graphs not currently supported");
@@ -327,9 +320,9 @@ public class GraphMLReader<G extends Hypergraph<V,E>, V, E> extends DefaultHandl
                 if (default_direction == null)
                     throw new SAXNotSupportedException("All graphs must specify a default edge direction");
                 if (default_direction.equals("directed"))
-                    this.default_edgetype = EdgeType.DIRECTED;
+                	this.default_directed = true;
                 else if (default_direction.equals("undirected"))
-                    this.default_edgetype = EdgeType.UNDIRECTED;
+                	this.default_directed = false;
                 else
                     throw new SAXNotSupportedException("Invalid or unrecognized default edge direction: " + default_direction);
 
@@ -456,10 +449,7 @@ public class GraphMLReader<G extends Hypergraph<V,E>, V, E> extends DefaultHandl
                 break;
 
             case HYPEREDGE:
-                current_graph.addEdge(current_edge, hyperedge_vertices);
-                hyperedge_vertices.clear();
-                current_edge = null;
-                break;
+                throw new SAXNotSupportedException("Hypergraphs not currently supported");
 
             case GRAPH:
                 current_graph = null;
@@ -674,7 +664,7 @@ public class GraphMLReader<G extends Hypergraph<V,E>, V, E> extends DefaultHandl
         	else
         		v = (V)id;
             vertex_ids.put(v, id);
-            this.current_graph.addVertex(v);
+            this.current_graph.addNode(v);
 
             // put remaining attribute/value pairs in vertex_data
            	addExtraData(vertex_atts, vertex_metadata, v);
@@ -744,22 +734,20 @@ public class GraphMLReader<G extends Hypergraph<V,E>, V, E> extends DefaultHandl
             		"\"" + target_id + "\" does not match any node ID");
 
         String directed = edge_atts.remove("directed");
-        EdgeType edge_type;
-        if (directed == null)
-            edge_type = default_edgetype;
-        else if (directed.equals("true"))
-            edge_type = EdgeType.DIRECTED;
-        else if (directed.equals("false"))
-            edge_type = EdgeType.UNDIRECTED;
-        else
-            throw new SAXNotSupportedException("Unrecognized edge direction specifier 'direction=\"" +
-            		directed + "\"': " + "source: " + source_id + ", target: " + target_id);
-
-        if (current_graph instanceof Graph)
-            ((Graph<V,E>)this.current_graph).addEdge(e, source, target,
-            		edge_type);
-        else
-            this.current_graph.addEdge(e, new Pair<V>(source, target));
+        if (directed != null) {
+        	boolean isDirected = directed.equals("true");
+        	boolean isUndirected = directed.equals("false");
+        	if (!isDirected && !isUndirected) {
+                throw new SAXNotSupportedException("Unrecognized edge direction specifier 'direction=\"" +
+                		directed + "\"': " + "source: " + source_id + ", target: " + target_id);
+        	}
+        	if (isDirected != default_directed) {
+                throw new SAXNotSupportedException(String.format("Parser does not support graphs with directed and "
+                		+ "undirected edges; default direction: %b, edge direction: %b: ",
+                		default_directed, (isDirected ? isDirected : isUndirected)));
+        	}
+        }
+        current_graph.addEdge(source, target, e);
     }
 
     /**

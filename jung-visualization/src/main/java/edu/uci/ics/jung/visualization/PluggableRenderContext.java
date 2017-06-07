@@ -23,15 +23,11 @@ import com.google.common.base.Function;
 import com.google.common.base.Functions;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
+import com.google.common.graph.Network;
 
-import edu.uci.ics.jung.algorithms.layout.GraphElementAccessor;
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.util.Context;
-import edu.uci.ics.jung.graph.util.DefaultParallelEdgeIndexFunction;
+import edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor;
+import edu.uci.ics.jung.graph.util.ParallelEdgeIndexFunction;
 import edu.uci.ics.jung.graph.util.EdgeIndexFunction;
-import edu.uci.ics.jung.graph.util.IncidentEdgeIndexFunction;
-import edu.uci.ics.jung.visualization.decorators.ConstantDirectionalEdgeValueTransformer;
-import edu.uci.ics.jung.visualization.decorators.DirectionalEdgeArrowTransformer;
 import edu.uci.ics.jung.visualization.decorators.EdgeShape;
 import edu.uci.ics.jung.visualization.decorators.ParallelEdgeShapeTransformer;
 import edu.uci.ics.jung.visualization.picking.PickedState;
@@ -40,12 +36,15 @@ import edu.uci.ics.jung.visualization.renderers.DefaultVertexLabelRenderer;
 import edu.uci.ics.jung.visualization.renderers.EdgeLabelRenderer;
 import edu.uci.ics.jung.visualization.renderers.VertexLabelRenderer;
 import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
+import edu.uci.ics.jung.visualization.util.ArrowFactory;
 
 
 public class PluggableRenderContext<V, E> implements RenderContext<V, E> {
     
+	private final Network<V, E> network;
+	
 	protected float arrowPlacementTolerance = 1;
-    protected Predicate<Context<Graph<V,E>,V>> vertexIncludePredicate = Predicates.alwaysTrue();
+    protected Predicate<V> vertexIncludePredicate = Predicates.alwaysTrue();
     protected Function<? super V,Stroke> vertexStrokeTransformer = 
     	Functions.<Stroke>constant(new BasicStroke(1.0f));
     
@@ -54,7 +53,7 @@ public class PluggableRenderContext<V, E> implements RenderContext<V, E> {
         		new Ellipse2D.Float(-10,-10,20,20));
 
     protected Function<? super V,String> vertexLabelTransformer = Functions.constant(null);
-    protected Function<? super V,Icon> vertexIconTransformer;
+    protected Function<V, Icon> vertexIconTransformer;
     protected Function<? super V,Font> vertexFontTransformer = 
         Functions.constant(new Font("Helvetica", Font.PLAIN, 12));
     
@@ -70,15 +69,20 @@ public class PluggableRenderContext<V, E> implements RenderContext<V, E> {
     protected Function<? super E,Stroke> edgeArrowStrokeTransformer = 
     	Functions.<Stroke>constant(new BasicStroke(1.0f));
     
-    protected Function<? super Context<Graph<V,E>,E>,Shape> edgeArrowTransformer = 
-        new DirectionalEdgeArrowTransformer<V,E>(10, 8, 4);
+    private final static int EDGE_ARROW_LENGTH = 10;
+    private final static int EDGE_ARROW_WIDTH = 8;
+    private final static int EDGE_ARROW_NOTCH_DEPTH = 4;
+    protected Shape edgeArrow;
+    protected boolean renderEdgeArrow;
     
-    protected Predicate<Context<Graph<V,E>,E>> edgeArrowPredicate = new DirectedEdgeArrowPredicate<V,E>();
-    protected Predicate<Context<Graph<V,E>,E>> edgeIncludePredicate = Predicates.alwaysTrue();
+    protected Predicate<E> edgeIncludePredicate = Predicates.alwaysTrue();
     protected Function<? super E,Font> edgeFontTransformer =
         Functions.constant(new Font("Helvetica", Font.PLAIN, 12));
-    protected Function<? super Context<Graph<V,E>,E>,Number> edgeLabelClosenessTransformer = 
-        new ConstantDirectionalEdgeValueTransformer<V,E>(0.5, 0.65);
+
+    private final static float DIRECTED_EDGE_LABEL_CLOSENESS = 0.65f;
+    private final static float UNDIRECTED_EDGE_LABEL_CLOSENESS = 0.65f;
+    protected float edgeLabelCloseness;
+
     protected Function<? super E, Shape> edgeShapeTransformer;
     protected Function<? super E,Paint> edgeFillPaintTransformer =
         Functions.constant(null);
@@ -89,11 +93,7 @@ public class PluggableRenderContext<V, E> implements RenderContext<V, E> {
     protected Function<? super E,Paint> arrowDrawPaintTransformer =
         Functions.<Paint>constant(Color.black);
     
-    protected EdgeIndexFunction<V,E> parallelEdgeIndexFunction = 
-        DefaultParallelEdgeIndexFunction.<V,E>getInstance();
-    
-    protected EdgeIndexFunction<V,E> incidentEdgeIndexFunction = 
-        IncidentEdgeIndexFunction.<V,E>getInstance();
+    protected EdgeIndexFunction<E> parallelEdgeIndexFunction;
     
     protected MultiLayerTransformer multiLayerTransformer = new BasicTransformer();
     
@@ -101,7 +101,7 @@ public class PluggableRenderContext<V, E> implements RenderContext<V, E> {
 	 * pluggable support for picking graph elements by
 	 * finding them based on their coordinates.
 	 */
-	protected GraphElementAccessor<V, E> pickSupport;
+	protected NetworkElementAccessor<V, E> pickSupport;
 
     
     protected int labelOffset = LABEL_OFFSET;
@@ -132,13 +132,30 @@ public class PluggableRenderContext<V, E> implements RenderContext<V, E> {
     
     protected GraphicsDecorator graphicsContext;
     
-    private EdgeShape<V, E> edgeShape;
+    private EdgeShape<E> edgeShape;
     
-    PluggableRenderContext(Graph<V, E> graph) {
-        this.edgeShape = new EdgeShape<V, E>(graph);
-    	this.edgeShapeTransformer = edgeShape.new QuadCurve();    	
+    PluggableRenderContext(Network<V, E> graph) {
+    	this.network = graph;
+        this.edgeShape = new EdgeShape<E>(graph);
+    	this.edgeShapeTransformer = edgeShape.new QuadCurve();
+    	this.parallelEdgeIndexFunction = new ParallelEdgeIndexFunction<V, E>(graph);
+    	if (graph.isDirected()) {
+        	this.edgeArrow = ArrowFactory.getNotchedArrow(
+        			EDGE_ARROW_WIDTH, EDGE_ARROW_LENGTH, EDGE_ARROW_NOTCH_DEPTH);
+    		this.renderEdgeArrow = true;
+    		this.edgeLabelCloseness = DIRECTED_EDGE_LABEL_CLOSENESS;
+    	} else {
+    		this.edgeArrow = ArrowFactory.getWedgeArrow(EDGE_ARROW_WIDTH, EDGE_ARROW_LENGTH);
+    		this.renderEdgeArrow = false;
+    		this.edgeLabelCloseness = UNDIRECTED_EDGE_LABEL_CLOSENESS;
+    	}
     }
 
+    @Override
+    public Network<V, E> getNetwork() {
+    	return network;
+    }
+    
 	/**
 	 * @return the vertexShapeTransformer
 	 */
@@ -185,22 +202,22 @@ public class PluggableRenderContext<V, E> implements RenderContext<V, E> {
         this.arrowPlacementTolerance = arrow_placement_tolerance;
     }
 
-    public Function<? super Context<Graph<V,E>,E>,Shape> getEdgeArrowTransformer() {
-        return edgeArrowTransformer;
+    public Shape getEdgeArrow() {
+    	return edgeArrow;
     }
-
-    public void setEdgeArrowTransformer(Function<? super Context<Graph<V,E>,E>,Shape> edgeArrowTransformer) {
-        this.edgeArrowTransformer = edgeArrowTransformer;
+    
+    public void setEdgeArrow(Shape shape) {
+    	this.edgeArrow = shape;
     }
-
-    public Predicate<Context<Graph<V,E>,E>> getEdgeArrowPredicate() {
-        return edgeArrowPredicate;
+    
+    public boolean renderEdgeArrow() {
+    	return this.renderEdgeArrow;
     }
-
-    public void setEdgeArrowPredicate(Predicate<Context<Graph<V,E>,E>> edgeArrowPredicate) {
-        this.edgeArrowPredicate = edgeArrowPredicate;
+    
+    public void setRenderEdgeArrow(boolean render) {
+    	this.renderEdgeArrow = render;
     }
-
+    
     public Function<? super E,Font> getEdgeFontTransformer() {
         return edgeFontTransformer;
     }
@@ -209,23 +226,22 @@ public class PluggableRenderContext<V, E> implements RenderContext<V, E> {
         this.edgeFontTransformer = edgeFontTransformer;
     }
 
-    public Predicate<Context<Graph<V,E>,E>> getEdgeIncludePredicate() {
+    public Predicate<E> getEdgeIncludePredicate() {
         return edgeIncludePredicate;
     }
 
-    public void setEdgeIncludePredicate(Predicate<Context<Graph<V,E>,E>> edgeIncludePredicate) {
+    public void setEdgeIncludePredicate(Predicate<E> edgeIncludePredicate) {
         this.edgeIncludePredicate = edgeIncludePredicate;
     }
 
-    public Function<? super Context<Graph<V,E>,E>,Number> getEdgeLabelClosenessTransformer() {
-        return edgeLabelClosenessTransformer;
+    public float getEdgeLabelCloseness() {
+    	return edgeLabelCloseness;
     }
-
-    public void setEdgeLabelClosenessTransformer(
-    		Function<? super Context<Graph<V,E>,E>,Number> edgeLabelClosenessTransformer) {
-        this.edgeLabelClosenessTransformer = edgeLabelClosenessTransformer;
+    
+    public void setEdgeLabelCloseness(float closeness) {
+    	this.edgeLabelCloseness = closeness;
     }
-
+    
     public EdgeLabelRenderer getEdgeLabelRenderer() {
         return edgeLabelRenderer;
     }
@@ -258,13 +274,9 @@ public class PluggableRenderContext<V, E> implements RenderContext<V, E> {
         this.edgeShapeTransformer = edgeShapeTransformer;
         if (edgeShapeTransformer instanceof ParallelEdgeShapeTransformer) {
         	@SuppressWarnings("unchecked")
-			ParallelEdgeShapeTransformer<V, E> transformer =
-        			(ParallelEdgeShapeTransformer<V, E>)edgeShapeTransformer;
-        	if (transformer instanceof EdgeShape.Orthogonal) {
-        		transformer.setEdgeIndexFunction(this.incidentEdgeIndexFunction);
-        	} else {
-        		transformer.setEdgeIndexFunction(this.parallelEdgeIndexFunction);
-        	}
+			ParallelEdgeShapeTransformer<E> transformer =
+        			(ParallelEdgeShapeTransformer<E>)edgeShapeTransformer;
+       		transformer.setEdgeIndexFunction(this.parallelEdgeIndexFunction);
         }
     }
 
@@ -276,7 +288,7 @@ public class PluggableRenderContext<V, E> implements RenderContext<V, E> {
         this.edgeLabelTransformer = edgeLabelTransformer;
     }
 
-    public Function<? super E,Stroke> getEdgeStrokeTransformer() {
+    public Function<? super E,Stroke> edgestrokeTransformer() {
         return edgeStrokeTransformer;
     }
 
@@ -308,12 +320,12 @@ public class PluggableRenderContext<V, E> implements RenderContext<V, E> {
         this.labelOffset = labelOffset;
     }
 
-    public EdgeIndexFunction<V, E> getParallelEdgeIndexFunction() {
+    public EdgeIndexFunction<E> getParallelEdgeIndexFunction() {
         return parallelEdgeIndexFunction;
     }
 
     public void setParallelEdgeIndexFunction(
-            EdgeIndexFunction<V, E> parallelEdgeIndexFunction) {
+            EdgeIndexFunction<E> parallelEdgeIndexFunction) {
         this.parallelEdgeIndexFunction = parallelEdgeIndexFunction;
         // reset the edge shape Function, as the parallel edge index function
         // is used by it
@@ -361,19 +373,19 @@ public class PluggableRenderContext<V, E> implements RenderContext<V, E> {
         this.vertexFontTransformer = vertexFontTransformer;
     }
 
-    public Function<? super V,Icon> getVertexIconTransformer() {
+    public Function<V,Icon> getVertexIconTransformer() {
         return vertexIconTransformer;
     }
 
-    public void setVertexIconTransformer(Function<? super V,Icon> vertexIconTransformer) {
+    public void setVertexIconTransformer(Function<V,Icon> vertexIconTransformer) {
         this.vertexIconTransformer = vertexIconTransformer;
     }
 
-    public Predicate<Context<Graph<V,E>,V>> getVertexIncludePredicate() {
+    public Predicate<V> getVertexIncludePredicate() {
         return vertexIncludePredicate;
     }
 
-    public void setVertexIncludePredicate(Predicate<Context<Graph<V,E>,V>> vertexIncludePredicate) {
+    public void setVertexIncludePredicate(Predicate<V> vertexIncludePredicate) {
         this.vertexIncludePredicate = vertexIncludePredicate;
     }
 
@@ -409,11 +421,11 @@ public class PluggableRenderContext<V, E> implements RenderContext<V, E> {
         this.vertexLabelTransformer = vertexLabelTransformer;
     }
 
-	public GraphElementAccessor<V, E> getPickSupport() {
+	public NetworkElementAccessor<V, E> getPickSupport() {
 		return pickSupport;
 	}
 
-	public void setPickSupport(GraphElementAccessor<V, E> pickSupport) {
+	public void setPickSupport(NetworkElementAccessor<V, E> pickSupport) {
 		this.pickSupport = pickSupport;
 	}
 	

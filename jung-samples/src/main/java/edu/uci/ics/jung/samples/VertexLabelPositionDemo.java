@@ -26,8 +26,9 @@ import javax.swing.JFrame;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 
+import com.google.common.graph.Network;
+
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
-import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.TestGraphs;
 import edu.uci.ics.jung.visualization.DefaultVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
@@ -58,9 +59,9 @@ public class VertexLabelPositionDemo extends JApplet {
     /**
      * the graph
      */
-    Graph<String,Number> graph;
+    Network<String,Number> graph;
     
-    FRLayout<String,Number> graphLayout;
+    FRLayout<String> graphLayout;
     
     /**
      * the visual component and renderer for the graph
@@ -79,13 +80,13 @@ public class VertexLabelPositionDemo extends JApplet {
         // create a simple graph for the demo
         graph = TestGraphs.getOneComponentGraph();
         
-        graphLayout = new FRLayout<String,Number>(graph);
+        graphLayout = new FRLayout<String>(graph.asGraph());
         graphLayout.setMaxIterations(1000);
 
         Dimension preferredSize = new Dimension(600,600);
         
         final VisualizationModel<String,Number> visualizationModel = 
-            new DefaultVisualizationModel<String,Number>(graphLayout, preferredSize);
+            new DefaultVisualizationModel<String,Number>(graph, graphLayout, preferredSize);
         vv =  new VisualizationViewer<String,Number>(visualizationModel, preferredSize);
 
         PickedState<String> ps = vv.getPickedVertexState();

@@ -12,9 +12,9 @@
 package edu.uci.ics.jung.algorithms.scoring;
 
 import com.google.common.base.Function;
+import com.google.common.graph.Network;
 
 import edu.uci.ics.jung.algorithms.scoring.util.ScoringUtils;
-import edu.uci.ics.jung.graph.Hypergraph;
 
 /**
  * Assigns scores to each vertex according to the PageRank algorithm.  
@@ -52,9 +52,9 @@ public class PageRank<V,E> extends PageRankWithPriors<V,E>
      * @param edge_weight the edge weights (transition probabilities)
      * @param alpha the probability of taking a random jump to an arbitrary vertex
      */
-    public PageRank(Hypergraph<V,E> graph, Function<E, ? extends Number> edge_weight, double alpha)
+    public PageRank(Network<V,E> graph, Function<E, ? extends Number> edge_weight, double alpha)
     {
-        super(graph, edge_weight, ScoringUtils.getUniformRootPrior(graph.getVertices()), alpha);
+        super(graph, edge_weight, ScoringUtils.getUniformRootPrior(graph.nodes()), alpha);
     }
 
     /**
@@ -63,8 +63,8 @@ public class PageRank<V,E> extends PageRankWithPriors<V,E>
      * @param graph the input graph
      * @param alpha the probability of taking a random jump to an arbitrary vertex
      */
-    public PageRank(Hypergraph<V,E> graph, double alpha)
+    public PageRank(Network<V,E> graph, double alpha)
     {
-        super(graph, ScoringUtils.getUniformRootPrior(graph.getVertices()), alpha);
+        super(graph, ScoringUtils.getUniformRootPrior(graph.nodes()), alpha);
     }
 }

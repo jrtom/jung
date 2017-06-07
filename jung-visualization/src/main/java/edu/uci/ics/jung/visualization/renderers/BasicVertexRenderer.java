@@ -21,38 +21,39 @@ import javax.swing.Icon;
 import javax.swing.JComponent;
 
 import edu.uci.ics.jung.algorithms.layout.Layout;
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.util.Context;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.transform.MutableTransformer;
 import edu.uci.ics.jung.visualization.transform.MutableTransformerDecorator;
 import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
 
-public class BasicVertexRenderer<V,E> implements Renderer.Vertex<V,E> {
+public class BasicVertexRenderer<V> implements Renderer.Vertex<V> {
+	protected final Layout<V> layout;
+	protected final RenderContext<V, ?> renderContext;
+	
+	public BasicVertexRenderer(Layout<V> layout, RenderContext<V, ?> rc) {
+		this.layout = layout;
+		this.renderContext = rc;
+	}
 
-    public void paintVertex(RenderContext<V,E> rc, Layout<V,E> layout, V v) {
-    	Graph<V,E> graph = layout.getGraph();
-        if (rc.getVertexIncludePredicate().apply(Context.<Graph<V,E>,V>getInstance(graph,v))) {
-        	paintIconForVertex(rc, v, layout);
+    public void paintVertex(V v) {
+        if (renderContext.getVertexIncludePredicate().apply(v)) {
+        	paintIconForVertex(v);
         }
     }
     
     /**
      * Returns the vertex shape in view coordinates.
-     * @param rc the render context used for rendering the vertex
      * @param v the vertex whose shape is to be returned
-     * @param layout the layout algorithm that provides coordinates for the vertex
      * @param coords the x and y view coordinates
      * @return the vertex shape in view coordinates
      */
-    protected Shape prepareFinalVertexShape(RenderContext<V,E> rc, V v, 
-    		Layout<V,E> layout, int[] coords) {
+    protected Shape prepareFinalVertexShape(V v, int[] coords) {
 
         // get the shape to be rendered
-        Shape shape = rc.getVertexShapeTransformer().apply(v);
+        Shape shape = renderContext.getVertexShapeTransformer().apply(v);
         Point2D p = layout.apply(v);
-        p = rc.getMultiLayerTransformer().transform(Layer.LAYOUT, p);
+        p = renderContext.getMultiLayerTransformer().transform(Layer.LAYOUT, p);
         float x = (float)p.getX();
         float y = (float)p.getY();
         coords[0] = (int)x;
@@ -68,35 +69,33 @@ public class BasicVertexRenderer<V,E> implements Renderer.Vertex<V,E> {
     /**
      * Paint <code>v</code>'s icon on <code>g</code> at <code>(x,y)</code>.
      * 
-     * @param rc the render context used for rendering the vertex
      * @param v the vertex to be painted
-     * @param layout the layout algorithm that provides coordinates for the vertex
      */
-    protected void paintIconForVertex(RenderContext<V,E> rc, V v, Layout<V,E> layout) {
-        GraphicsDecorator g = rc.getGraphicsContext();
+    protected void paintIconForVertex(V v) {
+        GraphicsDecorator g = renderContext.getGraphicsContext();
         boolean vertexHit = true;
         int[] coords = new int[2];
-        Shape shape = prepareFinalVertexShape(rc, v, layout, coords);
-        vertexHit = vertexHit(rc, shape);
+        Shape shape = prepareFinalVertexShape(v, coords);
+        vertexHit = vertexHit(shape);
 
         if (vertexHit) {
-        	if(rc.getVertexIconTransformer() != null) {
-        		Icon icon = rc.getVertexIconTransformer().apply(v);
+        	if(renderContext.getVertexIconTransformer() != null) {
+        		Icon icon = renderContext.getVertexIconTransformer().apply(v);
         		if(icon != null) {
         		
-           			g.draw(icon, rc.getScreenDevice(), shape, coords[0], coords[1]);
+           			g.draw(icon, renderContext.getScreenDevice(), shape, coords[0], coords[1]);
 
         		} else {
-        			paintShapeForVertex(rc, v, shape);
+        			paintShapeForVertex(v, shape);
         		}
         	} else {
-        		paintShapeForVertex(rc, v, shape);
+        		paintShapeForVertex(v, shape);
         	}
         }
     }
     
-    protected boolean vertexHit(RenderContext<V,E> rc, Shape s) {
-        JComponent vv = rc.getScreenDevice();
+    protected boolean vertexHit(Shape s) {
+        JComponent vv = renderContext.getScreenDevice();
         Rectangle deviceRectangle = null;
         if(vv != null) {
             Dimension d = vv.getSize();
@@ -104,27 +103,27 @@ public class BasicVertexRenderer<V,E> implements Renderer.Vertex<V,E> {
                     0,0,
                     d.width,d.height);
         }
-        MutableTransformer vt = rc.getMultiLayerTransformer().getTransformer(Layer.VIEW);
+        MutableTransformer vt = renderContext.getMultiLayerTransformer().getTransformer(Layer.VIEW);
         if(vt instanceof MutableTransformerDecorator) {
         	vt = ((MutableTransformerDecorator)vt).getDelegate();
         }
         return vt.transform(s).intersects(deviceRectangle);
     }
 
-    protected void paintShapeForVertex(RenderContext<V,E> rc, V v, Shape shape) {
-        GraphicsDecorator g = rc.getGraphicsContext();
+    protected void paintShapeForVertex(V v, Shape shape) {
+        GraphicsDecorator g = renderContext.getGraphicsContext();
         Paint oldPaint = g.getPaint();
-        Paint fillPaint = rc.getVertexFillPaintTransformer().apply(v);
+        Paint fillPaint = renderContext.getVertexFillPaintTransformer().apply(v);
         if(fillPaint != null) {
             g.setPaint(fillPaint);
             g.fill(shape);
             g.setPaint(oldPaint);
         }
-        Paint drawPaint = rc.getVertexDrawPaintTransformer().apply(v);
+        Paint drawPaint = renderContext.getVertexDrawPaintTransformer().apply(v);
         if(drawPaint != null) {
         	g.setPaint(drawPaint);
         	Stroke oldStroke = g.getStroke();
-        	Stroke stroke = rc.getVertexStrokeTransformer().apply(v);
+        	Stroke stroke = renderContext.getVertexStrokeTransformer().apply(v);
         	if(stroke != null) {
         		g.setStroke(stroke);
         	}

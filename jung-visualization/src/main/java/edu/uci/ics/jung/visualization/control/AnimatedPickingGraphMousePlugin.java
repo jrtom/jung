@@ -20,7 +20,7 @@ import java.awt.geom.Point2D;
 
 import javax.swing.JComponent;
 
-import edu.uci.ics.jung.algorithms.layout.GraphElementAccessor;
+import edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
@@ -67,13 +67,12 @@ public class AnimatedPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlu
     public void mousePressed(MouseEvent e) {
 		if (e.getModifiers() == modifiers) {
 			VisualizationViewer<V,E> vv = (VisualizationViewer<V,E>) e.getSource();
-			GraphElementAccessor<V, E> pickSupport = vv.getPickSupport();
+			NetworkElementAccessor<V, E> pickSupport = vv.getPickSupport();
 			PickedState<V> pickedVertexState = vv.getPickedVertexState();
-            Layout<V,E> layout = vv.getGraphLayout();
 			if (pickSupport != null && pickedVertexState != null) {
 				// p is the screen point for the mouse event
 				Point2D p = e.getPoint();
-				vertex = pickSupport.getVertex(layout, p.getX(), p.getY());
+				vertex = pickSupport.getNode(p.getX(), p.getY());
 				if (vertex != null) {
 					if (pickedVertexState.isPicked(vertex) == false) {
 						pickedVertexState.clear();
@@ -100,7 +99,7 @@ public class AnimatedPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlu
 			Point2D newCenter = null;
 			if (vertex != null) {
 				// center the picked vertex
-				Layout<V,E> layout = vv.getGraphLayout();
+				Layout<V> layout = vv.getGraphLayout();
 				newCenter = layout.apply(vertex);
 			} else {
 				// they did not pick a vertex to center, so

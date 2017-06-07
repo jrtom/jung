@@ -14,14 +14,15 @@
 package edu.uci.ics.jung.algorithms.util;
 
 import java.util.AbstractCollection;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Queue;
-import java.util.Vector;
 
 import com.google.common.collect.Iterators;
 
@@ -40,7 +41,7 @@ public class MapBinaryHeap<T>
     extends AbstractCollection<T> 
     implements Queue<T>
 {
-	private Vector<T> heap = new Vector<T>();            // holds the heap as an implicit binary tree
+	private List<T> heap = new ArrayList<T>();            // holds the heap as an implicit binary tree
     private Map<T,Integer> object_indices = new HashMap<T,Integer>(); // maps each object in the heap to its index in the heap
     private Comparator<T> comp;
     private final static int TOP = 0;   // the index of the top of the heap
@@ -113,9 +114,9 @@ public class MapBinaryHeap<T>
 	@Override
 	public boolean add(T o)
 	{
-        int i = heap.size();  // index 1 past the end of the heap
-        heap.setSize(i+1);
-        percolateUp(i, o);
+        int lastIndex = heap.size();
+        heap.add(o);
+        percolateUp(lastIndex, o);
         return true;
 	}
 
@@ -136,7 +137,7 @@ public class MapBinaryHeap<T>
 	public T peek()
 	{
 		if (heap.size() > 0)
-			return heap.elementAt(TOP);
+			return heap.get(TOP);
 		else
 			return null;
 	}
@@ -162,7 +163,7 @@ public class MapBinaryHeap<T>
         // decreased, we just percolate up followed by percolating down;
         // one of the two will have no effect.
         
-        int cur = object_indices.get(o).intValue(); // current index
+        int cur = object_indices.get(o); // current index
         int new_idx = percolateUp(cur, o);
         percolateDown(new_idx);
     }
@@ -186,14 +187,14 @@ public class MapBinaryHeap<T>
         int smallest;
 
         if ((left < heap.size()) && 
-        		(comp.compare(heap.elementAt(left), heap.elementAt(cur)) < 0)) {
+        		(comp.compare(heap.get(left), heap.get(cur)) < 0)) {
 			smallest = left;
 		} else {
 			smallest = cur;
 		}
 
         if ((right < heap.size()) && 
-        		(comp.compare(heap.elementAt(right), heap.elementAt(smallest)) < 0)) {
+        		(comp.compare(heap.get(right), heap.get(smallest)) < 0)) {
 			smallest = right;
 		}
 
@@ -213,17 +214,17 @@ public class MapBinaryHeap<T>
     {
         int i = cur;
         
-        while ((i > TOP) && (comp.compare(heap.elementAt(parent(i)), o) > 0))
+        while ((i > TOP) && (comp.compare(heap.get(parent(i)), o) > 0))
         {
-            T parentElt = heap.elementAt(parent(i));
-            heap.setElementAt(parentElt, i);
-            object_indices.put(parentElt, new Integer(i));  // reset index to i (new location)
+            T parentElt = heap.get(parent(i));
+            heap.set(i, parentElt);
+            object_indices.put(parentElt, i);  // reset index to i (new location)
             i = parent(i);
         }
         
         // place object in heap at appropriate place
-        object_indices.put(o, new Integer(i));
-        heap.setElementAt(o, i);
+        object_indices.put(o, i);
+        heap.set(i, o);
 
         return i;
     }
@@ -271,14 +272,14 @@ public class MapBinaryHeap<T>
      */
     private void swap(int i, int j)
     {
-        T iElt = heap.elementAt(i);
-        T jElt = heap.elementAt(j);
+        T iElt = heap.get(i);
+        T jElt = heap.get(j);
 
-        heap.setElementAt(jElt, i);
-        object_indices.put(jElt, new Integer(i));
+        heap.set(i, jElt);
+        object_indices.put(jElt, i);
 
-        heap.setElementAt(iElt, j);
-        object_indices.put(iElt, new Integer(j));
+        heap.set(j, iElt);
+        object_indices.put(iElt, j);
     }
     
     /**
@@ -355,11 +356,12 @@ public class MapBinaryHeap<T>
         T top = this.peek();
         if (top != null)
         {
-	        T bottom_elt = heap.lastElement();
-	        heap.setElementAt(bottom_elt, TOP);
-	        object_indices.put(bottom_elt, new Integer(TOP));
+        	int lastIndex = heap.size() - 1;
+	        T bottom_elt = heap.get(lastIndex);
+	        heap.set(TOP, bottom_elt);
+	        object_indices.put(bottom_elt, TOP);
 	        
-	        heap.setSize(heap.size() - 1);  // remove the last element
+	        heap.remove(lastIndex);  // remove the last element
 	        if (heap.size() > 1)
 	        	percolateDown(TOP);
 	

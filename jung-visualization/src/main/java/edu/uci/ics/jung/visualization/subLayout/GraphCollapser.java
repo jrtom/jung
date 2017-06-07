@@ -9,178 +9,158 @@
  */
 package edu.uci.ics.jung.visualization.subLayout;
 
-import com.google.common.base.Preconditions;
-
 import java.util.Collection;
+import java.util.Set;
 import java.util.logging.Logger;
 
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.util.Pair;
+import com.google.common.base.Preconditions;
+import com.google.common.graph.EndpointPair;
+import com.google.common.graph.MutableNetwork;
+import com.google.common.graph.Network;
+import com.google.common.graph.NetworkBuilder;
+
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class GraphCollapser  {
     
     private static final Logger logger = Logger.getLogger(GraphCollapser.class.getClass().getName());
-	private Graph originalGraph;
+	private Network originalGraph;
+	private NetworkBuilder graphBuilder;
     
-    public GraphCollapser(Graph originalGraph) {
+    public GraphCollapser(Network originalGraph) {
         this.originalGraph = originalGraph;
+        this.graphBuilder = NetworkBuilder.from(originalGraph);
     }
     
-    Graph createGraph() throws InstantiationException, IllegalAccessException {
-        return (Graph)originalGraph.getClass().newInstance();
-    }
-    
-    public Graph collapse(Graph inGraph, Graph clusterGraph) {
+    public Network collapse(Network inGraph, Network clusterGraph) {
         
-        if(clusterGraph.getVertexCount() < 2) return inGraph;
+        if (clusterGraph.nodes().size() < 2) return inGraph;
 
-        Graph graph = inGraph;
-        try {
-            graph = createGraph();
-        } catch(Exception ex) {
-            ex.printStackTrace();
-        }
-        Collection cluster = clusterGraph.getVertices();
+        MutableNetwork graph = graphBuilder.build();
+        Collection cluster = clusterGraph.nodes();
         
         // add all vertices in the delegate, unless the vertex is in the
         // cluster.
-        for(Object v : inGraph.getVertices()) {
+        for(Object v : inGraph.nodes()) {
             if(cluster.contains(v) == false) {
-                graph.addVertex(v);
+                graph.addNode(v);
             }
         }
         // add the clusterGraph as a vertex
-        graph.addVertex(clusterGraph);
+        graph.addNode(clusterGraph);
         
-        //add all edges from the inGraph, unless both endpoints of
+        // add all edges from the inGraph, unless both endpoints of
         // the edge are in the cluster
-        for(Object e : (Collection<?>)inGraph.getEdges()) {
-            Pair endpoints = inGraph.getEndpoints(e);
-            // don't add edges whose endpoints are both in the cluster
-            if(cluster.containsAll(endpoints) == false) {
-
-                if(cluster.contains(endpoints.getFirst())) {
-                	graph.addEdge(e, clusterGraph, endpoints.getSecond(), inGraph.getEdgeType(e));
-
-                } else if(cluster.contains(endpoints.getSecond())) {
-                	graph.addEdge(e, endpoints.getFirst(), clusterGraph, inGraph.getEdgeType(e));
-
-                } else {
-                	graph.addEdge(e,endpoints.getFirst(), endpoints.getSecond(), inGraph.getEdgeType(e));
-                }
-            }
+        for(Object e : inGraph.edges()) {
+        	EndpointPair endpoints = inGraph.incidentNodes(e);
+        	Object u = endpoints.nodeU();
+        	Object v = endpoints.nodeV();
+        	// only add edges whose endpoints are not both in the cluster
+        	if (cluster.contains(u) && cluster.contains(v)) {
+        		continue;
+        	}
+        	
+        	if (cluster.contains(u)) {
+        		graph.addEdge(clusterGraph, v, e);
+        	} else if (cluster.contains(v)) {
+        		graph.addEdge(u, clusterGraph, e);
+        	} else {
+        		graph.addEdge(u, v, e);
+        	}
         }
         return graph;
     }
     
-    public Graph expand(Graph inGraph, Graph clusterGraph) {
-        Graph graph = inGraph;
-        try {
-            graph = createGraph();
-        } catch(Exception ex) {
-            ex.printStackTrace();
-        }
-        Collection cluster = clusterGraph.getVertices();
-        logger.fine("cluster to expand is "+cluster);
+    public Network expand(Network inGraph, Network clusterGraph) {
+        MutableNetwork graph = graphBuilder.build();
+        Collection clusterNodes = clusterGraph.nodes();
+        logger.fine("cluster to expand is " + clusterNodes);
 
         // put all clusterGraph vertices and edges into the new Graph
-        for(Object v : cluster) {
-            graph.addVertex(v);
-            for(Object edge : clusterGraph.getIncidentEdges(v)) {
-                Pair endpoints = clusterGraph.getEndpoints(edge);
-                graph.addEdge(edge, endpoints.getFirst(), endpoints.getSecond(), clusterGraph.getEdgeType(edge));
+        for(Object node : clusterNodes) {
+            graph.addNode(node);
+            for(Object edge : clusterGraph.incidentEdges(node)) {
+            	Object u = clusterGraph.incidentNodes(edge).nodeU();
+            	Object v = clusterGraph.incidentNodes(edge).nodeV();
+                graph.addEdge(u, v, edge);
             }
         }
         // add all the vertices from the current graph except for
         // the cluster we are expanding
-        for(Object v : inGraph.getVertices()) {
-            if(v.equals(clusterGraph) == false) {
-                graph.addVertex(v);
+        for(Object node : inGraph.nodes()) {
+            if (node.equals(clusterGraph) == false) {
+                graph.addNode(node);
             }
         }
 
         // now that all vertices have been added, add the edges,
         // ensuring that no edge contains a vertex that has not
         // already been added
-        for(Object v : inGraph.getVertices()) {
-            if(v.equals(clusterGraph) == false) {
-                for(Object edge : inGraph.getIncidentEdges(v)) {
-                    Pair endpoints = inGraph.getEndpoints(edge);
-                    Object v1 = endpoints.getFirst();
-                    Object v2 = endpoints.getSecond();
-                     if(cluster.containsAll(endpoints) == false) {
-                        if(clusterGraph.equals(v1)) {
-                            // i need a new v1
-                            Object originalV1 = originalGraph.getEndpoints(edge).getFirst();
-                            Object newV1 = findVertex(graph, originalV1);
-                            Preconditions.checkState(newV1 != null, "newV1 for "+originalV1+" was not found!");
-                            graph.addEdge(edge, newV1, v2, inGraph.getEdgeType(edge));
-                        } else if(clusterGraph.equals(v2)) {
-                            // i need a new v2
-                            Object originalV2 = originalGraph.getEndpoints(edge).getSecond();
-                            Object newV2 = findVertex(graph, originalV2);
-                            Preconditions.checkState(newV2 != null, "newV2 for "+originalV2+" was not found!");
-                            graph.addEdge(edge, v1, newV2, inGraph.getEdgeType(edge));
-                        } else {
-                        	graph.addEdge(edge, v1, v2, inGraph.getEdgeType(edge));
-                        }
-                    }
+        for (Object node : inGraph.nodes()) {
+            if (node.equals(clusterGraph) == false) {
+                for (Object edge : inGraph.incidentEdges(node)) {
+                	Object u = inGraph.incidentNodes(edge).nodeU();
+                	Object v = inGraph.incidentNodes(edge).nodeV();
+                	// only add edges if both u and v are not already in the graph
+                	if (!(clusterNodes.contains(u) && clusterNodes.contains(v))) {
+                		continue;
+                	}
+                	
+                	if (clusterGraph.equals(u)) {
+                		Object originalU = originalGraph.incidentNodes(edge).nodeU();
+                		Object newU = findNode(graph, originalU);
+                		Preconditions.checkNotNull(newU);
+                		graph.addEdge(newU, v, edge);
+                	} else if (clusterGraph.equals(v)) {
+                		Object originalV = originalGraph.incidentNodes(edge).nodeV();
+                		Object newV = findNode(graph, originalV);
+                		Preconditions.checkNotNull(newV);
+                		graph.addEdge(u, newV, edge);
+                	} else {
+                		graph.addEdge(u, v, edge);
+                	}
                 }
             }
         }
         return graph;
     }
-    Object findVertex(Graph inGraph, Object vertex) {
-        Collection vertices = inGraph.getVertices();
-        if(vertices.contains(vertex)) {
-            return vertex;
-        }
-        for(Object v : vertices) {
-            if(v instanceof Graph) {
-                Graph g = (Graph)v;
-                if(contains(g, vertex)) {
-                    return v;
-                }
+    
+    Object findNode(Network inGraph, Object inNode) {
+    	if (inGraph.nodes().contains(inNode)) {
+    		return inNode;
+    	}
+        
+        for (Object node : inGraph.nodes()) {
+          	if ((node instanceof Network) && contains((Network) node, inNode)) {
+          		return node;
             }
         }
         return null;
     }
     
-    private boolean contains(Graph inGraph, Object vertex) {
+    private boolean contains(Network inGraph, Object inNode) {
     	boolean contained = false;
-    	if(inGraph.getVertices().contains(vertex)) return true;
-    	for(Object v : inGraph.getVertices()) {
-    		if(v instanceof Graph) {
-    			contained |= contains((Graph)v, vertex);
-    		}
+    	if (inGraph.nodes().contains(inNode)) {
+    		return true;
+    	}
+    	
+    	for(Object node : inGraph.nodes()) {
+    		contained |= (node instanceof Network) && contains((Network) node, inNode);
     	}
     	return contained;
     }
     
-    public Graph getClusterGraph(Graph inGraph, Collection picked) {
-        Graph clusterGraph;
-        try {
-            clusterGraph = createGraph();
-        } catch (InstantiationException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            return null;
-        } catch (IllegalAccessException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            return null;
-        }
-        for(Object v : picked) {
-        	clusterGraph.addVertex(v);
-            Collection edges = inGraph.getIncidentEdges(v);
+    public Network getClusterGraph(Network inGraph, Collection picked) {
+        MutableNetwork clusterGraph = graphBuilder.build();
+        for(Object node : picked) {
+        	clusterGraph.addNode(node);
+        	Set edges = inGraph.incidentEdges(node);
             for(Object edge : edges) {
-                Pair endpoints = inGraph.getEndpoints(edge);
-                Object v1 = endpoints.getFirst();
-                Object v2 = endpoints.getSecond();
-                if(picked.containsAll(endpoints)) {
-                    clusterGraph.addEdge(edge, v1, v2, inGraph.getEdgeType(edge));
-                }
+            	Object u = inGraph.incidentNodes(edge).nodeU();
+            	Object v = inGraph.incidentNodes(edge).nodeV();
+            	if (picked.contains(u) && picked.contains(v)) {
+            		clusterGraph.addEdge(edge, u, v);
+            	}
             }
         }
         return clusterGraph;

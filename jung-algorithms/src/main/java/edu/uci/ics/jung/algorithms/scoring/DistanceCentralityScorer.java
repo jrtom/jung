@@ -15,11 +15,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.google.common.base.Function;
+import com.google.common.collect.Maps;
+import com.google.common.graph.Graph;
+import com.google.common.graph.Network;
 
 import edu.uci.ics.jung.algorithms.shortestpath.DijkstraDistance;
 import edu.uci.ics.jung.algorithms.shortestpath.Distance;
 import edu.uci.ics.jung.algorithms.shortestpath.UnweightedShortestPath;
-import edu.uci.ics.jung.graph.Hypergraph;
 
 /**
  * Assigns scores to vertices based on their distances to each other vertex 
@@ -41,7 +43,7 @@ public class DistanceCentralityScorer<V,E> implements VertexScorer<V, Double>
     /**
      * The graph on which the vertex scores are to be calculated.
      */
-    protected Hypergraph<V, E> graph;
+    protected Graph<V> graph;
     
     /**
      * The metric to use for specifying the distance between pairs of vertices.
@@ -73,6 +75,8 @@ public class DistanceCentralityScorer<V,E> implements VertexScorer<V, Double>
      * Defaults to 'true'.
      */
     protected boolean ignore_self_distances;
+
+    // TODO: consider using a builder pattern rather than a bunch of parameters
     
     /**
      * Creates an instance with the specified graph, distance metric, and 
@@ -88,7 +92,33 @@ public class DistanceCentralityScorer<V,E> implements VertexScorer<V, Double>
      * @param ignore_self_distances	Specifies whether distances from a vertex
      * to itself should be included in its score.
      */
-    public DistanceCentralityScorer(Hypergraph<V,E> graph, Distance<V> distance, 
+    public DistanceCentralityScorer(Network<V,E> graph, Distance<V> distance, 
+    		boolean averaging, boolean ignore_missing, 
+    		boolean ignore_self_distances)
+    {
+        this.graph = graph.asGraph();
+        this.distance = distance;
+        this.averaging = averaging;
+        this.ignore_missing = ignore_missing;
+        this.ignore_self_distances = ignore_self_distances;
+        this.output = new HashMap<V, Double>();
+    }
+
+    /**
+     * Creates an instance with the specified graph, distance metric, and 
+     * averaging behavior.
+     * 
+     * @param graph     The graph on which the vertex scores are to be calculated.
+     * @param distance  The metric to use for specifying the distance between 
+     * pairs of vertices.
+     * @param averaging Specifies whether the values returned is the sum of all 
+     * v-distances or the mean v-distance.
+     * @param ignore_missing	Specifies whether scores for missing distances 
+     * are to ignore missing distances or be set to null.
+     * @param ignore_self_distances	Specifies whether distances from a vertex
+     * to itself should be included in its score.
+     */
+    public DistanceCentralityScorer(Graph<V> graph, Distance<V> distance, 
     		boolean averaging, boolean ignore_missing, 
     		boolean ignore_self_distances)
     {
@@ -109,7 +139,7 @@ public class DistanceCentralityScorer<V,E> implements VertexScorer<V, Double>
      * @param averaging Specifies whether the values returned is the sum of all 
      * v-distances or the mean v-distance.
      */
-    public DistanceCentralityScorer(Hypergraph<V,E> graph, Distance<V> distance, 
+    public DistanceCentralityScorer(Network<V,E> graph, Distance<V> distance, 
     		boolean averaging)
     {
     	this(graph, distance, averaging, true, true);
@@ -131,7 +161,7 @@ public class DistanceCentralityScorer<V,E> implements VertexScorer<V, Double>
      * @param ignore_self_distances	Specifies whether distances from a vertex
      * to itself should be included in its score.
      */
-    public DistanceCentralityScorer(Hypergraph<V,E> graph, 
+    public DistanceCentralityScorer(Network<V,E> graph, 
             Function<E, ? extends Number> edge_weights, boolean averaging,
             boolean ignore_missing, boolean ignore_self_distances)
     {
@@ -148,7 +178,7 @@ public class DistanceCentralityScorer<V,E> implements VertexScorer<V, Double>
      * @param averaging     Specifies whether the values returned is the sum of 
      * all v-distances or the mean v-distance.
      */
-    public DistanceCentralityScorer(Hypergraph<V,E> graph, 
+    public DistanceCentralityScorer(Network<V,E> graph, 
             Function<E, ? extends Number> edge_weights, boolean averaging)
     {
         this(graph, new DijkstraDistance<V,E>(graph, edge_weights), averaging,
@@ -168,10 +198,10 @@ public class DistanceCentralityScorer<V,E> implements VertexScorer<V, Double>
      * @param ignore_self_distances	Specifies whether distances from a vertex
      * to itself should be included in its score.
      */
-    public DistanceCentralityScorer(Hypergraph<V,E> graph, boolean averaging,
+    public DistanceCentralityScorer(Graph<V> graph, boolean averaging,
             boolean ignore_missing, boolean ignore_self_distances)
     {
-        this(graph, new UnweightedShortestPath<V,E>(graph), averaging, 
+        this(graph, new UnweightedShortestPath<V>(graph), averaging, 
         	ignore_missing, ignore_self_distances);
     }
 
@@ -182,9 +212,9 @@ public class DistanceCentralityScorer<V,E> implements VertexScorer<V, Double>
      * @param averaging     Specifies whether the values returned is the sum of 
      * all v-distances or the mean v-distance.
      */
-    public DistanceCentralityScorer(Hypergraph<V,E> graph, boolean averaging)
+    public DistanceCentralityScorer(Graph<V> graph, boolean averaging)
     {
-        this(graph, new UnweightedShortestPath<V,E>(graph), averaging, true, true);
+        this(graph, new UnweightedShortestPath<V>(graph), averaging, true, true);
     }
 
 	/**
@@ -209,7 +239,7 @@ public class DistanceCentralityScorer<V,E> implements VertexScorer<V, Double>
 		// distances, output null (shortcut)
 		if (!ignore_missing)
 		{
-			int num_dests = graph.getVertexCount() - 
+			int num_dests = graph.nodes().size() - 
 			    (ignore_self_distances ? 1 : 0);
 			if (v_distances.size() != num_dests) 
 			{
@@ -219,7 +249,7 @@ public class DistanceCentralityScorer<V,E> implements VertexScorer<V, Double>
 		}		
 		
 		Double sum = 0.0;
-		for (V w : graph.getVertices())
+		for (V w : graph.nodes())
 		{
 			if (w.equals(v) && ignore_self_distances)
 				continue;
@@ -245,5 +275,10 @@ public class DistanceCentralityScorer<V,E> implements VertexScorer<V, Double>
 	    output.put(v, score);
 		   
 		return score;
+	}
+
+	@Override
+	public Map<V, Double> vertexScores() {
+		return Maps.asMap(graph.nodes(), node -> getVertexScore(node));
 	}
 }

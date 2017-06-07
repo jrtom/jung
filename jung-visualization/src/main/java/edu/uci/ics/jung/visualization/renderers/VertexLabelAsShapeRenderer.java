@@ -20,8 +20,6 @@ import java.util.Map;
 import com.google.common.base.Function;
 
 import edu.uci.ics.jung.algorithms.layout.Layout;
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.util.Context;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
@@ -37,20 +35,22 @@ import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
  * @param <V> the vertex type
  * @param <V> the edge type
  */
-public class VertexLabelAsShapeRenderer<V,E> 
-	implements Renderer.VertexLabel<V,E>, Function<V,Shape> {
+public class VertexLabelAsShapeRenderer<V> 
+	implements Renderer.VertexLabel<V>, Function<V,Shape> {
 
 	protected Map<V,Shape> shapes = new HashMap<V,Shape>();
-	protected RenderContext<V,E> rc;
+	protected final Layout<V> layout;
+	protected final RenderContext<V, ?> renderContext;
 	
-	public VertexLabelAsShapeRenderer(RenderContext<V, E> rc) {
-		this.rc = rc;
+	public VertexLabelAsShapeRenderer(Layout<V> layout, RenderContext<V, ?> rc) {
+		this.layout = layout;
+		this.renderContext = rc;
 	}
-
-	public Component prepareRenderer(RenderContext<V,E> rc, VertexLabelRenderer graphLabelRenderer, Object value, 
+	
+	public Component prepareRenderer(RenderContext<V, ?> rc, VertexLabelRenderer graphLabelRenderer, Object value, 
 			boolean isSelected, V vertex) {
-		return rc.getVertexLabelRenderer().<V>getVertexLabelRendererComponent(rc.getScreenDevice(), value, 
-				rc.getVertexFontTransformer().apply(vertex), isSelected, vertex);
+		return renderContext.getVertexLabelRenderer().<V>getVertexLabelRendererComponent(renderContext.getScreenDevice(), value, 
+				renderContext.getVertexFontTransformer().apply(vertex), isSelected, vertex);
 	}
 
 	/**
@@ -61,26 +61,25 @@ public class VertexLabelAsShapeRenderer<V,E>
 	 * is active, the label is centered on the position of the vertex; otherwise
      * the label is offset slightly.
      */
-    public void labelVertex(RenderContext<V,E> rc, Layout<V,E> layout, V v, String label) {
-    	Graph<V,E> graph = layout.getGraph();
-        if (rc.getVertexIncludePredicate().apply(Context.<Graph<V,E>,V>getInstance(graph,v)) == false) {
+    public void labelVertex(V v, String label) {
+        if (renderContext.getVertexIncludePredicate().apply(v) == false) {
         	return;
         }
-        GraphicsDecorator g = rc.getGraphicsContext();
-        Component component = prepareRenderer(rc, rc.getVertexLabelRenderer(), label,
-        		rc.getPickedVertexState().isPicked(v), v);
+        GraphicsDecorator g = renderContext.getGraphicsContext();
+        Component component = prepareRenderer(renderContext, renderContext.getVertexLabelRenderer(), label,
+        		renderContext.getPickedVertexState().isPicked(v), v);
         Dimension d = component.getPreferredSize();
         
         int h_offset = -d.width / 2;
         int v_offset = -d.height / 2;
         
         Point2D p = layout.apply(v);
-        p = rc.getMultiLayerTransformer().transform(Layer.LAYOUT, p);
+        p = renderContext.getMultiLayerTransformer().transform(Layer.LAYOUT, p);
 
         int x = (int)p.getX();
         int y = (int)p.getY();
 
-        g.draw(component, rc.getRendererPane(), x+h_offset, y+v_offset, d.width, d.height, true);
+        g.draw(component, renderContext.getRendererPane(), x+h_offset, y+v_offset, d.width, d.height, true);
 
         Dimension size = component.getPreferredSize();
         Rectangle bounds = new Rectangle(-size.width/2 -2, -size.height/2 -2, size.width+4, size.height);
@@ -88,8 +87,10 @@ public class VertexLabelAsShapeRenderer<V,E>
     }
 
 	public Shape apply(V v) {
-		Component component = prepareRenderer(rc, rc.getVertexLabelRenderer(), rc.getVertexLabelTransformer().apply(v),
-				rc.getPickedVertexState().isPicked(v), v);
+		Component component = prepareRenderer(renderContext,
+				renderContext.getVertexLabelRenderer(),
+				renderContext.getVertexLabelTransformer().apply(v),
+				renderContext.getPickedVertexState().isPicked(v), v);
         Dimension size = component.getPreferredSize();
         Rectangle bounds = new Rectangle(-size.width/2 -2, -size.height/2 -2, size.width+4, size.height);
         return bounds;

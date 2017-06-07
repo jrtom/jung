@@ -15,10 +15,9 @@ import javax.swing.JComponent;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import com.google.common.graph.Network;
+
 import edu.uci.ics.jung.algorithms.layout.Layout;
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.util.Context;
-import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.RenderContext;
@@ -30,15 +29,20 @@ import edu.uci.ics.jung.visualization.transform.MutableTransformer;
 import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
 
 public class CachingEdgeRenderer<V, E> extends BasicEdgeRenderer<V, E>  
-	implements ChangeListener, LayoutChangeListener<V,E> {
+	implements ChangeListener, LayoutChangeListener<V> {
 	
 	protected Map<E,Shape> edgeShapeMap = new HashMap<E,Shape>();
 	protected Set<E> dirtyEdges = new HashSet<E>();
 	
+	public CachingEdgeRenderer(Layout<V> layout, RenderContext<V, E> rc) {
+		super(layout, rc);
+	}
+	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public CachingEdgeRenderer(BasicVisualizationServer<V,E> vv) {
+		super(vv.getGraphLayout(), vv.getRenderContext());
 		vv.getRenderContext().getMultiLayerTransformer().addChangeListener(this);
-		Layout<V,E> layout = vv.getGraphLayout();
+		Layout<V> layout = vv.getGraphLayout();
 		if(layout instanceof LayoutEventSupport) {
 			((LayoutEventSupport)layout).addLayoutChangeListener(this);
 		}
@@ -50,14 +54,15 @@ public class CachingEdgeRenderer<V, E> extends BasicEdgeRenderer<V, E>
      * is scaled in the x-direction so that its width is equal to the distance between
      * <code>(x1,y1)</code> and <code>(x2,y2)</code>.
      */
-    protected void drawSimpleEdge(RenderContext<V,E> rc, Layout<V,E> layout, E e) {
+	@Override
+    protected void drawSimpleEdge(E e) {
     	
     	int[] coords = new int[4];
     	boolean[] loop = new boolean[1];
     	
     	Shape edgeShape = edgeShapeMap.get(e);
     	if(edgeShape == null || dirtyEdges.contains(e)) {
-    		edgeShape = prepareFinalEdgeShape(rc, layout, e, coords, loop);
+    		edgeShape = prepareFinalEdgeShape(e, coords, loop);
     		edgeShapeMap.put(e, edgeShape);
     		dirtyEdges.remove(e);
     	}
@@ -68,17 +73,17 @@ public class CachingEdgeRenderer<V, E> extends BasicEdgeRenderer<V, E>
     	int y2 = coords[3];
     	boolean isLoop = loop[0];
         
-        GraphicsDecorator g = rc.getGraphicsContext();
-        Graph<V,E> graph = layout.getGraph();
+        GraphicsDecorator g = renderContext.getGraphicsContext();
+        Network<V,E> graph = renderContext.getNetwork();
         boolean edgeHit = true;
         boolean arrowHit = true;
         Rectangle deviceRectangle = null;
-        JComponent vv = rc.getScreenDevice();
+        JComponent vv = renderContext.getScreenDevice();
         if(vv != null) {
             Dimension d = vv.getSize();
             deviceRectangle = new Rectangle(0,0,d.width,d.height);
         }
-        MutableTransformer vt = rc.getMultiLayerTransformer().getTransformer(Layer.VIEW);
+        MutableTransformer vt = renderContext.getMultiLayerTransformer().getTransformer(Layer.VIEW);
         if(vt instanceof LensTransformer) {
         	vt = ((LensTransformer)vt).getDelegate();
         }
@@ -90,13 +95,13 @@ public class CachingEdgeRenderer<V, E> extends BasicEdgeRenderer<V, E>
             
             // get Paints for filling and drawing
             // (filling is done first so that drawing and label use same Paint)
-            Paint fill_paint = rc.getEdgeFillPaintTransformer().apply(e); 
+            Paint fill_paint = renderContext.getEdgeFillPaintTransformer().apply(e); 
             if (fill_paint != null)
             {
                 g.setPaint(fill_paint);
                 g.fill(edgeShape);
             }
-            Paint draw_paint = rc.getEdgeDrawPaintTransformer().apply(e);
+            Paint draw_paint = renderContext.getEdgeDrawPaintTransformer().apply(e);
             if (draw_paint != null)
             {
                 g.setPaint(draw_paint);
@@ -108,49 +113,49 @@ public class CachingEdgeRenderer<V, E> extends BasicEdgeRenderer<V, E>
             // see if arrows are too small to bother drawing
             if(scalex < .3 || scaley < .3) return;
             
-            if (rc.getEdgeArrowPredicate().apply(Context.<Graph<V,E>,E>getInstance(graph, e))) {
+            if (renderContext.renderEdgeArrow()) {
             	
-                Stroke new_stroke = rc.getEdgeArrowStrokeTransformer().apply(e);
+                Stroke new_stroke = renderContext.getEdgeArrowStrokeTransformer().apply(e);
                 Stroke old_stroke = g.getStroke();
                 if (new_stroke != null)
                     g.setStroke(new_stroke);
 
                 
                 Shape destVertexShape = 
-                    rc.getVertexShapeTransformer().apply(graph.getEndpoints(e).getSecond());
+                    renderContext.getVertexShapeTransformer().apply(graph.incidentNodes(e).nodeV());
 
                 AffineTransform xf = AffineTransform.getTranslateInstance(x2, y2);
                 destVertexShape = xf.createTransformedShape(destVertexShape);
                 
-                arrowHit = rc.getMultiLayerTransformer().getTransformer(Layer.VIEW).transform(destVertexShape).intersects(deviceRectangle);
+                arrowHit = renderContext.getMultiLayerTransformer().getTransformer(Layer.VIEW).transform(destVertexShape).intersects(deviceRectangle);
                 if(arrowHit) {
                     
                     AffineTransform at = 
-                        edgeArrowRenderingSupport.getArrowTransform(rc, edgeShape, destVertexShape);
+                        edgeArrowRenderingSupport.getArrowTransform(renderContext, edgeShape, destVertexShape);
                     if(at == null) return;
-                    Shape arrow = rc.getEdgeArrowTransformer().apply(Context.<Graph<V,E>,E>getInstance(graph, e));
+                    Shape arrow = renderContext.getEdgeArrow();
                     arrow = at.createTransformedShape(arrow);
-                    g.setPaint(rc.getArrowFillPaintTransformer().apply(e));
+                    g.setPaint(renderContext.getArrowFillPaintTransformer().apply(e));
                     g.fill(arrow);
-                    g.setPaint(rc.getArrowDrawPaintTransformer().apply(e));
+                    g.setPaint(renderContext.getArrowDrawPaintTransformer().apply(e));
                     g.draw(arrow);
                 }
-                if (graph.getEdgeType(e) == EdgeType.UNDIRECTED) {
+                if (!graph.isDirected()) {
                     Shape vertexShape = 
-                        rc.getVertexShapeTransformer().apply(graph.getEndpoints(e).getFirst());
+                        renderContext.getVertexShapeTransformer().apply(graph.incidentNodes(e).nodeU());
                     xf = AffineTransform.getTranslateInstance(x1, y1);
                     vertexShape = xf.createTransformedShape(vertexShape);
                     
-                    arrowHit = rc.getMultiLayerTransformer().getTransformer(Layer.VIEW).transform(vertexShape).intersects(deviceRectangle);
+                    arrowHit = renderContext.getMultiLayerTransformer().getTransformer(Layer.VIEW).transform(vertexShape).intersects(deviceRectangle);
                     
                     if(arrowHit) {
-                        AffineTransform at = edgeArrowRenderingSupport.getReverseArrowTransform(rc, edgeShape, vertexShape, !isLoop);
+                        AffineTransform at = edgeArrowRenderingSupport.getReverseArrowTransform(renderContext, edgeShape, vertexShape, !isLoop);
                         if(at == null) return;
-                        Shape arrow = rc.getEdgeArrowTransformer().apply(Context.<Graph<V,E>,E>getInstance(graph, e));
+                        Shape arrow = renderContext.getEdgeArrow();
                         arrow = at.createTransformedShape(arrow);
-                        g.setPaint(rc.getArrowFillPaintTransformer().apply(e));
+                        g.setPaint(renderContext.getArrowFillPaintTransformer().apply(e));
                         g.fill(arrow);
-                        g.setPaint(rc.getArrowDrawPaintTransformer().apply(e));
+                        g.setPaint(renderContext.getArrowDrawPaintTransformer().apply(e));
                         g.draw(arrow);
                     }
                 }
@@ -165,16 +170,15 @@ public class CachingEdgeRenderer<V, E> extends BasicEdgeRenderer<V, E>
         }
     }
 
-//	@Override
+	@Override
 	public void stateChanged(ChangeEvent evt) {
-		System.err.println("got change event "+evt);
+//		System.err.println("got change event "+evt);
 		edgeShapeMap.clear();
-		
 	}
-//	@Override
-	public void layoutChanged(LayoutEvent<V, E> evt) {
+	@Override
+	public void layoutChanged(LayoutEvent<V> evt) {
 		V v = evt.getVertex();
-		Graph<V,E> graph = evt.getGraph();
-		dirtyEdges.addAll(graph.getIncidentEdges(v));
+		Network<V,E> graph = renderContext.getNetwork();
+		dirtyEdges.addAll(graph.incidentEdges(v));
 	}
 }

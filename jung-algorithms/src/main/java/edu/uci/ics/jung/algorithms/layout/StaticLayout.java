@@ -15,31 +15,30 @@ import java.awt.Dimension;
 import java.awt.geom.Point2D;
 
 import com.google.common.base.Function;
-
-import edu.uci.ics.jung.graph.Graph;
+import com.google.common.graph.Graph;
 
 /**
- * StaticLayout places the vertices in the locations specified by its initializer,
+ * StaticLayout places the nodes in the locations specified by its initializer,
  * and has no other behavior.
- * Vertex locations can be placed in a {@code Map<V,Point2D>} and then supplied to
- * this layout as follows: {@code Function<V,Point2D> vertexLocations = Functions.forMap(map);}
+ * node locations can be placed in a {@code Map<N,Point2D>} and then supplied to
+ * this layout as follows: {@code Function<N,Point2D> nodeLocations = Functions.forMap(map);}
  * @author Tom Nelson - tomnelson@dev.java.net
  */
-public class StaticLayout<V, E> extends AbstractLayout<V,E> {
+public class StaticLayout<N> extends AbstractLayout<N> {
 	
-    public StaticLayout(Graph<V,E> graph, Function<V,Point2D> initializer, Dimension size) {
+    public StaticLayout(Graph<N> graph, Function<N,Point2D> initializer, Dimension size) {
         super(graph, initializer, size);
     }
     
-    public StaticLayout(Graph<V,E> graph, Function<V,Point2D> initializer) {
+    public StaticLayout(Graph<N> graph, Function<N,Point2D> initializer) {
         super(graph, initializer);
     }
     
-    public StaticLayout(Graph<V,E> graph) {
+    public StaticLayout(Graph<N> graph) {
     	super(graph);
     }
     
-    public StaticLayout(Graph<V,E> graph, Dimension size) {
+    public StaticLayout(Graph<N> graph, Dimension size) {
     	super(graph, size);
     }
     

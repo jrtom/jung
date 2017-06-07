@@ -12,8 +12,7 @@
 package edu.uci.ics.jung.algorithms.scoring;
 
 import com.google.common.base.Function;
-
-import edu.uci.ics.jung.graph.Hypergraph;
+import com.google.common.graph.Network;
 
 /**
  * An abstract class for iterative random-walk-based vertex scoring algorithms 
@@ -47,7 +46,7 @@ public abstract class AbstractIterativeScorerWithPriors<V,E,S> extends
      * @param vertex_priors the prior probabilities of each vertex being 'jumped' to
      * @param alpha the probability of making a 'jump' at each step
      */
-    public AbstractIterativeScorerWithPriors(Hypergraph<V,E> g,
+    public AbstractIterativeScorerWithPriors(Network<V, E> g,
             Function<? super E,? extends Number> edge_weights, 
             Function<? super V,? extends S> vertex_priors, double alpha)
     {
@@ -64,7 +63,7 @@ public abstract class AbstractIterativeScorerWithPriors<V,E,S> extends
      * @param vertex_priors the prior probabilities of each vertex being 'jumped' to
      * @param alpha the probability of making a 'jump' at each step
      */
-    public AbstractIterativeScorerWithPriors(Hypergraph<V,E> g, 
+    public AbstractIterativeScorerWithPriors(Network<V, E> g, 
     		Function<V,? extends S> vertex_priors, double alpha)
     {
         super(g);
@@ -83,7 +82,7 @@ public abstract class AbstractIterativeScorerWithPriors<V,E,S> extends
         // initialize output values to priors
         // (output and current are swapped before each step(), so current will
         // have priors when update()s start happening)
-        for (V v : graph.getVertices())
+        for (V v : graph.nodes())
             setOutputValue(v, getVertexPrior(v));
     }
     

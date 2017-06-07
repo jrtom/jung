@@ -9,46 +9,30 @@
 */
 package edu.uci.ics.jung.algorithms.generators.random;
 
+import com.google.common.base.Supplier;
+import com.google.common.graph.Graph;
+
 import junit.framework.Assert;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import com.google.common.base.Supplier;
-
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.SparseMultigraph;
 
 /**
  * @author Scott White
  */
 public class TestEppsteinPowerLawGenerator extends TestCase {
-	
-	Supplier<Graph<Integer,Number>> graphFactory;
 	Supplier<Integer> vertexFactory;
-	Supplier<Number> edgeFactory;
 
 	public static Test suite() {
 		return new TestSuite(TestEppsteinPowerLawGenerator.class);
 	}
 
 	@Override
-  protected void setUp() {
-		graphFactory = new Supplier<Graph<Integer,Number>>() {
-			public Graph<Integer,Number> get() {
-				return new SparseMultigraph<Integer,Number>();
-			}
-		};
+	protected void setUp() {
 		vertexFactory = new Supplier<Integer>() {
 			int count;
 			public Integer get() {
-				return count++;
-			}
-		};
-		edgeFactory = 
-			new Supplier<Number>() {
-			int count;
-			public Number get() {
 				return count++;
 			}
 		};
@@ -57,13 +41,13 @@ public class TestEppsteinPowerLawGenerator extends TestCase {
     public void testSimpleDirectedCase() {
 
         for (int r=0; r<10; r++) {
-            EppsteinPowerLawGenerator<Integer, Number> generator = 
-            	new EppsteinPowerLawGenerator<Integer, Number>(graphFactory, vertexFactory, edgeFactory, 10,40,r);
+            EppsteinPowerLawGenerator<Integer> generator = 
+            	new EppsteinPowerLawGenerator<Integer>(vertexFactory, 10,40,r);
             generator.setSeed(2);
 
-            Graph<Integer, Number> graph = generator.get();
-            Assert.assertEquals(graph.getVertexCount(),10);
-            Assert.assertEquals(graph.getEdgeCount(),40);
+            Graph<Integer> graph = generator.get();
+            Assert.assertEquals(graph.nodes().size(),10);
+            Assert.assertEquals(graph.edges().size(),40);
         }
 
     }

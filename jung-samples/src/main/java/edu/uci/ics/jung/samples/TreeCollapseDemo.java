@@ -39,19 +39,15 @@ import javax.swing.JToggleButton;
 
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
-import com.google.common.base.Supplier;
+import com.google.common.graph.Network;
 
-import edu.uci.ics.jung.algorithms.layout.FRLayout;
+import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.algorithms.layout.PolarPoint;
 import edu.uci.ics.jung.algorithms.layout.RadialTreeLayout;
 import edu.uci.ics.jung.algorithms.layout.TreeLayout;
-import edu.uci.ics.jung.graph.DelegateForest;
-import edu.uci.ics.jung.graph.DelegateTree;
-import edu.uci.ics.jung.graph.DirectedGraph;
-import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
-import edu.uci.ics.jung.graph.Forest;
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.Tree;
+import edu.uci.ics.jung.graph.CTreeNetwork;
+import edu.uci.ics.jung.graph.MutableCTreeNetwork;
+import edu.uci.ics.jung.graph.TreeNetworkBuilder;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationServer;
@@ -74,39 +70,9 @@ import edu.uci.ics.jung.visualization.subLayout.TreeCollapser;
 public class TreeCollapseDemo extends JApplet {
 
     /**
-     * the graph
+     * the original graph
      */
-    Forest<String,Integer> graph;
-
-    Supplier<DirectedGraph<String,Integer>> graphFactory = 
-    	new Supplier<DirectedGraph<String,Integer>>() {
-
-			public DirectedGraph<String, Integer> get() {
-				return new DirectedSparseMultigraph<String,Integer>();
-			}
-		};
-			
-        Supplier<Tree<String,Integer>> treeFactory =
-		new Supplier<Tree<String,Integer>> () {
-
-		public Tree<String, Integer> get() {
-			return new DelegateTree<String,Integer>(graphFactory);
-		}
-	};
-	
-	
-	
-	Supplier<Integer> edgeFactory = new Supplier<Integer>() {
-		int i=0;
-		public Integer get() {
-			return i++;
-		}};
-
-    Supplier<String> vertexFactory = new Supplier<String>() {
-    	int i=0;
-		public String get() {
-			return "V"+i++;
-		}};
+    MutableCTreeNetwork<String,Integer> graph;
 
     /**
      * the visual component and renderer for the graph
@@ -117,26 +83,25 @@ public class TreeCollapseDemo extends JApplet {
 
     String root;
 
-    TreeLayout<String,Integer> layout;
-	FRLayout<?, ?> layout1;
+    TreeLayout<String> layout;
+//	FRLayout<?> layout1;
 
-    TreeCollapser collapser;
+//    TreeCollapser collapser;
 
-    RadialTreeLayout<String,Integer> radialLayout;
+    RadialTreeLayout<String> radialLayout;
 
+	@SuppressWarnings("unchecked")
 	public TreeCollapseDemo() {
 
         // create a simple graph for the demo
-        graph = new DelegateForest<String,Integer>();
+        graph = createTree();
 
-        createTree();
+        layout = new TreeLayout<String>(graph.asGraph());
+//        collapser = new TreeCollapser();
 
-        layout = new TreeLayout<String,Integer>(graph);
-        collapser = new TreeCollapser();
-
-        radialLayout = new RadialTreeLayout<String,Integer>(graph);
+        radialLayout = new RadialTreeLayout<String>(graph.asGraph());
         radialLayout.setSize(new Dimension(600,600));
-        vv =  new VisualizationViewer<String,Integer>(layout, new Dimension(600,600));
+        vv =  new VisualizationViewer<String,Integer>(graph, layout, new Dimension(600,600));
         vv.setBackground(Color.white);
         vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.line(graph));
         vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
@@ -191,43 +156,57 @@ public class TreeCollapseDemo extends JApplet {
 			}});
 
         JButton collapse = new JButton("Collapse");
-        collapse.addActionListener(new ActionListener() {
-
-            public void actionPerformed(ActionEvent e) {
-                Collection<String> picked
-                	= new HashSet<String>(vv.getPickedVertexState().getPicked());
+        collapse.addActionListener(e -> {
+                Set<String> picked = vv.getPickedVertexState().getPicked();
                 if(picked.size() == 1) {
                 	Object root = picked.iterator().next();
-                    Forest<String, Integer> inGraph = (Forest<String, Integer>)layout.getGraph();
+//                    Forest<String, Integer> inGraph = (Forest<String, Integer>)layout.getGraph();
+                	
 
-                    try {
-						collapser.collapse(vv.getGraphLayout(), inGraph, root);
-					} catch (InstantiationException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					} catch (IllegalAccessException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
+					@SuppressWarnings("rawtypes")
+//					CTreeNetwork subTree = collapser.collapse(inGraph, root);
+					CTreeNetwork subTree = TreeCollapser.collapse(graph, root);
+					@SuppressWarnings("rawtypes")
+					Layout objectLayout = (Layout) vv.getGraphLayout();
+					objectLayout.setLocation(subTree, (Point2D)objectLayout.apply(root));
 
                     vv.getPickedVertexState().clear();
                     vv.repaint();
                 }
-            }});
+            });
+
+//        collapse.addActionListener(new ActionListener() {
+//
+//            public void actionPerformed(ActionEvent e) {
+//                Set<String> picked = vv.getPickedVertexState().getPicked();
+//                if(picked.size() == 1) {
+//                	Object root = picked.iterator().next();
+//                    Forest<String, Integer> inGraph = (Forest<String, Integer>)layout.getGraph();
+//
+//					@SuppressWarnings("rawtypes")
+//					CTreeNetwork subTree = collapser.collapse(inGraph, root);
+//					vv.getGraphLayout().setLocation(subTree, (Point2D)layout.apply(subRoot));
+//
+//                    vv.getPickedVertexState().clear();
+//                    vv.repaint();
+//                }
+//            }});
 
         JButton expand = new JButton("Expand");
         expand.addActionListener(new ActionListener() {
 
-            public void actionPerformed(ActionEvent e) {
-                Collection<String> picked = vv.getPickedVertexState().getPicked();
-                for(Object v : picked) {
-                    if(v instanceof Forest) {
-                        Forest<String, Integer> inGraph
-                        	= (Forest<String, Integer>)layout.getGraph();
-            			collapser.expand(inGraph, (Forest<?, ?>)v);
+            @SuppressWarnings("rawtypes")
+			public void actionPerformed(ActionEvent e) {
+//                Collection<String> picked = vv.getPickedVertexState().getPicked();
+                for(Object v : vv.getPickedVertexState().getPicked()) {
+                    if(v instanceof CTreeNetwork) {
+//                        Forest<String, Integer> inGraph
+//                        	= (Forest<String, Integer>)layout.getGraph();
+//            			TreeCollapser.expand(inGraph, (Forest<?, ?>)v);
+            			TreeCollapser.expand(graph, (CTreeNetwork) v);
                     }
                     vv.getPickedVertexState().clear();
-                   vv.repaint();
+                    vv.repaint();
                 }
             }});
 
@@ -256,7 +235,7 @@ public class TreeCollapseDemo extends JApplet {
     	private Collection<Double> getDepths() {
     		Set<Double> depths = new HashSet<Double>();
     		Map<String,PolarPoint> polarLocations = radialLayout.getPolarLocations();
-    		for(String v : graph.getVertices()) {
+    		for(String v : graph.nodes()) {
     			PolarPoint pp = polarLocations.get(v);
     			depths.add(pp.getRadius());
     		}
@@ -287,38 +266,45 @@ public class TreeCollapseDemo extends JApplet {
     /**
      * 
      */
-    private void createTree() {
-    	graph.addVertex("V0");
-    	graph.addEdge(edgeFactory.get(), "V0", "V1");
-    	graph.addEdge(edgeFactory.get(), "V0", "V2");
-    	graph.addEdge(edgeFactory.get(), "V1", "V4");
-    	graph.addEdge(edgeFactory.get(), "V2", "V3");
-    	graph.addEdge(edgeFactory.get(), "V2", "V5");
-    	graph.addEdge(edgeFactory.get(), "V4", "V6");
-    	graph.addEdge(edgeFactory.get(), "V4", "V7");
-    	graph.addEdge(edgeFactory.get(), "V3", "V8");
-    	graph.addEdge(edgeFactory.get(), "V6", "V9");
-    	graph.addEdge(edgeFactory.get(), "V4", "V10");
+    private MutableCTreeNetwork<String, Integer> createTree() {
+    	MutableCTreeNetwork<String, Integer> tree =
+    			TreeNetworkBuilder.builder().expectedNodeCount(27).build();
     	
-       	graph.addVertex("A0");
-       	graph.addEdge(edgeFactory.get(), "A0", "A1");
-       	graph.addEdge(edgeFactory.get(), "A0", "A2");
-       	graph.addEdge(edgeFactory.get(), "A0", "A3");
+    	tree.addNode("root");
+    	
+    	int edgeId = 0;
+    	tree.addEdge("root", "V0", edgeId++);
+    	tree.addEdge("V0", "V1", edgeId++);
+    	tree.addEdge("V0", "V2", edgeId++);
+    	tree.addEdge("V1", "V4", edgeId++);
+    	tree.addEdge("V2", "V3", edgeId++);
+    	tree.addEdge("V2", "V5", edgeId++);
+    	tree.addEdge("V4", "V6", edgeId++);
+    	tree.addEdge("V4", "V7", edgeId++);
+    	tree.addEdge("V3", "V8", edgeId++);
+    	tree.addEdge("V6", "V9", edgeId++);
+    	tree.addEdge("V4", "V10", edgeId++);
+    	
+    	tree.addEdge("root", "A0", edgeId++);
+       	tree.addEdge("A0", "A1", edgeId++);
+       	tree.addEdge("A0", "A2", edgeId++);
+       	tree.addEdge("A0", "A3", edgeId++);
        	
-       	graph.addVertex("B0");
-    	graph.addEdge(edgeFactory.get(), "B0", "B1");
-    	graph.addEdge(edgeFactory.get(), "B0", "B2");
-    	graph.addEdge(edgeFactory.get(), "B1", "B4");
-    	graph.addEdge(edgeFactory.get(), "B2", "B3");
-    	graph.addEdge(edgeFactory.get(), "B2", "B5");
-    	graph.addEdge(edgeFactory.get(), "B4", "B6");
-    	graph.addEdge(edgeFactory.get(), "B4", "B7");
-    	graph.addEdge(edgeFactory.get(), "B3", "B8");
-    	graph.addEdge(edgeFactory.get(), "B6", "B9");
-       	
+    	tree.addEdge("root", "B0", edgeId++);
+    	tree.addEdge("B0", "B1", edgeId++);
+    	tree.addEdge("B0", "B2", edgeId++);
+    	tree.addEdge("B1", "B4", edgeId++);
+    	tree.addEdge("B2", "B3", edgeId++);
+    	tree.addEdge("B2", "B5", edgeId++);
+    	tree.addEdge("B4", "B6", edgeId++);
+    	tree.addEdge("B4", "B7", edgeId++);
+    	tree.addEdge("B3", "B8", edgeId++);
+    	tree.addEdge("B6", "B9", edgeId++);
+    	
+       	return tree;
     }
 
-        /**
+    /**
      * a demo class that will create a vertex shape that is either a
      * polygon or star. The number of sides corresponds to the number
      * of vertices that were collapsed into the vertex represented by
@@ -328,28 +314,27 @@ public class TreeCollapseDemo extends JApplet {
      *
      * @param <V> the vertex type
      */
-    class ClusterVertexShapeFunction<V> extends EllipseVertexShapeTransformer<V>
-{
+	class ClusterVertexShapeFunction<V> extends EllipseVertexShapeTransformer<V> {
 
-        ClusterVertexShapeFunction() {
-            setSizeTransformer(new ClusterVertexSizeFunction<V>(20));
-        }
+		ClusterVertexShapeFunction() {
+			setSizeTransformer(new ClusterVertexSizeFunction<V>(20));
+		}
+
 		@Override
-        public Shape apply(V v) {
-            if(v instanceof Graph) {
-                @SuppressWarnings("rawtypes")
-				int size = ((Graph)v).getVertexCount();
-                if (size < 8) {   
-                    int sides = Math.max(size, 3);
-                    return factory.getRegularPolygon(v, sides);
-                }
-                else {
-                    return factory.getRegularStar(v, size);
-                }
-            }
-            return super.apply(v);
-        }
-    }
+		public Shape apply(V v) {
+			if (v instanceof Network) {
+				@SuppressWarnings("rawtypes")
+				int size = ((Network) v).nodes().size();
+				if (size < 8) {
+					int sides = Math.max(size, 3);
+					return factory.getRegularPolygon(v, sides);
+				} else {
+					return factory.getRegularStar(v, size);
+				}
+			}
+			return super.apply(v);
+		}
+	}
 
     /**
      * A demo class that will make vertices larger if they represent
@@ -365,7 +350,7 @@ public class TreeCollapseDemo extends JApplet {
         }
 
         public Integer apply(V v) {
-            if(v instanceof Graph) {
+            if(v instanceof Network) {
                 return 30;
             }
             return size;

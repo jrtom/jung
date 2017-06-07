@@ -21,6 +21,7 @@ import java.awt.geom.Point2D;
 import javax.swing.ToolTipManager;
 
 import com.google.common.base.Function;
+import com.google.common.graph.Network;
 
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.visualization.control.GraphMouseListener;
@@ -53,12 +54,12 @@ public class VisualizationViewer<V,E> extends BasicVisualizationServer<V,E> {
     };
 
 
-	public VisualizationViewer(Layout<V,E> layout) {
-	    this(new DefaultVisualizationModel<V,E>(layout));
+	public VisualizationViewer(Network<V, E> network, Layout<V> layout) {
+	    this(new DefaultVisualizationModel<V,E>(network, layout));
 	}
 	
-	public VisualizationViewer(Layout<V,E> layout, Dimension preferredSize) {
-	    this(new DefaultVisualizationModel<V,E>(layout, preferredSize), preferredSize);
+	public VisualizationViewer(Network<V, E> network, Layout<V> layout, Dimension preferredSize) {
+	    this(new DefaultVisualizationModel<V,E>(network, layout, preferredSize), preferredSize);
 	}
 	
 	public VisualizationViewer(VisualizationModel<V,E> model) {
@@ -159,19 +160,19 @@ public class VisualizationViewer<V,E> extends BasicVisualizationServer<V,E> {
      * called by the superclass to display tooltips
      */
     public String getToolTipText(MouseEvent event) {
-        Layout<V,E> layout = getGraphLayout();
+//        Layout<V> layout = getGraphLayout();
         Point2D p = null;
         if(vertexToolTipTransformer != null) {
             p = event.getPoint();
             	//renderContext.getBasicTransformer().inverseViewTransform(event.getPoint());
-            V vertex = getPickSupport().getVertex(layout, p.getX(), p.getY());
+            V vertex = getPickSupport().getNode(p.getX(), p.getY());
             if(vertex != null) {
             	return vertexToolTipTransformer.apply(vertex);
             }
         }
         if(edgeToolTipTransformer != null) {
         	if(p == null) p = renderContext.getMultiLayerTransformer().inverseTransform(Layer.VIEW, event.getPoint());
-            E edge = getPickSupport().getEdge(layout, p.getX(), p.getY());
+            E edge = getPickSupport().getEdge(p.getX(), p.getY());
             if(edge != null) {
             	return edgeToolTipTransformer.apply(edge);
             }

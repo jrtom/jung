@@ -7,22 +7,23 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.graph.EndpointPair;
+import com.google.common.graph.Network;
+
 import edu.uci.ics.jung.algorithms.layout.Layout;
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.util.Pair;
 import edu.uci.ics.jung.visualization.RenderContext;
 
 public class BoundingRectangleCollector<V,E>  {
 
 	protected RenderContext<V,E> rc;
-	protected Graph<V,E> graph;
-	protected Layout<V,E> layout;
+	protected Network<V, E> graph;
+	protected Layout<V> layout;
 	protected List<Rectangle2D> rectangles = new ArrayList<Rectangle2D>();
 	
-	public BoundingRectangleCollector(RenderContext<V, E> rc, Layout<V, E> layout) {
+	public BoundingRectangleCollector(RenderContext<V, E> rc, Layout<V> layout) {
 		this.rc = rc;
 		this.layout = layout;
-		this.graph = layout.getGraph();
+		this.graph = rc.getNetwork();
 		compute();
 	}
 
@@ -38,10 +39,10 @@ public class BoundingRectangleCollector<V,E>  {
 //		Graphics2D g2d = (Graphics2D)g;
 //		g.setColor(Color.cyan);
 
-		for(E e : graph.getEdges()) {
-			Pair<V> endpoints = graph.getEndpoints(e);
-			V v1 = endpoints.getFirst();
-			V v2 = endpoints.getSecond();
+		for(E e : graph.edges()) {
+			EndpointPair<V> endpoints = graph.incidentNodes(e);
+			V v1 = endpoints.nodeU();
+			V v2 = endpoints.nodeV();
 			Point2D p1 = layout.apply(v1);
 			Point2D p2 = layout.apply(v2);
 			float x1 = (float)p1.getX();
@@ -72,7 +73,7 @@ public class BoundingRectangleCollector<V,E>  {
 			rectangles.add(edgeShape.getBounds2D());
 		}
 		
-		for(V v : graph.getVertices()) {
+		for(V v : graph.nodes()) {
 			Shape shape = rc.getVertexShapeTransformer().apply(v);
 			Point2D p = layout.apply(v);
 //			p = rc.getMultiLayerTransformer().transform(Layer.LAYOUT, p);

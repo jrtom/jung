@@ -24,6 +24,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,13 +40,17 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import com.google.common.base.Function;
+import com.google.common.graph.MutableNetwork;
+import com.google.common.graph.Network;
+import com.google.common.graph.NetworkBuilder;
 
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
+import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.algorithms.layout.util.RandomLocationTransformer;
-import edu.uci.ics.jung.graph.DirectedSparseGraph;
-import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
+import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.LayeredIcon;
+import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
@@ -60,6 +65,7 @@ import edu.uci.ics.jung.visualization.renderers.BasicVertexRenderer;
 import edu.uci.ics.jung.visualization.renderers.Checkmark;
 import edu.uci.ics.jung.visualization.renderers.DefaultEdgeLabelRenderer;
 import edu.uci.ics.jung.visualization.renderers.DefaultVertexLabelRenderer;
+import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
 import edu.uci.ics.jung.visualization.util.ImageShapeUtils;
 
 /**
@@ -84,13 +90,11 @@ public class VertexImageShaperDemo extends JApplet {
 	 * 
 	 */
 	private static final long serialVersionUID = -4332663871914930864L;
-	
-	private static final int VERTEX_COUNT=11;
 
 	/**
      * the graph
      */
-    DirectedSparseGraph<Number, Number> graph;
+    Network<Number, Number> graph;
 
     /**
      * the visual component and renderer for the graph
@@ -117,37 +121,35 @@ public class VertexImageShaperDemo extends JApplet {
     public VertexImageShaperDemo() {
         
         // create a simple graph for the demo
-        graph = new DirectedSparseGraph<Number,Number>();
-        createGraph(VERTEX_COUNT);
+        graph = createGraph();
         
-        // a Map for the labels
+        // Maps for the labels and icons
         Map<Number,String> map = new HashMap<Number,String>();
-        for(int i=0; i<VERTEX_COUNT; i++) {
-            map.put(i, iconNames[i%iconNames.length]);
-        }
-        
-        // a Map for the Icons
         Map<Number,Icon> iconMap = new HashMap<Number,Icon>();
-        for(int i=0; i<VERTEX_COUNT; i++) {
-            String name = "/images/topic"+iconNames[i]+".gif";
-            try {
-                Icon icon = 
-                    new LayeredIcon(new ImageIcon(VertexImageShaperDemo.class.getResource(name)).getImage());
-                iconMap.put(i, icon);
-            } catch(Exception ex) {
-                System.err.println("You need slashdoticons.jar in your classpath to see the image "+name);
-            }
+        for (Number node : graph.nodes()) {
+        	int i = node.intValue();
+        	map.put(node, iconNames[i % iconNames.length]);
+        	
+			String name = "/images/topic" + iconNames[i] + ".gif";
+			try {
+				Icon icon = new LayeredIcon(
+						new ImageIcon(VertexImageShaperDemo.class.getResource(name)).getImage());
+				iconMap.put(node, icon);
+			} catch (Exception ex) {
+				System.err.println(
+						"You need slashdoticons.jar in your classpath to see the image " + name);
+			}
         }
-        
-        FRLayout<Number, Number> layout = new FRLayout<Number, Number>(graph);
+
+        FRLayout<Number> layout = new FRLayout<Number>(graph.asGraph());
         layout.setMaxIterations(100);
         layout.setInitializer(new RandomLocationTransformer<Number>(new Dimension(400,400), 0));
-        vv =  new VisualizationViewer<Number, Number>(layout, new Dimension(400,400));
+        vv =  new VisualizationViewer<Number, Number>(graph, layout, new Dimension(400,400));
         
         // This demo uses a special renderer to turn outlines on and off.
         // you do not need to do this in a real application.
         // Instead, just let vv use the Renderer it already has
-        vv.getRenderer().setVertexRenderer(new DemoRenderer<Number,Number>());
+        vv.getRenderer().setVertexRenderer(new DemoRenderer<Number>(layout, vv.getRenderContext()));
 
         Function<Number,Paint> vpf = 
             new PickableVertexPaintTransformer<Number>(vv.getPickedVertexState(), Color.white, Color.yellow);
@@ -366,35 +368,29 @@ public class VertexImageShaperDemo extends JApplet {
         }
     }
     
-    /**
-     * create some vertices
-     * @param count how many to create
-     * @return the Vertices in an array
-     */
-    private void createGraph(int vertexCount) {
-        for (int i = 0; i < vertexCount; i++) {
-            graph.addVertex(i);
-        }
-    	int j=0;
-        graph.addEdge(j++, 0, 1, EdgeType.DIRECTED);
-        graph.addEdge(j++, 3, 0, EdgeType.DIRECTED);
-        graph.addEdge(j++, 0, 4, EdgeType.DIRECTED);
-        graph.addEdge(j++, 4, 5, EdgeType.DIRECTED);
-        graph.addEdge(j++, 5, 3, EdgeType.DIRECTED);
-        graph.addEdge(j++, 2, 1, EdgeType.DIRECTED);
-        graph.addEdge(j++, 4, 1, EdgeType.DIRECTED);
-        graph.addEdge(j++, 8, 2, EdgeType.DIRECTED);
-        graph.addEdge(j++, 3, 8, EdgeType.DIRECTED);
-        graph.addEdge(j++, 6, 7, EdgeType.DIRECTED);
-        graph.addEdge(j++, 7, 5, EdgeType.DIRECTED);
-        graph.addEdge(j++, 0, 9, EdgeType.DIRECTED);
-        graph.addEdge(j++, 9, 8, EdgeType.DIRECTED);
-        graph.addEdge(j++, 7, 6, EdgeType.DIRECTED);
-        graph.addEdge(j++, 6, 5, EdgeType.DIRECTED);
-        graph.addEdge(j++, 4, 2, EdgeType.DIRECTED);
-        graph.addEdge(j++, 5, 4, EdgeType.DIRECTED);
-        graph.addEdge(j++, 4, 10, EdgeType.DIRECTED);
-        graph.addEdge(j++, 10, 4, EdgeType.DIRECTED);
+    Network<Number, Number> createGraph() {
+    	MutableNetwork<Number, Number> graph = NetworkBuilder.directed().build();
+        graph.addEdge(0, 1, new Double(Math.random()));
+        graph.addEdge(3, 0, new Double(Math.random()));
+        graph.addEdge(0, 4, new Double(Math.random()));
+        graph.addEdge(4, 5, new Double(Math.random()));
+        graph.addEdge(5, 3, new Double(Math.random()));
+        graph.addEdge(2, 1, new Double(Math.random()));
+        graph.addEdge(4, 1, new Double(Math.random()));
+        graph.addEdge(8, 2, new Double(Math.random()));
+        graph.addEdge(3, 8, new Double(Math.random()));
+        graph.addEdge(6, 7, new Double(Math.random()));
+        graph.addEdge(7, 5, new Double(Math.random()));
+        graph.addEdge(0, 9, new Double(Math.random()));
+        graph.addEdge(9, 8, new Double(Math.random()));
+        graph.addEdge(7, 6, new Double(Math.random()));
+        graph.addEdge(6, 5, new Double(Math.random()));
+        graph.addEdge(4, 2, new Double(Math.random()));
+        graph.addEdge(5, 4, new Double(Math.random()));
+        graph.addEdge(4, 10, new Double(Math.random()));
+        graph.addEdge(10, 4, new Double(Math.random()));
+        
+        return graph;
     }
 
     /** 
@@ -511,34 +507,38 @@ public class VertexImageShaperDemo extends JApplet {
      * @author Tom Nelson
      *
      */
-    class DemoRenderer<V,E> extends BasicVertexRenderer<V,E> {
-//        public void paintIconForVertex(RenderContext<V,E> rc, V v, Layout<V,E> layout) {
-//        	
-//            Point2D p = layout.transform(v);
-//            p = rc.getMultiLayerTransformer().transform(Layer.LAYOUT, p);
-//            float x = (float)p.getX();
-//            float y = (float)p.getY();
-//
-//            GraphicsDecorator g = rc.getGraphicsContext();
-//            boolean outlineImages = false;
-//            Function<V,Icon> vertexIconFunction = rc.getVertexIconTransformer();
-//            
-//            if(vertexIconFunction instanceof DemoVertexIconTransformer) {
-//                outlineImages = ((DemoVertexIconTransformer<V>)vertexIconFunction).isOutlineImages();
-//            }
-//            Icon icon = vertexIconFunction.transform(v);
-//            if(icon == null || outlineImages) {
-//                
-//                Shape s = AffineTransform.getTranslateInstance(x,y).
-//                    createTransformedShape(rc.getVertexShapeTransformer().transform(v));
-//                paintShapeForVertex(rc, v, s);
-//            }
-//            if(icon != null) {
-//                int xLoc = (int) (x - icon.getIconWidth()/2);
-//                int yLoc = (int) (y - icon.getIconHeight()/2);
-//                icon.paintIcon(rc.getScreenDevice(), g.getDelegate(), xLoc, yLoc);
-//            }
-//        }
+    class DemoRenderer<V> extends BasicVertexRenderer<V> {
+
+		public DemoRenderer(Layout<V> layout, RenderContext<V, ?> rc) {
+			super(layout, rc);
+		}
+        public void paintIconForVertex(V v) {
+        	
+            Point2D p = layout.apply(v);
+            p = renderContext.getMultiLayerTransformer().transform(Layer.LAYOUT, p);
+            float x = (float)p.getX();
+            float y = (float)p.getY();
+
+            GraphicsDecorator g = renderContext.getGraphicsContext();
+            boolean outlineImages = false;
+            Function<V,Icon> vertexIconFunction = renderContext.getVertexIconTransformer();
+            
+            if(vertexIconFunction instanceof DemoVertexIconTransformer) {
+                outlineImages = ((DemoVertexIconTransformer<V>)vertexIconFunction).isOutlineImages();
+            }
+            Icon icon = vertexIconFunction.apply(v);
+            if(icon == null || outlineImages) {
+                
+                Shape s = AffineTransform.getTranslateInstance(x,y).
+                    createTransformedShape(renderContext.getVertexShapeTransformer().apply(v));
+                paintShapeForVertex(v, s);
+            }
+            if(icon != null) {
+                int xLoc = (int) (x - icon.getIconWidth()/2);
+                int yLoc = (int) (y - icon.getIconHeight()/2);
+                icon.paintIcon(renderContext.getScreenDevice(), g.getDelegate(), xLoc, yLoc);
+            }
+        }
     }
     
     public static void main(String[] args) {

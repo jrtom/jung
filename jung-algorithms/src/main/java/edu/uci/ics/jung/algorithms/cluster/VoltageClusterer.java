@@ -11,12 +11,6 @@
  */
 package edu.uci.ics.jung.algorithms.cluster;
 
-import edu.uci.ics.jung.algorithms.scoring.VoltageScorer;
-import edu.uci.ics.jung.algorithms.util.DiscreteDistribution;
-import edu.uci.ics.jung.algorithms.util.KMeansClusterer;
-import edu.uci.ics.jung.algorithms.util.KMeansClusterer.NotEnoughClustersException;
-import edu.uci.ics.jung.graph.Graph;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -30,8 +24,15 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+import com.google.common.graph.Network;
+
+import edu.uci.ics.jung.algorithms.scoring.VoltageScorer;
+import edu.uci.ics.jung.algorithms.util.DiscreteDistribution;
+import edu.uci.ics.jung.algorithms.util.KMeansClusterer;
+import edu.uci.ics.jung.algorithms.util.KMeansClusterer.NotEnoughClustersException;
+
 /**
- * <p>Clusters vertices of a <code>Graph</code> based on their ranks as
+ * <p>Clusters vertices of a <code>Network</code> based on their ranks as
  * calculated by <code>VoltageScorer</code>.  This algorithm is based on,
  * but not identical with, the method described in the paper below.
  * The primary difference is that Wu and Huberman assume a priori that the clusters
@@ -76,7 +77,7 @@ public class VoltageClusterer<V,E>
     protected int num_candidates;
     protected KMeansClusterer<V> kmc;
     protected Random rand;
-    protected Graph<V,E> g;
+    protected Network<V,E> g;
 
     /**
      * Creates an instance of a VoltageCluster with the specified parameters.
@@ -86,7 +87,7 @@ public class VoltageClusterer<V,E>
      * @param g the graph whose vertices are to be clustered
      * @param num_candidates    the number of candidate clusters to create
      */
-    public VoltageClusterer(Graph<V,E> g, int num_candidates)
+    public VoltageClusterer(Network<V,E> g, int num_candidates)
     {
         if (num_candidates < 1)
             throw new IllegalArgumentException("must generate >=1 candidates");
@@ -135,7 +136,7 @@ public class VoltageClusterer<V,E>
         // * pick (widely separated) vertex pair, run VoltageScorer
         // * use k-means to identify 2 communities in ranked graph
         // * store resulting candidate communities
-        ArrayList<V> v_array = new ArrayList<V>(g.getVertices());
+        ArrayList<V> v_array = new ArrayList<V>(g.nodes());
 
         LinkedList<Set<V>> candidates = new LinkedList<Set<V>>();
 
@@ -156,7 +157,7 @@ public class VoltageClusterer<V,E>
             vs.evaluate();
 
             Map<V, double[]> voltage_ranks = new HashMap<V, double[]>();
-            for (V v : g.getVertices())
+            for (V v : g.nodes())
                 voltage_ranks.put(v, new double[] {vs.getVertexScore(v)});
 
 //            addOneCandidateCluster(candidates, voltage_ranks);
@@ -173,7 +174,7 @@ public class VoltageClusterer<V,E>
         // * remove v's vertices from candidate clusters
 
         Collection<Set<V>> clusters = new LinkedList<Set<V>>();
-        Set<V> remaining = new HashSet<V>(g.getVertices());
+        Set<V> remaining = new HashSet<V>(g.nodes());
 
         List<V> seed_candidates = getSeedCandidates(candidates);
         int seed_index = 0;
@@ -318,7 +319,7 @@ public class VoltageClusterer<V,E>
     protected Map<V, double[]> getObjectCounts(Collection<Set<V>> candidates, V seed)
     {
         Map<V, double[]> occur_counts = new HashMap<V, double[]>();
-        for (V v : g.getVertices())
+        for (V v : g.nodes())
             occur_counts.put(v, new double[]{0});
 
         for (Set<V> candidate : candidates)

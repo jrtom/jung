@@ -21,11 +21,11 @@ import java.util.Set;
 
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
+import com.google.common.base.Preconditions;
+import com.google.common.graph.Network;
 
 import edu.uci.ics.jung.algorithms.util.BasicMapEntry;
 import edu.uci.ics.jung.algorithms.util.MapBinaryHeap;
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.Hypergraph;
 
 /**
  * <p>Calculates distances in a specified graph, using  
@@ -64,7 +64,7 @@ import edu.uci.ics.jung.graph.Hypergraph;
  */
 public class DijkstraDistance<V,E> implements Distance<V>
 {
-    protected Hypergraph<V,E> g;
+    protected Network<V,E> g;
     protected Function<? super E,? extends Number> nev;
     protected Map<V,SourceData> sourceMap;   // a map of source vertices to an instance of SourceData
     protected boolean cached;
@@ -81,7 +81,7 @@ public class DijkstraDistance<V,E> implements Distance<V>
      * @param nev   the class responsible for returning weights for edges
      * @param cached    specifies whether the results are to be cached
      */
-    public DijkstraDistance(Hypergraph<V,E> g, Function<? super E,? extends Number> nev, boolean cached) {
+    public DijkstraDistance(Network<V,E> g, Function<? super E,? extends Number> nev, boolean cached) {
         this.g = g;
         this.nev = nev;
         this.sourceMap = new HashMap<V,SourceData>();
@@ -98,7 +98,7 @@ public class DijkstraDistance<V,E> implements Distance<V>
      * @param g     the graph on which distances will be calculated
      * @param nev   the class responsible for returning weights for edges
      */
-    public DijkstraDistance(Hypergraph<V,E> g, Function<? super E,? extends Number> nev) {
+    public DijkstraDistance(Network<V,E> g, Function<? super E,? extends Number> nev) {
         this(g, nev, true);
     }
     
@@ -109,7 +109,7 @@ public class DijkstraDistance<V,E> implements Distance<V>
      * 
      * @param g     the graph on which distances will be calculated
      */ 
-    public DijkstraDistance(Graph<V,E> g) {
+    public DijkstraDistance(Network<V, E> g) {
         this(g, Functions.constant(1), true);
     }
 
@@ -121,7 +121,7 @@ public class DijkstraDistance<V,E> implements Distance<V>
      * @param g     the graph on which distances will be calculated
      * @param cached    specifies whether the results are to be cached
      */ 
-    public DijkstraDistance(Graph<V,E> g, boolean cached) {
+    public DijkstraDistance(Network<V, E> g, boolean cached) {
         this(g, Functions.constant(1), cached);
     }
     
@@ -191,15 +191,13 @@ public class DijkstraDistance<V,E> implements Distance<V>
                 break;
             }
             
-            for (E e : getEdgesToCheck(v) )
-            {
-                for (V w : g.getIncidentVertices(e))
-                {
+            for (V w : g.successors(v)) {
+            	for (E e : g.edgesConnecting(v, w)) {
                     if (!sd.distances.containsKey(w))
                     {
                         double edge_weight = nev.apply(e).doubleValue();
-                        if (edge_weight < 0)
-                            throw new IllegalArgumentException("Edges weights must be non-negative");
+                        Preconditions.checkArgument(edge_weight >= 0, 
+                        		"encountered negative edge weight %s for edge %s", nev.apply(e), e);
                         double new_dist = v_dist + edge_weight;
                         if (!sd.estimatedDistances.containsKey(w))
                         {
@@ -212,7 +210,8 @@ public class DijkstraDistance<V,E> implements Distance<V>
                                 sd.update(w, e, new_dist);
                         }
                     }
-                }
+            		
+            	}
             }
         }
         return sd.distances;
@@ -225,24 +224,6 @@ public class DijkstraDistance<V,E> implements Distance<V>
             sd = new SourceData(source);
         return sd;
     }
-    
-    /**
-     * Returns the set of edges incident to <code>v</code> that should be tested.
-     * By default, this is the set of outgoing edges for instances of <code>Graph</code>,
-     * the set of incident edges for instances of <code>Hypergraph</code>,
-     * and is otherwise undefined.
-     * @param v the vertex whose edges are to be checked
-     * @return the set of edges incident to {@code v} that should be tested
-     */
-    protected Collection<E> getEdgesToCheck(V v)
-    {
-        if (g instanceof Graph)
-            return ((Graph<V,E>)g).getOutEdges(v);
-        else
-            return g.getIncidentEdges(v);
-
-    }
-
     
     /**
      * Returns the length of a shortest path from the source to the target vertex,
@@ -259,12 +240,12 @@ public class DijkstraDistance<V,E> implements Distance<V>
      */
     public Number getDistance(V source, V target)
     {
-        if (g.containsVertex(target) == false)
-            throw new IllegalArgumentException("Specified target vertex " + 
-                    target + " is not part of graph " + g);
-        if (g.containsVertex(source) == false)
-            throw new IllegalArgumentException("Specified source vertex " + 
-                    source + " is not part of graph " + g);
+    	Preconditions.checkArgument(
+    		g.nodes().contains(target),
+    		"Specified target vertex %s  is not part of graph %s", target, g);
+    	Preconditions.checkArgument(
+    		g.nodes().contains(source),
+    		"Specified source vertex %s  is not part of graph %s", source, g);
         
         Set<V> targets = new HashSet<V>();
         targets.add(target);
@@ -282,16 +263,17 @@ public class DijkstraDistance<V,E> implements Distance<V>
      */
     public Map<V,Number> getDistanceMap(V source, Collection<V> targets)
     {
-       if (g.containsVertex(source) == false)
-            throw new IllegalArgumentException("Specified source vertex " + 
-                    source + " is not part of graph " + g);
-       if (targets.size() > max_targets)
-            throw new IllegalArgumentException("size of target set exceeds maximum " +
-                    "number of targets allowed: " + this.max_targets);
+    	Preconditions.checkArgument(
+    		g.nodes().contains(source),
+    		"Specified source vertex %s  is not part of graph %s", source, g);
+    	Preconditions.checkArgument(
+			targets.size() <= max_targets,
+			"size of target set %d exceeds maximum number of targets allowed: %d",
+			targets.size(), this.max_targets);
         
         Map<V,Number> distanceMap = 
         	singleSourceShortestPath(source, targets, 
-        			Math.min(g.getVertexCount(), max_targets));
+        			Math.min(g.nodes().size(), max_targets));
         if (!cached)
             reset(source);
         
@@ -315,7 +297,7 @@ public class DijkstraDistance<V,E> implements Distance<V>
      */
     public Map<V,Number> getDistanceMap(V source)
     {
-        return getDistanceMap(source, Math.min(g.getVertexCount(), max_targets));
+        return getDistanceMap(source, Math.min(g.nodes().size(), max_targets));
     }
     
 
@@ -344,19 +326,17 @@ public class DijkstraDistance<V,E> implements Distance<V>
      */
     public LinkedHashMap<V,Number> getDistanceMap(V source, int numDests)
     {
+    	Preconditions.checkArgument(
+        		g.nodes().contains(source),
+        		"Specified source vertex %s  is not part of graph %s", source, g);
+    	Preconditions.checkArgument(
+			numDests >= 1 && numDests <= g.nodes().size(),
+			"number of destinations must be in [1, %d]", g.nodes().size());
 
-    	if(g.getVertices().contains(source) == false) {
-            throw new IllegalArgumentException("Specified source vertex " + 
-                    source + " is not part of graph " + g);
-    		
-    	}
-        if (numDests < 1 || numDests > g.getVertexCount())
-            throw new IllegalArgumentException("numDests must be >= 1 " + 
-                "and <= g.numVertices()");
-
-        if (numDests > max_targets)
-            throw new IllegalArgumentException("numDests must be <= the maximum " +
-                    "number of targets allowed: " + this.max_targets);
+    	Preconditions.checkArgument(
+			numDests <= max_targets,
+			"size of target set %d exceeds maximum number of targets allowed: %d",
+			numDests, this.max_targets);
             
         LinkedHashMap<V,Number> distanceMap = 
         	singleSourceShortestPath(source, null, numDests);

@@ -11,15 +11,18 @@
  */
 package edu.uci.ics.jung.algorithms.scoring;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
+import com.google.common.graph.Network;
 
 import edu.uci.ics.jung.algorithms.scoring.util.UniformDegreeWeight;
-import edu.uci.ics.jung.graph.Hypergraph;
 
 /**
  * Assigns scores to vertices according to their 'voltage' in an approximate 
@@ -50,7 +53,7 @@ public class VoltageScorer<V, E> extends AbstractIterativeScorer<V, E, Double>
         implements VertexScorer<V, Double>
 {
     protected Map<V, ? extends Number> source_voltages;
-    protected Collection<V> sinks;
+    protected Set<V> sinks;
     
     /**
      * Creates an instance with the specified graph, edge weights, source voltages,
@@ -60,8 +63,8 @@ public class VoltageScorer<V, E> extends AbstractIterativeScorer<V, E, Double>
      * @param source_voltages the (fixed) voltage for each source
      * @param sinks the vertices whose voltages are tied to 0
      */
-    public VoltageScorer(Hypergraph<V, E> g, Function<? super E, ? extends Number> edge_weights, 
-            Map<V, ? extends Number> source_voltages, Collection<V> sinks)
+    public VoltageScorer(Network<V, E> g, Function<? super E, ? extends Number> edge_weights, 
+            Map<V, ? extends Number> source_voltages, Set<V> sinks)
     {
         super(g, edge_weights);
         this.source_voltages = source_voltages;
@@ -77,8 +80,8 @@ public class VoltageScorer<V, E> extends AbstractIterativeScorer<V, E, Double>
      * @param sources the vertices whose voltages are tied to 1
      * @param sinks the vertices whose voltages are tied to 0
      */
-    public VoltageScorer(Hypergraph<V, E> g, Function<? super E, ? extends Number> edge_weights, 
-            Collection<V> sources, Collection<V> sinks)
+    public VoltageScorer(Network<V, E> g, Function<? super E, ? extends Number> edge_weights, 
+            Set<V> sources, Set<V> sinks)
     {
         super(g, edge_weights);
         
@@ -99,7 +102,7 @@ public class VoltageScorer<V, E> extends AbstractIterativeScorer<V, E, Double>
      * @param sources the vertices whose voltages are tied to 1
      * @param sinks the vertices whose voltages are tied to 0
      */
-    public VoltageScorer(Hypergraph<V, E> g, Collection<V> sources, Collection<V> sinks)
+    public VoltageScorer(Network<V, E> g, Set<V> sources, Set<V> sinks)
     {
         super(g);
         
@@ -119,8 +122,8 @@ public class VoltageScorer<V, E> extends AbstractIterativeScorer<V, E, Double>
      * @param source_voltages the (fixed) voltage for each source
      * @param sinks the vertices whose voltages are tied to 0
      */
-    public VoltageScorer(Hypergraph<V, E> g, Map<V, ? extends Number> source_voltages, 
-    		Collection<V> sinks)
+    public VoltageScorer(Network<V, E> g, Map<V, ? extends Number> source_voltages, 
+    		Set<V> sinks)
     {
         super(g);
         this.source_voltages = source_voltages;
@@ -137,10 +140,10 @@ public class VoltageScorer<V, E> extends AbstractIterativeScorer<V, E, Double>
      * @param source the vertex whose voltage is tied to 1
      * @param sink the vertex whose voltage is tied to 0
      */
-    public VoltageScorer(Hypergraph<V,E> g, Function<? super E, ? extends Number> edge_weights, 
+    public VoltageScorer(Network<V,E> g, Function<? super E, ? extends Number> edge_weights, 
     		V source, V sink)
     {
-        this(g, edge_weights, Collections.singletonMap(source, 1.0), Collections.singletonList(sink));
+        this(g, edge_weights, ImmutableMap.of(source, 1.0), ImmutableSet.of(sink));
         initialize();
     }
 
@@ -153,9 +156,9 @@ public class VoltageScorer<V, E> extends AbstractIterativeScorer<V, E, Double>
      * @param source the vertex whose voltage is tied to 1
      * @param sink the vertex whose voltage is tied to 0
      */
-    public VoltageScorer(Hypergraph<V,E> g, V source, V sink)
+    public VoltageScorer(Network<V,E> g, V source, V sink)
     {
-        this(g, Collections.singletonMap(source, 1.0), Collections.singletonList(sink));
+        this(g, ImmutableMap.of(source, 1.0), ImmutableSet.of(sink));
         initialize();
     }
 
@@ -169,11 +172,15 @@ public class VoltageScorer<V, E> extends AbstractIterativeScorer<V, E, Double>
         super.initialize();
         
         // sanity check
-        if (source_voltages.isEmpty() || sinks.isEmpty())
-            throw new IllegalArgumentException("Both sources and sinks (grounds) must be defined");
-        
-        if (source_voltages.size() + sinks.size() > graph.getVertexCount())
-            throw new IllegalArgumentException("Source/sink sets overlap, or contain vertices not in graph");
+        Preconditions.checkArgument(!source_voltages.isEmpty(), "Source voltages must be non-empty");
+        Preconditions.checkArgument(!sinks.isEmpty(), "Sinks must be non-empty");
+
+        Preconditions.checkArgument(Sets.intersection(source_voltages.keySet(), sinks).isEmpty(),
+        		"Sources and sinks must be disjoint");
+        Preconditions.checkArgument(graph.nodes().containsAll(source_voltages.keySet()),
+        		"Sources must all be elements of the graph");
+        Preconditions.checkArgument(graph.nodes().containsAll(sinks),
+        		"Sinks must all be elements of the graph");
         
         for (Map.Entry<V, ? extends Number> entry : source_voltages.entrySet())
         {
@@ -186,7 +193,7 @@ public class VoltageScorer<V, E> extends AbstractIterativeScorer<V, E, Double>
         }
         
         // set up initial voltages
-        for (V v : graph.getVertices())
+        for (V v : graph.nodes())
         {
             if (source_voltages.containsKey(v))
                 setOutputValue(v, source_voltages.get(v).doubleValue());
@@ -214,36 +221,26 @@ public class VoltageScorer<V, E> extends AbstractIterativeScorer<V, E, Double>
             return 0.0;
         }
         
-        Collection<E> edges = graph.getInEdges(v);
         double voltage_sum = 0;
         double weight_sum = 0;
-        for (E e: edges)
-        {
-        	int incident_count = getAdjustedIncidentCount(e);
-        	for (V w : graph.getIncidentVertices(e)) 
-        	{
-        		if (!w.equals(v) || hyperedges_are_self_loops) 
-        		{
-        			double weight = getEdgeWeight(w,e).doubleValue() / incident_count;
-        			voltage_sum += getCurrentValue(w).doubleValue() * weight;
-        			weight_sum += weight;
-        		}
+        for (V u : graph.predecessors(v)) {
+        	for (E e : graph.edgesConnecting(u, v)) {
+        		double weight = getEdgeWeight(u, e).doubleValue();
+        		voltage_sum += getCurrentValue(u).doubleValue() * weight;
+        		weight_sum += weight;
         	}
-//            V w = graph.getOpposite(v, e);
-//            double weight = getEdgeWeight(w,e).doubleValue();
-//            voltage_sum += getCurrentValue(w).doubleValue() * weight;
-//            weight_sum += weight;
         }
-
+        
         // if either is 0, new value is 0
         if (voltage_sum == 0 || weight_sum == 0)
         {
             setOutputValue(v, 0.0);
             return getCurrentValue(v).doubleValue();
         }
-        
-        setOutputValue(v, voltage_sum / weight_sum);
-        return Math.abs(getCurrentValue(v).doubleValue() - voltage_sum / weight_sum);
+
+        double outputValue = voltage_sum / weight_sum;
+        setOutputValue(v, outputValue);
+        return Math.abs(getCurrentValue(v).doubleValue() - outputValue);
     }
 
 }

@@ -12,7 +12,7 @@ package edu.uci.ics.jung.visualization.transform;
 
 import java.awt.Dimension;
 
-import edu.uci.ics.jung.algorithms.layout.GraphElementAccessor;
+import edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
@@ -30,7 +30,7 @@ import edu.uci.ics.jung.visualization.picking.LayoutLensShapePickSupport;
 public class LayoutLensSupport<V,E> extends AbstractLensSupport<V,E> 
     implements LensSupport {
 
-	protected GraphElementAccessor<V,E> pickSupport;
+	protected NetworkElementAccessor<V,E> pickSupport;
 	
     public LayoutLensSupport(VisualizationViewer<V,E> vv) {
         this(vv, new HyperbolicTransformer(

@@ -11,25 +11,31 @@
  */
 package edu.uci.ics.jung.algorithms.scoring;
 
-import edu.uci.ics.jung.graph.Hypergraph;
+import java.util.Map;
+
+import com.google.common.collect.Maps;
+import com.google.common.graph.Network;
+
 
 /**
  * Assigns a score to each vertex equal to its degree.
  *
- * @param <V> the vertex type
+ * @param <N> the vertex type
  */
-public class DegreeScorer<V> implements VertexScorer<V,Integer>
+public class DegreeScorer<N> implements VertexScorer<N,Integer>
 {
+	// TODO: Graph and Network degree are different, so we either need to 
+	// provide separate constructors or separate classes
 	/**
 	 * The graph for which scores are to be generated.
 	 */
-    protected Hypergraph<V,?> graph;
+    protected Network<N, ?> graph;
     
     /**
      * Creates an instance for the specified graph.
      * @param graph the input graph
      */
-    public DegreeScorer(Hypergraph<V,?> graph)
+    public DegreeScorer(Network<N, ?> graph)
     {
         this.graph = graph;
     }
@@ -38,8 +44,12 @@ public class DegreeScorer<V> implements VertexScorer<V,Integer>
      * Returns the degree of the vertex.
      * @return the degree of the vertex
      */
-    public Integer getVertexScore(V v) 
+    public Integer getVertexScore(N node) 
     {
-        return graph.degree(v); 
+        return graph.degree(node); 
+    }
+    
+    public Map<N, Integer> vertexScores() {
+    	return Maps.asMap(graph.nodes(), node -> graph.degree(node));
     }
 }

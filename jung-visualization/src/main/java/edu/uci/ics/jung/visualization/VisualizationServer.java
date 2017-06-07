@@ -18,7 +18,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
 
-import edu.uci.ics.jung.algorithms.layout.GraphElementAccessor;
+import edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
@@ -83,12 +83,12 @@ public interface VisualizationServer<V, E> {
      * Replaces the current graph layout with {@code layout}.
      * @param layout the new layout to set
      */
-    void setGraphLayout(Layout<V, E> layout);
+    void setGraphLayout(Layout<V> layout);
 
     /**
      * @return the current graph layout.
      */
-    Layout<V, E> getGraphLayout();
+    Layout<V> getGraphLayout();
 
     /** 
      * Makes the component visible if {@code aFlag} is true, or invisible if false.
@@ -171,14 +171,14 @@ public interface VisualizationServer<V, E> {
     void setPickedEdgeState(PickedState<E> pickedEdgeState);
 
     /**
-     * @return the GraphElementAccessor
+     * @return the NetworkElementAccessor
      */
-    GraphElementAccessor<V, E> getPickSupport();
+    NetworkElementAccessor<V, E> getPickSupport();
 
     /**
      * @param pickSupport The pickSupport to set.
      */
-    void setPickSupport(GraphElementAccessor<V, E> pickSupport);
+    void setPickSupport(NetworkElementAccessor<V, E> pickSupport);
 
     Point2D getCenter();
 

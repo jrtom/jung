@@ -12,12 +12,10 @@ import javax.swing.JComponent;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
+import com.google.common.graph.Network;
 
-import edu.uci.ics.jung.algorithms.layout.GraphElementAccessor;
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.util.Context;
+import edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.graph.util.EdgeIndexFunction;
-import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import edu.uci.ics.jung.visualization.renderers.EdgeLabelRenderer;
 import edu.uci.ics.jung.visualization.renderers.VertexLabelRenderer;
@@ -47,6 +45,8 @@ public interface RenderContext<V, E> {
      */
     int LABEL_OFFSET = 10;
 
+    Network<V, E> getNetwork();
+    
     int getLabelOffset();
     
     void setLabelOffset(int labelOffset);
@@ -55,26 +55,25 @@ public interface RenderContext<V, E> {
 
     void setArrowPlacementTolerance(float arrow_placement_tolerance);
 
-    Function<? super Context<Graph<V,E>,E>,Shape> getEdgeArrowTransformer();
-
-    void setEdgeArrowTransformer(Function<? super Context<Graph<V,E>,E>,Shape> edgeArrowTransformer);
-
-    Predicate<Context<Graph<V,E>,E>> getEdgeArrowPredicate() ;
-
-    void setEdgeArrowPredicate(Predicate<Context<Graph<V,E>,E>> edgeArrowPredicate);
-
+    Shape getEdgeArrow();
+    
+    void setEdgeArrow(Shape shape);
+    
+    boolean renderEdgeArrow();
+    
+    void setRenderEdgeArrow(boolean render);
+    
     Function<? super E,Font> getEdgeFontTransformer();
 
     void setEdgeFontTransformer(Function<? super E,Font> edgeFontTransformer);
 
-    Predicate<Context<Graph<V,E>,E>> getEdgeIncludePredicate();
+    Predicate<E> getEdgeIncludePredicate();
 
-    void setEdgeIncludePredicate(Predicate<Context<Graph<V,E>,E>> edgeIncludePredicate);
+    void setEdgeIncludePredicate(Predicate<E> edgeIncludePredicate);
 
-    Function<? super Context<Graph<V,E>,E>,Number> getEdgeLabelClosenessTransformer();
-
-    void setEdgeLabelClosenessTransformer(
-    		Function<? super Context<Graph<V,E>,E>,Number> edgeLabelClosenessTransformer);
+    public float getEdgeLabelCloseness();
+    
+    public void setEdgeLabelCloseness(float closeness);
 
     EdgeLabelRenderer getEdgeLabelRenderer();
 
@@ -104,7 +103,7 @@ public interface RenderContext<V, E> {
 
     void setEdgeLabelTransformer(Function<? super E,String> edgeStringer);
 
-    Function<? super E,Stroke> getEdgeStrokeTransformer();
+    Function<? super E,Stroke> edgestrokeTransformer();
 
     void setEdgeStrokeTransformer(Function<? super E,Stroke> edgeStrokeTransformer);
     
@@ -116,10 +115,10 @@ public interface RenderContext<V, E> {
     
     void setGraphicsContext(GraphicsDecorator graphicsContext);
 
-    EdgeIndexFunction<V, E> getParallelEdgeIndexFunction();
+    EdgeIndexFunction<E> getParallelEdgeIndexFunction();
 
     void setParallelEdgeIndexFunction(
-            EdgeIndexFunction<V, E> parallelEdgeIndexFunction);
+            EdgeIndexFunction<E> parallelEdgeIndexFunction);
 
     PickedState<E> getPickedEdgeState();
 
@@ -141,13 +140,13 @@ public interface RenderContext<V, E> {
 
     void setVertexFontTransformer(Function<? super V,Font> vertexFontTransformer);
 
-    Function<? super V,Icon> getVertexIconTransformer();
+    Function<V,Icon> getVertexIconTransformer();
 
-    void setVertexIconTransformer(Function<? super V,Icon> vertexIconTransformer);
+    void setVertexIconTransformer(Function<V,Icon> vertexIconTransformer);
 
-    Predicate<Context<Graph<V,E>,V>> getVertexIncludePredicate();
+    Predicate<V> getVertexIncludePredicate();
 
-    void setVertexIncludePredicate(Predicate<Context<Graph<V,E>,V>> vertexIncludePredicate);
+    void setVertexIncludePredicate(Predicate<V> vertexIncludePredicate);
 
     VertexLabelRenderer getVertexLabelRenderer();
 
@@ -173,21 +172,18 @@ public interface RenderContext<V, E> {
 
     void setVertexStrokeTransformer(Function<? super V,Stroke> vertexStrokeTransformer);
 
-    class DirectedEdgeArrowPredicate<V,E> 
-    	implements Predicate<Context<Graph<V,E>,E>> {
+    class DirectedEdgeArrowPredicate implements Predicate<Network<?, ?>> {
 
-        public boolean apply(Context<Graph<V,E>,E> c) {
-            return c.graph.getEdgeType(c.element) == EdgeType.DIRECTED;
+        public boolean apply(Network<?, ?> graph) {
+            return graph.isDirected();
         }
         
     }
     
-    class UndirectedEdgeArrowPredicate<V,E> 
-    	implements Predicate<Context<Graph<V,E>,E>> {
-    	//extends AbstractGraphPredicate<V,E> {
+    class UndirectedEdgeArrowPredicate implements Predicate<Network<?, ?>> {
 
-        public boolean apply(Context<Graph<V,E>,E> c) {
-            return c.graph.getEdgeType(c.element) == EdgeType.UNDIRECTED;
+        public boolean apply(Network<?, ?> graph) {
+            return !graph.isDirected();
         }
         
     }
@@ -199,12 +195,12 @@ public interface RenderContext<V, E> {
 	/**
 	 * @return the pickSupport
 	 */
-	GraphElementAccessor<V, E> getPickSupport();
+	NetworkElementAccessor<V, E> getPickSupport();
 
 	/**
 	 * @param pickSupport the pickSupport to set
 	 */
-	void setPickSupport(GraphElementAccessor<V, E> pickSupport);
+	void setPickSupport(NetworkElementAccessor<V, E> pickSupport);
 	
 
 }

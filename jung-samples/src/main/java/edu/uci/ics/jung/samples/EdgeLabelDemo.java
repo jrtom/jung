@@ -37,21 +37,20 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import com.google.common.base.Function;
+import com.google.common.graph.MutableNetwork;
+import com.google.common.graph.Network;
+import com.google.common.graph.NetworkBuilder;
 
 import edu.uci.ics.jung.algorithms.layout.CircleLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.SparseMultigraph;
-import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
-import edu.uci.ics.jung.visualization.decorators.ParallelEdgeShapeTransformer;
-import edu.uci.ics.jung.visualization.decorators.ConstantDirectionalEdgeValueTransformer;
 import edu.uci.ics.jung.visualization.decorators.EdgeShape;
+import edu.uci.ics.jung.visualization.decorators.ParallelEdgeShapeTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
@@ -72,7 +71,7 @@ public class EdgeLabelDemo extends JApplet {
 	/**
      * the graph
      */
-    Graph<Integer,Number> graph;
+    Network<Integer,Number> graph;
 
     /**
      * the visual component and renderer for the graph
@@ -95,12 +94,10 @@ public class EdgeLabelDemo extends JApplet {
 	public EdgeLabelDemo() {
         
         // create a simple graph for the demo
-        graph = new SparseMultigraph<Integer,Number>();
-        Integer[] v = createVertices(3);
-        createEdges(v);
+        graph = buildGraph();
         
-        Layout<Integer,Number> layout = new CircleLayout<Integer,Number>(graph);
-        vv =  new VisualizationViewer<Integer,Number>(layout, new Dimension(600,400));
+        Layout<Integer> layout = new CircleLayout<Integer>(graph.asGraph());
+        vv =  new VisualizationViewer<Integer,Number>(graph, layout, new Dimension(600,400));
         vv.setBackground(Color.white);
 
         vertexLabelRenderer = vv.getRenderContext().getVertexLabelRenderer();
@@ -108,7 +105,7 @@ public class EdgeLabelDemo extends JApplet {
         
         Function<Number,String> stringer = new Function<Number,String>(){
             public String apply(Number e) {
-                return "Edge:"+graph.getEndpoints(e).toString();
+                return "Edge:"+graph.incidentNodes(e).toString();
             }
         };
         vv.getRenderContext().setEdgeLabelTransformer(stringer);
@@ -183,16 +180,8 @@ public class EdgeLabelDemo extends JApplet {
             }
         });
         rotate.setSelected(true);
-        MutableDirectionalEdgeValue mv = new MutableDirectionalEdgeValue(.5, .7);
-        vv.getRenderContext().setEdgeLabelClosenessTransformer(mv);
-        JSlider directedSlider = new JSlider(mv.getDirectedModel()) {
-            public Dimension getPreferredSize() {
-                Dimension d = super.getPreferredSize();
-                d.width /= 2;
-                return d;
-            }
-        };
-        JSlider undirectedSlider = new JSlider(mv.getUndirectedModel()) {
+        EdgeClosenessUpdater edgeClosenessUpdater = new EdgeClosenessUpdater();
+        JSlider closenessSlider = new JSlider(edgeClosenessUpdater.rangeModel) {
             public Dimension getPreferredSize() {
                 Dimension d = super.getPreferredSize();
                 d.width /= 2;
@@ -243,11 +232,9 @@ public class EdgeLabelDemo extends JApplet {
         JPanel sliderLabelPanel = new JPanel(new GridLayout(3,1));
         JPanel offsetPanel = new JPanel(new BorderLayout());
         offsetPanel.setBorder(BorderFactory.createTitledBorder("Offset"));
-        sliderPanel.add(directedSlider);
-        sliderPanel.add(undirectedSlider);
+        sliderPanel.add(closenessSlider);
         sliderPanel.add(edgeOffsetSlider);
-        sliderLabelPanel.add(new JLabel("Directed", JLabel.RIGHT));
-        sliderLabelPanel.add(new JLabel("Undirected", JLabel.RIGHT));
+        sliderLabelPanel.add(new JLabel("Closeness", JLabel.RIGHT));
         sliderLabelPanel.add(new JLabel("Edges", JLabel.RIGHT));
         offsetPanel.add(sliderLabelPanel, BorderLayout.WEST);
         offsetPanel.add(sliderPanel);
@@ -273,71 +260,36 @@ public class EdgeLabelDemo extends JApplet {
      *
      *
      */
-    class MutableDirectionalEdgeValue extends ConstantDirectionalEdgeValueTransformer<Integer,Number> {
-        BoundedRangeModel undirectedModel = new DefaultBoundedRangeModel(5,0,0,10);
-        BoundedRangeModel directedModel = new DefaultBoundedRangeModel(7,0,0,10);
+    class EdgeClosenessUpdater {
+        BoundedRangeModel rangeModel;
         
-        public MutableDirectionalEdgeValue(double undirected, double directed) {
-            super(undirected, directed);
-            undirectedModel.setValue((int)(undirected*10));
-            directedModel.setValue((int)(directed*10));
+        public EdgeClosenessUpdater() { //double undirected, double directed) {
+        	int initialValue = ((int) vv.getRenderContext().getEdgeLabelCloseness() * 10) / 10;
+        	this.rangeModel = new DefaultBoundedRangeModel(initialValue, 0, 0, 10);
             
-            undirectedModel.addChangeListener(new ChangeListener(){
+            rangeModel.addChangeListener(new ChangeListener() {
                 public void stateChanged(ChangeEvent e) {
-                    setUndirectedValue(new Double(undirectedModel.getValue()/10f));
+                    vv.getRenderContext().setEdgeLabelCloseness(rangeModel.getValue() / 10f);
                     vv.repaint();
                 }
             });
-            directedModel.addChangeListener(new ChangeListener(){
-                public void stateChanged(ChangeEvent e) {
-                    setDirectedValue(new Double(directedModel.getValue()/10f));
-                    vv.repaint();
-                }
-            });
-        }
-        /**
-         * @return Returns the directedModel.
-         */
-        public BoundedRangeModel getDirectedModel() {
-            return directedModel;
-        }
-
-        /**
-         * @return Returns the undirectedModel.
-         */
-        public BoundedRangeModel getUndirectedModel() {
-            return undirectedModel;
         }
     }
     
-    /**
-     * create some vertices
-     * @param count how many to create
-     * @return the Vertices in an array
-     */
-    private Integer[] createVertices(int count) {
-        Integer[] v = new Integer[count];
-        for (int i = 0; i < count; i++) {
-            v[i] = new Integer(i);
-            graph.addVertex(v[i]);
-        }
-        return v;
+    Network<Integer, Number> buildGraph() {
+    	MutableNetwork<Integer, Number> graph = NetworkBuilder.directed().build();
+    	
+    	graph.addEdge(0, 1, new Double(Math.random()));
+    	graph.addEdge(0, 1, new Double(Math.random()));
+    	graph.addEdge(0, 1, new Double(Math.random()));
+    	graph.addEdge(1, 0, new Double(Math.random()));
+    	graph.addEdge(1, 0, new Double(Math.random()));
+    	graph.addEdge(1, 2, new Double(Math.random()));
+    	graph.addEdge(1, 2, new Double(Math.random()));
+    	
+    	return graph;
     }
-
-    /**
-     * create edges for this demo graph
-     * @param v an array of Vertices to connect
-     */
-    void createEdges(Integer[] v) {
-        graph.addEdge(new Double(Math.random()), v[0], v[1], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[0], v[1], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[0], v[1], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[1], v[0], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[1], v[0], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[1], v[2]);
-        graph.addEdge(new Double(Math.random()), v[1], v[2]);
-    }
-
+    
     public static void main(String[] args) {
         JFrame frame = new JFrame();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

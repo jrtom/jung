@@ -31,12 +31,12 @@ import javax.swing.JPanel;
 
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
+import com.google.common.graph.MutableNetwork;
+import com.google.common.graph.Network;
+import com.google.common.graph.NetworkBuilder;
 
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.algorithms.layout.StaticLayout;
-import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
@@ -45,9 +45,9 @@ import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
+import edu.uci.ics.jung.visualization.renderers.BasicVertexLabelRenderer.InsidePositioner;
 import edu.uci.ics.jung.visualization.renderers.GradientVertexRenderer;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
-import edu.uci.ics.jung.visualization.renderers.BasicVertexLabelRenderer.InsidePositioner;
 
 
 /**
@@ -62,16 +62,14 @@ public class WorldMapGraphDemo extends JApplet {
     /**
      * the graph
      */
-    Graph<String, Number> graph;
+    Network<String, Number> graph;
 
     /**
      * the visual component and renderer for the graph
      */
     VisualizationViewer<String, Number> vv;
     
-	Map<String,String[]> map = new HashMap<String,String[]>();
    	List<String> cityList;
-
 
     
     /**
@@ -82,33 +80,12 @@ public class WorldMapGraphDemo extends JApplet {
     public WorldMapGraphDemo() {
         setLayout(new BorderLayout());
         
-		map.put("TYO", new String[] {"35 40 N", "139 45 E"});
-   		map.put("PEK", new String[] {"39 55 N", "116 26 E"});
-   		map.put("MOW", new String[] {"55 45 N", "37 42 E"});
-   		map.put("JRS", new String[] {"31 47 N", "35 13 E"});
-   		map.put("CAI", new String[] {"30 03 N", "31 15 E"});
-   		map.put("CPT", new String[] {"33 55 S", "18 22 E"});
-   		map.put("PAR", new String[] {"48 52 N", "2 20 E"});
-   		map.put("LHR", new String[] {"51 30 N", "0 10 W"});
-   		map.put("HNL", new String[] {"21 18 N", "157 51 W"});
-   		map.put("NYC", new String[] {"40 77 N", "73 98 W"});
-   		map.put("SFO", new String[] {"37 62 N", "122 38 W"});
-   		map.put("AKL", new String[] {"36 55 S", "174 47 E"});
-   		map.put("BNE", new String[] {"27 28 S", "153 02 E"});
-   		map.put("HKG", new String[] {"22 15 N", "114 10 E"});
-   		map.put("KTM", new String[] {"27 42 N", "85 19 E"});
-   		map.put("IST", new String[] {"41 01 N", "28 58 E"});
-   		map.put("STO", new String[] {"59 20 N", "18 03 E"});
-   		map.put("RIO", new String[] {"22 54 S", "43 14 W"});
-   		map.put("LIM", new String[] {"12 03 S", "77 03 W"});
-   		map.put("YTO", new String[] {"43 39 N", "79 23 W"});
+    	Map<String,String[]> map = buildMap();
 
    		cityList = new ArrayList<String>(map.keySet());
 
         // create a simple graph for the demo
-        graph = new DirectedSparseMultigraph<String, Number>();
-        createVertices();
-        createEdges();
+        graph = buildGraph(map);
         
         ImageIcon mapIcon = null;
         String imageLocation = "/images/political_world_map.jpg";
@@ -122,18 +99,14 @@ public class WorldMapGraphDemo extends JApplet {
 
         Dimension layoutSize = new Dimension(2000,1000);
         
-        Layout<String,Number> layout = new StaticLayout<String,Number>(graph,
+        Layout<String> layout = new StaticLayout<String>(graph.asGraph(),
         		Functions.<String,String[],Point2D>compose(
         				new LatLonPixelTransformer(new Dimension(2000,1000)),
         				new CityTransformer(map))
         		);
-//        		new ChainedTransformer(new Function[]{
-//        				new CityTransformer(map),
-//        				new LatLonPixelTransformer(new Dimension(2000,1000))
-//        		}));
         	
         layout.setSize(layoutSize);
-        vv =  new VisualizationViewer<String,Number>(layout,
+        vv =  new VisualizationViewer<String,Number>(graph, layout,
         		new Dimension(800,400));
         
         if(icon != null) {
@@ -159,17 +132,16 @@ public class WorldMapGraphDemo extends JApplet {
         }
 
         vv.getRenderer().setVertexRenderer(
-        		new GradientVertexRenderer<String,Number>(
+        		new GradientVertexRenderer<String>(vv,
         				Color.white, Color.red, 
         				Color.white, Color.blue,
-        				vv.getPickedVertexState(),
         				false));
         
         // add my listeners for ToolTips
         vv.setVertexToolTipTransformer(new ToStringLabeller());
         vv.setEdgeToolTipTransformer(new Function<Number,String>() {
 			public String apply(Number edge) {
-				return "E"+graph.getEndpoints(edge).toString();
+				return "E"+graph.incidentNodes(edge).toString();
 			}});
         
         vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
@@ -213,27 +185,44 @@ public class WorldMapGraphDemo extends JApplet {
         controls.add(reset);
         add(controls, BorderLayout.SOUTH);
     }
-    
-    /**
-     * create some vertices
-     * @param count how many to create
-     * @return the Vertices in an array
-     */
-    private void createVertices() {
-        for (String city : map.keySet()) {
-            graph.addVertex(city);
-        }
-    }
 
-    /**
-     * create edges for this demo graph
-     * @param v an array of Vertices to connect
-     */
-    void createEdges() {
-     	
-    	for(int i=0; i<map.keySet().size()*1.3; i++) {
-    		graph.addEdge(new Double(Math.random()), randomCity(), randomCity(), EdgeType.DIRECTED);
-    	}
+    private Map<String,String[]> buildMap() {
+    	Map<String,String[]> map = new HashMap<String,String[]>();
+ 		
+    	map.put("TYO", new String[] {"35 40 N", "139 45 E"});
+		map.put("PEK", new String[] {"39 55 N", "116 26 E"});
+		map.put("MOW", new String[] {"55 45 N", "37 42 E"});
+		map.put("JRS", new String[] {"31 47 N", "35 13 E"});
+		map.put("CAI", new String[] {"30 03 N", "31 15 E"});
+		map.put("CPT", new String[] {"33 55 S", "18 22 E"});
+		map.put("PAR", new String[] {"48 52 N", "2 20 E"});
+		map.put("LHR", new String[] {"51 30 N", "0 10 W"});
+		map.put("HNL", new String[] {"21 18 N", "157 51 W"});
+		map.put("NYC", new String[] {"40 77 N", "73 98 W"});
+		map.put("SFO", new String[] {"37 62 N", "122 38 W"});
+		map.put("AKL", new String[] {"36 55 S", "174 47 E"});
+		map.put("BNE", new String[] {"27 28 S", "153 02 E"});
+		map.put("HKG", new String[] {"22 15 N", "114 10 E"});
+		map.put("KTM", new String[] {"27 42 N", "85 19 E"});
+		map.put("IST", new String[] {"41 01 N", "28 58 E"});
+		map.put("STO", new String[] {"59 20 N", "18 03 E"});
+		map.put("RIO", new String[] {"22 54 S", "43 14 W"});
+		map.put("LIM", new String[] {"12 03 S", "77 03 W"});
+		map.put("YTO", new String[] {"43 39 N", "79 23 W"});
+		
+		return map;
+    }
+    
+    private Network<String, Number> buildGraph(Map<String,String[]> map) {
+        MutableNetwork<String, Number> graph
+        	= NetworkBuilder.directed().allowsParallelEdges(true).build();
+        for (String city : map.keySet()) {
+            graph.addNode(city);
+        }
+		for (int i = 0; i < map.keySet().size() * 1.3; i++) {
+			graph.addEdge(randomCity(), randomCity(), new Double(Math.random()));
+		}        
+    	return graph;
     }
     
     private String randomCity() {

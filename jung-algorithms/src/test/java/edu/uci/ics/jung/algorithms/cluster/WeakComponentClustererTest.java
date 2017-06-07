@@ -1,12 +1,13 @@
 package edu.uci.ics.jung.algorithms.cluster;
 
-import junit.framework.TestCase;
-import edu.uci.ics.jung.graph.Graph;
+import com.google.common.graph.Network;
+
 import edu.uci.ics.jung.graph.util.TestGraphs;
+import junit.framework.TestCase;
 
 public class WeakComponentClustererTest extends TestCase {
 	
-	Graph<String,Number> graph =  TestGraphs.getDemoGraph();
+	Network<String,Number> graph =  TestGraphs.getDemoGraph();
 	
 	public void testWeakComponent() {
 		WeakComponentClusterer<String,Number> clusterer = 

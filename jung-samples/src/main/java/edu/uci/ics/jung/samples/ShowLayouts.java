@@ -15,8 +15,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 
 import javax.swing.DefaultListCellRenderer;
@@ -28,8 +26,10 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 
 import com.google.common.base.Supplier;
+import com.google.common.graph.Network;
+import com.google.common.graph.NetworkBuilder;
 
-import edu.uci.ics.jung.algorithms.generators.random.MixedRandomGraphGenerator;
+import edu.uci.ics.jung.algorithms.generators.random.BarabasiAlbertGenerator;
 import edu.uci.ics.jung.algorithms.layout.CircleLayout;
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.algorithms.layout.ISOMLayout;
@@ -39,7 +39,6 @@ import edu.uci.ics.jung.algorithms.layout.SpringLayout;
 import edu.uci.ics.jung.algorithms.layout.SpringLayout2;
 import edu.uci.ics.jung.algorithms.layout.util.Relaxer;
 import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.SparseMultigraph;
 import edu.uci.ics.jung.graph.util.TestGraphs;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
@@ -60,7 +59,7 @@ import edu.uci.ics.jung.visualization.util.Animator;
  */
 @SuppressWarnings("serial")
 public class ShowLayouts extends JApplet {
-    protected static Graph<? extends Object, ? extends Object>[] g_array;
+    protected static Network<? extends Object, ? extends Object>[] g_array;
     protected static int graph_index;
     protected static String[] graph_names = {"Two component graph", 
         "Random mixed-mode graph", "Miscellaneous multicomponent graph", 
@@ -107,14 +106,14 @@ public class ShowLayouts extends JApplet {
             Object[] constructorArgs =
                 { g_array[graph_index]};
 
-			Class<? extends Layout<Integer,Number>> layoutC = 
-                (Class<? extends Layout<Integer,Number>>) jcb.getSelectedItem();
+			Class<? extends Layout<Integer>> layoutC = 
+                (Class<? extends Layout<Integer>>) jcb.getSelectedItem();
             try
             {
-                Constructor<? extends Layout<Integer, Number>> constructor = layoutC
+                Constructor<? extends Layout<Integer>> constructor = layoutC
                         .getConstructor(new Class[] {Graph.class});
                 Object o = constructor.newInstance(constructorArgs);
-                Layout<Integer,Number> l = (Layout<Integer,Number>) o;
+                Layout<Integer> l = (Layout<Integer>) o;
                 l.setInitializer(vv.getGraphLayout());
                 l.setSize(vv.getSize());
                 
@@ -137,16 +136,9 @@ public class ShowLayouts extends JApplet {
 	private static JPanel getGraphPanel()
     {
         g_array = 
-            (Graph<? extends Object,? extends Object>[])
-            new Graph<?,?>[graph_names.length];
+            (Network<? extends Object,? extends Object>[])
+            new Network<?,?>[graph_names.length];
         
-        Supplier<Graph<Integer,Number>> graphFactory =
-    		new Supplier<Graph<Integer,Number>>() {
-    		public Graph<Integer,Number> get() {
-    			return new SparseMultigraph<Integer,Number>();
-    		}
-    	};
-
     	Supplier<Integer> vertexFactory = new Supplier<Integer>() {
     			int count;
 				public Integer get() {
@@ -160,18 +152,21 @@ public class ShowLayouts extends JApplet {
 
             
         g_array[0] = TestGraphs.createTestGraph(false);
-        g_array[1] = MixedRandomGraphGenerator.generateMixedRandomGraph(graphFactory, 
-        		vertexFactory, edgeFactory, new HashMap<Number,Number>(), 20, new HashSet<Integer>());
+        BarabasiAlbertGenerator<Integer, Number> generator =
+        		new BarabasiAlbertGenerator<Integer, Number>(
+        				NetworkBuilder.directed().allowsParallelEdges(true), vertexFactory, edgeFactory, 4, 3);
+        generator.evolveGraph(20);
+        g_array[1] = generator.get();
         g_array[2] = TestGraphs.getDemoGraph();
         g_array[3] = TestGraphs.createDirectedAcyclicGraph(4, 4, 0.3);
         g_array[4] = TestGraphs.getOneComponentGraph();
         g_array[5] = TestGraphs.createChainPlusIsolates(18, 5);
         g_array[6] = TestGraphs.createChainPlusIsolates(0, 20);
 
-        Graph<? extends Object, ? extends Object> g = g_array[4]; // initial graph
+        Network g = g_array[4]; // initial graph
 
         final VisualizationViewer<Integer,Number> vv = 
-            new VisualizationViewer<Integer,Number>(new FRLayout(g));
+            new VisualizationViewer<Integer,Number>(g, new FRLayout(g.asGraph()));
         
         vv.getRenderContext().setVertexFillPaintTransformer(new PickableVertexPaintTransformer<Integer>(vv.getPickedVertexState(), Color.red, Color.yellow));
         
@@ -195,7 +190,7 @@ public class ShowLayouts extends JApplet {
         JButton reset = new JButton("reset");
         reset.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Layout<Integer,Number> layout = vv.getGraphLayout();
+				Layout<Integer> layout = vv.getGraphLayout();
 				layout.initialize();
 				Relaxer relaxer = vv.getModel().getRelaxer();
 				if(relaxer != null) {

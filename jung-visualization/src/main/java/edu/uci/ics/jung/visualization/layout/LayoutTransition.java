@@ -7,20 +7,19 @@ import edu.uci.ics.jung.algorithms.layout.StaticLayout;
 import edu.uci.ics.jung.algorithms.layout.util.Relaxer;
 import edu.uci.ics.jung.algorithms.layout.util.VisRunner;
 import edu.uci.ics.jung.algorithms.util.IterativeContext;
-import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 
 public class LayoutTransition<V,E> implements IterativeContext {
 	
-	protected Layout<V,E> startLayout;
-	protected Layout<V,E> endLayout;
-	protected Layout<V,E> transitionLayout;
+	protected Layout<V> startLayout;
+	protected Layout<V> endLayout;
+	protected Layout<V> transitionLayout;
 	protected boolean done = false;
 	protected int count = 20;
 	protected int counter = 0;
 	protected VisualizationViewer<V,E> vv;
 
-	public LayoutTransition(VisualizationViewer<V,E> vv, Layout<V, E> startLayout, Layout<V, E> endLayout) {
+	public LayoutTransition(VisualizationViewer<V,E> vv, Layout<V> startLayout, Layout<V> endLayout) {
 		this.vv = vv;
 		this.startLayout = startLayout;
 		this.endLayout = endLayout;
@@ -29,7 +28,7 @@ public class LayoutTransition<V,E> implements IterativeContext {
 			relaxer.prerelax();
 		}
 		this.transitionLayout =
-			new StaticLayout<V,E>(startLayout.getGraph(), startLayout);
+			new StaticLayout<V>(vv.getModel().getNetwork().asGraph(), startLayout);
 		vv.setGraphLayout(transitionLayout);
 	}
 
@@ -38,8 +37,7 @@ public class LayoutTransition<V,E> implements IterativeContext {
 	}
 
 	public void step() {
-		Graph<V,E> g = transitionLayout.getGraph();
-		for(V v : g.getVertices()) {
+		for(V v : vv.getModel().getNetwork().nodes()) {
 			Point2D tp = transitionLayout.apply(v);
 			Point2D fp = endLayout.apply(v);
 			double dx = (fp.getX()-tp.getX())/(count-counter);

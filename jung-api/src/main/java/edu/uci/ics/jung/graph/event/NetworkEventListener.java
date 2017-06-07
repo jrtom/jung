@@ -5,7 +5,7 @@ import java.util.EventListener;
 /**
  * An interface for classes that listen for graph events.
  */
-public interface GraphEventListener<V,E> extends EventListener 
+public interface NetworkEventListener<V,E> extends EventListener 
 {
 	/**
 	 * Method called by the process generating a graph event to which
@@ -14,5 +14,5 @@ public interface GraphEventListener<V,E> extends EventListener
 	 * 
 	 * @param evt the graph event to be handled
 	 */
-	void handleGraphEvent(GraphEvent<V,E> evt);
+	void handleGraphEvent(NetworkEvent<V,E> evt);
 }

@@ -21,15 +21,16 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 
 import com.google.common.base.Functions;
+import com.google.common.graph.MutableNetwork;
+import com.google.common.graph.Network;
+import com.google.common.graph.NetworkBuilder;
 
 import edu.uci.ics.jung.algorithms.layout.KKLayout;
-import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
-import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
+import edu.uci.ics.jung.visualization.renderers.BasicVertexLabelRenderer.InsidePositioner;
 import edu.uci.ics.jung.visualization.renderers.GradientVertexRenderer;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
-import edu.uci.ics.jung.visualization.renderers.BasicVertexLabelRenderer.InsidePositioner;
 
 
 /**
@@ -42,12 +43,12 @@ public class VisualizationImageServerDemo {
     /**
      * the graph
      */
-    DirectedSparseMultigraph<String, Number> graph;
+    Network<Integer, Double> graph;
 
     /**
      * the visual component and renderer for the graph
      */
-    VisualizationImageServer<String, Number> vv;
+    VisualizationImageServer<Integer, Double> vv;
     
     /**
      * 
@@ -55,17 +56,16 @@ public class VisualizationImageServerDemo {
     public VisualizationImageServerDemo() {
         
         // create a simple graph for the demo
-        graph = new DirectedSparseMultigraph<String, Number>();
-        String[] v = createVertices(10);
-        createEdges(v);
+        graph = createGraph();
 
-        vv =  new VisualizationImageServer<String,Number>(new KKLayout<String,Number>(graph), new Dimension(600,600));
+        vv =  new VisualizationImageServer<Integer, Double>(graph,
+        		new KKLayout<Integer>(graph.asGraph()),
+        		new Dimension(600,600));
 
         vv.getRenderer().setVertexRenderer(
-        		new GradientVertexRenderer<String,Number>(
+        		new GradientVertexRenderer<Integer>(vv,
         				Color.white, Color.red, 
         				Color.white, Color.blue,
-        				vv.getPickedVertexState(),
         				false));
         vv.getRenderContext().setEdgeDrawPaintTransformer(Functions.<Paint>constant(Color.lightGray));
         vv.getRenderContext().setArrowFillPaintTransformer(Functions.<Paint>constant(Color.lightGray));
@@ -89,42 +89,29 @@ public class VisualizationImageServerDemo {
         frame.setVisible(true);
     }
     
-    /**
-     * create some vertices
-     * @param count how many to create
-     * @return the Vertices in an array
-     */
-    private String[] createVertices(int count) {
-        String[] v = new String[count];
-        for (int i = 0; i < count; i++) {
-        	v[i] = "V"+i;
-            graph.addVertex(v[i]);
-        }
-        return v;
-    }
-
-    /**
-     * create edges for this demo graph
-     * @param v an array of Vertices to connect
-     */
-    void createEdges(String[] v) {
-        graph.addEdge(new Double(Math.random()), v[0], v[1], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[0], v[3], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[0], v[4], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[4], v[5], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[3], v[5], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[1], v[2], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[1], v[4], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[8], v[2], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[3], v[8], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[6], v[7], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[7], v[5], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[0], v[9], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[9], v[8], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[7], v[6], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[6], v[5], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[4], v[2], EdgeType.DIRECTED);
-        graph.addEdge(new Double(Math.random()), v[5], v[4], EdgeType.DIRECTED);
+    Network<Integer, Double> createGraph() {
+    	MutableNetwork<Integer, Double> graph = NetworkBuilder.directed().build();
+        graph.addEdge(0, 1, new Double(Math.random()));
+        graph.addEdge(3, 0, new Double(Math.random()));
+        graph.addEdge(0, 4, new Double(Math.random()));
+        graph.addEdge(4, 5, new Double(Math.random()));
+        graph.addEdge(5, 3, new Double(Math.random()));
+        graph.addEdge(2, 1, new Double(Math.random()));
+        graph.addEdge(4, 1, new Double(Math.random()));
+        graph.addEdge(8, 2, new Double(Math.random()));
+        graph.addEdge(3, 8, new Double(Math.random()));
+        graph.addEdge(6, 7, new Double(Math.random()));
+        graph.addEdge(7, 5, new Double(Math.random()));
+        graph.addEdge(0, 9, new Double(Math.random()));
+        graph.addEdge(9, 8, new Double(Math.random()));
+        graph.addEdge(7, 6, new Double(Math.random()));
+        graph.addEdge(6, 5, new Double(Math.random()));
+        graph.addEdge(4, 2, new Double(Math.random()));
+        graph.addEdge(5, 4, new Double(Math.random()));
+        graph.addEdge(4, 10, new Double(Math.random()));
+        graph.addEdge(10, 4, new Double(Math.random()));
+        
+        return graph;
     }
 
     public static void main(String[] args) 

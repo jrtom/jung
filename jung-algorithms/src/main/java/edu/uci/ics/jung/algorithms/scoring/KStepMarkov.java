@@ -12,9 +12,9 @@
 package edu.uci.ics.jung.algorithms.scoring;
 
 import com.google.common.base.Function;
+import com.google.common.graph.Network;
 
 import edu.uci.ics.jung.algorithms.scoring.util.ScoringUtils;
-import edu.uci.ics.jung.graph.Hypergraph;
 
 /**
  * A special case of {@code PageRankWithPriors} in which the final scores
@@ -54,7 +54,7 @@ public class KStepMarkov<V,E> extends PageRankWithPriors<V,E>
 	 * @param vertex_priors the initial probability distribution (score assignment)
 	 * @param steps the number of times that {@code step()} will be called by {@code evaluate}
 	 */
-	public KStepMarkov(Hypergraph<V,E> graph, Function<E, ? extends Number> edge_weights, 
+	public KStepMarkov(Network<V,E> graph, Function<E, ? extends Number> edge_weights, 
 					   Function<V, Double> vertex_priors, int steps)
 	{
 		super(graph, edge_weights, vertex_priors, 0);
@@ -70,7 +70,7 @@ public class KStepMarkov<V,E> extends PageRankWithPriors<V,E>
 	 * @param vertex_priors the initial probability distribution (score assignment)
 	 * @param steps the number of times that {@code step()} will be called by {@code evaluate}
 	 */
-	public KStepMarkov(Hypergraph<V,E> graph, Function<V, Double> vertex_priors, int steps)
+	public KStepMarkov(Network<V,E> graph, Function<V, Double> vertex_priors, int steps)
 	{
 		super(graph, vertex_priors, 0);
 		initialize(steps);
@@ -85,9 +85,9 @@ public class KStepMarkov<V,E> extends PageRankWithPriors<V,E>
 	 * @param graph the input graph
 	 * @param steps the number of times that {@code step()} will be called by {@code evaluate}
 	 */
-	public KStepMarkov(Hypergraph<V,E> graph, int steps)
+	public KStepMarkov(Network<V,E> graph, int steps)
 	{
-		super(graph, ScoringUtils.getUniformRootPrior(graph.getVertices()), 0);
+		super(graph, ScoringUtils.getUniformRootPrior(graph.nodes()), 0);
 		initialize(steps);
 	}
 	
@@ -127,19 +127,9 @@ public class KStepMarkov<V,E> extends PageRankWithPriors<V,E>
         collectDisappearingPotential(v);
         
         double v_input = 0;
-        for (E e : graph.getInEdges(v))
-        {
-        	// For graphs, the code below is equivalent to 
-//          V w = graph.getOpposite(v, e);
-//          total_input += (getCurrentValue(w) * getEdgeWeight(w,e).doubleValue());
-        	// For hypergraphs, this divides the potential coming from w 
-        	// by the number of vertices in the connecting edge e.
-        	int incident_count = getAdjustedIncidentCount(e);
-        	for (V w : graph.getIncidentVertices(e)) 
-        	{
-        		if (!w.equals(v) || hyperedges_are_self_loops) 
-        			v_input += (getCurrentValue(w) * 
-        					getEdgeWeight(w,e).doubleValue() / incident_count);
+        for (V u : graph.predecessors(v)) {
+        	for (E e : graph.edgesConnecting(u, v)) {
+    			v_input += (getCurrentValue(u) * getEdgeWeight(u,e).doubleValue());
         	}
         }
         

@@ -28,10 +28,10 @@ import javax.swing.JPanel;
 
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
+import com.google.common.graph.Network;
 
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
-import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.TestGraphs;
 import edu.uci.ics.jung.visualization.DefaultVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
@@ -63,11 +63,11 @@ public class VertexLabelAsShapeDemo extends JApplet {
 	 */
 	private static final long serialVersionUID = 1017336668368978842L;
 
-    Graph<String,Number> graph;
+    Network<String,Number> graph;
 
     VisualizationViewer<String,Number> vv;
     
-    Layout<String,Number> layout;
+    Layout<String> layout;
     
     /**
      * create an instance of a simple graph with basic controls
@@ -77,15 +77,16 @@ public class VertexLabelAsShapeDemo extends JApplet {
         // create a simple graph for the demo
         graph = TestGraphs.getOneComponentGraph();
         
-        layout = new FRLayout<String,Number>(graph);
+        layout = new FRLayout<String>(graph.asGraph());
 
         Dimension preferredSize = new Dimension(400,400);
         final VisualizationModel<String,Number> visualizationModel = 
-            new DefaultVisualizationModel<String,Number>(layout, preferredSize);
+            new DefaultVisualizationModel<String,Number>(graph, layout, preferredSize);
         vv =  new VisualizationViewer<String,Number>(visualizationModel, preferredSize);
         
         // this class will provide both label drawing and vertex shapes
-        VertexLabelAsShapeRenderer<String,Number> vlasr = new VertexLabelAsShapeRenderer<String,Number>(vv.getRenderContext());
+        VertexLabelAsShapeRenderer<String> vlasr
+        	= new VertexLabelAsShapeRenderer<String>(layout, vv.getRenderContext());
         
         // customize the render context
         vv.getRenderContext().setVertexLabelTransformer(
@@ -102,7 +103,7 @@ public class VertexLabelAsShapeDemo extends JApplet {
         vv.getRenderContext().setEdgeStrokeTransformer(Functions.<Stroke>constant(new BasicStroke(2.5f)));
         
         // customize the renderer
-        vv.getRenderer().setVertexRenderer(new GradientVertexRenderer<String,Number>(Color.gray, Color.white, true));
+        vv.getRenderer().setVertexRenderer(new GradientVertexRenderer<String>(vv, Color.gray, Color.white, true));
         vv.getRenderer().setVertexLabelRenderer(vlasr);
 
         vv.setBackground(Color.black);

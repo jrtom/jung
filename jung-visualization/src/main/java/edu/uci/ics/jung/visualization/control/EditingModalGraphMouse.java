@@ -17,7 +17,9 @@ import javax.swing.JMenu;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.plaf.basic.BasicIconFactory;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
+import com.google.common.graph.MutableNetwork;
 
 import edu.uci.ics.jung.visualization.MultiLayerTransformer;
 import edu.uci.ics.jung.visualization.RenderContext;
@@ -59,6 +61,8 @@ public class EditingModalGraphMouse<V,E> extends AbstractModalGraphMouse
 	public EditingModalGraphMouse(RenderContext<V,E> rc,
 			Supplier<V> vertexFactory, Supplier<E> edgeFactory, float in, float out) {
 		super(in,out);
+		Preconditions.checkArgument(rc.getNetwork() instanceof MutableNetwork, 
+				"Supplied Network instance must be a MutableNetwork");
 		this.vertexFactory = vertexFactory;
 		this.edgeFactory = edgeFactory;
 		this.rc = rc;

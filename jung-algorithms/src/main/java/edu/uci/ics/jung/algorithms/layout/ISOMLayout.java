@@ -18,10 +18,10 @@ import java.util.List;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.graph.Network;
 
 import edu.uci.ics.jung.algorithms.layout.util.RandomLocationTransformer;
 import edu.uci.ics.jung.algorithms.util.IterativeContext;
-import edu.uci.ics.jung.graph.Graph;
 
 /**
  * Implements a self-organizing map layout algorithm, based on Meyer's
@@ -29,12 +29,12 @@ import edu.uci.ics.jung.graph.Graph;
  *
  * @author Yan Biao Boey
  */
-public class ISOMLayout<V, E> extends AbstractLayout<V,E> implements IterativeContext {
+public class ISOMLayout<N, E> extends AbstractLayout<N> implements IterativeContext {
 
-    protected LoadingCache<V, ISOMVertexData> isomVertexData =
-    	CacheBuilder.newBuilder().build(new CacheLoader<V, ISOMVertexData>() {
-	    	public ISOMVertexData load(V vertex) {
-	    		return new ISOMVertexData();
+    protected LoadingCache<N, ISOMNodeData> isomNodeData =
+    	CacheBuilder.newBuilder().build(new CacheLoader<N, ISOMNodeData>() {
+	    	public ISOMNodeData load(N node) {
+	    		return new ISOMNodeData();
 	    	}
     });
 
@@ -49,13 +49,13 @@ public class ISOMLayout<V, E> extends AbstractLayout<V,E> implements IterativeCo
 	private double initialAdaption;
 	private double minAdaption;
 
-    protected GraphElementAccessor<V,E> elementAccessor =
-    	new RadiusGraphElementAccessor<V,E>();
+    private final NetworkElementAccessor<N, E> elementAccessor;
 
 	private double coolingFactor;
 
-	private List<V> queue = new ArrayList<V>();
+	private List<N> queue = new ArrayList<N>();
 	private String status = null;
+	private final Network<N, E> graph;
 
 	/**
 	 * @return the current number of epochs and execution status, as a string.
@@ -64,13 +64,15 @@ public class ISOMLayout<V, E> extends AbstractLayout<V,E> implements IterativeCo
 		return status;
 	}
 
-	public ISOMLayout(Graph<V,E> g) {
-		super(g);
+	public ISOMLayout(Network<N, E> g) {
+		super(g.asGraph());
+		this.elementAccessor = new RadiusNetworkElementAccessor<N, E>(g, this);
+		this.graph = g;
 	}
 
 	public void initialize() {
 
-		setInitializer(new RandomLocationTransformer<V>(getSize()));
+		setInitializer(new RandomLocationTransformer<N>(getSize()));
 		maxEpoch = 2000;
 		epoch = 1;
 
@@ -117,20 +119,20 @@ public class ISOMLayout<V, E> extends AbstractLayout<V,E> implements IterativeCo
         tempXYD.setLocation(10 + Math.random() * getSize().getWidth(),
                 10 + Math.random() * getSize().getHeight());
 
-		//Get closest vertex to random position
-		V winner = elementAccessor.getVertex(this, tempXYD.getX(), tempXYD.getY());
+		//Get closest node to random position
+		N winner = elementAccessor.getNode(tempXYD.getX(), tempXYD.getY());
 
 		while(true) {
 		    try {
-		    	for(V v : getGraph().getVertices()) {
-		            ISOMVertexData ivd = getISOMVertexData(v);
+		    	for(N node : nodes()) {
+		            ISOMNodeData ivd = getISOMNodeData(node);
 		            ivd.distance = 0;
 		            ivd.visited = false;
 		        }
 		        break;
 		    } catch(ConcurrentModificationException cme) {}
         }
-		adjustVertex(winner, tempXYD);
+		adjustNode(winner, tempXYD);
 	}
 
 	private synchronized void updateParameters() {
@@ -144,17 +146,17 @@ public class ISOMLayout<V, E> extends AbstractLayout<V,E> implements IterativeCo
 		}
 	}
 
-	private synchronized void adjustVertex(V v, Point2D tempXYD) {
+	private synchronized void adjustNode(N node, Point2D tempXYD) {
 		queue.clear();
-		ISOMVertexData ivd = getISOMVertexData(v);
+		ISOMNodeData ivd = getISOMNodeData(node);
 		ivd.distance = 0;
 		ivd.visited = true;
-		queue.add(v);
-		V current;
+		queue.add(node);
+		N current;
 
 		while (!queue.isEmpty()) {
 			current = queue.remove(0);
-			ISOMVertexData currData = getISOMVertexData(current);
+			ISOMNodeData currData = getISOMNodeData(current);
 			Point2D currXYData = apply(current);
 
 			double dx = tempXYD.getX() - currXYData.getX();
@@ -164,11 +166,11 @@ public class ISOMLayout<V, E> extends AbstractLayout<V,E> implements IterativeCo
 			currXYData.setLocation(currXYData.getX()+(factor*dx), currXYData.getY()+(factor*dy));
 
 			if (currData.distance < radius) {
-			    Collection<V> s = getGraph().getNeighbors(current);
+			    Collection<N> s = graph.adjacentNodes(current);
 			    while(true) {
 			        try {
-			        	for(V child : s) {
-			                ISOMVertexData childData = getISOMVertexData(child);
+			        	for(N child : s) {
+			                ISOMNodeData childData = getISOMNodeData(child);
 			                if (childData != null && !childData.visited) {
 			                    childData.visited = true;
 			                    childData.distance = currData.distance + 1;
@@ -182,8 +184,8 @@ public class ISOMLayout<V, E> extends AbstractLayout<V,E> implements IterativeCo
 		}
 	}
 
-	protected ISOMVertexData getISOMVertexData(V v) {
-		return isomVertexData.getUnchecked(v);
+	protected ISOMNodeData getISOMNodeData(N node) {
+		return isomNodeData.getUnchecked(node);
 	}
 
 	/**
@@ -195,21 +197,21 @@ public class ISOMLayout<V, E> extends AbstractLayout<V,E> implements IterativeCo
 	}
 
 	/**
-	 * Returns <code>true</code> if the vertex positions are no longer being
-	 * updated.  Currently <code>ISOMLayout</code> stops updating vertex
+	 * Returns <code>true</code> if the node positions are no longer being
+	 * updated.  Currently <code>ISOMLayout</code> stops updating node
 	 * positions after a certain number of iterations have taken place.
-	 * @return <code>true</code> if the vertex position updates have stopped,
+	 * @return <code>true</code> if the node position updates have stopped,
 	 * <code>false</code> otherwise
 	 */
 	public boolean done() {
 		return epoch >= maxEpoch;
 	}
 
-	protected static class ISOMVertexData {
+	protected static class ISOMNodeData {
 		int distance;
 		boolean visited;
 
-		protected ISOMVertexData() {
+		protected ISOMNodeData() {
 		    distance = 0;
 		    visited = false;
 		}
@@ -217,7 +219,7 @@ public class ISOMLayout<V, E> extends AbstractLayout<V,E> implements IterativeCo
 
 	/**
 	 * Resets the layout iteration count to 0, which allows the layout algorithm to
-	 * continue updating vertex positions.
+	 * continue updating node positions.
 	 */
 	public void reset() {
 		epoch = 0;

@@ -12,17 +12,16 @@ package edu.uci.ics.jung.algorithms.layout;
 
 import java.awt.Shape;
 import java.awt.geom.Point2D;
-import java.util.Collection;
 import java.util.ConcurrentModificationException;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
-import edu.uci.ics.jung.graph.Graph;
+import com.google.common.graph.EndpointPair;
+import com.google.common.graph.Network;
 
 
 /**
- * Simple implementation of PickSupport that returns the vertex or edge
+ * Simple implementation of PickSupport that returns the node or edge
  * that is closest to the specified location.  This implementation
  * provides the same picking options that were available in
  * previous versions of AbstractLayout.
@@ -33,15 +32,16 @@ import edu.uci.ics.jung.graph.Graph;
  * @author Tom Nelson
  * @author Joshua O'Madadhain
  */
-public class RadiusGraphElementAccessor<V, E> implements GraphElementAccessor<V, E> {
-    
+public class RadiusNetworkElementAccessor<N, E> implements NetworkElementAccessor<N, E> {
+	private final Network<N, E> network;
+	private final Layout<N> layout;
     protected double maxDistance;
     
     /**
      * Creates an instance with an effectively infinite default maximum distance.
      */
-    public RadiusGraphElementAccessor() {
-        this(Math.sqrt(Double.MAX_VALUE - 1000));
+    public RadiusNetworkElementAccessor(Network<N, E> network, Layout<N> layout) {
+        this(network, layout, Math.sqrt(Double.MAX_VALUE - 1000));
     }
     
     /**
@@ -49,54 +49,38 @@ public class RadiusGraphElementAccessor<V, E> implements GraphElementAccessor<V,
      * @param maxDistance the maximum distance at which any element can be from a specified location
      *     and still be returned
      */
-    public RadiusGraphElementAccessor(double maxDistance) {
+    public RadiusNetworkElementAccessor(Network<N, E> network, Layout<N> layout, double maxDistance) {
+    	this.network = network;
+    	this.layout = layout;
         this.maxDistance = maxDistance;
     }
     
 	/**
-	 * Gets the vertex nearest to the location of the (x,y) location selected,
-	 * within a distance of <tt>maxDistance</tt>. Iterates through all
-	 * visible vertices and checks their distance from the click. Override this
+	 * Gets the node nearest to the location of the (x,y) location selected,
+	 * within a distance of {@code this.maxDistance}. Iterates through all
+	 * visible nodes and checks their distance from the location. Override this
 	 * method to provide a more efficient implementation.
 	 * 
-	 * @param layout the context in which the location is defined
 	 * @param x the x coordinate of the location
 	 * @param y the y coordinate of the location
-	 * @return a vertex which is associated with the location {@code (x,y)}
+	 * @return a node which is associated with the location {@code (x,y)}
 	 *     as given by {@code layout}
 	 */
-	public V getVertex(Layout<V,E> layout, double x, double y) {
-	    return getVertex(layout, x, y, this.maxDistance);
-	}
-
-	/**
-	 * Gets the vertex nearest to the location of the (x,y) location selected,
-	 * within a distance of {@code maxDistance}. Iterates through all
-	 * visible vertices and checks their distance from the location. Override this
-	 * method to provide a more efficient implementation.
-	 * 
-	 * @param layout the context in which the location is defined
-	 * @param x the x coordinate of the location
-	 * @param y the y coordinate of the location
-	 * @param maxDistance the maximum distance at which any element can be from a specified location
-     *     and still be returned
-	 * @return a vertex which is associated with the location {@code (x,y)}
-	 *     as given by {@code layout}
-	 */
-	public V getVertex(Layout<V,E> layout, double x, double y, double maxDistance) {
+	@Override
+	public N getNode(double x, double y) {
 		double minDistance = maxDistance * maxDistance;
-        V closest = null;
+        N closest = null;
 		while(true) {
 		    try {
-                for(V v : layout.getGraph().getVertices()) {
+                for(N node : layout.nodes()) {
 
-		            Point2D p = layout.apply(v);
+		            Point2D p = layout.apply(node);
 		            double dx = p.getX() - x;
 		            double dy = p.getY() - y;
 		            double dist = dx * dx + dy * dy;
 		            if (dist < minDistance) {
 		                minDistance = dist;
-		                closest = v;
+		                closest = node;
 		            }
 		        }
 		        break;
@@ -105,31 +89,26 @@ public class RadiusGraphElementAccessor<V, E> implements GraphElementAccessor<V,
 		return closest;
 	}
 	
-	public Collection<V> getVertices(Layout<V,E> layout, Shape rectangle) {
-		Set<V> pickedVertices = new HashSet<V>();
+	public Set<N> getNodes(Shape rectangle) {
+		Set<N> pickednodes = new HashSet<N>();
 		while(true) {
 		    try {
-                for(V v : layout.getGraph().getVertices()) {
-
-		            Point2D p = layout.apply(v);
-		            if(rectangle.contains(p)) {
-		            	pickedVertices.add(v);
+                for(N node : layout.nodes()) {
+		            Point2D p = layout.apply(node);
+		            if (rectangle.contains(p)) {
+		            	pickednodes.add(node);
 		            }
 		        }
 		        break;
 		    } catch(ConcurrentModificationException cme) {}
 		}
-		return pickedVertices;
+		return pickednodes;
 	}
 	
-	public E getEdge(Layout<V,E> layout, double x, double y) {
-	    return getEdge(layout, x, y, this.maxDistance);
-	}
-
 	/**
-	 * Gets the vertex nearest to the location of the (x,y) location selected,
+	 * Gets the edge nearest to the location of the (x,y) location selected,
 	 * whose endpoints are &lt; {@code maxDistance}. Iterates through all
-	 * visible vertices and checks their distance from the location. Override this
+	 * visible nodes and checks their distance from the location. Override this
 	 * method to provide a more efficient implementation.
 	 * 
 	 * @param layout the context in which the location is defined
@@ -140,22 +119,19 @@ public class RadiusGraphElementAccessor<V, E> implements GraphElementAccessor<V,
 	 * @return an edge which is associated with the location {@code (x,y)}
 	 *     as given by {@code layout}
 	 */
-	public E getEdge(Layout<V,E> layout, double x, double y, double maxDistance) {
+	@Override
+	public E getEdge(double x, double y) {
 		double minDistance = maxDistance * maxDistance;
 		E closest = null;
 		while(true) {
 		    try {
-                for(E e : layout.getGraph().getEdges()) {
-
-		            // Could replace all this set stuff with getFrom_internal() etc.
-                    Graph<V, E> graph = layout.getGraph();
-		            Collection<V> vertices = graph.getIncidentVertices(e);
-		            Iterator<V> vertexIterator = vertices.iterator();
-		            V v1 = vertexIterator.next();
-		            V v2 = vertexIterator.next();
+                for(E edge : network.edges()) {
+                	EndpointPair<N> endpoints = network.incidentNodes(edge);
+		            N node1 = endpoints.nodeU();
+		            N node2 = endpoints.nodeV();
 		            // Get coords
-		            Point2D p1 = layout.apply(v1);
-		            Point2D p2 = layout.apply(v2);
+		            Point2D p1 = layout.apply(node1);
+		            Point2D p2 = layout.apply(node2);
 		            double x1 = p1.getX();
 		            double y1 = p1.getY();
 		            double x2 = p2.getX();
@@ -181,7 +157,7 @@ public class RadiusGraphElementAccessor<V, E> implements GraphElementAccessor<V,
 		            
 		            if (distance2 < minDistance) {
 		                minDistance = distance2;
-		                closest = e;
+		                closest = edge;
 		            }
 		        }
 		        break;
