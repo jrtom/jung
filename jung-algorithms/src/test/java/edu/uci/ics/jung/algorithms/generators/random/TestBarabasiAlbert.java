@@ -8,6 +8,7 @@
 package edu.uci.ics.jung.algorithms.generators.random;
 
 import com.google.common.base.Supplier;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
 
@@ -79,11 +80,14 @@ public class TestBarabasiAlbert extends TestCase {
 	        Network<Integer, Number> graph = generator.get();
 	        assertEquals(graph.nodes().size(), (i*num_timesteps) + init_vertices);
 	        assertEquals(graph.edges().size(), edges_to_add_per_timestep * (i*num_timesteps));
+	        ImmutableSet<Integer> seedNodes = generator.seedNodes();
 	        
 			for (Integer v : graph.nodes()) {
-		        // Every node should have an out-degree AT LEAST equal to the number of
-		        // edges added per timestep (dependent on if it is directed or undirected).
-				assertTrue(graph.outDegree(v) >= edges_to_add_per_timestep);
+				if (!seedNodes.contains(v)) {
+			        // Every non-seed node should have an out-degree AT LEAST equal to the number of
+			        // edges added per timestep (possibly more if the graph is undirected).
+					assertTrue(graph.outDegree(v) >= edges_to_add_per_timestep);
+				}
 				
 				// Check that not every edge goes to one node; the in-degree of any node
 				// should be strictly less than the number of edges.

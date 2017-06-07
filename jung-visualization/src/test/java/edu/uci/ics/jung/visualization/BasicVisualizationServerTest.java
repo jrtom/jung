@@ -1,7 +1,9 @@
 package edu.uci.ics.jung.visualization;
 
+import com.google.common.graph.Network;
+import com.google.common.graph.NetworkBuilder;
+
 import edu.uci.ics.jung.algorithms.layout.CircleLayout;
-import edu.uci.ics.jung.graph.SparseGraph;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import junit.framework.TestCase;
 
@@ -12,10 +14,11 @@ public class BasicVisualizationServerTest extends TestCase {
    * in data like pickedVertexState to be lost.
    */
   public void testRenderContextNotOverridden() {
-    SparseGraph<Object, Object> graph = new SparseGraph<Object, Object>();
-    CircleLayout<Object, Object> layout = new CircleLayout<Object, Object>(graph);
+	Network<Object, Object> graph = NetworkBuilder.directed().build();
+    CircleLayout<Object> layout = new CircleLayout<Object>(graph.asGraph());
 
-    BasicVisualizationServer<Object, Object> server = new BasicVisualizationServer<Object, Object>(layout);
+    BasicVisualizationServer<Object, Object> server
+    	= new BasicVisualizationServer<Object, Object>(graph, layout);
 
     PickedState<Object> pickedVertexState = server.getRenderContext().getPickedVertexState();
     assertNotNull(pickedVertexState);

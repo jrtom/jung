@@ -12,8 +12,6 @@ import com.google.common.base.Supplier;
 import com.google.common.graph.Network;
 
 import edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor;
-import edu.uci.ics.jung.graph.DirectedGraph;
-import edu.uci.ics.jung.graph.UndirectedGraph;
 import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 
@@ -86,11 +84,9 @@ public class EditingGraphMousePlugin<V,E> extends AbstractGraphMousePlugin imple
                 	this.createMode = Creating.EDGE;
                 	Network<V,E> graph = vv.getModel().getNetwork();
                 	// set default edge type
-                	EdgeType edgeType = graph.getDefaultEdgeType();
-                    if((e.getModifiers() & MouseEvent.SHIFT_MASK) != 0
-                    		&& graph instanceof UndirectedGraph == false) {
-                        edgeType = EdgeType.DIRECTED;
-                    }
+                	EdgeType edgeType = graph.isDirected()
+                			? EdgeType.DIRECTED
+                			: EdgeType.UNDIRECTED;
                     edgeSupport.startEdgeCreate(vv, vertex, e.getPoint(), edgeType);
                 } else { // make a new vertex
                 	this.createMode = Creating.VERTEX;

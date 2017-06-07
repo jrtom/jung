@@ -57,7 +57,6 @@ public class SimpleEdgeSupport<V,E> implements EdgeSupport<V,E> {
 			vv.repaint();
 		}
 		startVertex = null;
-		edgeType = EdgeType.UNDIRECTED;
 		edgeEffects.endEdgeEffects(vv);
 		edgeEffects.endArrowEffects(vv);
 	}
@@ -72,10 +71,6 @@ public class SimpleEdgeSupport<V,E> implements EdgeSupport<V,E> {
 
 	public EdgeType getEdgeType() {
 		return edgeType;
-	}
-
-	public void setEdgeType(EdgeType edgeType) {
-		this.edgeType = edgeType;
 	}
 
 	public Supplier<E> getEdgeFactory() {
