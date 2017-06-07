@@ -26,7 +26,6 @@ import com.google.common.graph.NetworkBuilder;
 
 import edu.uci.ics.jung.algorithms.util.WeightedChoice;
 
-
 /**
  * <p>
  * Simple evolving scale-free random graph generator. At each time step, a new
@@ -202,6 +201,8 @@ public class BarabasiAlbertGenerator<N, E> {
 
             // determine the nodes to connect to newVertex before connecting anything, because
             // we don't want to bias the degree calculations
+            // note: because we don't add newVertex to the graph until after identifying the
+            // adjacent nodes, we don't need to worry about creating a self-loop
             List<N> adjacentNodes = generateAdjacentNodes(mNumEdgesToAttachPerStep);
             graph.addNode(newVertex);
             

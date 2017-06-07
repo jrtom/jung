@@ -12,10 +12,14 @@
  */
 package edu.uci.ics.jung.algorithms.blockmodel;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
-import edu.uci.ics.jung.graph.Graph;
-
+import com.google.common.graph.Graph;
 
 /**
  * Maintains information about a vertex partition of a graph.
@@ -23,11 +27,11 @@ import edu.uci.ics.jung.graph.Graph;
  * or from a collection of (disjoint) vertex sets,
  * such as those created by various clustering methods.
  */
-public class VertexPartition<V,E> 
+public class VertexPartition<V> 
 {
 	private Map<V,Set<V>> vertex_partition_map;
 	private Collection<Set<V>> vertex_sets;
-	private Graph<V,E> graph;
+	private Graph<V> graph;
 	
 	/**
 	 * Creates an instance based on the specified graph and mapping from vertices
@@ -35,7 +39,7 @@ public class VertexPartition<V,E>
 	 * @param g the graph over which the vertex partition is defined
 	 * @param partition_map the mapping from vertices to vertex sets (partitions)
 	 */
-	public VertexPartition(Graph<V,E> g, Map<V, Set<V>> partition_map) 
+	public VertexPartition(Graph<V> g, Map<V, Set<V>> partition_map) 
 	{
 		this.vertex_partition_map = Collections.unmodifiableMap(partition_map);
 		this.graph = g;
@@ -51,7 +55,7 @@ public class VertexPartition<V,E>
      * @param partition_map the mapping from vertices to vertex sets (partitions)
 	 * @param vertex_sets the set of disjoint vertex sets 
 	 */
-    public VertexPartition(Graph<V,E> g, Map<V, Set<V>> partition_map, 
+    public VertexPartition(Graph<V> g, Map<V, Set<V>> partition_map, 
     		Collection<Set<V>> vertex_sets) 
     {
         this.vertex_partition_map = Collections.unmodifiableMap(partition_map);
@@ -65,7 +69,7 @@ public class VertexPartition<V,E>
      * @param g the graph over which the vertex partition is defined
      * @param vertex_sets the set of disjoint vertex sets
      */
-    public VertexPartition(Graph<V,E> g, Collection<Set<V>> vertex_sets)
+    public VertexPartition(Graph<V> g, Collection<Set<V>> vertex_sets)
     {
         this.vertex_sets = vertex_sets;
         this.graph = g;
@@ -75,7 +79,7 @@ public class VertexPartition<V,E>
      * Returns the graph on which the partition is defined.
      * @return the graph on which the partition is defined
      */
-	public Graph<V,E> getGraph() 
+	public Graph<V> getGraph() 
 	{
 		return graph;
 	}

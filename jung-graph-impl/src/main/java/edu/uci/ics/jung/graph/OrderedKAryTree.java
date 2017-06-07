@@ -377,7 +377,7 @@ public class OrderedKAryTree<V, E> extends AbstractTypedGraph<V, E> implements T
     {
         if (!containsEdge(directed_edge))
             return null;
-        return edge_vpairs.get(directed_edge).getSecond();
+        return edge_vpairs.get(directed_edge).getFirst();
     }
   
     /**

@@ -77,8 +77,7 @@ public class EditingGraphMousePlugin<V,E> extends AbstractGraphMousePlugin imple
     @SuppressWarnings("unchecked")
 	public void mousePressed(MouseEvent e) {
         if(checkModifiers(e)) {
-            final VisualizationViewer<V,E> vv =
-                (VisualizationViewer<V,E>)e.getSource();
+            final VisualizationViewer<V,E> vv = (VisualizationViewer<V,E>)e.getSource();
             final Point2D p = e.getPoint();
             NetworkElementAccessor<V,E> pickSupport = vv.getPickSupport();
             if(pickSupport != null) {
@@ -87,8 +86,7 @@ public class EditingGraphMousePlugin<V,E> extends AbstractGraphMousePlugin imple
                 	this.createMode = Creating.EDGE;
                 	Network<V,E> graph = vv.getModel().getNetwork();
                 	// set default edge type
-                	EdgeType edgeType = (graph instanceof DirectedGraph) ?
-                			EdgeType.DIRECTED : EdgeType.UNDIRECTED;
+                	EdgeType edgeType = graph.getDefaultEdgeType();
                     if((e.getModifiers() & MouseEvent.SHIFT_MASK) != 0
                     		&& graph instanceof UndirectedGraph == false) {
                         edgeType = EdgeType.DIRECTED;

@@ -182,7 +182,7 @@ public class Lattice2DGenerator<V,E> implements GraphGenerator<V,E>
      */
     protected int getRow(int i)
     {
-        return i / row_count;
+        return i / col_count;
     }
     
     /**

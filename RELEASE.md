@@ -23,7 +23,7 @@ Each step has some idiosyncracies, and follows below.
 
 ### Preconditions
 
-> ***Note:*** *These preconditions include important minutia of maven
+> ***Note:*** *These preconditions include important minutiae of Maven
 > deployments.  Make sure you read the [OSSRH Guide] and the [Sonatype GPG
 > blog post][GPG].*
 
@@ -33,14 +33,28 @@ maven central repository.  To push bits to sonatype requires:
   1. an account on oss.sonatype.org
   2. permission for that account to push to your groupId
   3. a pgp certificate (via gnupg) with a published public key
+  4. a [${HOME}/.m2/settings.xml][settings.xml] file containing the credentials
+     for the account created in step #1.  **NOTE**: change the ID for the <server> tag
+     in the example to `sonatype-nexus-staging`.
 
 The administrative steps above are all documented in Sonatype's
 [OSSRH Guide]. The GPG instructions particular to this process can be found
 in this [Sonatype GPG blog entry][GPG].
 
+> ***Notes***:
+> *   *If you don't set up the `settings.xml` correctly on the machine you're using,
+>     you'll get an error that looks like this:*
+> ```shell
+> Failed to transfer file: https://oss.sonatype.org/service/local/staging/deploy/maven2/net/sf/jung/jung-parent/2.1/jung-parent-2.1.pom. 
+Return code is: 401, ReasonPhrase: Unauthorized.
+> ```
+> *   *As of this writing (March 2016) the default GPG installation on OS X will give you a
+>     binary called `gpg2` rather than `gpg`.  This will cause the deploy script to fail.  
+>     You should create a symbolic link called `gpg` (using `ln -s`) that points to `gpg2`.*
+
 ### Create a release branch
 
-First checkout the main project's master branch, and create a branch on which
+First check out the main project's master branch, and create a branch on which
 to do the release work (to avoid clobbering anything on the master branch):
 
 ```shell
@@ -84,7 +98,7 @@ Version properties will be generated and look like this:
 ...
 ```
 
-For release, it's best to avoid updating older verisions at the last minute, as
+For release, it's best to avoid updating older versions at the last minute, as
 this requires more testing and investigation than one typically does at release.
 But releases are gated on any -SNAPSHOT dependencies, so these should be
 incremented.
@@ -98,7 +112,7 @@ Update the versions of the project, like so (changing version numbers):
 
 ```shell
 mvn versions:set versions:commit -DnewVersion=2.1
-git commit
+git commit -a
 ```
 
 This will set all versions of projects connected in <module> sections from
@@ -134,12 +148,17 @@ uid                  Some User (Maven Deployments) <foo@bar.com>
 Given the above example, you would then run:
 
 ```shell
-util/mvn-deploy.sh E4382034
+tools/mvn-deploy.sh E4382034
 ```
 
 ... and the script will kick off the maven job, pausing when it first needs to
 sign binaries to ask for your GnuPG certificate passphrase (if any).  It then
 pushes the binaries and signatures up to sonatype's staging repository.
+
+> ***Note:*** *Having out-of-date versions of Maven plugins can cause unexpected
+> errors in the build/deploy process, including failure to find local binaries,
+> and apparent compilation errors.  In case of bizarre failures, update the 
+> plugins to the [latest versions](https://maven.apache.org/plugins/) and try again.*
 
 ### Verify the release on sonatype
 
@@ -188,6 +207,8 @@ tag to github, just do the standard git command:
 git push --tags
 ```
 
+This will create a new [release](https://github.com/jrtom/jung/releases) on GitHub.
+
 ## Post-release
 
 Create a CL/commit that updates the versions from (for instance)
@@ -205,3 +226,4 @@ deleted.
 
 [GPG]: http://blog.sonatype.com/2010/01/how-to-generate-pgp-signatures-with-maven
 [OSSRH Guide]: http://central.sonatype.org/pages/ossrh-guide.html
+[settings.xml]: https://books.sonatype.com/nexus-book/reference/_adding_credentials_to_your_maven_settings.html

@@ -52,14 +52,11 @@ public class ParallelEdgeIndexFunction<V, E> implements EdgeIndexFunction<E>
         	V v = endpoints.nodeV();
         	int count = 0;
         	for (E connectingEdge : graph.edgesConnecting(u, v)) {
-        		if (!connectingEdge.equals(edge)) {
-        			edge_index.put(connectingEdge, count++);
-        		}
+       			edge_index.put(connectingEdge, count++);
         	}
-    		edge_index.put(edge, count);
-    		return count;
+    		return edge_index.get(edge);
         }
-        return index.intValue();
+        return index;
     }
     
     public void reset(E edge) {
