@@ -11,9 +11,10 @@
  */
 package edu.uci.ics.jung.algorithms.metrics;
 
-import com.google.common.base.Function;
+import java.util.function.BiFunction;
 
-import edu.uci.ics.jung.graph.Graph;
+import com.google.common.graph.Graph;
+
 
 /**
  * Calculates some of the measures from Burt's text "Structural Holes: 
@@ -37,16 +38,16 @@ import edu.uci.ics.jung.graph.Graph;
  * @see "Ronald Burt, Structural Holes: The Social Structure of Competition"
  * @author Tom Nelson - converted to jung2
  */
-public class StructuralHoles<V,E> {
+public class StructuralHoles<V> {
 	
-    protected Function<E, ? extends Number> edge_weight;
-    protected Graph<V,E> g;
+    protected BiFunction<V, V, ? extends Number> edge_weight;
+    protected Graph<V> g;
     
     /**
      * @param graph the graph for which the metrics are to be calculated
      * @param nev the edge weights
      */
-    public StructuralHoles(Graph<V,E> graph, Function<E, ? extends Number> nev) 
+    public StructuralHoles(Graph<V> graph, BiFunction<V, V, ? extends Number> nev) 
     {
         this.g = graph;
         this.edge_weight = nev;
@@ -61,7 +62,7 @@ public class StructuralHoles<V,E> {
      * </pre>
      * where 
      * <ul>
-     * <li><code>N(a) = a.getNeighbors()</code>
+     * <li><code>N(a) = a.adjacentNodes()</code>
      * <li><code>p(v,w) =</code> normalized mutual edge weight of v and w
      * <li><code>m(u,w)</code> = maximum-scaled mutual edge weight of u and w
      * </ul>
@@ -74,9 +75,9 @@ public class StructuralHoles<V,E> {
     public double effectiveSize(V v)
     {
         double result = g.degree(v);
-        for(V u : g.getNeighbors(v)) {
+        for(V u : g.adjacentNodes(v)) {
 
-            for(V w : g.getNeighbors(u)) {
+            for(V w : g.adjacentNodes(u)) {
 
                 if (w != v && w != u)
                     result -= normalizedMutualEdgeWeight(v,w) * 
@@ -120,9 +121,9 @@ public class StructuralHoles<V,E> {
      */
     public double constraint(V v) {
         double result = 0;
-        for(V w : g.getSuccessors(v)) {
+        for(V w : g.successors(v)) {
 
-            if (v != w && g.isPredecessor(v,w))
+            if (v != w && g.predecessors(v).contains(w))
             {
                 result += localConstraint(v, w);
             }
@@ -141,7 +142,7 @@ public class StructuralHoles<V,E> {
      * </pre>
      * where
      * <ul>
-     * <li><code>N(v) = v.getNeighbors()</code> 
+     * <li><code>N(v) = v.adjacentNodes()</code> 
      * <li><code>s(v,w) = localConstraint(v,w) / (aggregateConstraint(v) / v.degree())</code>
      * </ul>
      * @see #localConstraint(Object, Object)
@@ -162,7 +163,7 @@ public class StructuralHoles<V,E> {
         double v_constraint = aggregateConstraint(v);
 
         double numerator = 0;
-        for (V w : g.getNeighbors(v)) {
+        for (V w : g.adjacentNodes(v)) {
         
             if (v != w)
             {
@@ -183,7 +184,7 @@ public class StructuralHoles<V,E> {
      * </pre>
      * where 
      * <ul>
-     * <li><code>N(v) = v.getNeighbors()</code>
+     * <li><code>N(v) = v.adjacentNodes()</code>
      * <li><code>p(v,w) =</code> normalized mutual edge weight of v and w
      * </ul>
      * @param v1 the first vertex whose local constraint is desired
@@ -195,7 +196,7 @@ public class StructuralHoles<V,E> {
     {
         double nmew_vw = normalizedMutualEdgeWeight(v1, v2);
         double inner_result = 0;
-        for (V w : g.getNeighbors(v1)) {
+        for (V w : g.adjacentNodes(v1)) {
 
             inner_result += normalizedMutualEdgeWeight(v1,w) * 
                 normalizedMutualEdgeWeight(w,v2);
@@ -211,7 +212,7 @@ public class StructuralHoles<V,E> {
      * </pre>
      * where
      * <ul>
-     * <li><code>N(v) = v.getNeighbors()</code>
+     * <li><code>N(v) = v.adjacentNodes()</code>
      * <li><code>O(w) = organizationalMeasure(w)</code>
      * </ul>
      * 
@@ -221,7 +222,7 @@ public class StructuralHoles<V,E> {
     public double aggregateConstraint(V v)
     {
         double result = 0;
-        for (V w : g.getNeighbors(v)) {
+        for (V w : g.adjacentNodes(v)) {
 
             result += localConstraint(v, w) * organizationalMeasure(g, w);
         }
@@ -241,7 +242,7 @@ public class StructuralHoles<V,E> {
      * @param v the vertex whose properties are being measured
      * @return 1.0 (in this implementation)
      */
-    protected double organizationalMeasure(Graph<V,E> g, V v) {
+    protected double organizationalMeasure(Graph<V> g, V v) {
         return 1.0;
     }
     
@@ -269,7 +270,7 @@ public class StructuralHoles<V,E> {
             return 0;
         
         double denominator = 0;
-        for (V v : g.getNeighbors(v1)) {
+        for (V v : g.adjacentNodes(v1)) {
             denominator += mutualWeight(v1, v);
         }
         if (denominator == 0)
@@ -296,12 +297,21 @@ public class StructuralHoles<V,E> {
      */
     protected double mutualWeight(V v1, V v2)
     {
-        E e12 = g.findEdge(v1,v2);
-        E e21 = g.findEdge(v2,v1);
-        double w12 = (e12 != null ? edge_weight.apply(e12).doubleValue() : 0);
-        double w21 = (e21 != null ? edge_weight.apply(e21).doubleValue() : 0);
-        
-        return w12 + w21;
+    	double weight = 0;
+    	if (g.isDirected()) {
+    		if (g.successors(v1).contains(v2)) {
+    			weight += edge_weight.apply(v1, v2).doubleValue();
+    		}
+    		if (g.successors(v2).contains(v1)) {
+    			weight += edge_weight.apply(v2, v1).doubleValue();
+    		}
+    	} else {
+    		if (g.adjacentNodes(v1).contains(v2)) {
+    			weight += edge_weight.apply(v1, v2).doubleValue();
+    		}
+    	}
+    	
+    	return weight;
     }
     
     /**
@@ -329,7 +339,7 @@ public class StructuralHoles<V,E> {
             return 0;
         
         double denominator = 0;
-        for (V w : g.getNeighbors(v1)) {
+        for (V w : g.adjacentNodes(v1)) {
 
             if (v2 != w)
                 denominator = Math.max(numerator, mutualWeight(v1, w));

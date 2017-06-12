@@ -1,23 +1,23 @@
 package edu.uci.ics.jung.algorithms.metrics;
 
+import com.google.common.graph.GraphBuilder;
+import com.google.common.graph.MutableGraph;
+
 import junit.framework.TestCase;
-import edu.uci.ics.jung.algorithms.metrics.TriadicCensus;
-import edu.uci.ics.jung.graph.DirectedGraph;
-import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 
 public class TestTriad extends TestCase {
 
 	public void testConfigurationFromPaper() {
-		DirectedGraph<Character,Number> g = new DirectedSparseMultigraph<Character,Number>();
+		MutableGraph<Character> g = GraphBuilder.directed().build();
 		char u = 'u';
-		g.addVertex(u);
+		g.addNode(u);
 		char v = 'v';
-		g.addVertex(v);
+		g.addNode(v);
 		char w = 'w';
-		g.addVertex(w);
-		g.addEdge(0, w, u);
-		g.addEdge(1, u, v);
-		g.addEdge(2, v, u);
+		g.addNode(w);
+		g.putEdge(w, u);
+		g.putEdge(u, v);
+		g.putEdge(v, u);
 
 		assertEquals(35, TriadicCensus.<Character,Number>triCode(g, u, v, w));
 		assertEquals(7, TriadicCensus.triType(35));
@@ -46,18 +46,18 @@ public class TestTriad extends TestCase {
 		// 2: 1(t, u, w)(u, v, w)
 		// 6: 1(t, u, v)
 		// 1: 1(u, v, w)
-		DirectedGraph<Character,Number> g = new DirectedSparseMultigraph<Character,Number>();
+		MutableGraph<Character> g = GraphBuilder.directed().build();
 		char u = 'u';
-		g.addVertex(u);
+		g.addNode(u);
 		char v = 'v';
-		g.addVertex(v);
+		g.addNode(v);
 		char w = 'w';
-		g.addVertex(w);
+		g.addNode(w);
 		char t = 't';
-		g.addVertex(t);
+		g.addNode(t);
 		
-		g.addEdge(0, t, u );
-		g.addEdge(1, u, v );
+		g.putEdge(t, u );
+		g.putEdge(u, v );
 				
         long[] counts = TriadicCensus.getCounts(g);
 		for (int i = 1; i <= 16; i++) {
@@ -73,9 +73,9 @@ public class TestTriad extends TestCase {
 		// now let's tweak to 
 		// t->u, u->v, v->t
 		// w->u, v->w
-		g.addEdge(2, v, t );
-		g.addEdge(3, w, u );
-		g.addEdge(4, v, w );
+		g.putEdge(v, t );
+		g.putEdge(w, u );
+		g.putEdge(v, w );
 
 		// that's two 030Cs. it's a 021D (v-t, v-w) and an 021U (t-u, w-u)
         counts = TriadicCensus.getCounts(g);
@@ -92,13 +92,13 @@ public class TestTriad extends TestCase {
 	}
 	
 	public void testThreeDotsThreeDashes() {
-		DirectedGraph<Character,Number> g = new DirectedSparseMultigraph<Character,Number>();
+		MutableGraph<Character> g = GraphBuilder.directed().build();
 		char u = 'u';
-		g.addVertex(u);
+		g.addNode(u);
 		char v = 'v';
-		g.addVertex(v);
+		g.addNode(v);
 		char w = 'w';
-		g.addVertex(w);
+		g.addNode(w);
 
         long[] counts = TriadicCensus.getCounts(g);
 
@@ -110,12 +110,12 @@ public class TestTriad extends TestCase {
 			}
 		}
 
-		g.addEdge(0, v, u);
-		g.addEdge(1, u, v);
-		g.addEdge(2, v, w);
-		g.addEdge(3, w, v);
-		g.addEdge(4, u, w);
-		g.addEdge(5, w, u);
+		g.putEdge(v, u);
+		g.putEdge(u, v);
+		g.putEdge(v, w);
+		g.putEdge(w, v);
+		g.putEdge(u, w);
+		g.putEdge(w, u);
 
         counts = TriadicCensus.getCounts(g);
 
@@ -130,7 +130,7 @@ public class TestTriad extends TestCase {
 
 	/** **************Boring accounting for zero graphs*********** */
 	public void testNull() {
-		DirectedGraph<Character,Number> g = new DirectedSparseMultigraph<Character,Number>();
+		MutableGraph<Character> g = GraphBuilder.directed().build();
         long[] counts = TriadicCensus.getCounts(g);
 
 		// t looks like a hashtable for the twelve keys
@@ -140,8 +140,8 @@ public class TestTriad extends TestCase {
 	}
 
 	public void testOneVertex() {
-		DirectedGraph<Character,Number> g = new DirectedSparseMultigraph<Character,Number>();
-		g.addVertex('u');
+		MutableGraph<Character> g = GraphBuilder.directed().build();
+		g.addNode('u');
         long[] counts = TriadicCensus.getCounts(g);
 
 		// t looks like a hashtable for the twelve keys
@@ -151,11 +151,11 @@ public class TestTriad extends TestCase {
 	}
 
 	public void testTwoVertices() {
-		DirectedGraph<Character,Number> g = new DirectedSparseMultigraph<Character,Number>();
+		MutableGraph<Character> g = GraphBuilder.directed().build();
 		char v1, v2;
-		g.addVertex(v1 = 'u');
-		g.addVertex(v2 = 'v');
-		g.addEdge(0, v1, v2);
+		g.addNode(v1 = 'u');
+		g.addNode(v2 = 'v');
+		g.putEdge(v1, v2);
         long[] counts = TriadicCensus.getCounts(g);
 
 		// t looks like a hashtable for the twelve keys
