@@ -14,8 +14,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import edu.uci.ics.jung.graph.DirectedGraph;
-import edu.uci.ics.jung.graph.Graph;
+import com.google.common.base.Preconditions;
+import com.google.common.graph.Graph;
+
 
 
 /**
@@ -96,31 +97,33 @@ public class TriadicCensus {
 	 * 
 	 * @param g the graph whose properties are being measured
 	 * @param <V> the vertex type
-	 * @param <E> the edge type
 	 * @return an array encoding the number of occurrences of each triad type
 	 */
-    public static <V,E> long[] getCounts(DirectedGraph<V,E> g) {
+    public static <V> long[] getCounts(Graph<V> g) {
+    	Preconditions.checkArgument(g.isDirected(), "input graph must be directed");
         long[] count = new long[MAX_TRIADS];
 
-        List<V> id = new ArrayList<V>(g.getVertices());
+        // TODO: can we make this more efficient and not require the extra list?
+        List<V> id = new ArrayList<V>(g.nodes());
 
 		// apply algorithm to each edge, one at at time
-		for (int i_v = 0; i_v < g.getVertexCount(); i_v++) {
+		for (int i_v = 0; i_v < id.size(); i_v++) {
 			V v = id.get(i_v);
-			for(V u : g.getNeighbors(v)) {
+			for(V u : g.adjacentNodes(v)) {
 				int triType = -1;
 				if (id.indexOf(u) <= i_v)
 					continue;
-				Set<V> neighbors = new HashSet<V>(g.getNeighbors(u));
-				neighbors.addAll(g.getNeighbors(v));
+				Set<V> neighbors = new HashSet<V>(g.adjacentNodes(u));
+				neighbors.addAll(g.adjacentNodes(v));
 				neighbors.remove(u);
 				neighbors.remove(v);
-				if (g.isSuccessor(v,u) && g.isSuccessor(u,v)) {
+				// TODO: use hasEdge() when available
+				if (g.successors(v).contains(u) && g.successors(u).contains(v)) {
 					triType = 3;
 				} else {
 					triType = 2;
 				}
-				count[triType] += g.getVertexCount() - neighbors.size() - 2;
+				count[triType] += id.size() - neighbors.size() - 2;
 				for (V w : neighbors) {
 					if (shouldCount(g, id, u, v, w)) {
 						count [ triType ( triCode(g, u, v, w) ) ] ++;
@@ -132,7 +135,7 @@ public class TriadicCensus {
 		for (int i = 2; i <= 16; i++) {
 			sum += count[i];
 		}
-		int n = g.getVertexCount();
+		int n = id.size();
 		count[1] = n * (n-1) * (n-2) / 6 - sum;
 		return count;		
 	}
@@ -147,10 +150,9 @@ public class TriadicCensus {
      * @param v a vertex in g
      * @param w a vertex in g
      * @param <V> the vertex type
-     * @param <E> the edge type
      * @return an int encoding the presence of all links between u, v, and w
      */
-	public static <V,E> int triCode(Graph<V,E> g, V u, V v, V w) {
+	public static <V,E> int triCode(Graph<V> g, V u, V v, V w) {
 		int i = 0;
 		i += link(g, v, u ) ? 1 : 0;
 		i += link(g, u, v ) ? 2 : 0;
@@ -161,8 +163,8 @@ public class TriadicCensus {
 		return i;
 	}
 
-	protected static <V,E> boolean link(Graph<V,E> g, V a, V b) {
-		return g.isPredecessor(b, a);
+	protected static <V,E> boolean link(Graph<V> g, V a, V b) {
+		return g.predecessors(b).contains(a);
 	}
 	
 	
@@ -196,13 +198,13 @@ public class TriadicCensus {
 	 * @return true if index(u) &lt; index(w), or if index(v) &lt; index(w) &lt; index(u)
 	 *     and v doesn't link to w; false otherwise
 	 */
-	protected static <V,E> boolean shouldCount(Graph<V,E> g, List<V> id, V u, V v, V w) {
+	protected static <V,E> boolean shouldCount(Graph<V> g, List<V> id, V u, V v, V w) {
 		int i_u = id.indexOf(u);
 		int i_w = id.indexOf(w);
 		if (i_u < i_w)
 			return true;
 		int i_v = id.indexOf(v);
-		if ((i_v < i_w) && (i_w < i_u) && (!g.isNeighbor(w,v)))
+		if ((i_v < i_w) && (i_w < i_u) && (!g.adjacentNodes(w).contains(v)))
 			return true;
 		return false;
 	}
