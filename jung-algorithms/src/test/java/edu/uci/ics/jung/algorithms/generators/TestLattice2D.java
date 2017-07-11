@@ -1,87 +1,158 @@
 package edu.uci.ics.jung.algorithms.generators;
 
+import static edu.uci.ics.jung.algorithms.generators.TestLattice2D.EdgeType.DIRECTED;
+import static edu.uci.ics.jung.algorithms.generators.TestLattice2D.EdgeType.UNDIRECTED;
+import static edu.uci.ics.jung.algorithms.generators.TestLattice2D.Topology.FLAT;
+import static edu.uci.ics.jung.algorithms.generators.TestLattice2D.Topology.TOROIDAL;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
 import com.google.common.base.Supplier;
-
-import edu.uci.ics.jung.graph.DirectedGraph;
-import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.UndirectedGraph;
-import edu.uci.ics.jung.graph.UndirectedSparseMultigraph;
+import com.google.common.graph.Network;
 
 
-public class TestLattice2D extends TestCase {
+@RunWith(Parameterized.class)
+public class TestLattice2D {
+	enum EdgeType {
+		UNDIRECTED,
+		DIRECTED
+	}
 	
-	protected Supplier<UndirectedGraph<String,Number>> undirectedGraphFactory;
-    protected Supplier<DirectedGraph<String,Number>> directedGraphFactory;
-	protected Supplier<String> vertexFactory;
-	protected Supplier<Number> edgeFactory;
-
-	@Override
-	protected void setUp() {
-		undirectedGraphFactory = new Supplier<UndirectedGraph<String,Number>>() {
-			public UndirectedGraph<String,Number> get() {
-				return new UndirectedSparseMultigraph<String,Number>();
-			}
+	enum Topology {
+		FLAT,
+		TOROIDAL
+	}
+	
+	private EdgeType edgeType;
+	private Topology topology;
+	
+	@Parameters
+	public static Object[][] data() {
+		return new Object[][] {
+			{ UNDIRECTED, FLAT },
+			{ DIRECTED, FLAT },
+			{ UNDIRECTED, TOROIDAL },
+			{ DIRECTED, TOROIDAL }
 		};
-		directedGraphFactory = new Supplier<DirectedGraph<String,Number>>() {
-            public DirectedGraph<String,Number> get() {
-                return new DirectedSparseMultigraph<String,Number>();
-            }
-        };
+	}
+	
+	public TestLattice2D(EdgeType edgeType, Topology topology) {
+		this.edgeType = edgeType;
+		this.topology = topology;
+	}
+	
+	protected Supplier<String> vertexFactory;
+	protected Supplier<Integer> edgeFactory;
 
+	@Before
+	public void setUp() {
 		vertexFactory = new Supplier<String>() {
 			int count;
 			public String get() {
-				return Character.toString((char)('A'+count++));
+				return Character.toString((char)('a'+count++));
 			}
 		};
 		edgeFactory = 
-			new Supplier<Number>() {
+			new Supplier<Integer>() {
 			int count;
-			public Number get() {
+			public Integer get() {
 				return count++;
 			}
 		};
 	}
-
+	
+	@SuppressWarnings("rawtypes")
+	@Test
 	public void testCreateSingular() 
 	{
 	    try
 	    {
-	        generate(1, 0, 0);
+	    	@SuppressWarnings("unused")
+			Lattice2DGenerator unused = new Lattice2DGenerator(1, 2, toroidal());
+			unused = new Lattice2DGenerator(2, 1, toroidal());
 	        fail("Did not reject lattice of size < 2");
 	    }
 	    catch (IllegalArgumentException iae) {}
 	}
 	
-	public void testget() {
-		for (int i = 3; i <= 10; i++) {
-		    for (int j = 0; j < 2; j++) {
-		        for (int k = 0; k < 2; k++) {
-        			Lattice2DGenerator<String,Number> generator = generate(i, j, k);
-    			    Graph<String,Number> graph = generator.get();
-                    Assert.assertEquals(i*i, graph.getVertexCount());
-                    checkEdgeCount(generator, graph);
+	
+	@Test
+	public void testGenerateNetwork() {
+		for (int rowCount = 4; rowCount <= 6; rowCount++) {
+			for (int colCount = 4; colCount <= 6; colCount++) {
+				Lattice2DGenerator<String, Integer> generator =
+						new Lattice2DGenerator<>(rowCount, colCount, toroidal());
+				Network<String, Integer> graph =
+						generator.generateNetwork(directed(), vertexFactory, edgeFactory);
+				assertEquals(graph.nodes().size(), rowCount * colCount);
+				
+		    	int boundary_adjustment = (toroidal() ? 0 : 1);
+		        int expectedEdgeCount = colCount * (rowCount - boundary_adjustment) +
+		        		rowCount * (colCount - boundary_adjustment);
+		        if (directed()) {
+		        	expectedEdgeCount *= 2;
 		        }
-		    }
+				assertEquals(graph.edges().size(), expectedEdgeCount);
+				int expectedPerimeterNodes = toroidal() ? 0 : (rowCount - 1) * 2 + (colCount - 1) * 2;
+				int nodeCount = graph.nodes().size();
+				int expectedInteriorNodes = toroidal() ? nodeCount : nodeCount - expectedPerimeterNodes;
+				int perimeterNodes = 0;
+				int interiorNodes = 0;
+				int degreeMultiplier = directed() ? 2 : 1;
+				for (String node : graph.nodes()) {
+					if (toroidal()) {
+						int expectedDegree = 4 * degreeMultiplier;
+						assertEquals(graph.degree(node), expectedDegree);
+						interiorNodes++;
+					} else {
+						int degree = graph.degree(node);
+						if (degree == 4 * degreeMultiplier) {
+							interiorNodes++;
+						} else if (degree == 3 * degreeMultiplier || degree == 2 * degreeMultiplier) {
+							perimeterNodes++;
+						} else {
+							String message = String.format("degree does not match expectations: " +
+									"degree: %s, multiplier: %s\n" + 
+									"row count: %s, col count: %s, toroidal: %s\n" + 
+									"graph: %s", degree, degreeMultiplier, rowCount, colCount, toroidal(), graph);
+							fail(message);
+						}
+					}
+				}
+				
+				assertEquals(expectedInteriorNodes, interiorNodes);
+				assertEquals(expectedPerimeterNodes, perimeterNodes);
+			}
 		}
 	}
 	
-	protected Lattice2DGenerator<String, Number> generate(int i, int j, int k)
-	{
-	    return new Lattice2DGenerator<String,Number>(
-                k == 0 ? undirectedGraphFactory : directedGraphFactory, 
-                vertexFactory, edgeFactory,
-                i, j == 0 ? true : false); // toroidal?
+	
+
+	private boolean toroidal() {
+		switch (topology) {
+			case TOROIDAL:
+				return true;
+			case FLAT:
+				return false;
+			default:
+				throw new IllegalStateException("Unrecognized Topology type: " + topology);
+		}
 	}
 	
-	protected void checkEdgeCount(Lattice2DGenerator<String, Number> generator,
-		Graph<String, Number> graph) 
-	{
-        Assert.assertEquals(generator.getGridEdgeCount(), graph.getEdgeCount());
+	private boolean directed() {
+		switch (edgeType) {
+			case DIRECTED:
+				return true;
+			case UNDIRECTED:
+				return false;
+			default:
+				throw new IllegalStateException("Unrecognized edge type: " + edgeType);
+		}
 	}
 }

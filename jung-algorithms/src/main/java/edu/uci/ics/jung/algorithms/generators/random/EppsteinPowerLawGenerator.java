@@ -25,7 +25,6 @@ import com.google.common.graph.MutableGraph;
  * @author Scott White
  * @see "A Steady State Model for Graph Power Law by David Eppstein and Joseph Wang"
  */
-// TODO: decide whether GraphGenerator interface is useful
 public class EppsteinPowerLawGenerator<V> {
     private int nodeCount;
     private int edgeCount;
