@@ -11,186 +11,205 @@
 package edu.uci.ics.jung.algorithms.generators;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.google.common.graph.EndpointPair;
+import com.google.common.graph.Graph;
+import com.google.common.graph.MutableNetwork;
+import com.google.common.graph.NetworkBuilder;
 
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.util.EdgeType;
+import edu.uci.ics.jung.algorithms.shortestpath.Distance;
 
 /**
- * Simple generator of an m x n lattice where each vertex
- * is incident with each of its neighbors (to the left, right, up, and down).
- * May be toroidal, in which case the vertices on the edges are connected to
- * their counterparts on the opposite edges as well.
- * 
- * <p>If the graph Supplier supplied has a default edge type of {@code EdgeType.DIRECTED},
- * then edges will be created in both directions between adjacent vertices.
+ * Simple generator of graphs in the shape of an m x n lattice where each vertex
+ * is adjacent to each of its neighbors (to the left, right, up, and down).
+ * May be toroidal, in which case the vertices on the boundaries are connected to
+ * their counterparts on the opposite boundaries as well.
  * 
  * @author Joshua O'Madadhain
  */
-public class Lattice2DGenerator<V,E> implements GraphGenerator<V,E>
+public class Lattice2DGenerator<N,E>
 {
-    protected int row_count;
-    protected int col_count;
-    protected boolean is_toroidal;
-    protected boolean is_directed;
-    protected Supplier<? extends Graph<V, E>> graph_factory;
-    protected Supplier<V> vertex_factory;
-    protected Supplier<E> edge_factory;
-    private List<V> v_array;
+	private final int rowCount;
+	private final int colCount;
+	private final boolean toroidal;
+	
+	// TODO: consider using a Builder here as well
+	
+	/**
+	 * Creates an instance which generates graphs of the specified dimensions.
+	 * If {@code toroidal} is true, the nodes on the column 0 are connected to
+	 * the nodes on column n-1, and the nodes on row 0 are connected to the
+	 * nodes on row n-1, forming a torus shape.
+	 * 
+	 * @param rowCount
+	 * @param colCount
+	 * @param toroidal
+	 */
+	public Lattice2DGenerator(int rowCount, int colCount, boolean toroidal) {
+		// TODO: relax the row/col count restrictions to be >= 3 once we get the random selection mechanism
+		// in KleinbergSmallWorld to behave better
+    	Preconditions.checkArgument(rowCount >= 4, "row count must be >= 4");
+    	Preconditions.checkArgument(colCount >= 4, "column count must be >= 4");
+		this.rowCount = rowCount;
+		this.colCount = colCount;
+		this.toroidal = toroidal;
+	}
+	
+	/**
+	 * Creates a lattice-shaped {@code Network} with the specified node and edge
+	 * suppliers, and direction.
+	 * 
+	 * @param directed
+	 * @param nodeFactory
+	 * @param edgeFactory
+	 * @return
+	 */
+    public MutableNetwork<N, E> generateNetwork(boolean directed,
+    		Supplier<N> nodeFactory, 
+    		Supplier<E> edgeFactory) {
+    	Preconditions.checkNotNull(nodeFactory);
+    	Preconditions.checkNotNull(edgeFactory);
 
-    /**
-     * Constructs a generator of square lattices of size {@code latticeSize} 
-     * with the specified parameters.
-     * 
-     * @param graph_factory used to create the {@code Graph} for the lattice
-     * @param vertex_factory used to create the lattice vertices
-     * @param edge_factory used to create the lattice edges
-     * @param latticeSize the number of rows and columns of the lattice
-     * @param isToroidal if true, the created lattice wraps from top to bottom and left to right
-     */
-    public Lattice2DGenerator(Supplier<? extends Graph<V,E>> graph_factory, Supplier<V> vertex_factory, 
-            Supplier<E> edge_factory, int latticeSize, boolean isToroidal)
-    {
-        this(graph_factory, vertex_factory, edge_factory, latticeSize, latticeSize, isToroidal);
-    }
-
-    /**
-     * Creates a generator of {@code row_count} x {@code col_count} lattices 
-     * with the specified parameters.
-     * 
-     * @param graph_factory used to create the {@code Graph} for the lattice
-     * @param vertex_factory used to create the lattice vertices
-     * @param edge_factory used to create the lattice edges
-     * @param row_count the number of rows in the lattice
-     * @param col_count the number of columns in the lattice
-     * @param isToroidal if true, the created lattice wraps from top to bottom and left to right
-     */
-    public Lattice2DGenerator(Supplier<? extends Graph<V,E>> graph_factory, Supplier<V> vertex_factory, 
-            Supplier<E> edge_factory, int row_count, int col_count, boolean isToroidal)
-    {
-        if (row_count < 2 || col_count < 2)
-        {
-            throw new IllegalArgumentException("Row and column counts must each be at least 2.");
+        int vertex_count = rowCount * colCount;
+    	
+    	int boundary_adjustment = (toroidal ? 0 : 1);
+        int edge_count = colCount * (rowCount - boundary_adjustment) +  // vertical edges
+        		rowCount * (colCount - boundary_adjustment);  // horizontal edges
+        if (directed) {
+        	edge_count *= 2;
         }
-
-        this.row_count = row_count;
-        this.col_count = col_count;
-        this.is_toroidal = isToroidal;
-        this.graph_factory = graph_factory;
-        this.vertex_factory = vertex_factory;
-        this.edge_factory = edge_factory;
-        this.is_directed = (graph_factory.get().getDefaultEdgeType() == EdgeType.DIRECTED);
-    }
-    
-    /**
-     * Generates a graph based on the constructor-specified settings.
-     * 
-     * @return the generated graph
-     */
-    public Graph<V,E> get()
-    {
-        int vertex_count = row_count * col_count;
-        Graph<V,E> graph = graph_factory.get();
-        v_array = new ArrayList<V>(vertex_count);
+        
+        NetworkBuilder<Object, Object> builder =
+        		directed ? NetworkBuilder.directed() : NetworkBuilder.undirected();
+        MutableNetwork<N, E> graph =
+        		builder.expectedNodeCount(vertex_count).expectedEdgeCount(edge_count).build();
+        
         for (int i = 0; i < vertex_count; i++)
         {
-            V v = vertex_factory.get();
-            graph.addVertex(v);
-            v_array.add(i, v);
+            N v = nodeFactory.get();
+            graph.addNode(v);
         }
-
-        int start = is_toroidal ? 0 : 1;
-        int end_row = is_toroidal ? row_count : row_count - 1;
-        int end_col = is_toroidal ? col_count : col_count - 1;
+        List<N> elements = new ArrayList<N>(graph.nodes());
+        
+        int end_row = toroidal ? rowCount : rowCount - 1;
+        int end_col = toroidal ? colCount : colCount - 1;
         
         // fill in edges
         // down
         for (int i = 0; i < end_row; i++)
-            for (int j = 0; j < col_count; j++)
-                graph.addEdge(edge_factory.get(), getVertex(i,j), getVertex(i+1, j));
+            for (int j = 0; j < colCount; j++)
+                graph.addEdge(elements.get(getIndex(i, j)), elements.get(getIndex(i + 1, j)), edgeFactory.get());
         // right
-        for (int i = 0; i < row_count; i++)
+        for (int i = 0; i < rowCount; i++)
             for (int j = 0; j < end_col; j++)
-                graph.addEdge(edge_factory.get(), getVertex(i,j), getVertex(i, j+1));
+                graph.addEdge(elements.get(getIndex(i, j)), elements.get(getIndex(i, j + 1)), edgeFactory.get());
 
-        // if the graph is directed, fill in the edges going the other direction...
-        if (graph.getDefaultEdgeType() == EdgeType.DIRECTED)
+        // if the graph is directed, fill in the edges going the other directions
+        if (graph.isDirected())
         {
-            // up
-            for (int i = start; i < row_count; i++)
-                for (int j = 0; j < col_count; j++)
-                    graph.addEdge(edge_factory.get(), getVertex(i,j), getVertex(i-1, j));
-            // left
-            for (int i = 0; i < row_count; i++)
-                for (int j = start; j < col_count; j++)
-                    graph.addEdge(edge_factory.get(), getVertex(i,j), getVertex(i, j-1));
+        	Set<EndpointPair<N>> endpointPairs = new HashSet<>();
+        	for (E edge : graph.edges()) {
+        		endpointPairs.add(graph.incidentNodes(edge));
+        	}
+        	
+        	for (EndpointPair<N> endpoints : endpointPairs) {
+        		graph.addEdge(endpoints.target(), endpoints.source(), edgeFactory.get());
+        	}
         }
-        
         return graph;
     }
-
+    
+    // TODO: this way of getting a Distance is kind of messed up: it shouldn't be possible to 
+    // get a Distance for a graph other than the one provided, but it is because of how the API works.
+    // Fix this.
+    
     /**
-     * Returns the number of edges found in a lattice of this generator's specifications.
-     * (This is useful for subclasses that may modify the generated graphs to add more edges.)
-     * 
-     * @return the number of edges that this generator will generate
+     * Returns a {@code Distance} implementation that assumes that {@code graph} is lattice-shaped.
+     * @param graph
+     * @return
      */
-    public int getGridEdgeCount()
-    {
-        int boundary_adjustment = (is_toroidal ? 0 : 1);
-        int vertical_edge_count = col_count * (row_count - boundary_adjustment);
-        int horizontal_edge_count = row_count * (col_count - boundary_adjustment);
+    public Distance<N> distance(Graph<N> graph) {
+    	return new LatticeDistance(graph);
+    }
+    
+    private class LatticeDistance implements Distance<N> {
+    	private final Map<N, Integer> nodeIndices = new HashMap<>();
+    	private final LoadingCache<N, LoadingCache<N, Number>> distances =
+    			CacheBuilder.newBuilder().build(new CacheLoader<N, LoadingCache<N, Number>>() {
+    				public LoadingCache<N, Number> load(N source) {
+    					return CacheBuilder.newBuilder().build(new CacheLoader<N, Number>() {
+    						public Number load(N target) {
+    							return getDistance(source, target);
+    						}
+    					});
+    				}});
         
-        return (vertical_edge_count + horizontal_edge_count) * (is_directed ? 2 : 1);
-    }
-    
-    protected int getIndex(int i, int j)
-    {
-        return ((mod(i, row_count)) * col_count) + (mod(j, col_count));
-    }
+    	private LatticeDistance(Graph<N> graph) {
+        	Preconditions.checkNotNull(graph);
+        	int index = 0;
+        	for (N node : graph.nodes()) {
+        		nodeIndices.put(node, index++);
+        	}
+    	}
 
-    protected int mod(int i, int modulus) 
-    {
-        int i_mod = i % modulus;
-        return i_mod >= 0 ? i_mod : i_mod + modulus;
+		public Number getDistance(N source, N target) {
+			int sourceIndex = nodeIndices.get(source);
+			int targetIndex = nodeIndices.get(target);
+			int sourceRow = getRow(sourceIndex);
+			int sourceCol = getCol(sourceIndex);
+			int targetRow = getRow(targetIndex);
+			int targetCol = getCol(targetIndex);
+			
+	        int v_dist = Math.abs(sourceRow - targetRow);
+	        int h_dist = Math.abs(sourceCol - targetCol);
+	        if (toroidal)
+	        {
+	        	v_dist = Math.min(v_dist, Math.abs(rowCount - v_dist) + 1);
+	        	h_dist = Math.min(h_dist, Math.abs(colCount - h_dist) + 1);
+	        }
+	        return v_dist + h_dist;
+		}
+
+		@Override
+		public Map<N, ? extends Number> getDistanceMap(N source) {
+			return distances.getUnchecked(source).asMap();
+		}
+
+		/**
+    	 * @param i
+    	 *            index of the vertex whose row we want
+    	 * @return the row in which the vertex with index {@code i} is found
+    	 */
+    	private int getRow(int i) {
+    		return i / colCount;
+    	}
+
+    	/**
+    	 * @param i
+    	 *            index of the vertex whose column we want
+    	 * @return the column in which the vertex with index {@code i} is found
+    	 */
+    	private int getCol(int i) {
+    		return i % colCount;
+    	}
     }
     
-    /**
-     * @param i row index into the lattice
-     * @param j column index into the lattice
-     * @return the vertex at position ({@code i mod row_count, j mod col_count})
-     */
-    protected V getVertex(int i, int j)
-    {
-        return v_array.get(getIndex(i, j));
-    }
-    
-    /**
-     * @param i row index into the lattice
-     * @return the {@code i}th vertex (counting row-wise)
-     */
-    protected V getVertex(int i)
-    {
-        return v_array.get(i);
-    }
-    
-    /**
-     * @param i index of the vertex whose row we want
-     * @return the row in which the vertex with index {@code i} is found
-     */
-    protected int getRow(int i)
-    {
-        return i / col_count;
-    }
-    
-    /**
-     * @param i index of the vertex whose column we want
-     * @return the column in which the vertex with index {@code i} is found
-     */
-    protected int getCol(int i)
-    {
-        return i % col_count;
-    }
+	int getIndex(int i, int j) {
+		return ((mod(i, rowCount)) * colCount) + (mod(j, colCount));
+	}
+
+	private int mod(int i, int modulus) {
+		int i_mod = i % modulus;
+		return i_mod >= 0 ? i_mod : i_mod + modulus;
+	}
 }
