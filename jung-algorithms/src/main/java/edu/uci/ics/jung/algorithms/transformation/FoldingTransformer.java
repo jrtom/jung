@@ -12,7 +12,7 @@
  */
 package edu.uci.ics.jung.algorithms.transformation;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import com.google.common.base.Preconditions;
@@ -20,7 +20,6 @@ import com.google.common.graph.Graph;
 import com.google.common.graph.GraphBuilder;
 import com.google.common.graph.MutableGraph;
 import com.google.common.graph.MutableValueGraph;
-import com.google.common.graph.ValueGraph;
 import com.google.common.graph.ValueGraphBuilder;
 
 /**
@@ -108,7 +107,7 @@ public class FoldingTransformer<V,E>
      */
 	// TODO: consider providing ValueGraph/Network versions of this
 	// TODO: consider renaming this
-    public static <N> ValueGraph<N, Set<N>> foldToValueGraph(Graph<N> g, Set<N> nodes)
+    public static <N> MutableValueGraph<N, Set<N>> foldToValueGraph(Graph<N> g, Set<N> nodes)
     {
     	Preconditions.checkArgument(g.nodes().containsAll(nodes),
     			"Input graph must contain all specified nodes");
@@ -126,7 +125,10 @@ public class FoldingTransformer<V,E>
         			if (!nodes.contains(t) || t.equals(node)) {
         				continue;
         			}
-        			Set<N> intermediateNodes = newGraph.edgeValueOrDefault(node, t, new HashSet<N>());
+        			// TODO: consider having the type of Set depend on
+        			// the input graph's node order
+					Set<N> intermediateNodes =
+							newGraph.edgeValueOrDefault(node, t, new LinkedHashSet<N>());
         			if (intermediateNodes.isEmpty()) {
         				newGraph.putEdgeValue(node, t, intermediateNodes);
         			}
