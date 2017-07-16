@@ -15,8 +15,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.util.Pair;
+import com.google.common.graph.Network;
 
 /**
  * Utilities relating to the shortest paths in a graph.
@@ -37,7 +36,7 @@ public class ShortestPathUtils
 	 * @return the edges on the shortest path from {@code source} to {@code target},
 	 *     in the order traversed
 	 */
-    public static <V, E> List<E> getPath(Graph<V,E> graph, ShortestPath<V,E> sp, V source, V target)
+    public static <V, E> List<E> getPath(Network<V,E> graph, ShortestPath<V,E> sp, V source, V target)
     {
         LinkedList<E> path = new LinkedList<E>();
         
@@ -50,12 +49,7 @@ public class ShortestPathUtils
         {
             E incoming = incomingEdges.get(current);
             path.addFirst(incoming);
-            Pair<V> endpoints = graph.getEndpoints(incoming);
-            if(endpoints.getFirst().equals(current)) {	
-            	current = endpoints.getSecond();
-            } else {
-            	current = endpoints.getFirst();
-            }
+            current = graph.incidentNodes(incoming).adjacentNode(current);
         }
         return path;
     }
