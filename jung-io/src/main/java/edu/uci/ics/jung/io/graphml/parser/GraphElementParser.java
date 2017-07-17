@@ -10,12 +10,10 @@
 
 package edu.uci.ics.jung.io.graphml.parser;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import javax.xml.stream.XMLEventReader;
@@ -24,20 +22,23 @@ import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.Hypergraph;
-import edu.uci.ics.jung.graph.util.EdgeType;
-import edu.uci.ics.jung.graph.util.Pair;
+import com.google.common.graph.MutableNetwork;
+
 import edu.uci.ics.jung.io.GraphIOException;
-import edu.uci.ics.jung.io.graphml.*;
+import edu.uci.ics.jung.io.graphml.DataMetadata;
+import edu.uci.ics.jung.io.graphml.EdgeMetadata;
+import edu.uci.ics.jung.io.graphml.ExceptionConverter;
+import edu.uci.ics.jung.io.graphml.GraphMLConstants;
+import edu.uci.ics.jung.io.graphml.GraphMetadata;
 import edu.uci.ics.jung.io.graphml.GraphMetadata.EdgeDefault;
+import edu.uci.ics.jung.io.graphml.NodeMetadata;
 
 /**
  * Parses graph elements.
  *
  * @author Nathan Mittler - nathan.mittler@gmail.com
  */
-public class GraphElementParser<G extends Hypergraph<V,E>,V,E> extends AbstractElementParser<G,V,E> {
+public class GraphElementParser<G extends MutableNetwork<V,E>,V,E> extends AbstractElementParser<G,V,E> {
 
     public GraphElementParser(ParserContext<G,V,E> parserContext) {
         super(parserContext);
@@ -80,7 +81,7 @@ public class GraphElementParser<G extends Hypergraph<V,E>,V,E> extends AbstractE
             
             Map<String, V> idToVertexMap = new HashMap<String, V>();
             Collection<EdgeMetadata> edgeMetadata = new LinkedList<EdgeMetadata>();
-            Collection<HyperEdgeMetadata> hyperEdgeMetadata = new LinkedList<HyperEdgeMetadata>();
+//            Collection<HyperEdgeMetadata> hyperEdgeMetadata = new LinkedList<HyperEdgeMetadata>();
 
             while (xmlEventReader.hasNext()) {
 
@@ -136,19 +137,19 @@ public class GraphElementParser<G extends Hypergraph<V,E>,V,E> extends AbstractE
                         // Add it to the graph.
                         graphMetadata.addEdgeMetadata(edge, metadata);
                         
-                    } else if (GraphMLConstants.HYPEREDGE_NAME.equals(name)) {
-                        
-                        // Parse the edge metadata
-                        HyperEdgeMetadata metadata = (HyperEdgeMetadata) getParser(name).parse(
-                                xmlEventReader, element);
-                        
-                        // Create the edge object and store it in the metadata
-                        E edge = getParserContext().createHyperEdge(metadata);
-                        hyperEdgeMetadata.add(metadata);
-                        metadata.setEdge(edge);
-                        
-                        // Add it to the graph
-                        graphMetadata.addHyperEdgeMetadata(edge, metadata);
+//                    } else if (GraphMLConstants.HYPEREDGE_NAME.equals(name)) {
+//                        
+//                        // Parse the edge metadata
+//                        HyperEdgeMetadata metadata = (HyperEdgeMetadata) getParser(name).parse(
+//                                xmlEventReader, element);
+//                        
+//                        // Create the edge object and store it in the metadata
+//                        E edge = getParserContext().createHyperEdge(metadata);
+//                        hyperEdgeMetadata.add(metadata);
+//                        metadata.setEdge(edge);
+//                        
+//                        // Add it to the graph
+//                        graphMetadata.addHyperEdgeMetadata(edge, metadata);
                         
                     } else {
 
@@ -176,7 +177,7 @@ public class GraphElementParser<G extends Hypergraph<V,E>,V,E> extends AbstractE
             
             // Add the edges to the graph object.
             addEdgesToGraph(graph, edgeMetadata, idToVertexMap);
-            addHyperEdgesToGraph(graph, hyperEdgeMetadata, idToVertexMap);
+//            addHyperEdgesToGraph(graph, hyperEdgeMetadata, idToVertexMap);
 
             return graphMetadata;
 
@@ -190,7 +191,7 @@ public class GraphElementParser<G extends Hypergraph<V,E>,V,E> extends AbstractE
     private void addVerticesToGraph(G graph, Collection<V> vertices) {
         
         for (V vertex : vertices) {
-            graph.addVertex(vertex);
+            graph.addNode(vertex);
         }
     }
     
@@ -203,7 +204,7 @@ public class GraphElementParser<G extends Hypergraph<V,E>,V,E> extends AbstractE
             // Get the edge out of the metadata
             E edge = (E)emd.getEdge();
             
-            // Get the verticies.
+            // Get the vertices.
             V source = idToVertexMap.get(emd.getSource());
             V target = idToVertexMap.get(emd.getTarget());
             if (source == null || target == null) {
@@ -214,40 +215,35 @@ public class GraphElementParser<G extends Hypergraph<V,E>,V,E> extends AbstractE
             }
 
             // Add it to the graph.
-            if (graph instanceof Graph) {
-                ((Graph<V, E>) graph).addEdge(edge, source, target, emd
-                        .isDirected() ? EdgeType.DIRECTED
-                        : EdgeType.UNDIRECTED);
-            } else {
-                graph.addEdge(edge, new Pair<V>(source, target));
-            }
+            graph.addEdge(source, target, edge);
         }
     }
     
-    @SuppressWarnings("unchecked")
-    private void addHyperEdgesToGraph(G graph, Collection<HyperEdgeMetadata> metadata, 
-            Map<String,V> idToVertexMap) throws GraphIOException {
-        
-        for (HyperEdgeMetadata emd : metadata) {
-
-            // Get the edge out of the metadata
-            E edge = (E)emd.getEdge();
-            
-            // Add the verticies to a list.
-            List<V> verticies = new ArrayList<V>();
-            List<EndpointMetadata> endpoints = emd.getEndpoints();
-            for (EndpointMetadata ep : endpoints) {
-                V v = idToVertexMap.get(ep.getNode());
-                if (v == null) {
-                    throw new GraphIOException(
-                            "hyperedge references undefined vertex: "
-                                    + ep.getNode());
-                }
-                verticies.add(v);
-            }
-
-            // Add it to the graph.
-            graph.addEdge(edge, verticies);
-        }
-    }
+    // TODO: hypergraph support
+//    @SuppressWarnings("unchecked")
+//    private void addHyperEdgesToGraph(G graph, Collection<HyperEdgeMetadata> metadata, 
+//            Map<String,V> idToVertexMap) throws GraphIOException {
+//        
+//        for (HyperEdgeMetadata emd : metadata) {
+//
+//            // Get the edge out of the metadata
+//            E edge = (E)emd.getEdge();
+//            
+//            // Add the verticies to a list.
+//            List<V> verticies = new ArrayList<V>();
+//            List<EndpointMetadata> endpoints = emd.getEndpoints();
+//            for (EndpointMetadata ep : endpoints) {
+//                V v = idToVertexMap.get(ep.getNode());
+//                if (v == null) {
+//                    throw new GraphIOException(
+//                            "hyperedge references undefined vertex: "
+//                                    + ep.getNode());
+//                }
+//                verticies.add(v);
+//            }
+//
+//            // Add it to the graph.
+//            graph.addEdge(edge, verticies);
+//        }
+//    }
 }

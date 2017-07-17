@@ -11,8 +11,8 @@
 package edu.uci.ics.jung.io.graphml;
 
 import java.io.IOException;
-import java.io.Reader;
 import java.io.InputStream;
+import java.io.Reader;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
@@ -21,8 +21,8 @@ import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
 import com.google.common.base.Function;
+import com.google.common.graph.MutableNetwork;
 
-import edu.uci.ics.jung.graph.Hypergraph;
 import edu.uci.ics.jung.io.GraphIOException;
 import edu.uci.ics.jung.io.GraphReader;
 import edu.uci.ics.jung.io.graphml.parser.ElementParserRegistry;
@@ -49,7 +49,10 @@ import edu.uci.ics.jung.io.graphml.parser.GraphMLEventFilter;
  * The edge type used by the graph
  * @see "http://graphml.graphdrawing.org/specification.html"
  */
-public class GraphMLReader2<G extends Hypergraph<V, E>, V, E> implements
+// TODO: do we actually need the G type, or can we just have it be "Network"?
+// TODO: provide Graph/ValueGraph support?
+// TODO: don't bother taking in a graph factory
+public class GraphMLReader2<G extends MutableNetwork<V, E>, V, E> implements
         GraphReader<G, V, E> {
 
     protected XMLEventReader xmlEventReader;
@@ -57,7 +60,7 @@ public class GraphMLReader2<G extends Hypergraph<V, E>, V, E> implements
     protected Function<GraphMetadata, G> graphTransformer;
     protected Function<NodeMetadata, V> vertexTransformer;
     protected Function<EdgeMetadata, E> edgeTransformer;
-    protected Function<HyperEdgeMetadata, E> hyperEdgeTransformer;
+//    protected Function<HyperEdgeMetadata, E> hyperEdgeTransformer;
     protected boolean initialized;
     final protected GraphMLDocument document = new GraphMLDocument();
     final protected ElementParserRegistry<G,V,E> parserRegistry;
@@ -78,15 +81,12 @@ public class GraphMLReader2<G extends Hypergraph<V, E>, V, E> implements
      *                             to vertex objects. This must be non-null.
      * @param edgeTransformer      Transformation function to convert from GraphML EdgeMetadata
      *                             to edge objects. This must be non-null.
-     * @param hyperEdgeTransformer Transformation function to convert from GraphML
-     *                             HyperEdgeMetadata to edge objects. This must be non-null.
      * @throws IllegalArgumentException thrown if any of the arguments are null.
      */
     public GraphMLReader2(Reader fileReader,
                           Function<GraphMetadata, G> graphTransformer,
                           Function<NodeMetadata, V> vertexTransformer,
-                          Function<EdgeMetadata, E> edgeTransformer,
-                          Function<HyperEdgeMetadata, E> hyperEdgeTransformer) {
+                          Function<EdgeMetadata, E> edgeTransformer) {
 
         if (fileReader == null) {
             throw new IllegalArgumentException(
@@ -107,21 +107,15 @@ public class GraphMLReader2<G extends Hypergraph<V, E>, V, E> implements
             throw new IllegalArgumentException(
                     "Argument edgeTransformer must be non-null");
         }        
-        
-        if (hyperEdgeTransformer == null) {
-            throw new IllegalArgumentException(
-                    "Argument hyperEdgeTransformer must be non-null");
-        }
-        
+                
         this.fileReader = fileReader;
         this.graphTransformer = graphTransformer;
         this.vertexTransformer = vertexTransformer;
         this.edgeTransformer = edgeTransformer;
-        this.hyperEdgeTransformer = hyperEdgeTransformer;
         
         // Create the parser registry.
         this.parserRegistry = new ElementParserRegistry<G,V,E>(document.getKeyMap(), 
-                graphTransformer, vertexTransformer, edgeTransformer, hyperEdgeTransformer);
+                graphTransformer, vertexTransformer, edgeTransformer); // , hyperEdgeTransformer);
     }
 
     /**
@@ -146,8 +140,8 @@ public class GraphMLReader2<G extends Hypergraph<V, E>, V, E> implements
     public GraphMLReader2(InputStream inputStream,
                           Function<GraphMetadata, G> graphTransformer,
                           Function<NodeMetadata, V> vertexTransformer,
-                          Function<EdgeMetadata, E> edgeTransformer,
-                          Function<HyperEdgeMetadata, E> hyperEdgeTransformer) {
+                          Function<EdgeMetadata, E> edgeTransformer) { //
+//                          Function<HyperEdgeMetadata, E> hyperEdgeTransformer) {
 
         if (inputStream == null) {
             throw new IllegalArgumentException(
@@ -169,20 +163,20 @@ public class GraphMLReader2<G extends Hypergraph<V, E>, V, E> implements
                     "Argument edgeTransformer must be non-null");
         }        
         
-        if (hyperEdgeTransformer == null) {
-            throw new IllegalArgumentException(
-                    "Argument hyperEdgeTransformer must be non-null");
-        }
+//        if (hyperEdgeTransformer == null) {
+//            throw new IllegalArgumentException(
+//                    "Argument hyperEdgeTransformer must be non-null");
+//        }
         
         this.inputStream = inputStream;
         this.graphTransformer = graphTransformer;
         this.vertexTransformer = vertexTransformer;
         this.edgeTransformer = edgeTransformer;
-        this.hyperEdgeTransformer = hyperEdgeTransformer;
+//        this.hyperEdgeTransformer = hyperEdgeTransformer;
         
         // Create the parser registry.
         this.parserRegistry = new ElementParserRegistry<G,V,E>(document.getKeyMap(), 
-                graphTransformer, vertexTransformer, edgeTransformer, hyperEdgeTransformer);
+                graphTransformer, vertexTransformer, edgeTransformer); // , hyperEdgeTransformer);
     }
 
     /**
@@ -212,14 +206,14 @@ public class GraphMLReader2<G extends Hypergraph<V, E>, V, E> implements
         return edgeTransformer;
     }
 
-    /**
-     * Gets the current Function that is being used for hyperedge objects.
-     *
-     * @return the current Function.
-     */
-    public Function<HyperEdgeMetadata, E> getHyperEdgeTransformer() {
-        return hyperEdgeTransformer;
-    }
+//    /**
+//     * Gets the current Function that is being used for hyperedge objects.
+//     *
+//     * @return the current Function.
+//     */
+//    public Function<HyperEdgeMetadata, E> getHyperEdgeTransformer() {
+//        return hyperEdgeTransformer;
+//    }
 
     /**
      * Verifies the object state and initializes this reader. All Function
@@ -287,7 +281,7 @@ public class GraphMLReader2<G extends Hypergraph<V, E>, V, E> implements
             graphTransformer = null;
             vertexTransformer = null;
             edgeTransformer = null;
-            hyperEdgeTransformer = null;
+//            hyperEdgeTransformer = null;
         }
     }
 

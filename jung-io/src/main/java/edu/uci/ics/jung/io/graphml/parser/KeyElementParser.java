@@ -18,18 +18,19 @@ import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
-import edu.uci.ics.jung.graph.Hypergraph;
+import com.google.common.graph.MutableNetwork;
+
 import edu.uci.ics.jung.io.GraphIOException;
+import edu.uci.ics.jung.io.graphml.ExceptionConverter;
 import edu.uci.ics.jung.io.graphml.GraphMLConstants;
 import edu.uci.ics.jung.io.graphml.Key;
-import edu.uci.ics.jung.io.graphml.ExceptionConverter;
 
 /**
  * Parses key elements.
  *
  * @author Nathan Mittler - nathan.mittler@gmail.com
  */
-public class KeyElementParser<G extends Hypergraph<V,E>,V,E> extends AbstractElementParser<G,V,E> {
+public class KeyElementParser<G extends MutableNetwork<V,E>,V,E> extends AbstractElementParser<G,V,E> {
 
     public KeyElementParser(ParserContext<G,V,E> parserContext) {
         super(parserContext);

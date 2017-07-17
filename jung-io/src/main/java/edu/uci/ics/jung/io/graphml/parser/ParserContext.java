@@ -11,11 +11,10 @@
 package edu.uci.ics.jung.io.graphml.parser;
 
 import com.google.common.base.Function;
+import com.google.common.graph.MutableNetwork;
 
-import edu.uci.ics.jung.graph.Hypergraph;
 import edu.uci.ics.jung.io.graphml.EdgeMetadata;
 import edu.uci.ics.jung.io.graphml.GraphMetadata;
-import edu.uci.ics.jung.io.graphml.HyperEdgeMetadata;
 import edu.uci.ics.jung.io.graphml.KeyMap;
 import edu.uci.ics.jung.io.graphml.NodeMetadata;
 
@@ -28,27 +27,27 @@ import edu.uci.ics.jung.io.graphml.NodeMetadata;
  * @param <V> The vertex type
  * @param <E> The edge type
  */
-public class ParserContext<G extends Hypergraph<V, E>, V, E> {
+public class ParserContext<G extends MutableNetwork<V, E>, V, E> {
 
     private final KeyMap keyMap;
     private final ElementParserRegistry<G,V,E> elementParserRegistry;
     private final Function<GraphMetadata, G> graphTransformer;
     private final Function<NodeMetadata, V> vertexTransformer;
     private final Function<EdgeMetadata, E> edgeTransformer;
-    private final Function<HyperEdgeMetadata, E> hyperEdgeTransformer;
+//    private final Function<HyperEdgeMetadata, E> hyperEdgeTransformer;
     
     public ParserContext(ElementParserRegistry<G,V,E> elementParserRegistry, 
             KeyMap keyMap,
             Function<GraphMetadata, G> graphTransformer,
             Function<NodeMetadata, V> vertexTransformer,
-            Function<EdgeMetadata, E> edgeTransformer,                        
-            Function<HyperEdgeMetadata, E> hyperEdgeTransformer ) {
+            Function<EdgeMetadata, E> edgeTransformer) {                        
+//            Function<HyperEdgeMetadata, E> hyperEdgeTransformer ) {
         this.elementParserRegistry = elementParserRegistry;
         this.keyMap = keyMap;
         this.graphTransformer = graphTransformer;
         this.vertexTransformer = vertexTransformer;
         this.edgeTransformer = edgeTransformer;                
-        this.hyperEdgeTransformer = hyperEdgeTransformer;                
+//        this.hyperEdgeTransformer = hyperEdgeTransformer;                
     }
 
     public ElementParserRegistry<G,V,E> getElementParserRegistry() {
@@ -71,7 +70,7 @@ public class ParserContext<G extends Hypergraph<V, E>, V, E> {
         return edgeTransformer.apply(metadata);
     }
     
-    public E createHyperEdge(HyperEdgeMetadata metadata) {
-        return hyperEdgeTransformer.apply(metadata);
-    }
+//    public E createHyperEdge(HyperEdgeMetadata metadata) {
+//        return hyperEdgeTransformer.apply(metadata);
+//    }
 }
