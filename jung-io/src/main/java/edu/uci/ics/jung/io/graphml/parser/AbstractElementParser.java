@@ -13,7 +13,8 @@ package edu.uci.ics.jung.io.graphml.parser;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 
-import edu.uci.ics.jung.graph.Hypergraph;
+import com.google.common.graph.MutableNetwork;
+
 import edu.uci.ics.jung.io.GraphIOException;
 import edu.uci.ics.jung.io.graphml.Metadata;
 
@@ -22,7 +23,7 @@ import edu.uci.ics.jung.io.graphml.Metadata;
  * 
  * @author Nathan Mittler - nathan.mittler@gmail.com
  */
-public abstract class AbstractElementParser<G extends Hypergraph<V,E>,V,E> implements ElementParser {
+public abstract class AbstractElementParser<G extends MutableNetwork<V,E>,V,E> implements ElementParser {
 
     final private ParserContext<G,V,E> parserContext;
     protected AbstractElementParser(ParserContext<G,V,E> parserContext) {

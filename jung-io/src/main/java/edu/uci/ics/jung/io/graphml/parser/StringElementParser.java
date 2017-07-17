@@ -16,7 +16,8 @@ import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
-import edu.uci.ics.jung.graph.Hypergraph;
+import com.google.common.graph.MutableNetwork;
+
 import edu.uci.ics.jung.io.GraphIOException;
 import edu.uci.ics.jung.io.graphml.ExceptionConverter;
 
@@ -25,7 +26,7 @@ import edu.uci.ics.jung.io.graphml.ExceptionConverter;
  *
  * @author Nathan Mittler - nathan.mittler@gmail.com
  */
-public class StringElementParser<G extends Hypergraph<V,E>,V,E> extends AbstractElementParser<G,V,E> {
+public class StringElementParser<G extends MutableNetwork<V,E>,V,E> extends AbstractElementParser<G,V,E> {
 
     public StringElementParser(ParserContext<G,V,E> parserContext) {
         super(parserContext);

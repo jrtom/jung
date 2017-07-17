@@ -17,19 +17,16 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
 import com.google.common.base.Function;
+import com.google.common.graph.MutableNetwork;
+import com.google.common.graph.Network;
 
-import edu.uci.ics.jung.graph.Hypergraph;
-import edu.uci.ics.jung.graph.SetHypergraph;
-import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.io.GraphIOException;
 
 public class TestGraphMLReader2 {
@@ -37,7 +34,7 @@ public class TestGraphMLReader2 {
             + "<graphml xmlns=\"http://graphml.graphdrawing.org/xmlns\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
             + "xsi:schemaLocation=\"http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd\">";
 
-    private GraphMLReader2<Hypergraph<DummyVertex, DummyEdge>, DummyVertex, DummyEdge> reader;
+    private GraphMLReader2<MutableNetwork<DummyVertex, DummyEdge>, DummyVertex, DummyEdge> reader;
 
     @After
     public void tearDown() throws Exception {
@@ -52,8 +49,8 @@ public class TestGraphMLReader2 {
     public void testEmptyFile() throws Exception {
 
         String xml = "";
-        readGraph(xml, new DummyGraphObjectBase.UndirectedSparseGraphFactory(),
-                new DummyVertex.Factory(), new DummyEdge.EdgeFactory(), new DummyEdge.HyperEdgeFactory());
+        readGraph(xml, new DummyGraphObjectBase.UndirectedNetworkFactory(),
+                new DummyVertex.Factory(), new DummyEdge.EdgeFactory()); //, new DummyEdge.HyperEdgeFactory());
     }
 
     @Test
@@ -72,15 +69,13 @@ public class TestGraphMLReader2 {
                 + "<data key=\"d1\">1.0</data>" + "</edge>" + "</graph>" + "</graphml>";
 
         // Read the graph object.
-        Hypergraph<DummyVertex, DummyEdge> graph = readGraph(xml, new DummyGraphObjectBase.UndirectedSparseGraphFactory(),
-                new DummyVertex.Factory(), new DummyEdge.EdgeFactory(), new DummyEdge.HyperEdgeFactory());
+        Network<DummyVertex, DummyEdge> graph = readGraph(xml, new DummyGraphObjectBase.UndirectedNetworkFactory(),
+                new DummyVertex.Factory(), new DummyEdge.EdgeFactory()); //, new DummyEdge.HyperEdgeFactory());
 
         // Check out the graph.
         Assert.assertNotNull(graph);
-        Assert.assertEquals(3, graph.getVertexCount());
-        Assert.assertEquals(1, graph.getEdgeCount());
-        Assert.assertEquals(0, graph.getEdgeCount(EdgeType.DIRECTED));
-        Assert.assertEquals(1, graph.getEdgeCount(EdgeType.UNDIRECTED));
+        Assert.assertEquals(3, graph.nodes().size());
+        Assert.assertEquals(1, graph.edges().size());
 
         // Check out metadata.
         Assert.assertEquals(1, reader.getGraphMLDocument().getGraphMetadata().size());
@@ -114,8 +109,8 @@ public class TestGraphMLReader2 {
                         "</graphml>";
 
         // Read the graph object.
-        readGraph(xml, new DummyGraphObjectBase.UndirectedSparseGraphFactory(),
-                new DummyVertex.Factory(), new DummyEdge.EdgeFactory(), new DummyEdge.HyperEdgeFactory());
+        readGraph(xml, new DummyGraphObjectBase.UndirectedNetworkFactory(),
+                new DummyVertex.Factory(), new DummyEdge.EdgeFactory()); //, new DummyEdge.HyperEdgeFactory());
 
         // Check out metadata.
         Assert.assertEquals(1, reader.getGraphMLDocument().getGraphMetadata().size());
@@ -150,79 +145,79 @@ public class TestGraphMLReader2 {
                 // node: n3
                 "<data key=\"d1\">1.0</data>" + "</edge>" + "</graphml>";
 
-        readGraph(xml, new DummyGraphObjectBase.UndirectedSparseGraphFactory(), new DummyVertex.Factory(),
-                new DummyEdge.EdgeFactory(), new DummyEdge.HyperEdgeFactory());
+        readGraph(xml, new DummyGraphObjectBase.UndirectedNetworkFactory(), new DummyVertex.Factory(),
+                new DummyEdge.EdgeFactory()); //, new DummyEdge.HyperEdgeFactory());
     }
 
-    @Test
-    public void testHypergraph() throws Exception {
+//    @Test
+//    public void testHypergraph() throws Exception {
+//
+//        String xml = graphMLDocStart
+//                + "<key id=\"d0\" for=\"node\" attr.name=\"color\" attr.type=\"string\">"
+//                + "<default>yellow</default>"
+//                + "</key>"
+//                + "<key id=\"d1\" for=\"edge\" attr.name=\"weight\" attr.type=\"double\"/>"
+//                + "<graph id=\"G\" edgedefault=\"undirected\">"
+//                + "<node id=\"n0\">" + "<data key=\"d0\">green</data>"
+//                + "</node>" + "<node id=\"n1\"/>" + "<node id=\"n2\">"
+//                + "<data key=\"d0\">blue</data>" + "</node>"
+//                + "<hyperedge id=\"e0\">"
+//                + "<endpoint node=\"n0\"/>" + "<endpoint node=\"n1\"/>"
+//                + "<endpoint node=\"n2\"/>" + "</hyperedge>" + "</graph>" + "</graphml>";
+//
+//        // Read the graph object.
+//        Hypergraph<DummyVertex, DummyEdge> graph = readGraph(xml, new DummyGraphObjectBase.SetHypergraphFactory(),
+//                new DummyVertex.Factory(), new DummyEdge.EdgeFactory(), new DummyEdge.HyperEdgeFactory());
+//
+//        // Check out the graph.
+//        Assert.assertNotNull(graph);
+//        Assert.assertEquals(3, graph.nodes().size());
+//        Assert.assertEquals(1, graph.edges().size());
+//        Assert.assertEquals(0, graph.edges().size(EdgeType.DIRECTED));
+//        Assert.assertEquals(1, graph.edges().size(EdgeType.UNDIRECTED));
+//
+//        // Check out metadata.
+//        Assert.assertEquals(1, reader.getGraphMLDocument().getGraphMetadata().size());
+//        List<HyperEdgeMetadata> edges = new ArrayList<HyperEdgeMetadata>(reader.getGraphMLDocument().getGraphMetadata().get(0).getHyperEdgeMap().values());
+//        Assert.assertEquals(1, edges.size());
+//        Assert.assertEquals(3, edges.get(0).getEndpoints().size());
+//        Assert.assertEquals("n0", edges.get(0).getEndpoints().get(0).getNode());
+//        Assert.assertEquals("n1", edges.get(0).getEndpoints().get(1).getNode());
+//        Assert.assertEquals("n2", edges.get(0).getEndpoints().get(2).getNode());
+//    }
 
-        String xml = graphMLDocStart
-                + "<key id=\"d0\" for=\"node\" attr.name=\"color\" attr.type=\"string\">"
-                + "<default>yellow</default>"
-                + "</key>"
-                + "<key id=\"d1\" for=\"edge\" attr.name=\"weight\" attr.type=\"double\"/>"
-                + "<graph id=\"G\" edgedefault=\"undirected\">"
-                + "<node id=\"n0\">" + "<data key=\"d0\">green</data>"
-                + "</node>" + "<node id=\"n1\"/>" + "<node id=\"n2\">"
-                + "<data key=\"d0\">blue</data>" + "</node>"
-                + "<hyperedge id=\"e0\">"
-                + "<endpoint node=\"n0\"/>" + "<endpoint node=\"n1\"/>"
-                + "<endpoint node=\"n2\"/>" + "</hyperedge>" + "</graph>" + "</graphml>";
-
-        // Read the graph object.
-        Hypergraph<DummyVertex, DummyEdge> graph = readGraph(xml, new DummyGraphObjectBase.SetHypergraphFactory(),
-                new DummyVertex.Factory(), new DummyEdge.EdgeFactory(), new DummyEdge.HyperEdgeFactory());
-
-        // Check out the graph.
-        Assert.assertNotNull(graph);
-        Assert.assertEquals(3, graph.getVertexCount());
-        Assert.assertEquals(1, graph.getEdgeCount());
-        Assert.assertEquals(0, graph.getEdgeCount(EdgeType.DIRECTED));
-        Assert.assertEquals(1, graph.getEdgeCount(EdgeType.UNDIRECTED));
-
-        // Check out metadata.
-        Assert.assertEquals(1, reader.getGraphMLDocument().getGraphMetadata().size());
-        List<HyperEdgeMetadata> edges = new ArrayList<HyperEdgeMetadata>(reader.getGraphMLDocument().getGraphMetadata().get(0).getHyperEdgeMap().values());
-        Assert.assertEquals(1, edges.size());
-        Assert.assertEquals(3, edges.get(0).getEndpoints().size());
-        Assert.assertEquals("n0", edges.get(0).getEndpoints().get(0).getNode());
-        Assert.assertEquals("n1", edges.get(0).getEndpoints().get(1).getNode());
-        Assert.assertEquals("n2", edges.get(0).getEndpoints().get(2).getNode());
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testInvalidGraphFactory() throws Exception {
-
-        // Need a hypergraph
-        String xml = graphMLDocStart
-                + "<key id=\"d0\" for=\"node\" attr.name=\"color\" attr.type=\"string\">"
-                + "<default>yellow</default>"
-                + "</key>"
-                + "<key id=\"d1\" for=\"edge\" attr.name=\"weight\" attr.type=\"double\"/>"
-                + "<graph id=\"G\" edgedefault=\"undirected\">"
-                + "<node id=\"n0\">" + "<data key=\"d0\">green</data>"
-                + "</node>" + "<node id=\"n1\"/>" + "<node id=\"n2\">"
-                + "<data key=\"d0\">blue</data>" + "</node>"
-                + "<hyperedge id=\"e0\">"
-                + "<endpoint node=\"n0\"/>" + "<endpoint node=\"n1\"/>"
-                + "<endpoint node=\"n2\"/>" + "</hyperedge>" + "</graphml>";
-
-	// This will attempt to add an edge with an invalid number of incident vertices (3)
-	// for an UndirectedGraph, which should trigger an IllegalArgumentException.
-        readGraph(xml, new DummyGraphObjectBase.UndirectedSparseGraphFactory(),
-                new DummyVertex.Factory(), new DummyEdge.EdgeFactory(), new DummyEdge.HyperEdgeFactory());
-    }
+//    @Test(expected = IllegalArgumentException.class)
+//    public void testInvalidGraphFactory() throws Exception {
+//
+//        // Need a hypergraph
+//        String xml = graphMLDocStart
+//                + "<key id=\"d0\" for=\"node\" attr.name=\"color\" attr.type=\"string\">"
+//                + "<default>yellow</default>"
+//                + "</key>"
+//                + "<key id=\"d1\" for=\"edge\" attr.name=\"weight\" attr.type=\"double\"/>"
+//                + "<graph id=\"G\" edgedefault=\"undirected\">"
+//                + "<node id=\"n0\">" + "<data key=\"d0\">green</data>"
+//                + "</node>" + "<node id=\"n1\"/>" + "<node id=\"n2\">"
+//                + "<data key=\"d0\">blue</data>" + "</node>"
+//                + "<hyperedge id=\"e0\">"
+//                + "<endpoint node=\"n0\"/>" + "<endpoint node=\"n1\"/>"
+//                + "<endpoint node=\"n2\"/>" + "</hyperedge>" + "</graphml>";
+//
+//	// This will attempt to add an edge with an invalid number of incident vertices (3)
+//	// for an UndirectedGraph, which should trigger an IllegalArgumentException.
+//        readGraph(xml, new DummyGraphObjectBase.UndirectedNetworkFactory(),
+//                new DummyVertex.Factory(), new DummyEdge.EdgeFactory()); //, new DummyEdge.HyperEdgeFactory());
+//    }
 
     @Test
     public void testAttributesFile() throws Exception {
 
         // Read the graph object.
-        Hypergraph<DummyVertex, DummyEdge> graph = readGraphFromFile("attributes.graphml", new DummyGraphObjectBase.UndirectedSparseGraphFactory(),
-                new DummyVertex.Factory(), new DummyEdge.EdgeFactory(), new DummyEdge.HyperEdgeFactory());
+        Network<DummyVertex, DummyEdge> graph = readGraphFromFile("attributes.graphml", new DummyGraphObjectBase.UndirectedNetworkFactory(),
+                new DummyVertex.Factory(), new DummyEdge.EdgeFactory()); //, new DummyEdge.HyperEdgeFactory());
 
-        Assert.assertEquals(6, graph.getVertexCount());
-        Assert.assertEquals(7, graph.getEdgeCount());
+        Assert.assertEquals(6, graph.nodes().size());
+        Assert.assertEquals(7, graph.edges().size());
 
         Assert.assertEquals(1, reader.getGraphMLDocument().getGraphMetadata().size());
 
@@ -270,90 +265,90 @@ public class TestGraphMLReader2 {
         Assert.assertEquals("1.1", edges.get(6).getProperties().get("d1"));
     }
 
-    @Test
-    public void testHypergraphFile() throws Exception {
-
-        Function<GraphMetadata, Hypergraph<Number, Number>> graphFactory = new Function<GraphMetadata, Hypergraph<Number, Number>>() {
-            public Hypergraph<Number, Number> apply(GraphMetadata md) {
-                return new SetHypergraph<Number, Number>();
-            }
-        };
-
-        Function<NodeMetadata, Number> vertexFactory = new Function<NodeMetadata, Number>() {
-            int n = 0;
-
-            public Number apply(NodeMetadata md) {
-                return n++;
-            }
-        };
-
-        Function<EdgeMetadata, Number> edgeFactory = new Function<EdgeMetadata, Number>() {
-            int n = 100;
-
-            public Number apply(EdgeMetadata md) {
-                return n++;
-            }
-        };
-
-        Function<HyperEdgeMetadata, Number> hyperEdgeFactory = new Function<HyperEdgeMetadata, Number>() {
-            int n = 0;
-
-            public Number apply(HyperEdgeMetadata md) {
-                return n++;
-            }
-        };
-
-        // Read the graph object.        
-        Reader fileReader = new InputStreamReader(getClass().getResourceAsStream("hyper.graphml"));
-        GraphMLReader2<Hypergraph<Number, Number>, Number, Number> hyperreader =
-                new GraphMLReader2<Hypergraph<Number, Number>, Number, Number>(fileReader,
-                        graphFactory, vertexFactory, edgeFactory, hyperEdgeFactory);
-
-        // Read the graph.
-        Hypergraph<Number, Number> graph = hyperreader.readGraph();
-
-        Assert.assertEquals(graph.getVertexCount(), 7);
-        Assert.assertEquals(graph.getEdgeCount(), 4);
-
-        // n0
-        Set<Number> incident = new HashSet<Number>();
-        incident.add(0);
-        incident.add(100);
-        Assert.assertEquals(incident, graph.getIncidentEdges(0));
-
-        // n1
-        incident.clear();
-        incident.add(0);
-        incident.add(2);
-        Assert.assertEquals(incident, graph.getIncidentEdges(1));
-
-        // n2
-        incident.clear();
-        incident.add(0);
-        Assert.assertEquals(incident, graph.getIncidentEdges(2));
-
-        // n3
-        incident.clear();
-        incident.add(1);
-        incident.add(2);
-        Assert.assertEquals(incident, graph.getIncidentEdges(3));
-
-        // n4
-        incident.clear();
-        incident.add(1);
-        incident.add(100);
-        Assert.assertEquals(incident, graph.getIncidentEdges(4));
-
-        // n5
-        incident.clear();
-        incident.add(1);
-        Assert.assertEquals(incident, graph.getIncidentEdges(5));
-
-        // n6
-        incident.clear();
-        incident.add(1);
-        Assert.assertEquals(incident, graph.getIncidentEdges(6));
-    }
+//    @Test
+//    public void testHypergraphFile() throws Exception {
+//
+//        Function<GraphMetadata, Hypergraph<Number, Number>> graphFactory = new Function<GraphMetadata, Hypergraph<Number, Number>>() {
+//            public Hypergraph<Number, Number> apply(GraphMetadata md) {
+//                return new SetHypergraph<Number, Number>();
+//            }
+//        };
+//
+//        Function<NodeMetadata, Number> vertexFactory = new Function<NodeMetadata, Number>() {
+//            int n = 0;
+//
+//            public Number apply(NodeMetadata md) {
+//                return n++;
+//            }
+//        };
+//
+//        Function<EdgeMetadata, Number> edgeFactory = new Function<EdgeMetadata, Number>() {
+//            int n = 100;
+//
+//            public Number apply(EdgeMetadata md) {
+//                return n++;
+//            }
+//        };
+//
+////        Function<HyperEdgeMetadata, Number> hyperEdgeFactory = new Function<HyperEdgeMetadata, Number>() {
+////            int n = 0;
+////
+////            public Number apply(HyperEdgeMetadata md) {
+////                return n++;
+////            }
+////        };
+//
+//        // Read the graph object.        
+//        Reader fileReader = new InputStreamReader(getClass().getResourceAsStream("hyper.graphml"));
+//        GraphMLReader2<MutableNetwork<Number, Number>, Number, Number> reader =
+//                new GraphMLReader2<MutableNetwork<Number, Number>, Number, Number>(fileReader,
+//                        graphFactory, vertexFactory, edgeFactory); //, hyperEdgeFactory);
+//
+//        // Read the graph.
+//        Network<Number, Number> graph = reader.readGraph();
+//
+//        Assert.assertEquals(graph.nodes().size(), 7);
+//        Assert.assertEquals(graph.edges().size(), 4);
+//
+//        // n0
+//        Set<Number> incident = new HashSet<Number>();
+//        incident.add(0);
+//        incident.add(100);
+//        Assert.assertEquals(incident, graph.incidentEdges(0));
+//
+//        // n1
+//        incident.clear();
+//        incident.add(0);
+//        incident.add(2);
+//        Assert.assertEquals(incident, graph.incidentEdges(1));
+//
+//        // n2
+//        incident.clear();
+//        incident.add(0);
+//        Assert.assertEquals(incident, graph.incidentEdges(2));
+//
+//        // n3
+//        incident.clear();
+//        incident.add(1);
+//        incident.add(2);
+//        Assert.assertEquals(incident, graph.incidentEdges(3));
+//
+//        // n4
+//        incident.clear();
+//        incident.add(1);
+//        incident.add(100);
+//        Assert.assertEquals(incident, graph.incidentEdges(4));
+//
+//        // n5
+//        incident.clear();
+//        incident.add(1);
+//        Assert.assertEquals(incident, graph.incidentEdges(5));
+//
+//        // n6
+//        incident.clear();
+//        incident.add(1);
+//        Assert.assertEquals(incident, graph.incidentEdges(6));
+//    }
 
     /*@Test
     public void testReader1Perf() throws Exception {
@@ -423,23 +418,23 @@ public class TestGraphMLReader2 {
         System.out.println();
     }*/
 
-    private Hypergraph<DummyVertex, DummyEdge> readGraph(String xml, Function<GraphMetadata, Hypergraph<DummyVertex, DummyEdge>> gf,
-                                                 DummyVertex.Factory nf, DummyEdge.EdgeFactory ef, DummyEdge.HyperEdgeFactory hef)
+    private Network<DummyVertex, DummyEdge> readGraph(String xml, Function<GraphMetadata, MutableNetwork<DummyVertex, DummyEdge>> gf,
+                                                 DummyVertex.Factory nf, DummyEdge.EdgeFactory ef) //, DummyEdge.HyperEdgeFactory hef)
             throws GraphIOException {
         Reader fileReader = new StringReader(xml);
-        reader = new GraphMLReader2<Hypergraph<DummyVertex, DummyEdge>, DummyVertex, DummyEdge>(
-                fileReader, gf, nf, ef, hef);
+        reader = new GraphMLReader2<MutableNetwork<DummyVertex, DummyEdge>, DummyVertex, DummyEdge>(
+                fileReader, gf, nf, ef); //, hef);
 
         return reader.readGraph();
     }
 
-    private Hypergraph<DummyVertex, DummyEdge> readGraphFromFile(String file, Function<GraphMetadata, Hypergraph<DummyVertex, DummyEdge>> gf,
-            DummyVertex.Factory nf, DummyEdge.EdgeFactory ef, DummyEdge.HyperEdgeFactory hef)
+    private Network<DummyVertex, DummyEdge> readGraphFromFile(String file, Function<GraphMetadata, MutableNetwork<DummyVertex, DummyEdge>> gf,
+            DummyVertex.Factory nf, DummyEdge.EdgeFactory ef) //, DummyEdge.HyperEdgeFactory hef)
             throws Exception {
         InputStream is = getClass().getResourceAsStream(file);
         Reader fileReader = new InputStreamReader(is);
-        reader = new GraphMLReader2<Hypergraph<DummyVertex, DummyEdge>, DummyVertex, DummyEdge>(
-                fileReader, gf, nf, ef, hef);
+        reader = new GraphMLReader2<MutableNetwork<DummyVertex, DummyEdge>, DummyVertex, DummyEdge>(
+                fileReader, gf, nf, ef); //, hef);
 
         return reader.readGraph();
     }

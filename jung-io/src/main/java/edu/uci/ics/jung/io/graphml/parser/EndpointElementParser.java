@@ -20,19 +20,20 @@ import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
-import edu.uci.ics.jung.graph.Hypergraph;
+import com.google.common.graph.MutableNetwork;
+
 import edu.uci.ics.jung.io.GraphIOException;
 import edu.uci.ics.jung.io.graphml.EndpointMetadata;
-import edu.uci.ics.jung.io.graphml.GraphMLConstants;
-import edu.uci.ics.jung.io.graphml.ExceptionConverter;
 import edu.uci.ics.jung.io.graphml.EndpointMetadata.EndpointType;
+import edu.uci.ics.jung.io.graphml.ExceptionConverter;
+import edu.uci.ics.jung.io.graphml.GraphMLConstants;
 
 /**
  * Parses endpoint elements.
  * 
  * @author Nathan Mittler - nathan.mittler@gmail.com
  */
-public class EndpointElementParser<G extends Hypergraph<V,E>,V,E> extends AbstractElementParser<G,V,E> {
+public class EndpointElementParser<G extends MutableNetwork<V,E>,V,E> extends AbstractElementParser<G,V,E> {
     
     final static private Map<String, EndpointType> endpointTypeMap = new HashMap<String, EndpointType>();
     static {

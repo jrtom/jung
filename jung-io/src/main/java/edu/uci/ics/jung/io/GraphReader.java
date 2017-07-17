@@ -10,7 +10,7 @@
 
 package edu.uci.ics.jung.io;
 
-import edu.uci.ics.jung.graph.Hypergraph;
+import com.google.common.graph.MutableNetwork;
 
 /**
  * Interface for a reader of graph objects
@@ -24,7 +24,7 @@ import edu.uci.ics.jung.graph.Hypergraph;
  * @param <V> the edge type
  *            the edge type
  */
-public interface GraphReader<G extends Hypergraph<V, E>, V, E> {
+public interface GraphReader<G extends MutableNetwork<V, E>, V, E> {
 
     /**
      * Reads a single graph object, if one is available.

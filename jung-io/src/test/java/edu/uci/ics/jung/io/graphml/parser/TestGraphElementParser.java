@@ -140,35 +140,35 @@ public class TestGraphElementParser extends AbstractParserTest {
         Assert.assertEquals("2", edges.get(1).getSource());
     }
 
-    @Test
-    public void testHyperEdges() throws Exception {
-        
-        String xml = 
-            "<graph edgedefault=\"undirected\">" +
-                "<node id=\"1\"/>" +
-                "<node id=\"2\"/>" +
-                "<node id=\"3\"/>" +
-                "<hyperedge>" +
-                    "<endpoint node=\"1\"/>" +
-                    "<endpoint node=\"2\"/>" +
-                "</hyperedge>" +
-                "<hyperedge>" +
-                    "<endpoint node=\"2\"/>" +
-                    "<endpoint node=\"3\"/>" +
-                "</hyperedge>" +
-                "<hyperedge>" +
-                    "<endpoint node=\"3\"/>" +
-                    "<endpoint node=\"1\"/>" +
-                "</hyperedge>" +
-            "</graph>";
-        
-        GraphMetadata g = (GraphMetadata) readObject(xml);
-        Assert.assertNotNull(g);
-        Assert.assertEquals(EdgeDefault.UNDIRECTED, g.getEdgeDefault());
-        Assert.assertEquals(null, g.getId());
-        Assert.assertEquals(null, g.getDescription());
-        Assert.assertEquals(3, g.getHyperEdgeMap().size());
-    }
+//    @Test
+//    public void testHyperEdges() throws Exception {
+//        
+//        String xml = 
+//            "<graph edgedefault=\"undirected\">" +
+//                "<node id=\"1\"/>" +
+//                "<node id=\"2\"/>" +
+//                "<node id=\"3\"/>" +
+//                "<hyperedge>" +
+//                    "<endpoint node=\"1\"/>" +
+//                    "<endpoint node=\"2\"/>" +
+//                "</hyperedge>" +
+//                "<hyperedge>" +
+//                    "<endpoint node=\"2\"/>" +
+//                    "<endpoint node=\"3\"/>" +
+//                "</hyperedge>" +
+//                "<hyperedge>" +
+//                    "<endpoint node=\"3\"/>" +
+//                    "<endpoint node=\"1\"/>" +
+//                "</hyperedge>" +
+//            "</graph>";
+//        
+//        GraphMetadata g = (GraphMetadata) readObject(xml);
+//        Assert.assertNotNull(g);
+//        Assert.assertEquals(EdgeDefault.UNDIRECTED, g.getEdgeDefault());
+//        Assert.assertEquals(null, g.getId());
+//        Assert.assertEquals(null, g.getDescription());
+//        Assert.assertEquals(3, g.getHyperEdgeMap().size());
+//    }
 
     @Test
     public void testUserAttributes() throws Exception {
