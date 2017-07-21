@@ -9,24 +9,24 @@
   <artifactId>jung-graph-impl</artifactId>
   <name>JUNG - Graph Implementations</name>
   <description>Graph implementations for the JUNG project</description>
-  
+
   <dependencies>
-	<dependency>
-		<groupId>net.sf.jung</groupId>
-		<artifactId>jung-api</artifactId>
-		<version>${project.version}</version>
-	</dependency>
-	<dependency>
-		<groupId>net.sf.jung</groupId>
-		<artifactId>jung-api</artifactId>
-		<version>${project.version}</version>
-		<type>test-jar</type>
-		<scope>test</scope>
-	</dependency>
     <dependency>
-		<groupId>junit</groupId>
-		<artifactId>junit</artifactId>
-		<scope>test</scope>
+      <groupId>net.sf.jung</groupId>
+      <artifactId>jung-api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>net.sf.jung</groupId>
+      <artifactId>jung-api</artifactId>
+      <version>${project.version}</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 </project>
