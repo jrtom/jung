@@ -1,147 +1,134 @@
 /**
- * Copyright (c) 2008, The JUNG Authors 
+ * Copyright (c) 2008, The JUNG Authors
  *
- * All rights reserved.
+ * <p>All rights reserved.
  *
- * This software is open-source under the BSD license; see either
- * "license.txt" or
- * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
- * Created on Aug 22, 2008
- * 
+ * <p>This software is open-source under the BSD license; see either "license.txt" or
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description. Created on Aug 22, 2008
  */
 package edu.uci.ics.jung.algorithms.scoring;
 
 import com.google.common.base.Function;
 import com.google.common.graph.Network;
-
 import edu.uci.ics.jung.algorithms.scoring.util.ScoringUtils;
 
 /**
- * A special case of {@code PageRankWithPriors} in which the final scores
- * represent a probability distribution over position assuming a random (Markovian)
- * walk of exactly k steps, based on the initial distribution specified by the priors.
- * 
- * <p><b>NOTE</b>: The version of {@code KStepMarkov} in {@code algorithms.importance}
- * (and in JUNG 1.x) is believed to be incorrect: rather than returning 
- * a score which represents a probability distribution over position assuming
- * a k-step random walk, it returns a score which represents the sum over all steps
- * of the probability for each step.  If you want that behavior, set the 
+ * A special case of {@code PageRankWithPriors} in which the final scores represent a probability
+ * distribution over position assuming a random (Markovian) walk of exactly k steps, based on the
+ * initial distribution specified by the priors.
+ *
+ * <p><b>NOTE</b>: The version of {@code KStepMarkov} in {@code algorithms.importance} (and in JUNG
+ * 1.x) is believed to be incorrect: rather than returning a score which represents a probability
+ * distribution over position assuming a k-step random walk, it returns a score which represents the
+ * sum over all steps of the probability for each step. If you want that behavior, set the
  * 'cumulative' flag as follows <i>before calling {@code evaluate()}</i>:
+ *
  * <pre>
  *     KStepMarkov ksm = new KStepMarkov(...);
  *     ksm.setCumulative(true);
  *     ksm.evaluate();
  * </pre>
- * 
+ *
  * By default, the 'cumulative' flag is set to false.
- * 
- * NOTE: THIS CLASS IS NOT YET COMPLETE.  USE AT YOUR OWN RISK.  (The original behavior
- * is captured by the version still available in {@code algorithms.importance}.)
- * 
- * @see "Algorithms for Estimating Relative Importance in Graphs by Scott White and Padhraic Smyth, 2003"
+ *
+ * <p>NOTE: THIS CLASS IS NOT YET COMPLETE. USE AT YOUR OWN RISK. (The original behavior is captured
+ * by the version still available in {@code algorithms.importance}.)
+ *
+ * @see "Algorithms for Estimating Relative Importance in Graphs by Scott White and Padhraic Smyth,
+ *     2003"
  * @see PageRank
  * @see PageRankWithPriors
  */
-public class KStepMarkov<V,E> extends PageRankWithPriors<V,E> 
-{
-	private boolean cumulative;
-	
-	/**
-	 * Creates an instance based on the specified graph, edge weights, vertex
-	 * priors (initial scores), and number of steps to take.
-	 * @param graph the input graph
-	 * @param edge_weights the edge weights (transition probabilities)
-	 * @param vertex_priors the initial probability distribution (score assignment)
-	 * @param steps the number of times that {@code step()} will be called by {@code evaluate}
-	 */
-	public KStepMarkov(Network<V,E> graph, Function<E, ? extends Number> edge_weights, 
-					   Function<V, Double> vertex_priors, int steps)
-	{
-		super(graph, edge_weights, vertex_priors, 0);
-		initialize(steps);
-	}
-	
-	/**
-	 * Creates an instance based on the specified graph, vertex
-	 * priors (initial scores), and number of steps to take.  The edge
-	 * weights (transition probabilities) are set to default values (a uniform
-	 * distribution over all outgoing edges).
-	 * @param graph the input graph
-	 * @param vertex_priors the initial probability distribution (score assignment)
-	 * @param steps the number of times that {@code step()} will be called by {@code evaluate}
-	 */
-	public KStepMarkov(Network<V,E> graph, Function<V, Double> vertex_priors, int steps)
-	{
-		super(graph, vertex_priors, 0);
-		initialize(steps);
-	}
-	
-	/**
-	 * Creates an instance based on the specified graph and number of steps to 
-	 * take.  The edge weights (transition probabilities) and vertex initial scores
-	 * (prior probabilities) are set to default values (a uniform
-	 * distribution over all outgoing edges, and a uniform distribution over
-	 * all vertices, respectively).
-	 * @param graph the input graph
-	 * @param steps the number of times that {@code step()} will be called by {@code evaluate}
-	 */
-	public KStepMarkov(Network<V,E> graph, int steps)
-	{
-		super(graph, ScoringUtils.getUniformRootPrior(graph.nodes()), 0);
-		initialize(steps);
-	}
-	
-	private void initialize(int steps)
-	{
-		this.acceptDisconnectedGraph(false);
-		
-		if (steps <= 0)
-			throw new IllegalArgumentException("Number of steps must be > 0");
-		
-		this.max_iterations = steps;
-		this.tolerance = -1.0;
-		
-		this.cumulative = false;
-	}
+public class KStepMarkov<V, E> extends PageRankWithPriors<V, E> {
+  private boolean cumulative;
 
-	/**
-	 * Specifies whether this instance should assign a score to each vertex
-	 * based on the sum over all steps of the probability for each step.
-	 * See the class-level documentation for details.
-	 * @param cumulative true if this instance should assign a cumulative score to each vertex
-	 */
-	public void setCumulative(boolean cumulative)
-	{
-		this.cumulative = cumulative;
-	}
-	
-    /**
-     * Updates the value for this vertex.  Called by <code>step()</code>.
-     */
-    @Override
-    public double update(V v)
-    {
-    	if (!cumulative)
-    		return super.update(v);
-    	
-        collectDisappearingPotential(v);
-        
-        double v_input = 0;
-        for (V u : graph.predecessors(v)) {
-        	for (E e : graph.edgesConnecting(u, v)) {
-    			v_input += (getCurrentValue(u) * getEdgeWeight(u,e).doubleValue());
-        	}
-        }
-        
-        // modify total_input according to alpha
-        double new_value = alpha > 0 ? 
-        		v_input * (1 - alpha) + getVertexPrior(v) * alpha :
-        		v_input;
-        setOutputValue(v, new_value + getCurrentValue(v));
+  /**
+   * Creates an instance based on the specified graph, edge weights, vertex priors (initial scores),
+   * and number of steps to take.
+   *
+   * @param graph the input graph
+   * @param edge_weights the edge weights (transition probabilities)
+   * @param vertex_priors the initial probability distribution (score assignment)
+   * @param steps the number of times that {@code step()} will be called by {@code evaluate}
+   */
+  public KStepMarkov(
+      Network<V, E> graph,
+      Function<E, ? extends Number> edge_weights,
+      Function<V, Double> vertex_priors,
+      int steps) {
+    super(graph, edge_weights, vertex_priors, 0);
+    initialize(steps);
+  }
 
-        // FIXME: DO WE NEED TO CHANGE HOW DISAPPEARING IS COUNTED?  NORMALIZE?
-        
-        return Math.abs(getCurrentValue(v) - new_value);
+  /**
+   * Creates an instance based on the specified graph, vertex priors (initial scores), and number of
+   * steps to take. The edge weights (transition probabilities) are set to default values (a uniform
+   * distribution over all outgoing edges).
+   *
+   * @param graph the input graph
+   * @param vertex_priors the initial probability distribution (score assignment)
+   * @param steps the number of times that {@code step()} will be called by {@code evaluate}
+   */
+  public KStepMarkov(Network<V, E> graph, Function<V, Double> vertex_priors, int steps) {
+    super(graph, vertex_priors, 0);
+    initialize(steps);
+  }
+
+  /**
+   * Creates an instance based on the specified graph and number of steps to take. The edge weights
+   * (transition probabilities) and vertex initial scores (prior probabilities) are set to default
+   * values (a uniform distribution over all outgoing edges, and a uniform distribution over all
+   * vertices, respectively).
+   *
+   * @param graph the input graph
+   * @param steps the number of times that {@code step()} will be called by {@code evaluate}
+   */
+  public KStepMarkov(Network<V, E> graph, int steps) {
+    super(graph, ScoringUtils.getUniformRootPrior(graph.nodes()), 0);
+    initialize(steps);
+  }
+
+  private void initialize(int steps) {
+    this.acceptDisconnectedGraph(false);
+
+    if (steps <= 0) throw new IllegalArgumentException("Number of steps must be > 0");
+
+    this.max_iterations = steps;
+    this.tolerance = -1.0;
+
+    this.cumulative = false;
+  }
+
+  /**
+   * Specifies whether this instance should assign a score to each vertex based on the sum over all
+   * steps of the probability for each step. See the class-level documentation for details.
+   *
+   * @param cumulative true if this instance should assign a cumulative score to each vertex
+   */
+  public void setCumulative(boolean cumulative) {
+    this.cumulative = cumulative;
+  }
+
+  /** Updates the value for this vertex. Called by <code>step()</code>. */
+  @Override
+  public double update(V v) {
+    if (!cumulative) return super.update(v);
+
+    collectDisappearingPotential(v);
+
+    double v_input = 0;
+    for (V u : graph.predecessors(v)) {
+      for (E e : graph.edgesConnecting(u, v)) {
+        v_input += (getCurrentValue(u) * getEdgeWeight(u, e).doubleValue());
+      }
     }
 
+    // modify total_input according to alpha
+    double new_value = alpha > 0 ? v_input * (1 - alpha) + getVertexPrior(v) * alpha : v_input;
+    setOutputValue(v, new_value + getCurrentValue(v));
+
+    // FIXME: DO WE NEED TO CHANGE HOW DISAPPEARING IS COUNTED?  NORMALIZE?
+
+    return Math.abs(getCurrentValue(v) - new_value);
+  }
 }

@@ -17,50 +17,48 @@ import java.util.List;
  * Metadata structure for the 'hyperedge' GraphML element.
  *
  * @author Nathan Mittler - nathan.mittler@gmail.com
- *
  * @see "http://graphml.graphdrawing.org/specification.html"
  */
 public class HyperEdgeMetadata extends AbstractMetadata {
 
-    private String id;
-    private String description;
-    private Object edge;
-    final private List<EndpointMetadata> endpoints = new ArrayList<EndpointMetadata>();
-    
-    public String getId() {
-        return id;
-    }
+  private String id;
+  private String description;
+  private Object edge;
+  private final List<EndpointMetadata> endpoints = new ArrayList<EndpointMetadata>();
 
-    public void setId(String id) {
-        this.id = id;
-    }
+  public String getId() {
+    return id;
+  }
 
-    public String getDescription() {
-        return description;
-    }
+  public void setId(String id) {
+    this.id = id;
+  }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+  public String getDescription() {
+    return description;
+  }
 
-    public void addEndpoint( EndpointMetadata endpoint ) {
-        endpoints.add(endpoint);
-    }
-    
-    public List<EndpointMetadata> getEndpoints() {
-        return endpoints;
-    }
+  public void setDescription(String description) {
+    this.description = description;
+  }
 
-    public Object getEdge() {
-        return edge;
-    }
+  public void addEndpoint(EndpointMetadata endpoint) {
+    endpoints.add(endpoint);
+  }
 
-    public void setEdge(Object edge) {
-        this.edge = edge;
-    }
+  public List<EndpointMetadata> getEndpoints() {
+    return endpoints;
+  }
 
-    public MetadataType getMetadataType() {
-        return MetadataType.HYPEREDGE;
-    }
-    
+  public Object getEdge() {
+    return edge;
+  }
+
+  public void setEdge(Object edge) {
+    this.edge = edge;
+  }
+
+  public MetadataType getMetadataType() {
+    return MetadataType.HYPEREDGE;
+  }
 }

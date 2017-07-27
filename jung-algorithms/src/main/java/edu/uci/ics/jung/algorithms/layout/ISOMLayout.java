@@ -1,227 +1,226 @@
 /*
-* Copyright (c) 2003, The JUNG Authors
-*
-* All rights reserved.
-*
-* This software is open-source under the BSD license; see either
-* "license.txt" or
-* https://github.com/jrtom/jung/blob/master/LICENSE for a description.
-*/
+ * Copyright (c) 2003, The JUNG Authors
+ *
+ * All rights reserved.
+ *
+ * This software is open-source under the BSD license; see either
+ * "license.txt" or
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
+ */
 package edu.uci.ics.jung.algorithms.layout;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.google.common.graph.Network;
+import edu.uci.ics.jung.algorithms.layout.util.RandomLocationTransformer;
+import edu.uci.ics.jung.algorithms.util.IterativeContext;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.ConcurrentModificationException;
 import java.util.List;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import com.google.common.graph.Network;
-
-import edu.uci.ics.jung.algorithms.layout.util.RandomLocationTransformer;
-import edu.uci.ics.jung.algorithms.util.IterativeContext;
-
 /**
- * Implements a self-organizing map layout algorithm, based on Meyer's
- * self-organizing graph methods.
+ * Implements a self-organizing map layout algorithm, based on Meyer's self-organizing graph
+ * methods.
  *
  * @author Yan Biao Boey
  */
 public class ISOMLayout<N, E> extends AbstractLayout<N> implements IterativeContext {
 
-    protected LoadingCache<N, ISOMNodeData> isomNodeData =
-    	CacheBuilder.newBuilder().build(new CacheLoader<N, ISOMNodeData>() {
-	    	public ISOMNodeData load(N node) {
-	    		return new ISOMNodeData();
-	    	}
-    });
+  protected LoadingCache<N, ISOMNodeData> isomNodeData =
+      CacheBuilder.newBuilder()
+          .build(
+              new CacheLoader<N, ISOMNodeData>() {
+                public ISOMNodeData load(N node) {
+                  return new ISOMNodeData();
+                }
+              });
 
-	private int maxEpoch;
-	private int epoch;
+  private int maxEpoch;
+  private int epoch;
 
-	private int radiusConstantTime;
-	private int radius;
-	private int minRadius;
+  private int radiusConstantTime;
+  private int radius;
+  private int minRadius;
 
-	private double adaption;
-	private double initialAdaption;
-	private double minAdaption;
+  private double adaption;
+  private double initialAdaption;
+  private double minAdaption;
 
-    private final NetworkElementAccessor<N, E> elementAccessor;
+  private final NetworkElementAccessor<N, E> elementAccessor;
 
-	private double coolingFactor;
+  private double coolingFactor;
 
-	private List<N> queue = new ArrayList<N>();
-	private String status = null;
-	private final Network<N, E> graph;
+  private List<N> queue = new ArrayList<N>();
+  private String status = null;
+  private final Network<N, E> graph;
 
-	/**
-	 * @return the current number of epochs and execution status, as a string.
-	 */
-	public String getStatus() {
-		return status;
-	}
+  /** @return the current number of epochs and execution status, as a string. */
+  public String getStatus() {
+    return status;
+  }
 
-	public ISOMLayout(Network<N, E> g) {
-		super(g.asGraph());
-		this.elementAccessor = new RadiusNetworkElementAccessor<N, E>(g, this);
-		this.graph = g;
-	}
+  public ISOMLayout(Network<N, E> g) {
+    super(g.asGraph());
+    this.elementAccessor = new RadiusNetworkElementAccessor<N, E>(g, this);
+    this.graph = g;
+  }
 
-	public void initialize() {
+  public void initialize() {
 
-		setInitializer(new RandomLocationTransformer<N>(getSize()));
-		maxEpoch = 2000;
-		epoch = 1;
+    setInitializer(new RandomLocationTransformer<N>(getSize()));
+    maxEpoch = 2000;
+    epoch = 1;
 
-		radiusConstantTime = 100;
-		radius = 5;
-		minRadius = 1;
+    radiusConstantTime = 100;
+    radius = 5;
+    minRadius = 1;
 
-		initialAdaption = 90.0D / 100.0D;
-		adaption = initialAdaption;
-		minAdaption = 0;
+    initialAdaption = 90.0D / 100.0D;
+    adaption = initialAdaption;
+    minAdaption = 0;
 
-		//factor = 0; //Will be set later on
-		coolingFactor = 2;
+    //factor = 0; //Will be set later on
+    coolingFactor = 2;
 
-		//temperature = 0.03;
-		//initialJumpRadius = 100;
-		//jumpRadius = initialJumpRadius;
+    //temperature = 0.03;
+    //initialJumpRadius = 100;
+    //jumpRadius = initialJumpRadius;
 
-		//delay = 100;
-	}
+    //delay = 100;
+  }
 
+  /** Advances the current positions of the graph elements. */
+  public void step() {
+    status = "epoch: " + epoch + "; ";
+    if (epoch < maxEpoch) {
+      adjust();
+      updateParameters();
+      status += " status: running";
+    } else {
+      status += "adaption: " + adaption + "; ";
+      status += "status: done";
+      //			done = true;
+    }
+  }
 
-	/**
-	* Advances the current positions of the graph elements.
-	*/
-	public void step() {
-		status = "epoch: " + epoch + "; ";
-		if (epoch < maxEpoch) {
-			adjust();
-			updateParameters();
-			status += " status: running";
-		} else {
-			status += "adaption: " + adaption + "; ";
-			status += "status: done";
-//			done = true;
-		}
-	}
+  private synchronized void adjust() {
+    //Generate random position in graph space
+    Point2D tempXYD = new Point2D.Double();
 
-	private synchronized void adjust() {
-		//Generate random position in graph space
-		Point2D tempXYD = new Point2D.Double();
+    // creates a new XY data location
+    tempXYD.setLocation(
+        10 + Math.random() * getSize().getWidth(), 10 + Math.random() * getSize().getHeight());
 
-		// creates a new XY data location
-        tempXYD.setLocation(10 + Math.random() * getSize().getWidth(),
-                10 + Math.random() * getSize().getHeight());
+    //Get closest node to random position
+    N winner = elementAccessor.getNode(tempXYD.getX(), tempXYD.getY());
 
-		//Get closest node to random position
-		N winner = elementAccessor.getNode(tempXYD.getX(), tempXYD.getY());
-
-		while(true) {
-		    try {
-		    	for(N node : nodes()) {
-		            ISOMNodeData ivd = getISOMNodeData(node);
-		            ivd.distance = 0;
-		            ivd.visited = false;
-		        }
-		        break;
-		    } catch(ConcurrentModificationException cme) {}
+    while (true) {
+      try {
+        for (N node : nodes()) {
+          ISOMNodeData ivd = getISOMNodeData(node);
+          ivd.distance = 0;
+          ivd.visited = false;
         }
-		adjustNode(winner, tempXYD);
-	}
+        break;
+      } catch (ConcurrentModificationException cme) {
+      }
+    }
+    adjustNode(winner, tempXYD);
+  }
 
-	private synchronized void updateParameters() {
-		epoch++;
-		double factor = Math.exp(-1 * coolingFactor * (1.0 * epoch / maxEpoch));
-		adaption = Math.max(minAdaption, factor * initialAdaption);
-		//jumpRadius = (int) factor * jumpRadius;
-		//temperature = factor * temperature;
-		if ((radius > minRadius) && (epoch % radiusConstantTime == 0)) {
-			radius--;
-		}
-	}
+  private synchronized void updateParameters() {
+    epoch++;
+    double factor = Math.exp(-1 * coolingFactor * (1.0 * epoch / maxEpoch));
+    adaption = Math.max(minAdaption, factor * initialAdaption);
+    //jumpRadius = (int) factor * jumpRadius;
+    //temperature = factor * temperature;
+    if ((radius > minRadius) && (epoch % radiusConstantTime == 0)) {
+      radius--;
+    }
+  }
 
-	private synchronized void adjustNode(N node, Point2D tempXYD) {
-		queue.clear();
-		ISOMNodeData ivd = getISOMNodeData(node);
-		ivd.distance = 0;
-		ivd.visited = true;
-		queue.add(node);
-		N current;
+  private synchronized void adjustNode(N node, Point2D tempXYD) {
+    queue.clear();
+    ISOMNodeData ivd = getISOMNodeData(node);
+    ivd.distance = 0;
+    ivd.visited = true;
+    queue.add(node);
+    N current;
 
-		while (!queue.isEmpty()) {
-			current = queue.remove(0);
-			ISOMNodeData currData = getISOMNodeData(current);
-			Point2D currXYData = apply(current);
+    while (!queue.isEmpty()) {
+      current = queue.remove(0);
+      ISOMNodeData currData = getISOMNodeData(current);
+      Point2D currXYData = apply(current);
 
-			double dx = tempXYD.getX() - currXYData.getX();
-			double dy = tempXYD.getY() - currXYData.getY();
-			double factor = adaption / Math.pow(2, currData.distance);
+      double dx = tempXYD.getX() - currXYData.getX();
+      double dy = tempXYD.getY() - currXYData.getY();
+      double factor = adaption / Math.pow(2, currData.distance);
 
-			currXYData.setLocation(currXYData.getX()+(factor*dx), currXYData.getY()+(factor*dy));
+      currXYData.setLocation(currXYData.getX() + (factor * dx), currXYData.getY() + (factor * dy));
 
-			if (currData.distance < radius) {
-			    Collection<N> s = graph.adjacentNodes(current);
-			    while(true) {
-			        try {
-			        	for(N child : s) {
-			                ISOMNodeData childData = getISOMNodeData(child);
-			                if (childData != null && !childData.visited) {
-			                    childData.visited = true;
-			                    childData.distance = currData.distance + 1;
-			                    queue.add(child);
-			                }
-			            }
-			            break;
-			        } catch(ConcurrentModificationException cme) {}
-			    }
-			}
-		}
-	}
+      if (currData.distance < radius) {
+        Collection<N> s = graph.adjacentNodes(current);
+        while (true) {
+          try {
+            for (N child : s) {
+              ISOMNodeData childData = getISOMNodeData(child);
+              if (childData != null && !childData.visited) {
+                childData.visited = true;
+                childData.distance = currData.distance + 1;
+                queue.add(child);
+              }
+            }
+            break;
+          } catch (ConcurrentModificationException cme) {
+          }
+        }
+      }
+    }
+  }
 
-	protected ISOMNodeData getISOMNodeData(N node) {
-		return isomNodeData.getUnchecked(node);
-	}
+  protected ISOMNodeData getISOMNodeData(N node) {
+    return isomNodeData.getUnchecked(node);
+  }
 
-	/**
-	 * This one is an incremental visualization.
-	 * @return <code>true</code> is the layout algorithm is incremental, <code>false</code> otherwise
-	 */
-	public boolean isIncremental() {
-		return true;
-	}
+  /**
+   * This one is an incremental visualization.
+   *
+   * @return <code>true</code> is the layout algorithm is incremental, <code>false</code> otherwise
+   */
+  public boolean isIncremental() {
+    return true;
+  }
 
-	/**
-	 * Returns <code>true</code> if the node positions are no longer being
-	 * updated.  Currently <code>ISOMLayout</code> stops updating node
-	 * positions after a certain number of iterations have taken place.
-	 * @return <code>true</code> if the node position updates have stopped,
-	 * <code>false</code> otherwise
-	 */
-	public boolean done() {
-		return epoch >= maxEpoch;
-	}
+  /**
+   * Returns <code>true</code> if the node positions are no longer being updated. Currently <code>
+   * ISOMLayout</code> stops updating node positions after a certain number of iterations have taken
+   * place.
+   *
+   * @return <code>true</code> if the node position updates have stopped, <code>false</code>
+   *     otherwise
+   */
+  public boolean done() {
+    return epoch >= maxEpoch;
+  }
 
-	protected static class ISOMNodeData {
-		int distance;
-		boolean visited;
+  protected static class ISOMNodeData {
+    int distance;
+    boolean visited;
 
-		protected ISOMNodeData() {
-		    distance = 0;
-		    visited = false;
-		}
-	}
+    protected ISOMNodeData() {
+      distance = 0;
+      visited = false;
+    }
+  }
 
-	/**
-	 * Resets the layout iteration count to 0, which allows the layout algorithm to
-	 * continue updating node positions.
-	 */
-	public void reset() {
-		epoch = 0;
-	}
+  /**
+   * Resets the layout iteration count to 0, which allows the layout algorithm to continue updating
+   * node positions.
+   */
+  public void reset() {
+    epoch = 0;
+  }
 }

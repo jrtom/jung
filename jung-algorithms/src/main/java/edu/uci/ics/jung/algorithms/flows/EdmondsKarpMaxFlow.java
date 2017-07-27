@@ -1,20 +1,13 @@
 /*
-* Copyright (c) 2003, The JUNG Authors 
-*
-* All rights reserved.
-*
-* This software is open-source under the BSD license; see either
-* "license.txt" or
-* https://github.com/jrtom/jung/blob/master/LICENSE for a description.
-*/
+ * Copyright (c) 2003, The JUNG Authors
+ *
+ * All rights reserved.
+ *
+ * This software is open-source under the BSD license; see either
+ * "license.txt" or
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
+ */
 package edu.uci.ics.jung.algorithms.flows;
-
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
 
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
@@ -23,26 +16,31 @@ import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Graphs;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
-
 import edu.uci.ics.jung.algorithms.util.IterativeProcess;
-
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
 
 /**
- * Implements the Edmonds-Karp maximum flow algorithm for solving the maximum flow problem. 
- * After the algorithm is executed,
- * the input {@code Map} is populated with a {@code Integer} for each edge that indicates 
- * the flow along that edge.
- * <p>
- * An example of using this algorithm is as follows:
+ * Implements the Edmonds-Karp maximum flow algorithm for solving the maximum flow problem. After
+ * the algorithm is executed, the input {@code Map} is populated with a {@code Integer} for each
+ * edge that indicates the flow along that edge.
+ *
+ * <p>An example of using this algorithm is as follows:
+ *
  * <pre>
- * EdmondsKarpMaxFlow ek = new EdmondsKarpMaxFlow(graph, source, sink, edge_capacities, edge_flows, 
+ * EdmondsKarpMaxFlow ek = new EdmondsKarpMaxFlow(graph, source, sink, edge_capacities, edge_flows,
  * edge_factory);
  * ek.evaluate(); // This instructs the class to compute the max flow
  * </pre>
  *
  * @see "Introduction to Algorithms by Cormen, Leiserson, Rivest, and Stein."
  * @see "Network Flows by Ahuja, Magnanti, and Orlin."
- * @see "Theoretical improvements in algorithmic efficiency for network flow problems by Edmonds and Karp, 1972."
+ * @see "Theoretical improvements in algorithmic efficiency for network flow problems by Edmonds and
+ *     Karp, 1972."
  * @author Scott White, adapted to jung2 by Tom Nelson
  */
 // TODO: this should work for input ValueGraphs also
@@ -50,249 +48,247 @@ import edu.uci.ics.jung.algorithms.util.IterativeProcess;
 // TODO: this currently works on Integers; can probably be generalized at least somewhat
 // TODO: does this algorithm in fact actually fail for undirected graphs?
 // TODO: no reason why the user should have to supply the edgeFlowMap
-public class EdmondsKarpMaxFlow<N,E> extends IterativeProcess {
+public class EdmondsKarpMaxFlow<N, E> extends IterativeProcess {
 
-    private MutableNetwork<N,E> flowNetwork;
-    private Network<N,E> network;
-    private N source;
-    private N target;
-    private int maxFlow;
-    private Set<N> sourcePartitionNodes;
-    private Set<N> sinkPartitionNodes;
-    private Set<E> minCutEdges;
-    
-    private Map<E,Integer> residualCapacityMap = new HashMap<E,Integer>();
-    private Map<N,N> parentMap = new HashMap<N,N>();
-    private Map<N,Integer> parentCapacityMap = new HashMap<N,Integer>();
-    private Function<E,Integer> edgeCapacityTransformer;
-    private Map<E,Integer> edgeFlowMap;
-    private Supplier<E> edgeFactory;
+  private MutableNetwork<N, E> flowNetwork;
+  private Network<N, E> network;
+  private N source;
+  private N target;
+  private int maxFlow;
+  private Set<N> sourcePartitionNodes;
+  private Set<N> sinkPartitionNodes;
+  private Set<E> minCutEdges;
 
-    /**
-     * Constructs a new instance of the algorithm solver for a given graph, source, and sink.
-     * Source and sink vertices must be elements of the specified graph, and must be 
-     * distinct.
-     * @param network the flow graph
-     * @param source the source vertex
-     * @param sink the sink vertex
-     * @param edgeCapacityTransformer the Function that gets the capacity for each edge.
-     * @param edgeFlowMap the map where the solver will place the value of the flow for each edge
-     * @param edgeFactory used to create new edge instances for backEdges
-     */
-    public EdmondsKarpMaxFlow(Network<N,E> network, N source, N sink, 
-    		Function<E,Integer> edgeCapacityTransformer, Map<E,Integer> edgeFlowMap,
-    		Supplier<E> edgeFactory) {
-    	Preconditions.checkArgument(network.isDirected(), "input graph must be directed");
-    	Preconditions.checkArgument(network.nodes().contains(source), "input graph must contain source node");
-    	Preconditions.checkArgument(network.nodes().contains(sink), "input graph must contain sink node");
-    	Preconditions.checkArgument(!source.equals(sink), "source and sink nodes must be distinct");
-    	
-        this.network = network;
+  private Map<E, Integer> residualCapacityMap = new HashMap<E, Integer>();
+  private Map<N, N> parentMap = new HashMap<N, N>();
+  private Map<N, Integer> parentCapacityMap = new HashMap<N, Integer>();
+  private Function<E, Integer> edgeCapacityTransformer;
+  private Map<E, Integer> edgeFlowMap;
+  private Supplier<E> edgeFactory;
 
-        this.source = source;
-        this.target = sink;
-        this.edgeFlowMap = edgeFlowMap;
-        this.edgeCapacityTransformer = edgeCapacityTransformer;
-        this.edgeFactory = edgeFactory;
-        this.flowNetwork = Graphs.copyOf(network);
-        maxFlow = 0;
-        sinkPartitionNodes = new HashSet<N>();
-        sourcePartitionNodes = new HashSet<N>();
-        minCutEdges = new HashSet<E>();
-    }
+  /**
+   * Constructs a new instance of the algorithm solver for a given graph, source, and sink. Source
+   * and sink vertices must be elements of the specified graph, and must be distinct.
+   *
+   * @param network the flow graph
+   * @param source the source vertex
+   * @param sink the sink vertex
+   * @param edgeCapacityTransformer the Function that gets the capacity for each edge.
+   * @param edgeFlowMap the map where the solver will place the value of the flow for each edge
+   * @param edgeFactory used to create new edge instances for backEdges
+   */
+  public EdmondsKarpMaxFlow(
+      Network<N, E> network,
+      N source,
+      N sink,
+      Function<E, Integer> edgeCapacityTransformer,
+      Map<E, Integer> edgeFlowMap,
+      Supplier<E> edgeFactory) {
+    Preconditions.checkArgument(network.isDirected(), "input graph must be directed");
+    Preconditions.checkArgument(
+        network.nodes().contains(source), "input graph must contain source node");
+    Preconditions.checkArgument(
+        network.nodes().contains(sink), "input graph must contain sink node");
+    Preconditions.checkArgument(!source.equals(sink), "source and sink nodes must be distinct");
 
-    private void clearParentValues() {
-    	parentMap.clear();
-    	parentCapacityMap.clear();
-        parentCapacityMap.put(source, Integer.MAX_VALUE);
-        parentMap.put(source, source);
-    }
+    this.network = network;
 
-    protected boolean hasAugmentingPath() {
-        sinkPartitionNodes.clear();
-        sourcePartitionNodes.clear();
-        sinkPartitionNodes.addAll(flowNetwork.nodes());
+    this.source = source;
+    this.target = sink;
+    this.edgeFlowMap = edgeFlowMap;
+    this.edgeCapacityTransformer = edgeCapacityTransformer;
+    this.edgeFactory = edgeFactory;
+    this.flowNetwork = Graphs.copyOf(network);
+    maxFlow = 0;
+    sinkPartitionNodes = new HashSet<N>();
+    sourcePartitionNodes = new HashSet<N>();
+    minCutEdges = new HashSet<E>();
+  }
 
-        Set<E> visitedEdgesMap = new HashSet<E>();
-        Queue<N> queue = new LinkedList<N>();
-        queue.add(source);
+  private void clearParentValues() {
+    parentMap.clear();
+    parentCapacityMap.clear();
+    parentCapacityMap.put(source, Integer.MAX_VALUE);
+    parentMap.put(source, source);
+  }
 
-        while (!queue.isEmpty()) {
-            N currentVertex = queue.remove();
-            sinkPartitionNodes.remove(currentVertex);
-            sourcePartitionNodes.add(currentVertex);
-            Integer currentCapacity = parentCapacityMap.get(currentVertex);
+  protected boolean hasAugmentingPath() {
+    sinkPartitionNodes.clear();
+    sourcePartitionNodes.clear();
+    sinkPartitionNodes.addAll(flowNetwork.nodes());
 
-            for (E neighboringEdge : flowNetwork.outEdges(currentVertex)) {
+    Set<E> visitedEdgesMap = new HashSet<E>();
+    Queue<N> queue = new LinkedList<N>();
+    queue.add(source);
 
-            	N neighboringVertex = flowNetwork.incidentNodes(neighboringEdge).target();
+    while (!queue.isEmpty()) {
+      N currentVertex = queue.remove();
+      sinkPartitionNodes.remove(currentVertex);
+      sourcePartitionNodes.add(currentVertex);
+      Integer currentCapacity = parentCapacityMap.get(currentVertex);
 
-                Integer residualCapacity = residualCapacityMap.get(neighboringEdge);
-                if (residualCapacity <= 0 || visitedEdgesMap.contains(neighboringEdge))
-                    continue;
+      for (E neighboringEdge : flowNetwork.outEdges(currentVertex)) {
 
-                N neighborsParent = parentMap.get(neighboringVertex);
-                Integer neighborCapacity = parentCapacityMap.get(neighboringVertex);
-                int newCapacity = Math.min(residualCapacity,currentCapacity);
+        N neighboringVertex = flowNetwork.incidentNodes(neighboringEdge).target();
 
-                if ((neighborsParent == null) || newCapacity > neighborCapacity) {
-                    parentMap.put(neighboringVertex, currentVertex);
-                    parentCapacityMap.put(neighboringVertex, newCapacity);
-                    visitedEdgesMap.add(neighboringEdge);
-                    if (neighboringVertex != target) {
-                       queue.add(neighboringVertex);
-                    }
-                }
-            }
+        Integer residualCapacity = residualCapacityMap.get(neighboringEdge);
+        if (residualCapacity <= 0 || visitedEdgesMap.contains(neighboringEdge)) continue;
+
+        N neighborsParent = parentMap.get(neighboringVertex);
+        Integer neighborCapacity = parentCapacityMap.get(neighboringVertex);
+        int newCapacity = Math.min(residualCapacity, currentCapacity);
+
+        if ((neighborsParent == null) || newCapacity > neighborCapacity) {
+          parentMap.put(neighboringVertex, currentVertex);
+          parentCapacityMap.put(neighboringVertex, newCapacity);
+          visitedEdgesMap.add(neighboringEdge);
+          if (neighboringVertex != target) {
+            queue.add(neighboringVertex);
+          }
         }
-
-        boolean hasAugmentingPath = false;
-        Integer targetsParentCapacity = parentCapacityMap.get(target);
-        if (targetsParentCapacity != null && targetsParentCapacity > 0) {
-            updateResidualCapacities();
-            hasAugmentingPath = true;
-        }
-        clearParentValues();
-        return hasAugmentingPath;
+      }
     }
 
-     @Override
-    public void step() {
-        while (hasAugmentingPath()) {
-        }
-        computeMinCut();
+    boolean hasAugmentingPath = false;
+    Integer targetsParentCapacity = parentCapacityMap.get(target);
+    if (targetsParentCapacity != null && targetsParentCapacity > 0) {
+      updateResidualCapacities();
+      hasAugmentingPath = true;
+    }
+    clearParentValues();
+    return hasAugmentingPath;
+  }
+
+  @Override
+  public void step() {
+    while (hasAugmentingPath()) {}
+    computeMinCut();
+  }
+
+  private void computeMinCut() {
+
+    for (E e : network.edges()) {
+      EndpointPair<N> endpoints = network.incidentNodes(e);
+      N source = endpoints.source();
+      N destination = endpoints.target();
+      if (sinkPartitionNodes.contains(source) && sinkPartitionNodes.contains(destination)) {
+        continue;
+      }
+      if (sourcePartitionNodes.contains(source) && sourcePartitionNodes.contains(destination)) {
+        continue;
+      }
+      if (sinkPartitionNodes.contains(source) && sourcePartitionNodes.contains(destination)) {
+        continue;
+      }
+      minCutEdges.add(e);
+    }
+  }
+
+  /** @return the value of the maximum flow from the source to the sink. */
+  public int getMaxFlow() {
+    return maxFlow;
+  }
+
+  /**
+   * @return the nodes which share the same partition (as defined by the min-cut edges) as the sink
+   *     node.
+   */
+  public Set<N> getNodesInSinkPartition() {
+    return sinkPartitionNodes;
+  }
+
+  /**
+   * @return the nodes which share the same partition (as defined by the min-cut edges) as the
+   *     source node.
+   */
+  public Set<N> getNodesInSourcePartition() {
+    return sourcePartitionNodes;
+  }
+
+  /** @return the edges in the minimum cut. */
+  public Set<E> getMinCutEdges() {
+    return minCutEdges;
+  }
+
+  /** @return the graph for which the maximum flow is calculated. */
+  public Network<N, E> getFlowGraph() {
+    return flowNetwork;
+  }
+
+  @Override
+  protected void initializeIterations() {
+    parentCapacityMap.put(source, Integer.MAX_VALUE);
+    parentMap.put(source, source);
+
+    Set<EndpointPair<N>> backEdges = new HashSet<>();
+    for (E edge : flowNetwork.edges()) {
+      Integer capacity = edgeCapacityTransformer.apply(edge);
+      Preconditions.checkNotNull(capacity, "Edge capacities must exist for all edges");
+
+      residualCapacityMap.put(edge, capacity);
+      EndpointPair<N> endpoints = flowNetwork.incidentNodes(edge);
+      N source = endpoints.source();
+      N destination = endpoints.target();
+
+      if (!flowNetwork.successors(destination).contains(source)) {
+        backEdges.add(EndpointPair.ordered(destination, source));
+      }
     }
 
-    private void computeMinCut() {
+    for (EndpointPair<N> endpoints : backEdges) {
+      E backEdge = edgeFactory.get();
+      flowNetwork.addEdge(endpoints.source(), endpoints.target(), backEdge);
+      residualCapacityMap.put(backEdge, 0);
+    }
+  }
 
-        for (E e : network.edges()) {
-        	EndpointPair<N> endpoints = network.incidentNodes(e);
-        	N source = endpoints.source();
-        	N destination = endpoints.target();
-            if (sinkPartitionNodes.contains(source) && sinkPartitionNodes.contains(destination)) {
-                continue;
-            }
-            if (sourcePartitionNodes.contains(source) && sourcePartitionNodes.contains(destination)) {
-                continue;
-            }
-            if (sinkPartitionNodes.contains(source) && sourcePartitionNodes.contains(destination)) {
-                continue;
-            }
-            minCutEdges.add(e);
-        }
+  @Override
+  protected void finalizeIterations() {
+
+    for (E currentEdge : flowNetwork.edges()) {
+      Integer capacity = edgeCapacityTransformer.apply(currentEdge);
+
+      Integer residualCapacity = residualCapacityMap.get(currentEdge);
+      if (capacity != null) {
+        Integer flowValue = capacity - residualCapacity;
+        this.edgeFlowMap.put(currentEdge, flowValue);
+      }
     }
 
-    /**
-     * @return the value of the maximum flow from the source to the sink.
-     */
-    public int getMaxFlow() {
-        return maxFlow;
+    Set<E> backEdges = new HashSet<E>();
+    for (E currentEdge : flowNetwork.edges()) {
+
+      if (edgeCapacityTransformer.apply(currentEdge) == null) {
+        backEdges.add(currentEdge);
+      } else {
+        residualCapacityMap.remove(currentEdge);
+      }
     }
-
-    /**
-     * @return the nodes which share the same partition (as defined by the min-cut edges)
-     * as the sink node.
-     */
-    public Set<N> getNodesInSinkPartition() {
-        return sinkPartitionNodes;
+    for (E e : backEdges) {
+      flowNetwork.removeEdge(e);
     }
+  }
 
-    /**
-     * @return the nodes which share the same partition (as defined by the min-cut edges)
-     * as the source node.
-     */
-    public Set<N> getNodesInSourcePartition() {
-        return sourcePartitionNodes;
+  private void updateResidualCapacities() {
+
+    Integer augmentingPathCapacity = parentCapacityMap.get(target);
+    maxFlow += augmentingPathCapacity;
+    N currentVertex = target;
+    N parentVertex = null;
+    while ((parentVertex = parentMap.get(currentVertex)) != currentVertex) {
+      // TODO: change this to edgeConnecting() once we are using Guava 22.0+
+      E currentEdge = flowNetwork.edgesConnecting(parentVertex, currentVertex).iterator().next();
+
+      Integer residualCapacity = residualCapacityMap.get(currentEdge);
+
+      residualCapacity = residualCapacity - augmentingPathCapacity;
+      residualCapacityMap.put(currentEdge, residualCapacity);
+
+      E backEdge = flowNetwork.edgesConnecting(currentVertex, parentVertex).iterator().next();
+      residualCapacity = residualCapacityMap.get(backEdge);
+      residualCapacity = residualCapacity + augmentingPathCapacity;
+      residualCapacityMap.put(backEdge, residualCapacity);
+      currentVertex = parentVertex;
     }
-
-    /**
-     * @return the edges in the minimum cut.
-     */
-    public Set<E> getMinCutEdges() {
-        return minCutEdges;
-    }
-
-    /**
-     * @return the graph for which the maximum flow is calculated.
-     */
-    public Network<N,E> getFlowGraph() {
-        return flowNetwork;
-    }
-
-    @Override
-    protected void initializeIterations() {
-        parentCapacityMap.put(source, Integer.MAX_VALUE);
-        parentMap.put(source, source);
-
-        Set<EndpointPair<N>> backEdges = new HashSet<>();
-        for (E edge : flowNetwork.edges()) {
-            Integer capacity = edgeCapacityTransformer.apply(edge);
-            Preconditions.checkNotNull(capacity, "Edge capacities must exist for all edges");
-
-            residualCapacityMap.put(edge, capacity);
-        	EndpointPair<N> endpoints = flowNetwork.incidentNodes(edge);
-            N source = endpoints.source();
-            N destination = endpoints.target();
-
-            if (!flowNetwork.successors(destination).contains(source)) {
-            	backEdges.add(EndpointPair.ordered(destination, source));
-            }
-        }
-        
-        for (EndpointPair<N> endpoints : backEdges) {
-        	E backEdge = edgeFactory.get();
-        	flowNetwork.addEdge(endpoints.source(), endpoints.target(), backEdge);
-        	residualCapacityMap.put(backEdge, 0);
-        }
-    }
-    
-    @Override
-    protected void finalizeIterations() {
-
-        for (E currentEdge : flowNetwork.edges()) {
-            Integer capacity = edgeCapacityTransformer.apply(currentEdge);
-            
-            Integer residualCapacity = residualCapacityMap.get(currentEdge);
-            if (capacity != null) {
-                Integer flowValue = capacity - residualCapacity;
-                this.edgeFlowMap.put(currentEdge, flowValue);
-            }
-        }
-
-        Set<E> backEdges = new HashSet<E>();
-        for (E currentEdge: flowNetwork.edges()) {
-        	
-            if (edgeCapacityTransformer.apply(currentEdge) == null) {
-                backEdges.add(currentEdge);
-            } else {
-                residualCapacityMap.remove(currentEdge);
-            }
-        }
-        for(E e : backEdges) {
-        	flowNetwork.removeEdge(e);
-        }
-    }
-
-    private void updateResidualCapacities() {
-
-        Integer augmentingPathCapacity = parentCapacityMap.get(target);
-        maxFlow += augmentingPathCapacity;
-        N currentVertex = target;
-        N parentVertex = null;
-        while ((parentVertex = parentMap.get(currentVertex)) != currentVertex) {
-        	// TODO: change this to edgeConnecting() once we are using Guava 22.0+
-            E currentEdge = flowNetwork.edgesConnecting(parentVertex, currentVertex).iterator().next();
-
-            Integer residualCapacity = residualCapacityMap.get(currentEdge);
-
-            residualCapacity = residualCapacity - augmentingPathCapacity;
-            residualCapacityMap.put(currentEdge, residualCapacity);
-
-            E backEdge = flowNetwork.edgesConnecting(currentVertex, parentVertex).iterator().next();
-            residualCapacity = residualCapacityMap.get(backEdge);
-            residualCapacity = residualCapacity + augmentingPathCapacity;
-            residualCapacityMap.put(backEdge, residualCapacity);
-            currentVertex = parentVertex;
-        }
-    }
+  }
 }

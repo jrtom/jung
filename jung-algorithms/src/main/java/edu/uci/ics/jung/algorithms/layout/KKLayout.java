@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2003, The JUNG Authors 
+ * Copyright (c) 2003, The JUNG Authors
  *
  * All rights reserved.
  *
@@ -13,410 +13,378 @@ package edu.uci.ics.jung.algorithms.layout;
  * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  */
 
-import java.awt.Dimension;
-import java.awt.geom.Point2D;
-import java.util.ConcurrentModificationException;
-import java.util.function.BiFunction;
-
 import com.google.common.graph.Graph;
-
 import edu.uci.ics.jung.algorithms.layout.util.RandomLocationTransformer;
 import edu.uci.ics.jung.algorithms.shortestpath.Distance;
 import edu.uci.ics.jung.algorithms.shortestpath.DistanceStatistics;
 import edu.uci.ics.jung.algorithms.shortestpath.UnweightedShortestPath;
 import edu.uci.ics.jung.algorithms.util.IterativeContext;
+import java.awt.Dimension;
+import java.awt.geom.Point2D;
+import java.util.ConcurrentModificationException;
+import java.util.function.BiFunction;
 
 /**
- * Implements the Kamada-Kawai algorithm for node layout.
- * Does not respect filter calls, and sometimes crashes when the view changes to it.
+ * Implements the Kamada-Kawai algorithm for node layout. Does not respect filter calls, and
+ * sometimes crashes when the view changes to it.
  *
- * @see "Tomihisa Kamada and Satoru Kawai: An algorithm for drawing general indirect graphs. Information Processing Letters 31(1):7-15, 1989" 
- * @see "Tomihisa Kamada: On visualization of abstract objects and relations. Ph.D. dissertation, Dept. of Information Science, Univ. of Tokyo, Dec. 1988."
- *
+ * @see "Tomihisa Kamada and Satoru Kawai: An algorithm for drawing general indirect graphs.
+ *     Information Processing Letters 31(1):7-15, 1989"
+ * @see "Tomihisa Kamada: On visualization of abstract objects and relations. Ph.D. dissertation,
+ *     Dept. of Information Science, Univ. of Tokyo, Dec. 1988."
  * @author Masanori Harada
  */
 public class KKLayout<N> extends AbstractLayout<N> implements IterativeContext {
 
-	private double EPSILON = 0.1d;
+  private double EPSILON = 0.1d;
 
-	private int currentIteration;
-    private int maxIterations = 2000;
-	private String status = "KKLayout";
+  private int currentIteration;
+  private int maxIterations = 2000;
+  private String status = "KKLayout";
 
-	private double L;			// the ideal length of an edge
-	private double K = 1;		// arbitrary const number
-	private double[][] dm;     // distance matrix
+  private double L; // the ideal length of an edge
+  private double K = 1; // arbitrary const number
+  private double[][] dm; // distance matrix
 
-	private boolean adjustForGravity = true;
-	private boolean exchangenodes = true;
+  private boolean adjustForGravity = true;
+  private boolean exchangenodes = true;
 
-	private N[] nodes;
-	private Point2D[] xydata;
-	
-	private final Graph<N> graph;
+  private N[] nodes;
+  private Point2D[] xydata;
 
-    /**
-     * Retrieves graph distances between nodes of the visible graph
-     */
-    protected BiFunction<N, N, Number> distance;
+  private final Graph<N> graph;
 
-    /**
-     * The diameter of the visible graph. In other words, the maximum over all pairs
-     * of nodes of the length of the shortest path between a and bf the visible graph.
-     */
-	protected double diameter;
+  /** Retrieves graph distances between nodes of the visible graph */
+  protected BiFunction<N, N, Number> distance;
 
-    /**
-     * A multiplicative factor which partly specifies the "preferred" length of an edge (L).
-     */
-    private double length_factor = 0.9;
+  /**
+   * The diameter of the visible graph. In other words, the maximum over all pairs of nodes of the
+   * length of the shortest path between a and bf the visible graph.
+   */
+  protected double diameter;
 
-    /**
-     * A multiplicative factor which specifies the fraction of the graph's diameter to be 
-     * used as the inter-node distance between disconnected nodes.
-     */
-    private double disconnected_multiplier = 0.5;
-    
-	public KKLayout(Graph<N> g) 
-    {
-        this(g, new UnweightedShortestPath<N>(g));
-	}
+  /** A multiplicative factor which partly specifies the "preferred" length of an edge (L). */
+  private double length_factor = 0.9;
 
-	/**
-	 * Creates an instance for the specified graph and distance metric.
-	 * @param g the graph on which the layout algorithm is to operate
-	 * @param distance specifies the distance between pairs of nodes
-	 */
-    public KKLayout(Graph<N> g, Distance<N> distance){
-        super(g);
-        this.graph = g;
-        this.distance = (x, y) -> distance.getDistance(x, y);
+  /**
+   * A multiplicative factor which specifies the fraction of the graph's diameter to be used as the
+   * inter-node distance between disconnected nodes.
+   */
+  private double disconnected_multiplier = 0.5;
+
+  public KKLayout(Graph<N> g) {
+    this(g, new UnweightedShortestPath<N>(g));
+  }
+
+  /**
+   * Creates an instance for the specified graph and distance metric.
+   *
+   * @param g the graph on which the layout algorithm is to operate
+   * @param distance specifies the distance between pairs of nodes
+   */
+  public KKLayout(Graph<N> g, Distance<N> distance) {
+    super(g);
+    this.graph = g;
+    this.distance = (x, y) -> distance.getDistance(x, y);
+  }
+
+  /**
+   * @param length_factor a multiplicative factor which partially specifies the preferred length of
+   *     an edge
+   */
+  public void setLengthFactor(double length_factor) {
+    this.length_factor = length_factor;
+  }
+
+  /**
+   * @param disconnected_multiplier a multiplicative factor that specifies the fraction of the
+   *     graph's diameter to be used as the inter-node distance between disconnected nodes
+   */
+  public void setDisconnectedDistanceMultiplier(double disconnected_multiplier) {
+    this.disconnected_multiplier = disconnected_multiplier;
+  }
+
+  /** @return a string with information about the current status of the algorithm. */
+  public String getStatus() {
+    return status + this.getSize();
+  }
+
+  public void setMaxIterations(int maxIterations) {
+    this.maxIterations = maxIterations;
+  }
+
+  /** @return true */
+  public boolean isIncremental() {
+    return true;
+  }
+
+  /** @return true if the current iteration has passed the maximum count. */
+  public boolean done() {
+    if (currentIteration > maxIterations) {
+      return true;
     }
+    return false;
+  }
 
-    /**
-     * @param length_factor a multiplicative factor which partially specifies
-     *     the preferred length of an edge
-     */
-    public void setLengthFactor(double length_factor){
-        this.length_factor = length_factor;
+  @SuppressWarnings("unchecked")
+  public void initialize() {
+    currentIteration = 0;
+
+    if (graph != null && size != null) {
+
+      double height = size.getHeight();
+      double width = size.getWidth();
+
+      int n = graph.nodes().size();
+      dm = new double[n][n];
+      nodes = (N[]) graph.nodes().toArray();
+      xydata = new Point2D[n];
+
+      // assign IDs to all visible nodes
+      while (true) {
+        try {
+          int index = 0;
+          for (N node : graph.nodes()) {
+            Point2D xyd = apply(node);
+            nodes[index] = node;
+            xydata[index] = xyd;
+            index++;
+          }
+          break;
+        } catch (ConcurrentModificationException cme) {
+        }
+      }
+
+      diameter = DistanceStatistics.<N>diameter(graph, distance, true);
+
+      double L0 = Math.min(height, width);
+      L = (L0 / diameter) * length_factor; // length_factor used to be hardcoded to 0.9
+      //L = 0.75 * Math.sqrt(height * width / n);
+
+      for (int i = 0; i < n - 1; i++) {
+        for (int j = i + 1; j < n; j++) {
+          Number d_ij = distance.apply(nodes[i], nodes[j]);
+          Number d_ji = distance.apply(nodes[j], nodes[i]);
+          double dist = diameter * disconnected_multiplier;
+          if (d_ij != null) dist = Math.min(d_ij.doubleValue(), dist);
+          if (d_ji != null) dist = Math.min(d_ji.doubleValue(), dist);
+          dm[i][j] = dm[j][i] = dist;
+        }
+      }
     }
-    
-    /**
-     * @param disconnected_multiplier a multiplicative factor that specifies the fraction of the
-     *     graph's diameter to be used as the inter-node distance between disconnected nodes
-     */
-    public void setDisconnectedDistanceMultiplier(double disconnected_multiplier){
-        this.disconnected_multiplier = disconnected_multiplier;
+  }
+
+  public void step() {
+    try {
+      currentIteration++;
+      double energy = calcEnergy();
+      status =
+          "Kamada-Kawai N="
+              + graph.nodes().size()
+              + "("
+              + graph.nodes().size()
+              + ")"
+              + " IT: "
+              + currentIteration
+              + " E="
+              + energy;
+
+      int n = graph.nodes().size();
+      if (n == 0) return;
+
+      double maxDeltaM = 0;
+      int pm = -1; // the node having max deltaM
+      for (int i = 0; i < n; i++) {
+        if (isLocked(nodes[i])) continue;
+        double deltam = calcDeltaM(i);
+
+        if (maxDeltaM < deltam) {
+          maxDeltaM = deltam;
+          pm = i;
+        }
+      }
+      if (pm == -1) return;
+
+      for (int i = 0; i < 100; i++) {
+        double[] dxy = calcDeltaXY(pm);
+        xydata[pm].setLocation(xydata[pm].getX() + dxy[0], xydata[pm].getY() + dxy[1]);
+
+        double deltam = calcDeltaM(pm);
+        if (deltam < EPSILON) break;
+      }
+
+      if (adjustForGravity) adjustForGravity();
+
+      if (exchangenodes && maxDeltaM < EPSILON) {
+        energy = calcEnergy();
+        for (int i = 0; i < n - 1; i++) {
+          if (isLocked(nodes[i])) continue;
+          for (int j = i + 1; j < n; j++) {
+            if (isLocked(nodes[j])) continue;
+            double xenergy = calcEnergyIfExchanged(i, j);
+            if (energy > xenergy) {
+              double sx = xydata[i].getX();
+              double sy = xydata[i].getY();
+              xydata[i].setLocation(xydata[j]);
+              xydata[j].setLocation(sx, sy);
+              return;
+            }
+          }
+        }
+      }
+    } finally {
+      //			fireStateChanged();
     }
-    
-    /**
-     * @return a string with information about the current status of the algorithm.
-     */
-	public String getStatus() {
-		return status + this.getSize();
-	}
+  }
 
-    public void setMaxIterations(int maxIterations) {
-        this.maxIterations = maxIterations;
+  /** Shift all nodes so that the center of gravity is located at the center of the screen. */
+  public void adjustForGravity() {
+    Dimension d = getSize();
+    double height = d.getHeight();
+    double width = d.getWidth();
+    double gx = 0;
+    double gy = 0;
+    for (int i = 0; i < xydata.length; i++) {
+      gx += xydata[i].getX();
+      gy += xydata[i].getY();
     }
+    gx /= xydata.length;
+    gy /= xydata.length;
+    double diffx = width / 2 - gx;
+    double diffy = height / 2 - gy;
+    for (int i = 0; i < xydata.length; i++) {
+      xydata[i].setLocation(xydata[i].getX() + diffx, xydata[i].getY() + diffy);
+    }
+  }
 
-	/**
-	 * @return true
-	 */
-	public boolean isIncremental() {
-		return true;
-	}
+  @Override
+  public void setSize(Dimension size) {
+    if (initialized == false) setInitializer(new RandomLocationTransformer<N>(size));
+    super.setSize(size);
+  }
 
-	/**
-	 * @return true if the current iteration has passed the maximum count.
-	 */
-	public boolean done() {
-		if (currentIteration > maxIterations) {
-			return true;
-		}
-		return false;
-	}
+  public void setAdjustForGravity(boolean on) {
+    adjustForGravity = on;
+  }
 
-	@SuppressWarnings("unchecked")
-    public void initialize() {
-    	currentIteration = 0;
+  public boolean getAdjustForGravity() {
+    return adjustForGravity;
+  }
 
-    	if(graph != null && size != null) {
+  /**
+   * Enable or disable the local minimum escape technique by exchanging nodes.
+   *
+   * @param on iff the local minimum escape technique is to be enabled
+   */
+  public void setExchangenodes(boolean on) {
+    exchangenodes = on;
+  }
 
-        	double height = size.getHeight();
-    		double width = size.getWidth();
+  public boolean getExchangenodes() {
+    return exchangenodes;
+  }
 
-    		int n = graph.nodes().size();
-    		dm = new double[n][n];
-    		nodes = (N[])graph.nodes().toArray();
-    		xydata = new Point2D[n];
+  /** Determines a step to new position of the node m. */
+  private double[] calcDeltaXY(int m) {
+    double dE_dxm = 0;
+    double dE_dym = 0;
+    double d2E_d2xm = 0;
+    double d2E_dxmdym = 0;
+    double d2E_dymdxm = 0;
+    double d2E_d2ym = 0;
 
-    		// assign IDs to all visible nodes
-    		while(true) {
-    			try {
-    				int index = 0;
-    				for(N node : graph.nodes()) {
-    					Point2D xyd = apply(node);
-    					nodes[index] = node;
-    					xydata[index] = xyd;
-    					index++;
-    				}
-    				break;
-    			} catch(ConcurrentModificationException cme) {}
-    		}
+    for (int i = 0; i < nodes.length; i++) {
+      if (i != m) {
 
-    		diameter = DistanceStatistics.<N>diameter(graph, distance, true);
+        double dist = dm[m][i];
+        double l_mi = L * dist;
+        double k_mi = K / (dist * dist);
+        double dx = xydata[m].getX() - xydata[i].getX();
+        double dy = xydata[m].getY() - xydata[i].getY();
+        double d = Math.sqrt(dx * dx + dy * dy);
+        double ddd = d * d * d;
 
-    		double L0 = Math.min(height, width);
-    		L = (L0 / diameter) * length_factor;  // length_factor used to be hardcoded to 0.9
-    		//L = 0.75 * Math.sqrt(height * width / n);
+        dE_dxm += k_mi * (1 - l_mi / d) * dx;
+        dE_dym += k_mi * (1 - l_mi / d) * dy;
+        d2E_d2xm += k_mi * (1 - l_mi * dy * dy / ddd);
+        d2E_dxmdym += k_mi * l_mi * dx * dy / ddd;
+        d2E_d2ym += k_mi * (1 - l_mi * dx * dx / ddd);
+      }
+    }
+    // d2E_dymdxm equals to d2E_dxmdym.
+    d2E_dymdxm = d2E_dxmdym;
 
-    		for (int i = 0; i < n - 1; i++) {
-    			for (int j = i + 1; j < n; j++) {
-    				Number d_ij = distance.apply(nodes[i], nodes[j]);
-    				Number d_ji = distance.apply(nodes[j], nodes[i]);
-    				double dist = diameter * disconnected_multiplier;
-    				if (d_ij != null)
-    					dist = Math.min(d_ij.doubleValue(), dist);
-    				if (d_ji != null)
-    					dist = Math.min(d_ji.doubleValue(), dist);
-    				dm[i][j] = dm[j][i] = dist;
-    			}
-    		}
-    	}
-	}
+    double denomi = d2E_d2xm * d2E_d2ym - d2E_dxmdym * d2E_dymdxm;
+    double deltaX = (d2E_dxmdym * dE_dym - d2E_d2ym * dE_dxm) / denomi;
+    double deltaY = (d2E_dymdxm * dE_dxm - d2E_d2xm * dE_dym) / denomi;
+    return new double[] {deltaX, deltaY};
+  }
 
-	public void step() {
-		try {
-			currentIteration++;
-			double energy = calcEnergy();
-			status = "Kamada-Kawai N=" + graph.nodes().size()
-			+ "(" + graph.nodes().size() + ")"
-			+ " IT: " + currentIteration
-			+ " E=" + energy
-			;
+  /** Calculates the gradient of energy function at the node m. */
+  private double calcDeltaM(int m) {
+    double dEdxm = 0;
+    double dEdym = 0;
+    for (int i = 0; i < nodes.length; i++) {
+      if (i != m) {
+        double dist = dm[m][i];
+        double l_mi = L * dist;
+        double k_mi = K / (dist * dist);
 
-			int n = graph.nodes().size();
-			if (n == 0)
-				return;
+        double dx = xydata[m].getX() - xydata[i].getX();
+        double dy = xydata[m].getY() - xydata[i].getY();
+        double d = Math.sqrt(dx * dx + dy * dy);
 
-			double maxDeltaM = 0;
-			int pm = -1;            // the node having max deltaM
-			for (int i = 0; i < n; i++) {
-				if (isLocked(nodes[i]))
-					continue;
-				double deltam = calcDeltaM(i);
+        double common = k_mi * (1 - l_mi / d);
+        dEdxm += common * dx;
+        dEdym += common * dy;
+      }
+    }
+    return Math.sqrt(dEdxm * dEdxm + dEdym * dEdym);
+  }
 
-				if (maxDeltaM < deltam) {
-					maxDeltaM = deltam;
-					pm = i;
-				}
-			}
-			if (pm == -1)
-				return;
+  /** Calculates the energy function E. */
+  private double calcEnergy() {
+    double energy = 0;
+    for (int i = 0; i < nodes.length - 1; i++) {
+      for (int j = i + 1; j < nodes.length; j++) {
+        double dist = dm[i][j];
+        double l_ij = L * dist;
+        double k_ij = K / (dist * dist);
+        double dx = xydata[i].getX() - xydata[j].getX();
+        double dy = xydata[i].getY() - xydata[j].getY();
+        double d = Math.sqrt(dx * dx + dy * dy);
 
-			for (int i = 0; i < 100; i++) {
-				double[] dxy = calcDeltaXY(pm);
-				xydata[pm].setLocation(xydata[pm].getX()+dxy[0], xydata[pm].getY()+dxy[1]);
+        energy += k_ij / 2 * (dx * dx + dy * dy + l_ij * l_ij - 2 * l_ij * d);
+      }
+    }
+    return energy;
+  }
 
-				double deltam = calcDeltaM(pm);
-				if (deltam < EPSILON)
-					break;
-			}
+  /** Calculates the energy function E as if positions of the specified nodes are exchanged. */
+  private double calcEnergyIfExchanged(int p, int q) {
+    if (p >= q) throw new RuntimeException("p should be < q");
+    double energy = 0; // < 0
+    for (int i = 0; i < nodes.length - 1; i++) {
+      for (int j = i + 1; j < nodes.length; j++) {
+        int ii = i;
+        int jj = j;
+        if (i == p) ii = q;
+        if (j == q) jj = p;
 
-			if (adjustForGravity)
-				adjustForGravity();
+        double dist = dm[i][j];
+        double l_ij = L * dist;
+        double k_ij = K / (dist * dist);
+        double dx = xydata[ii].getX() - xydata[jj].getX();
+        double dy = xydata[ii].getY() - xydata[jj].getY();
+        double d = Math.sqrt(dx * dx + dy * dy);
 
-			if (exchangenodes && maxDeltaM < EPSILON) {
-				energy = calcEnergy();
-				for (int i = 0; i < n - 1; i++) {
-					if (isLocked(nodes[i]))
-						continue;
-					for (int j = i + 1; j < n; j++) {
-						if (isLocked(nodes[j]))
-							continue;
-						double xenergy = calcEnergyIfExchanged(i, j);
-						if (energy > xenergy) {
-							double sx = xydata[i].getX();
-							double sy = xydata[i].getY();
-							xydata[i].setLocation(xydata[j]);
-							xydata[j].setLocation(sx, sy);
-							return;
-						}
-					}
-				}
-			}
-		}
-		finally {
-//			fireStateChanged();
-		}
-	}
+        energy += k_ij / 2 * (dx * dx + dy * dy + l_ij * l_ij - 2 * l_ij * d);
+      }
+    }
+    return energy;
+  }
 
-	/**
-	 * Shift all nodes so that the center of gravity is located at
-	 * the center of the screen.
-	 */
-	public void adjustForGravity() {
-		Dimension d = getSize();
-		double height = d.getHeight();
-		double width = d.getWidth();
-		double gx = 0;
-		double gy = 0;
-		for (int i = 0; i < xydata.length; i++) {
-			gx += xydata[i].getX();
-			gy += xydata[i].getY();
-		}
-		gx /= xydata.length;
-		gy /= xydata.length;
-		double diffx = width / 2 - gx;
-		double diffy = height / 2 - gy;
-		for (int i = 0; i < xydata.length; i++) {
-            xydata[i].setLocation(xydata[i].getX()+diffx, xydata[i].getY()+diffy);
-		}
-	}
-
-	@Override
-	public void setSize(Dimension size) {
-		if(initialized == false)
-			setInitializer(new RandomLocationTransformer<N>(size));
-		super.setSize(size);
-	}
-
-	public void setAdjustForGravity(boolean on) {
-		adjustForGravity = on;
-	}
-
-	public boolean getAdjustForGravity() {
-		return adjustForGravity;
-	}
-
-	/**
-	 * Enable or disable the local minimum escape technique by
-	 * exchanging nodes.
-	 * @param on iff the local minimum escape technique is to be enabled
-	 */
-	public void setExchangenodes(boolean on) {
-		exchangenodes = on;
-	}
-
-	public boolean getExchangenodes() {
-		return exchangenodes;
-	}
-
-	/**
-	 * Determines a step to new position of the node m.
-	 */
-	private double[] calcDeltaXY(int m) {
-		double dE_dxm = 0;
-		double dE_dym = 0;
-		double d2E_d2xm = 0;
-		double d2E_dxmdym = 0;
-		double d2E_dymdxm = 0;
-		double d2E_d2ym = 0;
-
-		for (int i = 0; i < nodes.length; i++) {
-			if (i != m) {
-                
-                double dist = dm[m][i];
-				double l_mi = L * dist;
-				double k_mi = K / (dist * dist);
-				double dx = xydata[m].getX() - xydata[i].getX();
-				double dy = xydata[m].getY() - xydata[i].getY();
-				double d = Math.sqrt(dx * dx + dy * dy);
-				double ddd = d * d * d;
-
-				dE_dxm += k_mi * (1 - l_mi / d) * dx;
-				dE_dym += k_mi * (1 - l_mi / d) * dy;
-				d2E_d2xm += k_mi * (1 - l_mi * dy * dy / ddd);
-				d2E_dxmdym += k_mi * l_mi * dx * dy / ddd;
-				d2E_d2ym += k_mi * (1 - l_mi * dx * dx / ddd);
-			}
-		}
-		// d2E_dymdxm equals to d2E_dxmdym.
-		d2E_dymdxm = d2E_dxmdym;
-
-		double denomi = d2E_d2xm * d2E_d2ym - d2E_dxmdym * d2E_dymdxm;
-		double deltaX = (d2E_dxmdym * dE_dym - d2E_d2ym * dE_dxm) / denomi;
-		double deltaY = (d2E_dymdxm * dE_dxm - d2E_d2xm * dE_dym) / denomi;
-		return new double[]{deltaX, deltaY};
-	}
-
-	/**
-	 * Calculates the gradient of energy function at the node m.
-	 */
-	private double calcDeltaM(int m) {
-		double dEdxm = 0;
-		double dEdym = 0;
-		for (int i = 0; i < nodes.length; i++) {
-			if (i != m) {
-                double dist = dm[m][i];
-				double l_mi = L * dist;
-				double k_mi = K / (dist * dist);
-
-				double dx = xydata[m].getX() - xydata[i].getX();
-				double dy = xydata[m].getY() - xydata[i].getY();
-				double d = Math.sqrt(dx * dx + dy * dy);
-
-				double common = k_mi * (1 - l_mi / d);
-				dEdxm += common * dx;
-				dEdym += common * dy;
-			}
-		}
-		return Math.sqrt(dEdxm * dEdxm + dEdym * dEdym);
-	}
-
-	/**
-	 * Calculates the energy function E.
-	 */
-	private double calcEnergy() {
-		double energy = 0;
-		for (int i = 0; i < nodes.length - 1; i++) {
-			for (int j = i + 1; j < nodes.length; j++) {
-                double dist = dm[i][j];
-				double l_ij = L * dist;
-				double k_ij = K / (dist * dist);
-				double dx = xydata[i].getX() - xydata[j].getX();
-				double dy = xydata[i].getY() - xydata[j].getY();
-				double d = Math.sqrt(dx * dx + dy * dy);
-
-
-				energy += k_ij / 2 * (dx * dx + dy * dy + l_ij * l_ij -
-									  2 * l_ij * d);
-			}
-		}
-		return energy;
-	}
-
-	/**
-	 * Calculates the energy function E as if positions of the
-	 * specified nodes are exchanged.
-	 */
-	private double calcEnergyIfExchanged(int p, int q) {
-		if (p >= q)
-			throw new RuntimeException("p should be < q");
-		double energy = 0;		// < 0
-		for (int i = 0; i < nodes.length - 1; i++) {
-			for (int j = i + 1; j < nodes.length; j++) {
-				int ii = i;
-				int jj = j;
-				if (i == p) ii = q;
-				if (j == q) jj = p;
-
-                double dist = dm[i][j];
-				double l_ij = L * dist;
-				double k_ij = K / (dist * dist);
-				double dx = xydata[ii].getX() - xydata[jj].getX();
-				double dy = xydata[ii].getY() - xydata[jj].getY();
-				double d = Math.sqrt(dx * dx + dy * dy);
-				
-				energy += k_ij / 2 * (dx * dx + dy * dy + l_ij * l_ij -
-									  2 * l_ij * d);
-			}
-		}
-		return energy;
-	}
-
-	public void reset() {
-		currentIteration = 0;
-	}
+  public void reset() {
+    currentIteration = 0;
+  }
 }

@@ -1,7 +1,7 @@
 /*
  * Created on Jul 6, 2007
  *
- * Copyright (c) 2007, The JUNG Authors 
+ * Copyright (c) 2007, The JUNG Authors
  *
  * All rights reserved.
  *
@@ -19,13 +19,12 @@ import java.util.Map;
  * @param <E> the edge type
  * @param <S> the score type
  */
-public interface EdgeScorer<E, S>
-{
-    /**
-     * @param e the edge whose score is requested
-     * @return the algorithm's score for this edge
-     */
-    public S getEdgeScore(E e);
-    
-    public Map<E, S> edgeScores();
+public interface EdgeScorer<E, S> {
+  /**
+   * @param e the edge whose score is requested
+   * @return the algorithm's score for this edge
+   */
+  public S getEdgeScore(E e);
+
+  public Map<E, S> edgeScores();
 }
