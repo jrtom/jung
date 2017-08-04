@@ -10,67 +10,64 @@
 
 package edu.uci.ics.jung.visualization;
 
-import java.awt.Dimension;
-
-import javax.swing.event.ChangeListener;
-
 import com.google.common.graph.Network;
-
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.algorithms.layout.util.Relaxer;
 import edu.uci.ics.jung.visualization.util.ChangeEventSupport;
+import java.awt.Dimension;
+import javax.swing.event.ChangeListener;
 
 /**
- * Interface for the state holding model of the VisualizationViewer.
- * Refactored and extracted from the 1.6.0 version of VisualizationViewer
- * 
- * @author Tom Nelson 
+ * Interface for the state holding model of the VisualizationViewer. Refactored and extracted from
+ * the 1.6.0 version of VisualizationViewer
+ *
+ * @author Tom Nelson
  */
 public interface VisualizationModel<V, E> extends ChangeEventSupport {
 
-	Relaxer getRelaxer();
+  Relaxer getRelaxer();
 
-	/**
-     * set the graph Layout
-     * @param layout the layout to use
-     */
-    void setGraphLayout(Layout<V> layout);
-    
-    /**
-     * Sets the graph Layout and initialize the Layout size to
-     * the passed dimensions. The passed Dimension will often be
-     * the size of the View that will display the graph.
-     * @param layout the layout to use
-     * @param d the dimensions to use
-     */
-    void setGraphLayout(Layout<V> layout, Dimension d);
+  /**
+   * set the graph Layout
+   *
+   * @param layout the layout to use
+   */
+  void setGraphLayout(Layout<V> layout);
 
-    /**
-     * @return the current graph layout
-     */
-    Layout<V> getGraphLayout();
-    
-    Network<V, E> getNetwork();
+  /**
+   * Sets the graph Layout and initialize the Layout size to the passed dimensions. The passed
+   * Dimension will often be the size of the View that will display the graph.
+   *
+   * @param layout the layout to use
+   * @param d the dimensions to use
+   */
+  void setGraphLayout(Layout<V> layout, Dimension d);
 
-    /**
-     * Register <code>l</code> as a listeners to changes in the model. The View registers
-     * in order to repaint itself when the model changes.
-     * @param l the listener to add
-     */
-    void addChangeListener(ChangeListener l);
+  /** @return the current graph layout */
+  Layout<V> getGraphLayout();
 
-    /**
-     * Removes a ChangeListener.
-     * @param l the listener to be removed
-     */
-    void removeChangeListener(ChangeListener l);
+  Network<V, E> getNetwork();
 
-    /**
-     * Returns an array of all the <code>ChangeListener</code>s added
-     * with addChangeListener().
-     *
-     * @return all of the <code>ChangeListener</code>s added or an empty
-     *         array if no listeners have been added
-     */
-    ChangeListener[] getChangeListeners();
+  /**
+   * Register <code>l</code> as a listeners to changes in the model. The View registers in order to
+   * repaint itself when the model changes.
+   *
+   * @param l the listener to add
+   */
+  void addChangeListener(ChangeListener l);
+
+  /**
+   * Removes a ChangeListener.
+   *
+   * @param l the listener to be removed
+   */
+  void removeChangeListener(ChangeListener l);
+
+  /**
+   * Returns an array of all the <code>ChangeListener</code>s added with addChangeListener().
+   *
+   * @return all of the <code>ChangeListener</code>s added or an empty array if no listeners have
+   *     been added
+   */
+  ChangeListener[] getChangeListeners();
 }

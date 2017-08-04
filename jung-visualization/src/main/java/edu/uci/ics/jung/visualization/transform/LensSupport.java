@@ -14,16 +14,18 @@ import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 
 /**
  * basic API for implementing lens projection support
- * 
- * @author Tom Nelson 
  *
+ * @author Tom Nelson
  */
 public interface LensSupport {
 
-    void activate();
-    void deactivate();
-    void activate(boolean state);
-    LensTransformer getLensTransformer();
-    
-    ModalGraphMouse getGraphMouse();
+  void activate();
+
+  void deactivate();
+
+  void activate(boolean state);
+
+  LensTransformer getLensTransformer();
+
+  ModalGraphMouse getGraphMouse();
 }

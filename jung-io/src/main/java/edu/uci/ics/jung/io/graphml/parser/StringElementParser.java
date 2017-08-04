@@ -10,58 +10,55 @@
 
 package edu.uci.ics.jung.io.graphml.parser;
 
+import com.google.common.graph.MutableNetwork;
+import edu.uci.ics.jung.io.GraphIOException;
+import edu.uci.ics.jung.io.graphml.ExceptionConverter;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.events.Characters;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
-import com.google.common.graph.MutableNetwork;
-
-import edu.uci.ics.jung.io.GraphIOException;
-import edu.uci.ics.jung.io.graphml.ExceptionConverter;
-
 /**
  * Parses an element that just contains text.
  *
  * @author Nathan Mittler - nathan.mittler@gmail.com
  */
-public class StringElementParser<G extends MutableNetwork<V,E>,V,E> extends AbstractElementParser<G,V,E> {
+public class StringElementParser<G extends MutableNetwork<V, E>, V, E>
+    extends AbstractElementParser<G, V, E> {
 
-    public StringElementParser(ParserContext<G,V,E> parserContext) {
-        super(parserContext);
-    }
-    
-    public String parse(XMLEventReader xmlEventReader, StartElement start)
-            throws GraphIOException {
+  public StringElementParser(ParserContext<G, V, E> parserContext) {
+    super(parserContext);
+  }
 
-        try {
-            String str = null;
+  public String parse(XMLEventReader xmlEventReader, StartElement start) throws GraphIOException {
 
-            while (xmlEventReader.hasNext()) {
+    try {
+      String str = null;
 
-                XMLEvent event = xmlEventReader.nextEvent();
-                if (event.isStartElement()) {
+      while (xmlEventReader.hasNext()) {
 
-                    // Parse the unknown element.
-                    getUnknownParser().parse(xmlEventReader, event
-                            .asStartElement());
-                } else if (event.isEndElement()) {
-                    EndElement end = (EndElement) event;
-                    verifyMatch(start, end);
-                    break;
-                } else if (event.isCharacters()) {
-                    Characters characters = (Characters) event;
-                    str = characters.getData();
-                }
-            }
+        XMLEvent event = xmlEventReader.nextEvent();
+        if (event.isStartElement()) {
 
-            return str;
-
-        } catch (Exception e) {
-            ExceptionConverter.convert(e);
+          // Parse the unknown element.
+          getUnknownParser().parse(xmlEventReader, event.asStartElement());
+        } else if (event.isEndElement()) {
+          EndElement end = (EndElement) event;
+          verifyMatch(start, end);
+          break;
+        } else if (event.isCharacters()) {
+          Characters characters = (Characters) event;
+          str = characters.getData();
         }
+      }
 
-        return null;
+      return str;
+
+    } catch (Exception e) {
+      ExceptionConverter.convert(e);
     }
+
+    return null;
+  }
 }

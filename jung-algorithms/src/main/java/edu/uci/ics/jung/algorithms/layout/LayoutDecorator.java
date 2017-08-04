@@ -10,89 +10,85 @@
 
 package edu.uci.ics.jung.algorithms.layout;
 
+import com.google.common.base.Function;
+import edu.uci.ics.jung.algorithms.util.IterativeContext;
 import java.awt.Dimension;
 import java.awt.geom.Point2D;
 
-import com.google.common.base.Function;
-
-import edu.uci.ics.jung.algorithms.util.IterativeContext;
-
 /**
- * a pure decorator for the Layout interface. Intended to be overridden
- * to provide specific behavior decoration
- * 
- * @author Tom Nelson 
+ * a pure decorator for the Layout interface. Intended to be overridden to provide specific behavior
+ * decoration
  *
+ * @author Tom Nelson
  */
 public abstract class LayoutDecorator<N> implements Layout<N>, IterativeContext {
-    
-    protected Layout<N> delegate;
-    
-	/**
-	 * Creates an instance backed by the specified {@code delegate}.
-	 * @param delegate the layout to which this instance is delegating
-	 */
-    public LayoutDecorator(Layout<N> delegate) {
-        this.delegate = delegate;
+
+  protected Layout<N> delegate;
+
+  /**
+   * Creates an instance backed by the specified {@code delegate}.
+   *
+   * @param delegate the layout to which this instance is delegating
+   */
+  public LayoutDecorator(Layout<N> delegate) {
+    this.delegate = delegate;
+  }
+
+  /** @return the backing (delegate) layout. */
+  public Layout<N> getDelegate() {
+    return delegate;
+  }
+
+  public void setDelegate(Layout<N> delegate) {
+    this.delegate = delegate;
+  }
+
+  public void step() {
+    if (delegate instanceof IterativeContext) {
+      ((IterativeContext) delegate).step();
     }
+  }
 
-    /**
-     * @return the backing (delegate) layout.
-     */
-    public Layout<N> getDelegate() {
-        return delegate;
+  public void initialize() {
+    delegate.initialize();
+  }
+
+  public void setInitializer(Function<N, Point2D> initializer) {
+    delegate.setInitializer(initializer);
+  }
+
+  public void setLocation(N node, Point2D location) {
+    delegate.setLocation(node, location);
+  }
+
+  public Dimension getSize() {
+    return delegate.getSize();
+  }
+
+  public Point2D transform(N node) {
+    return delegate.apply(node);
+  }
+
+  public boolean done() {
+    if (delegate instanceof IterativeContext) {
+      return ((IterativeContext) delegate).done();
     }
+    return true;
+  }
 
-    public void setDelegate(Layout<N> delegate) {
-        this.delegate = delegate;
-    }
+  public void lock(N node, boolean state) {
+    delegate.lock(node, state);
+  }
 
-    public void step() {
-    	if(delegate instanceof IterativeContext) {
-    		((IterativeContext)delegate).step();
-    	}
-    }
+  public boolean isLocked(N node) {
+    return delegate.isLocked(node);
+  }
 
-	public void initialize() {
-		delegate.initialize();
-	}
+  public void setSize(Dimension d) {
+    delegate.setSize(d);
+  }
 
-	public void setInitializer(Function<N, Point2D> initializer) {
-		delegate.setInitializer(initializer);
-	}
-
-	public void setLocation(N node, Point2D location) {
-		delegate.setLocation(node, location);
-	}
-
-    public Dimension getSize() {
-        return delegate.getSize();
-    }
-
-    public Point2D transform(N node) {
-        return delegate.apply(node);
-    }
-
-    public boolean done() {
-    	if(delegate instanceof IterativeContext) {
-    		return ((IterativeContext)delegate).done();
-    	}
-    	return true;
-    }
-
-    public void lock(N node, boolean state) {
-        delegate.lock(node, state);
-    }
-
-    public boolean isLocked(N node) {
-        return delegate.isLocked(node);
-    }
-    
-    public void setSize(Dimension d) {
-        delegate.setSize(d);
-    }
-
-    public void reset() {
-    	delegate.reset();
-    }
+  public void reset() {
+    delegate.reset();
+  }
 }

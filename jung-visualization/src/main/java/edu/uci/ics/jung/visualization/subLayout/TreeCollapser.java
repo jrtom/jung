@@ -9,45 +9,46 @@
  */
 package edu.uci.ics.jung.visualization.subLayout;
 
-import java.util.Optional;
-
 import edu.uci.ics.jung.graph.CTreeNetwork;
 import edu.uci.ics.jung.graph.MutableCTreeNetwork;
 import edu.uci.ics.jung.graph.util.TreeUtils;
+import java.util.Optional;
 
-public class TreeCollapser  {
+public class TreeCollapser {
 
-	/**
-	 * Replaces the subtree of {@code tree} rooted at {@code subRoot} with a node representing
-	 * that subtree.
-	 * @param tree the tree whose subtree is to be collapsed
-	 * @param subRoot the root of the subtree to be collapsed
-	 */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-	public static MutableCTreeNetwork collapse(MutableCTreeNetwork tree, Object subRoot) {
-    	// get the subtree rooted at subRoot
-    	MutableCTreeNetwork subTree = TreeUtils.getSubTree(tree, subRoot);
-    	Optional parent = tree.predecessor(subRoot);
-    	if (parent.isPresent()) {
-    		// subRoot has a parent, so attach its parent to subTree in its place
-    		Object parentEdge = tree.inEdges(subRoot).iterator().next();  // THERE CAN BE ONLY ONE
-    		tree.removeNode(subRoot);
-    		tree.addEdge(parent.get(), subTree, parentEdge);
-    	} else {
-    		// subRoot is the root of tree
-    		tree.removeNode(subRoot);
-    		tree.addNode(subTree);
-    	}
-    	return subTree;
+  /**
+   * Replaces the subtree of {@code tree} rooted at {@code subRoot} with a node representing that
+   * subtree.
+   *
+   * @param tree the tree whose subtree is to be collapsed
+   * @param subRoot the root of the subtree to be collapsed
+   */
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  public static MutableCTreeNetwork collapse(MutableCTreeNetwork tree, Object subRoot) {
+    // get the subtree rooted at subRoot
+    MutableCTreeNetwork subTree = TreeUtils.getSubTree(tree, subRoot);
+    Optional parent = tree.predecessor(subRoot);
+    if (parent.isPresent()) {
+      // subRoot has a parent, so attach its parent to subTree in its place
+      Object parentEdge = tree.inEdges(subRoot).iterator().next(); // THERE CAN BE ONLY ONE
+      tree.removeNode(subRoot);
+      tree.addEdge(parent.get(), subTree, parentEdge);
+    } else {
+      // subRoot is the root of tree
+      tree.removeNode(subRoot);
+      tree.addNode(subTree);
     }
-    
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-	public static void expand(MutableCTreeNetwork tree, CTreeNetwork subTree) {
-    	Optional parent = tree.predecessor(subTree);
-    	Object parentEdge = parent.isPresent()
-    		? tree.inEdges(subTree).iterator().next()  // THERE CAN BE ONLY ONE
-    		: null;
-    	tree.removeNode(subTree);
-    	TreeUtils.addSubTree(tree, subTree, parent.orElse(null), parentEdge);
-    }
+    return subTree;
+  }
+
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  public static void expand(MutableCTreeNetwork tree, CTreeNetwork subTree) {
+    Optional parent = tree.predecessor(subTree);
+    Object parentEdge =
+        parent.isPresent()
+            ? tree.inEdges(subTree).iterator().next() // THERE CAN BE ONLY ONE
+            : null;
+    tree.removeNode(subTree);
+    TreeUtils.addSubTree(tree, subTree, parent.orElse(null), parentEdge);
+  }
 }

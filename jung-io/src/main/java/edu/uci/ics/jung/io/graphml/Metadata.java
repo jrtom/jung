@@ -19,25 +19,27 @@ import java.util.Map;
  */
 public interface Metadata {
 
-    /**
-     * Metadata type enumeration
-     */
-    enum MetadataType {
-        GRAPH, NODE, EDGE, HYPEREDGE, PORT, ENDPOINT
-    }
+  /** Metadata type enumeration */
+  enum MetadataType {
+    GRAPH,
+    NODE,
+    EDGE,
+    HYPEREDGE,
+    PORT,
+    ENDPOINT
+  }
 
-    /**
-     * Gets the metadata type of this object.
-     * 
-     * @return the metadata type
-     */
-    MetadataType getMetadataType();
+  /**
+   * Gets the metadata type of this object.
+   *
+   * @return the metadata type
+   */
+  MetadataType getMetadataType();
 
-    /**
-     * Gets any properties that were associated with this metadata in the
-     * GraphML
-     * 
-     * @return GraphML properties
-     */
-    Map<String, String> getProperties();
+  /**
+   * Gets any properties that were associated with this metadata in the GraphML
+   *
+   * @return GraphML properties
+   */
+  Map<String, String> getProperties();
 }
