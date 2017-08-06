@@ -6,14 +6,12 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
 import com.google.common.graph.MutableNetwork;
 
-import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 
 public class SimpleEdgeSupport<V,E> implements EdgeSupport<V,E> {
 
 	protected Point2D down;
 	protected EdgeEffects<V,E> edgeEffects;
-	protected EdgeType edgeType;
 	protected Supplier<E> edgeFactory;
 	protected V startVertex;
 	
@@ -24,12 +22,11 @@ public class SimpleEdgeSupport<V,E> implements EdgeSupport<V,E> {
 	
 	@Override
 	public void startEdgeCreate(BasicVisualizationServer<V, E> vv,
-			V startVertex, Point2D startPoint, EdgeType edgeType) {
+			V startVertex, Point2D startPoint) {
 		this.startVertex = startVertex;
 		this.down = startPoint;
-		this.edgeType = edgeType;
 		this.edgeEffects.startEdgeEffects(vv, startPoint, startPoint);
-		if(edgeType == EdgeType.DIRECTED) {
+		if (vv.getModel().getNetwork().isDirected()) {
 			this.edgeEffects.startArrowEffects(vv, startPoint, startPoint);
 		}
 		vv.repaint();
@@ -40,7 +37,7 @@ public class SimpleEdgeSupport<V,E> implements EdgeSupport<V,E> {
 			Point2D midPoint) {
 		if(startVertex != null) {
 			this.edgeEffects.midEdgeEffects(vv, down, midPoint);
-			if(this.edgeType == EdgeType.DIRECTED) {
+			if (vv.getModel().getNetwork().isDirected()) {
 				this.edgeEffects.midArrowEffects(vv, down, midPoint);
 			}
 			vv.repaint();
@@ -67,10 +64,6 @@ public class SimpleEdgeSupport<V,E> implements EdgeSupport<V,E> {
 
 	public void setEdgeEffects(EdgeEffects<V, E> edgeEffects) {
 		this.edgeEffects = edgeEffects;
-	}
-
-	public EdgeType getEdgeType() {
-		return edgeType;
 	}
 
 	public Supplier<E> getEdgeFactory() {

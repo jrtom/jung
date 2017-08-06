@@ -9,10 +9,8 @@ import java.awt.geom.Point2D;
 import javax.swing.JComponent;
 
 import com.google.common.base.Supplier;
-import com.google.common.graph.Network;
 
 import edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor;
-import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 
 /**
@@ -82,12 +80,7 @@ public class EditingGraphMousePlugin<V,E> extends AbstractGraphMousePlugin imple
                 final V vertex = pickSupport.getNode(p.getX(), p.getY());
                 if(vertex != null) { // get ready to make an edge
                 	this.createMode = Creating.EDGE;
-                	Network<V,E> graph = vv.getModel().getNetwork();
-                	// set default edge type
-                	EdgeType edgeType = graph.isDirected()
-                			? EdgeType.DIRECTED
-                			: EdgeType.UNDIRECTED;
-                    edgeSupport.startEdgeCreate(vv, vertex, e.getPoint(), edgeType);
+                    edgeSupport.startEdgeCreate(vv, vertex, e.getPoint());
                 } else { // make a new vertex
                 	this.createMode = Creating.VERTEX;
                 	vertexSupport.startVertexCreate(vv, e.getPoint());

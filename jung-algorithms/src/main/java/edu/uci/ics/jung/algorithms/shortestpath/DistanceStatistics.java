@@ -16,7 +16,6 @@ import com.google.common.graph.Network;
 
 import edu.uci.ics.jung.algorithms.scoring.ClosenessCentrality;
 import edu.uci.ics.jung.algorithms.scoring.util.VertexScoreTransformer;
-import edu.uci.ics.jung.graph.Hypergraph;
 
 /**
  * Statistics relating to vertex-vertex distances in a graph.
