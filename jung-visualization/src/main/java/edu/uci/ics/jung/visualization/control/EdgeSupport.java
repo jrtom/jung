@@ -2,7 +2,6 @@ package edu.uci.ics.jung.visualization.control;
 
 import java.awt.geom.Point2D;
 
-import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 
 /**
@@ -16,7 +15,7 @@ import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 public interface EdgeSupport<V,E> {
 	
 	void startEdgeCreate(BasicVisualizationServer<V,E> vv, V startVertex, 
-			Point2D startPoint, EdgeType edgeType);
+			Point2D startPoint);
 	
 	void midEdgeCreate(BasicVisualizationServer<V,E> vv, Point2D midPoint);
 	

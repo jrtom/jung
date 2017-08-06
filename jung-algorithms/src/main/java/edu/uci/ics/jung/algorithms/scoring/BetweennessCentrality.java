@@ -25,7 +25,6 @@ import com.google.common.base.Functions;
 import com.google.common.graph.Network;
 
 import edu.uci.ics.jung.algorithms.util.MapBinaryHeap;
-import edu.uci.ics.jung.graph.UndirectedGraph;
 
 /**
  * Computes betweenness centrality for each vertex and edge in the graph.
@@ -227,7 +226,7 @@ public class BetweennessCentrality<V, E>
     		}
         }
 
-        if(graph instanceof UndirectedGraph) 
+        if(!graph.isDirected()) 
         {
     		for (V v : graph.nodes()) { 
     			double v_score = vertex_scores.get(v).doubleValue();
