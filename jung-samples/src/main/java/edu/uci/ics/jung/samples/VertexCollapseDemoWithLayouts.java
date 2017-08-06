@@ -8,10 +8,33 @@
  */
 package edu.uci.ics.jung.samples;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.awt.Shape;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.geom.Point2D;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+
+import javax.swing.BorderFactory;
+import javax.swing.JApplet;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+
 import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import com.google.common.collect.Sets;
 import com.google.common.graph.Network;
+
 import edu.uci.ics.jung.algorithms.layout.CircleLayout;
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.algorithms.layout.ISOMLayout;
@@ -34,27 +57,6 @@ import edu.uci.ics.jung.visualization.layout.LayoutTransition;
 import edu.uci.ics.jung.visualization.subLayout.GraphCollapser;
 import edu.uci.ics.jung.visualization.util.Animator;
 import edu.uci.ics.jung.visualization.util.PredicatedParallelEdgeIndexFunction;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.GridLayout;
-import java.awt.Shape;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.geom.Point2D;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-import javax.swing.BorderFactory;
-import javax.swing.JApplet;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 
 /**
  * A demo that shows how collections of vertices can be collapsed into a single vertex. In this
@@ -134,12 +136,7 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
     final Set exclusions = new HashSet();
     final PredicatedParallelEdgeIndexFunction eif =
         new PredicatedParallelEdgeIndexFunction(
-            graph,
-            new Predicate() {
-              public boolean apply(Object e) {
-                return exclusions.contains(e);
-              }
-            });
+            graph, e -> exclusions.contains(e));
     vv.getRenderContext().setParallelEdgeIndexFunction(eif);
 
     vv.setBackground(Color.white);
@@ -147,10 +144,6 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
     // add a listener for ToolTips
     vv.setVertexToolTipTransformer(
         new ToStringLabeller() {
-
-          /* (non-Javadoc)
-           * @see edu.uci.ics.jung.visualization.decorators.DefaultToolTipFunction#getToolTipText(java.lang.Object)
-           */
           @Override
           public String apply(Object v) {
             if (v instanceof Network) {
@@ -433,21 +426,12 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     public void actionPerformed(ActionEvent arg0) {
-      //            Object[] constructorArgs =
-      //                { collapsedGraph };
       Layouts layoutType = (Layouts) jcb.getSelectedItem();
 
-      //			Class<? extends Layout> layoutC =
-      //                (Class<? extends Layout>) jcb.getSelectedItem();
       try {
         layout = createLayout(layoutType, collapsedGraph);
-        //                Constructor<? extends Layout> constructor = layoutC
-        //                        .getConstructor(new Class[] {Graph.class});
-        //                Object o = constructor.newInstance(constructorArgs);
-        //                Layout l = (Layout) o;
         layout.setInitializer(vv.getGraphLayout());
         layout.setSize(vv.getSize());
-        //                layout = l;
         LayoutTransition lt = new LayoutTransition(vv, vv.getGraphLayout(), layout);
         Animator animator = new Animator(lt);
         animator.start();
@@ -459,18 +443,9 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
       }
     }
   }
-  /** @return */
-  //    @SuppressWarnings({ "unchecked", "rawtypes" })
+
   private Layouts[] getCombos() {
     return Layouts.values();
-    //        List<Class<? extends Layout>> layouts = new ArrayList<Class<? extends Layout>>();
-    //        layouts.add(KKLayout.class);
-    //        layouts.add(FRLayout.class);
-    //        layouts.add(CircleLayout.class);
-    //        layouts.add(SpringLayout.class);
-    //        layouts.add(SpringLayout2.class);
-    //        layouts.add(ISOMLayout.class);
-    //        return layouts.toArray(new Class[0]);
   }
 
   public static void main(String[] args) {

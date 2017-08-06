@@ -9,20 +9,14 @@ package edu.uci.ics.jung.samples;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.List;
 
-import javax.swing.DefaultListCellRenderer;
 import javax.swing.JApplet;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
-import javax.swing.JList;
 import javax.swing.JPanel;
 
 import com.google.common.base.Supplier;
@@ -38,7 +32,6 @@ import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.algorithms.layout.SpringLayout;
 import edu.uci.ics.jung.algorithms.layout.SpringLayout2;
 import edu.uci.ics.jung.algorithms.layout.util.Relaxer;
-import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.TestGraphs;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
@@ -66,7 +59,11 @@ public class ShowLayouts extends JApplet {
         "Random directed acyclic graph", "One component graph", 
         "Chain+isolate graph", "Trivial (disconnected) graph"};
     
-	public static class GraphChooser implements ActionListener
+	enum Layouts {
+		KAMADA_KAWAI, FRUCHTERMAN_REINGOLD, CIRCLE, SPRING, SPRING2, SELF_ORGANIZING_MAP
+	};
+    	
+    public static class GraphChooser implements ActionListener
     {
 		private JComboBox<?> layout_combo;
 
@@ -88,7 +85,7 @@ public class ShowLayouts extends JApplet {
 	 * @author danyelf
 	 */
 	
-	private static final class LayoutChooser implements ActionListener
+    private static final class LayoutChooser implements ActionListener
     {
         private final JComboBox<?> jcb;
         private final VisualizationViewer<Integer,Number> vv;
@@ -100,30 +97,20 @@ public class ShowLayouts extends JApplet {
             this.vv = vv;
         }
 
-        @SuppressWarnings("unchecked")
 		public void actionPerformed(ActionEvent arg0)
         {
-            Object[] constructorArgs =
-                { g_array[graph_index]};
-
-			Class<? extends Layout<Integer>> layoutC = 
-                (Class<? extends Layout<Integer>>) jcb.getSelectedItem();
+			Layouts layoutType = (Layouts) jcb.getSelectedItem();
             try
             {
-                Constructor<? extends Layout<Integer>> constructor = layoutC
-                        .getConstructor(new Class[] {Graph.class});
-                Object o = constructor.newInstance(constructorArgs);
-                Layout<Integer> l = (Layout<Integer>) o;
-                l.setInitializer(vv.getGraphLayout());
-                l.setSize(vv.getSize());
-                
-				LayoutTransition<Integer,Number> lt =
-					new LayoutTransition<Integer,Number>(vv, vv.getGraphLayout(), l);
+				// TODO: is this the right input network?  or should it be g_array[graph_index]?
+				Layout<Integer> layout = createLayout(layoutType, vv.getModel().getNetwork());
+				layout.setInitializer(vv.getGraphLayout());
+				layout.setSize(vv.getSize());
+				LayoutTransition<Integer, Number> lt = new LayoutTransition<>(vv, vv.getGraphLayout(), layout);
 				Animator animator = new Animator(lt);
 				animator.start();
 				vv.getRenderContext().getMultiLayerTransformer().setToIdentity();
 				vv.repaint();
-                
             }
             catch (Exception e)
             {
@@ -208,19 +195,20 @@ public class ShowLayouts extends JApplet {
         jp.setBackground(Color.WHITE);
         jp.setLayout(new BorderLayout());
         jp.add(vv, BorderLayout.CENTER);
-        Class[] combos = getCombos();
+        Layouts[] combos = getCombos();
         final JComboBox jcb = new JComboBox(combos);
         // use a renderer to shorten the layout name presentation
-        jcb.setRenderer(new DefaultListCellRenderer() {
-            public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-                String valueString = value.toString();
-                valueString = valueString.substring(valueString.lastIndexOf('.')+1);
-                return super.getListCellRendererComponent(list, valueString, index, isSelected,
-                        cellHasFocus);
-            }
-        });
+//        jcb.setRenderer(new DefaultListCellRenderer() {
+//            public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+//                String valueString = value.toString();
+//                valueString = valueString.substring(valueString.lastIndexOf('.')+1);
+//                return super.getListCellRendererComponent(list, valueString, index, isSelected,
+//                        cellHasFocus);
+//            }
+//        });
         jcb.addActionListener(new LayoutChooser(jcb, vv));
-        jcb.setSelectedItem(FRLayout.class);
+//        jcb.setSelectedItem(FRLayout.class);
+        jcb.setSelectedItem(Layouts.FRUCHTERMAN_REINGOLD);
 
         JPanel control_panel = new JPanel(new GridLayout(2,1));
         JPanel topControls = new JPanel();
@@ -247,21 +235,28 @@ public class ShowLayouts extends JApplet {
         this.getContentPane().add(getGraphPanel());
     }
 
-    /**
-     * @return
-     */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    private static Class<? extends Layout>[] getCombos()
-    {
-        List<Class<? extends Layout>> layouts = new ArrayList<Class<? extends Layout>>();
-        layouts.add(KKLayout.class);
-        layouts.add(FRLayout.class);
-        layouts.add(CircleLayout.class);
-        layouts.add(SpringLayout.class);
-        layouts.add(SpringLayout2.class);
-        layouts.add(ISOMLayout.class);
-        return layouts.toArray(new Class[0]);
-    }
+	private static <N, E> Layout<N> createLayout(Layouts layoutType, Network<N, E> network) {
+		switch (layoutType) {
+			case CIRCLE:
+				return new CircleLayout<N>(network.asGraph());
+			case FRUCHTERMAN_REINGOLD:
+				return new FRLayout<N>(network.asGraph());
+			case KAMADA_KAWAI:
+				return new KKLayout<N>(network.asGraph());
+			case SELF_ORGANIZING_MAP:
+				return new ISOMLayout<N, E>(network);
+			case SPRING:
+				return new SpringLayout<N>(network.asGraph());
+			case SPRING2:
+				return new SpringLayout2<N>(network.asGraph());
+			default:
+				throw new IllegalArgumentException("Unrecognized layout type");
+		}
+	}
+
+	private static Layouts[] getCombos() {
+		return Layouts.values();
+	}
 
     public static void main(String[] args)
     {
