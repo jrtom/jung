@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/jrtom/jung.svg?branch=master)](https://travis-ci.org/jrtom/jung)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/net.sf.jung/jung-algorithms/badge.svg)](https://maven-badges.herokuapp.com/maven-central/net.sf.jung/jung-algorithms)
 
-JUNG is a software library that provides a common and extendible language for the modeling, analysis, and visualization of
+JUNG is a software library that provides a common and extensible language for the modeling, analysis, and visualization of
 data that can be represented as a graph or network.  Its basis in Java allows JUNG-based applications to make use of the
 extensive built-in capabilities of the Java API, as well as those of other existing third-party Java libraries.
 

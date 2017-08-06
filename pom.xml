@@ -22,7 +22,7 @@
   </scm>
   <description>
     JUNG the Java Universal Network/Graph Framework--is a software
-    library that provides a common and extendible language for the
+    library that provides a common and extensible language for the
     modeling, analysis, and visualization of data that can be
     represented as a graph or network. It is written in Java, which
     allows JUNG-based applications to make use of the extensive
