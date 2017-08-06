@@ -37,7 +37,6 @@ import com.google.common.graph.Network;
 
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
-import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.TestGraphs;
 import edu.uci.ics.jung.visualization.DefaultVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
@@ -131,8 +130,8 @@ public class VertexCollapseDemo extends JApplet {
 
 			@Override
 			public String apply(Object v) {
-				if(v instanceof Graph) {
-					return ((Graph)v).getVertices().toString();
+				if(v instanceof Network) {
+					return ((Network)v).nodes().toString();
 				}
 				return super.apply(v);
 			}});
@@ -232,12 +231,11 @@ public class VertexCollapseDemo extends JApplet {
             public void actionPerformed(ActionEvent e) {
                 Collection picked = new HashSet(vv.getPickedVertexState().getPicked());
                 for(Object v : picked) {
-                    if(v instanceof Graph) {
-                        
+                    if(v instanceof Network) {
                         Network g = collapser.expand(vv.getModel().getNetwork(), (Network) v);
                         vv.getRenderContext().getParallelEdgeIndexFunction().reset();
+                        // TODO: need to update VV with new layout
                         layout = new FRLayout(g.asGraph());
-//                        layout.setGraph(g);
                     }
                     vv.getPickedVertexState().clear();
                    vv.repaint();
@@ -249,7 +247,7 @@ public class VertexCollapseDemo extends JApplet {
 
             public void actionPerformed(ActionEvent e) {
                 layout = new FRLayout(vv.getModel().getNetwork().asGraph());
-//                layout.setGraph(graph);
+                // TODO: need to update VV with new layout
                 exclusions.clear();
                 vv.repaint();
             }});
@@ -297,8 +295,8 @@ public class VertexCollapseDemo extends JApplet {
         }
         @Override
         public Shape apply(V v) {
-            if(v instanceof Graph) {
-                int size = ((Graph)v).getVertexCount();
+            if(v instanceof Network) {
+                int size = ((Network)v).nodes().size();
                 if (size < 8) {   
                     int sides = Math.max(size, 3);
                     return factory.getRegularPolygon(v, sides);
@@ -325,7 +323,7 @@ public class VertexCollapseDemo extends JApplet {
         }
 
         public Integer apply(V v) {
-            if(v instanceof Graph) {
+            if(v instanceof Network) {
                 return 30;
             }
             return size;

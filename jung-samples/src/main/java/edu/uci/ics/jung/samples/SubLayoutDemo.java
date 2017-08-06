@@ -47,7 +47,6 @@ import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.algorithms.layout.KKLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.algorithms.layout.SpringLayout;
-import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.TestGraphs;
 import edu.uci.ics.jung.visualization.DefaultVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
@@ -325,9 +324,10 @@ public class SubLayoutDemo extends JApplet {
     }
     
     @SuppressWarnings({ "rawtypes", "unchecked" })
+    // TODO: needs refactoring to create the layout; see VertexCollapseDemoWithLayouts
 	private Layout<String> getLayoutFor(Class<CircleLayout> layoutClass, Network<String, Number> graph) throws Exception {
     	Object[] args = new Object[]{graph};
-    	Constructor<CircleLayout> constructor = layoutClass.getConstructor(new Class[] {Graph.class});
+    	Constructor<CircleLayout> constructor = layoutClass.getConstructor(new Class[] {Network.class});
     	return  constructor.newInstance(args);
     }
     
