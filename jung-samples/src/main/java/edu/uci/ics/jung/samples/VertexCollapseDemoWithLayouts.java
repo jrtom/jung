@@ -8,33 +8,9 @@
  */
 package edu.uci.ics.jung.samples;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.GridLayout;
-import java.awt.Shape;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.geom.Point2D;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-
-import javax.swing.BorderFactory;
-import javax.swing.JApplet;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-
 import com.google.common.base.Function;
 import com.google.common.collect.Sets;
 import com.google.common.graph.Network;
-
 import edu.uci.ics.jung.algorithms.layout.CircleLayout;
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.algorithms.layout.ISOMLayout;
@@ -57,6 +33,27 @@ import edu.uci.ics.jung.visualization.layout.LayoutTransition;
 import edu.uci.ics.jung.visualization.subLayout.GraphCollapser;
 import edu.uci.ics.jung.visualization.util.Animator;
 import edu.uci.ics.jung.visualization.util.PredicatedParallelEdgeIndexFunction;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.awt.Shape;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.geom.Point2D;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+import javax.swing.BorderFactory;
+import javax.swing.JApplet;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 
 /**
  * A demo that shows how collections of vertices can be collapsed into a single vertex. In this
@@ -135,8 +132,7 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
 
     final Set exclusions = new HashSet();
     final PredicatedParallelEdgeIndexFunction eif =
-        new PredicatedParallelEdgeIndexFunction(
-            graph, e -> exclusions.contains(e));
+        new PredicatedParallelEdgeIndexFunction(graph, e -> exclusions.contains(e));
     vv.getRenderContext().setParallelEdgeIndexFunction(eif);
 
     vv.setBackground(Color.white);
