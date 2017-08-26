@@ -15,8 +15,8 @@ import com.google.common.base.Function;
 import com.google.common.base.Functions;
 import com.google.common.base.Preconditions;
 import com.google.common.graph.Network;
-import edu.uci.ics.jung.algorithms.util.BasicMapEntry;
 import edu.uci.ics.jung.algorithms.util.MapBinaryHeap;
+import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -448,7 +448,7 @@ public class DijkstraDistance<V, E> implements Distance<V> {
       V v = unknownVertices.remove();
       Double dist = (Double) estimatedDistances.remove(v);
       distances.put(v, dist);
-      return new BasicMapEntry<V, Number>(v, dist);
+      return new SimpleImmutableEntry<V, Number>(v, dist);
     }
 
     protected void update(V dest, E tentative_edge, double new_dist) {
