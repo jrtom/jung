@@ -1,206 +1,191 @@
 package edu.uci.ics.jung.visualization;
 
-import java.awt.BasicStroke;
-import java.awt.Font;
-import java.awt.Paint;
-import java.awt.Shape;
-import java.awt.Stroke;
-
-import javax.swing.CellRendererPane;
-import javax.swing.Icon;
-import javax.swing.JComponent;
-
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.graph.Network;
-
 import edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.graph.util.EdgeIndexFunction;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import edu.uci.ics.jung.visualization.renderers.EdgeLabelRenderer;
 import edu.uci.ics.jung.visualization.renderers.VertexLabelRenderer;
 import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
+import java.awt.BasicStroke;
+import java.awt.Font;
+import java.awt.Paint;
+import java.awt.Shape;
+import java.awt.Stroke;
+import javax.swing.CellRendererPane;
+import javax.swing.Icon;
+import javax.swing.JComponent;
 
 public interface RenderContext<V, E> {
 
-    float[] dotting = {1.0f, 3.0f};
-    float[] dashing = {5.0f};
+  float[] dotting = {1.0f, 3.0f};
+  float[] dashing = {5.0f};
 
-    /**
-     * A stroke for a dotted line: 1 pixel width, round caps, round joins, and an 
-     * array of {1.0f, 3.0f}.
-     */
-    Stroke DOTTED = new BasicStroke(1.0f,
-            BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 1.0f, dotting, 0f);
+  /**
+   * A stroke for a dotted line: 1 pixel width, round caps, round joins, and an array of {1.0f,
+   * 3.0f}.
+   */
+  Stroke DOTTED =
+      new BasicStroke(1.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 1.0f, dotting, 0f);
 
-    /**
-     * A stroke for a dashed line: 1 pixel width, square caps, beveled joins, and an
-     * array of {5.0f}.
-     */
-    Stroke DASHED = new BasicStroke(1.0f,
-            BasicStroke.CAP_SQUARE, BasicStroke.JOIN_BEVEL, 1.0f, dashing, 0f);
+  /**
+   * A stroke for a dashed line: 1 pixel width, square caps, beveled joins, and an array of {5.0f}.
+   */
+  Stroke DASHED =
+      new BasicStroke(1.0f, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_BEVEL, 1.0f, dashing, 0f);
 
-    /**
-     * Specifies the offset for the edge labels.
-     */
-    int LABEL_OFFSET = 10;
+  /** Specifies the offset for the edge labels. */
+  int LABEL_OFFSET = 10;
 
-    Network<V, E> getNetwork();
-    
-    int getLabelOffset();
-    
-    void setLabelOffset(int labelOffset);
-    
-    float getArrowPlacementTolerance();
+  Network<V, E> getNetwork();
 
-    void setArrowPlacementTolerance(float arrow_placement_tolerance);
+  int getLabelOffset();
 
-    Shape getEdgeArrow();
-    
-    void setEdgeArrow(Shape shape);
-    
-    boolean renderEdgeArrow();
-    
-    void setRenderEdgeArrow(boolean render);
-    
-    Function<? super E,Font> getEdgeFontTransformer();
+  void setLabelOffset(int labelOffset);
 
-    void setEdgeFontTransformer(Function<? super E,Font> edgeFontTransformer);
+  float getArrowPlacementTolerance();
 
-    Predicate<E> getEdgeIncludePredicate();
+  void setArrowPlacementTolerance(float arrow_placement_tolerance);
 
-    void setEdgeIncludePredicate(Predicate<E> edgeIncludePredicate);
+  Shape getEdgeArrow();
 
-    public float getEdgeLabelCloseness();
-    
-    public void setEdgeLabelCloseness(float closeness);
+  void setEdgeArrow(Shape shape);
 
-    EdgeLabelRenderer getEdgeLabelRenderer();
+  boolean renderEdgeArrow();
 
-    void setEdgeLabelRenderer(EdgeLabelRenderer edgeLabelRenderer);
+  void setRenderEdgeArrow(boolean render);
 
-    Function<? super E,Paint> getEdgeFillPaintTransformer();
+  Function<? super E, Font> getEdgeFontTransformer();
 
-    void setEdgeFillPaintTransformer(Function<? super E,Paint> edgePaintTransformer);
+  void setEdgeFontTransformer(Function<? super E, Font> edgeFontTransformer);
 
-    Function<? super E,Paint> getEdgeDrawPaintTransformer();
+  Predicate<E> getEdgeIncludePredicate();
 
-    void setEdgeDrawPaintTransformer(Function<? super E,Paint> edgeDrawPaintTransformer);
+  void setEdgeIncludePredicate(Predicate<E> edgeIncludePredicate);
 
-    Function<? super E,Paint> getArrowDrawPaintTransformer();
+  public float getEdgeLabelCloseness();
 
-    void setArrowDrawPaintTransformer(Function<? super E,Paint> arrowDrawPaintTransformer);
+  public void setEdgeLabelCloseness(float closeness);
 
-    Function<? super E,Paint> getArrowFillPaintTransformer();
+  EdgeLabelRenderer getEdgeLabelRenderer();
 
-    void setArrowFillPaintTransformer(Function<? super E,Paint> arrowFillPaintTransformer);
+  void setEdgeLabelRenderer(EdgeLabelRenderer edgeLabelRenderer);
 
-    Function<? super E, Shape> getEdgeShapeTransformer();
+  Function<? super E, Paint> getEdgeFillPaintTransformer();
 
-    void setEdgeShapeTransformer(Function<? super E, Shape> edgeShapeTransformer);
+  void setEdgeFillPaintTransformer(Function<? super E, Paint> edgePaintTransformer);
 
-    Function<? super E,String> getEdgeLabelTransformer();
+  Function<? super E, Paint> getEdgeDrawPaintTransformer();
 
-    void setEdgeLabelTransformer(Function<? super E,String> edgeStringer);
+  void setEdgeDrawPaintTransformer(Function<? super E, Paint> edgeDrawPaintTransformer);
 
-    Function<? super E,Stroke> edgestrokeTransformer();
+  Function<? super E, Paint> getArrowDrawPaintTransformer();
 
-    void setEdgeStrokeTransformer(Function<? super E,Stroke> edgeStrokeTransformer);
-    
-    Function<? super E,Stroke> getEdgeArrowStrokeTransformer();
+  void setArrowDrawPaintTransformer(Function<? super E, Paint> arrowDrawPaintTransformer);
 
-    void setEdgeArrowStrokeTransformer(Function<? super E,Stroke> edgeArrowStrokeTransformer);
-    
-    GraphicsDecorator getGraphicsContext();
-    
-    void setGraphicsContext(GraphicsDecorator graphicsContext);
+  Function<? super E, Paint> getArrowFillPaintTransformer();
 
-    EdgeIndexFunction<E> getParallelEdgeIndexFunction();
+  void setArrowFillPaintTransformer(Function<? super E, Paint> arrowFillPaintTransformer);
 
-    void setParallelEdgeIndexFunction(
-            EdgeIndexFunction<E> parallelEdgeIndexFunction);
+  Function<? super E, Shape> getEdgeShapeTransformer();
 
-    PickedState<E> getPickedEdgeState();
+  void setEdgeShapeTransformer(Function<? super E, Shape> edgeShapeTransformer);
 
-    void setPickedEdgeState(PickedState<E> pickedEdgeState);
+  Function<? super E, String> getEdgeLabelTransformer();
 
-    PickedState<V> getPickedVertexState();
+  void setEdgeLabelTransformer(Function<? super E, String> edgeStringer);
 
-    void setPickedVertexState(PickedState<V> pickedVertexState);
+  Function<? super E, Stroke> edgestrokeTransformer();
 
-    CellRendererPane getRendererPane();
+  void setEdgeStrokeTransformer(Function<? super E, Stroke> edgeStrokeTransformer);
 
-    void setRendererPane(CellRendererPane rendererPane);
+  Function<? super E, Stroke> getEdgeArrowStrokeTransformer();
 
-    JComponent getScreenDevice();
+  void setEdgeArrowStrokeTransformer(Function<? super E, Stroke> edgeArrowStrokeTransformer);
 
-    void setScreenDevice(JComponent screenDevice);
+  GraphicsDecorator getGraphicsContext();
 
-    Function<? super V,Font> getVertexFontTransformer();
+  void setGraphicsContext(GraphicsDecorator graphicsContext);
 
-    void setVertexFontTransformer(Function<? super V,Font> vertexFontTransformer);
+  EdgeIndexFunction<E> getParallelEdgeIndexFunction();
 
-    Function<V,Icon> getVertexIconTransformer();
+  void setParallelEdgeIndexFunction(EdgeIndexFunction<E> parallelEdgeIndexFunction);
 
-    void setVertexIconTransformer(Function<V,Icon> vertexIconTransformer);
+  PickedState<E> getPickedEdgeState();
 
-    Predicate<V> getVertexIncludePredicate();
+  void setPickedEdgeState(PickedState<E> pickedEdgeState);
 
-    void setVertexIncludePredicate(Predicate<V> vertexIncludePredicate);
+  PickedState<V> getPickedVertexState();
 
-    VertexLabelRenderer getVertexLabelRenderer();
+  void setPickedVertexState(PickedState<V> pickedVertexState);
 
-    void setVertexLabelRenderer(VertexLabelRenderer vertexLabelRenderer);
+  CellRendererPane getRendererPane();
 
-    Function<? super V,Paint> getVertexFillPaintTransformer();
+  void setRendererPane(CellRendererPane rendererPane);
 
-    void setVertexFillPaintTransformer(Function<? super V,Paint> vertexFillPaintTransformer);
+  JComponent getScreenDevice();
 
-    Function<? super V,Paint> getVertexDrawPaintTransformer();
+  void setScreenDevice(JComponent screenDevice);
 
-    void setVertexDrawPaintTransformer(Function<? super V,Paint> vertexDrawPaintTransformer);
+  Function<? super V, Font> getVertexFontTransformer();
 
-    Function<? super V,Shape> getVertexShapeTransformer();
+  void setVertexFontTransformer(Function<? super V, Font> vertexFontTransformer);
 
-    void setVertexShapeTransformer(Function<? super V,Shape> vertexShapeTransformer);
+  Function<V, Icon> getVertexIconTransformer();
 
-    Function<? super V,String> getVertexLabelTransformer();
+  void setVertexIconTransformer(Function<V, Icon> vertexIconTransformer);
 
-    void setVertexLabelTransformer(Function<? super V,String> vertexStringer);
+  Predicate<V> getVertexIncludePredicate();
 
-    Function<? super V,Stroke> getVertexStrokeTransformer();
+  void setVertexIncludePredicate(Predicate<V> vertexIncludePredicate);
 
-    void setVertexStrokeTransformer(Function<? super V,Stroke> vertexStrokeTransformer);
+  VertexLabelRenderer getVertexLabelRenderer();
 
-    class DirectedEdgeArrowPredicate implements Predicate<Network<?, ?>> {
+  void setVertexLabelRenderer(VertexLabelRenderer vertexLabelRenderer);
 
-        public boolean apply(Network<?, ?> graph) {
-            return graph.isDirected();
-        }
-        
+  Function<? super V, Paint> getVertexFillPaintTransformer();
+
+  void setVertexFillPaintTransformer(Function<? super V, Paint> vertexFillPaintTransformer);
+
+  Function<? super V, Paint> getVertexDrawPaintTransformer();
+
+  void setVertexDrawPaintTransformer(Function<? super V, Paint> vertexDrawPaintTransformer);
+
+  Function<? super V, Shape> getVertexShapeTransformer();
+
+  void setVertexShapeTransformer(Function<? super V, Shape> vertexShapeTransformer);
+
+  Function<? super V, String> getVertexLabelTransformer();
+
+  void setVertexLabelTransformer(Function<? super V, String> vertexStringer);
+
+  Function<? super V, Stroke> getVertexStrokeTransformer();
+
+  void setVertexStrokeTransformer(Function<? super V, Stroke> vertexStrokeTransformer);
+
+  class DirectedEdgeArrowPredicate implements Predicate<Network<?, ?>> {
+
+    public boolean apply(Network<?, ?> graph) {
+      return graph.isDirected();
     }
-    
-    class UndirectedEdgeArrowPredicate implements Predicate<Network<?, ?>> {
+  }
 
-        public boolean apply(Network<?, ?> graph) {
-            return !graph.isDirected();
-        }
-        
+  class UndirectedEdgeArrowPredicate implements Predicate<Network<?, ?>> {
+
+    public boolean apply(Network<?, ?> graph) {
+      return !graph.isDirected();
     }
-    
-    MultiLayerTransformer getMultiLayerTransformer();
-    
-    void setMultiLayerTransformer(MultiLayerTransformer basicTransformer);
-    
-	/**
-	 * @return the pickSupport
-	 */
-	NetworkElementAccessor<V, E> getPickSupport();
+  }
 
-	/**
-	 * @param pickSupport the pickSupport to set
-	 */
-	void setPickSupport(NetworkElementAccessor<V, E> pickSupport);
-	
+  MultiLayerTransformer getMultiLayerTransformer();
 
+  void setMultiLayerTransformer(MultiLayerTransformer basicTransformer);
+
+  /** @return the pickSupport */
+  NetworkElementAccessor<V, E> getPickSupport();
+
+  /** @param pickSupport the pickSupport to set */
+  void setPickSupport(NetworkElementAccessor<V, E> pickSupport);
 }
