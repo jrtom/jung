@@ -59,9 +59,10 @@ public class BetweennessCentrality<V, E> implements VertexScorer<V, Double>, Edg
     // reject negative-weight edges up front
     for (E e : graph.edges()) {
       double e_weight = edge_weights.apply(e).doubleValue();
-      if (e_weight < 0)
+      if (e_weight < 0) {
         throw new IllegalArgumentException(
             String.format("Weight for edge '%s' is < 0: %d", e, e_weight));
+      }
     }
 
     initialize(graph);
@@ -77,16 +78,22 @@ public class BetweennessCentrality<V, E> implements VertexScorer<V, Double>, Edg
     this.edge_scores = new HashMap<E, Double>();
     this.vertex_data = new HashMap<V, BetweennessData>();
 
-    for (V v : graph.nodes()) this.vertex_scores.put(v, 0.0);
+    for (V v : graph.nodes()) {
+      this.vertex_scores.put(v, 0.0);
+    }
 
-    for (E e : graph.edges()) this.edge_scores.put(e, 0.0);
+    for (E e : graph.edges()) {
+      this.edge_scores.put(e, 0.0);
+    }
   }
 
   protected void computeBetweenness(
       Queue<V> queue, Function<? super E, ? extends Number> edge_weights) {
     for (V v : graph.nodes()) {
       // initialize the betweenness data for this new vertex
-      for (V s : graph.nodes()) this.vertex_data.put(s, new BetweennessData());
+      for (V s : graph.nodes()) {
+        this.vertex_data.put(s, new BetweennessData());
+      }
 
       //			if (v.equals(new Integer(0)))
       //				System.out.println("pause");
@@ -107,7 +114,9 @@ public class BetweennessCentrality<V, E> implements VertexScorer<V, Double>, Edg
 
         for (E e : graph.outEdges(w)) {
           V x = graph.incidentNodes(e).adjacentNode(w);
-          if (x.equals(w)) continue;
+          if (x.equals(w)) {
+            continue;
+          }
           double wx_weight = edge_weights.apply(e).doubleValue();
 
           //                for(V x : graph.getSuccessors(w))
@@ -166,7 +175,9 @@ public class BetweennessCentrality<V, E> implements VertexScorer<V, Double>, Edg
         }
         for (E e : graph.outEdges(w)) {
           V x = graph.incidentNodes(e).adjacentNode(w);
-          if (x.equals(w)) continue;
+          if (x.equals(w)) {
+            continue;
+          }
           double e_weight = edge_weights.apply(e).doubleValue();
           BetweennessData x_data = vertex_data.get(x);
           double x_potential_dist = w_data.distance + e_weight;

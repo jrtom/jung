@@ -209,7 +209,9 @@ public class BalloonLayoutDemo extends JApplet {
       Ellipse2D ellipse = new Ellipse2D.Double();
       for (String v : layout.nodes()) {
         Double radius = layout.getRadii().get(v);
-        if (radius == null) continue;
+        if (radius == null) {
+          continue;
+        }
         Point2D p = layout.apply(v);
         ellipse.setFrame(-radius, -radius, 2 * radius, 2 * radius);
         AffineTransform at = AffineTransform.getTranslateInstance(p.getX(), p.getY());

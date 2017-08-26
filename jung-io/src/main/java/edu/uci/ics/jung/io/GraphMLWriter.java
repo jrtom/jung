@@ -79,12 +79,15 @@ public class GraphMLWriter<V, E> {
     bw.write("xsi:schemaLocation=\"http://graphml.graphdrawing.org/xmlns/graphml\">\n");
 
     // write out data specifiers, including defaults
-    for (String key : graph_data.keySet())
+    for (String key : graph_data.keySet()) {
       writeKeySpecification(key, "graph", graph_data.get(key), bw);
-    for (String key : vertex_data.keySet())
+    }
+    for (String key : vertex_data.keySet()) {
       writeKeySpecification(key, "node", vertex_data.get(key), bw);
-    for (String key : edge_data.keySet())
+    }
+    for (String key : edge_data.keySet()) {
       writeKeySpecification(key, "edge", edge_data.get(key), bw);
+    }
 
     // write out graph-level information
     // set edge default direction
@@ -97,13 +100,17 @@ public class GraphMLWriter<V, E> {
 
     // write graph description, if any
     String desc = graph_desc.apply(g);
-    if (desc != null) bw.write("<desc>" + desc + "</desc>\n");
+    if (desc != null) {
+      bw.write("<desc>" + desc + "</desc>\n");
+    }
 
     // write graph data out if any
     for (String key : graph_data.keySet()) {
       Function<Network<V, E>, ?> t = graph_data.get(key).transformer;
       Object value = t.apply(g);
-      if (value != null) bw.write(format("data", "key", key, value.toString()) + "\n");
+      if (value != null) {
+        bw.write(format("data", "key", key, value.toString()) + "\n");
+      }
     }
 
     // write vertex information
@@ -121,7 +128,9 @@ public class GraphMLWriter<V, E> {
   }
 
   protected void writeIndentedText(BufferedWriter w, String to_write) throws IOException {
-    for (int i = 0; i < nest_level; i++) w.write("  ");
+    for (int i = 0; i < nest_level; i++) {
+      w.write("  ");
+    }
     w.write(to_write);
   }
 
@@ -150,8 +159,11 @@ public class GraphMLWriter<V, E> {
           }
         }
       }
-      if (!closed) w.write(v_string + "/>\n"); // no contents; close the node with "/>"
-      else w.write("</node>\n");
+      if (!closed) {
+        w.write(v_string + "/>\n"); // no contents; close the node with "/>"
+      } else {
+        w.write("</node>\n");
+      }
     }
   }
 
@@ -162,7 +174,9 @@ public class GraphMLWriter<V, E> {
       String e_string;
       e_string = "<edge ";
       // add ID if present
-      if (id != null) e_string += "id=\"" + id + "\" ";
+      if (id != null) {
+        e_string += "id=\"" + id + "\" ";
+      }
       // add edge type if doesn't match default
       e_string +=
           "source=\""
@@ -192,8 +206,11 @@ public class GraphMLWriter<V, E> {
         }
       }
 
-      if (!closed) w.write(e_string + "/>\n"); // no contents; close the edge with "/>"
-      else w.write("</edge>\n");
+      if (!closed) {
+        w.write(e_string + "/>\n"); // no contents; close the edge with "/>"
+      } else {
+        w.write("</edge>\n");
+      }
     }
   }
 
@@ -219,8 +236,11 @@ public class GraphMLWriter<V, E> {
       }
       bw.write("<default>" + def.toString() + "</default>\n");
     }
-    if (!closed) bw.write("/>\n");
-    else bw.write("</key>\n");
+    if (!closed) {
+      bw.write("/>\n");
+    } else {
+      bw.write("</key>\n");
+    }
   }
 
   protected String format(String type, String attr, String value, String contents) {
@@ -288,8 +308,9 @@ public class GraphMLWriter<V, E> {
       String description,
       String default_value,
       Function<Network<V, E>, String> graph_transformer) {
-    if (graph_data.equals(Collections.EMPTY_MAP))
+    if (graph_data.equals(Collections.EMPTY_MAP)) {
       graph_data = new HashMap<String, GraphMLMetadata<Network<V, E>>>();
+    }
     graph_data.put(
         id, new GraphMLMetadata<Network<V, E>>(description, default_value, graph_transformer));
   }
@@ -304,8 +325,9 @@ public class GraphMLWriter<V, E> {
    */
   public void addVertexData(
       String id, String description, String default_value, Function<V, String> vertex_transformer) {
-    if (vertex_data.equals(Collections.EMPTY_MAP))
+    if (vertex_data.equals(Collections.EMPTY_MAP)) {
       vertex_data = new HashMap<String, GraphMLMetadata<V>>();
+    }
     vertex_data.put(id, new GraphMLMetadata<V>(description, default_value, vertex_transformer));
   }
 
@@ -319,8 +341,9 @@ public class GraphMLWriter<V, E> {
    */
   public void addEdgeData(
       String id, String description, String default_value, Function<E, String> edge_transformer) {
-    if (edge_data.equals(Collections.EMPTY_MAP))
+    if (edge_data.equals(Collections.EMPTY_MAP)) {
       edge_data = new HashMap<String, GraphMLMetadata<E>>();
+    }
     edge_data.put(id, new GraphMLMetadata<E>(description, default_value, edge_transformer));
   }
 

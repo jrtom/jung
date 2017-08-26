@@ -77,11 +77,12 @@ public class EdgeBetweennessClusterer<V, E> implements Function<Network<V, E>, S
       BetweennessCentrality<V, E> bc = new BetweennessCentrality<V, E>(filtered);
       E to_remove = null;
       double score = 0;
-      for (E e : filtered.edges())
+      for (E e : filtered.edges()) {
         if (bc.getEdgeScore(e) > score) {
           to_remove = e;
           score = bc.getEdgeScore(e);
         }
+      }
       edgesRemoved.add(to_remove);
       filtered.removeEdge(to_remove);
     }

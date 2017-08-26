@@ -229,7 +229,9 @@ public class AnimatingAddNodeDemo extends javax.swing.JApplet {
     @Override
     public void run() {
       process();
-      if (done) cancel();
+      if (done) {
+        cancel();
+      }
     }
   }
 

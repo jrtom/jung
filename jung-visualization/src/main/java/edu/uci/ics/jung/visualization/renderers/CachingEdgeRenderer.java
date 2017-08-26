@@ -105,13 +105,17 @@ public class CachingEdgeRenderer<V, E> extends BasicEdgeRenderer<V, E>
       float scalex = (float) g.getTransform().getScaleX();
       float scaley = (float) g.getTransform().getScaleY();
       // see if arrows are too small to bother drawing
-      if (scalex < .3 || scaley < .3) return;
+      if (scalex < .3 || scaley < .3) {
+        return;
+      }
 
       if (renderContext.renderEdgeArrow()) {
 
         Stroke new_stroke = renderContext.getEdgeArrowStrokeTransformer().apply(e);
         Stroke old_stroke = g.getStroke();
-        if (new_stroke != null) g.setStroke(new_stroke);
+        if (new_stroke != null) {
+          g.setStroke(new_stroke);
+        }
 
         Shape destVertexShape =
             renderContext.getVertexShapeTransformer().apply(graph.incidentNodes(e).nodeV());
@@ -130,7 +134,9 @@ public class CachingEdgeRenderer<V, E> extends BasicEdgeRenderer<V, E>
           AffineTransform at =
               edgeArrowRenderingSupport.getArrowTransform(
                   renderContext, edgeShape, destVertexShape);
-          if (at == null) return;
+          if (at == null) {
+            return;
+          }
           Shape arrow = renderContext.getEdgeArrow();
           arrow = at.createTransformedShape(arrow);
           g.setPaint(renderContext.getArrowFillPaintTransformer().apply(e));
@@ -155,7 +161,9 @@ public class CachingEdgeRenderer<V, E> extends BasicEdgeRenderer<V, E>
             AffineTransform at =
                 edgeArrowRenderingSupport.getReverseArrowTransform(
                     renderContext, edgeShape, vertexShape, !isLoop);
-            if (at == null) return;
+            if (at == null) {
+              return;
+            }
             Shape arrow = renderContext.getEdgeArrow();
             arrow = at.createTransformedShape(arrow);
             g.setPaint(renderContext.getArrowFillPaintTransformer().apply(e));
@@ -165,7 +173,9 @@ public class CachingEdgeRenderer<V, E> extends BasicEdgeRenderer<V, E>
           }
         }
         // restore paint and stroke
-        if (new_stroke != null) g.setStroke(old_stroke);
+        if (new_stroke != null) {
+          g.setStroke(old_stroke);
+        }
       }
 
       // restore old paint

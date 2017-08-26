@@ -255,45 +255,56 @@ public class GraphMLReader<G extends MutableNetwork<V, E>, V, E> extends Default
       throws SAXNotSupportedException {
     String tag = qName.toLowerCase();
     TagState state = tag_state.get(tag);
-    if (state == null) state = TagState.OTHER;
+    if (state == null) {
+      state = TagState.OTHER;
+    }
 
     switch (state) {
       case GRAPHML:
         break;
 
       case VERTEX:
-        if (this.current_graph == null)
+        if (this.current_graph == null) {
           throw new SAXNotSupportedException("Graph must be defined prior to elements");
-        if (this.current_edge != null || this.current_vertex != null)
+        }
+        if (this.current_edge != null || this.current_vertex != null) {
           throw new SAXNotSupportedException("Nesting elements not supported");
+        }
 
         createVertex(atts);
 
         break;
 
       case ENDPOINT:
-        if (this.current_graph == null)
+        if (this.current_graph == null) {
           throw new SAXNotSupportedException("Graph must be defined prior to elements");
-        if (this.current_edge == null)
+        }
+        if (this.current_edge == null) {
           throw new SAXNotSupportedException("No edge defined for endpoint");
-        if (this.current_states.getFirst() != TagState.HYPEREDGE)
+        }
+        if (this.current_states.getFirst() != TagState.HYPEREDGE) {
           throw new SAXNotSupportedException("Endpoints must be defined inside hyperedge");
+        }
         Map<String, String> endpoint_atts = getAttributeMap(atts);
         String node = endpoint_atts.remove("node");
-        if (node == null)
+        if (node == null) {
           throw new SAXNotSupportedException("Endpoint must include an 'id' attribute");
+        }
         V v = vertex_ids.inverse().get(node);
-        if (v == null)
+        if (v == null) {
           throw new SAXNotSupportedException("Endpoint refers to nonexistent node ID: " + node);
+        }
 
         this.current_vertex = v;
         break;
 
       case EDGE:
-        if (this.current_graph == null)
+        if (this.current_graph == null) {
           throw new SAXNotSupportedException("Graph must be defined prior to elements");
-        if (this.current_edge != null || this.current_vertex != null)
+        }
+        if (this.current_edge != null || this.current_vertex != null) {
           throw new SAXNotSupportedException("Nesting elements not supported");
+        }
 
         createEdge(atts, state);
         break;
@@ -302,11 +313,14 @@ public class GraphMLReader<G extends MutableNetwork<V, E>, V, E> extends Default
         throw new SAXNotSupportedException("Hyperedges not supported");
 
       case GRAPH:
-        if (this.current_graph != null && graph_factory != null)
+        if (this.current_graph != null && graph_factory != null) {
           throw new SAXNotSupportedException("Nesting graphs not currently supported");
+        }
 
         // graph Supplier is null if there's only one graph
-        if (graph_factory != null) current_graph = graph_factory.get();
+        if (graph_factory != null) {
+          current_graph = graph_factory.get();
+        }
 
         // reset all non-key data structures (to avoid collisions between different graphs)
         clearData();
@@ -314,13 +328,17 @@ public class GraphMLReader<G extends MutableNetwork<V, E>, V, E> extends Default
         // set up default direction of edges
         Map<String, String> graph_atts = getAttributeMap(atts);
         String default_direction = graph_atts.remove("edgedefault");
-        if (default_direction == null)
+        if (default_direction == null) {
           throw new SAXNotSupportedException("All graphs must specify a default edge direction");
-        if (default_direction.equals("directed")) this.default_directed = true;
-        else if (default_direction.equals("undirected")) this.default_directed = false;
-        else
+        }
+        if (default_direction.equals("directed")) {
+          this.default_directed = true;
+        } else if (default_direction.equals("undirected")) {
+          this.default_directed = false;
+        } else {
           throw new SAXNotSupportedException(
               "Invalid or unrecognized default edge direction: " + default_direction);
+        }
 
         // put remaining attribute/value pairs in graph_data
         addExtraData(graph_atts, graph_metadata, current_graph);
@@ -328,8 +346,9 @@ public class GraphMLReader<G extends MutableNetwork<V, E>, V, E> extends Default
         break;
 
       case DATA:
-        if (this.current_states.contains(TagState.DATA))
+        if (this.current_states.contains(TagState.DATA)) {
           throw new SAXNotSupportedException("Nested data not supported");
+        }
         handleData(atts);
         break;
 
@@ -370,7 +389,9 @@ public class GraphMLReader<G extends MutableNetwork<V, E>, V, E> extends Default
       SettableTransformer<T, String> st;
       if (key_data != null) {
         // if there's a default value, don't override it
-        if (key_data.default_value != null) continue;
+        if (key_data.default_value != null) {
+          continue;
+        }
         st = (SettableTransformer<T, String>) key_data.transformer;
       } else {
         st = new MapSettableTransformer<T, String>(new HashMap<T, String>());
@@ -392,9 +413,10 @@ public class GraphMLReader<G extends MutableNetwork<V, E>, V, E> extends Default
       SettableTransformer<T, String> st =
           (SettableTransformer<T, String>) (metadata.get(this.current_key).transformer);
       st.set(current_elt, text);
-    } else
+    } else {
       throw new SAXNotSupportedException(
           "key " + this.current_key + " not valid for element " + current_elt);
+    }
   }
 
   @Override
@@ -404,15 +426,20 @@ public class GraphMLReader<G extends MutableNetwork<V, E>, V, E> extends Default
 
     String tag = qName.toLowerCase();
     TagState state = tag_state.get(tag);
-    if (state == null) state = TagState.OTHER;
-    if (state == TagState.OTHER) return;
+    if (state == null) {
+      state = TagState.OTHER;
+    }
+    if (state == TagState.OTHER) {
+      return;
+    }
 
-    if (state != current_states.getFirst())
+    if (state != current_states.getFirst()) {
       throw new SAXNotSupportedException(
           "Unbalanced tags: opened "
               + tag_state.inverse().get(current_states.getFirst())
               + ", closed "
               + tag);
+    }
 
     switch (state) {
       case VERTEX:
@@ -436,8 +463,7 @@ public class GraphMLReader<G extends MutableNetwork<V, E>, V, E> extends Default
         break;
 
       case DESC:
-        switch (this.current_states.get(1)) // go back one
-        {
+        switch (this.current_states.get(1)) { // go back one
           case GRAPH:
             graph_desc.put(current_graph, text);
             break;
@@ -494,11 +520,12 @@ public class GraphMLReader<G extends MutableNetwork<V, E>, V, E> extends Default
         }
         break;
       case DEFAULT_KEY:
-        if (this.current_states.get(1) != TagState.KEY)
+        if (this.current_states.get(1) != TagState.KEY) {
           throw new SAXNotSupportedException(
               "'default' only defined in context of 'key' tag: "
                   + "stack: "
                   + current_states.toString());
+        }
 
         switch (key_type) {
           case GRAPH:
@@ -530,7 +557,9 @@ public class GraphMLReader<G extends MutableNetwork<V, E>, V, E> extends Default
 
   protected Map<String, String> getAttributeMap(Attributes atts) {
     Map<String, String> att_map = new HashMap<String, String>();
-    for (int i = 0; i < atts.getLength(); i++) att_map.put(atts.getQName(i), atts.getValue(i));
+    for (int i = 0; i < atts.getLength(); i++) {
+      att_map.put(atts.getQName(i), atts.getValue(i));
+    }
 
     return att_map;
   }
@@ -553,10 +582,12 @@ public class GraphMLReader<G extends MutableNetwork<V, E>, V, E> extends Default
                 + "'edge', or 'hyperedge'");
     }
     this.current_key = getAttributeMap(atts).get("key");
-    if (this.current_key == null)
+    if (this.current_key == null) {
       throw new SAXNotSupportedException("'data' tag requires a key specification");
-    if (this.current_key.equals(""))
+    }
+    if (this.current_key.equals("")) {
       throw new SAXNotSupportedException("'data' tag requires a non-empty key");
+    }
     if (!getGraphMetadata().containsKey(this.current_key)
         && !getVertexMetadata().containsKey(this.current_key)
         && !getEdgeMetadata().containsKey(this.current_key)) {
@@ -621,22 +652,27 @@ public class GraphMLReader<G extends MutableNetwork<V, E>, V, E> extends Default
   protected void createVertex(Attributes atts) throws SAXNotSupportedException {
     Map<String, String> vertex_atts = getAttributeMap(atts);
     String id = vertex_atts.remove("id");
-    if (id == null)
+    if (id == null) {
       throw new SAXNotSupportedException(
           "node attribute list missing " + "'id': " + atts.toString());
+    }
     V v = vertex_ids.inverse().get(id);
 
     if (v == null) {
-      if (vertex_factory != null) v = vertex_factory.get();
-      else v = (V) id;
+      if (vertex_factory != null) {
+        v = vertex_factory.get();
+      } else {
+        v = (V) id;
+      }
       vertex_ids.put(v, id);
       this.current_graph.addNode(v);
 
       // put remaining attribute/value pairs in vertex_data
       addExtraData(vertex_atts, vertex_metadata, v);
-    } else
+    } else {
       throw new SAXNotSupportedException(
           "Node id \"" + id + " is a duplicate of an existing node ID");
+    }
 
     this.current_vertex = v;
   }
@@ -647,20 +683,26 @@ public class GraphMLReader<G extends MutableNetwork<V, E>, V, E> extends Default
 
     String id = edge_atts.remove("id");
     E e;
-    if (edge_factory != null) e = edge_factory.get();
-    else if (id != null) e = (E) id;
-    else
+    if (edge_factory != null) {
+      e = edge_factory.get();
+    } else if (id != null) {
+      e = (E) id;
+    } else {
       throw new IllegalArgumentException(
           "If no edge Supplier is supplied, " + "edge id may not be null: " + edge_atts);
+    }
 
     if (id != null) {
-      if (edge_ids.containsKey(e))
+      if (edge_ids.containsKey(e)) {
         throw new SAXNotSupportedException(
             "Edge id \"" + id + "\" is a duplicate of an existing edge ID");
+      }
       edge_ids.put(e, id);
     }
 
-    if (state == TagState.EDGE) assignEdgeSourceTarget(e, atts, edge_atts); //, id);
+    if (state == TagState.EDGE) {
+      assignEdgeSourceTarget(e, atts, edge_atts); //, id);
+    }
 
     // put remaining attribute/value pairs in edge_data
     addExtraData(edge_atts, edge_metadata, e);
@@ -672,22 +714,26 @@ public class GraphMLReader<G extends MutableNetwork<V, E>, V, E> extends Default
       E e, Attributes atts, Map<String, String> edge_atts) //, String id)
       throws SAXNotSupportedException {
     String source_id = edge_atts.remove("source");
-    if (source_id == null)
+    if (source_id == null) {
       throw new SAXNotSupportedException(
           "edge attribute list missing " + "'source': " + atts.toString());
+    }
     V source = vertex_ids.inverse().get(source_id);
-    if (source == null)
+    if (source == null) {
       throw new SAXNotSupportedException(
           "specified 'source' attribute " + "\"" + source_id + "\" does not match any node ID");
+    }
 
     String target_id = edge_atts.remove("target");
-    if (target_id == null)
+    if (target_id == null) {
       throw new SAXNotSupportedException(
           "edge attribute list missing " + "'target': " + atts.toString());
+    }
     V target = vertex_ids.inverse().get(target_id);
-    if (target == null)
+    if (target == null) {
       throw new SAXNotSupportedException(
           "specified 'target' attribute " + "\"" + target_id + "\" does not match any node ID");
+    }
 
     String directed = edge_atts.remove("directed");
     if (directed != null) {

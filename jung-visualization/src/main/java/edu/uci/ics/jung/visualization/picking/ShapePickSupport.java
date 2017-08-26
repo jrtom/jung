@@ -167,7 +167,9 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
           Shape shape = vv.getRenderContext().getVertexShapeTransformer().apply(v);
           // get the vertex location
           Point2D p = layout.apply(v);
-          if (p == null) continue;
+          if (p == null) {
+            continue;
+          }
           // transform the vertex location to screen coords
           p = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, p);
 
@@ -224,7 +226,9 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
         Layout<V> layout = vv.getGraphLayout();
         for (V v : getFilteredVertices()) {
           Point2D p = layout.apply(v);
-          if (p == null) continue;
+          if (p == null) {
+            continue;
+          }
 
           p = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, p);
           if (shape.contains(p)) {
@@ -268,7 +272,9 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
         for (E e : getFilteredEdges()) {
 
           Shape edgeShape = getTransformedEdgeShape(e);
-          if (edgeShape == null) continue;
+          if (edgeShape == null) {
+            continue;
+          }
 
           // because of the transform, the edgeShape is now a GeneralPath
           // see if this edge is the closest of any that intersect
@@ -322,7 +328,9 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
         vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, layout.apply(v1));
     Point2D p2 =
         vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, layout.apply(v2));
-    if (p1 == null || p2 == null) return null;
+    if (p1 == null || p2 == null) {
+      return null;
+    }
     float x1 = (float) p1.getX();
     float y1 = (float) p1.getY();
     float x2 = (float) p2.getX();

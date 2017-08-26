@@ -47,7 +47,9 @@ public class HyperbolicTransformer extends LensTransformer implements MutableTra
 
   /** override base class transform to project the fisheye effect */
   public Point2D transform(Point2D graphPoint) {
-    if (graphPoint == null) return null;
+    if (graphPoint == null) {
+      return null;
+    }
     Point2D viewCenter = getViewCenter();
     double viewRadius = getViewRadius();
     double ratio = getRatio();
@@ -63,7 +65,9 @@ public class HyperbolicTransformer extends LensTransformer implements MutableTra
     PolarPoint polar = PolarPoint.cartesianToPolar(pointFromCenter);
     double theta = polar.getTheta();
     double radius = polar.getRadius();
-    if (radius > viewRadius) return viewPoint;
+    if (radius > viewRadius) {
+      return viewPoint;
+    }
 
     double mag = Math.tan(Math.PI / 2 * magnification);
     radius *= mag;
@@ -97,7 +101,9 @@ public class HyperbolicTransformer extends LensTransformer implements MutableTra
     PolarPoint polar = PolarPoint.cartesianToPolar(pointFromCenter);
 
     double radius = polar.getRadius();
-    if (radius > viewRadius) return delegate.inverseTransform(viewPoint);
+    if (radius > viewRadius) {
+      return delegate.inverseTransform(viewPoint);
+    }
 
     radius /= viewRadius;
     radius = Math.abs(Math.tan(radius));

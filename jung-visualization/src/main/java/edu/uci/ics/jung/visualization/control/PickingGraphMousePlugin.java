@@ -191,7 +191,9 @@ public class PickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
         }
       }
     }
-    if (vertex != null) e.consume();
+    if (vertex != null) {
+      e.consume();
+    }
   }
 
   /**
@@ -257,7 +259,9 @@ public class PickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
           rect.setFrameFromDiagonal(down, out);
         }
       }
-      if (vertex != null) e.consume();
+      if (vertex != null) {
+        e.consume();
+      }
       vv.repaint();
     }
   }

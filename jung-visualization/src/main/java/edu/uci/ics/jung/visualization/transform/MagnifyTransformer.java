@@ -46,7 +46,9 @@ public class MagnifyTransformer extends LensTransformer implements MutableTransf
 
   /** override base class transform to project the fisheye effect */
   public Point2D transform(Point2D graphPoint) {
-    if (graphPoint == null) return null;
+    if (graphPoint == null) {
+      return null;
+    }
     Point2D viewCenter = getViewCenter();
     double viewRadius = getViewRadius();
     double ratio = getRatio();
@@ -62,7 +64,9 @@ public class MagnifyTransformer extends LensTransformer implements MutableTransf
     PolarPoint polar = PolarPoint.cartesianToPolar(pointFromCenter);
     double theta = polar.getTheta();
     double radius = polar.getRadius();
-    if (radius > viewRadius) return viewPoint;
+    if (radius > viewRadius) {
+      return viewPoint;
+    }
 
     double mag = magnification;
     radius *= mag;
@@ -92,7 +96,9 @@ public class MagnifyTransformer extends LensTransformer implements MutableTransf
     PolarPoint polar = PolarPoint.cartesianToPolar(pointFromCenter);
 
     double radius = polar.getRadius();
-    if (radius > viewRadius) return delegate.inverseTransform(viewPoint);
+    if (radius > viewRadius) {
+      return delegate.inverseTransform(viewPoint);
+    }
 
     double mag = magnification;
     radius /= mag;
@@ -112,7 +118,9 @@ public class MagnifyTransformer extends LensTransformer implements MutableTransf
    * @return the transformed point
    */
   public Point2D magnify(Point2D graphPoint) {
-    if (graphPoint == null) return null;
+    if (graphPoint == null) {
+      return null;
+    }
     Point2D viewCenter = getViewCenter();
     double ratio = getRatio();
     // transform the point from the graph to the view

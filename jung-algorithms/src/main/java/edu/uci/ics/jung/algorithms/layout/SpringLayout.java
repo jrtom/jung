@@ -78,7 +78,9 @@ public class SpringLayout<N> extends AbstractLayout<N> implements IterativeConte
 
   @Override
   public void setSize(Dimension size) {
-    if (initialized == false) setInitializer(new RandomLocationTransformer<N>(size));
+    if (initialized == false) {
+      setInitializer(new RandomLocationTransformer<N>(size));
+    }
     super.setSize(size);
   }
 
@@ -162,7 +164,9 @@ public class SpringLayout<N> extends AbstractLayout<N> implements IterativeConte
 
         Point2D p1 = apply(node1);
         Point2D p2 = apply(node2);
-        if (p1 == null || p2 == null) continue;
+        if (p1 == null || p2 == null) {
+          continue;
+        }
         double vx = p1.getX() - p2.getX();
         double vy = p1.getY() - p2.getY();
         double len = Math.sqrt(vx * vx + vy * vy);
@@ -197,17 +201,25 @@ public class SpringLayout<N> extends AbstractLayout<N> implements IterativeConte
   protected void calculateRepulsion() {
     try {
       for (N node : graph.nodes()) {
-        if (isLocked(node)) continue;
+        if (isLocked(node)) {
+          continue;
+        }
 
         SpringNodeData svd = springNodeData.getUnchecked(node);
-        if (svd == null) continue;
+        if (svd == null) {
+          continue;
+        }
         double dx = 0, dy = 0;
 
         for (N node2 : graph.nodes()) {
-          if (node == node2) continue;
+          if (node == node2) {
+            continue;
+          }
           Point2D p = apply(node);
           Point2D p2 = apply(node2);
-          if (p == null || p2 == null) continue;
+          if (p == null || p2 == null) {
+            continue;
+          }
           double vx = p.getX() - p2.getX();
           double vy = p.getY() - p2.getY();
           double distanceSq = p.distanceSq(p2);
@@ -236,9 +248,13 @@ public class SpringLayout<N> extends AbstractLayout<N> implements IterativeConte
     synchronized (getSize()) {
       try {
         for (N node : graph.nodes()) {
-          if (isLocked(node)) continue;
+          if (isLocked(node)) {
+            continue;
+          }
           SpringNodeData vd = springNodeData.getUnchecked(node);
-          if (vd == null) continue;
+          if (vd == null) {
+            continue;
+          }
           Point2D xyd = apply(node);
 
           vd.dx += vd.repulsiondx + vd.edgedx;

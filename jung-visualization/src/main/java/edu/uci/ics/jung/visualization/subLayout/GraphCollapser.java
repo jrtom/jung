@@ -32,7 +32,9 @@ public class GraphCollapser {
 
   public Network collapse(Network inGraph, Network clusterGraph) {
 
-    if (clusterGraph.nodes().size() < 2) return inGraph;
+    if (clusterGraph.nodes().size() < 2) {
+      return inGraph;
+    }
 
     MutableNetwork graph = graphBuilder.build();
     Collection cluster = clusterGraph.nodes();

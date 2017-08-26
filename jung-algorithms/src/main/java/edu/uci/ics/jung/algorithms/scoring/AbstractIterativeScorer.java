@@ -142,8 +142,9 @@ public abstract class AbstractIterativeScorer<V, E, T>
 
   /** Steps through this scoring algorithm until a termination condition is reached. */
   public void evaluate() {
-    do step();
-    while (!done());
+    do {
+      step();
+    } while (!done());
   }
 
   /**

@@ -31,14 +31,19 @@ public class PickableVertexPaintTransformer<V> implements Function<V, Paint> {
    * @param picked_paint <code>Paint</code> used to fill picked vertex shapes
    */
   public PickableVertexPaintTransformer(PickedInfo<V> pi, Paint fill_paint, Paint picked_paint) {
-    if (pi == null) throw new IllegalArgumentException("PickedInfo instance must be non-null");
+    if (pi == null) {
+      throw new IllegalArgumentException("PickedInfo instance must be non-null");
+    }
     this.pi = pi;
     this.fill_paint = fill_paint;
     this.picked_paint = picked_paint;
   }
 
   public Paint apply(V v) {
-    if (pi.isPicked(v)) return picked_paint;
-    else return fill_paint;
+    if (pi.isPicked(v)) {
+      return picked_paint;
+    } else {
+      return fill_paint;
+    }
   }
 }

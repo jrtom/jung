@@ -135,7 +135,9 @@ public class BFSDistanceLabeler<N> {
           }
         }
       }
-      if (newList.size() == 0) break;
+      if (newList.size() == 0) {
+        break;
+      }
       mCurrentList = newList;
       distance++;
     }

@@ -58,7 +58,9 @@ public class Animator implements Runnable {
 
       process.step();
 
-      if (stop) return;
+      if (stop) {
+        return;
+      }
 
       try {
         Thread.sleep(sleepTime);

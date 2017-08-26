@@ -627,8 +627,11 @@ public class TestShortestPath extends TestCase {
       for (ListIterator<Integer> iter = shortestPath.listIterator(); iter.hasNext(); ) {
         int j = iter.nextIndex();
         Integer e = iter.next();
-        if (e != null) assertEquals(edge_array[indices[j].intValue()], e);
-        else assertNull(indices[j]);
+        if (e != null) {
+          assertEquals(edge_array[indices[j].intValue()], e);
+        } else {
+          assertNull(indices[j]);
+        }
       }
     }
   }
@@ -657,8 +660,11 @@ public class TestShortestPath extends TestCase {
       Number n = dsp.getDistance(start, v);
       double d = distances1[i - 1];
       double dist;
-      if (n == null) dist = Double.POSITIVE_INFINITY;
-      else dist = n.doubleValue();
+      if (n == null) {
+        dist = Double.POSITIVE_INFINITY;
+      } else {
+        dist = n.doubleValue();
+      }
 
       assertEquals(d, dist, .001);
     }
@@ -668,8 +674,11 @@ public class TestShortestPath extends TestCase {
     for (int i = 1; i <= incomingEdges1.length; i++) {
       String v = indexer.inverse().get(i);
       Integer e = dsp.getIncomingEdge(start, v);
-      if (e != null) assertEquals(edge_array[incomingEdges1[i - 1].intValue()], e);
-      else assertNull(incomingEdges1[i - 1]);
+      if (e != null) {
+        assertEquals(edge_array[incomingEdges1[i - 1].intValue()], e);
+      } else {
+        assertNull(incomingEdges1[i - 1]);
+      }
     }
 
     // test getDistanceMap(v)
@@ -702,8 +711,11 @@ public class TestShortestPath extends TestCase {
       String v = e_iter.next();
       Integer e = incomingEdgeMap.get(v);
       int i = indexer.get(v);
-      if (e != null) assertEquals(edge_array[incomingEdges1[i - 1].intValue()], e);
-      else assertNull(incomingEdges1[i - 1]);
+      if (e != null) {
+        assertEquals(edge_array[incomingEdges1[i - 1].intValue()], e);
+      } else {
+        assertNull(incomingEdges1[i - 1]);
+      }
     }
 
     // test getDistanceMap(v, k)
@@ -738,8 +750,11 @@ public class TestShortestPath extends TestCase {
         String v = e_iter.next();
         Integer e = incomingEdgeMap.get(v);
         int j = indexer.get(v);
-        if (e != null) assertEquals(edge_array[incomingEdges1[j - 1].intValue()], e);
-        else assertNull(incomingEdges1[j - 1]);
+        if (e != null) {
+          assertEquals(edge_array[incomingEdges1[j - 1].intValue()], e);
+        } else {
+          assertNull(incomingEdges1[j - 1]);
+        }
       }
     }
   }

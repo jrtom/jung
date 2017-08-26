@@ -166,8 +166,12 @@ public class KKLayout<N> extends AbstractLayout<N> implements IterativeContext {
           Number d_ij = distance.apply(nodes[i], nodes[j]);
           Number d_ji = distance.apply(nodes[j], nodes[i]);
           double dist = diameter * disconnected_multiplier;
-          if (d_ij != null) dist = Math.min(d_ij.doubleValue(), dist);
-          if (d_ji != null) dist = Math.min(d_ji.doubleValue(), dist);
+          if (d_ij != null) {
+            dist = Math.min(d_ij.doubleValue(), dist);
+          }
+          if (d_ji != null) {
+            dist = Math.min(d_ji.doubleValue(), dist);
+          }
           dm[i][j] = dm[j][i] = dist;
         }
       }
@@ -190,12 +194,16 @@ public class KKLayout<N> extends AbstractLayout<N> implements IterativeContext {
               + energy;
 
       int n = graph.nodes().size();
-      if (n == 0) return;
+      if (n == 0) {
+        return;
+      }
 
       double maxDeltaM = 0;
       int pm = -1; // the node having max deltaM
       for (int i = 0; i < n; i++) {
-        if (isLocked(nodes[i])) continue;
+        if (isLocked(nodes[i])) {
+          continue;
+        }
         double deltam = calcDeltaM(i);
 
         if (maxDeltaM < deltam) {
@@ -203,24 +211,34 @@ public class KKLayout<N> extends AbstractLayout<N> implements IterativeContext {
           pm = i;
         }
       }
-      if (pm == -1) return;
+      if (pm == -1) {
+        return;
+      }
 
       for (int i = 0; i < 100; i++) {
         double[] dxy = calcDeltaXY(pm);
         xydata[pm].setLocation(xydata[pm].getX() + dxy[0], xydata[pm].getY() + dxy[1]);
 
         double deltam = calcDeltaM(pm);
-        if (deltam < EPSILON) break;
+        if (deltam < EPSILON) {
+          break;
+        }
       }
 
-      if (adjustForGravity) adjustForGravity();
+      if (adjustForGravity) {
+        adjustForGravity();
+      }
 
       if (exchangenodes && maxDeltaM < EPSILON) {
         energy = calcEnergy();
         for (int i = 0; i < n - 1; i++) {
-          if (isLocked(nodes[i])) continue;
+          if (isLocked(nodes[i])) {
+            continue;
+          }
           for (int j = i + 1; j < n; j++) {
-            if (isLocked(nodes[j])) continue;
+            if (isLocked(nodes[j])) {
+              continue;
+            }
             double xenergy = calcEnergyIfExchanged(i, j);
             if (energy > xenergy) {
               double sx = xydata[i].getX();
@@ -259,7 +277,9 @@ public class KKLayout<N> extends AbstractLayout<N> implements IterativeContext {
 
   @Override
   public void setSize(Dimension size) {
-    if (initialized == false) setInitializer(new RandomLocationTransformer<N>(size));
+    if (initialized == false) {
+      setInitializer(new RandomLocationTransformer<N>(size));
+    }
     super.setSize(size);
   }
 
@@ -362,14 +382,20 @@ public class KKLayout<N> extends AbstractLayout<N> implements IterativeContext {
 
   /** Calculates the energy function E as if positions of the specified nodes are exchanged. */
   private double calcEnergyIfExchanged(int p, int q) {
-    if (p >= q) throw new RuntimeException("p should be < q");
+    if (p >= q) {
+      throw new RuntimeException("p should be < q");
+    }
     double energy = 0; // < 0
     for (int i = 0; i < nodes.length - 1; i++) {
       for (int j = i + 1; j < nodes.length; j++) {
         int ii = i;
         int jj = j;
-        if (i == p) ii = q;
-        if (j == q) jj = p;
+        if (i == p) {
+          ii = q;
+        }
+        if (j == q) {
+          jj = p;
+        }
 
         double dist = dm[i][j];
         double l_ij = L * dist;

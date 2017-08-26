@@ -98,7 +98,9 @@ public class ObservableNetwork<V, E>
     // delegate.removeNode}
     // and the events will not be fired)
     List<E> incident_edges = ImmutableList.copyOf(delegate.incidentEdges(vertex));
-    for (E e : incident_edges) this.removeEdge(e);
+    for (E e : incident_edges) {
+      this.removeEdge(e);
+    }
 
     boolean state = delegate.removeNode(vertex);
     if (state) {

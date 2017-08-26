@@ -91,7 +91,9 @@ public class KStepMarkov<V, E> extends PageRankWithPriors<V, E> {
   private void initialize(int steps) {
     this.acceptDisconnectedGraph(false);
 
-    if (steps <= 0) throw new IllegalArgumentException("Number of steps must be > 0");
+    if (steps <= 0) {
+      throw new IllegalArgumentException("Number of steps must be > 0");
+    }
 
     this.max_iterations = steps;
     this.tolerance = -1.0;
@@ -112,7 +114,9 @@ public class KStepMarkov<V, E> extends PageRankWithPriors<V, E> {
   /** Updates the value for this vertex. Called by <code>step()</code>. */
   @Override
   public double update(V v) {
-    if (!cumulative) return super.update(v);
+    if (!cumulative) {
+      return super.update(v);
+    }
 
     collectDisappearingPotential(v);
 

@@ -77,9 +77,13 @@ public class SpringLayout2<N> extends SpringLayout<N> {
     synchronized (getSize()) {
       try {
         for (N node : graph.nodes()) {
-          if (isLocked(node)) continue;
+          if (isLocked(node)) {
+            continue;
+          }
           SpringNodeData vd = springNodeData.getUnchecked(node);
-          if (vd == null) continue;
+          if (vd == null) {
+            continue;
+          }
           Point2D xyd = apply(node);
 
           vd.dx += vd.repulsiondx + vd.edgedx;

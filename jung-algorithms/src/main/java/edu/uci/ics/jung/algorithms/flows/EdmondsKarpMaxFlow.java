@@ -132,7 +132,9 @@ public class EdmondsKarpMaxFlow<N, E> extends IterativeProcess {
         N neighboringVertex = flowNetwork.incidentNodes(neighboringEdge).target();
 
         Integer residualCapacity = residualCapacityMap.get(neighboringEdge);
-        if (residualCapacity <= 0 || visitedEdgesMap.contains(neighboringEdge)) continue;
+        if (residualCapacity <= 0 || visitedEdgesMap.contains(neighboringEdge)) {
+          continue;
+        }
 
         N neighborsParent = parentMap.get(neighboringVertex);
         Integer neighborCapacity = parentCapacityMap.get(neighboringVertex);

@@ -66,7 +66,9 @@ public class KMeansClusterer<T> {
 
   /** @param max_iterations the maximum number of iterations */
   public void setMaxIterations(int max_iterations) {
-    if (max_iterations < 0) throw new IllegalArgumentException("max iterations must be >= 0");
+    if (max_iterations < 0) {
+      throw new IllegalArgumentException("max iterations must be >= 0");
+    }
 
     this.max_iterations = max_iterations;
   }
@@ -78,8 +80,9 @@ public class KMeansClusterer<T> {
 
   /** @param convergence_threshold the convergence threshold */
   public void setConvergenceThreshold(double convergence_threshold) {
-    if (convergence_threshold <= 0)
+    if (convergence_threshold <= 0) {
       throw new IllegalArgumentException("convergence threshold " + "must be > 0");
+    }
 
     this.convergence_threshold = convergence_threshold;
   }
@@ -97,15 +100,17 @@ public class KMeansClusterer<T> {
    */
   @SuppressWarnings("unchecked")
   public Collection<Map<T, double[]>> cluster(Map<T, double[]> object_locations, int num_clusters) {
-    if (object_locations == null || object_locations.isEmpty())
+    if (object_locations == null || object_locations.isEmpty()) {
       throw new IllegalArgumentException("'objects' must be non-empty");
+    }
 
-    if (num_clusters < 2 || num_clusters > object_locations.size())
+    if (num_clusters < 2 || num_clusters > object_locations.size()) {
       throw new IllegalArgumentException(
           "number of clusters "
               + "must be >= 2 and <= number of objects ("
               + object_locations.size()
               + ")");
+    }
 
     Set<double[]> centroids = new HashSet<double[]>();
 
@@ -119,12 +124,18 @@ public class KMeansClusterer<T> {
       double[] mean_value = object_locations.get(o);
       boolean duplicate = false;
       for (double[] cur : centroids) {
-        if (Arrays.equals(mean_value, cur)) duplicate = true;
+        if (Arrays.equals(mean_value, cur)) {
+          duplicate = true;
+        }
       }
-      if (!duplicate) centroids.add(mean_value);
+      if (!duplicate) {
+        centroids.add(mean_value);
+      }
     }
 
-    if (tried.size() >= object_locations.size()) throw new NotEnoughClustersException();
+    if (tried.size() >= object_locations.size()) {
+      throw new NotEnoughClustersException();
+    }
 
     // put items in their initial clusters
     Map<double[], Map<T, double[]>> clusterMap = assignToClusters(object_locations, centroids);
@@ -168,7 +179,9 @@ public class KMeansClusterer<T> {
   protected Map<double[], Map<T, double[]>> assignToClusters(
       Map<T, double[]> object_locations, Set<double[]> centroids) {
     Map<double[], Map<T, double[]>> clusterMap = new HashMap<double[], Map<T, double[]>>();
-    for (double[] centroid : centroids) clusterMap.put(centroid, new HashMap<T, double[]>());
+    for (double[] centroid : centroids) {
+      clusterMap.put(centroid, new HashMap<T, double[]>());
+    }
 
     for (Map.Entry<T, double[]> object_location : object_locations.entrySet()) {
       T object = object_location.getKey();

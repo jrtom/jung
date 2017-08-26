@@ -56,7 +56,9 @@ public class LayoutLensShapePickSupport<V, E> extends ShapePickSupport<V, E> {
           Shape shape = vv.getRenderContext().getVertexShapeTransformer().apply(v);
           // get the vertex location
           Point2D p = layout.apply(v);
-          if (p == null) continue;
+          if (p == null) {
+            continue;
+          }
           // transform the vertex location to screen coords
           p = vv.getRenderContext().getMultiLayerTransformer().transform(p);
           AffineTransform xform = AffineTransform.getTranslateInstance(p.getX(), p.getY());
@@ -98,7 +100,9 @@ public class LayoutLensShapePickSupport<V, E> extends ShapePickSupport<V, E> {
       try {
         for (V v : getFilteredVertices()) {
           Point2D p = layout.apply(v);
-          if (p == null) continue;
+          if (p == null) {
+            continue;
+          }
 
           p = vv.getRenderContext().getMultiLayerTransformer().transform(p);
           if (rectangle.contains(p)) {
@@ -146,7 +150,9 @@ public class LayoutLensShapePickSupport<V, E> extends ShapePickSupport<V, E> {
               vv.getRenderContext()
                   .getMultiLayerTransformer()
                   .transform(Layer.LAYOUT, layout.apply(v2));
-          if (p1 == null || p2 == null) continue;
+          if (p1 == null || p2 == null) {
+            continue;
+          }
           float x1 = (float) p1.getX();
           float y1 = (float) p1.getY();
           float x2 = (float) p2.getX();

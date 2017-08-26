@@ -61,8 +61,11 @@ public class RadialTreeLayout<N> extends TreeLayout<N> {
     Point2D pv = new Point2D.Double(location.getX() - c.getX(), location.getY() - c.getY());
     PolarPoint newLocation = PolarPoint.cartesianToPolar(pv);
     PolarPoint currentLocation = polarLocations.get(node);
-    if (currentLocation == null) polarLocations.put(node, newLocation);
-    else currentLocation.setLocation(newLocation);
+    if (currentLocation == null) {
+      polarLocations.put(node, newLocation);
+    } else {
+      currentLocation.setLocation(newLocation);
+    }
   }
 
   /** @return a map from nodes to their locations in polar coordinates. */

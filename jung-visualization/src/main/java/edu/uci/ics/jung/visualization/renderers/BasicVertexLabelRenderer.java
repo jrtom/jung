@@ -168,9 +168,15 @@ public class BasicVertexLabelRenderer<V> implements Renderer.VertexLabel<V> {
     public Position getPosition(float x, float y, Dimension d) {
       int cx = d.width / 2;
       int cy = d.height / 2;
-      if (x > cx && y > cy) return Position.NW;
-      if (x > cx && y < cy) return Position.SW;
-      if (x < cx && y > cy) return Position.NE;
+      if (x > cx && y > cy) {
+        return Position.NW;
+      }
+      if (x > cx && y < cy) {
+        return Position.SW;
+      }
+      if (x < cx && y > cy) {
+        return Position.NE;
+      }
       return Position.SE;
     }
   }
@@ -179,9 +185,15 @@ public class BasicVertexLabelRenderer<V> implements Renderer.VertexLabel<V> {
     public Position getPosition(float x, float y, Dimension d) {
       int cx = d.width / 2;
       int cy = d.height / 2;
-      if (x > cx && y > cy) return Position.SE;
-      if (x > cx && y < cy) return Position.NE;
-      if (x < cx && y > cy) return Position.SW;
+      if (x > cx && y > cy) {
+        return Position.SE;
+      }
+      if (x > cx && y < cy) {
+        return Position.NE;
+      }
+      if (x < cx && y > cy) {
+        return Position.SW;
+      }
       return Position.NW;
     }
   }

@@ -83,7 +83,9 @@ public class UnweightedShortestPath<N> implements Distance<N> {
         currentSourceSPMap.put(vertex, distanceVal);
         int minDistance = distanceVal.intValue();
         for (N predecessor : mGraph.predecessors(vertex)) {
-          if (predecessor.equals(vertex)) continue;
+          if (predecessor.equals(vertex)) {
+            continue;
+          }
 
           Integer predDistance = distances.get(predecessor);
           if (predDistance < minDistance && predDistance >= 0) {

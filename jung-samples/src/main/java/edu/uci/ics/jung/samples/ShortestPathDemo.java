@@ -83,7 +83,9 @@ public class ShortestPathDemo extends JPanel {
           }
 
           public void paint(Graphics g) {
-            if (mPred == null) return;
+            if (mPred == null) {
+              return;
+            }
 
             // for all edges, paint edges that are in shortest path
             for (Number e : mGraph.edges()) {
@@ -119,7 +121,9 @@ public class ShortestPathDemo extends JPanel {
   public class MyEdgePaintFunction implements Function<Number, Paint> {
 
     public Paint apply(Number e) {
-      if (mPred == null || mPred.size() == 0) return Color.BLACK;
+      if (mPred == null || mPred.size() == 0) {
+        return Color.BLACK;
+      }
       if (isBlessed(e)) {
         return new Color(0.0f, 0.0f, 1.0f, 0.5f); //Color.BLUE;
       } else {
@@ -133,10 +137,14 @@ public class ShortestPathDemo extends JPanel {
     protected final Stroke THICK = new BasicStroke(1);
 
     public Stroke apply(Number e) {
-      if (mPred == null || mPred.size() == 0) return THIN;
+      if (mPred == null || mPred.size() == 0) {
+        return THIN;
+      }
       if (isBlessed(e)) {
         return THICK;
-      } else return THIN;
+      } else {
+        return THIN;
+      }
     }
   }
 
@@ -232,7 +240,9 @@ public class ShortestPathDemo extends JPanel {
     while (prd != null && prd.size() > 0) {
       v = prd.iterator().next();
       mPred.add(v);
-      if (v == mFrom) return;
+      if (v == mFrom) {
+        return;
+      }
       prd = bdl.getPredecessors(v);
     }
   }

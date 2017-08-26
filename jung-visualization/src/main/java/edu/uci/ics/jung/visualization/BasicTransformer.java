@@ -132,37 +132,61 @@ public class BasicTransformer
   }
 
   public MutableTransformer getTransformer(Layer layer) {
-    if (layer == Layer.LAYOUT) return layoutTransformer;
-    if (layer == Layer.VIEW) return viewTransformer;
+    if (layer == Layer.LAYOUT) {
+      return layoutTransformer;
+    }
+    if (layer == Layer.VIEW) {
+      return viewTransformer;
+    }
     return null;
   }
 
   public Point2D inverseTransform(Layer layer, Point2D p) {
-    if (layer == Layer.LAYOUT) return inverseLayoutTransform(p);
-    if (layer == Layer.VIEW) return inverseViewTransform(p);
+    if (layer == Layer.LAYOUT) {
+      return inverseLayoutTransform(p);
+    }
+    if (layer == Layer.VIEW) {
+      return inverseViewTransform(p);
+    }
     return null;
   }
 
   public void setTransformer(Layer layer, MutableTransformer Function) {
-    if (layer == Layer.LAYOUT) setLayoutTransformer(Function);
-    if (layer == Layer.VIEW) setViewTransformer(Function);
+    if (layer == Layer.LAYOUT) {
+      setLayoutTransformer(Function);
+    }
+    if (layer == Layer.VIEW) {
+      setViewTransformer(Function);
+    }
   }
 
   public Point2D transform(Layer layer, Point2D p) {
-    if (layer == Layer.LAYOUT) return layoutTransform(p);
-    if (layer == Layer.VIEW) return viewTransform(p);
+    if (layer == Layer.LAYOUT) {
+      return layoutTransform(p);
+    }
+    if (layer == Layer.VIEW) {
+      return viewTransform(p);
+    }
     return null;
   }
 
   public Shape transform(Layer layer, Shape shape) {
-    if (layer == Layer.LAYOUT) return layoutTransform(shape);
-    if (layer == Layer.VIEW) return viewTransform(shape);
+    if (layer == Layer.LAYOUT) {
+      return layoutTransform(shape);
+    }
+    if (layer == Layer.VIEW) {
+      return viewTransform(shape);
+    }
     return null;
   }
 
   public Shape inverseTransform(Layer layer, Shape shape) {
-    if (layer == Layer.LAYOUT) return inverseLayoutTransform(shape);
-    if (layer == Layer.VIEW) return inverseViewTransform(shape);
+    if (layer == Layer.LAYOUT) {
+      return inverseLayoutTransform(shape);
+    }
+    if (layer == Layer.VIEW) {
+      return inverseViewTransform(shape);
+    }
     return null;
   }
 }

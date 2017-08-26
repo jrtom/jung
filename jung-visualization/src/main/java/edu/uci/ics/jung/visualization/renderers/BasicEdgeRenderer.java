@@ -47,7 +47,9 @@ public class BasicEdgeRenderer<V, E> implements Renderer.Edge<V, E> {
   @Override
   public void paintEdge(E e) {
     GraphicsDecorator g2d = renderContext.getGraphicsContext();
-    if (!renderContext.getEdgeIncludePredicate().apply(e)) return;
+    if (!renderContext.getEdgeIncludePredicate().apply(e)) {
+      return;
+    }
 
     // don't draw edge if either incident vertex is not drawn
     EndpointPair<V> endpoints = renderContext.getNetwork().incidentNodes(e);
@@ -60,12 +62,16 @@ public class BasicEdgeRenderer<V, E> implements Renderer.Edge<V, E> {
 
     Stroke new_stroke = renderContext.edgestrokeTransformer().apply(e);
     Stroke old_stroke = g2d.getStroke();
-    if (new_stroke != null) g2d.setStroke(new_stroke);
+    if (new_stroke != null) {
+      g2d.setStroke(new_stroke);
+    }
 
     drawSimpleEdge(e);
 
     // restore paint and stroke
-    if (new_stroke != null) g2d.setStroke(old_stroke);
+    if (new_stroke != null) {
+      g2d.setStroke(old_stroke);
+    }
   }
 
   protected Shape prepareFinalEdgeShape(E e, int[] coords, boolean[] loop) {
@@ -217,13 +223,17 @@ public class BasicEdgeRenderer<V, E> implements Renderer.Edge<V, E> {
       float scalex = (float) g.getTransform().getScaleX();
       float scaley = (float) g.getTransform().getScaleY();
       // see if arrows are too small to bother drawing
-      if (scalex < .3 || scaley < .3) return;
+      if (scalex < .3 || scaley < .3) {
+        return;
+      }
 
       if (renderContext.renderEdgeArrow()) {
 
         Stroke new_stroke = renderContext.getEdgeArrowStrokeTransformer().apply(e);
         Stroke old_stroke = g.getStroke();
-        if (new_stroke != null) g.setStroke(new_stroke);
+        if (new_stroke != null) {
+          g.setStroke(new_stroke);
+        }
 
         Shape destVertexShape =
             renderContext.getVertexShapeTransformer().apply(network.incidentNodes(e).nodeV());
@@ -242,7 +252,9 @@ public class BasicEdgeRenderer<V, E> implements Renderer.Edge<V, E> {
           AffineTransform at =
               edgeArrowRenderingSupport.getArrowTransform(
                   renderContext, edgeShape, destVertexShape);
-          if (at == null) return;
+          if (at == null) {
+            return;
+          }
           Shape arrow = renderContext.getEdgeArrow();
           arrow = at.createTransformedShape(arrow);
           g.setPaint(renderContext.getArrowFillPaintTransformer().apply(e));
@@ -267,7 +279,9 @@ public class BasicEdgeRenderer<V, E> implements Renderer.Edge<V, E> {
             AffineTransform at =
                 edgeArrowRenderingSupport.getReverseArrowTransform(
                     renderContext, edgeShape, vertexShape, !isLoop);
-            if (at == null) return;
+            if (at == null) {
+              return;
+            }
             Shape arrow = renderContext.getEdgeArrow();
             arrow = at.createTransformedShape(arrow);
             g.setPaint(renderContext.getArrowFillPaintTransformer().apply(e));
@@ -277,7 +291,9 @@ public class BasicEdgeRenderer<V, E> implements Renderer.Edge<V, E> {
           }
         }
         // restore paint and stroke
-        if (new_stroke != null) g.setStroke(old_stroke);
+        if (new_stroke != null) {
+          g.setStroke(old_stroke);
+        }
       }
 
       // restore old paint

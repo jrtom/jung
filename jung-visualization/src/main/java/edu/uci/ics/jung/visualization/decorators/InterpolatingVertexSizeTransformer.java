@@ -28,9 +28,12 @@ public class InterpolatingVertexSizeTransformer<V> implements Function<V, Intege
   public InterpolatingVertexSizeTransformer(
       Function<V, ? extends Number> values, int min_size, int max_size) {
     super();
-    if (min_size < 0 || max_size < 0)
+    if (min_size < 0 || max_size < 0) {
       throw new IllegalArgumentException("sizes must be non-negative");
-    if (min_size > max_size) throw new IllegalArgumentException("min_size must be <= max_size");
+    }
+    if (min_size > max_size) {
+      throw new IllegalArgumentException("min_size must be <= max_size");
+    }
     this.min = 0;
     this.max = 0;
     this.values = values;
@@ -41,11 +44,15 @@ public class InterpolatingVertexSizeTransformer<V> implements Function<V, Intege
   public Integer apply(V v) {
     Number n = values.apply(v);
     double value = min;
-    if (n != null) value = n.doubleValue();
+    if (n != null) {
+      value = n.doubleValue();
+    }
     min = Math.min(this.min, value);
     max = Math.max(this.max, value);
 
-    if (min == max) return min_size;
+    if (min == max) {
+      return min_size;
+    }
 
     // interpolate between min and max sizes based on how big value is
     // with respect to min and max values

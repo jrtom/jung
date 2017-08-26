@@ -36,8 +36,9 @@ public final class Pair<T> implements Collection<T>, Serializable {
    * @throws IllegalArgumentException if either argument is null
    */
   public Pair(T value1, T value2) {
-    if (value1 == null || value2 == null)
+    if (value1 == null || value2 == null) {
       throw new IllegalArgumentException("Pair cannot contain null values");
+    }
     first = value1;
     second = value2;
   }
@@ -50,16 +51,20 @@ public final class Pair<T> implements Collection<T>, Serializable {
    *     != 2 elements.
    */
   public Pair(Collection<? extends T> values) {
-    if (values == null) throw new IllegalArgumentException("Input collection cannot be null");
+    if (values == null) {
+      throw new IllegalArgumentException("Input collection cannot be null");
+    }
     if (values.size() == 2) {
-      if (values.contains(null))
+      if (values.contains(null)) {
         throw new IllegalArgumentException("Pair cannot contain null values");
+      }
       Iterator<? extends T> iter = values.iterator();
       first = iter.next();
       second = iter.next();
-    } else
+    } else {
       throw new IllegalArgumentException(
           "Pair may only be created from a Collection of exactly 2 elements");
+    }
   }
 
   /**
@@ -70,15 +75,19 @@ public final class Pair<T> implements Collection<T>, Serializable {
    *     elements.
    */
   public Pair(T[] values) {
-    if (values == null) throw new IllegalArgumentException("Input array cannot be null");
+    if (values == null) {
+      throw new IllegalArgumentException("Input array cannot be null");
+    }
     if (values.length == 2) {
-      if (values[0] == null || values[1] == null)
+      if (values[0] == null || values[1] == null) {
         throw new IllegalArgumentException("Pair cannot contain null values");
+      }
       first = values[0];
       second = values[1];
-    } else
+    } else {
       throw new IllegalArgumentException(
           "Pair may only be created from an " + "array of 2 elements");
+    }
   }
 
   /** @return the first element. */
@@ -93,7 +102,9 @@ public final class Pair<T> implements Collection<T>, Serializable {
 
   @Override
   public boolean equals(Object o) {
-    if (o == this) return true;
+    if (o == this) {
+      return true;
+    }
 
     if (o instanceof Pair) {
       @SuppressWarnings("rawtypes")
@@ -138,7 +149,9 @@ public final class Pair<T> implements Collection<T>, Serializable {
   }
 
   public boolean containsAll(Collection<?> c) {
-    if (c.size() > 2) return false;
+    if (c.size() > 2) {
+      return false;
+    }
     Iterator<?> iter = c.iterator();
     Object c_first = iter.next();
     Object c_second = iter.next();
@@ -180,11 +193,15 @@ public final class Pair<T> implements Collection<T>, Serializable {
   public <S> S[] toArray(S[] a) {
     S[] to_return = a;
     Class<?> type = a.getClass().getComponentType();
-    if (a.length < 2) to_return = (S[]) java.lang.reflect.Array.newInstance(type, 2);
+    if (a.length < 2) {
+      to_return = (S[]) java.lang.reflect.Array.newInstance(type, 2);
+    }
     to_return[0] = (S) first;
     to_return[1] = (S) second;
 
-    if (to_return.length > 2) to_return[2] = null;
+    if (to_return.length > 2) {
+      to_return[2] = null;
+    }
     return to_return;
   }
 
@@ -201,9 +218,13 @@ public final class Pair<T> implements Collection<T>, Serializable {
 
     public T next() {
       position++;
-      if (position == 1) return first;
-      else if (position == 2) return second;
-      else return null;
+      if (position == 1) {
+        return first;
+      } else if (position == 2) {
+        return second;
+      } else {
+        return null;
+      }
     }
 
     public void remove() {

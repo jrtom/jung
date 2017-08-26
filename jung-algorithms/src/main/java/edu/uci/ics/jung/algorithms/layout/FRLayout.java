@@ -152,7 +152,9 @@ public class FRLayout<N> extends AbstractLayout<N> implements IterativeContext {
     while (true) {
       try {
         for (N node : graph.nodes()) {
-          if (isLocked(node)) continue;
+          if (isLocked(node)) {
+            continue;
+          }
           calcPositions(node);
         }
         break;
@@ -164,7 +166,9 @@ public class FRLayout<N> extends AbstractLayout<N> implements IterativeContext {
 
   protected synchronized void calcPositions(N node) {
     FRNodeData fvd = getFRData(node);
-    if (fvd == null) return;
+    if (fvd == null) {
+      return;
+    }
     Point2D xyd = apply(node);
     double deltaLength = Math.max(EPSILON, fvd.norm());
 
@@ -208,7 +212,9 @@ public class FRLayout<N> extends AbstractLayout<N> implements IterativeContext {
     }
     Point2D p1 = apply(node1);
     Point2D p2 = apply(node2);
-    if (p1 == null || p2 == null) return;
+    if (p1 == null || p2 == null) {
+      return;
+    }
     double xDelta = p1.getX() - p2.getX();
     double yDelta = p1.getY() - p2.getY();
 
@@ -235,7 +241,9 @@ public class FRLayout<N> extends AbstractLayout<N> implements IterativeContext {
 
   protected void calcRepulsion(N node1) {
     FRNodeData fvd1 = getFRData(node1);
-    if (fvd1 == null) return;
+    if (fvd1 == null) {
+      return;
+    }
     fvd1.setLocation(0, 0);
 
     try {
@@ -245,7 +253,9 @@ public class FRLayout<N> extends AbstractLayout<N> implements IterativeContext {
         if (node1 != node2) {
           Point2D p1 = apply(node1);
           Point2D p2 = apply(node2);
-          if (p1 == null || p2 == null) continue;
+          if (p1 == null || p2 == null) {
+            continue;
+          }
           double xDelta = p1.getX() - p2.getX();
           double yDelta = p1.getY() - p2.getY();
 

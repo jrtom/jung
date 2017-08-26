@@ -354,7 +354,9 @@ public class BasicVisualizationServer<V, E> extends JPanel
     @Override
     public void componentResized(ComponentEvent e) {
       Dimension d = vv.getSize();
-      if (d.width <= 0 || d.height <= 0) return;
+      if (d.width <= 0 || d.height <= 0) {
+        return;
+      }
       checkOffscreenImage(d);
       repaint();
     }

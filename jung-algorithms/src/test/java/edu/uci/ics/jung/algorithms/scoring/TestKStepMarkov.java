@@ -21,7 +21,9 @@ public class TestKStepMarkov extends TestCase {
     mTransitionMatrix =
         new double[][] {{0.0, 0.5, 0.5}, {1.0 / 3.0, 0.0, 2.0 / 3.0}, {1.0 / 3.0, 2.0 / 3.0, 0.0}};
 
-    for (int i = 0; i < mTransitionMatrix.length; i++) mGraph.addNode(i);
+    for (int i = 0; i < mTransitionMatrix.length; i++) {
+      mGraph.addNode(i);
+    }
 
     for (int i = 0; i < mTransitionMatrix.length; i++) {
       for (int j = 0; j < mTransitionMatrix[i].length; j++) {

@@ -31,7 +31,9 @@ public class PickableVertexIconTransformer<V> implements Function<V, Icon> {
    * @param picked_icon <code>Icon</code> used to represent picked vertices
    */
   public PickableVertexIconTransformer(PickedInfo<V> pi, Icon icon, Icon picked_icon) {
-    if (pi == null) throw new IllegalArgumentException("PickedInfo instance must be non-null");
+    if (pi == null) {
+      throw new IllegalArgumentException("PickedInfo instance must be non-null");
+    }
     this.pi = pi;
     this.icon = icon;
     this.picked_icon = picked_icon;
@@ -39,7 +41,10 @@ public class PickableVertexIconTransformer<V> implements Function<V, Icon> {
 
   /** Returns the appropriate <code>Icon</code>, depending on picked state. */
   public Icon apply(V v) {
-    if (pi.isPicked(v)) return picked_icon;
-    else return icon;
+    if (pi.isPicked(v)) {
+      return picked_icon;
+    } else {
+      return icon;
+    }
   }
 }
