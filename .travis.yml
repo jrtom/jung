@@ -26,6 +26,7 @@ cache:
 branches:
   only:
     - master
+    - common.graph
     - /^release.*$/
 
 env:
