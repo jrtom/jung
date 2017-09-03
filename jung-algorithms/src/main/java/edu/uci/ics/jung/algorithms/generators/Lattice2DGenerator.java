@@ -10,6 +10,8 @@
 
 package edu.uci.ics.jung.algorithms.generators;
 
+import static java.util.stream.Collectors.toSet;
+
 import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
 import com.google.common.cache.CacheBuilder;
@@ -22,7 +24,6 @@ import com.google.common.graph.NetworkBuilder;
 import edu.uci.ics.jung.algorithms.shortestpath.Distance;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -113,10 +114,8 @@ public class Lattice2DGenerator<N, E> {
 
     // if the graph is directed, fill in the edges going the other directions
     if (graph.isDirected()) {
-      Set<EndpointPair<N>> endpointPairs = new HashSet<>();
-      for (E edge : graph.edges()) {
-        endpointPairs.add(graph.incidentNodes(edge));
-      }
+      Set<EndpointPair<N>> endpointPairs =
+          graph.edges().stream().map(graph::incidentNodes).collect(toSet());
 
       for (EndpointPair<N> endpoints : endpointPairs) {
         graph.addEdge(endpoints.target(), endpoints.source(), edgeFactory.get());
