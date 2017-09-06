@@ -11,27 +11,26 @@
  */
 package edu.uci.ics.jung.graph.util;
 
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
+
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.graph.Graph;
 import com.google.common.graph.Graphs;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.graph.CTreeNetwork;
 import edu.uci.ics.jung.graph.MutableCTreeNetwork;
 import edu.uci.ics.jung.graph.TreeNetworkBuilder;
-import java.util.HashSet;
-import java.util.Set;
 
 /** Contains static methods for operating on instances of <code>Tree</code>. */
 // TODO: add tests
 public class TreeUtils {
-  public static <N> Set<N> roots(Graph<N> graph) {
-    Set<N> roots = new HashSet<N>();
-    for (N node : graph.nodes()) {
-      if (graph.predecessors(node).isEmpty()) {
-        roots.add(node);
-      }
-    }
-    return roots;
+  public static <N> ImmutableSet<N> roots(Graph<N> graph) {
+    return graph
+        .nodes()
+        .stream()
+        .filter(node -> graph.predecessors(node).isEmpty())
+        .collect(toImmutableSet());
   }
 
   /**
@@ -39,18 +38,9 @@ public class TreeUtils {
    * predecessor.
    */
   public static <N> boolean isForestShaped(Graph<N> graph) {
-    if (!graph.isDirected()) {
-      return false;
-    }
-    if (Graphs.hasCycle(graph)) {
-      return false;
-    }
-    for (N node : graph.nodes()) {
-      if (graph.predecessors(node).size() > 1) {
-        return false;
-      }
-    }
-    return true;
+    return graph.isDirected()
+        && !Graphs.hasCycle(graph)
+        && graph.nodes().stream().allMatch(node -> graph.predecessors(node).size() <= 1);
   }
 
   /**
@@ -58,18 +48,9 @@ public class TreeUtils {
    * predecessor.
    */
   public static <N> boolean isForestShaped(Network<N, ?> graph) {
-    if (!graph.isDirected()) {
-      return false;
-    }
-    if (Graphs.hasCycle(graph)) {
-      return false;
-    }
-    for (N node : graph.nodes()) {
-      if (graph.predecessors(node).size() > 1) {
-        return false;
-      }
-    }
-    return true;
+    return graph.isDirected()
+        && !Graphs.hasCycle(graph)
+        && graph.nodes().stream().allMatch(node -> graph.predecessors(node).size() <= 1);
   }
 
   /**
