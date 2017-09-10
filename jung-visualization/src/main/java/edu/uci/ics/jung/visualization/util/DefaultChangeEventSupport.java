@@ -62,7 +62,9 @@ public class DefaultChangeEventSupport implements ChangeEventSupport {
     for (int i = listeners.length - 2; i >= 0; i -= 2) {
       if (listeners[i] == ChangeListener.class) {
         // Lazily create the event:
-        if (changeEvent == null) changeEvent = new ChangeEvent(eventSource);
+        if (changeEvent == null) {
+          changeEvent = new ChangeEvent(eventSource);
+        }
         ((ChangeListener) listeners[i + 1]).stateChanged(changeEvent);
       }
     }

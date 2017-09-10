@@ -201,7 +201,9 @@ public class AddNodeDemo extends javax.swing.JApplet {
     @Override
     public void run() {
       process();
-      if (done) cancel();
+      if (done) {
+        cancel();
+      }
     }
   }
 

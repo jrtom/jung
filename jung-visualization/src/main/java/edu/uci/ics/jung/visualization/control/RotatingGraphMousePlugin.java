@@ -125,7 +125,9 @@ public class RotatingGraphMousePlugin extends AbstractGraphMousePlugin
 
   /** check the modifiers. If accepted, use the mouse drag motion to rotate the graph */
   public void mouseDragged(MouseEvent e) {
-    if (down == null) return;
+    if (down == null) {
+      return;
+    }
     VisualizationViewer<?, ?> vv = (VisualizationViewer<?, ?>) e.getSource();
     boolean accepted = checkModifiers(e);
     if (accepted) {

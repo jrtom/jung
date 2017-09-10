@@ -154,12 +154,18 @@ public class HITSWithPriors<V, E> extends AbstractIterativeScorerWithPriors<V, E
   @Override
   protected void collectDisappearingPotential(V v) {
     if (graph.outDegree(v) == 0) {
-      if (isDisconnectedGraphOK()) disappearing_potential.hub += getCurrentValue(v).authority;
-      else throw new IllegalArgumentException("Outdegree of " + v + " must be > 0");
+      if (isDisconnectedGraphOK()) {
+        disappearing_potential.hub += getCurrentValue(v).authority;
+      } else {
+        throw new IllegalArgumentException("Outdegree of " + v + " must be > 0");
+      }
     }
     if (graph.inDegree(v) == 0) {
-      if (isDisconnectedGraphOK()) disappearing_potential.authority += getCurrentValue(v).hub;
-      else throw new IllegalArgumentException("Indegree of " + v + " must be > 0");
+      if (isDisconnectedGraphOK()) {
+        disappearing_potential.authority += getCurrentValue(v).hub;
+      } else {
+        throw new IllegalArgumentException("Indegree of " + v + " must be > 0");
+      }
     }
   }
 }

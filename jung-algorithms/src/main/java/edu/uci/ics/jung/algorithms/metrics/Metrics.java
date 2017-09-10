@@ -40,8 +40,9 @@ public class Metrics {
 
     for (V v : graph.nodes()) {
       int n = graph.degree(v);
-      if (n < 2) coefficients.put(v, new Double(0));
-      else {
+      if (n < 2) {
+        coefficients.put(v, new Double(0));
+      } else {
         int edgeCount = 0;
         for (V w : graph.adjacentNodes(v)) {
           if (!w.equals(v)) {

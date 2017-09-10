@@ -42,7 +42,9 @@ public class AffineTransformer implements BidirectionalTransformer, ShapeTransfo
    * @param transform the transform to use
    */
   public AffineTransformer(AffineTransform transform) {
-    if (transform != null) this.transform = transform;
+    if (transform != null) {
+      this.transform = transform;
+    }
   }
 
   /** @return Returns the transform. */
@@ -118,7 +120,9 @@ public class AffineTransformer implements BidirectionalTransformer, ShapeTransfo
    * @return the transformed point
    */
   public Point2D transform(Point2D p) {
-    if (p == null) return null;
+    if (p == null) {
+      return null;
+    }
     return transform.transform(p, null);
   }
 

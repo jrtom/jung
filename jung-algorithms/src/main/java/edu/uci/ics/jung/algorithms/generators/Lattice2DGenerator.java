@@ -102,15 +102,19 @@ public class Lattice2DGenerator<N, E> {
 
     // fill in edges
     // down
-    for (int i = 0; i < end_row; i++)
-      for (int j = 0; j < colCount; j++)
+    for (int i = 0; i < end_row; i++) {
+      for (int j = 0; j < colCount; j++) {
         graph.addEdge(
             elements.get(getIndex(i, j)), elements.get(getIndex(i + 1, j)), edgeFactory.get());
+      }
+    }
     // right
-    for (int i = 0; i < rowCount; i++)
-      for (int j = 0; j < end_col; j++)
+    for (int i = 0; i < rowCount; i++) {
+      for (int j = 0; j < end_col; j++) {
         graph.addEdge(
             elements.get(getIndex(i, j)), elements.get(getIndex(i, j + 1)), edgeFactory.get());
+      }
+    }
 
     // if the graph is directed, fill in the edges going the other directions
     if (graph.isDirected()) {

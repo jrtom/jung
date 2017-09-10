@@ -154,8 +154,9 @@ public class VisualizationViewer<V, E> extends BasicVisualizationServer<V, E> {
       }
     }
     if (edgeToolTipTransformer != null) {
-      if (p == null)
+      if (p == null) {
         p = renderContext.getMultiLayerTransformer().inverseTransform(Layer.VIEW, event.getPoint());
+      }
       E edge = getPickSupport().getEdge(p.getX(), p.getY());
       if (edge != null) {
         return edgeToolTipTransformer.apply(edge);

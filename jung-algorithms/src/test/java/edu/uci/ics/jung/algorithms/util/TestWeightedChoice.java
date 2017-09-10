@@ -30,7 +30,9 @@ public class TestWeightedChoice extends TestCase {
     item_weights.put("c", weights[2]);
     item_weights.put("d", weights[3]);
 
-    for (String key : item_weights.keySet()) item_counts.put(key, 0);
+    for (String key : item_weights.keySet()) {
+      item_counts.put(key, 0);
+    }
   }
 
   private void runWeightedChoice() {
@@ -43,8 +45,9 @@ public class TestWeightedChoice extends TestCase {
       item_counts.put(item, count + 1);
     }
 
-    for (String key : item_weights.keySet())
+    for (String key : item_weights.keySet()) {
       assertEquals((int) (item_weights.get(key) * max_iterations), item_counts.get(key).intValue());
+    }
   }
 
   public void testUniform() {

@@ -66,7 +66,9 @@ public class ViewLensShapePickSupport<V, E> extends ShapePickSupport<V, E> {
           Shape shape = vv.getRenderContext().getVertexShapeTransformer().apply(v);
           // transform the vertex location to screen coords
           Point2D p = layout.apply(v);
-          if (p == null) continue;
+          if (p == null) {
+            continue;
+          }
           AffineTransform xform = AffineTransform.getTranslateInstance(p.getX(), p.getY());
           shape = xform.createTransformedShape(shape);
 
@@ -126,7 +128,9 @@ public class ViewLensShapePickSupport<V, E> extends ShapePickSupport<V, E> {
         Layout<V> layout = vv.getGraphLayout();
         for (V v : getFilteredVertices()) {
           Point2D p = layout.apply(v);
-          if (p == null) continue;
+          if (p == null) {
+            continue;
+          }
           // get the shape
           Shape shape = vv.getRenderContext().getVertexShapeTransformer().apply(v);
 
@@ -179,7 +183,9 @@ public class ViewLensShapePickSupport<V, E> extends ShapePickSupport<V, E> {
           //vv.getRenderContext().getBasicTransformer().transform(layout.transform(v1));
           Point2D p2 = layout.apply(v2);
           //vv.getRenderContext().getBasicTransformer().transform(layout.transform(v2));
-          if (p1 == null || p2 == null) continue;
+          if (p1 == null || p2 == null) {
+            continue;
+          }
           float x1 = (float) p1.getX();
           float y1 = (float) p1.getY();
           float x2 = (float) p2.getX();

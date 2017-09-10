@@ -36,7 +36,9 @@ public class SatelliteRotatingGraphMousePlugin extends RotatingGraphMousePlugin 
    * view
    */
   public void mouseDragged(MouseEvent e) {
-    if (down == null) return;
+    if (down == null) {
+      return;
+    }
     VisualizationViewer<?, ?> vv = (VisualizationViewer<?, ?>) e.getSource();
     boolean accepted = checkModifiers(e);
     if (accepted) {

@@ -33,8 +33,11 @@ public class ScoringUtils {
     Function<V, Double> distribution =
         new Function<V, Double>() {
           public Double apply(V input) {
-            if (inner_roots.contains(input)) return new Double(1.0 / inner_roots.size());
-            else return 0.0;
+            if (inner_roots.contains(input)) {
+              return new Double(1.0 / inner_roots.size());
+            } else {
+              return 0.0;
+            }
           }
         };
 
@@ -54,9 +57,11 @@ public class ScoringUtils {
     Function<V, HITS.Scores> distribution =
         new Function<V, HITS.Scores>() {
           public HITS.Scores apply(V input) {
-            if (inner_roots.contains(input))
+            if (inner_roots.contains(input)) {
               return new HITS.Scores(1.0 / inner_roots.size(), 1.0 / inner_roots.size());
-            else return new HITS.Scores(0.0, 0.0);
+            } else {
+              return new HITS.Scores(0.0, 0.0);
+            }
           }
         };
     return distribution;

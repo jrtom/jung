@@ -51,15 +51,21 @@ public class PluggableGraphMouse implements VisualizationViewer.GraphMouse {
   public void remove(GraphMousePlugin plugin) {
     if (plugin instanceof MouseListener) {
       boolean wasThere = mousePluginList.remove(plugin);
-      if (wasThere) mouseListeners = null;
+      if (wasThere) {
+        mouseListeners = null;
+      }
     }
     if (plugin instanceof MouseMotionListener) {
       boolean wasThere = mouseMotionPluginList.remove(plugin);
-      if (wasThere) mouseMotionListeners = null;
+      if (wasThere) {
+        mouseMotionListeners = null;
+      }
     }
     if (plugin instanceof MouseWheelListener) {
       boolean wasThere = mouseWheelPluginList.remove(plugin);
-      if (wasThere) mouseWheelListeners = null;
+      if (wasThere) {
+        mouseWheelListeners = null;
+      }
     }
   }
 
@@ -90,7 +96,9 @@ public class PluggableGraphMouse implements VisualizationViewer.GraphMouse {
     checkMouseListeners();
     for (int i = 0; i < mouseListeners.length; i++) {
       mouseListeners[i].mouseClicked(e);
-      if (e.isConsumed()) break;
+      if (e.isConsumed()) {
+        break;
+      }
     }
   }
 
@@ -98,7 +106,9 @@ public class PluggableGraphMouse implements VisualizationViewer.GraphMouse {
     checkMouseListeners();
     for (int i = 0; i < mouseListeners.length; i++) {
       mouseListeners[i].mousePressed(e);
-      if (e.isConsumed()) break;
+      if (e.isConsumed()) {
+        break;
+      }
     }
   }
 
@@ -106,7 +116,9 @@ public class PluggableGraphMouse implements VisualizationViewer.GraphMouse {
     checkMouseListeners();
     for (int i = 0; i < mouseListeners.length; i++) {
       mouseListeners[i].mouseReleased(e);
-      if (e.isConsumed()) break;
+      if (e.isConsumed()) {
+        break;
+      }
     }
   }
 
@@ -114,7 +126,9 @@ public class PluggableGraphMouse implements VisualizationViewer.GraphMouse {
     checkMouseListeners();
     for (int i = 0; i < mouseListeners.length; i++) {
       mouseListeners[i].mouseEntered(e);
-      if (e.isConsumed()) break;
+      if (e.isConsumed()) {
+        break;
+      }
     }
   }
 
@@ -122,7 +136,9 @@ public class PluggableGraphMouse implements VisualizationViewer.GraphMouse {
     checkMouseListeners();
     for (int i = 0; i < mouseListeners.length; i++) {
       mouseListeners[i].mouseExited(e);
-      if (e.isConsumed()) break;
+      if (e.isConsumed()) {
+        break;
+      }
     }
   }
 
@@ -130,7 +146,9 @@ public class PluggableGraphMouse implements VisualizationViewer.GraphMouse {
     checkMouseMotionListeners();
     for (int i = 0; i < mouseMotionListeners.length; i++) {
       mouseMotionListeners[i].mouseDragged(e);
-      if (e.isConsumed()) break;
+      if (e.isConsumed()) {
+        break;
+      }
     }
   }
 
@@ -138,7 +156,9 @@ public class PluggableGraphMouse implements VisualizationViewer.GraphMouse {
     checkMouseMotionListeners();
     for (int i = 0; i < mouseMotionListeners.length; i++) {
       mouseMotionListeners[i].mouseMoved(e);
-      if (e.isConsumed()) break;
+      if (e.isConsumed()) {
+        break;
+      }
     }
   }
 
@@ -146,7 +166,9 @@ public class PluggableGraphMouse implements VisualizationViewer.GraphMouse {
     checkMouseWheelListeners();
     for (int i = 0; i < mouseWheelListeners.length; i++) {
       mouseWheelListeners[i].mouseWheelMoved(e);
-      if (e.isConsumed()) break;
+      if (e.isConsumed()) {
+        break;
+      }
     }
   }
 }

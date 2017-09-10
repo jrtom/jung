@@ -90,7 +90,9 @@ public class FRLayout2<N> extends AbstractLayout<N> implements IterativeContext 
 
   @Override
   public void setSize(Dimension size) {
-    if (initialized == false) setInitializer(new RandomLocationTransformer<N>(size));
+    if (initialized == false) {
+      setInitializer(new RandomLocationTransformer<N>(size));
+    }
     super.setSize(size);
     double t = size.width / 50.0;
     innerBounds.setFrameFromDiagonal(t, t, size.width - t, size.height - t);
@@ -161,7 +163,9 @@ public class FRLayout2<N> extends AbstractLayout<N> implements IterativeContext 
     while (true) {
       try {
         for (N node : graph.nodes()) {
-          if (isLocked(node)) continue;
+          if (isLocked(node)) {
+            continue;
+          }
           calcPositions(node);
         }
         break;
@@ -173,7 +177,9 @@ public class FRLayout2<N> extends AbstractLayout<N> implements IterativeContext 
 
   protected synchronized void calcPositions(N node) {
     Point2D fvd = this.frNodeData.getUnchecked(node);
-    if (fvd == null) return;
+    if (fvd == null) {
+      return;
+    }
     Point2D xyd = apply(node);
     double deltaLength =
         Math.max(EPSILON, Math.sqrt(fvd.getX() * fvd.getX() + fvd.getY() * fvd.getY()));
@@ -206,7 +212,9 @@ public class FRLayout2<N> extends AbstractLayout<N> implements IterativeContext 
     }
     Point2D p1 = apply(node1);
     Point2D p2 = apply(node2);
-    if (p1 == null || p2 == null) return;
+    if (p1 == null || p2 == null) {
+      return;
+    }
     double xDelta = p1.getX() - p2.getX();
     double yDelta = p1.getY() - p2.getY();
 
@@ -239,7 +247,9 @@ public class FRLayout2<N> extends AbstractLayout<N> implements IterativeContext 
 
   protected void calcRepulsion(N node1) {
     Point2D fvd1 = frNodeData.getUnchecked(node1);
-    if (fvd1 == null) return;
+    if (fvd1 == null) {
+      return;
+    }
     fvd1.setLocation(0, 0);
     boolean v1_locked = isLocked(node1);
 
@@ -247,11 +257,15 @@ public class FRLayout2<N> extends AbstractLayout<N> implements IterativeContext 
       for (N node2 : graph.nodes()) {
 
         boolean v2_locked = isLocked(node2);
-        if (v1_locked && v2_locked) continue;
+        if (v1_locked && v2_locked) {
+          continue;
+        }
         if (node1 != node2) {
           Point2D p1 = apply(node1);
           Point2D p2 = apply(node2);
-          if (p1 == null || p2 == null) continue;
+          if (p1 == null || p2 == null) {
+            continue;
+          }
           double xDelta = p1.getX() - p2.getX();
           double yDelta = p1.getY() - p2.getY();
 

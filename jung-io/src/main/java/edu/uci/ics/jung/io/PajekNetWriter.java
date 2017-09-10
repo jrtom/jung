@@ -132,13 +132,14 @@ public class PajekNetWriter<V, E> {
      */
 
     BufferedWriter writer = new BufferedWriter(w);
-    if (nev == null)
+    if (nev == null) {
       nev =
           new Function<E, Number>() {
             public Number apply(E e) {
               return 1;
             }
           };
+    }
     writer.write("*Vertices " + graph.nodes().size());
     writer.newLine();
 
@@ -149,11 +150,15 @@ public class PajekNetWriter<V, E> {
       writer.write("" + v_id);
       if (vs != null) {
         String label = vs.apply(currentVertex);
-        if (label != null) writer.write(" \"" + label + "\"");
+        if (label != null) {
+          writer.write(" \"" + label + "\"");
+        }
       }
       if (vld != null) {
         Point2D location = vld.apply(currentVertex);
-        if (location != null) writer.write(" " + location.getX() + " " + location.getY() + " 0.0");
+        if (location != null) {
+          writer.write(" " + location.getX() + " " + location.getY() + " 0.0");
+        }
       }
       writer.newLine();
     }

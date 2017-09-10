@@ -114,8 +114,11 @@ public class MapBinaryHeap<T> extends AbstractCollection<T> implements Queue<T> 
 
   /** Returns the element at the top of the heap; does not alter the heap. */
   public T peek() {
-    if (heap.size() > 0) return heap.get(TOP);
-    else return null;
+    if (heap.size() > 0) {
+      return heap.get(TOP);
+    } else {
+      return null;
+    }
   }
 
   /** @return the size of this heap */
@@ -247,8 +250,9 @@ public class MapBinaryHeap<T> extends AbstractCollection<T> implements Queue<T> 
     /** @see java.util.Comparator#compare(java.lang.Object, java.lang.Object) */
     @SuppressWarnings("unchecked")
     public int compare(T arg0, T arg1) {
-      if (!(arg0 instanceof Comparable) || !(arg1 instanceof Comparable))
+      if (!(arg0 instanceof Comparable) || !(arg1 instanceof Comparable)) {
         throw new IllegalArgumentException("Arguments must be Comparable");
+      }
 
       return ((Comparable<T>) arg0).compareTo(arg1);
     }
@@ -280,7 +284,9 @@ public class MapBinaryHeap<T> extends AbstractCollection<T> implements Queue<T> 
 
   public T element() throws NoSuchElementException {
     T top = this.peek();
-    if (top == null) throw new NoSuchElementException();
+    if (top == null) {
+      throw new NoSuchElementException();
+    }
     return top;
   }
 
@@ -297,7 +303,9 @@ public class MapBinaryHeap<T> extends AbstractCollection<T> implements Queue<T> 
       object_indices.put(bottom_elt, TOP);
 
       heap.remove(lastIndex); // remove the last element
-      if (heap.size() > 1) percolateDown(TOP);
+      if (heap.size() > 1) {
+        percolateDown(TOP);
+      }
 
       object_indices.remove(top);
     }
@@ -306,7 +314,9 @@ public class MapBinaryHeap<T> extends AbstractCollection<T> implements Queue<T> 
 
   public T remove() {
     T top = this.poll();
-    if (top == null) throw new NoSuchElementException();
+    if (top == null) {
+      throw new NoSuchElementException();
+    }
     return top;
   }
 }

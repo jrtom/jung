@@ -67,7 +67,9 @@ public class CircleLayout<N> extends AbstractLayout<N> {
    * @param comparator the comparator to use to order the nodes
    */
   public void setNodeOrder(Comparator<N> comparator) {
-    if (node_ordered_list == null) node_ordered_list = new ArrayList<N>(nodes());
+    if (node_ordered_list == null) {
+      node_ordered_list = new ArrayList<N>(nodes());
+    }
     Collections.sort(node_ordered_list, comparator);
   }
 
@@ -77,8 +79,9 @@ public class CircleLayout<N> extends AbstractLayout<N> {
    * @param node_list a list specifying the ordering of the nodes
    */
   public void setNodeOrder(List<N> node_list) {
-    if (!node_list.containsAll(nodes()))
+    if (!node_list.containsAll(nodes())) {
       throw new IllegalArgumentException("Supplied list must include " + "all nodes of the graph");
+    }
     this.node_ordered_list = node_list;
   }
 
@@ -90,7 +93,9 @@ public class CircleLayout<N> extends AbstractLayout<N> {
     Dimension d = getSize();
 
     if (d != null) {
-      if (node_ordered_list == null) setNodeOrder(new ArrayList<N>(nodes()));
+      if (node_ordered_list == null) {
+        setNodeOrder(new ArrayList<N>(nodes()));
+      }
 
       double height = d.getHeight();
       double width = d.getWidth();

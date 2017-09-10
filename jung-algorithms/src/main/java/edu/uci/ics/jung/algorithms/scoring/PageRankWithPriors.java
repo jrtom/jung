@@ -107,8 +107,11 @@ public class PageRankWithPriors<V, E> extends AbstractIterativeScorerWithPriors<
   @Override
   protected void collectDisappearingPotential(V v) {
     if (graph.outDegree(v) == 0) {
-      if (isDisconnectedGraphOK()) disappearing_potential += getCurrentValue(v);
-      else throw new IllegalArgumentException("Outdegree of " + v + " must be > 0");
+      if (isDisconnectedGraphOK()) {
+        disappearing_potential += getCurrentValue(v);
+      } else {
+        throw new IllegalArgumentException("Outdegree of " + v + " must be > 0");
+      }
     }
   }
 }

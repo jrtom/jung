@@ -102,7 +102,9 @@ public class TriadicCensus {
       V v = id.get(i_v);
       for (V u : g.adjacentNodes(v)) {
         int triType = -1;
-        if (id.indexOf(u) <= i_v) continue;
+        if (id.indexOf(u) <= i_v) {
+          continue;
+        }
         Set<V> neighbors = new HashSet<V>(g.adjacentNodes(u));
         neighbors.addAll(g.adjacentNodes(v));
         neighbors.remove(u);
@@ -191,9 +193,13 @@ public class TriadicCensus {
   protected static <V, E> boolean shouldCount(Graph<V> g, List<V> id, V u, V v, V w) {
     int i_u = id.indexOf(u);
     int i_w = id.indexOf(w);
-    if (i_u < i_w) return true;
+    if (i_u < i_w) {
+      return true;
+    }
     int i_v = id.indexOf(v);
-    if ((i_v < i_w) && (i_w < i_u) && (!g.adjacentNodes(w).contains(v))) return true;
+    if ((i_v < i_w) && (i_w < i_u) && (!g.adjacentNodes(w).contains(v))) {
+      return true;
+    }
     return false;
   }
 }

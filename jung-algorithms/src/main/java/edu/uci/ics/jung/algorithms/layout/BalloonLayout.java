@@ -74,7 +74,9 @@ public class BalloonLayout<N> extends TreeLayout<N> {
   protected void setPolars(Set<N> kids, Point2D parentLocation, double parentRadius) {
 
     int childCount = kids.size();
-    if (childCount == 0) return;
+    if (childCount == 0) {
+      return;
+    }
     // handle the 1-child case with 0 limit on angle.
     double angle = Math.max(0, Math.PI / 2 * (1 - 2.0 / childCount));
     double childRadius = parentRadius * Math.cos(angle) / (1 + Math.cos(angle));

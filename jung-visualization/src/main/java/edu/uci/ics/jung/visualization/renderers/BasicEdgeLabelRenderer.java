@@ -45,7 +45,9 @@ public class BasicEdgeLabelRenderer<V, E> implements Renderer.EdgeLabel<V, E> {
 
   @Override
   public void labelEdge(E e, String label) {
-    if (label == null || label.length() == 0) return;
+    if (label == null || label.length() == 0) {
+      return;
+    }
 
     // don't draw edge if either incident vertex is not drawn
     EndpointPair<V> endpoints = renderContext.getNetwork().incidentNodes(e);

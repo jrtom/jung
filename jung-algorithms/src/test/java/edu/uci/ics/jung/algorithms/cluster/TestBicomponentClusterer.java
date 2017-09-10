@@ -118,7 +118,9 @@ public class TestBicomponentClusterer extends TestCase {
     createEdges(v, edges1, graph);
 
     List<Set<String>> c = new ArrayList<Set<String>>();
-    for (int i = 0; i < 3; i++) c.add(i, new HashSet<String>());
+    for (int i = 0; i < 3; i++) {
+      c.add(i, new HashSet<String>());
+    }
 
     c.get(0).add(v[0]);
     c.get(0).add(v[1]);
@@ -158,7 +160,9 @@ public class TestBicomponentClusterer extends TestCase {
     createEdges(v, edges1, graph);
 
     List<Set<String>> c = new ArrayList<Set<String>>();
-    for (int i = 0; i < 4; i++) c.add(i, new HashSet<String>());
+    for (int i = 0; i < 4; i++) {
+      c.add(i, new HashSet<String>());
+    }
 
     c.get(0).add(v[0]);
     c.get(0).add(v[1]);
@@ -222,11 +226,12 @@ public class TestBicomponentClusterer extends TestCase {
     List<Set<String>> clusterList = new ArrayList<Set<String>>(bicomponents);
     boolean found = false;
     for (int i = 0; i < c.size(); i++) {
-      for (int j = 0; j < bicomponents.size(); j++)
+      for (int j = 0; j < bicomponents.size(); j++) {
         if (clusterList.get(j).equals(c.get(i))) {
           found = true;
           break;
         }
+      }
       assertTrue(found);
     }
 

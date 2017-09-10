@@ -53,8 +53,11 @@ public abstract class AbstractLensSupport<V, E> implements LensSupport {
   }
 
   public void activate(boolean state) {
-    if (state) activate();
-    else deactivate();
+    if (state) {
+      activate();
+    } else {
+      deactivate();
+    }
   }
 
   public LensTransformer getLensTransformer() {

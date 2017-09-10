@@ -113,7 +113,9 @@ public class VertexShapeFactory<V> {
    * @return a regular polygon for this vertex
    */
   public Shape getRegularPolygon(V v, int num_sides) {
-    if (num_sides < 3) throw new IllegalArgumentException("Number of sides must be >= 3");
+    if (num_sides < 3) {
+      throw new IllegalArgumentException("Number of sides must be >= 3");
+    }
     Rectangle2D frame = getRectangle(v);
     float width = (float) frame.getWidth();
     float height = (float) frame.getHeight();
@@ -157,7 +159,9 @@ public class VertexShapeFactory<V> {
    * @return an star shape for this vertex
    */
   public Shape getRegularStar(V v, int num_points) {
-    if (num_points < 5) throw new IllegalArgumentException("Number of sides must be >= 5");
+    if (num_points < 5) {
+      throw new IllegalArgumentException("Number of sides must be >= 5");
+    }
     Rectangle2D frame = getRectangle(v);
     float width = (float) frame.getWidth();
     float height = (float) frame.getHeight();

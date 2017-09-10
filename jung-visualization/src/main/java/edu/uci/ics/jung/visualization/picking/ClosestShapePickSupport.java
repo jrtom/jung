@@ -105,8 +105,11 @@ public class ClosestShapePickSupport<V, E> implements NetworkElementAccessor<V, 
     double ox = x - p.getX();
     double oy = y - p.getY();
 
-    if (shape.contains(ox, oy)) return closest;
-    else return null;
+    if (shape.contains(ox, oy)) {
+      return closest;
+    } else {
+      return null;
+    }
   }
 
   /** @see edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor#getNodes(java.awt.Shape) */

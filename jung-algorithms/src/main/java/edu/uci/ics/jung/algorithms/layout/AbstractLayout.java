@@ -239,8 +239,11 @@ public abstract class AbstractLayout<N> implements Layout<N> {
    * @param state {@code true} if the node is to be locked, {@code false} if to be unlocked
    */
   public void lock(N node, boolean state) {
-    if (state == true) dontmove.add(node);
-    else dontmove.remove(node);
+    if (state == true) {
+      dontmove.add(node);
+    } else {
+      dontmove.remove(node);
+    }
   }
 
   /** @param lock {@code true} to lock all nodes in place, {@code false} to unlock all nodes */

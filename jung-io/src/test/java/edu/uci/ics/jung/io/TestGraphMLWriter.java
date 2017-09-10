@@ -78,7 +78,9 @@ public class TestGraphMLWriter extends TestCase {
     Assert.assertEquals(g_vertices, g2_vertices);
 
     Set<String> g_edges = new HashSet<String>();
-    for (Number n : g.edges()) g_edges.add(String.valueOf(n));
+    for (Number n : g.edges()) {
+      g_edges.add(String.valueOf(n));
+    }
     Set<Object> g2_edges = new HashSet<Object>(g2.edges());
     Assert.assertEquals(g_edges, g2_edges);
 
@@ -86,7 +88,9 @@ public class TestGraphMLWriter extends TestCase {
       for (T w : g2.nodes()) {
         Assert.assertEquals(g.adjacentNodes(v).contains(w), g2.adjacentNodes(v).contains(w));
         Set<String> e = new HashSet<String>();
-        for (Number n : g.edgesConnecting(v, w)) e.add(String.valueOf(n));
+        for (Number n : g.edgesConnecting(v, w)) {
+          e.add(String.valueOf(n));
+        }
         Set<Object> e2 = new HashSet<Object>(g2.edgesConnecting(v, w));
         Assert.assertEquals(e.size(), e2.size());
         Assert.assertEquals(e, e2);

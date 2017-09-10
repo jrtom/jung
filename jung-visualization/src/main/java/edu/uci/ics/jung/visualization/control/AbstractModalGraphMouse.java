@@ -237,8 +237,9 @@ public abstract class AbstractModalGraphMouse extends PluggableGraphMouse
   }
 
   public Object[] getSelectedObjects() {
-    if (mode == null) return new Object[0];
-    else {
+    if (mode == null) {
+      return new Object[0];
+    } else {
       Object result[] = new Object[1];
       result[0] = mode;
       return result;

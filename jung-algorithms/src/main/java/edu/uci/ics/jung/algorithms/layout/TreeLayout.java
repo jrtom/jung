@@ -185,12 +185,20 @@ public class TreeLayout<N> implements Layout<N> {
   protected void setCurrentPositionFor(N node) {
     int x = m_currentPoint.x;
     int y = m_currentPoint.y;
-    if (x < 0) size.width -= x;
+    if (x < 0) {
+      size.width -= x;
+    }
 
-    if (x > size.width - distX) size.width = x + distX;
+    if (x > size.width - distX) {
+      size.width = x + distX;
+    }
 
-    if (y < 0) size.height -= y;
-    if (y > size.height - distY) size.height = y + distY;
+    if (y < 0) {
+      size.height -= y;
+    }
+    if (y > size.height - distY) {
+      size.height = y + distY;
+    }
     locations.getUnchecked(node).setLocation(m_currentPoint);
   }
 

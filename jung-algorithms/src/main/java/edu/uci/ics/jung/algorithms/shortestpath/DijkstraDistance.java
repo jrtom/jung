@@ -140,7 +140,9 @@ public class DijkstraDistance<V, E> implements Distance<V> {
       to_get.addAll(targets);
       Set<V> existing_dists = sd.distances.keySet();
       for (V o : targets) {
-        if (existing_dists.contains(o)) to_get.remove(o);
+        if (existing_dists.contains(o)) {
+          to_get.remove(o);
+        }
       }
     }
 
@@ -187,7 +189,9 @@ public class DijkstraDistance<V, E> implements Distance<V> {
             } else {
               double w_dist = ((Double) sd.estimatedDistances.get(w)).doubleValue();
               if (new_dist < w_dist) // update tentative distance & path for w
-              sd.update(w, e, new_dist);
+              {
+                sd.update(w, e, new_dist);
+              }
             }
           }
         }
@@ -198,7 +202,9 @@ public class DijkstraDistance<V, E> implements Distance<V> {
 
   protected SourceData getSourceData(V source) {
     SourceData sd = sourceMap.get(source);
-    if (sd == null) sd = new SourceData(source);
+    if (sd == null) {
+      sd = new SourceData(source);
+    }
     return sd;
   }
 
@@ -253,7 +259,9 @@ public class DijkstraDistance<V, E> implements Distance<V> {
 
     Map<V, Number> distanceMap =
         singleSourceShortestPath(source, targets, Math.min(g.nodes().size(), max_targets));
-    if (!cached) reset(source);
+    if (!cached) {
+      reset(source);
+    }
 
     return distanceMap;
   }
@@ -312,7 +320,9 @@ public class DijkstraDistance<V, E> implements Distance<V> {
 
     LinkedHashMap<V, Number> distanceMap = singleSourceShortestPath(source, null, numDests);
 
-    if (!cached) reset(source);
+    if (!cached) {
+      reset(source);
+    }
 
     return distanceMap;
   }

@@ -107,7 +107,9 @@ public class DefaultEdgeLabelRenderer extends JLabel implements EdgeLabelRendere
       JComponent vv, Object value, Font font, boolean isSelected, E edge) {
 
     super.setForeground(vv.getForeground());
-    if (isSelected) setForeground(pickedEdgeLabelColor);
+    if (isSelected) {
+      setForeground(pickedEdgeLabelColor);
+    }
     super.setBackground(vv.getBackground());
 
     if (font != null) {

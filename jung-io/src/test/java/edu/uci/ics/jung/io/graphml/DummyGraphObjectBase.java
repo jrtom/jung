@@ -46,9 +46,15 @@ public class DummyGraphObjectBase {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj) return true;
-    if (obj == null) return false;
-    if (getClass() != obj.getClass()) return false;
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
     DummyGraphObjectBase other = (DummyGraphObjectBase) obj;
     return myValue == other.myValue;
   }

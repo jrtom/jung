@@ -176,7 +176,9 @@ public class GraphFromGraphMLDemo {
   public static void main(String[] args)
       throws ParserConfigurationException, SAXException, IOException {
     String filename = "simple.graphml";
-    if (args.length > 0) filename = args[0];
+    if (args.length > 0) {
+      filename = args[0];
+    }
     new GraphFromGraphMLDemo(filename);
   }
 }

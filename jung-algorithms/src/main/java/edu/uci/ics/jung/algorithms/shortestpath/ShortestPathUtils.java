@@ -37,7 +37,9 @@ public class ShortestPathUtils {
 
     Map<V, E> incomingEdges = sp.getIncomingEdgeMap(source);
 
-    if (incomingEdges.isEmpty() || incomingEdges.get(target) == null) return path;
+    if (incomingEdges.isEmpty() || incomingEdges.get(target) == null) {
+      return path;
+    }
     V current = target;
     while (!current.equals(source)) {
       E incoming = incomingEdges.get(current);

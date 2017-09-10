@@ -114,7 +114,9 @@ public class WeightedNIPaths<N, E> implements VertexScorer<N, Double> {
         incrementRankScore(graph.incidentNodes(currentEdge).target(), currentWeight);
       }
 
-      if ((currentDepth == depth) || (edges.size() == 0)) break;
+      if ((currentDepth == depth) || (edges.size() == 0)) {
+        break;
+      }
 
       List<E> newEdges = new ArrayList<E>();
 

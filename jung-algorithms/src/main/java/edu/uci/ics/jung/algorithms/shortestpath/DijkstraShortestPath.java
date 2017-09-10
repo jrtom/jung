@@ -84,7 +84,9 @@ public class DijkstraShortestPath<V, E> extends DijkstraDistance<V, E>
   @Override
   protected SourceData getSourceData(V source) {
     SourceData sd = sourceMap.get(source);
-    if (sd == null) sd = new SourcePathData(source);
+    if (sd == null) {
+      sd = new SourcePathData(source);
+    }
     return sd;
   }
 
@@ -119,7 +121,9 @@ public class DijkstraShortestPath<V, E> extends DijkstraDistance<V, E>
     Map<V, E> incomingEdgeMap = ((SourcePathData) sourceMap.get(source)).incomingEdges;
     E incomingEdge = incomingEdgeMap.get(target);
 
-    if (!cached) reset(source);
+    if (!cached) {
+      reset(source);
+    }
 
     return incomingEdge;
   }
@@ -171,7 +175,9 @@ public class DijkstraShortestPath<V, E> extends DijkstraDistance<V, E>
     @SuppressWarnings("unchecked")
     Map<V, E> incomingEdges = ((SourcePathData) sourceMap.get(source)).incomingEdges;
 
-    if (incomingEdges.isEmpty() || incomingEdges.get(target) == null) return path;
+    if (incomingEdges.isEmpty() || incomingEdges.get(target) == null) {
+      return path;
+    }
     V current = target;
     while (!current.equals(source)) {
       E incoming = incomingEdges.get(current);
@@ -212,7 +218,9 @@ public class DijkstraShortestPath<V, E> extends DijkstraDistance<V, E>
     @SuppressWarnings("unchecked")
     LinkedHashMap<V, E> incomingEdgeMap = ((SourcePathData) sourceMap.get(source)).incomingEdges;
 
-    if (!cached) reset(source);
+    if (!cached) {
+      reset(source);
+    }
 
     return incomingEdgeMap;
   }

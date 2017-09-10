@@ -131,15 +131,19 @@ public class RadiusNetworkElementAccessor<N, E> implements NetworkElementAccesso
           double y2 = p2.getY();
           // Calculate location on line closest to (x,y)
           // First, check that v1 and v2 are not coincident.
-          if (x1 == x2 && y1 == y2) continue;
+          if (x1 == x2 && y1 == y2) {
+            continue;
+          }
           double b =
               ((y - y1) * (y2 - y1) + (x - x1) * (x2 - x1))
                   / ((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
           //
           double distance2; // square of the distance
-          if (b <= 0) distance2 = (x - x1) * (x - x1) + (y - y1) * (y - y1);
-          else if (b >= 1) distance2 = (x - x2) * (x - x2) + (y - y2) * (y - y2);
-          else {
+          if (b <= 0) {
+            distance2 = (x - x1) * (x - x1) + (y - y1) * (y - y1);
+          } else if (b >= 1) {
+            distance2 = (x - x2) * (x - x2) + (y - y2) * (y - y2);
+          } else {
             double x3 = x1 + b * (x2 - x1);
             double y3 = y1 + b * (y2 - y1);
             distance2 = (x - x3) * (x - x3) + (y - y3) * (y - y3);

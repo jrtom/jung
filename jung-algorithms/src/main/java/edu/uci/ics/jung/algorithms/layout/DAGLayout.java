@@ -103,12 +103,17 @@ public class DAGLayout<N> extends SpringLayout<N> {
     for (N child : graph.predecessors(node)) {
       int oldLevel, newLevel;
       Number o = minLevels.get(child);
-      if (o != null) oldLevel = o.intValue();
-      else oldLevel = 0;
+      if (o != null) {
+        oldLevel = o.intValue();
+      } else {
+        oldLevel = 0;
+      }
       newLevel = Math.max(oldLevel, level + 1);
       minLevels.put(child, new Integer(newLevel));
 
-      if (newLevel > graphHeight) graphHeight = newLevel;
+      if (newLevel > graphHeight) {
+        graphHeight = newLevel;
+      }
       propagateMinimumLevel(child);
     }
   }
@@ -157,7 +162,9 @@ public class DAGLayout<N> extends SpringLayout<N> {
 
     synchronized (getSize()) {
       for (N node : nodes()) {
-        if (isLocked(node)) continue;
+        if (isLocked(node)) {
+          continue;
+        }
         SpringLayout.SpringNodeData vd = springNodeData.getUnchecked(node);
         Point2D xyd = apply(node);
 
@@ -177,7 +184,9 @@ public class DAGLayout<N> extends SpringLayout<N> {
         // height.
         double delta = xyd.getY() - minY;
         vd.dy -= delta * LEVELATTRACTIONRATE;
-        if (level == 0) vd.dy -= delta * LEVELATTRACTIONRATE;
+        if (level == 0) {
+          vd.dy -= delta * LEVELATTRACTIONRATE;
+        }
         // twice as much at the top.
 
         // JY addition:
@@ -215,15 +224,20 @@ public class DAGLayout<N> extends SpringLayout<N> {
       incrementsLeft = COOL_DOWN_INCREMENTS;
     } else if (stoppingIncrements && Math.abs(meanSquareVel - oldMSV) <= MSV_THRESHOLD) {
       incrementsLeft--;
-      if (incrementsLeft <= 0) incrementsLeft = 0;
+      if (incrementsLeft <= 0) {
+        incrementsLeft = 0;
+      }
     }
   }
 
   /** Override incrementsAreDone so that we can eventually stop. */
   @Override
   public boolean done() {
-    if (stoppingIncrements && incrementsLeft == 0) return true;
-    else return false;
+    if (stoppingIncrements && incrementsLeft == 0) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   /**
@@ -285,7 +299,9 @@ public class DAGLayout<N> extends SpringLayout<N> {
 
       // JY addition. If this is an edge which stretches a long way,
       // don't be so concerned about it.
-      if (level1 != level2) f = f / Math.pow(Math.abs(level2 - level1), 1.5);
+      if (level1 != level2) {
+        f = f / Math.pow(Math.abs(level2 - level1), 1.5);
+      }
 
       // the actual movement distance 'dx' is the force multiplied by the
       // distance to go.

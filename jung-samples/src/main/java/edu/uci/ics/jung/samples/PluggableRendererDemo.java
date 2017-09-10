@@ -350,15 +350,20 @@ public class PluggableRendererDemo extends JApplet implements ActionListener {
     // collect the seeds used to define the random graph
     seedVertices = generator.seedNodes();
 
-    if (seedVertices.size() < 2) System.out.println("need at least 2 seeds (one source, one sink)");
+    if (seedVertices.size() < 2) {
+      System.out.println("need at least 2 seeds (one source, one sink)");
+    }
 
     // use these seeds as source and sink vertices, run VoltageRanker
     boolean source = true;
     Set<Integer> sources = new HashSet<Integer>();
     Set<Integer> sinks = new HashSet<Integer>();
     for (Integer v : seedVertices) {
-      if (source) sources.add(v);
-      else sinks.add(v);
+      if (source) {
+        sources.add(v);
+      } else {
+        sinks.add(v);
+      }
       source = !source;
     }
     VoltageScorer<Integer, Number> voltage_scores =
@@ -599,11 +604,17 @@ public class PluggableRendererDemo extends JApplet implements ActionListener {
     } else if (source == v_stroke) {
       vsh.setHighlight(source.isSelected());
     } else if (source == v_labels) {
-      if (source.isSelected()) vv.getRenderContext().setVertexLabelTransformer(vs);
-      else vv.getRenderContext().setVertexLabelTransformer(vs_none);
+      if (source.isSelected()) {
+        vv.getRenderContext().setVertexLabelTransformer(vs);
+      } else {
+        vv.getRenderContext().setVertexLabelTransformer(vs_none);
+      }
     } else if (source == e_labels) {
-      if (source.isSelected()) vv.getRenderContext().setEdgeLabelTransformer(es);
-      else vv.getRenderContext().setEdgeLabelTransformer(es_none);
+      if (source.isSelected()) {
+        vv.getRenderContext().setEdgeLabelTransformer(es);
+      } else {
+        vv.getRenderContext().setEdgeLabelTransformer(es_none);
+      }
     } else if (source == e_arrow_centered) {
       if (source.isSelected()) {
         vv.getRenderer()
@@ -628,11 +639,13 @@ public class PluggableRendererDemo extends JApplet implements ActionListener {
         vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.line(graph));
       }
     } else if (source == e_ortho) {
-      if (source.isSelected())
+      if (source.isSelected()) {
         vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.orthogonal(graph));
+      }
     } else if (source == e_wedge) {
-      if (source.isSelected())
+      if (source.isSelected()) {
         vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.wedge(graph, 10));
+      }
     }
     //        else if (source == e_bent)
     //        {
@@ -703,7 +716,9 @@ public class PluggableRendererDemo extends JApplet implements ActionListener {
           Color dark = new Color(0, 0, dark_value, alpha);
           Color light = new Color(0, 0, light_value, alpha);
           return new GradientPaint(0, 0, dark, 10, 0, light, true);
-        } else return new Color(1f, 0, 0, alpha);
+        } else {
+          return new Color(1f, 0, 0, alpha);
+        }
       }
     }
   }
@@ -726,15 +741,23 @@ public class PluggableRendererDemo extends JApplet implements ActionListener {
 
     public Stroke apply(E e) {
       if (weighted) {
-        if (drawHeavy(e)) return heavy;
-        else return dotted;
-      } else return basic;
+        if (drawHeavy(e)) {
+          return heavy;
+        } else {
+          return dotted;
+        }
+      } else {
+        return basic;
+      }
     }
 
     protected boolean drawHeavy(E e) {
       double value = edge_weight.get(e).doubleValue();
-      if (value > 0.7) return true;
-      else return false;
+      if (value > 0.7) {
+        return true;
+      } else {
+        return false;
+      }
     }
   }
 
@@ -757,14 +780,19 @@ public class PluggableRendererDemo extends JApplet implements ActionListener {
 
     public Stroke apply(V v) {
       if (highlight) {
-        if (pi.isPicked(v)) return heavy;
-        else {
+        if (pi.isPicked(v)) {
+          return heavy;
+        } else {
           for (V w : graph.adjacentNodes(v)) {
-            if (pi.isPicked(w)) return medium;
+            if (pi.isPicked(w)) {
+              return medium;
+            }
           }
           return light;
         }
-      } else return light;
+      } else {
+        return light;
+      }
     }
   }
 
@@ -778,8 +806,11 @@ public class PluggableRendererDemo extends JApplet implements ActionListener {
     }
 
     public Font apply(V v) {
-      if (bold) return b;
-      else return f;
+      if (bold) {
+        return b;
+      } else {
+        return f;
+      }
     }
   }
 
@@ -793,8 +824,11 @@ public class PluggableRendererDemo extends JApplet implements ActionListener {
     }
 
     public Font apply(E e) {
-      if (bold) return b;
-      else return f;
+      if (bold) {
+        return b;
+      } else {
+        return f;
+      }
     }
   }
 
@@ -858,8 +892,11 @@ public class PluggableRendererDemo extends JApplet implements ActionListener {
           new Function<V, Integer>() {
 
             public Integer apply(V v) {
-              if (scale) return (int) (voltages.apply(v) * 30) + 20;
-              else return 20;
+              if (scale) {
+                return (int) (voltages.apply(v) * 30) + 20;
+              } else {
+                return 20;
+              }
             }
           });
       setAspectRatioTransformer(
@@ -892,8 +929,12 @@ public class PluggableRendererDemo extends JApplet implements ActionListener {
         if (graph.degree(v) < 5) {
           int sides = Math.max(graph.degree(v), 3);
           return factory.getRegularPolygon(v, sides);
-        } else return factory.getRegularStar(v, graph.degree(v));
-      } else return factory.getEllipse(v);
+        } else {
+          return factory.getRegularStar(v, graph.degree(v));
+        }
+      } else {
+        return factory.getEllipse(v);
+      }
     }
   }
 

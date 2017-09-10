@@ -166,7 +166,9 @@ public class PajekNetReader<G extends MutableNetwork<V, E>, V, E> {
    * @throws IOException if the graph cannot be loaded
    */
   public G load(String filename, G g) throws IOException {
-    if (g == null) throw new IllegalArgumentException("Graph provided must be non-null");
+    if (g == null) {
+      throw new IllegalArgumentException("Graph provided must be non-null");
+    }
     return load(new FileReader(filename), g);
   }
 
@@ -191,8 +193,9 @@ public class PajekNetReader<G extends MutableNetwork<V, E>, V, E> {
     // ignore everything until we see '*Vertices'
     String curLine = skip(br, v_pred);
 
-    if (curLine == null) // no vertices in the graph; return empty graph
-    return g;
+    if (curLine == null) { // no vertices in the graph; return empty graph
+      return g;
+    }
 
     // create appropriate number of vertices
     StringTokenizer st = new StringTokenizer(curLine);
@@ -201,7 +204,9 @@ public class PajekNetReader<G extends MutableNetwork<V, E>, V, E> {
     List<V> id = null;
     // TODO: under what circumstances (if any) is it reasonable for vertex_factory to be null?
     if (vertex_factory != null) {
-      for (int i = 1; i <= num_vertices; i++) g.addNode(vertex_factory.get());
+      for (int i = 1; i <= num_vertices; i++) {
+        g.addNode(vertex_factory.get());
+      }
       id = new ArrayList<V>(g.nodes());
     }
 
@@ -209,9 +214,12 @@ public class PajekNetReader<G extends MutableNetwork<V, E>, V, E> {
     curLine = null;
     while (br.ready()) {
       curLine = br.readLine();
-      if (curLine == null || t_pred.apply(curLine)) break;
-      if (curLine == "") // skip blank lines
-      continue;
+      if (curLine == null || t_pred.apply(curLine)) {
+        break;
+      }
+      if (curLine == "") { // skip blank lines
+        continue;
+      }
 
       try {
         readVertex(curLine, id, num_vertices);
@@ -250,15 +258,17 @@ public class PajekNetReader<G extends MutableNetwork<V, E>, V, E> {
     if (curLine.indexOf('"') != -1) {
       String[] initial_split = curLine.trim().split("\"");
       // if there are any quote marks, there should be exactly 2
-      if (initial_split.length < 2 || initial_split.length > 3)
+      if (initial_split.length < 2 || initial_split.length > 3) {
         throw new IllegalArgumentException(
             "Unbalanced (or too many) " + "quote marks in " + curLine);
+      }
       index = initial_split[0].trim();
       label = initial_split[1].trim();
-      if (initial_split.length == 3) parts = initial_split[2].trim().split("\\s+", -1);
+      if (initial_split.length == 3) {
+        parts = initial_split[2].trim().split("\\s+", -1);
+      }
       coord_idx = 0;
-    } else // no quote marks, but are there coordinates?
-    {
+    } else { // no quote marks, but are there coordinates?
       parts = curLine.trim().split("\\s+", -1);
       index = parts[0];
       switch (parts.length) {
@@ -276,13 +286,19 @@ public class PajekNetReader<G extends MutableNetwork<V, E>, V, E> {
       }
     }
     int v_id = Integer.parseInt(index) - 1; // go from 1-based to 0-based index
-    if (v_id >= num_vertices || v_id < 0)
+    if (v_id >= num_vertices || v_id < 0) {
       throw new IllegalArgumentException(
           "Vertex number " + v_id + "is not in the range [1," + num_vertices + "]");
-    if (id != null) v = id.get(v_id);
-    else v = (V) (new Integer(v_id));
+    }
+    if (id != null) {
+      v = id.get(v_id);
+    } else {
+      v = (V) (new Integer(v_id));
+    }
     // only attach the label if there's one to attach
-    if (label != null && label.length() > 0 && vertex_labels != null) vertex_labels.set(v, label);
+    if (label != null && label.length() > 0 && vertex_labels != null) {
+      vertex_labels.set(v, label);
+    }
 
     // parse the rest of the line
     if (coord_idx != -1
@@ -306,7 +322,9 @@ public class PajekNetReader<G extends MutableNetwork<V, E>, V, E> {
     String nextLine = curLine;
 
     // in case we're not there yet (i.e., format tag isn't arcs or edges)
-    if (!c_pred.apply(curLine)) nextLine = skip(br, c_pred);
+    if (!c_pred.apply(curLine)) {
+      nextLine = skip(br, c_pred);
+    }
 
     boolean reading_arcs = false;
     boolean reading_edges = false;
@@ -322,15 +340,20 @@ public class PajekNetReader<G extends MutableNetwork<V, E>, V, E> {
       reading_edges = true;
     }
 
-    if (!(reading_arcs || reading_edges)) return nextLine;
+    if (!(reading_arcs || reading_edges)) {
+      return nextLine;
+    }
 
     boolean is_list = l_pred.apply(nextLine);
 
     while (br.ready()) {
       nextLine = br.readLine();
-      if (nextLine == null || t_pred.apply(nextLine)) break;
-      if (curLine == "") // skip blank lines
-      continue;
+      if (nextLine == null || t_pred.apply(nextLine)) {
+        break;
+      }
+      if (curLine == "") { // skip blank lines
+        continue;
+      }
 
       StringTokenizer st = new StringTokenizer(nextLine.trim());
 
@@ -339,21 +362,21 @@ public class PajekNetReader<G extends MutableNetwork<V, E>, V, E> {
       V v1;
       if (id != null) {
         v1 = id.get(vid1);
-      } else
+      } else {
         // TODO: wat (look for other (V) casts also)
         v1 = (V) new Integer(vid1);
+      }
 
-      if (is_list) // one source, multiple destinations
-      {
+      if (is_list) { // one source, multiple destinations
         do {
           createAddEdge(st, v1, g, id, edge_factory);
         } while (st.hasMoreTokens());
-      } else // one source, one destination, at most one weight
-      {
+      } else { // one source, one destination, at most one weight
         E e = createAddEdge(st, v1, g, id, edge_factory);
         // get the edge weight if we care
-        if (edge_weights != null && st.hasMoreTokens())
+        if (edge_weights != null && st.hasMoreTokens()) {
           edge_weights.set(e, new Float(st.nextToken()));
+        }
       }
     }
     return nextLine;
@@ -364,8 +387,11 @@ public class PajekNetReader<G extends MutableNetwork<V, E>, V, E> {
       StringTokenizer st, V v1, MutableNetwork<V, E> g, List<V> id, Supplier<E> edge_factory) {
     int vid2 = Integer.parseInt(st.nextToken()) - 1;
     V v2;
-    if (id != null) v2 = id.get(vid2);
-    else v2 = (V) new Integer(vid2);
+    if (id != null) {
+      v2 = id.get(vid2);
+    } else {
+      v2 = (V) new Integer(vid2);
+    }
     E e = edge_factory.get();
 
     // don't error-check this: let the graph implementation do whatever it's going to do
@@ -386,9 +412,13 @@ public class PajekNetReader<G extends MutableNetwork<V, E>, V, E> {
   protected String skip(BufferedReader br, Predicate<String> p) throws IOException {
     while (br.ready()) {
       String curLine = br.readLine();
-      if (curLine == null) break;
+      if (curLine == null) {
+        break;
+      }
       curLine = curLine.trim();
-      if (p.apply(curLine)) return curLine;
+      if (p.apply(curLine)) {
+        return curLine;
+      }
     }
     return null;
   }
@@ -422,7 +452,9 @@ public class PajekNetReader<G extends MutableNetwork<V, E>, V, E> {
     protected ListTagPred() {}
 
     protected static ListTagPred getInstance() {
-      if (instance == null) instance = new ListTagPred();
+      if (instance == null) {
+        instance = new ListTagPred();
+      }
       return instance;
     }
 

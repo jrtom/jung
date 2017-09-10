@@ -121,7 +121,9 @@ public class VisRunner implements Relaxer, Runnable {
         }
         process.step();
 
-        if (stop) return;
+        if (stop) {
+          return;
+        }
 
         try {
           Thread.sleep(sleepTime);

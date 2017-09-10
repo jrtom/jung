@@ -138,7 +138,9 @@ public class ReshapingEdgeRenderer<V, E> extends BasicEdgeRenderer<V, E>
       float scalex = (float) g.getTransform().getScaleX();
       float scaley = (float) g.getTransform().getScaleY();
       // see if arrows are too small to bother drawing
-      if (scalex < .3 || scaley < .3) return;
+      if (scalex < .3 || scaley < .3) {
+        return;
+      }
 
       if (renderContext.renderEdgeArrow()) {
 
@@ -158,7 +160,9 @@ public class ReshapingEdgeRenderer<V, E> extends BasicEdgeRenderer<V, E>
           AffineTransform at =
               edgeArrowRenderingSupport.getArrowTransform(
                   renderContext, new GeneralPath(edgeShape), destVertexShape);
-          if (at == null) return;
+          if (at == null) {
+            return;
+          }
           Shape arrow = renderContext.getEdgeArrow();
           arrow = at.createTransformedShape(arrow);
           g.setPaint(renderContext.getArrowFillPaintTransformer().apply(e));
@@ -182,7 +186,9 @@ public class ReshapingEdgeRenderer<V, E> extends BasicEdgeRenderer<V, E>
             AffineTransform at =
                 edgeArrowRenderingSupport.getReverseArrowTransform(
                     renderContext, new GeneralPath(edgeShape), vertexShape, !isLoop);
-            if (at == null) return;
+            if (at == null) {
+              return;
+            }
             Shape arrow = renderContext.getEdgeArrow();
             arrow = at.createTransformedShape(arrow);
             g.setPaint(renderContext.getArrowFillPaintTransformer().apply(e));
@@ -193,7 +199,9 @@ public class ReshapingEdgeRenderer<V, E> extends BasicEdgeRenderer<V, E>
         }
       }
       // use existing paint for text if no draw paint specified
-      if (draw_paint == null) g.setPaint(oldPaint);
+      if (draw_paint == null) {
+        g.setPaint(oldPaint);
+      }
 
       // restore old paint
       g.setPaint(oldPaint);

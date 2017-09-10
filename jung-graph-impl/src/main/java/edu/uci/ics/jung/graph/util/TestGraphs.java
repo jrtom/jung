@@ -153,7 +153,9 @@ public class TestGraphs {
     // and, last, a partial clique
     for (int i = 11; i <= 20; i++) {
       for (int j = i + 1; j <= 20; j++) {
-        if (Math.random() > 0.6) continue;
+        if (Math.random() > 0.6) {
+          continue;
+        }
         String i1 = "" + i;
         String i2 = "" + j;
         g.addEdge(i1, i2, Math.pow(i + 2, j));
@@ -197,7 +199,9 @@ public class TestGraphs {
     // and, last, a partial clique
     for (int i = 11; i <= 20; i++) {
       for (int j = i + 1; j <= 20; j++) {
-        if (Math.random() > 0.6) continue;
+        if (Math.random() > 0.6) {
+          continue;
+        }
         String i1 = "p" + i;
         String i2 = "p" + j;
         g.addEdge(i1, i2, Math.pow(i + 2, j));

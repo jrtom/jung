@@ -92,7 +92,9 @@ public class DefaultVertexLabelRenderer extends JLabel
       JComponent vv, Object value, Font font, boolean isSelected, V vertex) {
 
     super.setForeground(vv.getForeground());
-    if (isSelected) setForeground(pickedVertexLabelColor);
+    if (isSelected) {
+      setForeground(pickedVertexLabelColor);
+    }
     super.setBackground(vv.getBackground());
     if (font != null) {
       setFont(font);

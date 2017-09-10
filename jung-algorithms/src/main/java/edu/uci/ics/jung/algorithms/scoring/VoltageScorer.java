@@ -87,7 +87,9 @@ public class VoltageScorer<V, E> extends AbstractIterativeScorer<V, E, Double>
     super(g, edge_weights);
 
     Map<V, Double> unit_voltages = new HashMap<V, Double>();
-    for (V v : sources) unit_voltages.put(v, new Double(1.0));
+    for (V v : sources) {
+      unit_voltages.put(v, new Double(1.0));
+    }
     this.source_voltages = unit_voltages;
     this.sinks = sinks;
     initialize();
@@ -105,7 +107,9 @@ public class VoltageScorer<V, E> extends AbstractIterativeScorer<V, E, Double>
     super(g);
 
     Map<V, Double> unit_voltages = new HashMap<V, Double>();
-    for (V v : sources) unit_voltages.put(v, new Double(1.0));
+    for (V v : sources) {
+      unit_voltages.put(v, new Double(1.0));
+    }
     this.source_voltages = unit_voltages;
     this.sinks = sinks;
     initialize();
@@ -175,18 +179,23 @@ public class VoltageScorer<V, E> extends AbstractIterativeScorer<V, E, Double>
 
     for (Map.Entry<V, ? extends Number> entry : source_voltages.entrySet()) {
       V v = entry.getKey();
-      if (sinks.contains(v))
+      if (sinks.contains(v)) {
         throw new IllegalArgumentException(
             "Vertex " + v + " is incorrectly specified as both source and sink");
+      }
       double value = entry.getValue().doubleValue();
-      if (value <= 0)
+      if (value <= 0) {
         throw new IllegalArgumentException("Source vertex " + v + " has negative voltage");
+      }
     }
 
     // set up initial voltages
     for (V v : graph.nodes()) {
-      if (source_voltages.containsKey(v)) setOutputValue(v, source_voltages.get(v).doubleValue());
-      else setOutputValue(v, 0.0);
+      if (source_voltages.containsKey(v)) {
+        setOutputValue(v, source_voltages.get(v).doubleValue());
+      } else {
+        setOutputValue(v, 0.0);
+      }
     }
   }
 

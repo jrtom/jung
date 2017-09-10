@@ -50,7 +50,9 @@ public class BicomponentClusterer<V, E> implements Function<Graph<V>, Set<Set<V>
   public Set<Set<V>> apply(Graph<V> graph) {
     Set<Set<V>> bicomponents = new LinkedHashSet<Set<V>>();
 
-    if (graph.nodes().isEmpty()) return bicomponents;
+    if (graph.nodes().isEmpty()) {
+      return bicomponents;
+    }
 
     // initialize DFS number for each vertex to 0
     dfs_num = new HashMap<V, Number>();
@@ -59,8 +61,7 @@ public class BicomponentClusterer<V, E> implements Function<Graph<V>, Set<Set<V>
     }
 
     for (V v : graph.nodes()) {
-      if (dfs_num.get(v).intValue() == 0) // if we haven't hit this vertex yet...
-      {
+      if (dfs_num.get(v).intValue() == 0) { // if we haven't hit this vertex yet...
         high = new HashMap<V, Number>();
         stack = new Stack<EndpointPair<V>>();
         parents = new HashMap<V, V>();
@@ -116,8 +117,7 @@ public class BicomponentClusterer<V, E> implements Function<Graph<V>, Set<Set<V>
     for (V w : g.adjacentNodes(v)) {
       int w_dfs_num = dfs_num.get(w).intValue();
       EndpointPair<V> vw = EndpointPair.unordered(v, w);
-      if (w_dfs_num == 0) // w hasn't yet been visited
-      {
+      if (w_dfs_num == 0) { // w hasn't yet been visited
         parents.put(w, v); // v is w's parent in the DFS tree
         stack.push(vw);
         findBiconnectedComponents(g, w, bicomponents);
@@ -137,8 +137,9 @@ public class BicomponentClusterer<V, E> implements Function<Graph<V>, Set<Set<V>
           bicomponents.add(bicomponent);
         }
         high.put(v, Math.max(w_high, high.get(v).intValue()));
-      } else if (w != parents.get(v)) // (v,w) is a back or a forward edge
-      high.put(v, Math.max(w_dfs_num, high.get(v).intValue()));
+      } else if (w != parents.get(v)) { // (v,w) is a back or a forward edge
+        high.put(v, Math.max(w_dfs_num, high.get(v).intValue()));
+      }
     }
   }
 }
