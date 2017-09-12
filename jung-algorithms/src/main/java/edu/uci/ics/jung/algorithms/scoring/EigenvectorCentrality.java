@@ -11,8 +11,8 @@
  */
 package edu.uci.ics.jung.algorithms.scoring;
 
-import com.google.common.base.Function;
 import com.google.common.graph.Network;
+import java.util.function.Function;
 
 /**
  * Calculates eigenvector centrality for each vertex in the graph. The 'eigenvector centrality' for

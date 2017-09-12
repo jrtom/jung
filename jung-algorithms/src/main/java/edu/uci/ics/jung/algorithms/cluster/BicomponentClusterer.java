@@ -9,7 +9,6 @@
  */
 package edu.uci.ics.jung.algorithms.cluster;
 
-import com.google.common.base.Function;
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Graph;
 import java.util.HashMap;
@@ -18,6 +17,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.function.Function;
 
 /**
  * Finds all biconnected components (bicomponents) of an graph, <b>ignoring edge direction</b>. A

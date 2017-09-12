@@ -9,7 +9,6 @@
  */
 package edu.uci.ics.jung.algorithms.flows;
 
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
 import com.google.common.graph.EndpointPair;
@@ -23,6 +22,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
  * Implements the Edmonds-Karp maximum flow algorithm for solving the maximum flow problem. After

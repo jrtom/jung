@@ -10,7 +10,6 @@
  */
 package edu.uci.ics.jung.algorithms.blockmodel;
 
-import com.google.common.base.Function;
 import com.google.common.graph.Graph;
 import edu.uci.ics.jung.graph.util.Pair;
 import java.util.ArrayList;
@@ -22,6 +21,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
  * Identifies sets of structurally equivalent vertices in a graph. Vertices <i> i</i> and <i>j</i>

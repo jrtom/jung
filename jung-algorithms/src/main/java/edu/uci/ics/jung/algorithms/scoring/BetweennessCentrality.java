@@ -10,8 +10,6 @@
  */
 package edu.uci.ics.jung.algorithms.scoring;
 
-import com.google.common.base.Function;
-import com.google.common.base.Functions;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.algorithms.util.MapBinaryHeap;
 import java.util.ArrayList;
@@ -22,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Stack;
+import java.util.function.Function;
 
 /**
  * Computes betweenness centrality for each vertex and edge in the graph.
@@ -42,7 +41,7 @@ public class BetweennessCentrality<V, E> implements VertexScorer<V, Double>, Edg
    */
   public BetweennessCentrality(Network<V, E> graph) {
     initialize(graph);
-    computeBetweenness(new LinkedList<V>(), Functions.<Integer>constant(1));
+    computeBetweenness(new LinkedList<V>(), n -> 1);
   }
 
   /**

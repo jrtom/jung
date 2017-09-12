@@ -8,8 +8,8 @@
  */
 package edu.uci.ics.jung.algorithms.scoring.util;
 
-import com.google.common.base.Function;
 import com.google.common.graph.Network;
+import java.util.function.Function;
 
 /**
  * An edge weight function that assigns weights as uniform transition probabilities:

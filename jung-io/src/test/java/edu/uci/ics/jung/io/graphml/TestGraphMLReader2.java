@@ -10,7 +10,6 @@
 
 package edu.uci.ics.jung.io.graphml;
 
-import com.google.common.base.Function;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.io.GraphIOException;
@@ -22,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Function;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;

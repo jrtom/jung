@@ -11,8 +11,8 @@
  */
 package edu.uci.ics.jung.visualization.decorators;
 
-import com.google.common.base.Function;
 import java.awt.Shape;
+import java.util.function.Function;
 
 /** @author Joshua O'Madadhain */
 public class EllipseVertexShapeTransformer<V> extends AbstractVertexShapeTransformer<V>

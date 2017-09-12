@@ -11,8 +11,6 @@
  */
 package edu.uci.ics.jung.io;
 
-import com.google.common.base.Function;
-import com.google.common.base.Functions;
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Network;
 import java.io.BufferedWriter;
@@ -21,6 +19,7 @@ import java.io.Writer;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * Writes graphs out in GraphML format.
@@ -45,19 +44,14 @@ public class GraphMLWriter<V, E> {
   protected int nest_level;
 
   public GraphMLWriter() {
-    vertex_ids =
-        new Function<V, String>() {
-          public String apply(V v) {
-            return v.toString();
-          }
-        };
-    edge_ids = Functions.constant(null);
+    vertex_ids = V::toString;
+    edge_ids = e -> null;
     graph_data = Collections.emptyMap();
     vertex_data = Collections.emptyMap();
     edge_data = Collections.emptyMap();
-    vertex_desc = Functions.constant(null);
-    edge_desc = Functions.constant(null);
-    graph_desc = Functions.constant(null);
+    vertex_desc = n -> null;
+    edge_desc = e -> null;
+    graph_desc = g -> null;
     nest_level = 0;
   }
 

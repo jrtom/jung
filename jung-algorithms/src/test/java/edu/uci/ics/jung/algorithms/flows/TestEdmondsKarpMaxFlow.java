@@ -9,7 +9,6 @@
  */
 package edu.uci.ics.jung.algorithms.flows;
 
-import com.google.common.base.Functions;
 import com.google.common.base.Supplier;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.NetworkBuilder;
@@ -110,12 +109,7 @@ public class TestEdmondsKarpMaxFlow extends TestCase {
 
     EdmondsKarpMaxFlow<Number, Number> ek =
         new EdmondsKarpMaxFlow<Number, Number>(
-            graph,
-            0,
-            5,
-            Functions.<Number, Integer>forMap(edgeCapacityMap, null),
-            edgeFlowMap,
-            edgeFactory);
+            graph, 0, 5, n -> edgeCapacityMap.get(n), edgeFlowMap, edgeFactory);
     ek.evaluate();
 
     assertTrue(ek.getMaxFlow() == 23);
@@ -190,12 +184,7 @@ public class TestEdmondsKarpMaxFlow extends TestCase {
 
     EdmondsKarpMaxFlow<Number, Number> ek =
         new EdmondsKarpMaxFlow<Number, Number>(
-            graph,
-            0,
-            5,
-            Functions.<Number, Integer>forMap(edgeCapacityMap, null),
-            edgeFlowMap,
-            edgeFactory);
+            graph, 0, 5, n -> edgeCapacityMap.get(n), edgeFlowMap, edgeFactory);
     ek.evaluate();
 
     assertTrue(ek.getMaxFlow() == 7);

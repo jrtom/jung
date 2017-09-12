@@ -10,13 +10,13 @@
 
 package edu.uci.ics.jung.visualization.decorators;
 
-import com.google.common.base.Function;
 import edu.uci.ics.jung.visualization.util.ImageShapeUtils;
 import java.awt.Image;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 

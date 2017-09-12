@@ -10,8 +10,6 @@
  */
 package edu.uci.ics.jung.algorithms.layout;
 
-import com.google.common.base.Function;
-import com.google.common.base.Functions;
 import com.google.common.base.Preconditions;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -22,6 +20,7 @@ import java.awt.geom.Point2D;
 import java.util.ConcurrentModificationException;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
  * Abstract class for implementations of {@code Layout}. It handles some of the basic functions:
@@ -70,9 +69,8 @@ public abstract class AbstractLayout<N> implements Layout<N> {
    */
   protected AbstractLayout(Graph<N> graph, Function<N, Point2D> initializer) {
     this.nodes = graph.nodes();
-    Function<N, Point2D> chain =
-        Functions.<N, Point2D, Point2D>compose(p -> (Point2D) p.clone(), initializer);
-    this.locations = CacheBuilder.newBuilder().build(CacheLoader.from(chain));
+    Function<N, Point2D> chain = initializer.andThen(p -> (Point2D) p.clone());
+    this.locations = CacheBuilder.newBuilder().build(CacheLoader.from(chain::apply));
     initialized = true;
   }
 
@@ -97,9 +95,8 @@ public abstract class AbstractLayout<N> implements Layout<N> {
    */
   protected AbstractLayout(Graph<N> graph, Function<N, Point2D> initializer, Dimension size) {
     this.nodes = graph.nodes();
-    Function<N, Point2D> chain =
-        Functions.<N, Point2D, Point2D>compose(p -> (Point2D) p.clone(), initializer);
-    this.locations = CacheBuilder.newBuilder().build(CacheLoader.from(chain));
+    Function<N, Point2D> chain = initializer.andThen(p -> (Point2D) p.clone());
+    this.locations = CacheBuilder.newBuilder().build(CacheLoader.from(chain::apply));
     this.size = size;
   }
 
@@ -144,9 +141,8 @@ public abstract class AbstractLayout<N> implements Layout<N> {
     if (this.equals(initializer)) {
       throw new IllegalArgumentException("Layout cannot be initialized with itself");
     }
-    Function<N, Point2D> chain =
-        Functions.<N, Point2D, Point2D>compose(p -> (Point2D) p.clone(), initializer);
-    this.locations = CacheBuilder.newBuilder().build(CacheLoader.from(chain));
+    Function<N, Point2D> chain = initializer.andThen(p -> (Point2D) p.clone());
+    this.locations = CacheBuilder.newBuilder().build(CacheLoader.from(chain::apply));
     initialized = true;
   }
 

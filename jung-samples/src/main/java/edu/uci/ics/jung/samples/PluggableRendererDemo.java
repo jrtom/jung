@@ -10,8 +10,6 @@
  */
 package edu.uci.ics.jung.samples;
 
-import com.google.common.base.Function;
-import com.google.common.base.Functions;
 import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
 import com.google.common.graph.MutableNetwork;
@@ -67,6 +65,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
@@ -256,8 +255,8 @@ public class PluggableRendererDemo extends JApplet implements ActionListener {
     vsh = new VertexStrokeHighlight<Integer, Number>(graph, picked_state);
     vff = new VertexFontTransformer<Integer>();
     eff = new EdgeFontTransformer<Number>();
-    vs_none = Functions.constant(null);
-    es_none = Functions.constant(null);
+    vs_none = n -> null;
+    es_none = e -> null;
     vssa = new VertexShapeSizeAspect<Integer, Number>(graph, voltages);
     show_vertex = new VertexDisplayPredicate<Integer>(graph, false);
     show_edge = new EdgeDisplayPredicate<Number>(edge_weight, false);
@@ -289,8 +288,8 @@ public class PluggableRendererDemo extends JApplet implements ActionListener {
     vv.getRenderContext().setEdgeIncludePredicate(show_edge);
     vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.line(graph));
 
-    vv.getRenderContext().setArrowFillPaintTransformer(Functions.<Paint>constant(Color.lightGray));
-    vv.getRenderContext().setArrowDrawPaintTransformer(Functions.<Paint>constant(Color.black));
+    vv.getRenderContext().setArrowFillPaintTransformer(n -> Color.lightGray);
+    vv.getRenderContext().setArrowDrawPaintTransformer(n -> Color.black);
     JPanel jp = new JPanel();
     jp.setLayout(new BorderLayout());
 
@@ -345,7 +344,7 @@ public class PluggableRendererDemo extends JApplet implements ActionListener {
     for (Number e : g.edges()) {
       edge_weight.put(e, Math.random());
     }
-    es = new NumberFormattingTransformer<Number>(Functions.forMap(edge_weight));
+    es = new NumberFormattingTransformer<Number>(edge_weight::get);
 
     // collect the seeds used to define the random graph
     seedVertices = generator.seedNodes();
@@ -367,7 +366,7 @@ public class PluggableRendererDemo extends JApplet implements ActionListener {
       source = !source;
     }
     VoltageScorer<Integer, Number> voltage_scores =
-        new VoltageScorer<Integer, Number>(g, Functions.forMap(edge_weight), sources, sinks);
+        new VoltageScorer<Integer, Number>(g, edge_weight::get, sources, sinks);
     voltage_scores.evaluate();
     voltages = new VertexScoreTransformer<Integer, Double>(voltage_scores);
     vs = new NumberFormattingTransformer<Integer>(voltages);
@@ -677,11 +676,8 @@ public class PluggableRendererDemo extends JApplet implements ActionListener {
         gradient_level = GRADIENT_RELATIVE;
       }
     } else if (source == fill_edges) {
-      if (source.isSelected()) {
-        vv.getRenderContext().setEdgeFillPaintTransformer(edgeFillPaint);
-      } else {
-        vv.getRenderContext().setEdgeFillPaintTransformer(Functions.<Paint>constant(null));
-      }
+      vv.getRenderContext()
+          .setEdgeFillPaintTransformer(source.isSelected() ? edgeFillPaint : edge -> null);
     }
     vv.repaint();
   }

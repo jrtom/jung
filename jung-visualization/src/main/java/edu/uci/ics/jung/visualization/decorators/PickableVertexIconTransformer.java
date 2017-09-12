@@ -11,8 +11,8 @@
  */
 package edu.uci.ics.jung.visualization.decorators;
 
-import com.google.common.base.Function;
 import edu.uci.ics.jung.visualization.picking.PickedInfo;
+import java.util.function.Function;
 import javax.swing.Icon;
 
 /**

@@ -9,7 +9,6 @@
  */
 package edu.uci.ics.jung.visualization.renderers;
 
-import com.google.common.base.Function;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.RenderContext;
@@ -21,6 +20,7 @@ import java.awt.Shape;
 import java.awt.geom.Point2D;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * Renders Vertex Labels, but can also supply Shapes for vertices. This has the effect of making the

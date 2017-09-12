@@ -11,10 +11,10 @@
  */
 package edu.uci.ics.jung.algorithms.scoring;
 
-import com.google.common.base.Function;
 import com.google.common.graph.Graph;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.algorithms.shortestpath.Distance;
+import java.util.function.Function;
 
 /** Assigns scores to each vertex according to the sum of its distances to all other vertices. */
 public class BarycenterScorer<V, E> extends DistanceCentralityScorer<V, E> {

@@ -9,7 +9,6 @@
  */
 package edu.uci.ics.jung.algorithms.shortestpath;
 
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.graph.Network;
 import java.util.HashMap;
@@ -19,6 +18,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
  * Calculates distances and shortest paths using Dijkstra's single-source-shortest-path algorithm.

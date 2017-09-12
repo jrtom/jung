@@ -11,9 +11,9 @@
  */
 package edu.uci.ics.jung.visualization.decorators;
 
-import com.google.common.base.Function;
 import edu.uci.ics.jung.visualization.picking.PickedInfo;
 import java.awt.Paint;
+import java.util.function.Function;
 
 /**
  * Paints each vertex according to the <code>Paint</code> parameters given in the constructor, so

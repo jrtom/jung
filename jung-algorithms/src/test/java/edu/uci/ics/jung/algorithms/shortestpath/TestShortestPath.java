@@ -4,8 +4,6 @@
  */
 package edu.uci.ics.jung.algorithms.shortestpath;
 
-import com.google.common.base.Function;
-import com.google.common.base.Functions;
 import com.google.common.base.Supplier;
 import com.google.common.collect.BiMap;
 import com.google.common.graph.MutableNetwork;
@@ -19,6 +17,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import junit.framework.TestCase;
 
 /** @author Joshua O'Madadhain */
@@ -481,7 +480,7 @@ public class TestShortestPath extends TestCase {
   @Override
   protected void setUp() {
     edgeWeights = new HashMap<Integer, Number>();
-    nev = Functions.<Integer, Number>forMap(edgeWeights);
+    nev = edgeWeights::get;
     dg = NetworkBuilder.directed().allowsParallelEdges(true).allowsSelfLoops(true).build();
     for (int i = 0; i < dg_distances.length; i++) {
       dg.addNode(vertexFactoryDG.get());

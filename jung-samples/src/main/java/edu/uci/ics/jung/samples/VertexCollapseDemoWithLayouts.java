@@ -8,7 +8,6 @@
  */
 package edu.uci.ics.jung.samples;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Sets;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.algorithms.layout.CircleLayout;
@@ -46,6 +45,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.function.Function;
 import javax.swing.BorderFactory;
 import javax.swing.JApplet;
 import javax.swing.JButton;

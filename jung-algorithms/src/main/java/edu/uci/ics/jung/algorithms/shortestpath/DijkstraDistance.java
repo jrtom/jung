@@ -11,8 +11,6 @@
  */
 package edu.uci.ics.jung.algorithms.shortestpath;
 
-import com.google.common.base.Function;
-import com.google.common.base.Functions;
 import com.google.common.base.Preconditions;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.algorithms.util.MapBinaryHeap;
@@ -24,6 +22,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
  * Calculates distances in a specified graph, using Dijkstra's single-source-shortest-path
@@ -98,7 +97,7 @@ public class DijkstraDistance<V, E> implements Distance<V> {
    * @param g the graph on which distances will be calculated
    */
   public DijkstraDistance(Network<V, E> g) {
-    this(g, Functions.constant(1), true);
+    this(g, e -> 1, true);
   }
 
   /**
@@ -109,7 +108,7 @@ public class DijkstraDistance<V, E> implements Distance<V> {
    * @param cached specifies whether the results are to be cached
    */
   public DijkstraDistance(Network<V, E> g, boolean cached) {
-    this(g, Functions.constant(1), cached);
+    this(g, e -> 1, cached);
   }
 
   /**

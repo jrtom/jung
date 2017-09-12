@@ -12,7 +12,6 @@ package edu.uci.ics.jung.visualization.decorators;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.base.Function;
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.graph.util.EdgeIndexFunction;
@@ -26,6 +25,7 @@ import java.awt.geom.Line2D;
 import java.awt.geom.QuadCurve2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RectangularShape;
+import java.util.function.Function;
 
 /**
  * An interface for decorators that return a <code>Shape</code> for a specified edge.

@@ -11,9 +11,9 @@
  */
 package edu.uci.ics.jung.algorithms.scoring;
 
-import com.google.common.base.Function;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.algorithms.scoring.util.UniformDegreeWeight;
+import java.util.function.Function;
 
 /**
  * A generalization of PageRank that permits non-uniformly-distributed random jumps. The

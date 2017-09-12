@@ -8,7 +8,7 @@
  */
 package edu.uci.ics.jung.visualization.util;
 
-import com.google.common.base.Function;
+import java.util.function.Function;
 
 /**
  * A utility to wrap long lines, creating html strings with line breaks at a settable max line

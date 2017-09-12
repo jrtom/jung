@@ -11,7 +11,6 @@
  */
 package edu.uci.ics.jung.algorithms.scoring;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Maps;
 import com.google.common.graph.Graph;
 import com.google.common.graph.Network;
@@ -20,6 +19,7 @@ import edu.uci.ics.jung.algorithms.shortestpath.Distance;
 import edu.uci.ics.jung.algorithms.shortestpath.UnweightedShortestPath;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * Assigns scores to vertices based on their distances to each other vertex in the graph.

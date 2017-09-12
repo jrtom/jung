@@ -8,8 +8,6 @@
  */
 package edu.uci.ics.jung.samples;
 
-import com.google.common.base.Function;
-import com.google.common.base.Functions;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
@@ -48,6 +46,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.Icon;
@@ -154,7 +153,7 @@ public class LensVertexImageShaperDemo extends JApplet {
     final VertexIconShapeTransformer<Number> vertexImageShapeFunction =
         new VertexIconShapeTransformer<Number>(new EllipseVertexShapeTransformer<Number>());
 
-    final Function<Number, Icon> vertexIconFunction = Functions.forMap(iconMap);
+    final Function<Number, Icon> vertexIconFunction = iconMap::get;
 
     vertexImageShapeFunction.setIconMap(iconMap);
 

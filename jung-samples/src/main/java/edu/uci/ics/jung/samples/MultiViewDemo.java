@@ -8,7 +8,6 @@
  */
 package edu.uci.ics.jung.samples;
 
-import com.google.common.base.Functions;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor;
@@ -41,7 +40,6 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.GridLayout;
-import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
@@ -117,9 +115,7 @@ public class MultiViewDemo extends JApplet {
     vv3 = new VisualizationViewer<String, Number>(visualizationModel, preferredSize);
 
     vv1.getRenderContext().setEdgeShapeTransformer(EdgeShape.line(graph));
-    vv2.getRenderContext()
-        .setVertexShapeTransformer(
-            Functions.<Shape>constant(new Rectangle2D.Float(-6, -6, 12, 12)));
+    vv2.getRenderContext().setVertexShapeTransformer(n -> new Rectangle2D.Float(-6, -6, 12, 12));
 
     vv2.getRenderContext().setEdgeShapeTransformer(EdgeShape.quadCurve(graph));
 

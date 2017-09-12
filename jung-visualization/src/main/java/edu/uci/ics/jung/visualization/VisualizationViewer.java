@@ -9,7 +9,6 @@
  */
 package edu.uci.ics.jung.visualization;
 
-import com.google.common.base.Function;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.visualization.control.GraphMouseListener;
@@ -22,6 +21,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelListener;
 import java.awt.geom.Point2D;
+import java.util.function.Function;
 import javax.swing.ToolTipManager;
 
 /**

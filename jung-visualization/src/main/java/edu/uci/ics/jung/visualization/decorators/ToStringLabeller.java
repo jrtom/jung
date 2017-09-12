@@ -12,7 +12,7 @@
  */
 package edu.uci.ics.jung.visualization.decorators;
 
-import com.google.common.base.Function;
+import java.util.function.Function;
 
 /**
  * Labels vertices by their toString. This class functions as a drop-in replacement for the default

@@ -11,8 +11,6 @@
  */
 package edu.uci.ics.jung.io;
 
-import com.google.common.base.Function;
-import com.google.common.base.Functions;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
@@ -26,6 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import javax.xml.parsers.ParserConfigurationException;
 import junit.framework.Assert;
 import junit.framework.TestCase;
@@ -42,7 +41,7 @@ public class TestGraphMLWriter extends TestCase {
           }
         };
 
-    Function<String, String> vertex_name = Functions.identity();
+    Function<String, String> vertex_name = Function.identity();
     //TransformerUtils.nopTransformer();
 
     gmlw.addEdgeData("weight", "integer value for the edge", Integer.toString(-1), edge_weight);

@@ -9,7 +9,6 @@
  */
 package edu.uci.ics.jung.samples;
 
-import com.google.common.base.Functions;
 import com.google.common.base.Supplier;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -74,9 +73,9 @@ public class ClusteringDemo extends JApplet {
   VisualizationViewer<Number, Number> vv;
 
   LoadingCache<Number, Paint> vertexPaints =
-      CacheBuilder.newBuilder().build(CacheLoader.from(Functions.<Paint>constant(Color.white)));
+      CacheBuilder.newBuilder().build(CacheLoader.from(() -> Color.white));
   LoadingCache<Number, Paint> edgePaints =
-      CacheBuilder.newBuilder().build(CacheLoader.from(Functions.<Paint>constant(Color.blue)));
+      CacheBuilder.newBuilder().build(CacheLoader.from(() -> Color.blue));
 
   private static final Stroke THIN = new BasicStroke(1);
   private static final Stroke THICK = new BasicStroke(2);

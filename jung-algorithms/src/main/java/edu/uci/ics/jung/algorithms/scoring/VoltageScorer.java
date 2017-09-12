@@ -11,7 +11,6 @@
  */
 package edu.uci.ics.jung.algorithms.scoring;
 
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -21,6 +20,7 @@ import edu.uci.ics.jung.algorithms.scoring.util.UniformDegreeWeight;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
  * Assigns scores to vertices according to their 'voltage' in an approximate solution to the

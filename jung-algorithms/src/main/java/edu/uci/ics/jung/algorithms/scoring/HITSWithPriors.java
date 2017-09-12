@@ -11,9 +11,8 @@
  */
 package edu.uci.ics.jung.algorithms.scoring;
 
-import com.google.common.base.Function;
-import com.google.common.base.Functions;
 import com.google.common.graph.Network;
+import java.util.function.Function;
 
 /**
  * A generalization of HITS that permits non-uniformly-distributed random jumps. The 'vertex_priors'
@@ -58,7 +57,7 @@ public class HITSWithPriors<V, E> extends AbstractIterativeScorerWithPriors<V, E
    * @param alpha the probability of a random jump at each step
    */
   public HITSWithPriors(Network<V, E> g, Function<V, HITS.Scores> vertex_priors, double alpha) {
-    super(g, Functions.constant(1.0), vertex_priors, alpha);
+    super(g, n -> 1.0, vertex_priors, alpha);
     disappearing_potential = new HITS.Scores(0, 0);
   }
 

@@ -8,8 +8,6 @@
  */
 package edu.uci.ics.jung.samples;
 
-import com.google.common.base.Function;
-import com.google.common.base.Functions;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
@@ -32,8 +30,6 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.awt.Paint;
-import java.awt.Stroke;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
@@ -80,20 +76,11 @@ public class VertexLabelAsShapeDemo extends JApplet {
     // customize the render context
     vv.getRenderContext()
         .setVertexLabelTransformer(
-            // this chains together Functions so that the html tags
-            // are prepended to the toString method output
-            Functions.<Object, String, String>compose(
-                new Function<String, String>() {
-                  public String apply(String input) {
-                    return "<html><center>Vertex<p>" + input;
-                  }
-                },
-                new ToStringLabeller()));
+            new ToStringLabeller().andThen(input -> "<html><center>Vertex<p>" + input));
     vv.getRenderContext().setVertexShapeTransformer(vlasr);
     vv.getRenderContext().setVertexLabelRenderer(new DefaultVertexLabelRenderer(Color.red));
-    vv.getRenderContext().setEdgeDrawPaintTransformer(Functions.<Paint>constant(Color.yellow));
-    vv.getRenderContext()
-        .setEdgeStrokeTransformer(Functions.<Stroke>constant(new BasicStroke(2.5f)));
+    vv.getRenderContext().setEdgeDrawPaintTransformer(e -> Color.yellow);
+    vv.getRenderContext().setEdgeStrokeTransformer(e -> new BasicStroke(2.5f));
 
     // customize the renderer
     vv.getRenderer()

@@ -8,8 +8,6 @@
  */
 package edu.uci.ics.jung.samples;
 
-import com.google.common.base.Function;
-import com.google.common.base.Functions;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
@@ -40,6 +38,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import javax.swing.ImageIcon;
 import javax.swing.JApplet;
 import javax.swing.JButton;
@@ -88,8 +87,8 @@ public class WorldMapGraphDemo extends JApplet {
     Layout<String> layout =
         new StaticLayout<String>(
             graph.asGraph(),
-            Functions.<String, String[], Point2D>compose(
-                new LatLonPixelTransformer(new Dimension(2000, 1000)), new CityTransformer(map)));
+            new CityTransformer(map)
+                .andThen(new LatLonPixelTransformer(new Dimension(2000, 1000))));
 
     layout.setSize(layoutSize);
     vv = new VisualizationViewer<String, Number>(graph, layout, new Dimension(800, 400));

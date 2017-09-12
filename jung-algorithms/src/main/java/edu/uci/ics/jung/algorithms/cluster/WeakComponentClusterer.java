@@ -9,13 +9,13 @@
  */
 package edu.uci.ics.jung.algorithms.cluster;
 
-import com.google.common.base.Function;
 import com.google.common.graph.Network;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
  * Finds all weak components in a graph as sets of vertex sets. A weak component is defined as a

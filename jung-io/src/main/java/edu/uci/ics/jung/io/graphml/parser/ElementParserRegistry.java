@@ -10,7 +10,6 @@
 
 package edu.uci.ics.jung.io.graphml.parser;
 
-import com.google.common.base.Function;
 import com.google.common.graph.MutableNetwork;
 import edu.uci.ics.jung.io.graphml.EdgeMetadata;
 import edu.uci.ics.jung.io.graphml.GraphMLConstants;
@@ -19,6 +18,7 @@ import edu.uci.ics.jung.io.graphml.KeyMap;
 import edu.uci.ics.jung.io.graphml.NodeMetadata;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * Registry for all element parsers.

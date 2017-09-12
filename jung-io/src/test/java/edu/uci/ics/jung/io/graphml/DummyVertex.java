@@ -1,6 +1,6 @@
 package edu.uci.ics.jung.io.graphml;
 
-import com.google.common.base.Function;
+import java.util.function.Function;
 
 public class DummyVertex extends DummyGraphObjectBase {
 

@@ -11,9 +11,9 @@
  */
 package edu.uci.ics.jung.algorithms.scoring.util;
 
-import com.google.common.base.Function;
 import edu.uci.ics.jung.algorithms.scoring.HITS;
 import java.util.Collection;
+import java.util.function.Function;
 
 /**
  * Methods for assigning values (to be interpreted as prior probabilities) to vertices in the
