@@ -12,8 +12,6 @@
 package edu.uci.ics.jung.io;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
 import com.google.common.base.Supplier;
 import com.google.common.graph.MutableNetwork;
 import edu.uci.ics.jung.algorithms.util.MapSettableTransformer;
@@ -27,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.function.Predicate;
 
 /**
  * Reads a <code>Graph</code> from a Pajek NET formatted source.
@@ -107,7 +106,7 @@ public class PajekNetReader<G extends MutableNetwork<V, E>, V, E> {
   private static final Predicate<String> a_pred = new StartsWithPredicate("*arcs");
   private static final Predicate<String> e_pred = new StartsWithPredicate("*edges");
   private static final Predicate<String> t_pred = new StartsWithPredicate("*");
-  private static final Predicate<String> c_pred = Predicates.or(a_pred, e_pred);
+  private static final Predicate<String> c_pred = a_pred.or(e_pred);
   protected static final Predicate<String> l_pred = ListTagPred.getInstance();
 
   /**
@@ -214,7 +213,7 @@ public class PajekNetReader<G extends MutableNetwork<V, E>, V, E> {
     curLine = null;
     while (br.ready()) {
       curLine = br.readLine();
-      if (curLine == null || t_pred.apply(curLine)) {
+      if (curLine == null || t_pred.test(curLine)) {
         break;
       }
       if (curLine == "") { // skip blank lines
@@ -322,18 +321,18 @@ public class PajekNetReader<G extends MutableNetwork<V, E>, V, E> {
     String nextLine = curLine;
 
     // in case we're not there yet (i.e., format tag isn't arcs or edges)
-    if (!c_pred.apply(curLine)) {
+    if (!c_pred.test(curLine)) {
       nextLine = skip(br, c_pred);
     }
 
     boolean reading_arcs = false;
     boolean reading_edges = false;
-    if (a_pred.apply(nextLine)) {
+    if (a_pred.test(nextLine)) {
       Preconditions.checkState(
           g.isDirected(), "Supplied undirected-only graph cannot be populated with directed edges");
       reading_arcs = true;
     }
-    if (e_pred.apply(nextLine)) {
+    if (e_pred.test(nextLine)) {
       Preconditions.checkState(
           !g.isDirected(),
           "Supplied directed-only graph cannot be populated with undirected edges");
@@ -344,11 +343,11 @@ public class PajekNetReader<G extends MutableNetwork<V, E>, V, E> {
       return nextLine;
     }
 
-    boolean is_list = l_pred.apply(nextLine);
+    boolean is_list = l_pred.test(nextLine);
 
     while (br.ready()) {
       nextLine = br.readLine();
-      if (nextLine == null || t_pred.apply(nextLine)) {
+      if (nextLine == null || t_pred.test(nextLine)) {
         break;
       }
       if (curLine == "") { // skip blank lines
@@ -416,7 +415,7 @@ public class PajekNetReader<G extends MutableNetwork<V, E>, V, E> {
         break;
       }
       curLine = curLine.trim();
-      if (p.apply(curLine)) {
+      if (p.test(curLine)) {
         return curLine;
       }
     }
@@ -436,7 +435,7 @@ public class PajekNetReader<G extends MutableNetwork<V, E>, V, E> {
       this.tag = s;
     }
 
-    public boolean apply(String str) {
+    public boolean test(String str) {
       return (str != null && str.toLowerCase().startsWith(tag));
     }
   }
@@ -458,7 +457,7 @@ public class PajekNetReader<G extends MutableNetwork<V, E>, V, E> {
       return instance;
     }
 
-    public boolean apply(String s) {
+    public boolean test(String s) {
       return (s != null && s.toLowerCase().endsWith("list"));
     }
   }

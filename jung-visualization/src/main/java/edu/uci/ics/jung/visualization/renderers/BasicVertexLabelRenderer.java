@@ -65,7 +65,7 @@ public class BasicVertexLabelRenderer<V> implements Renderer.VertexLabel<V> {
    * the position of the vertex; otherwise the label is offset slightly.
    */
   public void labelVertex(V v, String label) {
-    if (renderContext.getVertexIncludePredicate().apply(v) == false) {
+    if (!renderContext.getVertexIncludePredicate().test(v)) {
       return;
     }
     Point2D pt = layout.apply(v);

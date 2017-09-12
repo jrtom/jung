@@ -9,7 +9,6 @@
  */
 package edu.uci.ics.jung.visualization.renderers;
 
-import com.google.common.base.Predicate;
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.algorithms.layout.Layout;
@@ -30,6 +29,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.util.function.Predicate;
 import javax.swing.JComponent;
 
 public class BasicEdgeRenderer<V, E> implements Renderer.Edge<V, E> {
@@ -47,7 +47,7 @@ public class BasicEdgeRenderer<V, E> implements Renderer.Edge<V, E> {
   @Override
   public void paintEdge(E e) {
     GraphicsDecorator g2d = renderContext.getGraphicsContext();
-    if (!renderContext.getEdgeIncludePredicate().apply(e)) {
+    if (!renderContext.getEdgeIncludePredicate().test(e)) {
       return;
     }
 
@@ -56,7 +56,7 @@ public class BasicEdgeRenderer<V, E> implements Renderer.Edge<V, E> {
     V u = endpoints.nodeU();
     V v = endpoints.nodeV();
     Predicate<V> nodeIncludePredicate = renderContext.getVertexIncludePredicate();
-    if (!nodeIncludePredicate.apply(u) || !nodeIncludePredicate.apply(v)) {
+    if (!nodeIncludePredicate.test(u) || !nodeIncludePredicate.test(v)) {
       return;
     }
 
