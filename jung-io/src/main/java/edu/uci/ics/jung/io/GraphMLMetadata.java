@@ -8,7 +8,7 @@
  */
 package edu.uci.ics.jung.io;
 
-import com.google.common.base.Function;
+import java.util.function.Function;
 
 /**
  * Maintains information relating to data for the specified type. This includes a Function from

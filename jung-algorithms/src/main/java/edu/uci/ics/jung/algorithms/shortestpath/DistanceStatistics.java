@@ -9,12 +9,12 @@
  */
 package edu.uci.ics.jung.algorithms.shortestpath;
 
-import com.google.common.base.Function;
 import com.google.common.graph.Graph;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.algorithms.scoring.ClosenessCentrality;
 import edu.uci.ics.jung.algorithms.scoring.util.VertexScoreTransformer;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 /**
  * Statistics relating to vertex-vertex distances in a graph.

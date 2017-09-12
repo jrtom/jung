@@ -11,7 +11,7 @@
  */
 package edu.uci.ics.jung.algorithms.scoring.util;
 
-import com.google.common.base.Function;
+import java.util.function.Function;
 
 /**
  * A {@code Transformer<VEPair,Number} that delegates its operation to a {@code

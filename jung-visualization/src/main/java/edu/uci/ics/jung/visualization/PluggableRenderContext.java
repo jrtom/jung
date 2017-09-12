@@ -7,8 +7,6 @@
  */
 package edu.uci.ics.jung.visualization;
 
-import com.google.common.base.Function;
-import com.google.common.base.Functions;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.graph.Network;
@@ -31,6 +29,7 @@ import java.awt.Paint;
 import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.geom.Ellipse2D;
+import java.util.function.Function;
 import javax.swing.CellRendererPane;
 import javax.swing.Icon;
 import javax.swing.JComponent;
@@ -41,27 +40,22 @@ public class PluggableRenderContext<V, E> implements RenderContext<V, E> {
 
   protected float arrowPlacementTolerance = 1;
   protected Predicate<V> vertexIncludePredicate = Predicates.alwaysTrue();
-  protected Function<? super V, Stroke> vertexStrokeTransformer =
-      Functions.<Stroke>constant(new BasicStroke(1.0f));
+  protected Function<? super V, Stroke> vertexStrokeTransformer = n -> new BasicStroke(1.0f);
 
   protected Function<? super V, Shape> vertexShapeTransformer =
-      Functions.<Shape>constant(new Ellipse2D.Float(-10, -10, 20, 20));
+      n -> new Ellipse2D.Float(-10, -10, 20, 20);
 
-  protected Function<? super V, String> vertexLabelTransformer = Functions.constant(null);
+  protected Function<? super V, String> vertexLabelTransformer = n -> null;
   protected Function<V, Icon> vertexIconTransformer;
   protected Function<? super V, Font> vertexFontTransformer =
-      Functions.constant(new Font("Helvetica", Font.PLAIN, 12));
+      n -> new Font("Helvetica", Font.PLAIN, 12);
 
-  protected Function<? super V, Paint> vertexDrawPaintTransformer =
-      Functions.<Paint>constant(Color.BLACK);
-  protected Function<? super V, Paint> vertexFillPaintTransformer =
-      Functions.<Paint>constant(Color.RED);
+  protected Function<? super V, Paint> vertexDrawPaintTransformer = n -> Color.BLACK;
+  protected Function<? super V, Paint> vertexFillPaintTransformer = n -> Color.RED;
 
-  protected Function<? super E, String> edgeLabelTransformer = Functions.constant(null);
-  protected Function<? super E, Stroke> edgeStrokeTransformer =
-      Functions.<Stroke>constant(new BasicStroke(1.0f));
-  protected Function<? super E, Stroke> edgeArrowStrokeTransformer =
-      Functions.<Stroke>constant(new BasicStroke(1.0f));
+  protected Function<? super E, String> edgeLabelTransformer = e -> null;
+  protected Function<? super E, Stroke> edgeStrokeTransformer = e -> new BasicStroke(1.0f);
+  protected Function<? super E, Stroke> edgeArrowStrokeTransformer = e -> new BasicStroke(1.0f);
 
   private static final int EDGE_ARROW_LENGTH = 10;
   private static final int EDGE_ARROW_WIDTH = 8;
@@ -71,20 +65,17 @@ public class PluggableRenderContext<V, E> implements RenderContext<V, E> {
 
   protected Predicate<E> edgeIncludePredicate = Predicates.alwaysTrue();
   protected Function<? super E, Font> edgeFontTransformer =
-      Functions.constant(new Font("Helvetica", Font.PLAIN, 12));
+      n -> new Font("Helvetica", Font.PLAIN, 12);
 
   private static final float DIRECTED_EDGE_LABEL_CLOSENESS = 0.65f;
   private static final float UNDIRECTED_EDGE_LABEL_CLOSENESS = 0.65f;
   protected float edgeLabelCloseness;
 
   protected Function<? super E, Shape> edgeShapeTransformer;
-  protected Function<? super E, Paint> edgeFillPaintTransformer = Functions.constant(null);
-  protected Function<? super E, Paint> edgeDrawPaintTransformer =
-      Functions.<Paint>constant(Color.black);
-  protected Function<? super E, Paint> arrowFillPaintTransformer =
-      Functions.<Paint>constant(Color.black);
-  protected Function<? super E, Paint> arrowDrawPaintTransformer =
-      Functions.<Paint>constant(Color.black);
+  protected Function<? super E, Paint> edgeFillPaintTransformer = n -> null;
+  protected Function<? super E, Paint> edgeDrawPaintTransformer = n -> Color.black;
+  protected Function<? super E, Paint> arrowFillPaintTransformer = n -> Color.black;
+  protected Function<? super E, Paint> arrowDrawPaintTransformer = n -> Color.black;
 
   protected EdgeIndexFunction<E> parallelEdgeIndexFunction;
 

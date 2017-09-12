@@ -11,10 +11,10 @@
  */
 package edu.uci.ics.jung.algorithms.layout;
 
-import com.google.common.base.Function;
 import com.google.common.graph.Graph;
 import java.awt.Dimension;
 import java.awt.geom.Point2D;
+import java.util.function.Function;
 
 /**
  * StaticLayout places the nodes in the locations specified by its initializer, and has no other

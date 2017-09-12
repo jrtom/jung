@@ -10,8 +10,6 @@
 
 package edu.uci.ics.jung.visualization.layout;
 
-import com.google.common.base.Function;
-import com.google.common.base.Functions;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -26,6 +24,7 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 import javax.swing.event.ChangeListener;
 
 /**
@@ -49,9 +48,8 @@ public class ObservableCachingLayout<V> extends LayoutDecorator<V>
   public ObservableCachingLayout(Graph<V> graph, Layout<V> delegate) {
     super(delegate);
     this.graph = graph;
-    Function<V, Point2D> chain =
-        Functions.<V, Point2D, Point2D>compose(p -> (Point2D) p.clone(), delegate);
-    this.locations = CacheBuilder.newBuilder().build(CacheLoader.from(chain));
+    Function<V, Point2D> chain = delegate.andThen(p -> (Point2D) p.clone());
+    this.locations = CacheBuilder.newBuilder().build(CacheLoader.from(chain::apply));
   }
 
   @Override

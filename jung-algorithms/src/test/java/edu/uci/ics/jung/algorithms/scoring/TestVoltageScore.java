@@ -8,7 +8,6 @@
  */
 package edu.uci.ics.jung.algorithms.scoring;
 
-import com.google.common.base.Functions;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.NetworkBuilder;
 import junit.framework.TestCase;
@@ -34,7 +33,7 @@ public class TestVoltageScore extends TestCase {
     g.addEdge(4, 1, j++);
     g.addEdge(4, 0, j++);
 
-    VoltageScorer<Number, Number> vr = new VoltageScorer<>(g, Functions.constant(1), 0, 3);
+    VoltageScorer<Number, Number> vr = new VoltageScorer<>(g, n -> 1, 0, 3);
     double[] voltages = {1.0, 2.0 / 3, 2.0 / 3, 0, 1.0 / 3};
 
     vr.evaluate();
@@ -52,7 +51,7 @@ public class TestVoltageScore extends TestCase {
     g.addEdge(3, 5, j++);
     g.addEdge(4, 6, j++);
     g.addEdge(5, 6, j++);
-    VoltageScorer<Number, Number> vr = new VoltageScorer<>(g, Functions.constant(1), 0, 6);
+    VoltageScorer<Number, Number> vr = new VoltageScorer<>(g, n -> 1, 0, 6);
     double[] voltages = {1.0, 0.75, 0.75, 0.5, 0.25, 0.25, 0};
 
     vr.evaluate();

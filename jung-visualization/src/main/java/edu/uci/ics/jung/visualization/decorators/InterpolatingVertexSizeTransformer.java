@@ -11,7 +11,7 @@
  */
 package edu.uci.ics.jung.visualization.decorators;
 
-import com.google.common.base.Function;
+import java.util.function.Function;
 
 /**
  * Provides vertex sizes that are spaced proportionally between min_size and max_size depending on

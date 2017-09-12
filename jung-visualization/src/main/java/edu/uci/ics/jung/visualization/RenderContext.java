@@ -1,6 +1,5 @@
 package edu.uci.ics.jung.visualization;
 
-import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor;
@@ -14,6 +13,7 @@ import java.awt.Font;
 import java.awt.Paint;
 import java.awt.Shape;
 import java.awt.Stroke;
+import java.util.function.Function;
 import javax.swing.CellRendererPane;
 import javax.swing.Icon;
 import javax.swing.JComponent;

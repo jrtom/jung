@@ -10,7 +10,6 @@
 
 package edu.uci.ics.jung.io.graphml;
 
-import com.google.common.base.Function;
 import com.google.common.graph.MutableNetwork;
 import edu.uci.ics.jung.io.GraphIOException;
 import edu.uci.ics.jung.io.GraphReader;
@@ -19,6 +18,7 @@ import edu.uci.ics.jung.io.graphml.parser.GraphMLEventFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.util.function.Function;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;

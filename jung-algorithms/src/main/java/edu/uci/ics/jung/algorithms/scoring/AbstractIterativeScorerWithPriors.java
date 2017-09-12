@@ -11,8 +11,8 @@
  */
 package edu.uci.ics.jung.algorithms.scoring;
 
-import com.google.common.base.Function;
 import com.google.common.graph.Network;
+import java.util.function.Function;
 
 /**
  * An abstract class for iterative random-walk-based vertex scoring algorithms that have a fixed

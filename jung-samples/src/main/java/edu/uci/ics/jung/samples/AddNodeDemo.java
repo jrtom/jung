@@ -10,7 +10,6 @@
 
 package edu.uci.ics.jung.samples;
 
-import com.google.common.base.Functions;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.NetworkBuilder;
 import edu.uci.ics.jung.algorithms.layout.AbstractLayout;
@@ -126,8 +125,7 @@ public class AddNodeDemo extends javax.swing.JApplet {
             Dimension d = new Dimension(600, 600);
             if (switchLayout.getText().indexOf("Spring") > 0) {
               switchLayout.setText("Switch to FRLayout");
-              layout =
-                  new SpringLayout<Number>(g.asGraph(), Functions.<Integer>constant(EDGE_LENGTH));
+              layout = new SpringLayout<Number>(g.asGraph(), e -> EDGE_LENGTH);
               layout.setSize(d);
               vv.getModel().setGraphLayout(layout, d);
               Layout<Number> delegateLayout =

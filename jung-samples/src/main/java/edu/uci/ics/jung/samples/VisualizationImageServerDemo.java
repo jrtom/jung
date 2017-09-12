@@ -8,7 +8,6 @@
  */
 package edu.uci.ics.jung.samples;
 
-import com.google.common.base.Functions;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
@@ -22,7 +21,6 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Image;
-import java.awt.Paint;
 import java.awt.geom.Point2D;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -56,9 +54,9 @@ public class VisualizationImageServerDemo {
         .setVertexRenderer(
             new GradientVertexRenderer<Integer>(
                 vv, Color.white, Color.red, Color.white, Color.blue, false));
-    vv.getRenderContext().setEdgeDrawPaintTransformer(Functions.<Paint>constant(Color.lightGray));
-    vv.getRenderContext().setArrowFillPaintTransformer(Functions.<Paint>constant(Color.lightGray));
-    vv.getRenderContext().setArrowDrawPaintTransformer(Functions.<Paint>constant(Color.lightGray));
+    vv.getRenderContext().setEdgeDrawPaintTransformer(e -> Color.lightGray);
+    vv.getRenderContext().setArrowFillPaintTransformer(e -> Color.lightGray);
+    vv.getRenderContext().setArrowDrawPaintTransformer(e -> Color.lightGray);
 
     vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
     vv.getRenderer().getVertexLabelRenderer().setPositioner(new InsidePositioner());

@@ -10,12 +10,12 @@
 
 package edu.uci.ics.jung.io.graphml.parser;
 
-import com.google.common.base.Function;
 import com.google.common.graph.MutableNetwork;
 import edu.uci.ics.jung.io.graphml.EdgeMetadata;
 import edu.uci.ics.jung.io.graphml.GraphMetadata;
 import edu.uci.ics.jung.io.graphml.KeyMap;
 import edu.uci.ics.jung.io.graphml.NodeMetadata;
+import java.util.function.Function;
 
 /**
  * Provides resources related to the current parsing context.

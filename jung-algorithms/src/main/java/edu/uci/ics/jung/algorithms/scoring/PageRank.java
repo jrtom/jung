@@ -11,9 +11,9 @@
  */
 package edu.uci.ics.jung.algorithms.scoring;
 
-import com.google.common.base.Function;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.algorithms.scoring.util.ScoringUtils;
+import java.util.function.Function;
 
 /**
  * Assigns scores to each vertex according to the PageRank algorithm.

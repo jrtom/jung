@@ -8,8 +8,6 @@
  */
 package edu.uci.ics.jung.samples;
 
-import com.google.common.base.Function;
-import com.google.common.base.Functions;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
@@ -33,10 +31,10 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
-import java.awt.Paint;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.util.function.Function;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -126,9 +124,9 @@ public class GraphZoomScrollPaneDemo {
         .setVertexRenderer(
             new GradientVertexRenderer<Integer>(
                 vv, Color.white, Color.red, Color.white, Color.blue, false));
-    vv.getRenderContext().setEdgeDrawPaintTransformer(Functions.<Paint>constant(Color.lightGray));
-    vv.getRenderContext().setArrowFillPaintTransformer(Functions.<Paint>constant(Color.lightGray));
-    vv.getRenderContext().setArrowDrawPaintTransformer(Functions.<Paint>constant(Color.lightGray));
+    vv.getRenderContext().setEdgeDrawPaintTransformer(e -> Color.lightGray);
+    vv.getRenderContext().setArrowFillPaintTransformer(a -> Color.lightGray);
+    vv.getRenderContext().setArrowDrawPaintTransformer(a -> Color.lightGray);
 
     // add my listeners for ToolTips
     vv.setVertexToolTipTransformer(new ToStringLabeller());

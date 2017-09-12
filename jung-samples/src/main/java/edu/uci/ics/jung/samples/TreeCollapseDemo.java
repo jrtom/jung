@@ -8,8 +8,6 @@ package edu.uci.ics.jung.samples;
  *
  */
 
-import com.google.common.base.Function;
-import com.google.common.base.Functions;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.algorithms.layout.PolarPoint;
@@ -37,7 +35,6 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
-import java.awt.Paint;
 import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -49,6 +46,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import javax.swing.BorderFactory;
 import javax.swing.JApplet;
 import javax.swing.JButton;
@@ -100,7 +98,7 @@ public class TreeCollapseDemo extends JApplet {
     vv.getRenderContext().setVertexShapeTransformer(new ClusterVertexShapeFunction<String>());
     // add a listener for ToolTips
     vv.setVertexToolTipTransformer(new ToStringLabeller());
-    vv.getRenderContext().setArrowFillPaintTransformer(Functions.<Paint>constant(Color.lightGray));
+    vv.getRenderContext().setArrowFillPaintTransformer(n -> Color.lightGray);
     rings = new Rings();
 
     Container content = getContentPane();

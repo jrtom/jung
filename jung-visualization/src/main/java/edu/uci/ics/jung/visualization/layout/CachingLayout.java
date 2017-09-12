@@ -10,8 +10,6 @@
 
 package edu.uci.ics.jung.visualization.layout;
 
-import com.google.common.base.Function;
-import com.google.common.base.Functions;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -20,6 +18,7 @@ import edu.uci.ics.jung.algorithms.layout.LayoutDecorator;
 import edu.uci.ics.jung.visualization.util.Caching;
 import java.awt.geom.Point2D;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
  * A LayoutDecorator that caches locations in a clearable Map. This can be used to ensure that edge
@@ -35,26 +34,12 @@ public class CachingLayout<V> extends LayoutDecorator<V> implements Caching {
 
   public CachingLayout(Layout<V> delegate) {
     super(delegate);
-    Function<V, Point2D> chain =
-        Functions.<V, Point2D, Point2D>compose(
-            new Function<Point2D, Point2D>() {
-              public Point2D apply(Point2D p) {
-                return (Point2D) p.clone();
-              }
-            },
-            delegate);
-    this.locations = CacheBuilder.newBuilder().build(CacheLoader.from(chain));
+    Function<V, Point2D> chain = delegate.andThen(p -> (Point2D) p.clone());
+    this.locations = CacheBuilder.newBuilder().build(CacheLoader.from(chain::apply));
   }
 
   public void clear() {
-    this.locations =
-        CacheBuilder.newBuilder()
-            .build(
-                new CacheLoader<V, Point2D>() {
-                  public Point2D load(V vertex) {
-                    return new Point2D.Double();
-                  }
-                });
+    this.locations = CacheBuilder.newBuilder().build(CacheLoader.from(() -> new Point2D.Double()));
   }
 
   public void init() {}

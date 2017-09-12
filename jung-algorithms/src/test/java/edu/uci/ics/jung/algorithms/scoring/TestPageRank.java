@@ -9,7 +9,6 @@
  */
 package edu.uci.ics.jung.algorithms.scoring;
 
-import com.google.common.base.Functions;
 import com.google.common.base.Supplier;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.NetworkBuilder;
@@ -59,8 +58,7 @@ public class TestPageRank extends TestCase {
     addEdge(3, 1, 1.0);
     addEdge(2, 1, 0.5);
 
-    PageRank<Integer, Integer> pr =
-        new PageRank<Integer, Integer>(graph, Functions.forMap(edgeWeights), 0);
+    PageRank<Integer, Integer> pr = new PageRank<Integer, Integer>(graph, edgeWeights::get, 0);
     pr.evaluate();
 
     Assert.assertEquals(pr.getVertexScore(0), 0.0, pr.getTolerance());

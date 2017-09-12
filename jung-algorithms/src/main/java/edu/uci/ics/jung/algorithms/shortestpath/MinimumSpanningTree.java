@@ -1,6 +1,5 @@
 package edu.uci.ics.jung.algorithms.shortestpath;
 
-import com.google.common.base.Function;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.MutableValueGraph;
 import com.google.common.graph.Network;
@@ -12,6 +11,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
  * Creates a minimum spanning tree of a specified graph using a variation of Prim's algorithm.

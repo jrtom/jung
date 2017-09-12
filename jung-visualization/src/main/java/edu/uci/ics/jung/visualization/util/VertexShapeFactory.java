@@ -9,8 +9,6 @@
  */
 package edu.uci.ics.jung.visualization.util;
 
-import com.google.common.base.Function;
-import com.google.common.base.Functions;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
@@ -18,6 +16,7 @@ import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
+import java.util.function.Function;
 
 /**
  * A utility class for generating <code>Shape</code>s for drawing vertices. The available shapes
@@ -50,7 +49,7 @@ public class VertexShapeFactory<V> {
    * ratio of 1.
    */
   public VertexShapeFactory() {
-    this(Functions.constant(10), Functions.constant(1.0f));
+    this(n -> 10, n -> 1.0f);
   }
 
   private static final Rectangle2D theRectangle = new Rectangle2D.Float();

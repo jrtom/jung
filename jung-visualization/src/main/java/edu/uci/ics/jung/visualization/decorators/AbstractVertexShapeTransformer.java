@@ -11,9 +11,8 @@
  */
 package edu.uci.ics.jung.visualization.decorators;
 
-import com.google.common.base.Function;
-import com.google.common.base.Functions;
 import edu.uci.ics.jung.visualization.util.VertexShapeFactory;
+import java.util.function.Function;
 
 /** @author Joshua O'Madadhain */
 public abstract class AbstractVertexShapeTransformer<V>
@@ -32,7 +31,7 @@ public abstract class AbstractVertexShapeTransformer<V>
   }
 
   public AbstractVertexShapeTransformer() {
-    this(Functions.constant(DEFAULT_SIZE), Functions.constant(DEFAULT_ASPECT_RATIO));
+    this(n -> DEFAULT_SIZE, n -> DEFAULT_ASPECT_RATIO);
   }
 
   public void setSizeTransformer(Function<V, Integer> vsf) {

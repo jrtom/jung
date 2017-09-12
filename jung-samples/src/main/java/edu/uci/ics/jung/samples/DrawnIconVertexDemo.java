@@ -8,7 +8,6 @@
  */
 package edu.uci.ics.jung.samples;
 
-import com.google.common.base.Function;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
@@ -30,6 +29,7 @@ import java.awt.Container;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.function.Function;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JFrame;

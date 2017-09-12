@@ -7,8 +7,6 @@
  */
 package edu.uci.ics.jung.algorithms.layout;
 
-import com.google.common.base.Function;
-import com.google.common.base.Functions;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -21,6 +19,7 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.geom.Point2D;
 import java.util.ConcurrentModificationException;
+import java.util.function.Function;
 
 /**
  * The SpringLayout package represents a visualization of a set of nodes. The SpringLayout, which is
@@ -41,13 +40,7 @@ public class SpringLayout<N> extends AbstractLayout<N> implements IterativeConte
   protected final Graph<N> graph;
 
   protected LoadingCache<N, SpringNodeData> springNodeData =
-      CacheBuilder.newBuilder()
-          .build(
-              new CacheLoader<N, SpringNodeData>() {
-                public SpringNodeData load(N node) {
-                  return new SpringNodeData();
-                }
-              });
+      CacheBuilder.newBuilder().build(CacheLoader.from(() -> new SpringNodeData()));
 
   /**
    * Constructor for a SpringLayout for a raw graph with associated dimension--the input knows how
@@ -56,7 +49,7 @@ public class SpringLayout<N> extends AbstractLayout<N> implements IterativeConte
    * @param g the graph on which the layout algorithm is to operate
    */
   public SpringLayout(Graph<N> g) {
-    this(g, Functions.<Integer>constant(30));
+    this(g, n -> 30);
   }
 
   /**

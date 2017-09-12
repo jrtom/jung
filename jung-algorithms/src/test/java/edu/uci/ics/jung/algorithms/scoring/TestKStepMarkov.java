@@ -1,6 +1,5 @@
 package edu.uci.ics.jung.algorithms.scoring;
 
-import com.google.common.base.Functions;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.NetworkBuilder;
 import edu.uci.ics.jung.algorithms.scoring.util.ScoringUtils;
@@ -44,7 +43,7 @@ public class TestKStepMarkov extends TestCase {
     priors.add(2);
     KStepMarkov<Number, Number> ranker =
         new KStepMarkov<Number, Number>(
-            mGraph, Functions.forMap(edgeWeights), ScoringUtils.getUniformRootPrior(priors), 2);
+            mGraph, e -> edgeWeights.get(e), ScoringUtils.getUniformRootPrior(priors), 2);
     //        ranker.evaluate();
     //        System.out.println(ranker.getIterations());
 

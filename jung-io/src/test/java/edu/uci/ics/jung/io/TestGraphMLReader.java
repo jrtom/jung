@@ -9,7 +9,6 @@
  */
 package edu.uci.ics.jung.io;
 
-import com.google.common.base.Function;
 import com.google.common.base.Supplier;
 import com.google.common.collect.BiMap;
 import com.google.common.graph.MutableNetwork;
@@ -20,6 +19,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Map;
+import java.util.function.Function;
 import javax.xml.parsers.ParserConfigurationException;
 import junit.framework.Assert;
 import junit.framework.Test;

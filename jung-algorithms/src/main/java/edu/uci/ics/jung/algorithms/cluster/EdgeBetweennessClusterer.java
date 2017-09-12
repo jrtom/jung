@@ -9,7 +9,6 @@
  */
 package edu.uci.ics.jung.algorithms.cluster;
 
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.graph.Graphs;
 import com.google.common.graph.MutableNetwork;
@@ -17,6 +16,7 @@ import com.google.common.graph.Network;
 import edu.uci.ics.jung.algorithms.scoring.BetweennessCentrality;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
  * An algorithm for computing clusters (community structure) in graphs based on edge betweenness.

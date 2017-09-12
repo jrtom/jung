@@ -11,8 +11,8 @@
  */
 package edu.uci.ics.jung.visualization.decorators;
 
-import com.google.common.base.Function;
 import java.text.NumberFormat;
+import java.util.function.Function;
 
 /**
  * Transforms inputs to String representations by chaining an input {@code Number}-generating {@code

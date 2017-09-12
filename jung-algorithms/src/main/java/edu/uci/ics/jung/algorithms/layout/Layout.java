@@ -9,10 +9,10 @@
  */
 package edu.uci.ics.jung.algorithms.layout;
 
-import com.google.common.base.Function;
 import java.awt.Dimension;
 import java.awt.geom.Point2D;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
  * A generalized interface for mechanisms that associate (x,y) coordinates with nodes.

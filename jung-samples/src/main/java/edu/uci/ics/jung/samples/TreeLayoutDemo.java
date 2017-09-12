@@ -8,7 +8,6 @@
  */
 package edu.uci.ics.jung.samples;
 
-import com.google.common.base.Functions;
 import edu.uci.ics.jung.algorithms.layout.PolarPoint;
 import edu.uci.ics.jung.algorithms.layout.RadialTreeLayout;
 import edu.uci.ics.jung.algorithms.layout.TreeLayout;
@@ -35,7 +34,6 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
-import java.awt.Paint;
 import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -90,7 +88,7 @@ public class TreeLayoutDemo extends JApplet {
     vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
     // add a listener for ToolTips
     vv.setVertexToolTipTransformer(new ToStringLabeller());
-    vv.getRenderContext().setArrowFillPaintTransformer(Functions.<Paint>constant(Color.lightGray));
+    vv.getRenderContext().setArrowFillPaintTransformer(n -> Color.lightGray);
     rings = new Rings();
 
     Container content = getContentPane();

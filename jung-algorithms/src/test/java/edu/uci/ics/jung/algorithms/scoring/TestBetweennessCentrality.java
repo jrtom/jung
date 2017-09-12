@@ -8,9 +8,9 @@
  */
 package edu.uci.ics.jung.algorithms.scoring;
 
-import com.google.common.base.Function;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.NetworkBuilder;
+import java.util.function.Function;
 import junit.framework.TestCase;
 
 /** */

@@ -10,7 +10,6 @@
  */
 package edu.uci.ics.jung.algorithms.layout;
 
-import com.google.common.base.Function;
 import edu.uci.ics.jung.algorithms.util.IterativeContext;
 import java.awt.Dimension;
 import java.awt.geom.AffineTransform;
@@ -18,6 +17,7 @@ import java.awt.geom.Point2D;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
  * A {@code Layout} implementation that combines multiple other layouts so that they may be

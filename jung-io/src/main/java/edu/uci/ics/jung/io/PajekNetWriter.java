@@ -11,7 +11,6 @@
  */
 package edu.uci.ics.jung.io;
 
-import com.google.common.base.Function;
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Network;
 import java.awt.geom.Point2D;
@@ -21,6 +20,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * Writes graphs in the Pajek NET format.

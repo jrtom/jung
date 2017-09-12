@@ -13,7 +13,6 @@ package edu.uci.ics.jung.visualization.decorators;
 
 import static edu.uci.ics.jung.graph.util.Graphs.isSelfLoop;
 
-import com.google.common.base.Function;
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.algorithms.layout.Layout;
@@ -24,6 +23,7 @@ import java.awt.Color;
 import java.awt.GradientPaint;
 import java.awt.Paint;
 import java.awt.geom.Point2D;
+import java.util.function.Function;
 
 /**
  * Creates <code>GradientPaint</code> instances which can be used to paint an <code>Edge</code>. For

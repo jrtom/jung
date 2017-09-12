@@ -11,12 +11,12 @@
  */
 package edu.uci.ics.jung.algorithms.layout.util;
 
-import com.google.common.base.Function;
 import edu.uci.ics.jung.algorithms.layout.StaticLayout;
 import java.awt.Dimension;
 import java.awt.geom.Point2D;
 import java.util.Date;
 import java.util.Random;
+import java.util.function.Function;
 
 /**
  * Provides a random node location within the bounds of the Dimension property. This provides a

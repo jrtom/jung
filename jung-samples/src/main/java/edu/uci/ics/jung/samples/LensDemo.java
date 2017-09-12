@@ -8,8 +8,6 @@
  */
 package edu.uci.ics.jung.samples;
 
-import com.google.common.base.Function;
-import com.google.common.base.Functions;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
@@ -58,6 +56,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.ButtonGroup;
@@ -118,7 +117,7 @@ public class LensDemo extends JApplet {
 
     Dimension preferredSize = new Dimension(600, 600);
     Map<String, Point2D> map = new HashMap<String, Point2D>();
-    Function<String, Point2D> vlf = Functions.forMap(map);
+    Function<String, Point2D> vlf = map::get;
     grid = this.generateVertexGrid(map, preferredSize, 25);
     gridLayout = new StaticLayout<String>(grid.asGraph(), vlf, preferredSize);
 
@@ -139,8 +138,7 @@ public class LensDemo extends JApplet {
     vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
 
     final Function<? super String, Shape> ovals = vv.getRenderContext().getVertexShapeTransformer();
-    final Function<? super String, Shape> squares =
-        Functions.<Shape>constant(new Rectangle2D.Float(-10, -10, 20, 20));
+    final Function<? super String, Shape> squares = n -> new Rectangle2D.Float(-10, -10, 20, 20);
 
     // add a listener for ToolTips
     vv.setVertexToolTipTransformer(new ToStringLabeller());
@@ -294,7 +292,7 @@ public class LensDemo extends JApplet {
             if (e.getStateChange() == ItemEvent.SELECTED) {
               visualizationModel.setGraphLayout(gridLayout);
               vv.getRenderContext().setVertexShapeTransformer(squares);
-              vv.getRenderContext().setVertexLabelTransformer(Functions.<String>constant(null));
+              vv.getRenderContext().setVertexLabelTransformer(n -> null);
               vv.repaint();
             }
           }

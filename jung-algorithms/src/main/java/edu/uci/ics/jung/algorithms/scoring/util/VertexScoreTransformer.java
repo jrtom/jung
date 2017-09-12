@@ -11,8 +11,8 @@
  */
 package edu.uci.ics.jung.algorithms.scoring.util;
 
-import com.google.common.base.Function;
 import edu.uci.ics.jung.algorithms.scoring.VertexScorer;
+import java.util.function.Function;
 
 /** A Function convenience wrapper around VertexScorer. */
 public class VertexScoreTransformer<V, S> implements Function<V, S> {

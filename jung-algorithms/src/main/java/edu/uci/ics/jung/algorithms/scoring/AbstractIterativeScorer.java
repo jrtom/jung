@@ -11,7 +11,6 @@
  */
 package edu.uci.ics.jung.algorithms.scoring;
 
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.algorithms.scoring.util.DelegateToEdgeTransformer;
@@ -20,6 +19,7 @@ import edu.uci.ics.jung.algorithms.util.IterativeContext;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * An abstract class for algorithms that assign scores to vertices based on iterative methods.

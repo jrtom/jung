@@ -11,7 +11,6 @@
  */
 package edu.uci.ics.jung.visualization.control;
 
-import com.google.common.base.Function;
 import edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.algorithms.util.MapSettableTransformer;
 import edu.uci.ics.jung.visualization.Layer;
@@ -21,6 +20,7 @@ import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.Point2D;
+import java.util.function.Function;
 import javax.swing.JOptionPane;
 
 /** @author Tom Nelson */

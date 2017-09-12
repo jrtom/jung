@@ -9,9 +9,9 @@
  */
 package edu.uci.ics.jung.visualization.decorators;
 
-import com.google.common.base.Function;
 import edu.uci.ics.jung.graph.util.EdgeIndexFunction;
 import java.awt.Shape;
+import java.util.function.Function;
 
 /**
  * An abstract class for edge-to-Shape functions that work with parallel edges.

@@ -1,8 +1,8 @@
 package edu.uci.ics.jung.io.graphml;
 
-import com.google.common.base.Function;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.NetworkBuilder;
+import java.util.function.Function;
 
 // TODO: replace common.base.Function with java.util.Function
 public class DummyGraphObjectBase {
