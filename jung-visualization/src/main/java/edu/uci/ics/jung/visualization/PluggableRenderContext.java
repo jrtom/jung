@@ -7,7 +7,6 @@
  */
 package edu.uci.ics.jung.visualization;
 
-import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor;
@@ -30,6 +29,7 @@ import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.geom.Ellipse2D;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import javax.swing.CellRendererPane;
 import javax.swing.Icon;
 import javax.swing.JComponent;

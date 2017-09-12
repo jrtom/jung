@@ -9,7 +9,6 @@
  */
 package edu.uci.ics.jung.visualization.renderers;
 
-import com.google.common.base.Predicate;
 import com.google.common.graph.EndpointPair;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.visualization.Layer;
@@ -21,6 +20,7 @@ import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
+import java.util.function.Predicate;
 
 public class BasicEdgeLabelRenderer<V, E> implements Renderer.EdgeLabel<V, E> {
   private final Layout<V> layout;
@@ -54,7 +54,7 @@ public class BasicEdgeLabelRenderer<V, E> implements Renderer.EdgeLabel<V, E> {
     V v1 = endpoints.nodeU();
     V v2 = endpoints.nodeV();
     Predicate<V> nodeIncludePredicate = renderContext.getVertexIncludePredicate();
-    if (!nodeIncludePredicate.apply(v1) || !nodeIncludePredicate.apply(v2)) {
+    if (!nodeIncludePredicate.test(v1) || !nodeIncludePredicate.test(v2)) {
       return;
     }
 

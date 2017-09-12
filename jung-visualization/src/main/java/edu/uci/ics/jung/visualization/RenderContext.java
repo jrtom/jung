@@ -1,6 +1,5 @@
 package edu.uci.ics.jung.visualization;
 
-import com.google.common.base.Predicate;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.graph.util.EdgeIndexFunction;
@@ -14,6 +13,7 @@ import java.awt.Paint;
 import java.awt.Shape;
 import java.awt.Stroke;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import javax.swing.CellRendererPane;
 import javax.swing.Icon;
 import javax.swing.JComponent;
@@ -167,14 +167,14 @@ public interface RenderContext<V, E> {
 
   class DirectedEdgeArrowPredicate implements Predicate<Network<?, ?>> {
 
-    public boolean apply(Network<?, ?> graph) {
+    public boolean test(Network<?, ?> graph) {
       return graph.isDirected();
     }
   }
 
   class UndirectedEdgeArrowPredicate implements Predicate<Network<?, ?>> {
 
-    public boolean apply(Network<?, ?> graph) {
+    public boolean test(Network<?, ?> graph) {
       return !graph.isDirected();
     }
   }

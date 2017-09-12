@@ -35,7 +35,7 @@ public class BasicVertexRenderer<V> implements Renderer.Vertex<V> {
   }
 
   public void paintVertex(V v) {
-    if (renderContext.getVertexIncludePredicate().apply(v)) {
+    if (renderContext.getVertexIncludePredicate().test(v)) {
       paintIconForVertex(v);
     }
   }

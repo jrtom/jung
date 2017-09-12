@@ -71,7 +71,7 @@ public class GradientVertexRenderer<V> implements Renderer.Vertex<V> {
   }
 
   public void paintVertex(V v) {
-    if (renderContext.getVertexIncludePredicate().apply(v)) {
+    if (renderContext.getVertexIncludePredicate().test(v)) {
       boolean vertexHit = true;
       // get the shape to be rendered
       Shape shape = renderContext.getVertexShapeTransformer().apply(v);

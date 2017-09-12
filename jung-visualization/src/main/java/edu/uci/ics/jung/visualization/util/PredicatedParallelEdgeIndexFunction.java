@@ -11,9 +11,9 @@
  */
 package edu.uci.ics.jung.visualization.util;
 
-import com.google.common.base.Predicate;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.graph.util.ParallelEdgeIndexFunction;
+import java.util.function.Predicate;
 
 /**
  * A class which creates and maintains indices for parallel edges. Edges are evaluated by a
@@ -37,10 +37,7 @@ public class PredicatedParallelEdgeIndexFunction<V, E> extends ParallelEdgeIndex
    */
   @Override
   public int getIndex(E edge) {
-    if (predicate.apply(edge)) {
-      return 0;
-    }
-    return super.getIndex(edge);
+    return predicate.test(edge) ? 0 : super.getIndex(edge);
   }
 
   public Predicate<E> getPredicate() {

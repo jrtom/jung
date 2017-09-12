@@ -10,7 +10,6 @@
  */
 package edu.uci.ics.jung.samples;
 
-import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
@@ -66,6 +65,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
@@ -842,7 +842,7 @@ public class PluggableRendererDemo extends JApplet implements ActionListener {
       filter_small = b;
     }
 
-    public boolean apply(V node) {
+    public boolean test(V node) {
       return filter_small ? graph.degree(node) >= MIN_DEGREE : true;
     }
   }
@@ -861,7 +861,7 @@ public class PluggableRendererDemo extends JApplet implements ActionListener {
       filter_small = b;
     }
 
-    public boolean apply(E edge) {
+    public boolean test(E edge) {
       return filter_small ? edge_weights.get(edge).doubleValue() >= MIN_WEIGHT : true;
     }
   }
@@ -884,28 +884,9 @@ public class PluggableRendererDemo extends JApplet implements ActionListener {
     public VertexShapeSizeAspect(Network<V, E> graphIn, Function<V, Double> voltagesIn) {
       this.graph = graphIn;
       this.voltages = voltagesIn;
-      setSizeTransformer(
-          new Function<V, Integer>() {
-
-            public Integer apply(V v) {
-              if (scale) {
-                return (int) (voltages.apply(v) * 30) + 20;
-              } else {
-                return 20;
-              }
-            }
-          });
+      setSizeTransformer(n -> scale ? (int) (voltages.apply(n) * 30) + 20 : 20);
       setAspectRatioTransformer(
-          new Function<V, Float>() {
-
-            public Float apply(V v) {
-              if (stretch) {
-                return (float) (graph.inDegree(v) + 1) / (graph.outDegree(v) + 1);
-              } else {
-                return 1.0f;
-              }
-            }
-          });
+          n -> stretch ? (float) (graph.inDegree(n) + 1) / (graph.outDegree(n) + 1) : 1.0f);
     }
 
     public void setStretching(boolean stretch) {

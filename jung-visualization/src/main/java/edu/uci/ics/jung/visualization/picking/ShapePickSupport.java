@@ -11,7 +11,6 @@
  */
 package edu.uci.ics.jung.visualization.picking;
 
-import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Sets;
 import com.google.common.graph.EndpointPair;
@@ -30,6 +29,7 @@ import java.util.Collection;
 import java.util.ConcurrentModificationException;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Predicate;
 
 /**
  * A <code>NetworkElementAccessor</code> that returns elements whose <code>Shape</code> contains the
@@ -366,14 +366,14 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
   protected Collection<V> getFilteredVertices() {
     Set<V> nodes = vv.getModel().getNetwork().nodes();
     return verticesAreFiltered()
-        ? Sets.filter(nodes, vv.getRenderContext().getVertexIncludePredicate())
+        ? Sets.filter(nodes, vv.getRenderContext().getVertexIncludePredicate()::test)
         : nodes;
   }
 
   protected Collection<E> getFilteredEdges() {
     Set<E> edges = vv.getModel().getNetwork().edges();
     return edgesAreFiltered()
-        ? Sets.filter(edges, vv.getRenderContext().getEdgeIncludePredicate())
+        ? Sets.filter(edges, vv.getRenderContext().getEdgeIncludePredicate()::test)
         : edges;
   }
 
@@ -411,7 +411,7 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
    */
   protected boolean isVertexRendered(V vertex) {
     Predicate<V> vertexIncludePredicate = vv.getRenderContext().getVertexIncludePredicate();
-    return vertexIncludePredicate == null || vertexIncludePredicate.apply(vertex);
+    return vertexIncludePredicate == null || vertexIncludePredicate.test(vertex);
   }
 
   /**
@@ -426,14 +426,14 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
     Predicate<V> vertexIncludePredicate = vv.getRenderContext().getVertexIncludePredicate();
     Predicate<E> edgeIncludePredicate = vv.getRenderContext().getEdgeIncludePredicate();
     Network<V, E> g = vv.getModel().getNetwork();
-    if (edgeIncludePredicate != null && !edgeIncludePredicate.apply(edge)) {
+    if (edgeIncludePredicate != null && !edgeIncludePredicate.test(edge)) {
       return false;
     }
     EndpointPair<V> endpoints = g.incidentNodes(edge);
     V v1 = endpoints.nodeU();
     V v2 = endpoints.nodeV();
     return vertexIncludePredicate == null
-        || (vertexIncludePredicate.apply(v1) && vertexIncludePredicate.apply(v2));
+        || (vertexIncludePredicate.test(v1) && vertexIncludePredicate.test(v2));
   }
 
   /**
