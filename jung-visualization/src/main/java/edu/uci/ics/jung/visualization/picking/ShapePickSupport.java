@@ -385,7 +385,7 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
   protected boolean verticesAreFiltered() {
     Predicate<V> vertexIncludePredicate = vv.getRenderContext().getVertexIncludePredicate();
     return vertexIncludePredicate != null
-        && !vertexIncludePredicate.equals((Predicate<V>)(n -> true));
+        && !vertexIncludePredicate.equals((Predicate<V>) (n -> true));
   }
 
   /**
@@ -396,8 +396,7 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
    */
   protected boolean edgesAreFiltered() {
     Predicate<E> edgeIncludePredicate = vv.getRenderContext().getEdgeIncludePredicate();
-    return edgeIncludePredicate != null
-        && !edgeIncludePredicate.equals((Predicate<V>)(n -> true));
+    return edgeIncludePredicate != null && !edgeIncludePredicate.equals((Predicate<V>) (n -> true));
   }
 
   /**
