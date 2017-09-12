@@ -8,7 +8,6 @@
  */
 package edu.uci.ics.jung.samples;
 
-import com.google.common.base.Supplier;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.NetworkBuilder;
 import edu.uci.ics.jung.algorithms.layout.AbstractLayout;
@@ -34,6 +33,7 @@ import java.awt.print.Printable;
 import java.awt.print.PrinterJob;
 import java.io.File;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.JApplet;

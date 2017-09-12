@@ -9,8 +9,8 @@
  */
 package edu.uci.ics.jung.algorithms.generators.random;
 
-import com.google.common.base.Supplier;
 import com.google.common.graph.Graph;
+import java.util.function.Supplier;
 import junit.framework.Assert;
 import junit.framework.Test;
 import junit.framework.TestCase;

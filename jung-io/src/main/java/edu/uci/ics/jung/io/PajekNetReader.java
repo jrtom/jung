@@ -12,7 +12,6 @@
 package edu.uci.ics.jung.io;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Supplier;
 import com.google.common.graph.MutableNetwork;
 import edu.uci.ics.jung.algorithms.util.MapSettableTransformer;
 import edu.uci.ics.jung.algorithms.util.SettableTransformer;
@@ -26,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 /**
  * Reads a <code>Graph</code> from a Pajek NET formatted source.

@@ -4,11 +4,11 @@
  */
 package edu.uci.ics.jung.algorithms.shortestpath;
 
-import com.google.common.base.Supplier;
 import com.google.common.collect.BiMap;
 import com.google.common.graph.GraphBuilder;
 import com.google.common.graph.MutableGraph;
 import edu.uci.ics.jung.algorithms.util.Indexer;
+import java.util.function.Supplier;
 import junit.framework.Assert;
 import junit.framework.Test;
 import junit.framework.TestCase;

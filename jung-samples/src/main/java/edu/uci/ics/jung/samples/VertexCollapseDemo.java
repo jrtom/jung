@@ -8,7 +8,6 @@
  */
 package edu.uci.ics.jung.samples;
 
-import com.google.common.base.Predicates;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
@@ -109,7 +108,7 @@ public class VertexCollapseDemo extends JApplet {
 
     final Set exclusions = new HashSet();
     final PredicatedParallelEdgeIndexFunction eif =
-        new PredicatedParallelEdgeIndexFunction(graph, Predicates.in(exclusions));
+        new PredicatedParallelEdgeIndexFunction(graph, exclusions::contains);
 
     vv.getRenderContext().setParallelEdgeIndexFunction(eif);
 

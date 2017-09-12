@@ -7,7 +7,6 @@
  */
 package edu.uci.ics.jung.visualization;
 
-import com.google.common.base.Predicates;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.graph.util.EdgeIndexFunction;
@@ -39,7 +38,7 @@ public class PluggableRenderContext<V, E> implements RenderContext<V, E> {
   private final Network<V, E> network;
 
   protected float arrowPlacementTolerance = 1;
-  protected Predicate<V> vertexIncludePredicate = Predicates.alwaysTrue();
+  protected Predicate<V> vertexIncludePredicate = n -> true;
   protected Function<? super V, Stroke> vertexStrokeTransformer = n -> new BasicStroke(1.0f);
 
   protected Function<? super V, Shape> vertexShapeTransformer =
@@ -63,7 +62,7 @@ public class PluggableRenderContext<V, E> implements RenderContext<V, E> {
   protected Shape edgeArrow;
   protected boolean renderEdgeArrow;
 
-  protected Predicate<E> edgeIncludePredicate = Predicates.alwaysTrue();
+  protected Predicate<E> edgeIncludePredicate = n -> true;
   protected Function<? super E, Font> edgeFontTransformer =
       n -> new Font("Helvetica", Font.PLAIN, 12);
 

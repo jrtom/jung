@@ -11,7 +11,6 @@
  */
 package edu.uci.ics.jung.visualization.picking;
 
-import com.google.common.base.Predicates;
 import com.google.common.collect.Sets;
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Network;
@@ -386,7 +385,7 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
   protected boolean verticesAreFiltered() {
     Predicate<V> vertexIncludePredicate = vv.getRenderContext().getVertexIncludePredicate();
     return vertexIncludePredicate != null
-        && vertexIncludePredicate.equals(Predicates.alwaysTrue()) == false;
+        && !vertexIncludePredicate.equals((Predicate<V>) (n -> true));
   }
 
   /**
@@ -397,8 +396,7 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
    */
   protected boolean edgesAreFiltered() {
     Predicate<E> edgeIncludePredicate = vv.getRenderContext().getEdgeIncludePredicate();
-    return edgeIncludePredicate != null
-        && edgeIncludePredicate.equals(Predicates.alwaysTrue()) == false;
+    return edgeIncludePredicate != null && !edgeIncludePredicate.equals((Predicate<V>) (n -> true));
   }
 
   /**

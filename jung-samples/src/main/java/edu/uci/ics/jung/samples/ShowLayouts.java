@@ -7,7 +7,6 @@
  */
 package edu.uci.ics.jung.samples;
 
-import com.google.common.base.Supplier;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
 import edu.uci.ics.jung.algorithms.generators.random.BarabasiAlbertGenerator;
@@ -32,6 +31,7 @@ import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.function.Supplier;
 import javax.swing.JApplet;
 import javax.swing.JButton;
 import javax.swing.JComboBox;

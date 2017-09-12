@@ -7,7 +7,6 @@
  */
 package edu.uci.ics.jung.samples;
 
-import com.google.common.base.Supplier;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
@@ -15,6 +14,7 @@ import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.io.PajekNetReader;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import java.io.IOException;
+import java.util.function.Supplier;
 import javax.swing.JFrame;
 
 /** A class that shows the minimal work necessary to load and visualize a graph. */

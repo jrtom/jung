@@ -1,6 +1,5 @@
 package edu.uci.ics.jung.visualization.control;
 
-import com.google.common.base.Supplier;
 import edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import java.awt.Cursor;
@@ -8,6 +7,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Point2D;
+import java.util.function.Supplier;
 import javax.swing.JComponent;
 
 /**

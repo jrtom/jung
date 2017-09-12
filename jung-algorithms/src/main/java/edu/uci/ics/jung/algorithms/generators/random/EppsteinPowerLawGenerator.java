@@ -9,7 +9,6 @@
  */
 package edu.uci.ics.jung.algorithms.generators.random;
 
-import com.google.common.base.Supplier;
 import com.google.common.graph.Graph;
 import com.google.common.graph.GraphBuilder;
 import com.google.common.graph.MutableGraph;
@@ -17,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.function.Supplier;
 
 /**
  * Graph generator that generates undirected graphs with power-law degree distributions.
