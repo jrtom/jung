@@ -11,12 +11,13 @@ package edu.uci.ics.jung.algorithms.cluster;
 
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Graph;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
 import java.util.function.Function;
 
 /**
@@ -35,7 +36,7 @@ public class BicomponentClusterer<V, E> implements Function<Graph<V>, Set<Set<V>
   protected Map<V, Number> dfs_num;
   protected Map<V, Number> high;
   protected Map<V, V> parents;
-  protected Stack<EndpointPair<V>> stack;
+  protected Deque<EndpointPair<V>> stack;
   protected int converse_depth;
 
   /** Constructs a new bicomponent finder */
@@ -63,7 +64,7 @@ public class BicomponentClusterer<V, E> implements Function<Graph<V>, Set<Set<V>
     for (V v : graph.nodes()) {
       if (dfs_num.get(v).intValue() == 0) { // if we haven't hit this vertex yet...
         high = new HashMap<V, Number>();
-        stack = new Stack<EndpointPair<V>>();
+        stack = new ArrayDeque<EndpointPair<V>>();
         parents = new HashMap<V, V>();
         converse_depth = graph.nodes().size();
         // find the biconnected components for this subgraph, starting from v

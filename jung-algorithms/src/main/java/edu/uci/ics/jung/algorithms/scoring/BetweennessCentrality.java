@@ -12,14 +12,15 @@ package edu.uci.ics.jung.algorithms.scoring;
 
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.algorithms.util.MapBinaryHeap;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
-import java.util.Stack;
 import java.util.function.Function;
 
 /**
@@ -94,15 +95,10 @@ public class BetweennessCentrality<V, E> implements VertexScorer<V, Double>, Edg
         this.vertex_data.put(s, new BetweennessData());
       }
 
-      //			if (v.equals(new Integer(0)))
-      //				System.out.println("pause");
-
       vertex_data.get(v).numSPs = 1;
       vertex_data.get(v).distance = 0;
 
-      Stack<V> stack = new Stack<V>();
-      //            Buffer<V> queue = new UnboundedFifoBuffer<V>();
-      //            queue.add(v);
+      Deque<V> stack = new ArrayDeque<V>();
       queue.offer(v);
 
       while (!queue.isEmpty()) {

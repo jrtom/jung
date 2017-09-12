@@ -12,7 +12,8 @@ package edu.uci.ics.jung.io.graphml.parser;
 
 import edu.uci.ics.jung.io.GraphIOException;
 import edu.uci.ics.jung.io.graphml.ExceptionConverter;
-import java.util.Stack;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
@@ -34,7 +35,7 @@ public class UnknownElementParser implements ElementParser {
   public Object parse(XMLEventReader xmlEventReader, StartElement start) throws GraphIOException {
 
     try {
-      Stack<String> skippedElements = new Stack<String>();
+      Deque<String> skippedElements = new ArrayDeque<String>();
       skippedElements.add(start.getName().getLocalPart());
 
       while (xmlEventReader.hasNext()) {
