@@ -1,7 +1,6 @@
 package edu.uci.ics.jung.visualization.control;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Supplier;
 import com.google.common.graph.MutableNetwork;
 import edu.uci.ics.jung.visualization.MultiLayerTransformer;
 import edu.uci.ics.jung.visualization.RenderContext;
@@ -15,6 +14,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.function.Supplier;
 import javax.swing.ButtonGroup;
 import javax.swing.Icon;
 import javax.swing.JComboBox;

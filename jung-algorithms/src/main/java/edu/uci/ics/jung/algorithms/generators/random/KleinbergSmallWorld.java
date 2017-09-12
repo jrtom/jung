@@ -12,7 +12,6 @@ package edu.uci.ics.jung.algorithms.generators.random;
  */
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Supplier;
 import com.google.common.graph.Graph;
 import com.google.common.graph.MutableNetwork;
 import edu.uci.ics.jung.algorithms.shortestpath.Distance;
@@ -23,6 +22,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
+import java.util.function.Supplier;
 
 /**
  * Graph generator that adds edges to an existing graph so as to give it small world properties.

@@ -7,10 +7,10 @@
  */
 package edu.uci.ics.jung.algorithms.generators.random;
 
-import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
+import java.util.function.Supplier;
 import junit.framework.TestCase;
 
 /**

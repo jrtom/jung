@@ -9,12 +9,12 @@
  */
 package edu.uci.ics.jung.algorithms.flows;
 
-import com.google.common.base.Supplier;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.NetworkBuilder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 import junit.framework.Assert;
 import junit.framework.Test;
 import junit.framework.TestCase;

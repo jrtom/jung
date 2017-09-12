@@ -13,7 +13,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.NetworkBuilder;
@@ -23,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.function.Supplier;
 
 /**
  * Simple evolving scale-free random graph generator. At each time step, a new vertex is created and

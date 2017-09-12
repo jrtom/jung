@@ -10,7 +10,6 @@
 package edu.uci.ics.jung.algorithms.scoring;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Supplier;
 import com.google.common.graph.MutableNetwork;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,6 +19,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 
 /**
  * This algorithm measures the importance of nodes based upon both the number and length of disjoint

@@ -11,7 +11,6 @@
  */
 package edu.uci.ics.jung.io;
 
-import com.google.common.base.Supplier;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
@@ -24,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 

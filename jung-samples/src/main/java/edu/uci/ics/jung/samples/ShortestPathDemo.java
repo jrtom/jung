@@ -3,7 +3,6 @@
  */
 package edu.uci.ics.jung.samples;
 
-import com.google.common.base.Supplier;
 import com.google.common.graph.ElementOrder;
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Graph;
@@ -32,6 +31,7 @@ import java.awt.geom.Point2D;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JComboBox;

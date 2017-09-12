@@ -2,9 +2,9 @@ package edu.uci.ics.jung.algorithms.generators.random;
 
 import static org.junit.Assert.assertEquals;
 
-import com.google.common.base.Supplier;
 import com.google.common.graph.MutableNetwork;
 import edu.uci.ics.jung.algorithms.generators.Lattice2DGenerator;
+import java.util.function.Supplier;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

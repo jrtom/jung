@@ -9,7 +9,6 @@
  */
 package edu.uci.ics.jung.samples;
 
-import com.google.common.base.Supplier;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -45,6 +44,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.function.Supplier;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;

@@ -13,7 +13,6 @@ package edu.uci.ics.jung.algorithms.generators;
 import static java.util.stream.Collectors.toSet;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Supplier;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -27,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 
 /**
  * Simple generator of graphs in the shape of an m x n lattice where each vertex is adjacent to each

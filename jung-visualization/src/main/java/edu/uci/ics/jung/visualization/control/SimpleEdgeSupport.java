@@ -1,10 +1,10 @@
 package edu.uci.ics.jung.visualization.control;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Supplier;
 import com.google.common.graph.MutableNetwork;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 import java.awt.geom.Point2D;
+import java.util.function.Supplier;
 
 public class SimpleEdgeSupport<V, E> implements EdgeSupport<V, E> {
 

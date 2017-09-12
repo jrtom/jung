@@ -4,7 +4,6 @@
  */
 package edu.uci.ics.jung.algorithms.shortestpath;
 
-import com.google.common.base.Supplier;
 import com.google.common.collect.BiMap;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
@@ -18,6 +17,7 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import junit.framework.TestCase;
 
 /** @author Joshua O'Madadhain */

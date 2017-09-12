@@ -7,8 +7,8 @@ import static edu.uci.ics.jung.algorithms.generators.TestLattice2D.Topology.TORO
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import com.google.common.base.Supplier;
 import com.google.common.graph.Network;
+import java.util.function.Supplier;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

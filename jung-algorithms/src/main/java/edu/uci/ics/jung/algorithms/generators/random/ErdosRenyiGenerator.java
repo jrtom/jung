@@ -12,13 +12,13 @@ package edu.uci.ics.jung.algorithms.generators.random;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.base.Supplier;
 import com.google.common.graph.Graph;
 import com.google.common.graph.GraphBuilder;
 import com.google.common.graph.MutableGraph;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.function.Supplier;
 
 /**
  * Generates a random graph using the Erdos-Renyi binomial model (each pair of vertices is connected
