@@ -14,7 +14,6 @@
 package edu.uci.ics.jung.algorithms.util;
 
 import com.google.common.base.Preconditions;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -80,7 +79,7 @@ public class KMeansClusterer<T> {
 
   /** @param convergence_threshold the convergence threshold */
   public void setConvergenceThreshold(double convergence_threshold) {
-    Preconditions.checkArgument(convergence_threshold > 0,"convergence threshold must be > 0");
+    Preconditions.checkArgument(convergence_threshold > 0, "convergence threshold must be > 0");
 
     this.convergence_threshold = convergence_threshold;
   }
@@ -99,7 +98,7 @@ public class KMeansClusterer<T> {
   @SuppressWarnings("unchecked")
   public Collection<Map<T, double[]>> cluster(Map<T, double[]> object_locations, int num_clusters) {
     Preconditions.checkNotNull(object_locations);
-    Preconditions.checkArgument(!object_locations.isEmpty(),"'objects' must be non-empty");
+    Preconditions.checkArgument(!object_locations.isEmpty(), "'objects' must be non-empty");
 
     Preconditions.checkArgument(
         num_clusters >= 2 && num_clusters <= object_locations.size(),

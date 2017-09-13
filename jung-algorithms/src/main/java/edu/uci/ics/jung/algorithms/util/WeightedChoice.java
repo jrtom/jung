@@ -9,7 +9,6 @@
 package edu.uci.ics.jung.algorithms.util;
 
 import com.google.common.base.Preconditions;
-
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;

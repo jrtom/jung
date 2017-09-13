@@ -10,7 +10,6 @@
 package edu.uci.ics.jung.visualization.util;
 
 import com.google.common.base.Preconditions;
-
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;

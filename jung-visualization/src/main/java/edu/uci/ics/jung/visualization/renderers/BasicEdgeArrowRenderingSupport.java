@@ -156,8 +156,8 @@ public class BasicEdgeArrowRenderingSupport<V, E> implements EdgeArrowRenderingS
    */
   protected Line2D getFirstOutsideSegment(Line2D line, Shape shape) {
     Preconditions.checkArgument(
-            shape.contains(line.getP1()),
-            "line start point: " + line.getP1() + " is not contained in shape: " + shape.getBounds2D());
+        shape.contains(line.getP1()),
+        "line start point: " + line.getP1() + " is not contained in shape: " + shape.getBounds2D());
     Line2D left = new Line2D.Float();
     Line2D right = new Line2D.Float();
     // subdivide the line until its right side intersects the

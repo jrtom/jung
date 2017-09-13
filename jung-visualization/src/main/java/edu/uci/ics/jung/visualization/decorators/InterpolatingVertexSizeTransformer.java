@@ -12,7 +12,6 @@
 package edu.uci.ics.jung.visualization.decorators;
 
 import com.google.common.base.Preconditions;
-
 import java.util.function.Function;
 
 /**

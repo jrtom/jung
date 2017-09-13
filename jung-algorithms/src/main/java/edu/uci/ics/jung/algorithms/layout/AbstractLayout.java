@@ -41,8 +41,7 @@ public abstract class AbstractLayout<N> implements Layout<N> {
   protected boolean initialized;
 
   protected LoadingCache<N, Point2D> locations =
-      CacheBuilder.newBuilder()
-          .build(CacheLoader.from(() -> new Point2D.Double()));
+      CacheBuilder.newBuilder().build(CacheLoader.from(() -> new Point2D.Double()));
 
   /**
    * Creates an instance for {@code graph} which does not initialize the node locations.
