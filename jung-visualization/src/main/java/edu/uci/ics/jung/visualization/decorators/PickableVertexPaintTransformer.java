@@ -11,6 +11,7 @@
  */
 package edu.uci.ics.jung.visualization.decorators;
 
+import com.google.common.base.Preconditions;
 import edu.uci.ics.jung.visualization.picking.PickedInfo;
 import java.awt.Paint;
 import java.util.function.Function;
@@ -31,19 +32,12 @@ public class PickableVertexPaintTransformer<V> implements Function<V, Paint> {
    * @param picked_paint <code>Paint</code> used to fill picked vertex shapes
    */
   public PickableVertexPaintTransformer(PickedInfo<V> pi, Paint fill_paint, Paint picked_paint) {
-    if (pi == null) {
-      throw new IllegalArgumentException("PickedInfo instance must be non-null");
-    }
-    this.pi = pi;
-    this.fill_paint = fill_paint;
-    this.picked_paint = picked_paint;
+    this.pi = Preconditions.checkNotNull(pi);
+    this.fill_paint = Preconditions.checkNotNull(fill_paint);
+    this.picked_paint = Preconditions.checkNotNull(picked_paint);
   }
 
   public Paint apply(V v) {
-    if (pi.isPicked(v)) {
-      return picked_paint;
-    } else {
-      return fill_paint;
-    }
+    return pi.isPicked(v) ? picked_paint : fill_paint;
   }
 }

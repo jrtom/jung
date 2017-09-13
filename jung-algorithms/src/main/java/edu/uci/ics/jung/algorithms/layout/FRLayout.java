@@ -7,6 +7,7 @@
  */
 package edu.uci.ics.jung.algorithms.layout;
 
+import com.google.common.base.Preconditions;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -174,10 +175,9 @@ public class FRLayout<N> extends AbstractLayout<N> implements IterativeContext {
 
     double newXDisp = fvd.getX() / deltaLength * Math.min(deltaLength, temperature);
 
-    if (Double.isNaN(newXDisp)) {
-      throw new IllegalArgumentException(
-          "Unexpected mathematical result in FRLayout:calcPositions [xdisp]");
-    }
+    Preconditions.checkState(
+        !Double.isNaN(newXDisp),
+        "Unexpected mathematical result in FRLayout:calcPositions [xdisp]");
 
     double newYDisp = fvd.getY() / deltaLength * Math.min(deltaLength, temperature);
     xyd.setLocation(xyd.getX() + newXDisp, xyd.getY() + newYDisp);
@@ -222,10 +222,8 @@ public class FRLayout<N> extends AbstractLayout<N> implements IterativeContext {
 
     double force = (deltaLength * deltaLength) / attraction_constant;
 
-    if (Double.isNaN(force)) {
-      throw new IllegalArgumentException(
-          "Unexpected mathematical result in FRLayout:calcPositions [force]");
-    }
+    Preconditions.checkState(
+        !Double.isNaN(force), "Unexpected mathematical result in FRLayout:calcPositions [force]");
 
     double dx = (xDelta / deltaLength) * force;
     double dy = (yDelta / deltaLength) * force;

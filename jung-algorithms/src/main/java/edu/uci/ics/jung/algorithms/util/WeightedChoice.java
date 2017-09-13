@@ -8,6 +8,8 @@
  */
 package edu.uci.ics.jung.algorithms.util;
 
+import com.google.common.base.Preconditions;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -84,9 +86,7 @@ public class WeightedChoice<T> {
    *     considered equivalent to a floating-point rounding error)
    */
   public WeightedChoice(Map<T, ? extends Number> item_weights, Random random, double threshold) {
-    if (item_weights.isEmpty()) {
-      throw new IllegalArgumentException("Item weights must be non-empty");
-    }
+    Preconditions.checkArgument(!item_weights.isEmpty(), "Item weights must be non-empty");
 
     int item_count = item_weights.size();
     item_pairs = new ArrayList<ItemPair>(item_count);
@@ -94,9 +94,7 @@ public class WeightedChoice<T> {
     double sum = 0;
     for (Map.Entry<T, ? extends Number> entry : item_weights.entrySet()) {
       double value = entry.getValue().doubleValue();
-      if (value <= 0) {
-        throw new IllegalArgumentException("Weights must be > 0");
-      }
+      Preconditions.checkArgument(value > 0, "Weights must be > 0");
       sum += value;
     }
     double bucket_weight = 1.0 / item_weights.size();

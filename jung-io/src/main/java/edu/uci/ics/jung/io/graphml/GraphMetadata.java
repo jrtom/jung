@@ -10,6 +10,8 @@
 
 package edu.uci.ics.jung.io.graphml;
 
+import com.google.common.base.Preconditions;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -117,10 +119,7 @@ public class GraphMetadata extends AbstractMetadata {
    *     vertex object.
    */
   public String getVertexProperty(Object vertex, String key) throws IllegalArgumentException {
-    NodeMetadata metadata = getNodeMetadata(vertex);
-    if (metadata == null) {
-      throw new IllegalArgumentException("Metadata does not exist for provided vertex");
-    }
+    NodeMetadata metadata = Preconditions.checkNotNull(getNodeMetadata(vertex));
 
     return metadata.getProperty(key);
   }

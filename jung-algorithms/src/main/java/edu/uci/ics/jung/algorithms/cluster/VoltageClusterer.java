@@ -11,6 +11,7 @@
  */
 package edu.uci.ics.jung.algorithms.cluster;
 
+import com.google.common.base.Preconditions;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.algorithms.scoring.VoltageScorer;
 import edu.uci.ics.jung.algorithms.util.DiscreteDistribution;
@@ -80,9 +81,7 @@ public class VoltageClusterer<V, E> {
    * @param num_candidates the number of candidate clusters to create
    */
   public VoltageClusterer(Network<V, E> g, int num_candidates) {
-    if (num_candidates < 1) {
-      throw new IllegalArgumentException("must generate >=1 candidates");
-    }
+    Preconditions.checkArgument(num_candidates >= 1, "must generate >= 1 candidates");
 
     this.num_candidates = num_candidates;
     this.kmc = new KMeansClusterer<V>();

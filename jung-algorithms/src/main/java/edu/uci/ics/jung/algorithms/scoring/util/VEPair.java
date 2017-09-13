@@ -11,6 +11,8 @@
  */
 package edu.uci.ics.jung.algorithms.scoring.util;
 
+import com.google.common.base.Preconditions;
+
 /**
  * Convenience class for associating a vertex and an edge. Used, for example, in contexts in which
  * it is necessary to know the origin for an edge traversal (that is, the direction in which an
@@ -30,9 +32,8 @@ public class VEPair<V, E> {
    * @param e the edge to add
    */
   public VEPair(V v, E e) {
-    if (v == null || e == null) {
-      throw new IllegalArgumentException("elements must be non-null");
-    }
+    Preconditions.checkNotNull(v);
+    Preconditions.checkNotNull(e);
 
     this.v = v;
     this.e = e;

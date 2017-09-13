@@ -11,6 +11,8 @@
  */
 package edu.uci.ics.jung.visualization.decorators;
 
+import com.google.common.base.Preconditions;
+
 import java.util.function.Function;
 
 /**
@@ -28,12 +30,8 @@ public class InterpolatingVertexSizeTransformer<V> implements Function<V, Intege
   public InterpolatingVertexSizeTransformer(
       Function<V, ? extends Number> values, int min_size, int max_size) {
     super();
-    if (min_size < 0 || max_size < 0) {
-      throw new IllegalArgumentException("sizes must be non-negative");
-    }
-    if (min_size > max_size) {
-      throw new IllegalArgumentException("min_size must be <= max_size");
-    }
+    Preconditions.checkArgument(min_size >= 0 && max_size >= 0, "sizes must be non-negative");
+    Preconditions.checkArgument(min_size <= max_size, "min_size must be <= max_size");
     this.min = 0;
     this.max = 0;
     this.values = values;

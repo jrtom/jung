@@ -12,6 +12,7 @@
  */
 package edu.uci.ics.jung.algorithms.layout;
 
+import com.google.common.base.Preconditions;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -79,9 +80,8 @@ public class CircleLayout<N> extends AbstractLayout<N> {
    * @param node_list a list specifying the ordering of the nodes
    */
   public void setNodeOrder(List<N> node_list) {
-    if (!node_list.containsAll(nodes())) {
-      throw new IllegalArgumentException("Supplied list must include " + "all nodes of the graph");
-    }
+    Preconditions.checkArgument(
+        node_list.containsAll(nodes()), "Supplied list must include all nodes of the graph");
     this.node_ordered_list = node_list;
   }
 

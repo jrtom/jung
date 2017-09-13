@@ -179,14 +179,11 @@ public class VoltageScorer<V, E> extends AbstractIterativeScorer<V, E, Double>
 
     for (Map.Entry<V, ? extends Number> entry : source_voltages.entrySet()) {
       V v = entry.getKey();
-      if (sinks.contains(v)) {
-        throw new IllegalArgumentException(
-            "Vertex " + v + " is incorrectly specified as both source and sink");
-      }
+      Preconditions.checkArgument(
+          !sinks.contains(v), "Vertex " + v + " is incorrectly specified as both source and sink");
       double value = entry.getValue().doubleValue();
-      if (value <= 0) {
-        throw new IllegalArgumentException("Source vertex " + v + " has negative voltage");
-      }
+      Preconditions.checkArgument(
+          value > 0, "Source vertex " + v + " has non-positive voltage " + value);
     }
 
     // set up initial voltages

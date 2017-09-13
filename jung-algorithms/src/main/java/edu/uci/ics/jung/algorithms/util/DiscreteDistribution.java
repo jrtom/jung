@@ -166,9 +166,8 @@ public class DiscreteDistribution {
    * @return the mean of the distributions
    */
   public static double[] mean(Collection<double[]> distributions) {
-    if (distributions.isEmpty()) {
-      throw new IllegalArgumentException("Distribution collection must be non-empty");
-    }
+    Preconditions.checkArgument(
+        !distributions.isEmpty(), "Distribution collection must be non-empty");
     Iterator<double[]> iter = distributions.iterator();
     double[] first = iter.next();
     double[][] d_array = new double[distributions.size()][first.length];

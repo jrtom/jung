@@ -165,9 +165,6 @@ public class PajekNetReader<G extends MutableNetwork<V, E>, V, E> {
    * @throws IOException if the graph cannot be loaded
    */
   public G load(String filename, G g) throws IOException {
-    if (g == null) {
-      throw new IllegalArgumentException("Graph provided must be non-null");
-    }
     return load(new FileReader(filename), g);
   }
 
@@ -187,6 +184,7 @@ public class PajekNetReader<G extends MutableNetwork<V, E>, V, E> {
    * @throws IOException if the graph cannot be loaded
    */
   public G load(Reader reader, G g) throws IOException {
+    Preconditions.checkNotNull(g);
     BufferedReader br = new BufferedReader(reader);
 
     // ignore everything until we see '*Vertices'
@@ -257,10 +255,8 @@ public class PajekNetReader<G extends MutableNetwork<V, E>, V, E> {
     if (curLine.indexOf('"') != -1) {
       String[] initial_split = curLine.trim().split("\"");
       // if there are any quote marks, there should be exactly 2
-      if (initial_split.length < 2 || initial_split.length > 3) {
-        throw new IllegalArgumentException(
-            "Unbalanced (or too many) " + "quote marks in " + curLine);
-      }
+      Preconditions.checkArgument(
+          initial_split.length == 2, "Unbalanced (or too many) " + "quote marks in " + curLine);
       index = initial_split[0].trim();
       label = initial_split[1].trim();
       if (initial_split.length == 3) {
@@ -285,10 +281,7 @@ public class PajekNetReader<G extends MutableNetwork<V, E>, V, E> {
       }
     }
     int v_id = Integer.parseInt(index) - 1; // go from 1-based to 0-based index
-    if (v_id >= num_vertices || v_id < 0) {
-      throw new IllegalArgumentException(
-          "Vertex number " + v_id + "is not in the range [1," + num_vertices + "]");
-    }
+    Preconditions.checkArgument(v_id >= 0 && v_id < num_vertices);
     if (id != null) {
       v = id.get(v_id);
     } else {

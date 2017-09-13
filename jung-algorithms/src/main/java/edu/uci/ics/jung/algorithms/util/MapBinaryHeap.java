@@ -250,10 +250,6 @@ public class MapBinaryHeap<T> extends AbstractCollection<T> implements Queue<T> 
     /** @see java.util.Comparator#compare(java.lang.Object, java.lang.Object) */
     @SuppressWarnings("unchecked")
     public int compare(T arg0, T arg1) {
-      if (!(arg0 instanceof Comparable) || !(arg1 instanceof Comparable)) {
-        throw new IllegalArgumentException("Arguments must be Comparable");
-      }
-
       return ((Comparable<T>) arg0).compareTo(arg1);
     }
   }

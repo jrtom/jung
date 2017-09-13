@@ -30,7 +30,6 @@ import java.util.function.Function;
  * @author Danyel Fisher, Scott White
  * @author Tom Nelson - converted to jung2
  * @param <N> the node type
- * @param <E> the edge type
  */
 public abstract class AbstractLayout<N> implements Layout<N> {
 
@@ -43,12 +42,7 @@ public abstract class AbstractLayout<N> implements Layout<N> {
 
   protected LoadingCache<N, Point2D> locations =
       CacheBuilder.newBuilder()
-          .build(
-              new CacheLoader<N, Point2D>() {
-                public Point2D load(N node) {
-                  return new Point2D.Double();
-                }
-              });
+          .build(CacheLoader.from(() -> new Point2D.Double()));
 
   /**
    * Creates an instance for {@code graph} which does not initialize the node locations.
@@ -138,9 +132,8 @@ public abstract class AbstractLayout<N> implements Layout<N> {
   }
 
   public void setInitializer(Function<N, Point2D> initializer) {
-    if (this.equals(initializer)) {
-      throw new IllegalArgumentException("Layout cannot be initialized with itself");
-    }
+    Preconditions.checkArgument(
+        !this.equals(initializer), "Layout cannot be initialized with itself");
     Function<N, Point2D> chain = initializer.andThen(p -> (Point2D) p.clone());
     this.locations = CacheBuilder.newBuilder().build(CacheLoader.from(chain::apply));
     initialized = true;
@@ -158,7 +151,7 @@ public abstract class AbstractLayout<N> implements Layout<N> {
   /**
    * Returns the Coordinates object that stores the node' x and y location.
    *
-   * @param v A node that is a part of the Graph being visualized.
+   * @param node A node that is a part of the Graph being visualized.
    * @return A Coordinates object with x and y locations.
    */
   private Point2D getCoordinates(N node) {
@@ -173,7 +166,7 @@ public abstract class AbstractLayout<N> implements Layout<N> {
    * Returns the x coordinate of the node from the Coordinates object. in most cases you will be
    * better off calling transform(node).
    *
-   * @param v the node whose x coordinate is to be returned
+   * @param node the node whose x coordinate is to be returned
    * @return the x coordinate of {@code node}
    */
   public double getX(N node) {
@@ -185,7 +178,7 @@ public abstract class AbstractLayout<N> implements Layout<N> {
    * Returns the y coordinate of the node from the Coordinates object. In most cases you will be
    * better off calling transform(node).
    *
-   * @param v the node whose y coordinate is to be returned
+   * @param node the node whose y coordinate is to be returned
    * @return the y coordinate of {@code node}
    */
   public double getY(N node) {
@@ -194,7 +187,7 @@ public abstract class AbstractLayout<N> implements Layout<N> {
   }
 
   /**
-   * @param v the node whose coordinates are to be offset
+   * @param node the node whose coordinates are to be offset
    * @param xOffset the change to apply to this node's x coordinate
    * @param yOffset the change to apply to this node's y coordinate
    */
@@ -231,7 +224,7 @@ public abstract class AbstractLayout<N> implements Layout<N> {
   /**
    * Locks {@code node} in place if {@code state} is {@code true}, otherwise unlocks it.
    *
-   * @param v the node whose position is to be (un)locked
+   * @param node the node whose position is to be (un)locked
    * @param state {@code true} if the node is to be locked, {@code false} if to be unlocked
    */
   public void lock(N node, boolean state) {

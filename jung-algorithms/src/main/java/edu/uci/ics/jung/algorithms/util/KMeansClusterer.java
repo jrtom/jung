@@ -13,6 +13,8 @@
  */
 package edu.uci.ics.jung.algorithms.util;
 
+import com.google.common.base.Preconditions;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -66,9 +68,7 @@ public class KMeansClusterer<T> {
 
   /** @param max_iterations the maximum number of iterations */
   public void setMaxIterations(int max_iterations) {
-    if (max_iterations < 0) {
-      throw new IllegalArgumentException("max iterations must be >= 0");
-    }
+    Preconditions.checkArgument(max_iterations >= 0, "max iterations must be >= 0");
 
     this.max_iterations = max_iterations;
   }
@@ -80,9 +80,7 @@ public class KMeansClusterer<T> {
 
   /** @param convergence_threshold the convergence threshold */
   public void setConvergenceThreshold(double convergence_threshold) {
-    if (convergence_threshold <= 0) {
-      throw new IllegalArgumentException("convergence threshold " + "must be > 0");
-    }
+    Preconditions.checkArgument(convergence_threshold > 0,"convergence threshold must be > 0");
 
     this.convergence_threshold = convergence_threshold;
   }
@@ -100,17 +98,12 @@ public class KMeansClusterer<T> {
    */
   @SuppressWarnings("unchecked")
   public Collection<Map<T, double[]>> cluster(Map<T, double[]> object_locations, int num_clusters) {
-    if (object_locations == null || object_locations.isEmpty()) {
-      throw new IllegalArgumentException("'objects' must be non-empty");
-    }
+    Preconditions.checkNotNull(object_locations);
+    Preconditions.checkArgument(!object_locations.isEmpty(),"'objects' must be non-empty");
 
-    if (num_clusters < 2 || num_clusters > object_locations.size()) {
-      throw new IllegalArgumentException(
-          "number of clusters "
-              + "must be >= 2 and <= number of objects ("
-              + object_locations.size()
-              + ")");
-    }
+    Preconditions.checkArgument(
+        num_clusters >= 2 && num_clusters <= object_locations.size(),
+        "number of clusters must be >= 2 and <= number of objects");
 
     Set<double[]> centroids = new HashSet<double[]>();
 

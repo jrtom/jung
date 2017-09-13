@@ -10,6 +10,7 @@
  */
 package edu.uci.ics.jung.algorithms.scoring;
 
+import com.google.common.base.Preconditions;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.algorithms.util.MapBinaryHeap;
 import java.util.ArrayDeque;
@@ -59,10 +60,7 @@ public class BetweennessCentrality<V, E> implements VertexScorer<V, Double>, Edg
     // reject negative-weight edges up front
     for (E e : graph.edges()) {
       double e_weight = edge_weights.apply(e).doubleValue();
-      if (e_weight < 0) {
-        throw new IllegalArgumentException(
-            String.format("Weight for edge '%s' is < 0: %d", e, e_weight));
-      }
+      Preconditions.checkArgument(e_weight >= 0, "Weight for edge '%s' is < 0: %d", e, e_weight);
     }
 
     initialize(graph);

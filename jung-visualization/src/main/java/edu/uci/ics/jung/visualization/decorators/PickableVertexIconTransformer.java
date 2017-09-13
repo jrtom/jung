@@ -11,6 +11,7 @@
  */
 package edu.uci.ics.jung.visualization.decorators;
 
+import com.google.common.base.Preconditions;
 import edu.uci.ics.jung.visualization.picking.PickedInfo;
 import java.util.function.Function;
 import javax.swing.Icon;
@@ -25,26 +26,22 @@ public class PickableVertexIconTransformer<V> implements Function<V, Icon> {
   protected Icon picked_icon;
   protected PickedInfo<V> pi;
 
+  // FIXME: we don't need both this and Pickable{Edge,Vertex}PaintTransformer;
+  // just make a generic version that covers all three
+
   /**
    * @param pi specifies which vertices report as "picked"
    * @param icon <code>Icon</code> used to represent vertices
    * @param picked_icon <code>Icon</code> used to represent picked vertices
    */
   public PickableVertexIconTransformer(PickedInfo<V> pi, Icon icon, Icon picked_icon) {
-    if (pi == null) {
-      throw new IllegalArgumentException("PickedInfo instance must be non-null");
-    }
-    this.pi = pi;
-    this.icon = icon;
-    this.picked_icon = picked_icon;
+    this.pi = Preconditions.checkNotNull(pi);
+    this.icon = Preconditions.checkNotNull(icon);
+    this.picked_icon = Preconditions.checkNotNull(picked_icon);
   }
 
   /** Returns the appropriate <code>Icon</code>, depending on picked state. */
   public Icon apply(V v) {
-    if (pi.isPicked(v)) {
-      return picked_icon;
-    } else {
-      return icon;
-    }
+    return pi.isPicked(v) ? picked_icon : icon;
   }
 }
