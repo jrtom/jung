@@ -9,6 +9,7 @@
  */
 package edu.uci.ics.jung.visualization.renderers;
 
+import com.google.common.base.Preconditions;
 import edu.uci.ics.jung.visualization.RenderContext;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
@@ -64,9 +65,9 @@ public class BasicEdgeArrowRenderingSupport<V, E> implements EdgeArrowRenderingS
       } else if (ret == PathIterator.SEG_LINETO) {
         p1 = p2;
         p2 = new Point2D.Float(seg[0], seg[1]);
-        if (passedGo == false && vertexShape.contains(p2)) {
+        if (!passedGo && vertexShape.contains(p2)) {
           passedGo = true;
-        } else if (passedGo == true && vertexShape.contains(p2) == false) {
+        } else if (passedGo && !vertexShape.contains(p2)) {
           at = getReverseArrowTransform(rc, new Line2D.Float(p1, p2), vertexShape);
           break;
         }
@@ -129,12 +130,9 @@ public class BasicEdgeArrowRenderingSupport<V, E> implements EdgeArrowRenderingS
    * @throws IllegalArgumentException if the passed line's point2 is not inside the shape
    */
   protected Line2D getLastOutsideSegment(Line2D line, Shape shape) {
-    if (shape.contains(line.getP2()) == false) {
-      String errorString =
-          "line end point: " + line.getP2() + " is not contained in shape: " + shape.getBounds2D();
-      throw new IllegalArgumentException(errorString);
-      //return null;
-    }
+    Preconditions.checkArgument(
+        shape.contains(line.getP2()),
+        "line end point: " + line.getP2() + " is not contained in shape: " + shape.getBounds2D());
     Line2D left = new Line2D.Double();
     Line2D right = new Line2D.Double();
     // subdivide the line until its left segment intersects
@@ -142,7 +140,7 @@ public class BasicEdgeArrowRenderingSupport<V, E> implements EdgeArrowRenderingS
     do {
       subdivide(line, left, right);
       line = right;
-    } while (shape.contains(line.getP1()) == false);
+    } while (!shape.contains(line.getP1()));
     // now that right is completely inside shape,
     // return left, which must be partially outside
     return left;
@@ -157,15 +155,9 @@ public class BasicEdgeArrowRenderingSupport<V, E> implements EdgeArrowRenderingS
    * @throws IllegalArgumentException if the passed line's point1 is not inside the shape
    */
   protected Line2D getFirstOutsideSegment(Line2D line, Shape shape) {
-
-    if (shape.contains(line.getP1()) == false) {
-      String errorString =
-          "line start point: "
-              + line.getP1()
-              + " is not contained in shape: "
-              + shape.getBounds2D();
-      throw new IllegalArgumentException(errorString);
-    }
+    Preconditions.checkArgument(
+        shape.contains(line.getP1()),
+        "line start point: " + line.getP1() + " is not contained in shape: " + shape.getBounds2D());
     Line2D left = new Line2D.Float();
     Line2D right = new Line2D.Float();
     // subdivide the line until its right side intersects the
@@ -173,7 +165,7 @@ public class BasicEdgeArrowRenderingSupport<V, E> implements EdgeArrowRenderingS
     do {
       subdivide(line, left, right);
       line = left;
-    } while (shape.contains(line.getP2()) == false);
+    } while (!shape.contains(line.getP2()));
     // now that left is completely inside shape,
     // return right, which must be partially outside
     return right;

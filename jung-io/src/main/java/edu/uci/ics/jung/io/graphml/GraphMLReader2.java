@@ -10,6 +10,7 @@
 
 package edu.uci.ics.jung.io.graphml;
 
+import com.google.common.base.Preconditions;
 import com.google.common.graph.MutableNetwork;
 import edu.uci.ics.jung.io.GraphIOException;
 import edu.uci.ics.jung.io.GraphReader;
@@ -51,7 +52,6 @@ public class GraphMLReader2<G extends MutableNetwork<V, E>, V, E> implements Gra
   protected Function<GraphMetadata, G> graphTransformer;
   protected Function<NodeMetadata, V> vertexTransformer;
   protected Function<EdgeMetadata, E> edgeTransformer;
-  //    protected Function<HyperEdgeMetadata, E> hyperEdgeTransformer;
   protected boolean initialized;
   protected final GraphMLDocument document = new GraphMLDocument();
   protected final ElementParserRegistry<G, V, E> parserRegistry;
@@ -78,26 +78,10 @@ public class GraphMLReader2<G extends MutableNetwork<V, E>, V, E> implements Gra
       Function<NodeMetadata, V> vertexTransformer,
       Function<EdgeMetadata, E> edgeTransformer) {
 
-    if (fileReader == null) {
-      throw new IllegalArgumentException("Argument fileReader must be non-null");
-    }
-
-    if (graphTransformer == null) {
-      throw new IllegalArgumentException("Argument graphTransformer must be non-null");
-    }
-
-    if (vertexTransformer == null) {
-      throw new IllegalArgumentException("Argument vertexTransformer must be non-null");
-    }
-
-    if (edgeTransformer == null) {
-      throw new IllegalArgumentException("Argument edgeTransformer must be non-null");
-    }
-
-    this.fileReader = fileReader;
-    this.graphTransformer = graphTransformer;
-    this.vertexTransformer = vertexTransformer;
-    this.edgeTransformer = edgeTransformer;
+    this.fileReader = Preconditions.checkNotNull(fileReader);
+    this.graphTransformer = Preconditions.checkNotNull(graphTransformer);
+    this.vertexTransformer = Preconditions.checkNotNull(vertexTransformer);
+    this.edgeTransformer = Preconditions.checkNotNull(edgeTransformer);
 
     // Create the parser registry.
     this.parserRegistry =
@@ -121,43 +105,18 @@ public class GraphMLReader2<G extends MutableNetwork<V, E>, V, E> implements Gra
    *     objects. This must be non-null.
    * @param edgeTransformer Transformation function to convert from GraphML EdgeMetadata to edge
    *     objects. This must be non-null.
-   * @param hyperEdgeTransformer Transformation function to convert from GraphML HyperEdgeMetadata
-   *     to edge objects. This must be non-null.
    * @throws IllegalArgumentException thrown if any of the arguments are null.
    */
   public GraphMLReader2(
       InputStream inputStream,
       Function<GraphMetadata, G> graphTransformer,
       Function<NodeMetadata, V> vertexTransformer,
-      Function<EdgeMetadata, E> edgeTransformer) { //
-    //                          Function<HyperEdgeMetadata, E> hyperEdgeTransformer) {
+      Function<EdgeMetadata, E> edgeTransformer) {
 
-    if (inputStream == null) {
-      throw new IllegalArgumentException("Argument inputStream must be non-null");
-    }
-
-    if (graphTransformer == null) {
-      throw new IllegalArgumentException("Argument graphTransformer must be non-null");
-    }
-
-    if (vertexTransformer == null) {
-      throw new IllegalArgumentException("Argument vertexTransformer must be non-null");
-    }
-
-    if (edgeTransformer == null) {
-      throw new IllegalArgumentException("Argument edgeTransformer must be non-null");
-    }
-
-    //        if (hyperEdgeTransformer == null) {
-    //            throw new IllegalArgumentException(
-    //                    "Argument hyperEdgeTransformer must be non-null");
-    //        }
-
-    this.inputStream = inputStream;
-    this.graphTransformer = graphTransformer;
-    this.vertexTransformer = vertexTransformer;
-    this.edgeTransformer = edgeTransformer;
-    //        this.hyperEdgeTransformer = hyperEdgeTransformer;
+    this.inputStream = Preconditions.checkNotNull(inputStream);
+    this.graphTransformer = Preconditions.checkNotNull(graphTransformer);
+    this.vertexTransformer = Preconditions.checkNotNull(vertexTransformer);
+    this.edgeTransformer = Preconditions.checkNotNull(edgeTransformer);
 
     // Create the parser registry.
     this.parserRegistry =
@@ -194,15 +153,6 @@ public class GraphMLReader2<G extends MutableNetwork<V, E>, V, E> implements Gra
   public Function<EdgeMetadata, E> getEdgeTransformer() {
     return edgeTransformer;
   }
-
-  //    /**
-  //     * Gets the current Function that is being used for hyperedge objects.
-  //     *
-  //     * @return the current Function.
-  //     */
-  //    public Function<HyperEdgeMetadata, E> getHyperEdgeTransformer() {
-  //        return hyperEdgeTransformer;
-  //    }
 
   /**
    * Verifies the object state and initializes this reader. All Function properties must be set and
@@ -269,7 +219,6 @@ public class GraphMLReader2<G extends MutableNetwork<V, E>, V, E> implements Gra
       graphTransformer = null;
       vertexTransformer = null;
       edgeTransformer = null;
-      //            hyperEdgeTransformer = null;
     }
   }
 

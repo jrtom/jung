@@ -9,6 +9,7 @@
  */
 package edu.uci.ics.jung.visualization.util;
 
+import com.google.common.base.Preconditions;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
@@ -112,9 +113,7 @@ public class VertexShapeFactory<V> {
    * @return a regular polygon for this vertex
    */
   public Shape getRegularPolygon(V v, int num_sides) {
-    if (num_sides < 3) {
-      throw new IllegalArgumentException("Number of sides must be >= 3");
-    }
+    Preconditions.checkArgument(num_sides >= 3, "Number of sides must be >= 3");
     Rectangle2D frame = getRectangle(v);
     float width = (float) frame.getWidth();
     float height = (float) frame.getHeight();
@@ -144,8 +143,7 @@ public class VertexShapeFactory<V> {
     AffineTransform at = AffineTransform.getScaleInstance(scale_x, scale_y);
     at.translate(-translationX, -translationY);
 
-    Shape shape = at.createTransformedShape(thePolygon);
-    return shape;
+    return at.createTransformedShape(thePolygon);
   }
 
   /**
@@ -158,9 +156,7 @@ public class VertexShapeFactory<V> {
    * @return an star shape for this vertex
    */
   public Shape getRegularStar(V v, int num_points) {
-    if (num_points < 5) {
-      throw new IllegalArgumentException("Number of sides must be >= 5");
-    }
+    Preconditions.checkArgument(num_points >= 5, "Number of points must be >= 5");
     Rectangle2D frame = getRectangle(v);
     float width = (float) frame.getWidth();
     float height = (float) frame.getHeight();
@@ -199,7 +195,6 @@ public class VertexShapeFactory<V> {
     AffineTransform at = AffineTransform.getScaleInstance(scale_x, scale_y);
     at.translate(-translationX, -translationY);
 
-    Shape shape = at.createTransformedShape(thePolygon);
-    return shape;
+    return at.createTransformedShape(thePolygon);
   }
 }

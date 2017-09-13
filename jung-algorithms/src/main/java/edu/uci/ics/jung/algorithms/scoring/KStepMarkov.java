@@ -8,6 +8,7 @@
  */
 package edu.uci.ics.jung.algorithms.scoring;
 
+import com.google.common.base.Preconditions;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.algorithms.scoring.util.ScoringUtils;
 import java.util.function.Function;
@@ -89,12 +90,8 @@ public class KStepMarkov<V, E> extends PageRankWithPriors<V, E> {
   }
 
   private void initialize(int steps) {
+    Preconditions.checkArgument(steps >= 0, "Number of steps must be > 0");
     this.acceptDisconnectedGraph(false);
-
-    if (steps <= 0) {
-      throw new IllegalArgumentException("Number of steps must be > 0");
-    }
-
     this.max_iterations = steps;
     this.tolerance = -1.0;
 

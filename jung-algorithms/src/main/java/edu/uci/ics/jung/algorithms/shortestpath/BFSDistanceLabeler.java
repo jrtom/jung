@@ -73,9 +73,6 @@ public class BFSDistanceLabeler<N> {
   public int getDistance(Graph<N> g, N v) {
     Preconditions.checkArgument(
         g.nodes().contains(v), "Vertex %s is not contained in the graph %s", v, g);
-    if (!g.nodes().contains(v)) {
-      throw new IllegalArgumentException("Vertex is not contained in the graph.");
-    }
 
     return distanceDecorator.get(v);
   }
@@ -100,7 +97,7 @@ public class BFSDistanceLabeler<N> {
 
     mCurrentList = new ArrayList<N>();
     for (N v : rootSet) {
-      distanceDecorator.put(v, new Integer(0));
+      distanceDecorator.put(v, 0);
       mCurrentList.add(v);
       mUnvisitedVertices.remove(v);
       mVerticesInOrderVisited.add(v);
@@ -143,7 +140,7 @@ public class BFSDistanceLabeler<N> {
     }
 
     for (N v : mUnvisitedVertices) {
-      distanceDecorator.put(v, new Integer(-1));
+      distanceDecorator.put(v, -1);
     }
   }
 
@@ -160,7 +157,7 @@ public class BFSDistanceLabeler<N> {
 
   private void visitNewVertex(N predecessor, N neighbor, int distance, List<N> newList) {
     if (mUnvisitedVertices.contains(neighbor)) {
-      distanceDecorator.put(neighbor, new Integer(distance));
+      distanceDecorator.put(neighbor, distance);
       newList.add(neighbor);
       mVerticesInOrderVisited.add(neighbor);
       mUnvisitedVertices.remove(neighbor);

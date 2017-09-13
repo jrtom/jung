@@ -11,6 +11,7 @@
  */
 package edu.uci.ics.jung.algorithms.scoring;
 
+import com.google.common.base.Preconditions;
 import com.google.common.graph.Network;
 import java.util.function.Function;
 
@@ -153,18 +154,12 @@ public class HITSWithPriors<V, E> extends AbstractIterativeScorerWithPriors<V, E
   @Override
   protected void collectDisappearingPotential(V v) {
     if (graph.outDegree(v) == 0) {
-      if (isDisconnectedGraphOK()) {
-        disappearing_potential.hub += getCurrentValue(v).authority;
-      } else {
-        throw new IllegalArgumentException("Outdegree of " + v + " must be > 0");
-      }
+      Preconditions.checkArgument(isDisconnectedGraphOK(), "Outdegree of " + v + " must be > 0");
+      disappearing_potential.hub += getCurrentValue(v).authority;
     }
     if (graph.inDegree(v) == 0) {
-      if (isDisconnectedGraphOK()) {
-        disappearing_potential.authority += getCurrentValue(v).hub;
-      } else {
-        throw new IllegalArgumentException("Indegree of " + v + " must be > 0");
-      }
+      Preconditions.checkArgument(isDisconnectedGraphOK(), "Indegree of " + v + " must be > 0");
+      disappearing_potential.authority += getCurrentValue(v).hub;
     }
   }
 }
