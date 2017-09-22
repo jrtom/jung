@@ -27,7 +27,8 @@ public class LayoutTransition<V, E> implements IterativeContext {
       Relaxer relaxer = new VisRunner((IterativeContext) endLayout);
       relaxer.prerelax();
     }
-    this.transitionLayout = new StaticLayout<V>(vv.getModel().getNetwork().asGraph(), startLayout);
+    this.transitionLayout =
+        new StaticLayout<V>(vv.getModel().getLayoutMediator().getNetwork().asGraph(), startLayout);
     vv.setGraphLayout(transitionLayout);
   }
 
@@ -36,7 +37,7 @@ public class LayoutTransition<V, E> implements IterativeContext {
   }
 
   public void step() {
-    for (V v : vv.getModel().getNetwork().nodes()) {
+    for (V v : vv.getModel().getLayoutMediator().getNetwork().nodes()) {
       Point2D tp = transitionLayout.apply(v);
       Point2D fp = endLayout.apply(v);
       double dx = (fp.getX() - tp.getX()) / (count - counter);

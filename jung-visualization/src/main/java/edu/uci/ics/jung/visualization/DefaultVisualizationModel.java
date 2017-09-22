@@ -17,6 +17,7 @@ import edu.uci.ics.jung.algorithms.util.IterativeContext;
 import edu.uci.ics.jung.visualization.layout.ObservableCachingLayout;
 import edu.uci.ics.jung.visualization.util.ChangeEventSupport;
 import edu.uci.ics.jung.visualization.util.DefaultChangeEventSupport;
+import edu.uci.ics.jung.visualization.util.LayoutMediator;
 import java.awt.Dimension;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -36,13 +37,10 @@ public class DefaultVisualizationModel<N, E>
   /** manages the thread that applies the current layout algorithm */
   protected Relaxer relaxer;
 
-  /** the layout algorithm currently in use */
-  protected Layout<N> layout;
+  protected LayoutMediator<N, E> layoutMediator;
 
   /** listens for changes in the layout, forwards to the viewer */
   protected ChangeListener changeListener;
-
-  private final Network<N, E> network;
 
   /** @param layout The Layout to apply, with its associated Network */
   public DefaultVisualizationModel(Network<N, E> network, Layout<N> layout) {
@@ -56,7 +54,8 @@ public class DefaultVisualizationModel<N, E>
    * @param d The preferred size of the View that will display this graph
    */
   public DefaultVisualizationModel(Network<N, E> network, Layout<N> layout, Dimension d) {
-    this.network = network;
+    this.layoutMediator = new LayoutMediator<>(network, layout);
+    //    this.network = network;
     if (changeListener == null) {
       changeListener =
           new ChangeListener() {
@@ -75,18 +74,25 @@ public class DefaultVisualizationModel<N, E>
    * @param viewSize the size of the View that will display this layout
    */
   public void setGraphLayout(Layout<N> layout, Dimension viewSize) {
+
+    Layout<N> currentLayout = this.layoutMediator.getLayout();
     // remove listener from old layout
-    if (this.layout != null && this.layout instanceof ChangeEventSupport) {
-      ((ChangeEventSupport) this.layout).removeChangeListener(changeListener);
+    if (currentLayout != null && currentLayout instanceof ChangeEventSupport) {
+      ((ChangeEventSupport) currentLayout).removeChangeListener(changeListener);
     }
+    Network<N, E> currentNetwork = this.layoutMediator.getNetwork();
     // set to new layout
     if (layout instanceof ChangeEventSupport) {
-      this.layout = layout;
+      this.layoutMediator = new LayoutMediator(currentNetwork, layout);
+      //      this.layout = layout;
     } else {
-      this.layout = new ObservableCachingLayout<N>(network.asGraph(), layout);
+      this.layoutMediator =
+          new LayoutMediator(
+              currentNetwork, new ObservableCachingLayout<N, E>(currentNetwork, layout));
+      //      this.layout = new ObservableCachingLayout<N>(network.asGraph(), layout);
     }
 
-    ((ChangeEventSupport) this.layout).addChangeListener(changeListener);
+    ((ChangeEventSupport) this.layoutMediator.getLayout()).addChangeListener(changeListener);
 
     if (viewSize == null) {
       viewSize = new Dimension(600, 600);
@@ -107,7 +113,7 @@ public class DefaultVisualizationModel<N, E>
     if (layout instanceof IterativeContext) {
       layout.initialize();
       if (relaxer == null) {
-        relaxer = new VisRunner((IterativeContext) this.layout);
+        relaxer = new VisRunner((IterativeContext) layout);
         //            	relaxer = new VisRunner((IterativeContext) decoratedLayout);
         relaxer.prerelax();
         relaxer.relax();
@@ -116,21 +122,16 @@ public class DefaultVisualizationModel<N, E>
     fireStateChanged();
   }
 
+  public LayoutMediator<N, E> getLayoutMediator() {
+    return layoutMediator;
+  }
+
   /**
    * set the graph Layout and if it is not already initialized, initialize it to the default
    * VisualizationViewer preferred size of 600x600
    */
   public void setGraphLayout(Layout<N> layout) {
     setGraphLayout(layout, null);
-  }
-
-  /** Returns the current graph layout. */
-  public Layout<N> getGraphLayout() {
-    return layout;
-  }
-
-  public Network<N, E> getNetwork() {
-    return network;
   }
 
   /** @return the relaxer */

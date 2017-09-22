@@ -122,7 +122,7 @@ public class GraphZoomScrollPaneDemo {
     vv.addGraphMouseListener(new TestGraphMouseListener<Integer>());
     vv.getRenderer()
         .setVertexRenderer(
-            new GradientVertexRenderer<Integer>(
+            new GradientVertexRenderer<Integer, Number>(
                 vv, Color.white, Color.red, Color.white, Color.blue, false));
     vv.getRenderContext().setEdgeDrawPaintTransformer(e -> Color.lightGray);
     vv.getRenderContext().setArrowFillPaintTransformer(a -> Color.lightGray);

@@ -31,7 +31,8 @@ public class EditingPopupGraphMousePlugin<V, E> extends AbstractPopupGraphMouseP
   @SuppressWarnings({"unchecked", "serial"})
   protected void handlePopup(MouseEvent e) {
     final VisualizationViewer<V, E> vv = (VisualizationViewer<V, E>) e.getSource();
-    final MutableNetwork<V, E> graph = (MutableNetwork<V, E>) vv.getModel().getNetwork();
+    final MutableNetwork<V, E> graph =
+        (MutableNetwork<V, E>) vv.getModel().getLayoutMediator().getNetwork();
     final Point2D p = e.getPoint();
     NetworkElementAccessor<V, E> pickSupport = vv.getPickSupport();
     if (pickSupport != null) {

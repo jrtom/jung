@@ -193,7 +193,7 @@ public class VertexCollapseDemo extends JApplet {
               Iterator pickedIter = picked.iterator();
               Object nodeU = pickedIter.next();
               Object nodeV = pickedIter.next();
-              Network graph = vv.getModel().getNetwork();
+              Network graph = vv.getModel().getLayoutMediator().getNetwork();
               Collection edges = new HashSet(graph.incidentEdges(nodeU));
               edges.retainAll(graph.incidentEdges(nodeV));
               exclusions.addAll(edges);
@@ -212,7 +212,7 @@ public class VertexCollapseDemo extends JApplet {
               Iterator pickedIter = picked.iterator();
               Object nodeU = pickedIter.next();
               Object nodeV = pickedIter.next();
-              Network graph = vv.getModel().getNetwork();
+              Network graph = vv.getModel().getLayoutMediator().getNetwork();
               Collection edges = new HashSet(graph.incidentEdges(nodeU));
               edges.retainAll(graph.incidentEdges(nodeV));
               exclusions.removeAll(edges);
@@ -229,7 +229,8 @@ public class VertexCollapseDemo extends JApplet {
             Collection picked = new HashSet(vv.getPickedVertexState().getPicked());
             for (Object v : picked) {
               if (v instanceof Network) {
-                Network g = collapser.expand(vv.getModel().getNetwork(), (Network) v);
+                Network g =
+                    collapser.expand(vv.getModel().getLayoutMediator().getNetwork(), (Network) v);
                 vv.getRenderContext().getParallelEdgeIndexFunction().reset();
                 // TODO: need to update VV with new layout
                 layout = new FRLayout(g.asGraph());
@@ -245,7 +246,7 @@ public class VertexCollapseDemo extends JApplet {
         new ActionListener() {
 
           public void actionPerformed(ActionEvent e) {
-            layout = new FRLayout(vv.getModel().getNetwork().asGraph());
+            layout = new FRLayout(vv.getModel().getLayoutMediator().getNetwork().asGraph());
             // TODO: need to update VV with new layout
             exclusions.clear();
             vv.repaint();

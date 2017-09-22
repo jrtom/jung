@@ -52,7 +52,7 @@ public class VisualizationImageServerDemo {
 
     vv.getRenderer()
         .setVertexRenderer(
-            new GradientVertexRenderer<Integer>(
+            new GradientVertexRenderer<Integer, Double>(
                 vv, Color.white, Color.red, Color.white, Color.blue, false));
     vv.getRenderContext().setEdgeDrawPaintTransformer(e -> Color.lightGray);
     vv.getRenderContext().setArrowFillPaintTransformer(e -> Color.lightGray);

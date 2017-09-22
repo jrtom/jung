@@ -57,12 +57,11 @@ public class MagnifyImageLensSupport<V, E> extends AbstractLensSupport<V, E> {
     this.renderContext = vv.getRenderContext();
     this.pickSupport = renderContext.getPickSupport();
     this.renderer = vv.getRenderer();
-    this.transformingRenderer = new BasicRenderer<V, E>(vv.getGraphLayout(), renderContext);
+    this.transformingRenderer = new BasicRenderer<V, E>();
     this.savedGraphicsDecorator = renderContext.getGraphicsContext();
     this.lensTransformer = lensTransformer;
     this.savedEdgeRenderer = vv.getRenderer().getEdgeRenderer();
-    this.reshapingEdgeRenderer =
-        new ReshapingEdgeRenderer<V, E>(vv.getGraphLayout(), renderContext);
+    this.reshapingEdgeRenderer = new ReshapingEdgeRenderer<V, E>();
     this.reshapingEdgeRenderer.setEdgeArrowRenderingSupport(
         savedEdgeRenderer.getEdgeArrowRenderingSupport());
 

@@ -140,8 +140,8 @@ public class BasicVisualizationServer<V, E> extends JPanel
    */
   public BasicVisualizationServer(VisualizationModel<V, E> model, Dimension preferredSize) {
     this.model = model;
-    renderContext = new PluggableRenderContext<V, E>(model.getNetwork());
-    renderer = new BasicRenderer<V, E>(model.getGraphLayout(), renderContext);
+    renderContext = new PluggableRenderContext<V, E>(model.getLayoutMediator().getNetwork());
+    renderer = new BasicRenderer<V, E>();
     model.addChangeListener(this);
     setDoubleBuffered(false);
     this.addComponentListener(new VisualizationListener(this));
@@ -244,7 +244,7 @@ public class BasicVisualizationServer<V, E> extends JPanel
   }
 
   public Layout<V> getGraphLayout() {
-    return model.getGraphLayout();
+    return model.getLayoutMediator().getLayout();
   }
 
   @Override
@@ -255,7 +255,7 @@ public class BasicVisualizationServer<V, E> extends JPanel
       if (d.width <= 0 || d.height <= 0) {
         d = this.getPreferredSize();
       }
-      model.getGraphLayout().setSize(d);
+      model.getLayoutMediator().getLayout().setSize(d);
     }
   }
 
@@ -288,7 +288,7 @@ public class BasicVisualizationServer<V, E> extends JPanel
       renderContext.getGraphicsContext().setDelegate(g2d);
     }
     renderContext.setScreenDevice(this);
-    Layout<V> layout = model.getGraphLayout();
+    Layout<V> layout = model.getLayoutMediator().getLayout();
 
     g2d.setRenderingHints(renderingHints);
 
@@ -322,7 +322,7 @@ public class BasicVisualizationServer<V, E> extends JPanel
       ((Caching) layout).clear();
     }
 
-    renderer.render();
+    renderer.render(renderContext, model.getLayoutMediator());
 
     // if there are postRenderers set, do it
     for (Paintable paintable : postRenderers) {

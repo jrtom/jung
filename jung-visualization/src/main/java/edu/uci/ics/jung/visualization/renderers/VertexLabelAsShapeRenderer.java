@@ -13,6 +13,7 @@ import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
+import edu.uci.ics.jung.visualization.util.LayoutMediator;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Rectangle;
@@ -31,7 +32,8 @@ import java.util.function.Function;
  * @param <V> the vertex type
  * @param <V> the edge type
  */
-public class VertexLabelAsShapeRenderer<V> implements Renderer.VertexLabel<V>, Function<V, Shape> {
+public class VertexLabelAsShapeRenderer<V, E>
+    implements Renderer.VertexLabel<V, E>, Function<V, Shape> {
 
   protected Map<V, Shape> shapes = new HashMap<V, Shape>();
   protected final Layout<V> layout;
@@ -64,7 +66,8 @@ public class VertexLabelAsShapeRenderer<V> implements Renderer.VertexLabel<V>, F
    * the graphics context is used.) If vertex label centering is active, the label is centered on
    * the position of the vertex; otherwise the label is offset slightly.
    */
-  public void labelVertex(V v, String label) {
+  public void labelVertex(
+      RenderContext<V, E> renderContext, LayoutMediator<V, E> layoutMediator, V v, String label) {
     if (!renderContext.getVertexIncludePredicate().test(v)) {
       return;
     }
