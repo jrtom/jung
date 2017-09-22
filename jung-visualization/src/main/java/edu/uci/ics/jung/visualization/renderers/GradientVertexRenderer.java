@@ -41,16 +41,12 @@ public class GradientVertexRenderer<V, E> implements Renderer.Vertex<V, E> {
   Color pickedColorTwo;
   PickedState<V> pickedState;
   boolean cyclic;
-  //  protected final Layout<V> layout;
-  //  protected final RenderContext<V, ?> renderContext;
 
   public GradientVertexRenderer(
       VisualizationServer<V, ?> vv, Color colorOne, Color colorTwo, boolean cyclic) {
     this.colorOne = colorOne;
     this.colorTwo = colorTwo;
     this.cyclic = cyclic;
-    //    this.layout = vv.getGraphLayout();
-    //    this.renderContext = vv.getRenderContext();
   }
 
   public GradientVertexRenderer(

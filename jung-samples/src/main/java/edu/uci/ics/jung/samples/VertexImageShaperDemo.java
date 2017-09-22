@@ -482,10 +482,6 @@ public class VertexImageShaperDemo extends JApplet {
    */
   class DemoRenderer<V, E> extends BasicVertexRenderer<V, E> {
 
-    //    public DemoRenderer(Layout<V> layout, RenderContext<V, ?> rc) {
-    //      super(layout, rc);
-    //    }
-
     public void paintIconForVertex(
         RenderContext<V, E> renderContext, LayoutMediator<V, E> layoutMediator, V v) {
 

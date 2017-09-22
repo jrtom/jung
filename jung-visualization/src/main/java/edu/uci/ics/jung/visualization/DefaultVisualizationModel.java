@@ -38,13 +38,9 @@ public class DefaultVisualizationModel<N, E>
   protected Relaxer relaxer;
 
   protected LayoutMediator<N, E> layoutMediator;
-  /** the layout algorithm currently in use */
-  //  protected Layout<N> layout;
 
   /** listens for changes in the layout, forwards to the viewer */
   protected ChangeListener changeListener;
-
-  //  private final Network<N, E> network;
 
   /** @param layout The Layout to apply, with its associated Network */
   public DefaultVisualizationModel(Network<N, E> network, Layout<N> layout) {
@@ -137,15 +133,6 @@ public class DefaultVisualizationModel<N, E>
   public void setGraphLayout(Layout<N> layout) {
     setGraphLayout(layout, null);
   }
-
-  //  /** Returns the current graph layout. */
-  //  public Layout<N> getGraphLayout() {
-  //    return this.layoutMediator.getLayout();
-  //  }
-  //
-  //  public Network<N, E> getNetwork() {
-  //    return this.layoutMediator.getNetwork();
-  //  }
 
   /** @return the relaxer */
   public Relaxer getRelaxer() {

@@ -43,12 +43,7 @@ public interface VisualizationModel<V, E> extends ChangeEventSupport {
    */
   void setGraphLayout(Layout<V> layout, Dimension d);
 
-  /** @return the current graph layout */
-  //  Layout<V> getGraphLayout();
-
   LayoutMediator<V, E> getLayoutMediator();
-
-  //  Network<V, E> getNetwork();
 
   /**
    * Register <code>l</code> as a listeners to changes in the model. The View registers in order to

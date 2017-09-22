@@ -27,18 +27,6 @@ public class BasicRenderer<V, E> implements Renderer<V, E> {
   protected Renderer.Edge<V, E> edgeRenderer = new BasicEdgeRenderer<V, E>();
   protected Renderer.EdgeLabel<V, E> edgeLabelRenderer = new BasicEdgeLabelRenderer<V, E>();
 
-  //  protected final Layout<V> layout;
-  //  protected final RenderContext<V, E> renderContext;
-
-  //  public BasicRenderer(Layout<V> layout, RenderContext<V, E> rc) {
-  //    this.layout = layout;
-  //    this.renderContext = rc;
-  //    this.vertexRenderer = new BasicVertexRenderer<V>(layout, rc);
-  //    this.vertexLabelRenderer = new BasicVertexLabelRenderer<V>(layout, rc);
-  //    this.edgeRenderer = new BasicEdgeRenderer<V, E>(layout, rc);
-  //    this.edgeLabelRenderer = new BasicEdgeLabelRenderer<V, E>(layout, rc);
-  //  }
-
   @Override
   public void render(RenderContext<V, E> renderContext, LayoutMediator<V, E> layoutMediator) {
     Network<V, E> network = renderContext.getNetwork();

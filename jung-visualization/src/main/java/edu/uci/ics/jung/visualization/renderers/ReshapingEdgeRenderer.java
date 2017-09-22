@@ -39,10 +39,6 @@ import javax.swing.JComponent;
 public class ReshapingEdgeRenderer<V, E> extends BasicEdgeRenderer<V, E>
     implements Renderer.Edge<V, E> {
 
-  //  public ReshapingEdgeRenderer(Layout<V> layout, RenderContext<V, E> rc) {
-  //    super(layout, rc);
-  //  }
-
   /**
    * Draws the edge <code>e</code>, whose endpoints are at <code>(x1,y1)</code> and <code>(x2,y2)
    * </code>, on the graphics context <code>g</code>. The <code>Shape</code> provided by the <code>

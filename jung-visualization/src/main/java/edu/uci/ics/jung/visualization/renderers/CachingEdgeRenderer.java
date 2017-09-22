@@ -32,10 +32,6 @@ public class CachingEdgeRenderer<V, E> extends BasicEdgeRenderer<V, E>
   protected Map<E, Shape> edgeShapeMap = new HashMap<E, Shape>();
   protected Set<E> dirtyEdges = new HashSet<E>();
 
-  //  public CachingEdgeRenderer(Layout<V> layout, RenderContext<V, E> rc) {
-  //    super(layout, rc);
-  //  }
-
   @SuppressWarnings({"rawtypes", "unchecked"})
   public CachingEdgeRenderer(BasicVisualizationServer<V, E> vv) {
     //    super(vv.getGraphLayout(), vv.getRenderContext());

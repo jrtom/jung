@@ -33,13 +33,6 @@ import java.util.function.Predicate;
 import javax.swing.JComponent;
 
 public class BasicEdgeRenderer<V, E> implements Renderer.Edge<V, E> {
-  //  protected final Layout<V> layout;
-  //  protected final RenderContext<V, E> renderContext;
-
-  //  public BasicEdgeRenderer(Layout<V> layout, RenderContext<V, E> rc) {
-  //    this.layout = layout;
-  //    this.renderContext = rc;
-  //  }
 
   protected EdgeArrowRenderingSupport<V, E> edgeArrowRenderingSupport =
       new BasicEdgeArrowRenderingSupport<V, E>();

@@ -26,7 +26,6 @@ public class CachingVertexRenderer<V, E> extends BasicVertexRenderer<V, E>
 
   @SuppressWarnings({"rawtypes", "unchecked"})
   public CachingVertexRenderer(BasicVisualizationServer<V, E> vv) {
-    //    super(vv.getGraphLayout(), vv.getRenderContext());
     vv.getRenderContext().getMultiLayerTransformer().addChangeListener(this);
     Layout<V> layout = vv.getGraphLayout();
     if (layout instanceof LayoutEventSupport) {
@@ -64,7 +63,6 @@ public class CachingVertexRenderer<V, E> extends BasicVertexRenderer<V, E>
   }
 
   public void stateChanged(ChangeEvent evt) {
-    //		System.err.println("got change event "+evt);
     vertexShapeMap.clear();
   }
 

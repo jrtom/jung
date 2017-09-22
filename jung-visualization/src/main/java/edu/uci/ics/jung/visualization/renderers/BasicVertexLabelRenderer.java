@@ -28,13 +28,6 @@ public class BasicVertexLabelRenderer<V, E> implements Renderer.VertexLabel<V, E
 
   protected Position position = Position.SE;
   private Positioner positioner = new OutsidePositioner();
-  //  protected final Layout<V> layout;
-  //  protected final RenderContext<V, ?> renderContext;
-  //
-  //  public BasicVertexLabelRenderer(Layout<V> layout, RenderContext<V, ?> rc) {
-  //    this.layout = layout;
-  //    this.renderContext = rc;
-  //  }
 
   /** @return the position */
   public Position getPosition() {

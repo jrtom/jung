@@ -23,13 +23,6 @@ import java.awt.geom.Point2D;
 import java.util.function.Predicate;
 
 public class BasicEdgeLabelRenderer<V, E> implements Renderer.EdgeLabel<V, E> {
-  //  private final Layout<V> layout;
-  //  private final RenderContext<V, E> renderContext;
-  //
-  //  public BasicEdgeLabelRenderer(Layout<V> layout, RenderContext<V, E> renderContext) {
-  //    this.layout = layout;
-  //    this.renderContext = renderContext;
-  //  }
 
   public Component prepareRenderer(
       RenderContext<V, E> renderContext,

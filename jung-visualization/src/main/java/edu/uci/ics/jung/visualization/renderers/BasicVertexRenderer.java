@@ -26,13 +26,6 @@ import javax.swing.Icon;
 import javax.swing.JComponent;
 
 public class BasicVertexRenderer<V, E> implements Renderer.Vertex<V, E> {
-  //  protected final Layout<V> layout;
-  //  protected final RenderContext<V, ?> renderContext;
-
-  //  public BasicVertexRenderer(Layout<V> layout, RenderContext<V, ?> rc) {
-  //    this.layout = layout;
-  //    this.renderContext = rc;
-  //  }
 
   public void paintVertex(
       RenderContext<V, E> renderContext, LayoutMediator<V, E> layoutMediator, V v) {
