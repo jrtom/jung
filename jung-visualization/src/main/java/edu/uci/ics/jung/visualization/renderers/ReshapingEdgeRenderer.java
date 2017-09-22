@@ -11,12 +11,12 @@ package edu.uci.ics.jung.visualization.renderers;
 
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Network;
-import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.transform.LensTransformer;
 import edu.uci.ics.jung.visualization.transform.MutableTransformer;
 import edu.uci.ics.jung.visualization.transform.shape.TransformingGraphics;
+import edu.uci.ics.jung.visualization.util.LayoutMediator;
 import java.awt.Dimension;
 import java.awt.Paint;
 import java.awt.Rectangle;
@@ -39,9 +39,9 @@ import javax.swing.JComponent;
 public class ReshapingEdgeRenderer<V, E> extends BasicEdgeRenderer<V, E>
     implements Renderer.Edge<V, E> {
 
-  public ReshapingEdgeRenderer(Layout<V> layout, RenderContext<V, E> rc) {
-    super(layout, rc);
-  }
+  //  public ReshapingEdgeRenderer(Layout<V> layout, RenderContext<V, E> rc) {
+  //    super(layout, rc);
+  //  }
 
   /**
    * Draws the edge <code>e</code>, whose endpoints are at <code>(x1,y1)</code> and <code>(x2,y2)
@@ -49,15 +49,16 @@ public class ReshapingEdgeRenderer<V, E> extends BasicEdgeRenderer<V, E>
    * EdgeShapeFunction</code> instance is scaled in the x-direction so that its width is equal to
    * the distance between <code>(x1,y1)</code> and <code>(x2,y2)</code>.
    */
-  protected void drawSimpleEdge(E e) {
+  protected void drawSimpleEdge(
+      RenderContext<V, E> renderContext, LayoutMediator<V, E> layoutMediator, E e) {
 
     TransformingGraphics g = (TransformingGraphics) renderContext.getGraphicsContext();
     Network<V, E> graph = renderContext.getNetwork();
     EndpointPair<V> endpoints = graph.incidentNodes(e);
     V v1 = endpoints.nodeU();
     V v2 = endpoints.nodeV();
-    Point2D p1 = layout.apply(v1);
-    Point2D p2 = layout.apply(v2);
+    Point2D p1 = layoutMediator.getLayout().apply(v1);
+    Point2D p2 = layoutMediator.getLayout().apply(v2);
     p1 = renderContext.getMultiLayerTransformer().transform(Layer.LAYOUT, p1);
     p2 = renderContext.getMultiLayerTransformer().transform(Layer.LAYOUT, p2);
     float x1 = (float) p1.getX();

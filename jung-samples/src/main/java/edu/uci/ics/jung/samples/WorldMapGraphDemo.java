@@ -126,7 +126,7 @@ public class WorldMapGraphDemo extends JApplet {
 
     vv.getRenderer()
         .setVertexRenderer(
-            new GradientVertexRenderer<String>(
+            new GradientVertexRenderer<String, Number>(
                 vv, Color.white, Color.red, Color.white, Color.blue, false));
 
     // add my listeners for ToolTips

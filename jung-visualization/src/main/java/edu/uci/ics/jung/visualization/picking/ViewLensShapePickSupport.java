@@ -173,7 +173,7 @@ public class ViewLensShapePickSupport<V, E> extends ShapePickSupport<V, E> {
     while (true) {
       try {
         Layout<V> layout = vv.getGraphLayout();
-        Network<V, E> network = vv.getModel().getNetwork();
+        Network<V, E> network = vv.getModel().getLayoutMediator().getNetwork();
         for (E e : getFilteredEdges()) {
           EndpointPair<V> endpoints = network.incidentNodes(e);
           V v1 = endpoints.nodeU();

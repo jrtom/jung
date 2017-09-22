@@ -318,7 +318,7 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
    * @return the transformed shape
    */
   private Shape getTransformedEdgeShape(E e) {
-    EndpointPair<V> endpoints = vv.getModel().getNetwork().incidentNodes(e);
+    EndpointPair<V> endpoints = vv.getModel().getLayoutMediator().getNetwork().incidentNodes(e);
     V v1 = endpoints.nodeU();
     V v2 = endpoints.nodeV();
     boolean isLoop = v1.equals(v2);
@@ -363,14 +363,14 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
   }
 
   protected Collection<V> getFilteredVertices() {
-    Set<V> nodes = vv.getModel().getNetwork().nodes();
+    Set<V> nodes = vv.getModel().getLayoutMediator().getNetwork().nodes();
     return verticesAreFiltered()
         ? Sets.filter(nodes, vv.getRenderContext().getVertexIncludePredicate()::test)
         : nodes;
   }
 
   protected Collection<E> getFilteredEdges() {
-    Set<E> edges = vv.getModel().getNetwork().edges();
+    Set<E> edges = vv.getModel().getLayoutMediator().getNetwork().edges();
     return edgesAreFiltered()
         ? Sets.filter(edges, vv.getRenderContext().getEdgeIncludePredicate()::test)
         : edges;
@@ -423,7 +423,7 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
   protected boolean isEdgeRendered(E edge) {
     Predicate<V> vertexIncludePredicate = vv.getRenderContext().getVertexIncludePredicate();
     Predicate<E> edgeIncludePredicate = vv.getRenderContext().getEdgeIncludePredicate();
-    Network<V, E> g = vv.getModel().getNetwork();
+    Network<V, E> g = vv.getModel().getLayoutMediator().getNetwork();
     if (edgeIncludePredicate != null && !edgeIncludePredicate.test(edge)) {
       return false;
     }

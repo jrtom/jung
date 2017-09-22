@@ -11,7 +11,6 @@ package edu.uci.ics.jung.visualization.renderers;
 
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Network;
-import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.graph.util.EdgeIndexFunction;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.RenderContext;
@@ -20,6 +19,7 @@ import edu.uci.ics.jung.visualization.decorators.ParallelEdgeShapeTransformer;
 import edu.uci.ics.jung.visualization.transform.LensTransformer;
 import edu.uci.ics.jung.visualization.transform.MutableTransformer;
 import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
+import edu.uci.ics.jung.visualization.util.LayoutMediator;
 import java.awt.Dimension;
 import java.awt.Paint;
 import java.awt.Rectangle;
@@ -33,19 +33,20 @@ import java.util.function.Predicate;
 import javax.swing.JComponent;
 
 public class BasicEdgeRenderer<V, E> implements Renderer.Edge<V, E> {
-  protected final Layout<V> layout;
-  protected final RenderContext<V, E> renderContext;
+  //  protected final Layout<V> layout;
+  //  protected final RenderContext<V, E> renderContext;
 
-  public BasicEdgeRenderer(Layout<V> layout, RenderContext<V, E> rc) {
-    this.layout = layout;
-    this.renderContext = rc;
-  }
+  //  public BasicEdgeRenderer(Layout<V> layout, RenderContext<V, E> rc) {
+  //    this.layout = layout;
+  //    this.renderContext = rc;
+  //  }
 
   protected EdgeArrowRenderingSupport<V, E> edgeArrowRenderingSupport =
       new BasicEdgeArrowRenderingSupport<V, E>();
 
   @Override
-  public void paintEdge(E e) {
+  public void paintEdge(
+      RenderContext<V, E> renderContext, LayoutMediator<V, E> layoutMediator, E e) {
     GraphicsDecorator g2d = renderContext.getGraphicsContext();
     if (!renderContext.getEdgeIncludePredicate().test(e)) {
       return;
@@ -66,7 +67,7 @@ public class BasicEdgeRenderer<V, E> implements Renderer.Edge<V, E> {
       g2d.setStroke(new_stroke);
     }
 
-    drawSimpleEdge(e);
+    drawSimpleEdge(renderContext, layoutMediator, e);
 
     // restore paint and stroke
     if (new_stroke != null) {
@@ -74,13 +75,18 @@ public class BasicEdgeRenderer<V, E> implements Renderer.Edge<V, E> {
     }
   }
 
-  protected Shape prepareFinalEdgeShape(E e, int[] coords, boolean[] loop) {
+  protected Shape prepareFinalEdgeShape(
+      RenderContext<V, E> renderContext,
+      LayoutMediator<V, E> layoutMediator,
+      E e,
+      int[] coords,
+      boolean[] loop) {
     EndpointPair<V> endpoints = renderContext.getNetwork().incidentNodes(e);
     V v1 = endpoints.nodeU();
     V v2 = endpoints.nodeV();
 
-    Point2D p1 = layout.apply(v1);
-    Point2D p2 = layout.apply(v2);
+    Point2D p1 = layoutMediator.getLayout().apply(v1);
+    Point2D p2 = layoutMediator.getLayout().apply(v2);
     p1 = renderContext.getMultiLayerTransformer().transform(Layer.LAYOUT, p1);
     p2 = renderContext.getMultiLayerTransformer().transform(Layer.LAYOUT, p2);
     float x1 = (float) p1.getX();
@@ -174,11 +180,12 @@ public class BasicEdgeRenderer<V, E> implements Renderer.Edge<V, E> {
    *
    * @param e the edge to be drawn
    */
-  protected void drawSimpleEdge(E e) {
+  protected void drawSimpleEdge(
+      RenderContext<V, E> renderContext, LayoutMediator<V, E> layoutMediator, E e) {
 
     int[] coords = new int[4];
     boolean[] loop = new boolean[1];
-    Shape edgeShape = prepareFinalEdgeShape(e, coords, loop);
+    Shape edgeShape = prepareFinalEdgeShape(renderContext, layoutMediator, e, coords, loop);
 
     int x1 = coords[0];
     int y1 = coords[1];

@@ -48,8 +48,7 @@ public class ViewLensSupport<V, E> extends AbstractLensSupport<V, E> implements 
     lensTransformer.setViewRadius(d.width / 5);
     this.lensGraphicsDecorator = new TransformingFlatnessGraphics(lensTransformer);
     this.savedEdgeRenderer = vv.getRenderer().getEdgeRenderer();
-    this.reshapingEdgeRenderer =
-        new ReshapingEdgeRenderer<V, E>(vv.getGraphLayout(), renderContext);
+    this.reshapingEdgeRenderer = new ReshapingEdgeRenderer<V, E>();
     this.reshapingEdgeRenderer.setEdgeArrowRenderingSupport(
         savedEdgeRenderer.getEdgeArrowRenderingSupport());
   }

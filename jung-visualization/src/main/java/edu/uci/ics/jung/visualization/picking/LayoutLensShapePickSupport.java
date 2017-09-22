@@ -119,7 +119,7 @@ public class LayoutLensShapePickSupport<V, E> extends ShapePickSupport<V, E> {
   public E getEdge(double x, double y) {
 
     Layout<V> layout = vv.getGraphLayout();
-    Network<V, E> network = vv.getModel().getNetwork();
+    Network<V, E> network = vv.getModel().getLayoutMediator().getNetwork();
     Point2D ip =
         vv.getRenderContext()
             .getMultiLayerTransformer()

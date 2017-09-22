@@ -97,7 +97,8 @@ public class ShowLayouts extends JApplet {
       Layouts layoutType = (Layouts) jcb.getSelectedItem();
       try {
         // TODO: is this the right input network?  or should it be g_array[graph_index]?
-        Layout<Integer> layout = createLayout(layoutType, vv.getModel().getNetwork());
+        Layout<Integer> layout =
+            createLayout(layoutType, vv.getModel().getLayoutMediator().getNetwork());
         layout.setInitializer(vv.getGraphLayout());
         layout.setSize(vv.getSize());
         LayoutTransition<Integer, Number> lt =

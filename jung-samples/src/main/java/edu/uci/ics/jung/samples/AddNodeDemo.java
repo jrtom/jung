@@ -129,7 +129,8 @@ public class AddNodeDemo extends javax.swing.JApplet {
               layout.setSize(d);
               vv.getModel().setGraphLayout(layout, d);
               Layout<Number> delegateLayout =
-                  ((LayoutDecorator<Number>) vv.getModel().getGraphLayout()).getDelegate();
+                  ((LayoutDecorator<Number>) vv.getModel().getLayoutMediator().getLayout())
+                      .getDelegate();
               System.err.println("layout: " + delegateLayout.getClass().getName());
               //                    vv.repaint();
             } else {
@@ -137,7 +138,8 @@ public class AddNodeDemo extends javax.swing.JApplet {
               layout = new FRLayout<Number>(g.asGraph(), d);
               vv.getModel().setGraphLayout(layout, d);
               Layout<Number> delegateLayout =
-                  ((LayoutDecorator<Number>) vv.getModel().getGraphLayout()).getDelegate();
+                  ((LayoutDecorator<Number>) vv.getModel().getLayoutMediator().getLayout())
+                      .getDelegate();
               System.err.println("layout: " + delegateLayout.getClass().getName());
               //                    vv.repaint();
             }

@@ -166,7 +166,7 @@ public class L2RTreeLayoutDemo extends JApplet {
   }
 
   private void setLtoR(VisualizationViewer<String, Integer> vv) {
-    Layout<String> layout = vv.getModel().getGraphLayout();
+    Layout<String> layout = vv.getModel().getLayoutMediator().getLayout();
     Dimension d = layout.getSize();
     Point2D center = new Point2D.Double(d.width / 2, d.height / 2);
     vv.getRenderContext()

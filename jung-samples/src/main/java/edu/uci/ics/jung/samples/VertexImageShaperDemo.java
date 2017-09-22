@@ -12,7 +12,6 @@ import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
-import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.algorithms.layout.util.RandomLocationTransformer;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.Layer;
@@ -34,6 +33,7 @@ import edu.uci.ics.jung.visualization.renderers.DefaultEdgeLabelRenderer;
 import edu.uci.ics.jung.visualization.renderers.DefaultVertexLabelRenderer;
 import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
 import edu.uci.ics.jung.visualization.util.ImageShapeUtils;
+import edu.uci.ics.jung.visualization.util.LayoutMediator;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
@@ -134,7 +134,7 @@ public class VertexImageShaperDemo extends JApplet {
     // This demo uses a special renderer to turn outlines on and off.
     // you do not need to do this in a real application.
     // Instead, just let vv use the Renderer it already has
-    vv.getRenderer().setVertexRenderer(new DemoRenderer<Number>(layout, vv.getRenderContext()));
+    vv.getRenderer().setVertexRenderer(new DemoRenderer<Number, Number>());
 
     Function<Number, Paint> vpf =
         new PickableVertexPaintTransformer<Number>(
@@ -480,15 +480,16 @@ public class VertexImageShaperDemo extends JApplet {
    *
    * @author Tom Nelson
    */
-  class DemoRenderer<V> extends BasicVertexRenderer<V> {
+  class DemoRenderer<V, E> extends BasicVertexRenderer<V, E> {
 
-    public DemoRenderer(Layout<V> layout, RenderContext<V, ?> rc) {
-      super(layout, rc);
-    }
+    //    public DemoRenderer(Layout<V> layout, RenderContext<V, ?> rc) {
+    //      super(layout, rc);
+    //    }
 
-    public void paintIconForVertex(V v) {
+    public void paintIconForVertex(
+        RenderContext<V, E> renderContext, LayoutMediator<V, E> layoutMediator, V v) {
 
-      Point2D p = layout.apply(v);
+      Point2D p = layoutMediator.getLayout().apply(v);
       p = renderContext.getMultiLayerTransformer().transform(Layer.LAYOUT, p);
       float x = (float) p.getX();
       float y = (float) p.getY();
@@ -506,7 +507,7 @@ public class VertexImageShaperDemo extends JApplet {
         Shape s =
             AffineTransform.getTranslateInstance(x, y)
                 .createTransformedShape(renderContext.getVertexShapeTransformer().apply(v));
-        paintShapeForVertex(v, s);
+        paintShapeForVertex(renderContext, layoutMediator, v, s);
       }
       if (icon != null) {
         int xLoc = (int) (x - icon.getIconWidth() / 2);

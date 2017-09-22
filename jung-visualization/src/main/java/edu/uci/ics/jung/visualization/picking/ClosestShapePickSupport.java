@@ -78,7 +78,7 @@ public class ClosestShapePickSupport<V, E> implements NetworkElementAccessor<V, 
     V closest = null;
     while (true) {
       try {
-        for (V v : vv.getModel().getNetwork().nodes()) {
+        for (V v : vv.getModel().getLayoutMediator().getNetwork().nodes()) {
           Point2D p = layout.apply(v);
           double dx = p.getX() - x;
           double dy = p.getY() - y;
