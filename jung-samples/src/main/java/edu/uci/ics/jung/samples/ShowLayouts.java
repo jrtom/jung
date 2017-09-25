@@ -102,8 +102,6 @@ public class ShowLayouts extends JApplet {
         Layout<Integer> layout = createLayout(layoutType, network);
         layout.setInitializer(vv.getGraphLayout());
         layout.setSize(vv.getSize());
-        System.err.println("using graph " + graph_names[graph_index]);
-        System.err.println("using layout: " + layout.getClass());
 
         LayoutTransition<Integer, Number> lt =
             new LayoutTransition<Integer, Number>(

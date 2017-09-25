@@ -176,7 +176,7 @@
           <execution>
             <phase>verify</phase>
             <goals>
-              <goal>format</goal>
+              <goal>check</goal>
             </goals>
           </execution>
         </executions>

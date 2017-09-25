@@ -102,7 +102,6 @@ public class DefaultVisualizationModel<N, E>
     // now to the size of the VisualizationViewer window
     if (layoutSize == null) {
       newLayout.setSize(viewSize);
-      //      newLayout.setSize(viewSize);
     }
     if (relaxer != null) {
       relaxer.stop();

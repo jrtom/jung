@@ -332,19 +332,25 @@ public class BasicVisualizationServer<V, E> extends JPanel
     AffineTransform layoutTransform =
         renderContext.getMultiLayerTransformer().getTransformer(Layer.LAYOUT).getTransform();
     Rectangle2D layoutRectangle = new Rectangle2D.Double(0, 0, layoutSize.width, layoutSize.height);
-    Shape bigger = layoutTransform.createTransformedShape(layoutRectangle);
-    if (log.isDebugEnabled()) {
-      log.debug(
-          "layoutXform scale is "
-              + renderContext
-                  .getMultiLayerTransformer()
-                  .getTransformer(Layer.LAYOUT)
-                  .getTransform()
-                  .getScaleX());
-      log.debug("newXform scale is " + newXform.getScaleX());
-      log.debug("this thing is " + bigger.getBounds());
+    Shape transformedLayoutShape = layoutTransform.createTransformedShape(layoutRectangle);
+    Point2D viewOriginOnLayout = new Point2D.Double();
+    Point2D viewExtremeOnLayout = new Point2D.Double();
+
+    try {
+      layoutTransform.inverseTransform(new Point2D.Double(0, 0), viewOriginOnLayout);
+      layoutTransform.inverseTransform(
+          new Point2D.Double(getSize().width, getSize().height), viewExtremeOnLayout);
+    } catch (Exception ex) {
+      ex.printStackTrace();
     }
-    SpatialGrid<V> spatial = new SpatialGrid<V>(bigger.getBounds(), 20, 20);
+
+    Rectangle2D viewProjection = new Rectangle2D.Double();
+    viewProjection.setFrameFromDiagonal(viewOriginOnLayout, viewExtremeOnLayout);
+
+    Rectangle2D union = new Rectangle2D.Double();
+    Rectangle2D.union(transformedLayoutShape.getBounds(), viewProjection, union);
+
+    SpatialGrid<V> spatial = new SpatialGrid<V>(union.getBounds(), 20, 20);
     Multimap<Integer, V> spatialMap = spatial.getMap();
     Network<V, E> graph = model.getLayoutMediator().getNetwork();
     for (V node : graph.nodes()) {
