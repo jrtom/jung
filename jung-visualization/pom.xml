@@ -9,8 +9,21 @@
   <artifactId>jung-visualization</artifactId>
   <name>JUNG - Visualization Support</name>
   <description>Core visualization support for the JUNG project</description>
-
+  <properties>
+    <version.commons-logging>1.2</version.commons-logging>
+    <version.log4j>1.2.16</version.log4j>
+  </properties>
   <dependencies>
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>${version.commons-logging}</version>
+    </dependency>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>${version.log4j}</version>
+    </dependency>
     <dependency>
       <groupId>net.sf.jung</groupId>
       <artifactId>jung-api</artifactId>

@@ -9,7 +9,6 @@
  */
 package edu.uci.ics.jung.visualization;
 
-import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
@@ -68,15 +67,15 @@ public interface VisualizationServer<V, E> {
   /** @return the renderer used by this instance. */
   Renderer<V, E> getRenderer();
 
-  /**
-   * Replaces the current graph layout with {@code layout}.
-   *
-   * @param layout the new layout to set
-   */
-  void setGraphLayout(Layout<V> layout);
+  //  /**
+  //   * Replaces the current graph layout with {@code layout}.
+  //   *
+  //   * @param layout the new layout to set
+  //   */
+  //  void setGraphLayout(Layout<V> layout);
 
-  /** @return the current graph layout. */
-  Layout<V> getGraphLayout();
+  //  /** @return the current graph layout. */
+  //  Layout<V> getGraphLayout();
 
   /**
    * Makes the component visible if {@code aFlag} is true, or invisible if false.

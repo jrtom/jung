@@ -11,6 +11,7 @@ import edu.uci.ics.jung.visualization.layout.LayoutEventSupport;
 import edu.uci.ics.jung.visualization.transform.LensTransformer;
 import edu.uci.ics.jung.visualization.transform.MutableTransformer;
 import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
+import edu.uci.ics.jung.visualization.util.LayoutMediator;
 import java.awt.Dimension;
 import java.awt.Paint;
 import java.awt.Rectangle;
@@ -26,18 +27,14 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 public class CachingEdgeRenderer<V, E> extends BasicEdgeRenderer<V, E>
-    implements ChangeListener, LayoutChangeListener<V> {
+    implements ChangeListener, LayoutChangeListener<V, E> {
 
   protected Map<E, Shape> edgeShapeMap = new HashMap<E, Shape>();
   protected Set<E> dirtyEdges = new HashSet<E>();
 
-  public CachingEdgeRenderer(Layout<V> layout, RenderContext<V, E> rc) {
-    super(layout, rc);
-  }
-
   @SuppressWarnings({"rawtypes", "unchecked"})
   public CachingEdgeRenderer(BasicVisualizationServer<V, E> vv) {
-    super(vv.getGraphLayout(), vv.getRenderContext());
+    //    super(vv.getGraphLayout(), vv.getRenderContext());
     vv.getRenderContext().getMultiLayerTransformer().addChangeListener(this);
     Layout<V> layout = vv.getGraphLayout();
     if (layout instanceof LayoutEventSupport) {
@@ -51,14 +48,15 @@ public class CachingEdgeRenderer<V, E> extends BasicEdgeRenderer<V, E>
    * the distance between <code>(x1,y1)</code> and <code>(x2,y2)</code>.
    */
   @Override
-  protected void drawSimpleEdge(E e) {
+  protected void drawSimpleEdge(
+      RenderContext<V, E> renderContext, LayoutMediator<V, E> layoutMediator, E e) {
 
     int[] coords = new int[4];
     boolean[] loop = new boolean[1];
 
     Shape edgeShape = edgeShapeMap.get(e);
     if (edgeShape == null || dirtyEdges.contains(e)) {
-      edgeShape = prepareFinalEdgeShape(e, coords, loop);
+      edgeShape = prepareFinalEdgeShape(renderContext, layoutMediator, e, coords, loop);
       edgeShapeMap.put(e, edgeShape);
       dirtyEdges.remove(e);
     }
@@ -70,7 +68,7 @@ public class CachingEdgeRenderer<V, E> extends BasicEdgeRenderer<V, E>
     boolean isLoop = loop[0];
 
     GraphicsDecorator g = renderContext.getGraphicsContext();
-    Network<V, E> graph = renderContext.getNetwork();
+    Network<V, E> graph = layoutMediator.getNetwork();
     boolean edgeHit = true;
     boolean arrowHit = true;
     Rectangle deviceRectangle = null;
@@ -190,9 +188,9 @@ public class CachingEdgeRenderer<V, E> extends BasicEdgeRenderer<V, E>
   }
 
   @Override
-  public void layoutChanged(LayoutEvent<V> evt) {
+  public void layoutChanged(LayoutEvent<V, E> evt) {
     V v = evt.getVertex();
-    Network<V, E> graph = renderContext.getNetwork();
+    Network<V, E> graph = evt.getGraph();
     dirtyEdges.addAll(graph.incidentEdges(v));
   }
 }

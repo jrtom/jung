@@ -16,6 +16,7 @@ import com.google.common.graph.Network;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationServer;
+import edu.uci.ics.jung.visualization.util.Context;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
@@ -47,7 +48,7 @@ public class LayoutLensShapePickSupport<V, E> extends ShapePickSupport<V, E> {
 
     V closest = null;
     double minDistance = Double.MAX_VALUE;
-    Layout<V> layout = vv.getGraphLayout();
+    Layout<V> layout = vv.getModel().getLayoutMediator().getLayout();
 
     while (true) {
       try {
@@ -118,8 +119,8 @@ public class LayoutLensShapePickSupport<V, E> extends ShapePickSupport<V, E> {
 
   public E getEdge(double x, double y) {
 
-    Layout<V> layout = vv.getGraphLayout();
-    Network<V, E> network = vv.getModel().getNetwork();
+    Layout<V> layout = vv.getModel().getLayoutMediator().getLayout();
+    Network<V, E> network = vv.getModel().getLayoutMediator().getNetwork();
     Point2D ip =
         vv.getRenderContext()
             .getMultiLayerTransformer()
@@ -161,7 +162,10 @@ public class LayoutLensShapePickSupport<V, E> extends ShapePickSupport<V, E> {
           // translate the edge to the starting vertex
           AffineTransform xform = AffineTransform.getTranslateInstance(x1, y1);
 
-          Shape edgeShape = vv.getRenderContext().getEdgeShapeTransformer().apply(e);
+          Shape edgeShape =
+              vv.getRenderContext()
+                  .getEdgeShapeTransformer()
+                  .apply(Context.getInstance(network, e));
           if (isLoop) {
             // make the loops proportional to the size of the vertex
             Shape s2 = vv.getRenderContext().getVertexShapeTransformer().apply(v2);

@@ -1,7 +1,5 @@
 package edu.uci.ics.jung.visualization.control;
 
-import com.google.common.base.Preconditions;
-import com.google.common.graph.MutableNetwork;
 import edu.uci.ics.jung.visualization.MultiLayerTransformer;
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.annotations.AnnotatingGraphMousePlugin;
@@ -64,9 +62,9 @@ public class EditingModalGraphMouse<V, E> extends AbstractModalGraphMouse
       float in,
       float out) {
     super(in, out);
-    Preconditions.checkArgument(
-        rc.getNetwork() instanceof MutableNetwork,
-        "Supplied Network instance must be a MutableNetwork");
+    //    Preconditions.checkArgument(
+    //            layoutMediator.getNetwork() instanceof MutableNetwork,
+    //        "Supplied Network instance must be a MutableNetwork");
     this.vertexFactory = vertexFactory;
     this.edgeFactory = edgeFactory;
     this.rc = rc;

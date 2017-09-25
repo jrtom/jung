@@ -17,10 +17,12 @@ import edu.uci.ics.jung.algorithms.util.IterativeContext;
 import edu.uci.ics.jung.visualization.layout.ObservableCachingLayout;
 import edu.uci.ics.jung.visualization.util.ChangeEventSupport;
 import edu.uci.ics.jung.visualization.util.DefaultChangeEventSupport;
+import edu.uci.ics.jung.visualization.util.LayoutMediator;
 import java.awt.Dimension;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
+import org.apache.log4j.Logger;
 
 /**
  * The model containing state values for visualizations of graphs. Refactored and extracted from the
@@ -31,18 +33,17 @@ import javax.swing.event.EventListenerList;
 public class DefaultVisualizationModel<N, E>
     implements VisualizationModel<N, E>, ChangeEventSupport {
 
+  Logger log = Logger.getLogger(DefaultVisualizationModel.class);
+
   ChangeEventSupport changeSupport = new DefaultChangeEventSupport(this);
 
   /** manages the thread that applies the current layout algorithm */
   protected Relaxer relaxer;
 
-  /** the layout algorithm currently in use */
-  protected Layout<N> layout;
+  protected LayoutMediator<N, E> layoutMediator;
 
   /** listens for changes in the layout, forwards to the viewer */
   protected ChangeListener changeListener;
-
-  private final Network<N, E> network;
 
   /** @param layout The Layout to apply, with its associated Network */
   public DefaultVisualizationModel(Network<N, E> network, Layout<N> layout) {
@@ -56,7 +57,6 @@ public class DefaultVisualizationModel<N, E>
    * @param d The preferred size of the View that will display this graph
    */
   public DefaultVisualizationModel(Network<N, E> network, Layout<N> layout, Dimension d) {
-    this.network = network;
     if (changeListener == null) {
       changeListener =
           new ChangeListener() {
@@ -65,37 +65,54 @@ public class DefaultVisualizationModel<N, E>
             }
           };
     }
-    setGraphLayout(layout, d);
+    setLayoutMediator(new LayoutMediator(network, layout), d);
   }
 
   /**
    * Removes the current graph layout, and adds a new one.
    *
-   * @param layout the new layout to use
+   * @param layoutMediator the new layoutMediator to use
    * @param viewSize the size of the View that will display this layout
    */
-  public void setGraphLayout(Layout<N> layout, Dimension viewSize) {
-    // remove listener from old layout
-    if (this.layout != null && this.layout instanceof ChangeEventSupport) {
-      ((ChangeEventSupport) this.layout).removeChangeListener(changeListener);
-    }
-    // set to new layout
-    if (layout instanceof ChangeEventSupport) {
-      this.layout = layout;
-    } else {
-      this.layout = new ObservableCachingLayout<N>(network.asGraph(), layout);
-    }
+  public void setLayoutMediator(LayoutMediator<N, E> layoutMediator, Dimension viewSize) {
 
-    ((ChangeEventSupport) this.layout).addChangeListener(changeListener);
+    log.debug("setLayoutMediator to " + layoutMediator + " with size " + viewSize);
+    Layout<N> currentLayout = this.layoutMediator != null ? this.layoutMediator.getLayout() : null;
+    log.debug("the currentLayout was " + currentLayout);
+    // remove listener from old layout
+    if (currentLayout != null && currentLayout instanceof ChangeEventSupport) {
+      ((ChangeEventSupport) currentLayout).removeChangeListener(changeListener);
+      log.debug("removed its change listener");
+    }
+    Layout<N> newLayout = layoutMediator.getLayout();
+    log.debug("the new layout is " + newLayout);
+    log.debug("the new? network is " + layoutMediator.getNetwork());
+
+    // set to new layout
+    if (newLayout instanceof ChangeEventSupport) {
+      this.layoutMediator = layoutMediator;
+      log.debug("already is ChangeEventSupport");
+      //      this.layout = layout;
+    } else {
+      log.debug("made a Observable");
+      newLayout = new ObservableCachingLayout<N, E>(layoutMediator.getNetwork(), newLayout);
+      this.layoutMediator = new LayoutMediator(layoutMediator.getNetwork(), newLayout);
+    }
+    log.debug("now the layoutMediator is " + this.layoutMediator);
+
+    ((ChangeEventSupport) newLayout).addChangeListener(changeListener);
 
     if (viewSize == null) {
       viewSize = new Dimension(600, 600);
     }
-    Dimension layoutSize = layout.getSize();
+    Dimension layoutSize = newLayout.getSize();
+    log.debug("layoutSize:" + layoutSize);
     // if the layout has NOT been initialized yet, initialize its size
     // now to the size of the VisualizationViewer window
     if (layoutSize == null) {
-      layout.setSize(viewSize);
+      log.debug("set layoutSize to " + viewSize);
+      newLayout.setSize(viewSize);
+      //      newLayout.setSize(viewSize);
     }
     if (relaxer != null) {
       relaxer.stop();
@@ -104,10 +121,11 @@ public class DefaultVisualizationModel<N, E>
     //        Layout<N> decoratedLayout = (layout instanceof LayoutDecorator)
     //        	? ((LayoutDecorator<N>) layout).getDelegate()
     //        	: layout;
-    if (layout instanceof IterativeContext) {
-      layout.initialize();
+    if (newLayout instanceof IterativeContext) {
+      log.debug(newLayout + " is an IterativeContext");
+      newLayout.initialize();
       if (relaxer == null) {
-        relaxer = new VisRunner((IterativeContext) this.layout);
+        relaxer = new VisRunner((IterativeContext) newLayout);
         //            	relaxer = new VisRunner((IterativeContext) decoratedLayout);
         relaxer.prerelax();
         relaxer.relax();
@@ -116,21 +134,16 @@ public class DefaultVisualizationModel<N, E>
     fireStateChanged();
   }
 
+  public LayoutMediator<N, E> getLayoutMediator() {
+    return layoutMediator;
+  }
+
   /**
    * set the graph Layout and if it is not already initialized, initialize it to the default
    * VisualizationViewer preferred size of 600x600
    */
-  public void setGraphLayout(Layout<N> layout) {
-    setGraphLayout(layout, null);
-  }
-
-  /** Returns the current graph layout. */
-  public Layout<N> getGraphLayout() {
-    return layout;
-  }
-
-  public Network<N, E> getNetwork() {
-    return network;
+  public void setLayoutMediator(LayoutMediator<N, E> layoutMediator) {
+    setLayoutMediator(layoutMediator, null);
   }
 
   /** @return the relaxer */

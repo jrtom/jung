@@ -27,6 +27,7 @@ import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
+import edu.uci.ics.jung.visualization.util.LayoutMediator;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -127,17 +128,19 @@ public class AddNodeDemo extends javax.swing.JApplet {
               switchLayout.setText("Switch to FRLayout");
               layout = new SpringLayout<Number>(g.asGraph(), e -> EDGE_LENGTH);
               layout.setSize(d);
-              vv.getModel().setGraphLayout(layout, d);
+              vv.setLayoutMediator(new LayoutMediator(g, layout), d);
               Layout<Number> delegateLayout =
-                  ((LayoutDecorator<Number>) vv.getModel().getGraphLayout()).getDelegate();
+                  ((LayoutDecorator<Number>) vv.getModel().getLayoutMediator().getLayout())
+                      .getDelegate();
               System.err.println("layout: " + delegateLayout.getClass().getName());
               //                    vv.repaint();
             } else {
               switchLayout.setText("Switch to SpringLayout");
               layout = new FRLayout<Number>(g.asGraph(), d);
-              vv.getModel().setGraphLayout(layout, d);
+              vv.setLayoutMediator(new LayoutMediator(g, layout), d);
               Layout<Number> delegateLayout =
-                  ((LayoutDecorator<Number>) vv.getModel().getGraphLayout()).getDelegate();
+                  ((LayoutDecorator<Number>) vv.getModel().getLayoutMediator().getLayout())
+                      .getDelegate();
               System.err.println("layout: " + delegateLayout.getClass().getName());
               //                    vv.repaint();
             }

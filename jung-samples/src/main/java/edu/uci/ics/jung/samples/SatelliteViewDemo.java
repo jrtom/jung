@@ -136,7 +136,8 @@ public class SatelliteViewDemo<V, E> extends JApplet {
             new PickableVertexPaintTransformer<String>(
                 vv2.getPickedVertexState(), Color.red, Color.yellow));
     vv1.getRenderer()
-        .setVertexRenderer(new GradientVertexRenderer<String>(vv1, Color.red, Color.white, true));
+        .setVertexRenderer(
+            new GradientVertexRenderer<String, Number>(vv1, Color.red, Color.white, true));
     vv1.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
     vv1.getRenderer().getVertexLabelRenderer().setPosition(Renderer.VertexLabel.Position.CNTR);
 

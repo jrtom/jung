@@ -26,6 +26,7 @@ import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.renderers.EdgeLabelRenderer;
 import edu.uci.ics.jung.visualization.renderers.VertexLabelRenderer;
+import edu.uci.ics.jung.visualization.util.Context;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
@@ -204,7 +205,7 @@ public class EdgeLabelDemo extends JApplet {
           @SuppressWarnings("rawtypes")
           public void stateChanged(ChangeEvent e) {
             JSlider s = (JSlider) e.getSource();
-            Function<? super Number, Shape> edgeShapeFunction =
+            Function<Context<Network, Number>, Shape> edgeShapeFunction =
                 vv.getRenderContext().getEdgeShapeTransformer();
             if (edgeShapeFunction instanceof ParallelEdgeShapeTransformer) {
               ((ParallelEdgeShapeTransformer) edgeShapeFunction)

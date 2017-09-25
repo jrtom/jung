@@ -31,6 +31,7 @@ import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.layout.LayoutTransition;
 import edu.uci.ics.jung.visualization.subLayout.GraphCollapser;
 import edu.uci.ics.jung.visualization.util.Animator;
+import edu.uci.ics.jung.visualization.util.LayoutMediator;
 import edu.uci.ics.jung.visualization.util.PredicatedParallelEdgeIndexFunction;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -223,6 +224,7 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
               //                    layout.setGraph(collapsedGraph.asGraph());
               layout.setLocation(clusterGraph, cp);
               vv.getPickedVertexState().clear();
+              vv.setLayoutMediator(new LayoutMediator(collapsedGraph, layout));
               vv.repaint();
             }
           }
@@ -291,6 +293,7 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
                 //                        layout.setGraph(g);
               }
               vv.getPickedVertexState().clear();
+              vv.setLayoutMediator(new LayoutMediator(collapsedGraph, layout));
               vv.repaint();
             }
           }
@@ -304,6 +307,7 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
             layout = createLayout((Layouts) jcb.getSelectedItem(), graph);
             //                layout.setGraph(graph);
             exclusions.clear();
+            vv.setLayoutMediator(new LayoutMediator(graph, layout));
             vv.repaint();
           }
         });
@@ -428,7 +432,9 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
         layout = createLayout(layoutType, collapsedGraph);
         layout.setInitializer(vv.getGraphLayout());
         layout.setSize(vv.getSize());
-        LayoutTransition lt = new LayoutTransition(vv, vv.getGraphLayout(), layout);
+        LayoutTransition lt =
+            new LayoutTransition(
+                vv, vv.getModel().getLayoutMediator(), new LayoutMediator(graph, layout));
         Animator animator = new Animator(lt);
         animator.start();
         vv.getRenderContext().getMultiLayerTransformer().setToIdentity();

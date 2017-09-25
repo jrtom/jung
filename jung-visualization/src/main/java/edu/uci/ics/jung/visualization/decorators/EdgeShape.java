@@ -16,6 +16,7 @@ import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.graph.util.EdgeIndexFunction;
 import edu.uci.ics.jung.visualization.util.ArrowFactory;
+import edu.uci.ics.jung.visualization.util.Context;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.CubicCurve2D;
@@ -34,7 +35,6 @@ import java.util.function.Function;
  * scaled, rotated and translated into position by the PluggableRenderer.
  *
  * @author Tom Nelson
- * @param <V> the vertex type
  * @param <E> the edge type
  */
 public class EdgeShape<E> {
@@ -54,7 +54,7 @@ public class EdgeShape<E> {
    * A convenience instance for other edge shapes to use for self-loop edges where parallel
    * instances will not overlay each other.
    */
-  protected final Loop loop = new Loop();
+  protected static final Loop loop = new Loop();
 
   /**
    * A convenience instance for other edge shapes to use for self-loop edges where parallel
@@ -78,24 +78,24 @@ public class EdgeShape<E> {
     return new Line<E>(graph);
   }
 
-  public static <E> EdgeShape<E>.QuadCurve quadCurve(Network<?, E> graph) {
-    return new EdgeShape<E>(graph).new QuadCurve();
+  public static <E> QuadCurve quadCurve(Network<?, E> graph) {
+    return new QuadCurve();
   }
 
-  public static <E> EdgeShape<E>.CubicCurve cubicCurve(Network<?, E> graph) {
-    return new EdgeShape<E>(graph).new CubicCurve();
+  public static <E> CubicCurve cubicCurve(Network<?, E> graph) {
+    return new CubicCurve();
   }
 
-  public static <E> EdgeShape<E>.Orthogonal orthogonal(Network<?, E> graph) {
-    return new EdgeShape<E>(graph).new Orthogonal();
+  public static <E> Orthogonal orthogonal(Network<?, E> graph) {
+    return new Orthogonal();
   }
 
-  public static <E> EdgeShape<E>.Wedge wedge(Network<?, E> graph, int width) {
-    return new EdgeShape<E>(graph).new Wedge(width);
+  public static <E> Wedge wedge(Network<?, E> graph, int width) {
+    return new Wedge(width);
   }
 
   /** An edge shape that renders as a straight line between the vertex endpoints. */
-  public static class Line<E> extends EdgeShape<E> implements Function<E, Shape> {
+  public static class Line<E> extends EdgeShape<E> implements Function<Context<Network, E>, Shape> {
     public Line(Network<?, E> graph) {
       super(graph);
       // TODO: decide whether this check is reasonable
@@ -103,17 +103,19 @@ public class EdgeShape<E> {
       //    				"Line does not support graphs that allow parallel edges");
     }
 
-    public Shape apply(E e) {
+    public Shape apply(Context<Network, E> context) {
+      Network graph = context.graph;
+      E e = context.element;
       return isLoop(graph, e) ? ELLIPSE : LINE;
     }
   }
 
-  private int getIndex(E e, EdgeIndexFunction<E> edgeIndexFunction) {
+  private static <E> int getIndex(E e, EdgeIndexFunction<E> edgeIndexFunction) {
     return edgeIndexFunction == null ? 1 : edgeIndexFunction.getIndex(e);
   }
 
   /** An edge shape that renders as a bent-line between the vertex endpoints. */
-  public class BentLine extends ParallelEdgeShapeTransformer<E> {
+  public static class BentLine<E> extends ParallelEdgeShapeTransformer<E> {
     public void setEdgeIndexFunction(EdgeIndexFunction<E> edgeIndexFunction) {
       this.edgeIndexFunction = edgeIndexFunction;
       loop.setEdgeIndexFunction(edgeIndexFunction);
@@ -123,9 +125,11 @@ public class EdgeShape<E> {
      * Get the shape for this edge, returning either the shared instance or, in the case of
      * self-loop edges, the Loop shared instance.
      */
-    public Shape apply(E e) {
+    public Shape apply(Context<Network, E> context) {
+      Network graph = context.graph;
+      E e = context.element;
       if (isLoop(graph, e)) {
-        return loop.apply(e);
+        return loop.apply(context);
       }
 
       int index = getIndex(e, edgeIndexFunction);
@@ -139,7 +143,7 @@ public class EdgeShape<E> {
   }
 
   /** An edge shape that renders as a QuadCurve between vertex endpoints. */
-  public class QuadCurve extends ParallelEdgeShapeTransformer<E> {
+  public static class QuadCurve<E> extends ParallelEdgeShapeTransformer<E> {
     @Override
     public void setEdgeIndexFunction(EdgeIndexFunction<E> parallelEdgeIndexFunction) {
       this.edgeIndexFunction = parallelEdgeIndexFunction;
@@ -150,9 +154,11 @@ public class EdgeShape<E> {
      * Get the shape for this edge, returning either the shared instance or, in the case of
      * self-loop edges, the Loop shared instance.
      */
-    public Shape apply(E e) {
+    public Shape apply(Context<Network, E> context) {
+      Network graph = context.graph;
+      E e = context.element;
       if (isLoop(graph, e)) {
-        return loop.apply(e);
+        return loop.apply(context);
       }
 
       int index = getIndex(e, edgeIndexFunction);
@@ -167,7 +173,7 @@ public class EdgeShape<E> {
    * An edge shape that renders as a CubicCurve between vertex endpoints. The two control points are
    * at (1/3*length, 2*controlY) and (2/3*length, controlY) giving a 'spiral' effect.
    */
-  public class CubicCurve extends ParallelEdgeShapeTransformer<E> {
+  public static class CubicCurve<E> extends ParallelEdgeShapeTransformer<E> {
     public void setEdgeIndexFunction(EdgeIndexFunction<E> edgeIndexFunction) {
       this.edgeIndexFunction = edgeIndexFunction;
       loop.setEdgeIndexFunction(edgeIndexFunction);
@@ -177,9 +183,11 @@ public class EdgeShape<E> {
      * Get the shape for this edge, returning either the shared instance or, in the case of
      * self-loop edges, the Loop shared instance.
      */
-    public Shape apply(E e) {
+    public Shape apply(Context<Network, E> context) {
+      Network graph = context.graph;
+      E e = context.element;
       if (isLoop(graph, e)) {
-        return loop.apply(e);
+        return loop.apply(context);
       }
 
       int index = getIndex(e, edgeIndexFunction);
@@ -196,13 +204,13 @@ public class EdgeShape<E> {
    *
    * @author Tom Nelson
    */
-  public class SimpleLoop implements Function<E, Shape> {
+  public static class SimpleLoop<E> implements Function<E, Shape> {
     public Shape apply(E e) {
       return ELLIPSE;
     }
   }
 
-  private Shape buildFrame(RectangularShape shape, int index) {
+  private static Shape buildFrame(RectangularShape shape, int index) {
     float x = -.5f;
     float y = -.5f;
     float diam = 1.f;
@@ -219,8 +227,10 @@ public class EdgeShape<E> {
    * An edge shape that renders as a loop with its nadir at the center of the vertex. Parallel
    * instances will not overlap.
    */
-  public class Loop extends ParallelEdgeShapeTransformer<E> {
-    public Shape apply(E e) {
+  public static class Loop<E> extends ParallelEdgeShapeTransformer<E> {
+    public Shape apply(Context<Network, E> context) {
+      Network graph = context.graph;
+      E e = context.element;
       return buildFrame(ELLIPSE, getIndex(e, edgeIndexFunction));
     }
   }
@@ -231,7 +241,7 @@ public class EdgeShape<E> {
    *
    * @author Joshua O'Madadhain
    */
-  public class Wedge extends ParallelEdgeShapeTransformer<E> {
+  public static class Wedge<E> extends ParallelEdgeShapeTransformer<E> {
     public Wedge(int width) {
       triangle = ArrowFactory.getWedgeArrow(width, 1);
       triangle.transform(AffineTransform.getTranslateInstance(1, 0));
@@ -242,9 +252,11 @@ public class EdgeShape<E> {
       BOW_TIE.closePath();
     }
 
-    public Shape apply(E e) {
+    public Shape apply(Context<Network, E> context) {
+      Network graph = context.graph;
+      E e = context.element;
       if (isLoop(graph, e)) {
-        return loop.apply(e);
+        return loop.apply(context);
       }
       return graph.isDirected() ? triangle : BOW_TIE;
     }
@@ -254,22 +266,26 @@ public class EdgeShape<E> {
    * An edge shape that renders as a diamond with its nadir at the center of the vertex. Parallel
    * instances will not overlap.
    */
-  public class Box extends ParallelEdgeShapeTransformer<E> {
-    public Shape apply(E e) {
+  public static class Box<E> extends ParallelEdgeShapeTransformer<E> {
+    public Shape apply(Context<Network, E> context) {
+      Network graph = context.graph;
+      E e = context.element;
       return buildFrame(BOX, getIndex(e, edgeIndexFunction));
     }
   }
 
   /** An edge shape that renders as a bent-line between the vertex endpoints. */
-  public class Orthogonal extends ParallelEdgeShapeTransformer<E> {
+  public static class Orthogonal<E> extends ParallelEdgeShapeTransformer<E> {
     Box box;
 
     public Orthogonal() {
       this.box = new Box();
     }
 
-    public Shape apply(E e) {
-      return isLoop(graph, e) ? box.apply(e) : LINE;
+    public Shape apply(Context<Network, E> context) {
+      Network graph = context.graph;
+      E e = context.element;
+      return isLoop(graph, e) ? box.apply(context) : LINE;
     }
   }
 }

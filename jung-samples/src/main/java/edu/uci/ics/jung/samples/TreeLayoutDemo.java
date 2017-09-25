@@ -27,6 +27,7 @@ import edu.uci.ics.jung.visualization.decorators.EdgeShape;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.layout.LayoutTransition;
 import edu.uci.ics.jung.visualization.util.Animator;
+import edu.uci.ics.jung.visualization.util.LayoutMediator;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
@@ -129,14 +130,18 @@ public class TreeLayoutDemo extends JApplet {
             if (e.getStateChange() == ItemEvent.SELECTED) {
 
               LayoutTransition<String, Integer> lt =
-                  new LayoutTransition<String, Integer>(vv, treeLayout, radialLayout);
+                  new LayoutTransition<String, Integer>(
+                      vv,
+                      vv.getModel().getLayoutMediator(),
+                      new LayoutMediator(graph, radialLayout));
               Animator animator = new Animator(lt);
               animator.start();
               vv.getRenderContext().getMultiLayerTransformer().setToIdentity();
               vv.addPreRenderPaintable(rings);
             } else {
               LayoutTransition<String, Integer> lt =
-                  new LayoutTransition<String, Integer>(vv, radialLayout, treeLayout);
+                  new LayoutTransition<String, Integer>(
+                      vv, vv.getModel().getLayoutMediator(), new LayoutMediator(graph, treeLayout));
               Animator animator = new Animator(lt);
               animator.start();
               vv.getRenderContext().getMultiLayerTransformer().setToIdentity();

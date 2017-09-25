@@ -18,6 +18,7 @@ import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationServer;
+import edu.uci.ics.jung.visualization.util.Context;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
@@ -157,7 +158,7 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
             .inverseTransform(Layer.VIEW, new Point2D.Double(x, y));
     x = ip.getX();
     y = ip.getY();
-    Layout<V> layout = vv.getGraphLayout();
+    Layout<V> layout = vv.getModel().getLayoutMediator().getLayout();
 
     while (true) {
       try {
@@ -222,7 +223,7 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
 
     while (true) {
       try {
-        Layout<V> layout = vv.getGraphLayout();
+        Layout<V> layout = vv.getModel().getLayoutMediator().getLayout();
         for (V v : getFilteredVertices()) {
           Point2D p = layout.apply(v);
           if (p == null) {
@@ -318,11 +319,11 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
    * @return the transformed shape
    */
   private Shape getTransformedEdgeShape(E e) {
-    EndpointPair<V> endpoints = vv.getModel().getNetwork().incidentNodes(e);
+    EndpointPair<V> endpoints = vv.getModel().getLayoutMediator().getNetwork().incidentNodes(e);
     V v1 = endpoints.nodeU();
     V v2 = endpoints.nodeV();
     boolean isLoop = v1.equals(v2);
-    Layout<V> layout = vv.getGraphLayout();
+    Layout<V> layout = vv.getModel().getLayoutMediator().getLayout();
     Point2D p1 =
         vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, layout.apply(v1));
     Point2D p2 =
@@ -338,7 +339,10 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
     // translate the edge to the starting vertex
     AffineTransform xform = AffineTransform.getTranslateInstance(x1, y1);
 
-    Shape edgeShape = vv.getRenderContext().getEdgeShapeTransformer().apply(e);
+    Shape edgeShape =
+        vv.getRenderContext()
+            .getEdgeShapeTransformer()
+            .apply(Context.getInstance(vv.getModel().getLayoutMediator().getNetwork(), e));
     if (isLoop) {
       // make the loops proportional to the size of the vertex
       Shape s2 = vv.getRenderContext().getVertexShapeTransformer().apply(v2);
@@ -363,14 +367,14 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
   }
 
   protected Collection<V> getFilteredVertices() {
-    Set<V> nodes = vv.getModel().getNetwork().nodes();
+    Set<V> nodes = vv.getModel().getLayoutMediator().getNetwork().nodes();
     return verticesAreFiltered()
         ? Sets.filter(nodes, vv.getRenderContext().getVertexIncludePredicate()::test)
         : nodes;
   }
 
   protected Collection<E> getFilteredEdges() {
-    Set<E> edges = vv.getModel().getNetwork().edges();
+    Set<E> edges = vv.getModel().getLayoutMediator().getNetwork().edges();
     return edgesAreFiltered()
         ? Sets.filter(edges, vv.getRenderContext().getEdgeIncludePredicate()::test)
         : edges;
@@ -423,7 +427,7 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
   protected boolean isEdgeRendered(E edge) {
     Predicate<V> vertexIncludePredicate = vv.getRenderContext().getVertexIncludePredicate();
     Predicate<E> edgeIncludePredicate = vv.getRenderContext().getEdgeIncludePredicate();
-    Network<V, E> g = vv.getModel().getNetwork();
+    Network<V, E> g = vv.getModel().getLayoutMediator().getNetwork();
     if (edgeIncludePredicate != null && !edgeIncludePredicate.test(edge)) {
       return false;
     }

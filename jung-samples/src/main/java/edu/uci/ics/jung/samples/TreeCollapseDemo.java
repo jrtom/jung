@@ -28,6 +28,7 @@ import edu.uci.ics.jung.visualization.decorators.EdgeShape;
 import edu.uci.ics.jung.visualization.decorators.EllipseVertexShapeTransformer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.subLayout.TreeCollapser;
+import edu.uci.ics.jung.visualization.util.LayoutMediator;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
@@ -137,11 +138,11 @@ public class TreeCollapseDemo extends JApplet {
 
           public void itemStateChanged(ItemEvent e) {
             if (e.getStateChange() == ItemEvent.SELECTED) {
-              vv.setGraphLayout(radialLayout);
+              vv.setLayoutMediator(new LayoutMediator(graph, radialLayout));
               vv.getRenderContext().getMultiLayerTransformer().setToIdentity();
               vv.addPreRenderPaintable(rings);
             } else {
-              vv.setGraphLayout(layout);
+              vv.setLayoutMediator(new LayoutMediator(graph, layout));
               vv.getRenderContext().getMultiLayerTransformer().setToIdentity();
               vv.removePreRenderPaintable(rings);
             }

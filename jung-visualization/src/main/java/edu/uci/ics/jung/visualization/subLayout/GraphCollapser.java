@@ -159,7 +159,7 @@ public class GraphCollapser {
         Object u = inGraph.incidentNodes(edge).nodeU();
         Object v = inGraph.incidentNodes(edge).nodeV();
         if (picked.contains(u) && picked.contains(v)) {
-          clusterGraph.addEdge(edge, u, v);
+          clusterGraph.addEdge(u, v, edge);
         }
       }
     }

@@ -31,6 +31,7 @@ import edu.uci.ics.jung.visualization.transform.MutableTransformerDecorator;
 import edu.uci.ics.jung.visualization.transform.shape.HyperbolicShapeTransformer;
 import edu.uci.ics.jung.visualization.transform.shape.ViewLensSupport;
 import edu.uci.ics.jung.visualization.util.Animator;
+import edu.uci.ics.jung.visualization.util.LayoutMediator;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
@@ -147,7 +148,10 @@ public class BalloonLayoutDemo extends JApplet {
             if (e.getStateChange() == ItemEvent.SELECTED) {
 
               LayoutTransition<String, Integer> lt =
-                  new LayoutTransition<String, Integer>(vv, layout, radialLayout);
+                  new LayoutTransition<String, Integer>(
+                      vv,
+                      vv.getModel().getLayoutMediator(),
+                      new LayoutMediator(graph, radialLayout));
               Animator animator = new Animator(lt);
               animator.start();
               vv.getRenderContext()
@@ -158,7 +162,8 @@ public class BalloonLayoutDemo extends JApplet {
             } else {
 
               LayoutTransition<String, Integer> lt =
-                  new LayoutTransition<String, Integer>(vv, radialLayout, layout);
+                  new LayoutTransition<String, Integer>(
+                      vv, vv.getModel().getLayoutMediator(), new LayoutMediator(graph, layout));
               Animator animator = new Animator(lt);
               animator.start();
               vv.getRenderContext()

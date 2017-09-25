@@ -29,6 +29,7 @@ import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.layout.LayoutTransition;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
 import edu.uci.ics.jung.visualization.util.Animator;
+import edu.uci.ics.jung.visualization.util.LayoutMediator;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -137,7 +138,8 @@ public class AnimatingAddNodeDemo extends javax.swing.JApplet {
               relaxer.prerelax();
               StaticLayout<Number> staticLayout = new StaticLayout<Number>(g.asGraph(), layout);
               LayoutTransition<Number, Number> lt =
-                  new LayoutTransition<Number, Number>(vv, vv.getGraphLayout(), staticLayout);
+                  new LayoutTransition<Number, Number>(
+                      vv, vv.getModel().getLayoutMediator(), new LayoutMediator(g, staticLayout));
               Animator animator = new Animator(lt);
               animator.start();
               vv.repaint();
@@ -151,7 +153,8 @@ public class AnimatingAddNodeDemo extends javax.swing.JApplet {
               relaxer.prerelax();
               StaticLayout<Number> staticLayout = new StaticLayout<Number>(g.asGraph(), layout);
               LayoutTransition<Number, Number> lt =
-                  new LayoutTransition<Number, Number>(vv, vv.getGraphLayout(), staticLayout);
+                  new LayoutTransition<Number, Number>(
+                      vv, vv.getModel().getLayoutMediator(), new LayoutMediator(g, staticLayout));
               Animator animator = new Animator(lt);
               animator.start();
               vv.repaint();
@@ -208,7 +211,8 @@ public class AnimatingAddNodeDemo extends javax.swing.JApplet {
         relaxer.prerelax();
         StaticLayout<Number> staticLayout = new StaticLayout<Number>(g.asGraph(), layout);
         LayoutTransition<Number, Number> lt =
-            new LayoutTransition<Number, Number>(vv, vv.getGraphLayout(), staticLayout);
+            new LayoutTransition<Number, Number>(
+                vv, vv.getModel().getLayoutMediator(), new LayoutMediator(g, staticLayout));
         Animator animator = new Animator(lt);
         animator.start();
         //				vv.getRenderContext().getMultiLayerTransformer().setToIdentity();

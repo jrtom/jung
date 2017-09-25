@@ -13,7 +13,7 @@ package edu.uci.ics.jung.visualization.layout;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.google.common.graph.Graph;
+import com.google.common.graph.Network;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.algorithms.layout.LayoutDecorator;
 import edu.uci.ics.jung.algorithms.util.IterativeContext;
@@ -34,18 +34,18 @@ import javax.swing.event.ChangeListener;
  * @see LayoutDecorator
  * @author Tom Nelson
  */
-public class ObservableCachingLayout<V> extends LayoutDecorator<V>
-    implements ChangeEventSupport, Caching, LayoutEventSupport<V> {
+public class ObservableCachingLayout<V, E> extends LayoutDecorator<V>
+    implements ChangeEventSupport, Caching, LayoutEventSupport<V, E> {
 
   protected ChangeEventSupport changeSupport = new DefaultChangeEventSupport(this);
-  protected Graph<V> graph;
+  protected Network<V, E> graph;
 
   protected LoadingCache<V, Point2D> locations;
 
-  private List<LayoutChangeListener<V>> layoutChangeListeners =
-      new ArrayList<LayoutChangeListener<V>>();
+  private List<LayoutChangeListener<V, E>> layoutChangeListeners =
+      new ArrayList<LayoutChangeListener<V, E>>();
 
-  public ObservableCachingLayout(Graph<V> graph, Layout<V> delegate) {
+  public ObservableCachingLayout(Network<V, E> graph, Layout<V> delegate) {
     super(delegate);
     this.graph = graph;
     Function<V, Point2D> chain = delegate.andThen(p -> (Point2D) p.clone());
@@ -104,22 +104,26 @@ public class ObservableCachingLayout<V> extends LayoutDecorator<V>
   }
 
   private void fireLayoutChanged(V v) {
-    LayoutEvent<V> evt = new LayoutEvent<V>(v, graph);
-    for (LayoutChangeListener<V> listener : layoutChangeListeners) {
+    LayoutEvent<V, E> evt = new LayoutEvent<V, E>(v, graph);
+    for (LayoutChangeListener<V, E> listener : layoutChangeListeners) {
       listener.layoutChanged(evt);
     }
   }
 
-  public void addLayoutChangeListener(LayoutChangeListener<V> listener) {
+  public void addLayoutChangeListener(LayoutChangeListener<V, E> listener) {
     layoutChangeListeners.add(listener);
   }
 
-  public void removeLayoutChangeListener(LayoutChangeListener<V> listener) {
+  public void removeLayoutChangeListener(LayoutChangeListener<V, E> listener) {
     layoutChangeListeners.remove(listener);
   }
 
   @Override
   public Set<V> nodes() {
     return graph.nodes();
+  }
+
+  public String toString() {
+    return "Observable version of " + this.delegate.toString();
   }
 }
