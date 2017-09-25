@@ -9,11 +9,12 @@ import edu.uci.ics.jung.algorithms.util.IterativeContext;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.util.LayoutMediator;
 import java.awt.geom.Point2D;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LayoutTransition<V, E> implements IterativeContext {
 
-  Logger log = Logger.getLogger(LayoutTransition.class);
+  Logger log = LoggerFactory.getLogger(LayoutTransition.class);
 
   protected LayoutMediator<V, E> startLayoutMediator;
   protected LayoutMediator<V, E> endLayoutMediator;

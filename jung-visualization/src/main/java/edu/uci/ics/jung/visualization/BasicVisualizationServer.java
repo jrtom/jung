@@ -44,7 +44,8 @@ import java.util.Map;
 import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A class that maintains many of the details necessary for creating visualizations of graphs. This
@@ -59,7 +60,7 @@ import org.apache.log4j.Logger;
 public class BasicVisualizationServer<V, E> extends JPanel
     implements ChangeListener, ChangeEventSupport, VisualizationServer<V, E> {
 
-  static Logger log = Logger.getLogger(BasicVisualizationServer.class);
+  static Logger log = LoggerFactory.getLogger(BasicVisualizationServer.class);
 
   protected ChangeEventSupport changeSupport = new DefaultChangeEventSupport(this);
 

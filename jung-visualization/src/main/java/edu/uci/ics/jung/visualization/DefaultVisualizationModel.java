@@ -22,7 +22,8 @@ import java.awt.Dimension;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The model containing state values for visualizations of graphs. Refactored and extracted from the
@@ -33,7 +34,7 @@ import org.apache.log4j.Logger;
 public class DefaultVisualizationModel<N, E>
     implements VisualizationModel<N, E>, ChangeEventSupport {
 
-  Logger log = Logger.getLogger(DefaultVisualizationModel.class);
+  Logger log = LoggerFactory.getLogger(DefaultVisualizationModel.class);
 
   ChangeEventSupport changeSupport = new DefaultChangeEventSupport(this);
 
