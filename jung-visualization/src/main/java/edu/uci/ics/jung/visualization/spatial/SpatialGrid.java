@@ -31,13 +31,13 @@ public class SpatialGrid<N> implements Spatial<N> {
   /**
    * Create an instance
    *
-   * @param size the dimensions of the area of the grid
+   * @param bounds the area of the grid
    * @param horizontalCount how many tiles in a row
    * @param verticalCount how many tiles in a column
    */
-  public SpatialGrid(Dimension size, int horizontalCount, int verticalCount) {
-    this.size = size;
-    this.visibleArea = new Rectangle(0, 0, size.width, size.height);
+  public SpatialGrid(Rectangle bounds, int horizontalCount, int verticalCount) {
+    this.size = bounds.getSize();
+    this.visibleArea = bounds;
     this.horizontalCount = horizontalCount;
     this.verticalCount = verticalCount;
     this.boxWidth = size.getWidth() / horizontalCount;

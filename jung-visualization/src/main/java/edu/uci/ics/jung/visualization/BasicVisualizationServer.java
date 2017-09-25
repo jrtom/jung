@@ -233,7 +233,9 @@ public class BasicVisualizationServer<V, E> extends JPanel
   }
 
   public void setLayoutMediator(LayoutMediator<V, E> layoutMediator) {
-    log.debug("setLayoutMediator to " + layoutMediator);
+    if (log.isDebugEnabled()) {
+      log.debug("setLayoutMediator to " + layoutMediator);
+    }
     Dimension viewSize = getPreferredSize();
     if (this.isShowing()) {
       viewSize = getSize();
@@ -326,9 +328,23 @@ public class BasicVisualizationServer<V, E> extends JPanel
     }
 
     g2d.setTransform(newXform);
-
-    SpatialGrid<V> spatial =
-        new SpatialGrid<V>(model.getLayoutMediator().getLayout().getSize(), 20, 20);
+    Dimension layoutSize = model.getLayoutMediator().getLayout().getSize();
+    AffineTransform layoutTransform =
+        renderContext.getMultiLayerTransformer().getTransformer(Layer.LAYOUT).getTransform();
+    Rectangle2D layoutRectangle = new Rectangle2D.Double(0, 0, layoutSize.width, layoutSize.height);
+    Shape bigger = layoutTransform.createTransformedShape(layoutRectangle);
+    if (log.isDebugEnabled()) {
+      log.debug(
+          "layoutXform scale is "
+              + renderContext
+                  .getMultiLayerTransformer()
+                  .getTransformer(Layer.LAYOUT)
+                  .getTransform()
+                  .getScaleX());
+      log.debug("newXform scale is " + newXform.getScaleX());
+      log.debug("this thing is " + bigger.getBounds());
+    }
+    SpatialGrid<V> spatial = new SpatialGrid<V>(bigger.getBounds(), 20, 20);
     Multimap<Integer, V> spatialMap = spatial.getMap();
     Network<V, E> graph = model.getLayoutMediator().getNetwork();
     for (V node : graph.nodes()) {
@@ -362,9 +378,11 @@ public class BasicVisualizationServer<V, E> extends JPanel
             + model.getLayoutMediator()
             + " with nodes "
             + model.getLayoutMediator().getNetwork().nodes());
-    // don't use the spatial version yet
-    //    renderer.render(renderContext, model.getLayoutMediator(), spatial);
-    renderer.render(renderContext, model.getLayoutMediator());
+
+    // use the spatial version
+    renderer.render(renderContext, model.getLayoutMediator(), spatial);
+    // don't use the spatial version
+    //    renderer.render(renderContext, model.getLayoutMediator());
 
     // if there are postRenderers set, do it
     for (Paintable paintable : postRenderers) {

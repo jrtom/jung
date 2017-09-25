@@ -77,29 +77,20 @@ public class DefaultVisualizationModel<N, E>
    */
   public void setLayoutMediator(LayoutMediator<N, E> layoutMediator, Dimension viewSize) {
 
-    log.debug("setLayoutMediator to " + layoutMediator + " with size " + viewSize);
     Layout<N> currentLayout = this.layoutMediator != null ? this.layoutMediator.getLayout() : null;
-    log.debug("the currentLayout was " + currentLayout);
     // remove listener from old layout
     if (currentLayout != null && currentLayout instanceof ChangeEventSupport) {
       ((ChangeEventSupport) currentLayout).removeChangeListener(changeListener);
-      log.debug("removed its change listener");
     }
     Layout<N> newLayout = layoutMediator.getLayout();
-    log.debug("the new layout is " + newLayout);
-    log.debug("the new? network is " + layoutMediator.getNetwork());
 
     // set to new layout
     if (newLayout instanceof ChangeEventSupport) {
       this.layoutMediator = layoutMediator;
-      log.debug("already is ChangeEventSupport");
-      //      this.layout = layout;
     } else {
-      log.debug("made a Observable");
       newLayout = new ObservableCachingLayout<N, E>(layoutMediator.getNetwork(), newLayout);
       this.layoutMediator = new LayoutMediator(layoutMediator.getNetwork(), newLayout);
     }
-    log.debug("now the layoutMediator is " + this.layoutMediator);
 
     ((ChangeEventSupport) newLayout).addChangeListener(changeListener);
 
@@ -107,11 +98,9 @@ public class DefaultVisualizationModel<N, E>
       viewSize = new Dimension(600, 600);
     }
     Dimension layoutSize = newLayout.getSize();
-    log.debug("layoutSize:" + layoutSize);
     // if the layout has NOT been initialized yet, initialize its size
     // now to the size of the VisualizationViewer window
     if (layoutSize == null) {
-      log.debug("set layoutSize to " + viewSize);
       newLayout.setSize(viewSize);
       //      newLayout.setSize(viewSize);
     }
@@ -123,7 +112,6 @@ public class DefaultVisualizationModel<N, E>
     //        	? ((LayoutDecorator<N>) layout).getDelegate()
     //        	: layout;
     if (newLayout instanceof IterativeContext) {
-      log.debug(newLayout + " is an IterativeContext");
       newLayout.initialize();
       if (relaxer == null) {
         relaxer = new VisRunner((IterativeContext) newLayout);
