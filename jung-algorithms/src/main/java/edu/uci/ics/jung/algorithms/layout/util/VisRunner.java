@@ -10,7 +10,6 @@
 package edu.uci.ics.jung.algorithms.layout.util;
 
 import edu.uci.ics.jung.algorithms.util.IterativeContext;
-import org.apache.log4j.Logger;
 
 /**
  * Implementation of a relaxer thread for layouts. Extracted from the {@code VisualizationModel} in
@@ -19,8 +18,6 @@ import org.apache.log4j.Logger;
  * @author Tom Nelson - tomnelson@dev.java.net
  */
 public class VisRunner implements Relaxer, Runnable {
-
-  Logger log = Logger.getLogger(VisRunner.class);
 
   protected boolean running;
   protected IterativeContext process;
@@ -37,7 +34,6 @@ public class VisRunner implements Relaxer, Runnable {
    * @param process the process (generally a layout) for which this instance is created
    */
   public VisRunner(IterativeContext process) {
-    log.debug("made for " + process);
     this.process = process;
   }
 
@@ -52,7 +48,6 @@ public class VisRunner implements Relaxer, Runnable {
   }
 
   public void prerelax() {
-    log.debug("prerelax");
     manualSuspend = true;
     long timeNow = System.currentTimeMillis();
     while (System.currentTimeMillis() - timeNow < 500 && !process.done()) {
@@ -67,7 +62,6 @@ public class VisRunner implements Relaxer, Runnable {
 
   public void relax() {
     // in case its running
-    log.debug("relax");
     stop();
     stop = false;
     thread = new Thread(this);
