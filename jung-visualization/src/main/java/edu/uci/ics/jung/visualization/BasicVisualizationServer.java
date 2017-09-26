@@ -21,6 +21,7 @@ import edu.uci.ics.jung.visualization.picking.PickedState;
 import edu.uci.ics.jung.visualization.picking.ShapePickSupport;
 import edu.uci.ics.jung.visualization.renderers.BasicRenderer;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
+import edu.uci.ics.jung.visualization.spatial.Spatial;
 import edu.uci.ics.jung.visualization.spatial.SpatialGrid;
 import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
 import edu.uci.ics.jung.visualization.util.Caching;
@@ -34,6 +35,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -292,6 +294,65 @@ public class BasicVisualizationServer<V, E> extends JPanel
     }
   }
 
+  protected Spatial getSpatial(Graphics2D g2d, Layout<V> layout, Dimension d)
+      throws NoninvertibleTransformException {
+
+    AffineTransform spatialTransform = new AffineTransform(g2d.getTransform());
+
+    spatialTransform.concatenate(
+        renderContext.getMultiLayerTransformer().getTransformer(Layer.LAYOUT).getTransform());
+    spatialTransform.concatenate(
+        renderContext.getMultiLayerTransformer().getTransformer(Layer.VIEW).getTransform());
+
+    spatialTransform = spatialTransform.createInverse();
+
+    Dimension layoutSize = model.getLayoutMediator().getLayout().getSize();
+    AffineTransform layoutTransform =
+        renderContext.getMultiLayerTransformer().getTransformer(Layer.LAYOUT).getTransform();
+    Rectangle2D layoutRectangle = new Rectangle2D.Double(0, 0, layoutSize.width, layoutSize.height);
+    Shape transformedLayoutShape = layoutTransform.createTransformedShape(layoutRectangle);
+    Point2D viewOriginOnLayout = new Point2D.Double();
+    Point2D viewExtremeOnLayout = new Point2D.Double();
+
+    layoutTransform.inverseTransform(new Point2D.Double(0, 0), viewOriginOnLayout);
+    layoutTransform.inverseTransform(
+        new Point2D.Double(getSize().width, getSize().height), viewExtremeOnLayout);
+
+    Rectangle2D viewProjection = new Rectangle2D.Double();
+    viewProjection.setFrameFromDiagonal(viewOriginOnLayout, viewExtremeOnLayout);
+
+    Rectangle2D union = new Rectangle2D.Double();
+    Rectangle2D.union(transformedLayoutShape.getBounds(), viewProjection, union);
+
+    if (log.isDebugEnabled()) {
+      log.debug(
+          "the union of "
+              + transformedLayoutShape.getBounds()
+              + " and "
+              + viewProjection.getBounds()
+              + " is "
+              + union.getBounds());
+    }
+
+    SpatialGrid<V> spatial = new SpatialGrid<V>(union.getBounds(), 20, 20);
+    Multimap<Integer, V> spatialMap = spatial.getMap();
+    Network<V, E> graph = model.getLayoutMediator().getNetwork();
+    for (V node : graph.nodes()) {
+      spatialMap.put(spatial.getBoxNumberFromLocation(layout.apply(node)), node);
+    }
+
+    Rectangle2D shape = new Rectangle2D.Double(0, 0, (double) d.width, (double) d.height);
+
+    Shape visibleShape = spatialTransform.createTransformedShape(shape);
+
+    Rectangle visibleRectangle = visibleShape.getBounds();
+    if (log.isDebugEnabled()) {
+      log.debug("visibleRectangle:" + visibleRectangle.getBounds());
+    }
+    spatial.setVisibleArea(visibleRectangle);
+    return spatial;
+  }
+
   protected void renderGraph(Graphics2D g2d) {
     if (renderContext.getGraphicsContext() == null) {
       renderContext.setGraphicsContext(new GraphicsDecorator(g2d));
@@ -315,54 +376,7 @@ public class BasicVisualizationServer<V, E> extends JPanel
     newXform.concatenate(
         renderContext.getMultiLayerTransformer().getTransformer(Layer.VIEW).getTransform());
 
-    AffineTransform spatialTransform = new AffineTransform(oldXform);
-    spatialTransform.concatenate(
-        renderContext.getMultiLayerTransformer().getTransformer(Layer.VIEW).getTransform());
-    spatialTransform.concatenate(
-        renderContext.getMultiLayerTransformer().getTransformer(Layer.LAYOUT).getTransform());
-
-    try {
-      spatialTransform = spatialTransform.createInverse();
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-
     g2d.setTransform(newXform);
-    Dimension layoutSize = model.getLayoutMediator().getLayout().getSize();
-    AffineTransform layoutTransform =
-        renderContext.getMultiLayerTransformer().getTransformer(Layer.LAYOUT).getTransform();
-    Rectangle2D layoutRectangle = new Rectangle2D.Double(0, 0, layoutSize.width, layoutSize.height);
-    Shape transformedLayoutShape = layoutTransform.createTransformedShape(layoutRectangle);
-    Point2D viewOriginOnLayout = new Point2D.Double();
-    Point2D viewExtremeOnLayout = new Point2D.Double();
-
-    try {
-      layoutTransform.inverseTransform(new Point2D.Double(0, 0), viewOriginOnLayout);
-      layoutTransform.inverseTransform(
-          new Point2D.Double(getSize().width, getSize().height), viewExtremeOnLayout);
-    } catch (Exception ex) {
-      ex.printStackTrace();
-    }
-
-    Rectangle2D viewProjection = new Rectangle2D.Double();
-    viewProjection.setFrameFromDiagonal(viewOriginOnLayout, viewExtremeOnLayout);
-
-    Rectangle2D union = new Rectangle2D.Double();
-    Rectangle2D.union(transformedLayoutShape.getBounds(), viewProjection, union);
-
-    SpatialGrid<V> spatial = new SpatialGrid<V>(union.getBounds(), 20, 20);
-    Multimap<Integer, V> spatialMap = spatial.getMap();
-    Network<V, E> graph = model.getLayoutMediator().getNetwork();
-    for (V node : graph.nodes()) {
-      spatialMap.put(spatial.getBoxNumberFromLocation(layout.apply(node)), node);
-    }
-
-    Rectangle2D shape = new Rectangle2D.Double(0, 0, (double) d.width, (double) d.height);
-
-    Shape visibleShape = spatialTransform.createTransformedShape(shape);
-
-    Rectangle visibleRectangle = visibleShape.getBounds();
-    spatial.setVisibleArea(visibleRectangle);
 
     // if there are  preRenderers set, paint them
     for (Paintable paintable : preRenderers) {
@@ -379,16 +393,14 @@ public class BasicVisualizationServer<V, E> extends JPanel
     if (layout instanceof Caching) {
       ((Caching) layout).clear();
     }
-    log.debug(
-        "render nodes from "
-            + model.getLayoutMediator()
-            + " with nodes "
-            + model.getLayoutMediator().getNetwork().nodes());
 
-    // use the spatial version
-    renderer.render(renderContext, model.getLayoutMediator(), spatial);
-    // don't use the spatial version
-    //    renderer.render(renderContext, model.getLayoutMediator());
+    try {
+      Spatial spatial = getSpatial(g2d, layout, d);
+      renderer.render(renderContext, model.getLayoutMediator(), spatial);
+    } catch (NoninvertibleTransformException ex) {
+      log.debug("Possible problem with transform. Failover to not use Spatial data structure.", ex);
+      renderer.render(renderContext, model.getLayoutMediator());
+    }
 
     // if there are postRenderers set, do it
     for (Paintable paintable : postRenderers) {

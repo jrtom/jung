@@ -144,7 +144,7 @@ public class SpatialGrid<N> implements Spatial<N> {
     int xOffset = visibleArea.x;
     int yOffset = visibleArea.y;
     Set<Integer> visibleTiles = Sets.newHashSet();
-    int[] upperLeftBox = getBoxIndex(Math.max(0, xOffset), Math.max(0, yOffset));
+    int[] upperLeftBox = getBoxIndex(xOffset, yOffset);
     int[] lowerRightBox =
         getBoxIndex(
             Math.min(size.width - 1, xOffset + d.width - 1),
@@ -167,7 +167,7 @@ public class SpatialGrid<N> implements Spatial<N> {
    */
   public Collection<Integer> getVisibleTiles(Dimension d, int xOffset, int yOffset) {
     Set<Integer> visibleTiles = Sets.newHashSet();
-    int[] upperLeftBox = getBoxIndex(Math.max(0, xOffset), Math.max(0, yOffset));
+    int[] upperLeftBox = getBoxIndex(xOffset, yOffset);
     int[] lowerRightBox =
         getBoxIndex(
             Math.min(size.width - 1, xOffset + d.width - 1),
