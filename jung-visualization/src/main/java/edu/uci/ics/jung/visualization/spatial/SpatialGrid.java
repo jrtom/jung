@@ -212,11 +212,6 @@ public class SpatialGrid<N> implements Spatial<N> {
     return getVisibleNodes(this.visibleArea);
   }
 
-  //    @Override
-  //    public void setVisibleArea(Dimension d, int xOffset, int yOffset) {
-  //
-  //    }
-
   @Override
   public Rectangle getVisibleArea() {
     return this.visibleArea;
@@ -240,7 +235,6 @@ public class SpatialGrid<N> implements Spatial<N> {
         if (0 <= x && x < horizontalCount && 0 <= y && y < verticalCount) {
           adjacents.add(y * horizontalCount + x);
         }
-        //                }
       }
     }
     return adjacents;

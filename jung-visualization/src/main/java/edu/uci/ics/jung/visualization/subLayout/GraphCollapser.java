@@ -102,7 +102,7 @@ public class GraphCollapser {
           Object u = inGraph.incidentNodes(edge).nodeU();
           Object v = inGraph.incidentNodes(edge).nodeV();
           // only add edges if both u and v are not already in the graph
-          if (!(clusterNodes.contains(u) && clusterNodes.contains(v))) {
+          if ((clusterNodes.contains(u) && clusterNodes.contains(v))) {
             continue;
           }
 

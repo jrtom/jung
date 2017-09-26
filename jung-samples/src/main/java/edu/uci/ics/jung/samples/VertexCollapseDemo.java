@@ -11,6 +11,7 @@ package edu.uci.ics.jung.samples;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
+import edu.uci.ics.jung.algorithms.layout.StaticLayout;
 import edu.uci.ics.jung.graph.util.TestGraphs;
 import edu.uci.ics.jung.visualization.DefaultVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
@@ -23,6 +24,7 @@ import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.EllipseVertexShapeTransformer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.subLayout.GraphCollapser;
+import edu.uci.ics.jung.visualization.util.LayoutMediator;
 import edu.uci.ics.jung.visualization.util.PredicatedParallelEdgeIndexFunction;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -175,9 +177,14 @@ public class VertexCollapseDemo extends JApplet {
               }
               Point2D cp = new Point2D.Double(sumx / picked.size(), sumy / picked.size());
               vv.getRenderContext().getParallelEdgeIndexFunction().reset();
-              layout = new FRLayout(g.asGraph());
+              Layout oldLayout = layout;
+              layout = new StaticLayout(g.asGraph(), oldLayout, oldLayout.getSize());
               layout.setLocation(clusterGraph, cp);
+              LayoutMediator layoutMediator = vv.getModel().getLayoutMediator();
+              LayoutMediator newLayoutMediator = new LayoutMediator(g, layout);
+              vv.setLayoutMediator(newLayoutMediator);
               vv.getPickedVertexState().clear();
+              layout.setSize(layout.getSize());
               vv.repaint();
             }
           }
@@ -229,11 +236,16 @@ public class VertexCollapseDemo extends JApplet {
             Collection picked = new HashSet(vv.getPickedVertexState().getPicked());
             for (Object v : picked) {
               if (v instanceof Network) {
-                Network g =
-                    collapser.expand(vv.getModel().getLayoutMediator().getNetwork(), (Network) v);
+                Network g = collapser.expand(graph, (Network) v);
                 vv.getRenderContext().getParallelEdgeIndexFunction().reset();
                 // TODO: need to update VV with new layout
-                layout = new FRLayout(g.asGraph());
+                Layout oldLayout = layout;
+                layout = new StaticLayout(g.asGraph(), oldLayout, oldLayout.getSize());
+                //                LayoutMediator layoutMediator = vv.getModel().getLayoutMediator();
+                LayoutMediator newLayoutMediator = new LayoutMediator(g, layout);
+                vv.setLayoutMediator(newLayoutMediator);
+                //                layout = new FRLayout(g.asGraph());
+                layout.setSize(layout.getSize());
               }
               vv.getPickedVertexState().clear();
               vv.repaint();
