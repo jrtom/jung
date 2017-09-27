@@ -4,8 +4,8 @@ import com.google.common.graph.Network;
 
 public class LayoutEvent<V, E> {
 
-  V vertex;
-  Network<V, E> graph;
+  final V vertex;
+  final Network<V, E> graph;
 
   public LayoutEvent(V vertex, Network<V, E> graph) {
     this.vertex = vertex;
@@ -16,15 +16,7 @@ public class LayoutEvent<V, E> {
     return vertex;
   }
 
-  public void setVertex(V vertex) {
-    this.vertex = vertex;
-  }
-
   public Network<V, E> getGraph() {
     return graph;
-  }
-
-  public void setGraph(Network<V, E> graph) {
-    this.graph = graph;
   }
 }

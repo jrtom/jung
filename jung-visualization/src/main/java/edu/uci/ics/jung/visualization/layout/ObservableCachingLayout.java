@@ -104,9 +104,11 @@ public class ObservableCachingLayout<V, E> extends LayoutDecorator<V>
   }
 
   private void fireLayoutChanged(V v) {
-    LayoutEvent<V, E> evt = new LayoutEvent<V, E>(v, graph);
-    for (LayoutChangeListener<V, E> listener : layoutChangeListeners) {
-      listener.layoutChanged(evt);
+    if (!layoutChangeListeners.isEmpty()) {
+      LayoutEvent<V, E> evt = new LayoutEvent<V, E>(v, graph);
+      for (LayoutChangeListener<V, E> listener : layoutChangeListeners) {
+        listener.layoutChanged(evt);
+      }
     }
   }
 
