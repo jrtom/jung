@@ -11,7 +11,6 @@ package edu.uci.ics.jung.samples;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
-import edu.uci.ics.jung.algorithms.layout.StaticLayout;
 import edu.uci.ics.jung.graph.util.TestGraphs;
 import edu.uci.ics.jung.visualization.DefaultVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
@@ -92,7 +91,6 @@ public class VertexCollapseDemo extends JApplet {
 
   GraphCollapser collapser;
 
-  // FIXME: make sure I did the right thing with the graph handling (see VertexCollapseDemoWithLayouts)
   public VertexCollapseDemo() {
 
     // create a simple graph for the demo
@@ -166,8 +164,9 @@ public class VertexCollapseDemo extends JApplet {
           public void actionPerformed(ActionEvent e) {
             Collection picked = new HashSet(vv.getPickedVertexState().getPicked());
             if (picked.size() > 1) {
-              Network clusterGraph = collapser.getClusterGraph(graph, picked);
-              Network g = collapser.collapse(graph, clusterGraph);
+              Network inGraph = vv.getModel().getLayoutMediator().getNetwork();
+              Network clusterGraph = collapser.getClusterGraph(inGraph, picked);
+              Network g = collapser.collapse(inGraph, clusterGraph);
               double sumx = 0;
               double sumy = 0;
               for (Object v : picked) {
@@ -176,15 +175,11 @@ public class VertexCollapseDemo extends JApplet {
                 sumy += p.getY();
               }
               Point2D cp = new Point2D.Double(sumx / picked.size(), sumy / picked.size());
-              vv.getRenderContext().getParallelEdgeIndexFunction().reset();
-              Layout oldLayout = layout;
-              layout = new StaticLayout(g.asGraph(), oldLayout, oldLayout.getSize());
               layout.setLocation(clusterGraph, cp);
-              LayoutMediator layoutMediator = vv.getModel().getLayoutMediator();
+              vv.getRenderContext().getParallelEdgeIndexFunction().reset();
               LayoutMediator newLayoutMediator = new LayoutMediator(g, layout);
               vv.setLayoutMediator(newLayoutMediator);
               vv.getPickedVertexState().clear();
-              layout.setSize(layout.getSize());
               vv.repaint();
             }
           }
@@ -238,14 +233,8 @@ public class VertexCollapseDemo extends JApplet {
               if (v instanceof Network) {
                 Network g = collapser.expand(graph, (Network) v);
                 vv.getRenderContext().getParallelEdgeIndexFunction().reset();
-                // TODO: need to update VV with new layout
-                Layout oldLayout = layout;
-                layout = new StaticLayout(g.asGraph(), oldLayout, oldLayout.getSize());
-                //                LayoutMediator layoutMediator = vv.getModel().getLayoutMediator();
                 LayoutMediator newLayoutMediator = new LayoutMediator(g, layout);
                 vv.setLayoutMediator(newLayoutMediator);
-                //                layout = new FRLayout(g.asGraph());
-                layout.setSize(layout.getSize());
               }
               vv.getPickedVertexState().clear();
               vv.repaint();
@@ -258,8 +247,8 @@ public class VertexCollapseDemo extends JApplet {
         new ActionListener() {
 
           public void actionPerformed(ActionEvent e) {
-            layout = new FRLayout(vv.getModel().getLayoutMediator().getNetwork().asGraph());
-            // TODO: need to update VV with new layout
+            LayoutMediator newLayoutMediator = new LayoutMediator(graph, layout);
+            vv.setLayoutMediator(newLayoutMediator);
             exclusions.clear();
             vv.repaint();
           }

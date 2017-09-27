@@ -62,9 +62,6 @@ public class EditingModalGraphMouse<V, E> extends AbstractModalGraphMouse
       float in,
       float out) {
     super(in, out);
-    //    Preconditions.checkArgument(
-    //            layoutMediator.getNetwork() instanceof MutableNetwork,
-    //        "Supplied Network instance must be a MutableNetwork");
     this.vertexFactory = vertexFactory;
     this.edgeFactory = edgeFactory;
     this.rc = rc;

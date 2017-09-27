@@ -8,7 +8,6 @@
  */
 package edu.uci.ics.jung.samples;
 
-import com.google.common.collect.Sets;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.algorithms.layout.CircleLayout;
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
@@ -93,9 +92,6 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
   @SuppressWarnings("rawtypes")
   Network graph;
 
-  @SuppressWarnings("rawtypes")
-  Network collapsedGraph;
-
   enum Layouts {
     KAMADA_KAWAI,
     FRUCHTERMAN_REINGOLD,
@@ -119,7 +115,7 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
 
     // create a simple graph for the demo
     graph = TestGraphs.getOneComponentGraph();
-    collapsedGraph = graph;
+
     collapser = new GraphCollapser(graph);
 
     layout = new FRLayout(graph.asGraph());
@@ -175,7 +171,7 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
     //            }
     //        });
     jcb.addActionListener(new LayoutChooser(jcb, vv));
-    //        jcb.setSelectedItem(FRLayout.class);
+
     jcb.setSelectedItem(Layouts.FRUCHTERMAN_REINGOLD);
 
     final ScalingControl scaler = new CrossoverScalingControl();
@@ -200,16 +196,11 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
         new ActionListener() {
 
           public void actionPerformed(ActionEvent e) {
-            // FIXME: this is tricky (here and in VertexCollapseDemo): need to make sure that the "inGraph"
-            // stays the right graph
             Collection picked = new HashSet(vv.getPickedVertexState().getPicked());
             if (picked.size() > 1) {
-              //                    Network inGraph = layout.getGraph();
-              //                    Network clusterGraph = collapser.getClusterGraph(inGraph, picked);
-              Network clusterGraph = collapser.getClusterGraph(collapsedGraph, picked);
-
-              //                    Network g = collapser.collapse(layout.getGraph(), clusterGraph);
-              collapsedGraph = collapser.collapse(collapsedGraph, clusterGraph);
+              Network inGraph = vv.getModel().getLayoutMediator().getNetwork();
+              Network clusterGraph = collapser.getClusterGraph(inGraph, picked);
+              Network g = collapser.collapse(inGraph, clusterGraph);
               double sumx = 0;
               double sumy = 0;
               for (Object v : picked) {
@@ -218,13 +209,11 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
                 sumy += p.getY();
               }
               Point2D cp = new Point2D.Double(sumx / picked.size(), sumy / picked.size());
-              vv.getRenderContext().getParallelEdgeIndexFunction().reset();
-              //                    layout.setGraph(g);
-              layout = createLayout((Layouts) jcb.getSelectedItem(), collapsedGraph);
-              //                    layout.setGraph(collapsedGraph.asGraph());
               layout.setLocation(clusterGraph, cp);
+              vv.getRenderContext().getParallelEdgeIndexFunction().reset();
+              LayoutMediator newLayoutMediator = new LayoutMediator(g, layout);
+              vv.setLayoutMediator(newLayoutMediator);
               vv.getPickedVertexState().clear();
-              vv.setLayoutMediator(new LayoutMediator(collapsedGraph, layout));
               vv.repaint();
             }
           }
@@ -235,18 +224,14 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
         new ActionListener() {
 
           public void actionPerformed(ActionEvent e) {
-            Collection picked = vv.getPickedVertexState().getPicked();
+            Set picked = vv.getPickedVertexState().getPicked();
             if (picked.size() == 2) {
               Iterator pickedIter = picked.iterator();
               Object nodeU = pickedIter.next();
               Object nodeV = pickedIter.next();
-              //					Pair pair = new Pair(picked);
-              //					Network graph = layout.getGraph();
-              Set edges =
-                  Sets.intersection(
-                      collapsedGraph.incidentEdges(nodeU), collapsedGraph.incidentEdges(nodeV));
-              //					Collection edges = new HashSet(graph.getIncidentEdges(pair.getFirst()));
-              //					edges.retainAll(graph.getIncidentEdges(pair.getSecond()));
+              Network graph = vv.getModel().getLayoutMediator().getNetwork();
+              Collection edges = new HashSet(graph.incidentEdges(nodeU));
+              edges.retainAll(graph.incidentEdges(nodeV));
               exclusions.addAll(edges);
               vv.repaint();
             }
@@ -258,18 +243,14 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
         new ActionListener() {
 
           public void actionPerformed(ActionEvent e) {
-            Collection picked = vv.getPickedVertexState().getPicked();
+            Set picked = vv.getPickedVertexState().getPicked();
             if (picked.size() == 2) {
               Iterator pickedIter = picked.iterator();
               Object nodeU = pickedIter.next();
               Object nodeV = pickedIter.next();
-              //					Pair pair = new Pair(picked);
-              //					Network graph = layout.getGraph();
-              Set edges =
-                  Sets.intersection(
-                      collapsedGraph.incidentEdges(nodeU), collapsedGraph.incidentEdges(nodeV));
-              //					Collection edges = new HashSet(graph.getIncidentEdges(pair.getFirst()));
-              //					edges.retainAll(graph.getIncidentEdges(pair.getSecond()));
+              Network graph = vv.getModel().getLayoutMediator().getNetwork();
+              Collection edges = new HashSet(graph.incidentEdges(nodeU));
+              edges.retainAll(graph.incidentEdges(nodeV));
               exclusions.removeAll(edges);
               vv.repaint();
             }
@@ -282,18 +263,15 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
 
           public void actionPerformed(ActionEvent e) {
             Collection picked = new HashSet(vv.getPickedVertexState().getPicked());
+            //            Network network = vv.getModel().getLayoutMediator().getNetwork();
             for (Object v : picked) {
               if (v instanceof Network) {
-                //                        Network g = collapser.expand(layout.getGraph(), (Network)v);
-                Network g = collapser.expand(collapsedGraph, (Network) v);
+                Network g = collapser.expand(graph, (Network) v);
                 vv.getRenderContext().getParallelEdgeIndexFunction().reset();
-                collapsedGraph = g;
-                //                        vv.getModel() // FIXME: need a setNetwork?
-                layout = createLayout((Layouts) jcb.getSelectedItem(), collapsedGraph);
-                //                        layout.setGraph(g);
+                LayoutMediator newLayoutMediator = new LayoutMediator(g, layout);
+                vv.setLayoutMediator(newLayoutMediator);
               }
               vv.getPickedVertexState().clear();
-              vv.setLayoutMediator(new LayoutMediator(collapsedGraph, layout));
               vv.repaint();
             }
           }
@@ -429,12 +407,13 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
       Layouts layoutType = (Layouts) jcb.getSelectedItem();
 
       try {
-        layout = createLayout(layoutType, collapsedGraph);
+        Network network = vv.getModel().getLayoutMediator().getNetwork();
+        layout = createLayout(layoutType, network);
         layout.setInitializer(vv.getGraphLayout());
         layout.setSize(vv.getSize());
         LayoutTransition lt =
             new LayoutTransition(
-                vv, vv.getModel().getLayoutMediator(), new LayoutMediator(graph, layout));
+                vv, vv.getModel().getLayoutMediator(), new LayoutMediator(network, layout));
         Animator animator = new Animator(lt);
         animator.start();
         vv.getRenderContext().getMultiLayerTransformer().setToIdentity();
