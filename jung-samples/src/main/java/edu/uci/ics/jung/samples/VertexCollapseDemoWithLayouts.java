@@ -266,7 +266,8 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
             //            Network network = vv.getModel().getLayoutMediator().getNetwork();
             for (Object v : picked) {
               if (v instanceof Network) {
-                Network g = collapser.expand(graph, (Network) v);
+                Network inGraph = vv.getModel().getLayoutMediator().getNetwork();
+                Network g = collapser.expand(inGraph, (Network) v);
                 vv.getRenderContext().getParallelEdgeIndexFunction().reset();
                 LayoutMediator newLayoutMediator = new LayoutMediator(g, layout);
                 vv.setLayoutMediator(newLayoutMediator);

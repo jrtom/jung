@@ -109,11 +109,19 @@ public class GraphCollapser {
           if (clusterGraph.equals(u)) {
             Object originalU = originalGraph.incidentNodes(edge).nodeU();
             Object newU = findNode(graph, originalU);
+            if (newU == v) {
+              originalU = originalGraph.incidentNodes(edge).nodeV();
+              newU = findNode(graph, originalU);
+            }
             Preconditions.checkNotNull(newU);
             graph.addEdge(newU, v, edge);
           } else if (clusterGraph.equals(v)) {
             Object originalV = originalGraph.incidentNodes(edge).nodeV();
             Object newV = findNode(graph, originalV);
+            if (u == newV) {
+              originalV = originalGraph.incidentNodes(edge).nodeU();
+              newV = findNode(graph, originalV);
+            }
             Preconditions.checkNotNull(newV);
             graph.addEdge(u, newV, edge);
           } else {
