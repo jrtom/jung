@@ -48,25 +48,11 @@ public class EdgeShape<E> {
 
   private static GeneralPath triangle;
 
-  protected final Network<?, E> graph;
-
   /**
    * A convenience instance for other edge shapes to use for self-loop edges where parallel
    * instances will not overlay each other.
    */
   protected static final Loop loop = new Loop();
-
-  /**
-   * A convenience instance for other edge shapes to use for self-loop edges where parallel
-   * instances overlay each other.
-   */
-  //    protected final SimpleLoop simpleLoop;
-
-  public EdgeShape(Network<?, E> g) {
-    this.graph = g;
-    //		this.loop = new Loop();
-    //		this.simpleLoop = new SimpleLoop();
-  }
 
   private static <E> boolean isLoop(Network<?, E> graph, E edge) {
     EndpointPair<?> endpoints = graph.incidentNodes(edge);
@@ -74,30 +60,30 @@ public class EdgeShape<E> {
     return endpoints.nodeU().equals(endpoints.nodeV());
   }
 
-  public static <E> Line<E> line(Network<?, E> graph) {
-    return new Line<E>(graph);
+  public static <E> Line<E> line() {
+    return new Line<E>();
   }
 
-  public static <E> QuadCurve quadCurve(Network<?, E> graph) {
+  public static <E> QuadCurve quadCurve() {
     return new QuadCurve();
   }
 
-  public static <E> CubicCurve cubicCurve(Network<?, E> graph) {
+  public static <E> CubicCurve cubicCurve() {
     return new CubicCurve();
   }
 
-  public static <E> Orthogonal orthogonal(Network<?, E> graph) {
+  public static <E> Orthogonal orthogonal() {
     return new Orthogonal();
   }
 
-  public static <E> Wedge wedge(Network<?, E> graph, int width) {
+  public static <E> Wedge wedge(int width) {
     return new Wedge(width);
   }
 
   /** An edge shape that renders as a straight line between the vertex endpoints. */
   public static class Line<E> extends EdgeShape<E> implements Function<Context<Network, E>, Shape> {
-    public Line(Network<?, E> graph) {
-      super(graph);
+    public Line() {
+      //      super(graph);
       // TODO: decide whether this check is reasonable
       //    		Preconditions.checkArgument(!graph.allowsParallelEdges(),
       //    				"Line does not support graphs that allow parallel edges");

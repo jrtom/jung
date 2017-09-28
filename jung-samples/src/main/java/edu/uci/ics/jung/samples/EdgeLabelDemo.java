@@ -139,7 +139,7 @@ public class EdgeLabelDemo extends JApplet {
         new ItemListener() {
           public void itemStateChanged(ItemEvent e) {
             if (e.getStateChange() == ItemEvent.SELECTED) {
-              vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.line(graph));
+              vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.line());
               vv.repaint();
             }
           }
@@ -150,7 +150,7 @@ public class EdgeLabelDemo extends JApplet {
         new ItemListener() {
           public void itemStateChanged(ItemEvent e) {
             if (e.getStateChange() == ItemEvent.SELECTED) {
-              vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.quadCurve(graph));
+              vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.quadCurve());
               vv.repaint();
             }
           }
@@ -161,7 +161,7 @@ public class EdgeLabelDemo extends JApplet {
         new ItemListener() {
           public void itemStateChanged(ItemEvent e) {
             if (e.getStateChange() == ItemEvent.SELECTED) {
-              vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.cubicCurve(graph));
+              vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.cubicCurve());
               vv.repaint();
             }
           }
@@ -282,7 +282,8 @@ public class EdgeLabelDemo extends JApplet {
   }
 
   Network<Integer, Number> buildGraph() {
-    MutableNetwork<Integer, Number> graph = NetworkBuilder.directed().build();
+    MutableNetwork<Integer, Number> graph =
+        NetworkBuilder.directed().allowsParallelEdges(true).build();
 
     graph.addEdge(0, 1, new Double(Math.random()));
     graph.addEdge(0, 1, new Double(Math.random()));

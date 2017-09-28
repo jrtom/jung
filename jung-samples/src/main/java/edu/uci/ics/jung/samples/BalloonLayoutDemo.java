@@ -91,7 +91,7 @@ public class BalloonLayoutDemo extends JApplet {
     radialLayout.setSize(new Dimension(900, 900));
     vv = new VisualizationViewer<String, Integer>(graph, layout, new Dimension(600, 600));
     vv.setBackground(Color.white);
-    vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.quadCurve(graph));
+    vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.quadCurve());
     vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
     // add a listener for ToolTips
     vv.setVertexToolTipTransformer(new ToStringLabeller());
