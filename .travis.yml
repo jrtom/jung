@@ -15,7 +15,7 @@ install:
   - mvn -B install -U -DskipTests=true
 
 script:
-  - mvn -B verify -U -Dmaven.javadoc.skip=true
+  - mvn -B verify -U -Dfmt.goal=check -Dmaven.javadoc.skip=true
 
 after_success:
   - tools/deploy_snapshots.sh

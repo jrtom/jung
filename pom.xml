@@ -79,7 +79,8 @@
     <pmd.plugin.version>3.8</pmd.plugin.version>
     <release.plugin.version>2.5.3</release.plugin.version>
     <surefire.plugin.version>2.19.1</surefire.plugin.version>
-    <source.plugin.version>3.0.1</source.plugin.version>    
+    <source.plugin.version>3.0.1</source.plugin.version>
+    <fmt.goal>format</fmt.goal>
   </properties>
   <developers>
     <developer>
@@ -176,7 +177,7 @@
           <execution>
             <phase>verify</phase>
             <goals>
-              <goal>check</goal>
+              <goal>${fmt.goal}</goal>
             </goals>
           </execution>
         </executions>
