@@ -29,30 +29,27 @@ import java.util.function.Function;
  * the vertex location.
  *
  * @author Tom Nelson
- * @param <V> the vertex type
- * @param <V> the edge type
  */
-public class VertexLabelAsShapeRenderer<V, E>
-    implements Renderer.VertexLabel<V, E>, Function<V, Shape> {
+public class VertexLabelAsShapeRenderer implements Renderer.VertexLabel, Function<Object, Shape> {
 
-  protected Map<V, Shape> shapes = new HashMap<V, Shape>();
-  protected final Layout<V> layout;
-  protected final RenderContext<V, ?> renderContext;
+  protected Map<Object, Shape> shapes = new HashMap<Object, Shape>();
+  protected final Layout<Object> layout;
+  protected final RenderContext renderContext;
 
-  public VertexLabelAsShapeRenderer(Layout<V> layout, RenderContext<V, ?> rc) {
+  public VertexLabelAsShapeRenderer(Layout<Object> layout, RenderContext rc) {
     this.layout = layout;
     this.renderContext = rc;
   }
 
   public Component prepareRenderer(
-      RenderContext<V, ?> rc,
+      RenderContext rc,
       VertexLabelRenderer graphLabelRenderer,
       Object value,
       boolean isSelected,
-      V vertex) {
+      Object vertex) {
     return renderContext
         .getVertexLabelRenderer()
-        .<V>getVertexLabelRendererComponent(
+        .getVertexLabelRendererComponent(
             renderContext.getScreenDevice(),
             value,
             renderContext.getVertexFontTransformer().apply(vertex),
@@ -67,7 +64,7 @@ public class VertexLabelAsShapeRenderer<V, E>
    * the position of the vertex; otherwise the label is offset slightly.
    */
   public void labelVertex(
-      RenderContext<V, E> renderContext, LayoutMediator<V, E> layoutMediator, V v, String label) {
+      RenderContext renderContext, LayoutMediator layoutMediator, Object v, String label) {
     if (!renderContext.getVertexIncludePredicate().test(v)) {
       return;
     }
@@ -105,7 +102,7 @@ public class VertexLabelAsShapeRenderer<V, E>
     shapes.put(v, bounds);
   }
 
-  public Shape apply(V v) {
+  public Shape apply(Object v) {
     Component component =
         prepareRenderer(
             renderContext,

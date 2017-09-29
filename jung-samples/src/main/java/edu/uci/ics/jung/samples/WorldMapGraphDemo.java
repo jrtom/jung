@@ -58,7 +58,7 @@ public class WorldMapGraphDemo extends JApplet {
   Network<String, Number> graph;
 
   /** the visual component and renderer for the graph */
-  VisualizationViewer<String, Number> vv;
+  VisualizationViewer vv;
 
   List<String> cityList;
 
@@ -91,7 +91,7 @@ public class WorldMapGraphDemo extends JApplet {
                 .andThen(new LatLonPixelTransformer(new Dimension(2000, 1000))));
 
     layout.setSize(layoutSize);
-    vv = new VisualizationViewer<String, Number>(graph, layout, new Dimension(800, 400));
+    vv = new VisualizationViewer(graph, layout, new Dimension(800, 400));
 
     if (icon != null) {
       vv.addPreRenderPaintable(
@@ -126,15 +126,14 @@ public class WorldMapGraphDemo extends JApplet {
 
     vv.getRenderer()
         .setVertexRenderer(
-            new GradientVertexRenderer<String, Number>(
-                vv, Color.white, Color.red, Color.white, Color.blue, false));
+            new GradientVertexRenderer(vv, Color.white, Color.red, Color.white, Color.blue, false));
 
     // add my listeners for ToolTips
     vv.setVertexToolTipTransformer(new ToStringLabeller());
     vv.setEdgeToolTipTransformer(
-        new Function<Number, String>() {
-          public String apply(Number edge) {
-            return "E" + graph.incidentNodes(edge).toString();
+        new Function<Object, String>() {
+          public String apply(Object edge) {
+            return "E" + graph.incidentNodes((Number) edge).toString();
           }
         });
 
@@ -144,7 +143,7 @@ public class WorldMapGraphDemo extends JApplet {
 
     final GraphZoomScrollPane panel = new GraphZoomScrollPane(vv);
     add(panel);
-    final AbstractModalGraphMouse graphMouse = new DefaultModalGraphMouse<String, Number>();
+    final AbstractModalGraphMouse graphMouse = new DefaultModalGraphMouse();
     vv.setGraphMouse(graphMouse);
 
     vv.addKeyListener(graphMouse.getModeKeyListener());

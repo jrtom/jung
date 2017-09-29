@@ -52,7 +52,7 @@ public class UnicodeLabelDemo {
   Network<Integer, Number> graph;
 
   /** the visual component and renderer for the graph */
-  VisualizationViewer<Integer, Number> vv;
+  VisualizationViewer vv;
 
   boolean showLabels;
 
@@ -60,26 +60,26 @@ public class UnicodeLabelDemo {
 
     // create a simple graph for the demo
     graph = createGraph();
-    Map<Integer, Icon> iconMap = new HashMap<Integer, Icon>();
+    Map<Object, Icon> iconMap = new HashMap<Object, Icon>();
 
-    vv = new VisualizationViewer<Integer, Number>(graph, new FRLayout<Integer>(graph.asGraph()));
+    vv = new VisualizationViewer(graph, new FRLayout<Integer>(graph.asGraph()));
     vv.getRenderContext().setVertexLabelTransformer(new UnicodeVertexStringer());
     vv.getRenderContext().setVertexLabelRenderer(new DefaultVertexLabelRenderer(Color.cyan));
     vv.getRenderContext().setEdgeLabelRenderer(new DefaultEdgeLabelRenderer(Color.cyan));
-    VertexIconShapeTransformer<Integer> vertexIconShapeFunction =
-        new VertexIconShapeTransformer<Integer>(new EllipseVertexShapeTransformer<Integer>());
-    Function<Integer, Icon> vertexIconFunction = iconMap::get;
+    VertexIconShapeTransformer vertexIconShapeFunction =
+        new VertexIconShapeTransformer(new EllipseVertexShapeTransformer());
+    Function<Object, Icon> vertexIconFunction = iconMap::get;
     vv.getRenderContext().setVertexShapeTransformer(vertexIconShapeFunction);
     vv.getRenderContext().setVertexIconTransformer(vertexIconFunction);
     loadImages(iconMap);
     vertexIconShapeFunction.setIconMap(iconMap);
     vv.getRenderContext()
         .setVertexFillPaintTransformer(
-            new PickableVertexPaintTransformer<Integer>(
+            new PickableVertexPaintTransformer(
                 vv.getPickedVertexState(), Color.white, Color.yellow));
     vv.getRenderContext()
         .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer<Number>(
+            new PickableEdgePaintTransformer(
                 vv.getPickedEdgeState(), Color.black, Color.lightGray));
 
     vv.setBackground(Color.white);
@@ -94,8 +94,7 @@ public class UnicodeLabelDemo {
     content.add(panel);
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-    final DefaultModalGraphMouse<Integer, Number> gm =
-        new DefaultModalGraphMouse<Integer, Number>();
+    final DefaultModalGraphMouse gm = new DefaultModalGraphMouse();
     vv.setGraphMouse(gm);
 
     final ScalingControl scaler = new CrossoverScalingControl();
@@ -136,10 +135,10 @@ public class UnicodeLabelDemo {
     frame.setVisible(true);
   }
 
-  class UnicodeVertexStringer implements Function<Integer, String> {
+  class UnicodeVertexStringer implements Function<Object, String> {
 
-    Map<Integer, String> map = new HashMap<Integer, String>();
-    Map<Integer, Icon> iconMap = new HashMap<Integer, Icon>();
+    Map<Object, String> map = new HashMap<Object, String>();
+    Map<Object, Icon> iconMap = new HashMap<Object, Icon>();
     String[] labels = {
       "\u0057\u0065\u006C\u0063\u006F\u006D\u0065\u0020\u0074\u006F\u0020JUNG\u0021",
       "\u6B22\u8FCE\u4F7F\u7528\u0020\u0020JUNG\u0021",
@@ -157,10 +156,8 @@ public class UnicodeLabelDemo {
       }
     }
 
-    /**
-     * @see edu.uci.ics.jung.graph.decorators.VertexStringer#getLabel(edu.uci.ics.jung.graph.Vertex)
-     */
-    public String getLabel(Integer v) {
+    /** */
+    public String getLabel(Object v) {
       if (showLabels) {
         return map.get(v);
       } else {
@@ -168,7 +165,7 @@ public class UnicodeLabelDemo {
       }
     }
 
-    public String apply(Integer input) {
+    public String apply(Object input) {
       return getLabel(input);
     }
   }
@@ -198,7 +195,7 @@ public class UnicodeLabelDemo {
     return graph;
   }
 
-  protected void loadImages(Map<Integer, Icon> imageMap) {
+  protected void loadImages(Map<Object, Icon> imageMap) {
 
     ImageIcon[] icons = null;
     try {

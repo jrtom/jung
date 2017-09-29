@@ -15,7 +15,7 @@ package edu.uci.ics.jung.visualization.picking;
  *
  * @author danyelf
  */
-public interface PickedInfo<T> {
+public interface PickedInfo {
 
-  public boolean isPicked(T t);
+  public boolean isPicked(Object t);
 }

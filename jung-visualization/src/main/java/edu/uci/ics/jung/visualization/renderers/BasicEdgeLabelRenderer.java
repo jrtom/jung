@@ -23,18 +23,18 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.util.function.Predicate;
 
-public class BasicEdgeLabelRenderer<V, E> implements Renderer.EdgeLabel<V, E> {
+public class BasicEdgeLabelRenderer implements Renderer.EdgeLabel {
 
   public Component prepareRenderer(
-      RenderContext<V, E> renderContext,
-      LayoutMediator<V, E> layoutMediator,
+      RenderContext renderContext,
+      LayoutMediator layoutMediator,
       EdgeLabelRenderer graphLabelRenderer,
       Object value,
       boolean isSelected,
-      E edge) {
+      Object edge) {
     return renderContext
         .getEdgeLabelRenderer()
-        .<E>getEdgeLabelRendererComponent(
+        .<Object>getEdgeLabelRendererComponent(
             renderContext.getScreenDevice(),
             value,
             renderContext.getEdgeFontTransformer().apply(edge),
@@ -44,16 +44,16 @@ public class BasicEdgeLabelRenderer<V, E> implements Renderer.EdgeLabel<V, E> {
 
   @Override
   public void labelEdge(
-      RenderContext<V, E> renderContext, LayoutMediator<V, E> layoutMediator, E e, String label) {
+      RenderContext renderContext, LayoutMediator layoutMediator, Object e, String label) {
     if (label == null || label.length() == 0) {
       return;
     }
 
     // don't draw edge if either incident vertex is not drawn
-    EndpointPair<V> endpoints = layoutMediator.getNetwork().incidentNodes(e);
-    V v1 = endpoints.nodeU();
-    V v2 = endpoints.nodeV();
-    Predicate<V> nodeIncludePredicate = renderContext.getVertexIncludePredicate();
+    EndpointPair<Object> endpoints = layoutMediator.getNetwork().incidentNodes(e);
+    Object v1 = endpoints.nodeU();
+    Object v2 = endpoints.nodeV();
+    Predicate<Object> nodeIncludePredicate = renderContext.getVertexIncludePredicate();
     if (!nodeIncludePredicate.test(v1) || !nodeIncludePredicate.test(v2)) {
       return;
     }

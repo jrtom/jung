@@ -41,10 +41,10 @@ public class AnnotationPaintable implements Paintable {
 
   protected AnnotationRenderer annotationRenderer;
 
-  protected RenderContext<?, ?> rc;
+  protected RenderContext rc;
   protected AffineTransformer transformer;
 
-  public AnnotationPaintable(RenderContext<?, ?> rc, AnnotationRenderer annotationRenderer) {
+  public AnnotationPaintable(RenderContext rc, AnnotationRenderer annotationRenderer) {
     this.rc = rc;
     this.annotationRenderer = annotationRenderer;
     MutableTransformer mt = rc.getMultiLayerTransformer().getTransformer(Layer.LAYOUT);
@@ -122,7 +122,7 @@ public class AnnotationPaintable implements Paintable {
   }
 
   public Component prepareRenderer(
-      RenderContext<?, ?> rc, AnnotationRenderer annotationRenderer, Object value) {
+      RenderContext rc, AnnotationRenderer annotationRenderer, Object value) {
     return annotationRenderer.getAnnotationRendererComponent(rc.getScreenDevice(), value);
   }
 

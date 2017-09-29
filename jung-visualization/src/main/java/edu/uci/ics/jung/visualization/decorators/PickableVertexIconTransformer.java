@@ -20,11 +20,11 @@ import javax.swing.Icon;
  * Supplies an Icon for each vertex according to the <code>Icon</code> parameters given in the
  * constructor, so that picked and non-picked vertices can be made to look different.
  */
-public class PickableVertexIconTransformer<V> implements Function<V, Icon> {
+public class PickableVertexIconTransformer implements Function<Object, Icon> {
 
   protected Icon icon;
   protected Icon picked_icon;
-  protected PickedInfo<V> pi;
+  protected PickedInfo pi;
 
   // FIXME: we don't need both this and Pickable{Edge,Vertex}PaintTransformer;
   // just make a generic version that covers all three
@@ -34,14 +34,14 @@ public class PickableVertexIconTransformer<V> implements Function<V, Icon> {
    * @param icon <code>Icon</code> used to represent vertices
    * @param picked_icon <code>Icon</code> used to represent picked vertices
    */
-  public PickableVertexIconTransformer(PickedInfo<V> pi, Icon icon, Icon picked_icon) {
+  public PickableVertexIconTransformer(PickedInfo pi, Icon icon, Icon picked_icon) {
     this.pi = Preconditions.checkNotNull(pi);
     this.icon = Preconditions.checkNotNull(icon);
     this.picked_icon = Preconditions.checkNotNull(picked_icon);
   }
 
   /** Returns the appropriate <code>Icon</code>, depending on picked state. */
-  public Icon apply(V v) {
+  public Icon apply(Object v) {
     return pi.isPicked(v) ? picked_icon : icon;
   }
 }

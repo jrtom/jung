@@ -65,10 +65,10 @@ public class MultiViewDemo extends JApplet {
   Network<String, Number> graph;
 
   /** the visual components and renderers for the graph */
-  VisualizationViewer<String, Number> vv1;
+  VisualizationViewer vv1;
 
-  VisualizationViewer<String, Number> vv2;
-  VisualizationViewer<String, Number> vv3;
+  VisualizationViewer vv2;
+  VisualizationViewer vv3;
 
   /** the normal Function */
   //    MutableTransformer Function;
@@ -106,13 +106,13 @@ public class MultiViewDemo extends JApplet {
     layout.setMaxIterations(1000);
 
     // create one model that all 3 views will share
-    VisualizationModel<String, Number> visualizationModel =
-        new DefaultVisualizationModel<String, Number>(graph, layout, preferredSize);
+    VisualizationModel visualizationModel =
+        new DefaultVisualizationModel(graph, layout, preferredSize);
 
     // create 3 views that share the same model
-    vv1 = new VisualizationViewer<String, Number>(visualizationModel, preferredSize);
-    vv2 = new VisualizationViewer<String, Number>(visualizationModel, preferredSize);
-    vv3 = new VisualizationViewer<String, Number>(visualizationModel, preferredSize);
+    vv1 = new VisualizationViewer(visualizationModel, preferredSize);
+    vv2 = new VisualizationViewer(visualizationModel, preferredSize);
+    vv3 = new VisualizationViewer(visualizationModel, preferredSize);
 
     vv1.getRenderContext().setEdgeShapeTransformer(EdgeShape.line());
     vv2.getRenderContext().setVertexShapeTransformer(n -> new Rectangle2D.Float(-6, -6, 12, 12));
@@ -142,14 +142,14 @@ public class MultiViewDemo extends JApplet {
     vv3.setBackground(Color.white);
 
     // create one pick support for all 3 views to share
-    NetworkElementAccessor<String, Number> pickSupport = new ShapePickSupport<String, Number>(vv1);
+    NetworkElementAccessor pickSupport = new ShapePickSupport(vv1);
     vv1.setPickSupport(pickSupport);
     vv2.setPickSupport(pickSupport);
     vv3.setPickSupport(pickSupport);
 
     // create one picked state for all 3 views to share
-    PickedState<Number> pes = new MultiPickedState<Number>();
-    PickedState<String> pvs = new MultiPickedState<String>();
+    PickedState pes = new MultiPickedState();
+    PickedState pvs = new MultiPickedState();
     vv1.setPickedVertexState(pvs);
     vv2.setPickedVertexState(pvs);
     vv3.setPickedVertexState(pvs);
@@ -159,23 +159,20 @@ public class MultiViewDemo extends JApplet {
 
     // set an edge paint function that shows picked edges
     vv1.getRenderContext()
-        .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer<Number>(pes, Color.black, Color.red));
+        .setEdgeDrawPaintTransformer(new PickableEdgePaintTransformer(pes, Color.black, Color.red));
     vv2.getRenderContext()
-        .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer<Number>(pes, Color.black, Color.red));
+        .setEdgeDrawPaintTransformer(new PickableEdgePaintTransformer(pes, Color.black, Color.red));
     vv3.getRenderContext()
-        .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer<Number>(pes, Color.black, Color.red));
+        .setEdgeDrawPaintTransformer(new PickableEdgePaintTransformer(pes, Color.black, Color.red));
     vv1.getRenderContext()
         .setVertexFillPaintTransformer(
-            new PickableVertexPaintTransformer<String>(pvs, Color.red, Color.yellow));
+            new PickableVertexPaintTransformer(pvs, Color.red, Color.yellow));
     vv2.getRenderContext()
         .setVertexFillPaintTransformer(
-            new PickableVertexPaintTransformer<String>(pvs, Color.blue, Color.cyan));
+            new PickableVertexPaintTransformer(pvs, Color.blue, Color.cyan));
     vv3.getRenderContext()
         .setVertexFillPaintTransformer(
-            new PickableVertexPaintTransformer<String>(pvs, Color.red, Color.yellow));
+            new PickableVertexPaintTransformer(pvs, Color.red, Color.yellow));
 
     // add default listener for ToolTips
     vv1.setVertexToolTipTransformer(new ToStringLabeller());
@@ -221,11 +218,11 @@ public class MultiViewDemo extends JApplet {
 
     // create a GraphMouse for each view
     // each one has a different scaling plugin
-    DefaultModalGraphMouse<String, Number> gm1 =
-        new DefaultModalGraphMouse<String, Number>() {
+    DefaultModalGraphMouse gm1 =
+        new DefaultModalGraphMouse() {
           protected void loadPlugins() {
-            pickingPlugin = new PickingGraphMousePlugin<String, Number>();
-            animatedPickingPlugin = new AnimatedPickingGraphMousePlugin<String, Number>();
+            pickingPlugin = new PickingGraphMousePlugin();
+            animatedPickingPlugin = new AnimatedPickingGraphMousePlugin();
             translatingPlugin = new TranslatingGraphMousePlugin(InputEvent.BUTTON1_MASK);
             scalingPlugin = new ScalingGraphMousePlugin(new LayoutScalingControl(), 0);
             rotatingPlugin = new RotatingGraphMousePlugin();
@@ -236,11 +233,11 @@ public class MultiViewDemo extends JApplet {
           }
         };
 
-    DefaultModalGraphMouse<String, Number> gm2 =
-        new DefaultModalGraphMouse<String, Number>() {
+    DefaultModalGraphMouse gm2 =
+        new DefaultModalGraphMouse() {
           protected void loadPlugins() {
-            pickingPlugin = new PickingGraphMousePlugin<String, Number>();
-            animatedPickingPlugin = new AnimatedPickingGraphMousePlugin<String, Number>();
+            pickingPlugin = new PickingGraphMousePlugin();
+            animatedPickingPlugin = new AnimatedPickingGraphMousePlugin();
             translatingPlugin = new TranslatingGraphMousePlugin(InputEvent.BUTTON1_MASK);
             scalingPlugin = new ScalingGraphMousePlugin(new ViewScalingControl(), 0);
             rotatingPlugin = new RotatingGraphMousePlugin();
@@ -251,7 +248,7 @@ public class MultiViewDemo extends JApplet {
           }
         };
 
-    DefaultModalGraphMouse<String, Number> gm3 = new DefaultModalGraphMouse<String, Number>() {};
+    DefaultModalGraphMouse gm3 = new DefaultModalGraphMouse() {};
 
     vv1.setGraphMouse(gm1);
     vv2.setGraphMouse(gm2);
@@ -303,9 +300,9 @@ public class MultiViewDemo extends JApplet {
     int swidth;
     int sheight;
     String str;
-    VisualizationViewer<String, Number> vv;
+    VisualizationViewer vv;
 
-    public BannerLabel(VisualizationViewer<String, Number> vv, String label) {
+    public BannerLabel(VisualizationViewer vv, String label) {
       this.vv = vv;
       this.str = label;
     }

@@ -47,7 +47,7 @@ import javax.swing.event.ChangeListener;
  */
 @SuppressWarnings("serial")
 public class GraphZoomScrollPane extends JPanel {
-  protected VisualizationViewer<?, ?> vv;
+  protected VisualizationViewer vv;
   protected JScrollBar horizontalScrollBar;
   protected JScrollBar verticalScrollBar;
   protected JComponent corner;
@@ -59,7 +59,7 @@ public class GraphZoomScrollPane extends JPanel {
    *
    * @param vv the VisualizationViewer for which this instance is to be created
    */
-  public GraphZoomScrollPane(VisualizationViewer<?, ?> vv) {
+  public GraphZoomScrollPane(VisualizationViewer vv) {
     super(new BorderLayout());
     this.vv = vv;
     addComponentListener(new ResizeListener());
@@ -75,7 +75,7 @@ public class GraphZoomScrollPane extends JPanel {
     vv.addChangeListener(
         new ChangeListener() {
           public void stateChanged(ChangeEvent evt) {
-            VisualizationViewer<?, ?> vv = (VisualizationViewer<?, ?>) evt.getSource();
+            VisualizationViewer vv = (VisualizationViewer) evt.getSource();
             setScrollBars(vv);
           }
         });
@@ -151,10 +151,8 @@ public class GraphZoomScrollPane extends JPanel {
   /**
    * use the supplied vv characteristics to set the position and dimensions of the scroll bars.
    * Called in response to a ChangeEvent from the VisualizationViewer
-   *
-   * @param xform the transform of the VisualizationViewer
    */
-  private void setScrollBars(VisualizationViewer<?, ?> vv) {
+  private void setScrollBars(VisualizationViewer vv) {
     Dimension d = vv.getGraphLayout().getSize();
     Rectangle2D vvBounds = vv.getBounds();
 

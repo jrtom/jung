@@ -8,23 +8,23 @@ import java.awt.geom.Point2D;
 import java.util.Set;
 import java.util.function.Function;
 
-/** Created by Tom Nelson on 9/22/17. */
-public class LayoutMediator<N, E> implements Layout<N> {
+/** Created by Tom Nelson */
+public class LayoutMediator implements Layout<Object> {
 
-  private final Network<N, E> network;
+  private final Network network;
 
-  private final Layout<N> layout;
+  private final Layout<Object> layout;
 
-  public LayoutMediator(Network<N, E> network, Layout<N> layout) {
+  public LayoutMediator(Network network, Layout layout) {
     this.network = network;
     this.layout = layout;
   }
 
-  public Network<N, E> getNetwork() {
+  public Network getNetwork() {
     return network;
   }
 
-  public Layout<N> getLayout() {
+  public Layout<Object> getLayout() {
     return layout;
   }
 
@@ -39,12 +39,12 @@ public class LayoutMediator<N, E> implements Layout<N> {
   }
 
   @Override
-  public void setInitializer(Function<N, Point2D> initializer) {
+  public void setInitializer(Function<Object, Point2D> initializer) {
     this.layout.setInitializer(initializer);
   }
 
   @Override
-  public Set<N> nodes() {
+  public Set nodes() {
     return this.layout.nodes();
   }
 
@@ -64,22 +64,22 @@ public class LayoutMediator<N, E> implements Layout<N> {
   }
 
   @Override
-  public void lock(N n, boolean state) {
+  public void lock(Object n, boolean state) {
     this.layout.lock(n, state);
   }
 
   @Override
-  public boolean isLocked(N n) {
+  public boolean isLocked(Object n) {
     return this.layout.isLocked(n);
   }
 
   @Override
-  public void setLocation(N n, Point2D location) {
+  public void setLocation(Object n, Point2D location) {
     this.layout.setLocation(n, location);
   }
 
   @Override
-  public Point2D apply(N n) {
+  public Point2D apply(Object n) {
     return this.layout.apply(n);
   }
 

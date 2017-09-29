@@ -54,7 +54,7 @@ public class ImageEdgeLabelDemo extends JApplet {
   Network<Number, Number> graph;
 
   /** the visual component and renderer for the graph */
-  VisualizationViewer<Number, Number> vv;
+  VisualizationViewer vv;
 
   public ImageEdgeLabelDemo() {
 
@@ -63,12 +63,11 @@ public class ImageEdgeLabelDemo extends JApplet {
 
     FRLayout<Number> layout = new FRLayout<Number>(graph.asGraph());
     layout.setMaxIterations(100);
-    vv = new VisualizationViewer<Number, Number>(graph, layout, new Dimension(400, 400));
+    vv = new VisualizationViewer(graph, layout, new Dimension(400, 400));
 
     vv.getRenderContext()
         .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer<Number>(
-                vv.getPickedEdgeState(), Color.black, Color.cyan));
+            new PickableEdgePaintTransformer(vv.getPickedEdgeState(), Color.black, Color.cyan));
 
     vv.setBackground(Color.white);
 
@@ -76,10 +75,10 @@ public class ImageEdgeLabelDemo extends JApplet {
     vv.getRenderContext().setEdgeLabelRenderer(new DefaultEdgeLabelRenderer(Color.cyan));
     vv.getRenderContext()
         .setEdgeLabelTransformer(
-            new Function<Number, String>() {
+            new Function<Object, String>() {
               URL url = getClass().getResource("/images/lightning-s.gif");
 
-              public String apply(Number input) {
+              public String apply(Object input) {
                 return "<html><img src=" + url + " height=10 width=21>";
               }
             });
@@ -91,8 +90,7 @@ public class ImageEdgeLabelDemo extends JApplet {
     final GraphZoomScrollPane panel = new GraphZoomScrollPane(vv);
     content.add(panel);
 
-    final DefaultModalGraphMouse<Number, Number> graphMouse =
-        new DefaultModalGraphMouse<Number, Number>();
+    final DefaultModalGraphMouse graphMouse = new DefaultModalGraphMouse();
     vv.setGraphMouse(graphMouse);
     vv.addKeyListener(graphMouse.getModeKeyListener());
     final ScalingControl scaler = new CrossoverScalingControl();
@@ -130,7 +128,7 @@ public class ImageEdgeLabelDemo extends JApplet {
   /**
    * create some vertices
    *
-   * @param count how many to create
+   * @param vertexCount how many to create
    * @return the Vertices in an array
    */
   private Network<Number, Number> createGraph(int vertexCount) {

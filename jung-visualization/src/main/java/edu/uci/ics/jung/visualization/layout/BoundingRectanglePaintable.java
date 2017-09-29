@@ -15,20 +15,19 @@ import java.util.List;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-public class BoundingRectanglePaintable<V, E> implements VisualizationServer.Paintable {
+public class BoundingRectanglePaintable implements VisualizationServer.Paintable {
 
-  protected RenderContext<V, E> rc;
-  protected Network<V, E> graph;
-  protected Layout<V> layout;
+  protected RenderContext rc;
+  protected Network graph;
+  protected Layout<Object> layout;
   protected List<Rectangle2D> rectangles;
 
-  public BoundingRectanglePaintable(RenderContext<V, E> rc, LayoutMediator<V, E> layoutMediator) {
+  public BoundingRectanglePaintable(RenderContext rc, LayoutMediator layoutMediator) {
     super();
     this.rc = rc;
     this.layout = layout;
     this.graph = layoutMediator.getNetwork();
-    final BoundingRectangleCollector<V, E> brc =
-        new BoundingRectangleCollector<V, E>(rc, layoutMediator);
+    final BoundingRectangleCollector brc = new BoundingRectangleCollector(rc, layoutMediator);
     this.rectangles = brc.getRectangles();
     if (layout instanceof ChangeEventSupport) {
       ((ChangeEventSupport) layout)

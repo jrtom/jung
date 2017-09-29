@@ -23,8 +23,8 @@ import java.util.function.Function;
  * @author Tom Nelson
  * @author Joshua O'Madadhain
  */
-public class PickableEdgePaintTransformer<E> implements Function<E, Paint> {
-  protected PickedInfo<E> pi;
+public class PickableEdgePaintTransformer implements Function<Object, Paint> {
+  protected PickedInfo pi;
   protected Paint draw_paint;
   protected Paint picked_paint;
 
@@ -33,14 +33,14 @@ public class PickableEdgePaintTransformer<E> implements Function<E, Paint> {
    * @param draw_paint <code>Paint</code> used to draw edge shapes
    * @param picked_paint <code>Paint</code> used to draw picked edge shapes
    */
-  public PickableEdgePaintTransformer(PickedInfo<E> pi, Paint draw_paint, Paint picked_paint) {
+  public PickableEdgePaintTransformer(PickedInfo pi, Paint draw_paint, Paint picked_paint) {
     this.pi = Preconditions.checkNotNull(pi);
     this.draw_paint = Preconditions.checkNotNull(draw_paint);
     this.picked_paint = Preconditions.checkNotNull(picked_paint);
   }
 
   /** */
-  public Paint apply(E e) {
+  public Paint apply(Object e) {
     if (pi.isPicked(e)) {
       return picked_paint;
     } else {

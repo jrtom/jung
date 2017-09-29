@@ -31,8 +31,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Tom Nelson
  */
-public class DefaultVisualizationModel<N, E>
-    implements VisualizationModel<N, E>, ChangeEventSupport {
+public class DefaultVisualizationModel implements VisualizationModel, ChangeEventSupport {
 
   Logger log = LoggerFactory.getLogger(DefaultVisualizationModel.class);
 
@@ -41,13 +40,13 @@ public class DefaultVisualizationModel<N, E>
   /** manages the thread that applies the current layout algorithm */
   protected Relaxer relaxer;
 
-  protected LayoutMediator<N, E> layoutMediator;
+  protected LayoutMediator layoutMediator;
 
   /** listens for changes in the layout, forwards to the viewer */
   protected ChangeListener changeListener;
 
   /** @param layout The Layout to apply, with its associated Network */
-  public DefaultVisualizationModel(Network<N, E> network, Layout<N> layout) {
+  public DefaultVisualizationModel(Network network, Layout layout) {
     this(network, layout, null);
   }
 
@@ -57,7 +56,7 @@ public class DefaultVisualizationModel<N, E>
    * @param layout the layout to use
    * @param d The preferred size of the View that will display this graph
    */
-  public DefaultVisualizationModel(Network<N, E> network, Layout<N> layout, Dimension d) {
+  public DefaultVisualizationModel(Network network, Layout layout, Dimension d) {
     if (changeListener == null) {
       changeListener =
           new ChangeListener() {
@@ -75,20 +74,20 @@ public class DefaultVisualizationModel<N, E>
    * @param layoutMediator the new layoutMediator to use
    * @param viewSize the size of the View that will display this layout
    */
-  public void setLayoutMediator(LayoutMediator<N, E> layoutMediator, Dimension viewSize) {
+  public void setLayoutMediator(LayoutMediator layoutMediator, Dimension viewSize) {
 
-    Layout<N> currentLayout = this.layoutMediator != null ? this.layoutMediator.getLayout() : null;
+    Layout currentLayout = this.layoutMediator != null ? this.layoutMediator.getLayout() : null;
     // remove listener from old layout
     if (currentLayout != null && currentLayout instanceof ChangeEventSupport) {
       ((ChangeEventSupport) currentLayout).removeChangeListener(changeListener);
     }
-    Layout<N> newLayout = layoutMediator.getLayout();
+    Layout newLayout = layoutMediator.getLayout();
 
     // set to new layout
     if (newLayout instanceof ChangeEventSupport) {
       this.layoutMediator = layoutMediator;
     } else {
-      newLayout = new ObservableCachingLayout<N, E>(layoutMediator.getNetwork(), newLayout);
+      newLayout = new ObservableCachingLayout(layoutMediator.getNetwork(), newLayout);
       this.layoutMediator = new LayoutMediator(layoutMediator.getNetwork(), newLayout);
     }
 
@@ -107,8 +106,8 @@ public class DefaultVisualizationModel<N, E>
       relaxer.stop();
       relaxer = null;
     }
-    //        Layout<N> decoratedLayout = (layout instanceof LayoutDecorator)
-    //        	? ((LayoutDecorator<N>) layout).getDelegate()
+    //        Layout decoratedLayout = (layout instanceof LayoutDecorator)
+    //        	? ((LayoutDecorator) layout).getDelegate()
     //        	: layout;
     if (newLayout instanceof IterativeContext) {
       newLayout.initialize();
@@ -122,7 +121,7 @@ public class DefaultVisualizationModel<N, E>
     fireStateChanged();
   }
 
-  public LayoutMediator<N, E> getLayoutMediator() {
+  public LayoutMediator getLayoutMediator() {
     return layoutMediator;
   }
 
@@ -130,7 +129,7 @@ public class DefaultVisualizationModel<N, E>
    * set the graph Layout and if it is not already initialized, initialize it to the default
    * VisualizationViewer preferred size of 600x600
    */
-  public void setLayoutMediator(LayoutMediator<N, E> layoutMediator) {
+  public void setLayoutMediator(LayoutMediator layoutMediator) {
     setLayoutMediator(layoutMediator, null);
   }
 

@@ -30,27 +30,25 @@ import javax.swing.JComponent;
  * A renderer that will fill vertex shapes with a GradientPaint
  *
  * @author Tom Nelson
- * @param <V> the vertex type
- * @param <V> the edge type
  */
-public class GradientVertexRenderer<V, E> implements Renderer.Vertex<V, E> {
+public class GradientVertexRenderer implements Renderer.Vertex {
 
   Color colorOne;
   Color colorTwo;
   Color pickedColorOne;
   Color pickedColorTwo;
-  PickedState<V> pickedState;
+  PickedState pickedState;
   boolean cyclic;
 
   public GradientVertexRenderer(
-      VisualizationServer<V, ?> vv, Color colorOne, Color colorTwo, boolean cyclic) {
+      VisualizationServer vv, Color colorOne, Color colorTwo, boolean cyclic) {
     this.colorOne = colorOne;
     this.colorTwo = colorTwo;
     this.cyclic = cyclic;
   }
 
   public GradientVertexRenderer(
-      VisualizationServer<V, ?> vv,
+      VisualizationServer vv,
       Color colorOne,
       Color colorTwo,
       Color pickedColorOne,
@@ -62,12 +60,9 @@ public class GradientVertexRenderer<V, E> implements Renderer.Vertex<V, E> {
     this.pickedColorTwo = pickedColorTwo;
     this.pickedState = vv.getPickedVertexState();
     this.cyclic = cyclic;
-    //    this.layout = vv.getGraphLayout();
-    //    this.renderContext = vv.getRenderContext();
   }
 
-  public void paintVertex(
-      RenderContext<V, E> renderContext, LayoutMediator<V, E> layoutMediator, V v) {
+  public void paintVertex(RenderContext renderContext, LayoutMediator layoutMediator, Object v) {
     if (renderContext.getVertexIncludePredicate().test(v)) {
       boolean vertexHit = true;
       // get the shape to be rendered
@@ -93,8 +88,7 @@ public class GradientVertexRenderer<V, E> implements Renderer.Vertex<V, E> {
     }
   }
 
-  protected boolean vertexHit(
-      RenderContext<V, E> renderContext, LayoutMediator<V, E> layoutMediator, Shape s) {
+  protected boolean vertexHit(RenderContext renderContext, LayoutMediator layoutMediator, Shape s) {
     JComponent vv = renderContext.getScreenDevice();
     Rectangle deviceRectangle = null;
     if (vv != null) {
@@ -108,7 +102,7 @@ public class GradientVertexRenderer<V, E> implements Renderer.Vertex<V, E> {
         .intersects(deviceRectangle);
   }
 
-  protected void paintShapeForVertex(RenderContext<V, E> renderContext, V v, Shape shape) {
+  protected void paintShapeForVertex(RenderContext renderContext, Object v, Shape shape) {
     GraphicsDecorator g = renderContext.getGraphicsContext();
     Paint oldPaint = g.getPaint();
     Rectangle r = shape.getBounds();

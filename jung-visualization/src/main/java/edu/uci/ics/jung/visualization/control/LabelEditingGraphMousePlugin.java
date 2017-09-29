@@ -24,14 +24,14 @@ import java.util.function.Function;
 import javax.swing.JOptionPane;
 
 /** @author Tom Nelson */
-public class LabelEditingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
+public class LabelEditingGraphMousePlugin extends AbstractGraphMousePlugin
     implements MouseListener {
 
   /** the picked Vertex, if any */
-  protected V vertex;
+  protected Object vertex;
 
   /** the picked Edge, if any */
-  protected E edge;
+  protected Object edge;
 
   /** create an instance with default settings */
   public LabelEditingGraphMousePlugin() {
@@ -62,18 +62,17 @@ public class LabelEditingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
   @SuppressWarnings("unchecked")
   public void mouseClicked(MouseEvent e) {
     if (e.getModifiers() == modifiers && e.getClickCount() == 2) {
-      VisualizationViewer<V, E> vv = (VisualizationViewer<V, E>) e.getSource();
-      NetworkElementAccessor<V, E> pickSupport = vv.getPickSupport();
+      VisualizationViewer vv = (VisualizationViewer) e.getSource();
+      NetworkElementAccessor pickSupport = vv.getPickSupport();
       if (pickSupport != null) {
-        Function<? super V, String> vs = vv.getRenderContext().getVertexLabelTransformer();
+        Function<Object, String> vs = vv.getRenderContext().getVertexLabelTransformer();
         if (vs instanceof MapSettableTransformer) {
-          MapSettableTransformer<? super V, String> mst =
-              (MapSettableTransformer<? super V, String>) vs;
+          MapSettableTransformer<Object, String> mst = (MapSettableTransformer<Object, String>) vs;
           //    				Layout<V> layout = vv.getGraphLayout();
           // p is the screen point for the mouse event
           Point2D p = e.getPoint();
 
-          V vertex = pickSupport.getNode(p.getX(), p.getY());
+          Object vertex = pickSupport.getNode(p.getX(), p.getY());
           if (vertex != null) {
             String newLabel = vs.apply(vertex);
             newLabel = JOptionPane.showInputDialog("New Vertex Label for " + vertex);
@@ -84,17 +83,16 @@ public class LabelEditingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
             return;
           }
         }
-        Function<? super E, String> es = vv.getRenderContext().getEdgeLabelTransformer();
+        Function<Object, String> es = vv.getRenderContext().getEdgeLabelTransformer();
         if (es instanceof MapSettableTransformer) {
-          MapSettableTransformer<? super E, String> mst =
-              (MapSettableTransformer<? super E, String>) es;
+          MapSettableTransformer<Object, String> mst = (MapSettableTransformer<Object, String>) es;
           //    				Layout<V> layout = vv.getGraphLayout();
           // p is the screen point for the mouse event
           Point2D p = e.getPoint();
           // take away the view transform
           Point2D ip =
               vv.getRenderContext().getMultiLayerTransformer().inverseTransform(Layer.VIEW, p);
-          E edge = pickSupport.getEdge(ip.getX(), ip.getY());
+          Object edge = pickSupport.getEdge(ip.getX(), ip.getY());
           if (edge != null) {
             String newLabel = JOptionPane.showInputDialog("New Edge Label for " + edge);
             if (newLabel != null) {

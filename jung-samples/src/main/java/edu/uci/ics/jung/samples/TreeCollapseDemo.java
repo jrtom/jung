@@ -68,7 +68,7 @@ public class TreeCollapseDemo extends JApplet {
   MutableCTreeNetwork<String, Integer> graph;
 
   /** the visual component and renderer for the graph */
-  VisualizationViewer<String, Integer> vv;
+  VisualizationViewer vv;
 
   VisualizationServer.Paintable rings;
 
@@ -92,11 +92,11 @@ public class TreeCollapseDemo extends JApplet {
 
     radialLayout = new RadialTreeLayout<String>(graph.asGraph());
     radialLayout.setSize(new Dimension(600, 600));
-    vv = new VisualizationViewer<String, Integer>(graph, layout, new Dimension(600, 600));
+    vv = new VisualizationViewer(graph, layout, new Dimension(600, 600));
     vv.setBackground(Color.white);
     vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.line());
     vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
-    vv.getRenderContext().setVertexShapeTransformer(new ClusterVertexShapeFunction<String>());
+    vv.getRenderContext().setVertexShapeTransformer(new ClusterVertexShapeFunction());
     // add a listener for ToolTips
     vv.setVertexToolTipTransformer(new ToStringLabeller());
     vv.getRenderContext().setArrowFillPaintTransformer(n -> Color.lightGray);
@@ -106,8 +106,7 @@ public class TreeCollapseDemo extends JApplet {
     final GraphZoomScrollPane panel = new GraphZoomScrollPane(vv);
     content.add(panel);
 
-    final DefaultModalGraphMouse<String, Integer> graphMouse =
-        new DefaultModalGraphMouse<String, Integer>();
+    final DefaultModalGraphMouse graphMouse = new DefaultModalGraphMouse();
 
     vv.setGraphMouse(graphMouse);
 
@@ -153,7 +152,7 @@ public class TreeCollapseDemo extends JApplet {
     JButton collapse = new JButton("Collapse");
     collapse.addActionListener(
         e -> {
-          Set<String> picked = vv.getPickedVertexState().getPicked();
+          Set<Object> picked = vv.getPickedVertexState().getPicked();
           if (picked.size() == 1) {
             Object root = picked.iterator().next();
             //                    Forest<String, Integer> inGraph = (Forest<String, Integer>)layout.getGraph();
@@ -308,16 +307,15 @@ public class TreeCollapseDemo extends JApplet {
    * this shape.
    *
    * @author Tom Nelson
-   * @param <V> the vertex type
    */
-  class ClusterVertexShapeFunction<V> extends EllipseVertexShapeTransformer<V> {
+  class ClusterVertexShapeFunction extends EllipseVertexShapeTransformer {
 
     ClusterVertexShapeFunction() {
-      setSizeTransformer(new ClusterVertexSizeFunction<V>(20));
+      setSizeTransformer(new ClusterVertexSizeFunction(20));
     }
 
     @Override
-    public Shape apply(V v) {
+    public Shape apply(Object v) {
       if (v instanceof Network) {
         @SuppressWarnings("rawtypes")
         int size = ((Network) v).nodes().size();

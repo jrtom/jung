@@ -48,7 +48,7 @@ import org.xml.sax.SAXException;
 public class GraphFromGraphMLDemo {
 
   /** the visual component and renderer for the graph */
-  VisualizationViewer<Number, Number> vv;
+  VisualizationViewer vv;
 
   /**
    * Creates an instance showing a simple graph with controls to demonstrate the zoom features.
@@ -87,20 +87,19 @@ public class GraphFromGraphMLDemo {
 
     // create a simple graph for the demo
     Layout<Number> layout = new FRLayout<Number>(graph.asGraph());
-    vv = new VisualizationViewer<Number, Number>(graph, layout);
+    vv = new VisualizationViewer(graph, layout);
 
     vv.addGraphMouseListener(new TestGraphMouseListener<Number>());
     vv.getRenderer()
         .setVertexRenderer(
-            new GradientVertexRenderer<Number, Number>(
-                vv, Color.white, Color.red, Color.white, Color.blue, false));
+            new GradientVertexRenderer(vv, Color.white, Color.red, Color.white, Color.blue, false));
 
     // add my listeners for ToolTips
     vv.setVertexToolTipTransformer(new ToStringLabeller());
     vv.setEdgeToolTipTransformer(
-        new Function<Number, String>() {
-          public String apply(Number edge) {
-            return "E" + graph.incidentNodes(edge).toString();
+        new Function<Object, String>() {
+          public String apply(Object edge) {
+            return "E" + graph.incidentNodes((Number) edge).toString();
           }
         });
 
@@ -114,7 +113,7 @@ public class GraphFromGraphMLDemo {
     final GraphZoomScrollPane panel = new GraphZoomScrollPane(vv);
     content.add(panel);
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    final AbstractModalGraphMouse graphMouse = new DefaultModalGraphMouse<Number, Number>();
+    final AbstractModalGraphMouse graphMouse = new DefaultModalGraphMouse();
     vv.setGraphMouse(graphMouse);
     vv.addKeyListener(graphMouse.getModeKeyListener());
 

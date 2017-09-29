@@ -20,22 +20,22 @@ import java.util.function.Function;
  *
  * @author Tom Nelson
  */
-public abstract class ParallelEdgeShapeTransformer<E>
-    implements Function<Context<Network, E>, Shape> {
+public abstract class ParallelEdgeShapeTransformer
+    implements Function<Context<Network, Object>, Shape> {
   /** Specifies the distance between control points for edges being drawn in parallel. */
   protected float control_offset_increment = 20.f;
 
-  protected EdgeIndexFunction<E> edgeIndexFunction;
+  protected EdgeIndexFunction edgeIndexFunction;
 
   public void setControlOffsetIncrement(float y) {
     control_offset_increment = y;
   }
 
-  public void setEdgeIndexFunction(EdgeIndexFunction<E> edgeIndexFunction) {
+  public void setEdgeIndexFunction(EdgeIndexFunction edgeIndexFunction) {
     this.edgeIndexFunction = edgeIndexFunction;
   }
 
-  public EdgeIndexFunction<E> getEdgeIndexFunction() {
+  public EdgeIndexFunction getEdgeIndexFunction() {
     return edgeIndexFunction;
   }
 }

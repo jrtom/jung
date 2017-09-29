@@ -52,7 +52,7 @@ public class AddNodeDemo extends javax.swing.JApplet {
 
   private MutableNetwork<Number, Number> g = null;
 
-  private VisualizationViewer<Number, Number> vv = null;
+  private VisualizationViewer vv = null;
 
   private AbstractLayout<Number> layout = null;
 
@@ -102,7 +102,7 @@ public class AddNodeDemo extends javax.swing.JApplet {
     layout = new FRLayout2<Number>(g.asGraph());
     //        ((FRLayout)layout).setMaxIterations(200);
 
-    vv = new VisualizationViewer<Number, Number>(g, layout, new Dimension(600, 600));
+    vv = new VisualizationViewer(g, layout, new Dimension(600, 600));
 
     JRootPane rp = this.getRootPane();
     rp.putClientProperty("defeatSystemEventQueueCheck", Boolean.TRUE);
@@ -112,7 +112,7 @@ public class AddNodeDemo extends javax.swing.JApplet {
     getContentPane().setFont(new Font("Serif", Font.PLAIN, 12));
 
     vv.getModel().getRelaxer().setSleepTime(500);
-    vv.setGraphMouse(new DefaultModalGraphMouse<Number, Number>());
+    vv.setGraphMouse(new DefaultModalGraphMouse());
 
     vv.getRenderer().getVertexLabelRenderer().setPosition(Renderer.VertexLabel.Position.CNTR);
     vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
@@ -129,8 +129,8 @@ public class AddNodeDemo extends javax.swing.JApplet {
               layout = new SpringLayout<Number>(g.asGraph(), e -> EDGE_LENGTH);
               layout.setSize(d);
               vv.setLayoutMediator(new LayoutMediator(g, layout), d);
-              Layout<Number> delegateLayout =
-                  ((LayoutDecorator<Number>) vv.getModel().getLayoutMediator().getLayout())
+              Layout<Object> delegateLayout =
+                  ((LayoutDecorator<Object>) vv.getModel().getLayoutMediator().getLayout())
                       .getDelegate();
               System.err.println("layout: " + delegateLayout.getClass().getName());
               //                    vv.repaint();
@@ -138,8 +138,8 @@ public class AddNodeDemo extends javax.swing.JApplet {
               switchLayout.setText("Switch to SpringLayout");
               layout = new FRLayout<Number>(g.asGraph(), d);
               vv.setLayoutMediator(new LayoutMediator(g, layout), d);
-              Layout<Number> delegateLayout =
-                  ((LayoutDecorator<Number>) vv.getModel().getLayoutMediator().getLayout())
+              Layout<Object> delegateLayout =
+                  ((LayoutDecorator<Object>) vv.getModel().getLayoutMediator().getLayout())
                       .getDelegate();
               System.err.println("layout: " + delegateLayout.getClass().getName());
               //                    vv.repaint();

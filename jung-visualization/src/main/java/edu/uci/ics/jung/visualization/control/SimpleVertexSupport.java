@@ -12,45 +12,42 @@ import java.util.function.Supplier;
  * EditingGraphMousePlugin. override midVertexCreate and endVertexCreate for more elaborate
  * implementations
  *
- * @author tanelso
- * @param <V> the vertex type
- * @param <E> the edge type
+ * @author Tom Nelson
  */
-public class SimpleVertexSupport<V, E> implements VertexSupport<V, E> {
+public class SimpleVertexSupport implements VertexSupport {
 
-  protected Supplier<V> vertexFactory;
+  protected Supplier<Object> vertexFactory;
 
-  public SimpleVertexSupport(Supplier<V> vertexFactory) {
+  public SimpleVertexSupport(Supplier<Object> vertexFactory) {
     this.vertexFactory = vertexFactory;
   }
 
-  public void startVertexCreate(BasicVisualizationServer<V, E> vv, Point2D point) {
+  public void startVertexCreate(BasicVisualizationServer vv, Point2D point) {
     Preconditions.checkState(
         vv.getModel().getLayoutMediator().getNetwork() instanceof MutableNetwork<?, ?>,
         "graph must be mutable");
-    V newVertex = vertexFactory.get();
-    Layout<V> layout = vv.getGraphLayout();
-    MutableNetwork<V, E> graph =
-        (MutableNetwork<V, E>) vv.getModel().getLayoutMediator().getNetwork();
+    Object newVertex = vertexFactory.get();
+    Layout<Object> layout = vv.getGraphLayout();
+    MutableNetwork graph = (MutableNetwork) vv.getModel().getLayoutMediator().getNetwork();
     graph.addNode(newVertex);
     layout.setLocation(
         newVertex, vv.getRenderContext().getMultiLayerTransformer().inverseTransform(point));
     vv.repaint();
   }
 
-  public void midVertexCreate(BasicVisualizationServer<V, E> vv, Point2D point) {
+  public void midVertexCreate(BasicVisualizationServer vv, Point2D point) {
     // noop
   }
 
-  public void endVertexCreate(BasicVisualizationServer<V, E> vv, Point2D point) {
+  public void endVertexCreate(BasicVisualizationServer vv, Point2D point) {
     //noop
   }
 
-  public Supplier<V> getVertexFactory() {
+  public Supplier<Object> getVertexFactory() {
     return vertexFactory;
   }
 
-  public void setVertexFactory(Supplier<V> vertexFactory) {
+  public void setVertexFactory(Supplier<Object> vertexFactory) {
     this.vertexFactory = vertexFactory;
   }
 }

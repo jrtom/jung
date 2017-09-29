@@ -19,7 +19,7 @@ import javax.swing.CellRendererPane;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 
-public interface RenderContext<V, E> {
+public interface RenderContext {
 
   float[] dotting = {1.0f, 3.0f};
   float[] dashing = {5.0f};
@@ -40,7 +40,7 @@ public interface RenderContext<V, E> {
   /** Specifies the offset for the edge labels. */
   int LABEL_OFFSET = 10;
 
-  //  Network<V, E> getNetwork();
+  //  Network getNetwork();
 
   int getLabelOffset();
 
@@ -58,13 +58,13 @@ public interface RenderContext<V, E> {
 
   void setRenderEdgeArrow(boolean render);
 
-  Function<? super E, Font> getEdgeFontTransformer();
+  Function<Object, Font> getEdgeFontTransformer();
 
-  void setEdgeFontTransformer(Function<? super E, Font> edgeFontTransformer);
+  void setEdgeFontTransformer(Function<Object, Font> edgeFontTransformer);
 
-  Predicate<E> getEdgeIncludePredicate();
+  Predicate<Object> getEdgeIncludePredicate();
 
-  void setEdgeIncludePredicate(Predicate<E> edgeIncludePredicate);
+  void setEdgeIncludePredicate(Predicate<Object> edgeIncludePredicate);
 
   public float getEdgeLabelCloseness();
 
@@ -74,53 +74,53 @@ public interface RenderContext<V, E> {
 
   void setEdgeLabelRenderer(EdgeLabelRenderer edgeLabelRenderer);
 
-  Function<? super E, Paint> getEdgeFillPaintTransformer();
+  Function<Object, Paint> getEdgeFillPaintTransformer();
 
-  void setEdgeFillPaintTransformer(Function<? super E, Paint> edgePaintTransformer);
+  void setEdgeFillPaintTransformer(Function<Object, Paint> edgePaintTransformer);
 
-  Function<? super E, Paint> getEdgeDrawPaintTransformer();
+  Function<Object, Paint> getEdgeDrawPaintTransformer();
 
-  void setEdgeDrawPaintTransformer(Function<? super E, Paint> edgeDrawPaintTransformer);
+  void setEdgeDrawPaintTransformer(Function<Object, Paint> edgeDrawPaintTransformer);
 
-  Function<? super E, Paint> getArrowDrawPaintTransformer();
+  Function<Object, Paint> getArrowDrawPaintTransformer();
 
-  void setArrowDrawPaintTransformer(Function<? super E, Paint> arrowDrawPaintTransformer);
+  void setArrowDrawPaintTransformer(Function<Object, Paint> arrowDrawPaintTransformer);
 
-  Function<? super E, Paint> getArrowFillPaintTransformer();
+  Function<Object, Paint> getArrowFillPaintTransformer();
 
-  void setArrowFillPaintTransformer(Function<? super E, Paint> arrowFillPaintTransformer);
+  void setArrowFillPaintTransformer(Function<Object, Paint> arrowFillPaintTransformer);
 
-  Function<Context<Network, E>, Shape> getEdgeShapeTransformer();
+  Function<Context<Network, Object>, Shape> getEdgeShapeTransformer();
 
-  void setEdgeShapeTransformer(Function<Context<Network, E>, Shape> edgeShapeTransformer);
+  void setEdgeShapeTransformer(Function<Context<Network, Object>, Shape> edgeShapeTransformer);
 
-  Function<? super E, String> getEdgeLabelTransformer();
+  Function<Object, String> getEdgeLabelTransformer();
 
-  void setEdgeLabelTransformer(Function<? super E, String> edgeStringer);
+  void setEdgeLabelTransformer(Function<Object, String> edgeStringer);
 
-  Function<? super E, Stroke> edgestrokeTransformer();
+  Function<Object, Stroke> edgestrokeTransformer();
 
-  void setEdgeStrokeTransformer(Function<? super E, Stroke> edgeStrokeTransformer);
+  void setEdgeStrokeTransformer(Function<Object, Stroke> edgeStrokeTransformer);
 
-  Function<? super E, Stroke> getEdgeArrowStrokeTransformer();
+  Function<Object, Stroke> getEdgeArrowStrokeTransformer();
 
-  void setEdgeArrowStrokeTransformer(Function<? super E, Stroke> edgeArrowStrokeTransformer);
+  void setEdgeArrowStrokeTransformer(Function<Object, Stroke> edgeArrowStrokeTransformer);
 
   GraphicsDecorator getGraphicsContext();
 
   void setGraphicsContext(GraphicsDecorator graphicsContext);
 
-  EdgeIndexFunction<E> getParallelEdgeIndexFunction();
+  EdgeIndexFunction getParallelEdgeIndexFunction();
 
-  void setParallelEdgeIndexFunction(EdgeIndexFunction<E> parallelEdgeIndexFunction);
+  void setParallelEdgeIndexFunction(EdgeIndexFunction parallelEdgeIndexFunction);
 
-  PickedState<E> getPickedEdgeState();
+  PickedState getPickedEdgeState();
 
-  void setPickedEdgeState(PickedState<E> pickedEdgeState);
+  void setPickedEdgeState(PickedState pickedEdgeState);
 
-  PickedState<V> getPickedVertexState();
+  PickedState getPickedVertexState();
 
-  void setPickedVertexState(PickedState<V> pickedVertexState);
+  void setPickedVertexState(PickedState pickedVertexState);
 
   CellRendererPane getRendererPane();
 
@@ -130,41 +130,41 @@ public interface RenderContext<V, E> {
 
   void setScreenDevice(JComponent screenDevice);
 
-  Function<? super V, Font> getVertexFontTransformer();
+  Function<Object, Font> getVertexFontTransformer();
 
-  void setVertexFontTransformer(Function<? super V, Font> vertexFontTransformer);
+  void setVertexFontTransformer(Function<Object, Font> vertexFontTransformer);
 
-  Function<V, Icon> getVertexIconTransformer();
+  Function<Object, Icon> getVertexIconTransformer();
 
-  void setVertexIconTransformer(Function<V, Icon> vertexIconTransformer);
+  void setVertexIconTransformer(Function<Object, Icon> vertexIconTransformer);
 
-  Predicate<V> getVertexIncludePredicate();
+  Predicate<Object> getVertexIncludePredicate();
 
-  void setVertexIncludePredicate(Predicate<V> vertexIncludePredicate);
+  void setVertexIncludePredicate(Predicate<Object> vertexIncludePredicate);
 
   VertexLabelRenderer getVertexLabelRenderer();
 
   void setVertexLabelRenderer(VertexLabelRenderer vertexLabelRenderer);
 
-  Function<? super V, Paint> getVertexFillPaintTransformer();
+  Function<Object, Paint> getVertexFillPaintTransformer();
 
-  void setVertexFillPaintTransformer(Function<? super V, Paint> vertexFillPaintTransformer);
+  void setVertexFillPaintTransformer(Function<Object, Paint> vertexFillPaintTransformer);
 
-  Function<? super V, Paint> getVertexDrawPaintTransformer();
+  Function<Object, Paint> getVertexDrawPaintTransformer();
 
-  void setVertexDrawPaintTransformer(Function<? super V, Paint> vertexDrawPaintTransformer);
+  void setVertexDrawPaintTransformer(Function<Object, Paint> vertexDrawPaintTransformer);
 
-  Function<? super V, Shape> getVertexShapeTransformer();
+  Function<Object, Shape> getVertexShapeTransformer();
 
-  void setVertexShapeTransformer(Function<? super V, Shape> vertexShapeTransformer);
+  void setVertexShapeTransformer(Function<Object, Shape> vertexShapeTransformer);
 
-  Function<? super V, String> getVertexLabelTransformer();
+  Function<Object, String> getVertexLabelTransformer();
 
-  void setVertexLabelTransformer(Function<? super V, String> vertexStringer);
+  void setVertexLabelTransformer(Function<Object, String> vertexStringer);
 
-  Function<? super V, Stroke> getVertexStrokeTransformer();
+  Function<Object, Stroke> getVertexStrokeTransformer();
 
-  void setVertexStrokeTransformer(Function<? super V, Stroke> vertexStrokeTransformer);
+  void setVertexStrokeTransformer(Function<Object, Stroke> vertexStrokeTransformer);
 
   class DirectedEdgeArrowPredicate implements Predicate<Network<?, ?>> {
 
@@ -185,8 +185,8 @@ public interface RenderContext<V, E> {
   void setMultiLayerTransformer(MultiLayerTransformer basicTransformer);
 
   /** @return the pickSupport */
-  NetworkElementAccessor<V, E> getPickSupport();
+  NetworkElementAccessor getPickSupport();
 
   /** @param pickSupport the pickSupport to set */
-  void setPickSupport(NetworkElementAccessor<V, E> pickSupport);
+  void setPickSupport(NetworkElementAccessor pickSupport);
 }

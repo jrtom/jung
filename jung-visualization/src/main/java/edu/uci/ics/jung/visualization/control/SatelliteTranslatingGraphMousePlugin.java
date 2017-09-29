@@ -41,11 +41,11 @@ public class SatelliteTranslatingGraphMousePlugin extends TranslatingGraphMouseP
    * @param e the event
    */
   public void mouseDragged(MouseEvent e) {
-    VisualizationViewer<?, ?> vv = (VisualizationViewer<?, ?>) e.getSource();
+    VisualizationViewer vv = (VisualizationViewer) e.getSource();
     boolean accepted = checkModifiers(e);
     if (accepted) {
       if (vv instanceof SatelliteVisualizationViewer) {
-        VisualizationViewer<?, ?> vvMaster = ((SatelliteVisualizationViewer<?, ?>) vv).getMaster();
+        VisualizationViewer vvMaster = ((SatelliteVisualizationViewer) vv).getMaster();
 
         MutableTransformer modelTransformerMaster =
             vvMaster.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT);

@@ -52,9 +52,9 @@ public class VertexLabelAsShapeDemo extends JApplet {
 
   Network<String, Number> graph;
 
-  VisualizationViewer<String, Number> vv;
+  VisualizationViewer vv;
 
-  Layout<String> layout;
+  Layout<Object> layout;
 
   /** create an instance of a simple graph with basic controls */
   public VertexLabelAsShapeDemo() {
@@ -62,16 +62,16 @@ public class VertexLabelAsShapeDemo extends JApplet {
     // create a simple graph for the demo
     graph = TestGraphs.getOneComponentGraph();
 
-    layout = new FRLayout<String>(graph.asGraph());
+    layout = new FRLayout(graph.asGraph());
 
     Dimension preferredSize = new Dimension(400, 400);
-    final VisualizationModel<String, Number> visualizationModel =
-        new DefaultVisualizationModel<String, Number>(graph, layout, preferredSize);
-    vv = new VisualizationViewer<String, Number>(visualizationModel, preferredSize);
+    final VisualizationModel visualizationModel =
+        new DefaultVisualizationModel(graph, layout, preferredSize);
+    vv = new VisualizationViewer(visualizationModel, preferredSize);
 
     // this class will provide both label drawing and vertex shapes
-    VertexLabelAsShapeRenderer<String, Number> vlasr =
-        new VertexLabelAsShapeRenderer<String, Number>(layout, vv.getRenderContext());
+    VertexLabelAsShapeRenderer vlasr =
+        new VertexLabelAsShapeRenderer(layout, vv.getRenderContext());
 
     // customize the render context
     vv.getRenderContext()
@@ -84,8 +84,7 @@ public class VertexLabelAsShapeDemo extends JApplet {
 
     // customize the renderer
     vv.getRenderer()
-        .setVertexRenderer(
-            new GradientVertexRenderer<String, Number>(vv, Color.gray, Color.white, true));
+        .setVertexRenderer(new GradientVertexRenderer(vv, Color.gray, Color.white, true));
     vv.getRenderer().setVertexLabelRenderer(vlasr);
 
     vv.setBackground(Color.black);
@@ -93,8 +92,7 @@ public class VertexLabelAsShapeDemo extends JApplet {
     // add a listener for ToolTips
     vv.setVertexToolTipTransformer(new ToStringLabeller());
 
-    final DefaultModalGraphMouse<String, Number> graphMouse =
-        new DefaultModalGraphMouse<String, Number>();
+    final DefaultModalGraphMouse graphMouse = new DefaultModalGraphMouse();
 
     vv.setGraphMouse(graphMouse);
     vv.addKeyListener(graphMouse.getModeKeyListener());

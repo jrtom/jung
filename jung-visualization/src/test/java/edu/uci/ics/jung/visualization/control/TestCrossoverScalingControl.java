@@ -11,7 +11,7 @@ import junit.framework.TestCase;
 public class TestCrossoverScalingControl extends TestCase {
 
   CrossoverScalingControl sc;
-  VisualizationServer<?, ?> vv;
+  VisualizationServer vv;
 
   float crossover;
   float scale;

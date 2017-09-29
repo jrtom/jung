@@ -65,16 +65,15 @@ public class ShortestPathDemo extends JPanel {
     setBackground(Color.WHITE);
     // show graph
     final Layout<String> layout = new FRLayout<String>(mGraph.asGraph());
-    final VisualizationViewer<String, Number> vv =
-        new VisualizationViewer<String, Number>(mGraph, layout);
+    final VisualizationViewer vv = new VisualizationViewer(mGraph, layout);
     vv.setBackground(Color.WHITE);
 
-    vv.getRenderContext().setVertexDrawPaintTransformer(new MyVertexDrawPaintFunction<String>());
-    vv.getRenderContext().setVertexFillPaintTransformer(new MyVertexFillPaintFunction<String>());
+    vv.getRenderContext().setVertexDrawPaintTransformer(new MyVertexDrawPaintFunction());
+    vv.getRenderContext().setVertexFillPaintTransformer(new MyVertexFillPaintFunction());
     vv.getRenderContext().setEdgeDrawPaintTransformer(new MyEdgePaintFunction());
     vv.getRenderContext().setEdgeStrokeTransformer(new MyEdgeStrokeFunction());
     vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
-    vv.setGraphMouse(new DefaultModalGraphMouse<String, Number>());
+    vv.setGraphMouse(new DefaultModalGraphMouse());
     vv.addPostRenderPaintable(
         new VisualizationViewer.Paintable() {
 
@@ -97,7 +96,7 @@ public class ShortestPathDemo extends JPanel {
                 Point2D p2 = layout.apply(v2);
                 p1 = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, p1);
                 p2 = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, p2);
-                Renderer<String, Number> renderer = vv.getRenderer();
+                Renderer renderer = vv.getRenderer();
                 renderer.renderEdge(vv.getRenderContext(), vv.getModel().getLayoutMediator(), e);
               }
             }
@@ -110,17 +109,17 @@ public class ShortestPathDemo extends JPanel {
     add(setUpControls(), BorderLayout.SOUTH);
   }
 
-  boolean isBlessed(Number e) {
-    EndpointPair<String> endpoints = mGraph.incidentNodes(e);
+  boolean isBlessed(Object e) {
+    EndpointPair<String> endpoints = mGraph.incidentNodes((Number) e);
     String v1 = endpoints.nodeU();
     String v2 = endpoints.nodeV();
     return v1.equals(v2) == false && mPred.contains(v1) && mPred.contains(v2);
   }
 
   /** @author danyelf */
-  public class MyEdgePaintFunction implements Function<Number, Paint> {
+  public class MyEdgePaintFunction implements Function<Object, Paint> {
 
-    public Paint apply(Number e) {
+    public Paint apply(Object e) {
       if (mPred == null || mPred.size() == 0) {
         return Color.BLACK;
       }
@@ -132,11 +131,11 @@ public class ShortestPathDemo extends JPanel {
     }
   }
 
-  public class MyEdgeStrokeFunction implements Function<Number, Stroke> {
+  public class MyEdgeStrokeFunction implements Function<Object, Stroke> {
     protected final Stroke THIN = new BasicStroke(1);
     protected final Stroke THICK = new BasicStroke(1);
 
-    public Stroke apply(Number e) {
+    public Stroke apply(Object e) {
       if (mPred == null || mPred.size() == 0) {
         return THIN;
       }

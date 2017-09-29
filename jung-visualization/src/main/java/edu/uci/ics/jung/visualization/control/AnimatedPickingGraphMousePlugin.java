@@ -31,11 +31,11 @@ import javax.swing.JComponent;
  *
  * @author Tom Nelson
  */
-public class AnimatedPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
+public class AnimatedPickingGraphMousePlugin extends AbstractGraphMousePlugin
     implements MouseListener, MouseMotionListener {
 
   /** the picked Vertex */
-  protected V vertex;
+  protected Object vertex;
 
   /** Creates an instance with default modifiers of BUTTON1_MASK and CTRL_MASK */
   public AnimatedPickingGraphMousePlugin() {
@@ -60,9 +60,9 @@ public class AnimatedPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlu
   @SuppressWarnings("unchecked")
   public void mousePressed(MouseEvent e) {
     if (e.getModifiers() == modifiers) {
-      VisualizationViewer<V, E> vv = (VisualizationViewer<V, E>) e.getSource();
-      NetworkElementAccessor<V, E> pickSupport = vv.getPickSupport();
-      PickedState<V> pickedVertexState = vv.getPickedVertexState();
+      VisualizationViewer vv = (VisualizationViewer) e.getSource();
+      NetworkElementAccessor pickSupport = vv.getPickSupport();
+      PickedState pickedVertexState = vv.getPickedVertexState();
       if (pickSupport != null && pickedVertexState != null) {
         // p is the screen point for the mouse event
         Point2D p = e.getPoint();
@@ -87,11 +87,11 @@ public class AnimatedPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlu
   @SuppressWarnings("unchecked")
   public void mouseReleased(MouseEvent e) {
     if (e.getModifiers() == modifiers) {
-      final VisualizationViewer<V, E> vv = (VisualizationViewer<V, E>) e.getSource();
+      final VisualizationViewer vv = (VisualizationViewer) e.getSource();
       Point2D newCenter = null;
       if (vertex != null) {
         // center the picked vertex
-        Layout<V> layout = vv.getGraphLayout();
+        Layout<Object> layout = vv.getGraphLayout();
         newCenter = layout.apply(vertex);
       } else {
         // they did not pick a vertex to center, so

@@ -5,7 +5,7 @@ import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
 
-public interface EdgeArrowRenderingSupport<V, E> {
+public interface EdgeArrowRenderingSupport {
 
   /**
    * Returns a transform to position the arrowhead on this edge shape at the point where it
@@ -16,7 +16,7 @@ public interface EdgeArrowRenderingSupport<V, E> {
    * @param vertexShape the shape used to draw the vertex
    * @return a transform used for positioning the arrowhead for this vertex and edge
    */
-  AffineTransform getArrowTransform(RenderContext<V, E> rc, Shape edgeShape, Shape vertexShape);
+  AffineTransform getArrowTransform(RenderContext rc, Shape edgeShape, Shape vertexShape);
 
   /**
    * Returns a transform to position the arrowhead on this edge shape at the point where it
@@ -27,8 +27,7 @@ public interface EdgeArrowRenderingSupport<V, E> {
    * @param vertexShape the shape used to draw the vertex
    * @return a transform used for positioning the arrowhead for this vertex and edge
    */
-  AffineTransform getReverseArrowTransform(
-      RenderContext<V, E> rc, Shape edgeShape, Shape vertexShape);
+  AffineTransform getReverseArrowTransform(RenderContext rc, Shape edgeShape, Shape vertexShape);
 
   /**
    * Returns a transform to position the arrowhead on this edge shape at the point where it
@@ -44,7 +43,7 @@ public interface EdgeArrowRenderingSupport<V, E> {
    * @return a transform used for positioning the arrowhead for this vertex and edge
    */
   AffineTransform getReverseArrowTransform(
-      RenderContext<V, E> rc, Shape edgeShape, Shape vertexShape, boolean passedGo);
+      RenderContext rc, Shape edgeShape, Shape vertexShape, boolean passedGo);
 
   /**
    * Returns a transform to position the arrowhead on this edge shape at the point where it
@@ -55,5 +54,5 @@ public interface EdgeArrowRenderingSupport<V, E> {
    * @param vertexShape the shape used to draw the vertex
    * @return a transform used for positioning the arrowhead for this vertex and edge
    */
-  AffineTransform getArrowTransform(RenderContext<V, E> rc, Line2D edgeShape, Shape vertexShape);
+  AffineTransform getArrowTransform(RenderContext rc, Line2D edgeShape, Shape vertexShape);
 }

@@ -33,7 +33,7 @@ import java.awt.event.KeyEvent;
  *
  * @author Tom Nelson
  */
-public class DefaultModalGraphMouse<V, E> extends AbstractModalGraphMouse
+public class DefaultModalGraphMouse extends AbstractModalGraphMouse
     implements ModalGraphMouse, ItemSelectable {
 
   /** create an instance with default values */
@@ -56,8 +56,8 @@ public class DefaultModalGraphMouse<V, E> extends AbstractModalGraphMouse
   /** create the plugins, and load the plugins for TRANSFORMING mode */
   @Override
   protected void loadPlugins() {
-    pickingPlugin = new PickingGraphMousePlugin<V, E>();
-    animatedPickingPlugin = new AnimatedPickingGraphMousePlugin<V, E>();
+    pickingPlugin = new PickingGraphMousePlugin();
+    animatedPickingPlugin = new AnimatedPickingGraphMousePlugin();
     translatingPlugin = new TranslatingGraphMousePlugin(InputEvent.BUTTON1_MASK);
     scalingPlugin = new ScalingGraphMousePlugin(new CrossoverScalingControl(), 0, in, out);
     rotatingPlugin = new RotatingGraphMousePlugin();

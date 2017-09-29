@@ -26,27 +26,27 @@ import javax.swing.ImageIcon;
  *
  * @author Tom Nelson
  */
-public class VertexIconShapeTransformer<V> implements Function<V, Shape> {
+public class VertexIconShapeTransformer implements Function<Object, Shape> {
   protected Map<Image, Shape> shapeMap = new HashMap<Image, Shape>();
-  protected Map<V, Icon> iconMap;
-  protected Function<V, Shape> delegate;
+  protected Map<Object, Icon> iconMap;
+  protected Function<Object, Shape> delegate;
 
   /**
    * Creates an instance with the specified delegate.
    *
    * @param delegate the vertex-to-shape function to use if no image is present for the vertex
    */
-  public VertexIconShapeTransformer(Function<V, Shape> delegate) {
+  public VertexIconShapeTransformer(Function<Object, Shape> delegate) {
     this.delegate = delegate;
   }
 
   /** @return Returns the delegate. */
-  public Function<V, Shape> getDelegate() {
+  public Function<Object, Shape> getDelegate() {
     return delegate;
   }
 
   /** @param delegate The delegate to set. */
-  public void setDelegate(Function<V, Shape> delegate) {
+  public void setDelegate(Function<Object, Shape> delegate) {
     this.delegate = delegate;
   }
 
@@ -54,7 +54,7 @@ public class VertexIconShapeTransformer<V> implements Function<V, Shape> {
    * get the shape from the image. If not available, get the shape from the delegate
    * VertexShapeFunction
    */
-  public Shape apply(V v) {
+  public Shape apply(Object v) {
     Icon icon = iconMap.get(v);
     if (icon != null && icon instanceof ImageIcon) {
       Image image = ((ImageIcon) icon).getImage();
@@ -78,12 +78,12 @@ public class VertexIconShapeTransformer<V> implements Function<V, Shape> {
   }
 
   /** @return the iconMap */
-  public Map<V, Icon> getIconMap() {
+  public Map<Object, Icon> getIconMap() {
     return iconMap;
   }
 
   /** @param iconMap the iconMap to set */
-  public void setIconMap(Map<V, Icon> iconMap) {
+  public void setIconMap(Map<Object, Icon> iconMap) {
     this.iconMap = iconMap;
   }
 

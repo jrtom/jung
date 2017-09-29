@@ -23,11 +23,11 @@ import java.awt.Dimension;
  *
  * @author Tom Nelson
  */
-public class LayoutLensSupport<V, E> extends AbstractLensSupport<V, E> implements LensSupport {
+public class LayoutLensSupport extends AbstractLensSupport implements LensSupport {
 
-  protected NetworkElementAccessor<V, E> pickSupport;
+  protected NetworkElementAccessor pickSupport;
 
-  public LayoutLensSupport(VisualizationViewer<V, E> vv) {
+  public LayoutLensSupport(VisualizationViewer vv) {
     this(
         vv,
         new HyperbolicTransformer(
@@ -43,9 +43,7 @@ public class LayoutLensSupport<V, E> extends AbstractLensSupport<V, E> implement
    * @param lensGraphMouse the lens input handler
    */
   public LayoutLensSupport(
-      VisualizationViewer<V, E> vv,
-      LensTransformer lensTransformer,
-      ModalGraphMouse lensGraphMouse) {
+      VisualizationViewer vv, LensTransformer lensTransformer, ModalGraphMouse lensGraphMouse) {
     super(vv, lensGraphMouse);
     this.lensTransformer = lensTransformer;
     this.pickSupport = vv.getPickSupport();
@@ -64,7 +62,7 @@ public class LayoutLensSupport<V, E> extends AbstractLensSupport<V, E> implement
     if (lensControls == null) {
       lensControls = new LensControls(lensTransformer);
     }
-    vv.getRenderContext().setPickSupport(new LayoutLensShapePickSupport<V, E>(vv));
+    vv.getRenderContext().setPickSupport(new LayoutLensShapePickSupport(vv));
     vv.getRenderContext().getMultiLayerTransformer().setTransformer(Layer.LAYOUT, lensTransformer);
     vv.prependPreRenderPaintable(lens);
     vv.addPostRenderPaintable(lensControls);

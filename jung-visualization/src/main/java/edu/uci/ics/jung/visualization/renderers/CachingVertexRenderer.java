@@ -17,17 +17,17 @@ import javax.swing.Icon;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-public class CachingVertexRenderer<V, E> extends BasicVertexRenderer<V, E>
-    implements ChangeListener, LayoutChangeListener<V, E> {
+public class CachingVertexRenderer extends BasicVertexRenderer
+    implements ChangeListener, LayoutChangeListener {
 
-  protected Map<V, Shape> vertexShapeMap = new HashMap<V, Shape>();
+  protected Map<Object, Shape> vertexShapeMap = new HashMap<Object, Shape>();
 
-  protected Set<V> dirtyVertices = new HashSet<V>();
+  protected Set<Object> dirtyVertices = new HashSet<Object>();
 
   @SuppressWarnings({"rawtypes", "unchecked"})
-  public CachingVertexRenderer(BasicVisualizationServer<V, E> vv) {
+  public CachingVertexRenderer(BasicVisualizationServer vv) {
     vv.getRenderContext().getMultiLayerTransformer().addChangeListener(this);
-    Layout<V> layout = vv.getGraphLayout();
+    Layout<Object> layout = vv.getGraphLayout();
     if (layout instanceof LayoutEventSupport) {
       ((LayoutEventSupport) layout).addLayoutChangeListener(this);
     }
@@ -35,7 +35,7 @@ public class CachingVertexRenderer<V, E> extends BasicVertexRenderer<V, E>
 
   /** Paint <code>v</code>'s icon on <code>g</code> at <code>(x,y)</code>. */
   protected void paintIconForVertex(
-      RenderContext<V, E> renderContext, LayoutMediator<V, E> layoutMediator, V v) {
+      RenderContext renderContext, LayoutMediator layoutMediator, Object v) {
     GraphicsDecorator g = renderContext.getGraphicsContext();
     boolean vertexHit = true;
     int[] coords = new int[2];
@@ -66,7 +66,7 @@ public class CachingVertexRenderer<V, E> extends BasicVertexRenderer<V, E>
     vertexShapeMap.clear();
   }
 
-  public void layoutChanged(LayoutEvent<V, E> evt) {
+  public void layoutChanged(LayoutEvent evt) {
     this.dirtyVertices.add(evt.getVertex());
   }
 }

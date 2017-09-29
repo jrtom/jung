@@ -20,16 +20,16 @@ import java.util.function.Function;
  *
  * @author Joshua O'Madadhain
  */
-public class NumberFormattingTransformer<T> implements Function<T, String> {
-  private Function<T, ? extends Number> values;
+public class NumberFormattingTransformer implements Function<Object, String> {
+  private Function<Object, ? extends Number> values;
   private NumberFormat formatter = NumberFormat.getInstance();
 
-  public NumberFormattingTransformer(Function<T, ? extends Number> values) {
+  public NumberFormattingTransformer(Function<Object, ? extends Number> values) {
     this.values = values;
   }
 
   /** Returns a formatted string for the input. */
-  public String apply(T input) {
+  public String apply(Object input) {
     return formatter.format(values.apply(input));
   }
 }

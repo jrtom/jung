@@ -18,38 +18,38 @@ import javax.swing.JPopupMenu;
  *
  * @author Tom Nelson
  */
-public class EditingPopupGraphMousePlugin<V, E> extends AbstractPopupGraphMousePlugin {
+public class EditingPopupGraphMousePlugin extends AbstractPopupGraphMousePlugin {
 
-  protected Supplier<V> vertexFactory;
-  protected Supplier<E> edgeFactory;
+  protected Supplier<Object> vertexFactory;
+  protected Supplier<Object> edgeFactory;
 
-  public EditingPopupGraphMousePlugin(Supplier<V> vertexFactory, Supplier<E> edgeFactory) {
+  public EditingPopupGraphMousePlugin(
+      Supplier<Object> vertexFactory, Supplier<Object> edgeFactory) {
     this.vertexFactory = vertexFactory;
     this.edgeFactory = edgeFactory;
   }
 
   @SuppressWarnings({"unchecked", "serial"})
   protected void handlePopup(MouseEvent e) {
-    final VisualizationViewer<V, E> vv = (VisualizationViewer<V, E>) e.getSource();
-    final MutableNetwork<V, E> graph =
-        (MutableNetwork<V, E>) vv.getModel().getLayoutMediator().getNetwork();
+    final VisualizationViewer vv = (VisualizationViewer) e.getSource();
+    final MutableNetwork graph = (MutableNetwork) vv.getModel().getLayoutMediator().getNetwork();
     final Point2D p = e.getPoint();
-    NetworkElementAccessor<V, E> pickSupport = vv.getPickSupport();
+    NetworkElementAccessor pickSupport = vv.getPickSupport();
     if (pickSupport != null) {
 
-      final V vertex = pickSupport.getNode(p.getX(), p.getY());
-      final E edge = pickSupport.getEdge(p.getX(), p.getY());
-      final PickedState<V> pickedVertexState = vv.getPickedVertexState();
-      final PickedState<E> pickedEdgeState = vv.getPickedEdgeState();
+      final Object vertex = pickSupport.getNode(p.getX(), p.getY());
+      final Object edge = pickSupport.getEdge(p.getX(), p.getY());
+      final PickedState pickedVertexState = vv.getPickedVertexState();
+      final PickedState pickedEdgeState = vv.getPickedEdgeState();
 
       JPopupMenu popup = new JPopupMenu();
       if (vertex != null) {
-        Set<V> picked = pickedVertexState.getPicked();
+        Set<Object> picked = pickedVertexState.getPicked();
         if (picked.size() > 0) {
           JMenu menu =
               new JMenu("Create " + (graph.isDirected() ? "Directed" : "Undirected") + " Edge");
           popup.add(menu);
-          for (final V other : picked) {
+          for (final Object other : picked) {
             menu.add(
                 new AbstractAction("[" + other + "," + vertex + "]") {
                   public void actionPerformed(ActionEvent e) {
@@ -80,7 +80,7 @@ public class EditingPopupGraphMousePlugin<V, E> extends AbstractPopupGraphMouseP
         popup.add(
             new AbstractAction("Create Vertex") {
               public void actionPerformed(ActionEvent e) {
-                V newVertex = vertexFactory.get();
+                Object newVertex = vertexFactory.get();
                 graph.addNode(newVertex);
                 vv.getGraphLayout()
                     .setLocation(

@@ -12,36 +12,36 @@ import java.awt.geom.Point2D;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class LayoutTransition<V, E> implements IterativeContext {
+public class LayoutTransition implements IterativeContext {
 
   Logger log = LoggerFactory.getLogger(LayoutTransition.class);
 
-  protected LayoutMediator<V, E> startLayoutMediator;
-  protected LayoutMediator<V, E> endLayoutMediator;
-  protected LayoutMediator<V, E> transitionLayoutMediator;
+  protected LayoutMediator startLayoutMediator;
+  protected LayoutMediator endLayoutMediator;
+  protected LayoutMediator transitionLayoutMediator;
   protected boolean done = false;
   protected int count = 20;
   protected int counter = 0;
-  protected VisualizationViewer<V, E> vv;
+  protected VisualizationViewer vv;
 
   public LayoutTransition(
-      VisualizationViewer<V, E> vv,
-      LayoutMediator<V, E> startLayoutMediator,
-      LayoutMediator<V, E> endLayoutMediator) {
+      VisualizationViewer vv,
+      LayoutMediator startLayoutMediator,
+      LayoutMediator endLayoutMediator) {
     if (log.isDebugEnabled()) {
       log.debug("transition from " + startLayoutMediator + " to " + endLayoutMediator);
     }
     this.vv = vv;
     this.startLayoutMediator = startLayoutMediator;
-    Network<V, E> network = endLayoutMediator.getNetwork();
-    Layout<V> startLayout = startLayoutMediator.getLayout();
-    Layout<V> transitionLayout = new StaticLayout(network.asGraph(), startLayout);
+    Network network = endLayoutMediator.getNetwork();
+    Layout startLayout = startLayoutMediator.getLayout();
+    Layout transitionLayout = new StaticLayout(network.asGraph(), startLayout);
     this.endLayoutMediator = endLayoutMediator;
     if (endLayoutMediator.getLayout() instanceof IterativeContext) {
       Relaxer relaxer = new VisRunner((IterativeContext) endLayoutMediator.getLayout());
       relaxer.prerelax();
     }
-    this.transitionLayoutMediator = new LayoutMediator<V, E>(network, transitionLayout);
+    this.transitionLayoutMediator = new LayoutMediator(network, transitionLayout);
     vv.setLayoutMediator(transitionLayoutMediator);
   }
 
@@ -50,7 +50,7 @@ public class LayoutTransition<V, E> implements IterativeContext {
   }
 
   public void step() {
-    for (V v : vv.getModel().getLayoutMediator().getNetwork().nodes()) {
+    for (Object v : vv.getModel().getLayoutMediator().getNetwork().nodes()) {
       Point2D tp = transitionLayoutMediator.getLayout().apply(v);
       Point2D fp = endLayoutMediator.getLayout().apply(v);
       double dx = (fp.getX() - tp.getX()) / (count - counter);

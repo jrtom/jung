@@ -34,16 +34,16 @@ import java.awt.geom.AffineTransform;
  * @author Tom Nelson
  */
 @SuppressWarnings("serial")
-public class SatelliteVisualizationViewer<V, E> extends VisualizationViewer<V, E> {
+public class SatelliteVisualizationViewer extends VisualizationViewer {
 
   /** the master VisualizationViewer that this is a satellite view for */
-  protected VisualizationViewer<V, E> master;
+  protected VisualizationViewer master;
 
   /**
    * @param master the master VisualizationViewer for which this is a satellite view
    * @param preferredSize the specified size of the component
    */
-  public SatelliteVisualizationViewer(VisualizationViewer<V, E> master, Dimension preferredSize) {
+  public SatelliteVisualizationViewer(VisualizationViewer master, Dimension preferredSize) {
     super(master.getModel(), preferredSize);
     this.master = master;
 
@@ -52,7 +52,7 @@ public class SatelliteVisualizationViewer<V, E> extends VisualizationViewer<V, E
     setGraphMouse(gm);
 
     // this adds the Lens to the satellite view
-    addPreRenderPaintable(new ViewLens<V, E>(this, master));
+    addPreRenderPaintable(new ViewLens(this, master));
 
     // get a copy of the current layout transform
     // it may have been scaled to fit the graph
@@ -91,7 +91,7 @@ public class SatelliteVisualizationViewer<V, E> extends VisualizationViewer<V, E
       renderContext.getGraphicsContext().setDelegate(g2d);
     }
     renderContext.setScreenDevice(this);
-    Layout<V> layout = model.getLayoutMediator().getLayout();
+    Layout layout = model.getLayoutMediator().getLayout();
 
     g2d.setRenderingHints(renderingHints);
 
@@ -142,7 +142,7 @@ public class SatelliteVisualizationViewer<V, E> extends VisualizationViewer<V, E
   }
 
   /** @return Returns the master. */
-  public VisualizationViewer<V, E> getMaster() {
+  public VisualizationViewer getMaster() {
     return master;
   }
 
@@ -152,12 +152,12 @@ public class SatelliteVisualizationViewer<V, E> extends VisualizationViewer<V, E
    *
    * @author Tom Nelson
    */
-  static class ViewLens<V, E> implements Paintable {
+  static class ViewLens implements Paintable {
 
-    VisualizationViewer<V, E> master;
-    VisualizationViewer<V, E> vv;
+    VisualizationViewer master;
+    VisualizationViewer vv;
 
-    public ViewLens(VisualizationViewer<V, E> vv, VisualizationViewer<V, E> master) {
+    public ViewLens(VisualizationViewer vv, VisualizationViewer master) {
       this.vv = vv;
       this.master = master;
     }

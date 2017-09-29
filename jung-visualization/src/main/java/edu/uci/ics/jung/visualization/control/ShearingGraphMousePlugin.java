@@ -97,7 +97,7 @@ public class ShearingGraphMousePlugin extends AbstractGraphMousePlugin
   }
 
   public void mousePressed(MouseEvent e) {
-    VisualizationViewer<?, ?> vv = (VisualizationViewer<?, ?>) e.getSource();
+    VisualizationViewer vv = (VisualizationViewer) e.getSource();
     boolean accepted = checkModifiers(e);
     down = e.getPoint();
     if (accepted) {
@@ -106,7 +106,7 @@ public class ShearingGraphMousePlugin extends AbstractGraphMousePlugin
   }
 
   public void mouseReleased(MouseEvent e) {
-    VisualizationViewer<?, ?> vv = (VisualizationViewer<?, ?>) e.getSource();
+    VisualizationViewer vv = (VisualizationViewer) e.getSource();
     down = null;
     vv.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
   }
@@ -115,7 +115,7 @@ public class ShearingGraphMousePlugin extends AbstractGraphMousePlugin
     if (down == null) {
       return;
     }
-    VisualizationViewer<?, ?> vv = (VisualizationViewer<?, ?>) e.getSource();
+    VisualizationViewer vv = (VisualizationViewer) e.getSource();
     boolean accepted = checkModifiers(e);
     if (accepted) {
       MutableTransformer modelTransformer =

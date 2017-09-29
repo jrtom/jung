@@ -22,21 +22,20 @@ import java.util.ConcurrentModificationException;
  *
  * @author Tom Nelson
  */
-public class BasicRenderer<V, E> implements Renderer<V, E> {
+public class BasicRenderer implements Renderer {
 
-  protected Renderer.Vertex<V, E> vertexRenderer = new BasicVertexRenderer<V, E>();
-  protected Renderer.VertexLabel<V, E> vertexLabelRenderer = new BasicVertexLabelRenderer<V, E>();
-  protected Renderer.Edge<V, E> edgeRenderer = new BasicEdgeRenderer<V, E>();
-  protected Renderer.EdgeLabel<V, E> edgeLabelRenderer = new BasicEdgeLabelRenderer<V, E>();
+  protected Renderer.Vertex vertexRenderer = new BasicVertexRenderer();
+  protected Renderer.VertexLabel vertexLabelRenderer = new BasicVertexLabelRenderer();
+  protected Renderer.Edge edgeRenderer = new BasicEdgeRenderer();
+  protected Renderer.EdgeLabel edgeLabelRenderer = new BasicEdgeLabelRenderer();
 
-  public void render(
-      RenderContext<V, E> renderContext, LayoutMediator<V, E> layoutMediator, Spatial<V> spatial) {
+  public void render(RenderContext renderContext, LayoutMediator layoutMediator, Spatial spatial) {
 
-    Collection<V> visibleNodes = spatial.getVisibleNodes();
-    Network<V, E> network = layoutMediator.getNetwork();
+    Collection visibleNodes = spatial.getVisibleNodes();
+    Network network = layoutMediator.getNetwork();
     // paint all the edges
     try {
-      for (E e : network.edges()) {
+      for (Object e : network.edges()) {
         renderEdge(renderContext, layoutMediator, e);
         renderEdgeLabel(renderContext, layoutMediator, e);
       }
@@ -46,7 +45,7 @@ public class BasicRenderer<V, E> implements Renderer<V, E> {
 
     // paint all the vertices
     try {
-      for (V v : visibleNodes) {
+      for (Object v : visibleNodes) {
         renderVertex(renderContext, layoutMediator, v);
         renderVertexLabel(renderContext, layoutMediator, v);
       }
@@ -56,11 +55,11 @@ public class BasicRenderer<V, E> implements Renderer<V, E> {
   }
 
   @Override
-  public void render(RenderContext<V, E> renderContext, LayoutMediator<V, E> layoutMediator) {
-    Network<V, E> network = layoutMediator.getNetwork();
+  public void render(RenderContext renderContext, LayoutMediator layoutMediator) {
+    Network network = layoutMediator.getNetwork();
     // paint all the edges
     try {
-      for (E e : network.edges()) {
+      for (Object e : network.edges()) {
         renderEdge(renderContext, layoutMediator, e);
         renderEdgeLabel(renderContext, layoutMediator, e);
       }
@@ -70,7 +69,7 @@ public class BasicRenderer<V, E> implements Renderer<V, E> {
 
     // paint all the vertices
     try {
-      for (V v : network.nodes()) {
+      for (Object v : network.nodes()) {
         renderVertex(renderContext, layoutMediator, v);
         renderVertexLabel(renderContext, layoutMediator, v);
       }
@@ -79,63 +78,61 @@ public class BasicRenderer<V, E> implements Renderer<V, E> {
     }
   }
 
-  public void renderVertex(
-      RenderContext<V, E> renderContext, LayoutMediator<V, E> layoutMediator, V v) {
+  public void renderVertex(RenderContext renderContext, LayoutMediator layoutMediator, Object v) {
     vertexRenderer.paintVertex(renderContext, layoutMediator, v);
   }
 
   public void renderVertexLabel(
-      RenderContext<V, E> renderContext, LayoutMediator<V, E> layoutMediator, V v) {
+      RenderContext renderContext, LayoutMediator layoutMediator, Object v) {
     vertexLabelRenderer.labelVertex(
         renderContext, layoutMediator, v, renderContext.getVertexLabelTransformer().apply(v));
   }
 
-  public void renderEdge(
-      RenderContext<V, E> renderContext, LayoutMediator<V, E> layoutMediator, E e) {
+  public void renderEdge(RenderContext renderContext, LayoutMediator layoutMediator, Object e) {
     edgeRenderer.paintEdge(renderContext, layoutMediator, e);
   }
 
   public void renderEdgeLabel(
-      RenderContext<V, E> renderContext, LayoutMediator<V, E> layoutMediator, E e) {
+      RenderContext renderContext, LayoutMediator layoutMediator, Object e) {
     edgeLabelRenderer.labelEdge(
         renderContext, layoutMediator, e, renderContext.getEdgeLabelTransformer().apply(e));
   }
 
-  public void setVertexRenderer(Renderer.Vertex<V, E> r) {
+  public void setVertexRenderer(Renderer.Vertex r) {
     this.vertexRenderer = r;
   }
 
-  public void setEdgeRenderer(Renderer.Edge<V, E> r) {
+  public void setEdgeRenderer(Renderer.Edge r) {
     this.edgeRenderer = r;
   }
 
   /** @return the edgeLabelRenderer */
-  public Renderer.EdgeLabel<V, E> getEdgeLabelRenderer() {
+  public Renderer.EdgeLabel getEdgeLabelRenderer() {
     return edgeLabelRenderer;
   }
 
   /** @param edgeLabelRenderer the edgeLabelRenderer to set */
-  public void setEdgeLabelRenderer(Renderer.EdgeLabel<V, E> edgeLabelRenderer) {
+  public void setEdgeLabelRenderer(Renderer.EdgeLabel edgeLabelRenderer) {
     this.edgeLabelRenderer = edgeLabelRenderer;
   }
 
   /** @return the vertexLabelRenderer */
-  public Renderer.VertexLabel<V, E> getVertexLabelRenderer() {
+  public Renderer.VertexLabel getVertexLabelRenderer() {
     return vertexLabelRenderer;
   }
 
   /** @param vertexLabelRenderer the vertexLabelRenderer to set */
-  public void setVertexLabelRenderer(Renderer.VertexLabel<V, E> vertexLabelRenderer) {
+  public void setVertexLabelRenderer(Renderer.VertexLabel vertexLabelRenderer) {
     this.vertexLabelRenderer = vertexLabelRenderer;
   }
 
   /** @return the edgeRenderer */
-  public Renderer.Edge<V, E> getEdgeRenderer() {
+  public Renderer.Edge getEdgeRenderer() {
     return edgeRenderer;
   }
 
   /** @return the vertexRenderer */
-  public Renderer.Vertex<V, E> getVertexRenderer() {
+  public Renderer.Vertex getVertexRenderer() {
     return vertexRenderer;
   }
 }

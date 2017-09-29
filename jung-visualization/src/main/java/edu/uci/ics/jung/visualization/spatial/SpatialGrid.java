@@ -44,11 +44,7 @@ public class SpatialGrid<N> implements Spatial<N> {
     this.boxHeight = size.getHeight() / verticalCount;
   }
 
-  /**
-   * A Multimap of box number to Lists of nodes in that box
-   *
-   * @return
-   */
+  /** A Multimap of box number to Lists of nodes in that box */
   public Multimap<Integer, N> getMap() {
     return map;
   }
@@ -56,10 +52,6 @@ public class SpatialGrid<N> implements Spatial<N> {
   /**
    * given the box x,y coordinates (not the coordinate system) return the box number (0,0) has box 0
    * (horizontalCount,horizontalCount) has box horizontalCount*verticalCount - 1
-   *
-   * @param boxX
-   * @param boxY
-   * @return
    */
   public int getBoxNumber(int boxX, int boxY) {
     return boxY * this.horizontalCount + boxX;
@@ -69,12 +61,7 @@ public class SpatialGrid<N> implements Spatial<N> {
     return getBoxNumber(boxXY[0], boxXY[1]);
   }
 
-  /**
-   * given a box number, return the x,y coordinates in the grid coordinate system
-   *
-   * @param boxIndex
-   * @return
-   */
+  /** given a box number, return the x,y coordinates in the grid coordinate system */
   public int[] getBoxXYFromBoxIndex(int boxIndex) {
     int[] boxXY = new int[2];
     boxXY[0] = boxIndex % this.horizontalCount;
@@ -82,23 +69,12 @@ public class SpatialGrid<N> implements Spatial<N> {
     return boxXY;
   }
 
-  /**
-   * given x,y in the view coordinate system, return the box number that contains it
-   *
-   * @param x
-   * @param y
-   * @return
-   */
+  /** given x,y in the view coordinate system, return the box number that contains it */
   public int getBoxNumberFromLocation(int x, int y) {
     return this.getBoxNumber(this.getBoxIndex(x, y));
   }
 
-  /**
-   * give a Point in the coordinate system, return the box number that contains it
-   *
-   * @param p
-   * @return
-   */
+  /** give a Point in the coordinate system, return the box number that contains it */
   public int getBoxNumberFromLocation(Point2D p) {
     if (p == null) {
       return -1;
@@ -106,13 +82,7 @@ public class SpatialGrid<N> implements Spatial<N> {
     return this.getBoxNumber(this.getBoxIndex((int) p.getX(), (int) p.getY()));
   }
 
-  /**
-   * given (x,y) in the coordinate system, get the boxX,boxY for the box that it is in
-   *
-   * @param x
-   * @param y
-   * @return
-   */
+  /** given (x,y) in the coordinate system, get the boxX,boxY for the box that it is in */
   public int[] getBoxIndex(int x, int y) {
     int[] boxIndex = new int[2];
 
@@ -121,13 +91,7 @@ public class SpatialGrid<N> implements Spatial<N> {
     return boxIndex;
   }
 
-  /**
-   * update the location of a node in the map of box number to node lists
-   *
-   * @param node
-   * @param x
-   * @param y
-   */
+  /** update the location of a node in the map of box number to node lists */
   public void updateBox(N node, int x, int y) {
     int newBoxNumber = this.getBoxNumberFromLocation(x, y);
     ListMultimap<N, Integer> inverse = Multimaps.invertFrom(map, ArrayListMultimap.create());
@@ -157,14 +121,7 @@ public class SpatialGrid<N> implements Spatial<N> {
     return visibleTiles;
   }
 
-  /**
-   * given a rectangular area and an offset, return the tiles that are contained in it
-   *
-   * @param d
-   * @param xOffset
-   * @param yOffset
-   * @return
-   */
+  /** given a rectangular area and an offset, return the tiles that are contained in it */
   public Collection<Integer> getVisibleTiles(Dimension d, int xOffset, int yOffset) {
     Set<Integer> visibleTiles = Sets.newHashSet();
     int[] upperLeftBox = getBoxIndex(xOffset, yOffset);
@@ -183,14 +140,7 @@ public class SpatialGrid<N> implements Spatial<N> {
   public void setVisibleArea(Rectangle visibleArea) {
     this.visibleArea = visibleArea;
   }
-  /**
-   * given a rectangular area and an offset, return the nodes that are contained in it.
-   *
-   * @param d
-   * @param xOffset
-   * @param yOffset
-   * @return
-   */
+  /** given a rectangular area and an offset, return the nodes that are contained in it. */
   public Collection<N> getVisibleNodes(Dimension d, int xOffset, int yOffset) {
     Collection<N> visibleNodes = Sets.newHashSet();
     for (Integer index : getVisibleTiles(d, xOffset, yOffset)) {
@@ -217,13 +167,7 @@ public class SpatialGrid<N> implements Spatial<N> {
     return this.visibleArea;
   }
 
-  /**
-   * given the boxX, boxY for a box, get the list of adjacent boxes, including myself
-   *
-   * @param boxX
-   * @param boxY
-   * @return
-   */
+  /** given the boxX, boxY for a box, get the list of adjacent boxes, including myself */
   public List<Integer> getAdjacentCellList(int boxX, int boxY) {
     List<Integer> adjacents = Lists.newArrayList();
     final int[] foo = {-1, 0, 1};

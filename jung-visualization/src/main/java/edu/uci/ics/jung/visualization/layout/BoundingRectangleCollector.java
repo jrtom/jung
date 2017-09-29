@@ -13,14 +13,14 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BoundingRectangleCollector<V, E> {
+public class BoundingRectangleCollector {
 
-  protected RenderContext<V, E> rc;
-  protected Network<V, E> graph;
-  protected Layout<V> layout;
+  protected RenderContext rc;
+  protected Network graph;
+  protected Layout<Object> layout;
   protected List<Rectangle2D> rectangles = new ArrayList<Rectangle2D>();
 
-  public BoundingRectangleCollector(RenderContext<V, E> rc, LayoutMediator<V, E> layoutMediator) {
+  public BoundingRectangleCollector(RenderContext rc, LayoutMediator layoutMediator) {
     this.rc = rc;
     this.layout = layout;
     this.graph = layoutMediator.getNetwork();
@@ -37,10 +37,10 @@ public class BoundingRectangleCollector<V, E> {
     //		Graphics2D g2d = (Graphics2D)g;
     //		g.setColor(Color.cyan);
 
-    for (E e : graph.edges()) {
-      EndpointPair<V> endpoints = graph.incidentNodes(e);
-      V v1 = endpoints.nodeU();
-      V v2 = endpoints.nodeV();
+    for (Object e : graph.edges()) {
+      EndpointPair<Object> endpoints = graph.incidentNodes(e);
+      Object v1 = endpoints.nodeU();
+      Object v2 = endpoints.nodeV();
       Point2D p1 = layout.apply(v1);
       Point2D p2 = layout.apply(v2);
       float x1 = (float) p1.getX();
@@ -71,7 +71,7 @@ public class BoundingRectangleCollector<V, E> {
       rectangles.add(edgeShape.getBounds2D());
     }
 
-    for (V v : graph.nodes()) {
+    for (Object v : graph.nodes()) {
       Shape shape = rc.getVertexShapeTransformer().apply(v);
       Point2D p = layout.apply(v);
       //			p = rc.getMultiLayerTransformer().transform(Layer.LAYOUT, p);

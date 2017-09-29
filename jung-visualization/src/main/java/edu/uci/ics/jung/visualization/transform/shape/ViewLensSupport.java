@@ -26,19 +26,17 @@ import java.awt.Dimension;
  *
  * @author Tom Nelson
  */
-public class ViewLensSupport<V, E> extends AbstractLensSupport<V, E> implements LensSupport {
+public class ViewLensSupport extends AbstractLensSupport implements LensSupport {
 
-  protected RenderContext<V, E> renderContext;
+  protected RenderContext renderContext;
   protected GraphicsDecorator lensGraphicsDecorator;
   protected GraphicsDecorator savedGraphicsDecorator;
-  protected NetworkElementAccessor<V, E> pickSupport;
-  protected Renderer.Edge<V, E> savedEdgeRenderer;
-  protected Renderer.Edge<V, E> reshapingEdgeRenderer;
+  protected NetworkElementAccessor pickSupport;
+  protected Renderer.Edge savedEdgeRenderer;
+  protected Renderer.Edge reshapingEdgeRenderer;
 
   public ViewLensSupport(
-      VisualizationViewer<V, E> vv,
-      LensTransformer lensTransformer,
-      ModalGraphMouse lensGraphMouse) {
+      VisualizationViewer vv, LensTransformer lensTransformer, ModalGraphMouse lensGraphMouse) {
     super(vv, lensGraphMouse);
     this.renderContext = vv.getRenderContext();
     this.pickSupport = renderContext.getPickSupport();
@@ -48,7 +46,7 @@ public class ViewLensSupport<V, E> extends AbstractLensSupport<V, E> implements 
     lensTransformer.setViewRadius(d.width / 5);
     this.lensGraphicsDecorator = new TransformingFlatnessGraphics(lensTransformer);
     this.savedEdgeRenderer = vv.getRenderer().getEdgeRenderer();
-    this.reshapingEdgeRenderer = new ReshapingEdgeRenderer<V, E>();
+    this.reshapingEdgeRenderer = new ReshapingEdgeRenderer();
     this.reshapingEdgeRenderer.setEdgeArrowRenderingSupport(
         savedEdgeRenderer.getEdgeArrowRenderingSupport());
   }
@@ -62,7 +60,7 @@ public class ViewLensSupport<V, E> extends AbstractLensSupport<V, E> implements 
     if (lensControls == null) {
       lensControls = new LensControls(lensTransformer);
     }
-    renderContext.setPickSupport(new ViewLensShapePickSupport<V, E>(vv));
+    renderContext.setPickSupport(new ViewLensShapePickSupport(vv));
     lensTransformer.setDelegate(
         vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.VIEW));
     vv.getRenderContext().getMultiLayerTransformer().setTransformer(Layer.VIEW, lensTransformer);

@@ -290,16 +290,15 @@ public class VertexCollapseDemo extends JApplet {
    * this shape.
    *
    * @author Tom Nelson
-   * @param <V> the vertex type
    */
-  class ClusterVertexShapeFunction<V> extends EllipseVertexShapeTransformer<V> {
+  class ClusterVertexShapeFunction extends EllipseVertexShapeTransformer {
 
     ClusterVertexShapeFunction() {
-      setSizeTransformer(new ClusterVertexSizeFunction<V>(20));
+      setSizeTransformer(new ClusterVertexSizeFunction(20));
     }
 
     @Override
-    public Shape apply(V v) {
+    public Shape apply(Object v) {
       if (v instanceof Network) {
         int size = ((Network) v).nodes().size();
         if (size < 8) {

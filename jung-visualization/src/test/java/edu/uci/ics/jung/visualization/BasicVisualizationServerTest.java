@@ -16,10 +16,9 @@ public class BasicVisualizationServerTest extends TestCase {
     Network<Object, Object> graph = NetworkBuilder.directed().build();
     CircleLayout<Object> layout = new CircleLayout<Object>(graph.asGraph());
 
-    BasicVisualizationServer<Object, Object> server =
-        new BasicVisualizationServer<Object, Object>(graph, layout);
+    BasicVisualizationServer server = new BasicVisualizationServer(graph, layout);
 
-    PickedState<Object> pickedVertexState = server.getRenderContext().getPickedVertexState();
+    PickedState pickedVertexState = server.getRenderContext().getPickedVertexState();
     assertNotNull(pickedVertexState);
   }
 }

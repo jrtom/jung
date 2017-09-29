@@ -20,12 +20,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
 
-/**
- * @author tom
- * @param <V> the vertex type
- * @param <E> the edge type
- */
-public interface VisualizationServer<V, E> {
+/** @author Tom Nelson */
+public interface VisualizationServer {
 
   /**
    * Specify whether this class uses its offscreen image or not.
@@ -42,10 +38,10 @@ public interface VisualizationServer<V, E> {
   boolean isDoubleBuffered();
 
   /** @return the model. */
-  VisualizationModel<V, E> getModel();
+  VisualizationModel getModel();
 
   /** @param model the model for this class to use */
-  void setModel(VisualizationModel<V, E> model);
+  void setModel(VisualizationModel model);
 
   /**
    * In response to changes from the model, repaint the view, then fire an event to any listeners.
@@ -62,20 +58,10 @@ public interface VisualizationServer<V, E> {
    *
    * @param r the renderer to use
    */
-  void setRenderer(Renderer<V, E> r);
+  void setRenderer(Renderer r);
 
   /** @return the renderer used by this instance. */
-  Renderer<V, E> getRenderer();
-
-  //  /**
-  //   * Replaces the current graph layout with {@code layout}.
-  //   *
-  //   * @param layout the new layout to set
-  //   */
-  //  void setGraphLayout(Layout<V> layout);
-
-  //  /** @return the current graph layout. */
-  //  Layout<V> getGraphLayout();
+  Renderer getRenderer();
 
   /**
    * Makes the component visible if {@code aFlag} is true, or invisible if false.
@@ -134,26 +120,26 @@ public interface VisualizationServer<V, E> {
   void fireStateChanged();
 
   /** @return the vertex PickedState instance */
-  PickedState<V> getPickedVertexState();
+  PickedState getPickedVertexState();
 
   /** @return the edge PickedState instance */
-  PickedState<E> getPickedEdgeState();
+  PickedState getPickedEdgeState();
 
-  void setPickedVertexState(PickedState<V> pickedVertexState);
+  void setPickedVertexState(PickedState pickedVertexState);
 
-  void setPickedEdgeState(PickedState<E> pickedEdgeState);
+  void setPickedEdgeState(PickedState pickedEdgeState);
 
   /** @return the NetworkElementAccessor */
-  NetworkElementAccessor<V, E> getPickSupport();
+  NetworkElementAccessor getPickSupport();
 
   /** @param pickSupport The pickSupport to set. */
-  void setPickSupport(NetworkElementAccessor<V, E> pickSupport);
+  void setPickSupport(NetworkElementAccessor pickSupport);
 
   Point2D getCenter();
 
-  RenderContext<V, E> getRenderContext();
+  RenderContext getRenderContext();
 
-  void setRenderContext(RenderContext<V, E> renderContext);
+  void setRenderContext(RenderContext renderContext);
 
   void repaint();
 

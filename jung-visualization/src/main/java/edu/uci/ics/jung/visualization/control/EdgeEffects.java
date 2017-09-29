@@ -3,17 +3,17 @@ package edu.uci.ics.jung.visualization.control;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 import java.awt.geom.Point2D;
 
-public interface EdgeEffects<V, E> {
+public interface EdgeEffects {
 
-  void startEdgeEffects(BasicVisualizationServer<V, E> vv, Point2D down, Point2D out);
+  void startEdgeEffects(BasicVisualizationServer vv, Point2D down, Point2D out);
 
-  void midEdgeEffects(BasicVisualizationServer<V, E> vv, Point2D down, Point2D out);
+  void midEdgeEffects(BasicVisualizationServer vv, Point2D down, Point2D out);
 
-  void endEdgeEffects(BasicVisualizationServer<V, E> vv);
+  void endEdgeEffects(BasicVisualizationServer vv);
 
-  void startArrowEffects(BasicVisualizationServer<V, E> vv, Point2D down, Point2D out);
+  void startArrowEffects(BasicVisualizationServer vv, Point2D down, Point2D out);
 
-  void midArrowEffects(BasicVisualizationServer<V, E> vv, Point2D down, Point2D out);
+  void midArrowEffects(BasicVisualizationServer vv, Point2D down, Point2D out);
 
-  void endArrowEffects(BasicVisualizationServer<V, E> vv);
+  void endArrowEffects(BasicVisualizationServer vv);
 }

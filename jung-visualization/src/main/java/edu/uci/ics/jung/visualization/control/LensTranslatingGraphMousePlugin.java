@@ -55,7 +55,7 @@ public class LensTranslatingGraphMousePlugin extends TranslatingGraphMousePlugin
    * @param e the event
    */
   public void mousePressed(MouseEvent e) {
-    VisualizationViewer<?, ?> vv = (VisualizationViewer<?, ?>) e.getSource();
+    VisualizationViewer vv = (VisualizationViewer) e.getSource();
     MutableTransformer vt =
         vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.VIEW);
     if (vt instanceof LensTransformer) {
@@ -77,7 +77,6 @@ public class LensTranslatingGraphMousePlugin extends TranslatingGraphMousePlugin
   /**
    * called to change the location of the lens
    *
-   * @param Function
    * @param point
    */
   private void setViewCenter(MutableTransformer transformer, Point2D point) {
@@ -90,7 +89,6 @@ public class LensTranslatingGraphMousePlugin extends TranslatingGraphMousePlugin
   /**
    * called to change the radius of the lens
    *
-   * @param Function
    * @param point
    */
   private void setViewRadius(MutableTransformer transformer, Point2D point) {
@@ -104,7 +102,6 @@ public class LensTranslatingGraphMousePlugin extends TranslatingGraphMousePlugin
   /**
    * called to set up translating the lens center or changing the size
    *
-   * @param Function
    * @param point
    */
   private void testViewCenter(MutableTransformer transformer, Point2D point) {
@@ -137,7 +134,7 @@ public class LensTranslatingGraphMousePlugin extends TranslatingGraphMousePlugin
    * @param e the event
    */
   public void mouseDragged(MouseEvent e) {
-    VisualizationViewer<?, ?> vv = (VisualizationViewer<?, ?>) e.getSource();
+    VisualizationViewer vv = (VisualizationViewer) e.getSource();
     MutableTransformer vt =
         vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.VIEW);
     if (vt instanceof LensTransformer) {
