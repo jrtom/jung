@@ -17,9 +17,10 @@ import java.awt.geom.Line2D;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 
-public class CenterEdgeArrowRenderingSupport implements EdgeArrowRenderingSupport {
+public class CenterEdgeArrowRenderingSupport<V, E> implements EdgeArrowRenderingSupport<V, E> {
 
-  public AffineTransform getArrowTransform(RenderContext rc, Shape edgeShape, Shape vertexShape) {
+  public AffineTransform getArrowTransform(
+      RenderContext<V, E> rc, Shape edgeShape, Shape vertexShape) {
     GeneralPath path = new GeneralPath(edgeShape);
     float[] seg = new float[6];
     Point2D p1 = null;
@@ -52,7 +53,7 @@ public class CenterEdgeArrowRenderingSupport implements EdgeArrowRenderingSuppor
   }
 
   public AffineTransform getReverseArrowTransform(
-      RenderContext rc, Shape edgeShape, Shape vertexShape) {
+      RenderContext<V, E> rc, Shape edgeShape, Shape vertexShape) {
     return getReverseArrowTransform(rc, edgeShape, vertexShape, true);
   }
 
@@ -66,7 +67,7 @@ public class CenterEdgeArrowRenderingSupport implements EdgeArrowRenderingSuppor
    * @param passedGo (ignored in this implementation)
    */
   public AffineTransform getReverseArrowTransform(
-      RenderContext rc, Shape edgeShape, Shape vertexShape, boolean passedGo) {
+      RenderContext<V, E> rc, Shape edgeShape, Shape vertexShape, boolean passedGo) {
     GeneralPath path = new GeneralPath(edgeShape);
     float[] seg = new float[6];
     Point2D p1 = null;
@@ -98,7 +99,8 @@ public class CenterEdgeArrowRenderingSupport implements EdgeArrowRenderingSuppor
     return at;
   }
 
-  public AffineTransform getArrowTransform(RenderContext rc, Line2D edgeShape, Shape vertexShape) {
+  public AffineTransform getArrowTransform(
+      RenderContext<V, E> rc, Line2D edgeShape, Shape vertexShape) {
 
     // find the midpoint of the edgeShape line, and use it to make the transform
     Line2D left = new Line2D.Float();
@@ -114,7 +116,7 @@ public class CenterEdgeArrowRenderingSupport implements EdgeArrowRenderingSuppor
   }
 
   protected AffineTransform getReverseArrowTransform(
-      RenderContext rc, Line2D edgeShape, Shape vertexShape) {
+      RenderContext<V, E> rc, Line2D edgeShape, Shape vertexShape) {
     // find the midpoint of the edgeShape line, and use it to make the transform
     Line2D left = new Line2D.Float();
     Line2D right = new Line2D.Float();

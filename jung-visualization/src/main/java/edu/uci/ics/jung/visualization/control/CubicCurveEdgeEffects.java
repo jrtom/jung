@@ -11,7 +11,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.CubicCurve2D;
 import java.awt.geom.Point2D;
 
-public class CubicCurveEdgeEffects implements EdgeEffects {
+public class CubicCurveEdgeEffects<V, E> implements EdgeEffects<V, E> {
 
   protected CubicCurve2D rawEdge = new CubicCurve2D.Float();
   protected Shape edgeShape;
@@ -28,34 +28,34 @@ public class CubicCurveEdgeEffects implements EdgeEffects {
   }
 
   //	@Override
-  public void startEdgeEffects(BasicVisualizationServer vv, Point2D down, Point2D out) {
+  public void startEdgeEffects(BasicVisualizationServer<V, E> vv, Point2D down, Point2D out) {
     transformEdgeShape(down, out);
     vv.addPostRenderPaintable(edgePaintable);
   }
 
   //	@Override
-  public void midEdgeEffects(BasicVisualizationServer vv, Point2D down, Point2D out) {
+  public void midEdgeEffects(BasicVisualizationServer<V, E> vv, Point2D down, Point2D out) {
     transformEdgeShape(down, out);
   }
 
   //	@Override
-  public void endEdgeEffects(BasicVisualizationServer vv) {
+  public void endEdgeEffects(BasicVisualizationServer<V, E> vv) {
     vv.removePostRenderPaintable(edgePaintable);
   }
 
   //	@Override
-  public void startArrowEffects(BasicVisualizationServer vv, Point2D down, Point2D out) {
+  public void startArrowEffects(BasicVisualizationServer<V, E> vv, Point2D down, Point2D out) {
     transformArrowShape(down, out);
     vv.addPostRenderPaintable(arrowPaintable);
   }
 
   //	@Override
-  public void midArrowEffects(BasicVisualizationServer vv, Point2D down, Point2D out) {
+  public void midArrowEffects(BasicVisualizationServer<V, E> vv, Point2D down, Point2D out) {
     transformArrowShape(down, out);
   }
 
   //	@Override
-  public void endArrowEffects(BasicVisualizationServer vv) {
+  public void endArrowEffects(BasicVisualizationServer<V, E> vv) {
     vv.removePostRenderPaintable(arrowPaintable);
   }
 

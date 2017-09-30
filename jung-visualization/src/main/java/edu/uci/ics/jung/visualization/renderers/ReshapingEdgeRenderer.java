@@ -33,9 +33,12 @@ import javax.swing.JComponent;
  * uses a flatness argument to break edges into smaller segments. This produces a more detailed
  * transformation of the edge shape
  *
- * @author Tom Nelson
+ * @author Tom Nelson - tomnelson@dev.java.net
+ * @param <V> the vertex type
+ * @param <V> the edge type
  */
-public class ReshapingEdgeRenderer extends BasicEdgeRenderer implements Renderer.Edge {
+public class ReshapingEdgeRenderer<V, E> extends BasicEdgeRenderer<V, E>
+    implements Renderer.Edge<V, E> {
 
   /**
    * Draws the edge <code>e</code>, whose endpoints are at <code>(x1,y1)</code> and <code>(x2,y2)
@@ -44,13 +47,13 @@ public class ReshapingEdgeRenderer extends BasicEdgeRenderer implements Renderer
    * the distance between <code>(x1,y1)</code> and <code>(x2,y2)</code>.
    */
   protected void drawSimpleEdge(
-      RenderContext renderContext, LayoutMediator layoutMediator, Object e) {
+      RenderContext<V, E> renderContext, LayoutMediator<V, E> layoutMediator, E e) {
 
     TransformingGraphics g = (TransformingGraphics) renderContext.getGraphicsContext();
-    Network graph = layoutMediator.getNetwork();
-    EndpointPair<Object> endpoints = graph.incidentNodes(e);
-    Object v1 = endpoints.nodeU();
-    Object v2 = endpoints.nodeV();
+    Network<V, E> graph = layoutMediator.getNetwork();
+    EndpointPair<V> endpoints = graph.incidentNodes(e);
+    V v1 = endpoints.nodeU();
+    V v2 = endpoints.nodeV();
     Point2D p1 = layoutMediator.getLayout().apply(v1);
     Point2D p2 = layoutMediator.getLayout().apply(v2);
     p1 = renderContext.getMultiLayerTransformer().transform(Layer.LAYOUT, p1);

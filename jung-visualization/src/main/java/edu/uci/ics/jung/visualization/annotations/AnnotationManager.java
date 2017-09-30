@@ -36,10 +36,10 @@ public class AnnotationManager {
   protected AnnotationPaintable lowerAnnotationPaintable;
   protected AnnotationPaintable upperAnnotationPaintable;
 
-  protected RenderContext rc;
+  protected RenderContext<?, ?> rc;
   protected AffineTransformer transformer;
 
-  public AnnotationManager(RenderContext rc) {
+  public AnnotationManager(RenderContext<?, ?> rc) {
     this.rc = rc;
     this.lowerAnnotationPaintable = new AnnotationPaintable(rc, annotationRenderer);
     this.upperAnnotationPaintable = new AnnotationPaintable(rc, annotationRenderer);
@@ -148,7 +148,7 @@ public class AnnotationManager {
   }
 
   public Component prepareRenderer(
-      RenderContext rc, AnnotationRenderer annotationRenderer, Object value) {
+      RenderContext<?, ?> rc, AnnotationRenderer annotationRenderer, Object value) {
     return annotationRenderer.getAnnotationRendererComponent(rc.getScreenDevice(), value);
   }
 }

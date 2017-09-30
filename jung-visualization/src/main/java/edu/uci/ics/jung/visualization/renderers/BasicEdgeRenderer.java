@@ -33,23 +33,24 @@ import java.awt.geom.Rectangle2D;
 import java.util.function.Predicate;
 import javax.swing.JComponent;
 
-public class BasicEdgeRenderer implements Renderer.Edge {
+public class BasicEdgeRenderer<V, E> implements Renderer.Edge<V, E> {
 
-  protected EdgeArrowRenderingSupport edgeArrowRenderingSupport =
-      new BasicEdgeArrowRenderingSupport();
+  protected EdgeArrowRenderingSupport<V, E> edgeArrowRenderingSupport =
+      new BasicEdgeArrowRenderingSupport<V, E>();
 
   @Override
-  public void paintEdge(RenderContext renderContext, LayoutMediator layoutMediator, Object e) {
+  public void paintEdge(
+      RenderContext<V, E> renderContext, LayoutMediator<V, E> layoutMediator, E e) {
     GraphicsDecorator g2d = renderContext.getGraphicsContext();
     if (!renderContext.getEdgeIncludePredicate().test(e)) {
       return;
     }
 
     // don't draw edge if either incident vertex is not drawn
-    EndpointPair<Object> endpoints = layoutMediator.getNetwork().incidentNodes(e);
-    Object u = endpoints.nodeU();
-    Object v = endpoints.nodeV();
-    Predicate<Object> nodeIncludePredicate = renderContext.getVertexIncludePredicate();
+    EndpointPair<V> endpoints = layoutMediator.getNetwork().incidentNodes(e);
+    V u = endpoints.nodeU();
+    V v = endpoints.nodeV();
+    Predicate<V> nodeIncludePredicate = renderContext.getVertexIncludePredicate();
     if (!nodeIncludePredicate.test(u) || !nodeIncludePredicate.test(v)) {
       return;
     }
@@ -69,14 +70,14 @@ public class BasicEdgeRenderer implements Renderer.Edge {
   }
 
   protected Shape prepareFinalEdgeShape(
-      RenderContext renderContext,
-      LayoutMediator layoutMediator,
-      Object e,
+      RenderContext<V, E> renderContext,
+      LayoutMediator<V, E> layoutMediator,
+      E e,
       int[] coords,
       boolean[] loop) {
-    EndpointPair<Object> endpoints = layoutMediator.getNetwork().incidentNodes(e);
-    Object v1 = endpoints.nodeU();
-    Object v2 = endpoints.nodeV();
+    EndpointPair<V> endpoints = layoutMediator.getNetwork().incidentNodes(e);
+    V v1 = endpoints.nodeU();
+    V v2 = endpoints.nodeV();
 
     Point2D p1 = layoutMediator.getLayout().apply(v1);
     Point2D p2 = layoutMediator.getLayout().apply(v2);
@@ -113,8 +114,8 @@ public class BasicEdgeRenderer implements Renderer.Edge {
       int index = 0;
       if (renderContext.getEdgeShapeTransformer() instanceof ParallelEdgeShapeTransformer) {
         @SuppressWarnings("unchecked")
-        EdgeIndexFunction peif =
-            ((ParallelEdgeShapeTransformer) renderContext.getEdgeShapeTransformer())
+        EdgeIndexFunction<E> peif =
+            ((ParallelEdgeShapeTransformer<E>) renderContext.getEdgeShapeTransformer())
                 .getEdgeIndexFunction();
         index = peif.getIndex(e);
         index *= 20;
@@ -177,7 +178,7 @@ public class BasicEdgeRenderer implements Renderer.Edge {
    * @param e the edge to be drawn
    */
   protected void drawSimpleEdge(
-      RenderContext renderContext, LayoutMediator layoutMediator, Object e) {
+      RenderContext<V, E> renderContext, LayoutMediator<V, E> layoutMediator, E e) {
 
     int[] coords = new int[4];
     boolean[] loop = new boolean[1];
@@ -190,7 +191,7 @@ public class BasicEdgeRenderer implements Renderer.Edge {
     boolean isLoop = loop[0];
 
     GraphicsDecorator g = renderContext.getGraphicsContext();
-    Network network = layoutMediator.getNetwork();
+    Network<V, E> network = layoutMediator.getNetwork();
     boolean edgeHit = true;
     boolean arrowHit = true;
     Rectangle deviceRectangle = null;
@@ -304,11 +305,12 @@ public class BasicEdgeRenderer implements Renderer.Edge {
     }
   }
 
-  public EdgeArrowRenderingSupport getEdgeArrowRenderingSupport() {
+  public EdgeArrowRenderingSupport<V, E> getEdgeArrowRenderingSupport() {
     return edgeArrowRenderingSupport;
   }
 
-  public void setEdgeArrowRenderingSupport(EdgeArrowRenderingSupport edgeArrowRenderingSupport) {
+  public void setEdgeArrowRenderingSupport(
+      EdgeArrowRenderingSupport<V, E> edgeArrowRenderingSupport) {
     this.edgeArrowRenderingSupport = edgeArrowRenderingSupport;
   }
 }

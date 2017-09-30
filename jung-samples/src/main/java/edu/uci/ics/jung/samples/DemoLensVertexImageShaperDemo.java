@@ -84,7 +84,7 @@ public class DemoLensVertexImageShaperDemo extends JApplet {
   Network<Integer, Double> graph;
 
   /** the visual component and renderer for the graph */
-  VisualizationViewer vv;
+  VisualizationViewer<Integer, Double> vv;
 
   /** some icon names to use */
   String[] iconNames = {
@@ -112,13 +112,13 @@ public class DemoLensVertexImageShaperDemo extends JApplet {
     graph = createGraph();
 
     // a Map for the labels
-    Map<Object, String> map = new HashMap<>();
+    Map<Integer, String> map = new HashMap<Integer, String>();
     for (int i = 0; i < graph.nodes().size(); i++) {
       map.put(i, iconNames[i % iconNames.length]);
     }
 
     // a Map for the Icons
-    Map<Object, Icon> iconMap = new HashMap<>();
+    Map<Integer, Icon> iconMap = new HashMap<Integer, Icon>();
     for (int i = 0; i < graph.nodes().size(); i++) {
       String name = "/images/topic" + iconNames[i % iconNames.length] + ".gif";
       try {
@@ -133,35 +133,37 @@ public class DemoLensVertexImageShaperDemo extends JApplet {
 
     FRLayout<Integer> layout = new FRLayout<Integer>(graph.asGraph());
     layout.setMaxIterations(100);
-    vv = new VisualizationViewer(graph, layout, new Dimension(600, 600));
+    vv = new VisualizationViewer<Integer, Double>(graph, layout, new Dimension(600, 600));
 
-    Function<Object, Paint> vpf =
-        new PickableVertexPaintTransformer(vv.getPickedVertexState(), Color.white, Color.yellow);
+    Function<Integer, Paint> vpf =
+        new PickableVertexPaintTransformer<Integer>(
+            vv.getPickedVertexState(), Color.white, Color.yellow);
     vv.getRenderContext().setVertexFillPaintTransformer(vpf);
     vv.getRenderContext()
         .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer(vv.getPickedEdgeState(), Color.black, Color.cyan));
+            new PickableEdgePaintTransformer<Double>(
+                vv.getPickedEdgeState(), Color.black, Color.cyan));
 
     vv.setBackground(Color.white);
 
-    final Function<Object, String> vertexStringerImpl = new VertexStringerImpl(map);
+    final Function<Integer, String> vertexStringerImpl = new VertexStringerImpl<Integer>(map);
     vv.getRenderContext().setVertexLabelTransformer(vertexStringerImpl);
     vv.getRenderContext().setVertexLabelRenderer(new DefaultVertexLabelRenderer(Color.cyan));
     vv.getRenderContext().setEdgeLabelRenderer(new DefaultEdgeLabelRenderer(Color.cyan));
 
     // features on and off. For a real application, use VertexIconAndShapeFunction instead.
-    final VertexIconShapeTransformer vertexImageShapeFunction =
-        new VertexIconShapeTransformer(new EllipseVertexShapeTransformer());
+    final VertexIconShapeTransformer<Integer> vertexImageShapeFunction =
+        new VertexIconShapeTransformer<Integer>(new EllipseVertexShapeTransformer<Integer>());
     vertexImageShapeFunction.setIconMap(iconMap);
 
-    final Function<Object, Icon> vertexIconFunction = iconMap::get;
+    final Function<Integer, Icon> vertexIconFunction = iconMap::get;
 
     vv.getRenderContext().setVertexShapeTransformer(vertexImageShapeFunction);
     vv.getRenderContext().setVertexIconTransformer(vertexIconFunction);
 
     // Get the pickedState and add a listener that will decorate the
     // Vertex images with a checkmark icon when they are picked
-    PickedState ps = vv.getPickedVertexState();
+    PickedState<Integer> ps = vv.getPickedVertexState();
     ps.addItemListener(new PickWithIconListener(vertexIconFunction));
 
     vv.addPostRenderPaintable(
@@ -205,7 +207,8 @@ public class DemoLensVertexImageShaperDemo extends JApplet {
     final GraphZoomScrollPane panel = new GraphZoomScrollPane(vv);
     content.add(panel);
 
-    final DefaultModalGraphMouse graphMouse = new DefaultModalGraphMouse();
+    final DefaultModalGraphMouse<Integer, Double> graphMouse =
+        new DefaultModalGraphMouse<Integer, Double>();
     vv.setGraphMouse(graphMouse);
 
     final ScalingControl scaler = new CrossoverScalingControl();
@@ -240,9 +243,9 @@ public class DemoLensVertexImageShaperDemo extends JApplet {
     controls.add(modePanel);
     content.add(controls, BorderLayout.SOUTH);
 
-    this.viewSupport = new MagnifyImageLensSupport(vv);
+    this.viewSupport = new MagnifyImageLensSupport<Integer, Double>(vv);
 
-    this.modelSupport = new LayoutLensSupport(vv);
+    this.modelSupport = new LayoutLensSupport<Integer, Double>(vv);
 
     graphMouse.addItemListener(modelSupport.getGraphMouse().getModeListener());
     graphMouse.addItemListener(viewSupport.getGraphMouse().getModeListener());
@@ -298,18 +301,20 @@ public class DemoLensVertexImageShaperDemo extends JApplet {
    *
    * @author Tom Nelson
    */
-  class VertexStringerImpl implements Function<Object, String> {
+  class VertexStringerImpl<V> implements Function<V, String> {
 
-    Map<Object, String> map = new HashMap<>();
+    Map<V, String> map = new HashMap<V, String>();
 
     boolean enabled = true;
 
-    public VertexStringerImpl(Map<Object, String> map) {
+    public VertexStringerImpl(Map<V, String> map) {
       this.map = map;
     }
 
-    /** */
-    public String apply(Object v) {
+    /**
+     * @see edu.uci.ics.jung.graph.decorators.VertexStringer#getLabel(edu.uci.ics.jung.graph.Vertex)
+     */
+    public String apply(V v) {
       if (isEnabled()) {
         return map.get(v);
       } else {
@@ -354,10 +359,10 @@ public class DemoLensVertexImageShaperDemo extends JApplet {
   }
 
   public static class PickWithIconListener implements ItemListener {
-    Function<Object, Icon> imager;
+    Function<Integer, Icon> imager;
     Icon checked;
 
-    public PickWithIconListener(Function<Object, Icon> imager) {
+    public PickWithIconListener(Function<Integer, Icon> imager) {
       this.imager = imager;
       checked = new Checkmark(Color.red);
     }

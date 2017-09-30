@@ -36,9 +36,9 @@ import java.util.ConcurrentModificationException;
  * non-convex shapes) is true, then <code>ShapePickSupport</code> and this class should have the
  * same behavior.
  */
-public class ClosestShapePickSupport implements NetworkElementAccessor {
+public class ClosestShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
 
-  protected VisualizationServer vv;
+  protected VisualizationServer<V, E> vv;
   protected float pickSize;
 
   /**
@@ -49,7 +49,7 @@ public class ClosestShapePickSupport implements NetworkElementAccessor {
    * @param vv source of the current <code>Layout</code>.
    * @param pickSize the size of the pick footprint for line edges
    */
-  public ClosestShapePickSupport(VisualizationServer vv, float pickSize) {
+  public ClosestShapePickSupport(VisualizationServer<V, E> vv, float pickSize) {
     this.vv = vv;
     this.pickSize = pickSize;
   }
@@ -60,25 +60,25 @@ public class ClosestShapePickSupport implements NetworkElementAccessor {
    *
    * @param vv source of the current <code>Layout</code>.
    */
-  public ClosestShapePickSupport(VisualizationServer vv) {
+  public ClosestShapePickSupport(VisualizationServer<V, E> vv) {
     this.vv = vv;
   }
 
   /** @see edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor#getEdge(double, double) */
-  public Object getEdge(double x, double y) {
+  public E getEdge(double x, double y) {
     return null;
   }
 
   /** @see edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor#getNode(double, double) */
   @Override
-  public Object getNode(double x, double y) {
-    Layout<Object> layout = vv.getModel().getLayoutMediator().getLayout();
+  public V getNode(double x, double y) {
+    Layout<V> layout = vv.getModel().getLayoutMediator().getLayout();
     // first, find the closest vertex to (x,y)
     double minDistance = Double.MAX_VALUE;
-    Object closest = null;
+    V closest = null;
     while (true) {
       try {
-        for (Object v : vv.getModel().getLayoutMediator().getNetwork().nodes()) {
+        for (V v : vv.getModel().getLayoutMediator().getNetwork().nodes()) {
           Point2D p = layout.apply(v);
           double dx = p.getX() - x;
           double dy = p.getY() - y;
@@ -114,7 +114,7 @@ public class ClosestShapePickSupport implements NetworkElementAccessor {
 
   /** @see edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor#getNodes(java.awt.Shape) */
   @Override
-  public Collection<Object> getNodes(Shape rectangle) {
+  public Collection<V> getNodes(Shape rectangle) {
     // FIXME: RadiusPickSupport and ShapePickSupport are not using the same mechanism!
     // talk to Tom and make sure I understand which should be used.
     // in particular, there are some transformations that the latter uses; the latter is also

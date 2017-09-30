@@ -32,10 +32,10 @@ import javax.swing.ToolTipManager;
  * @author Danyel Fisher
  */
 @SuppressWarnings("serial")
-public class VisualizationViewer extends BasicVisualizationServer {
+public class VisualizationViewer<V, E> extends BasicVisualizationServer<V, E> {
 
-  protected Function<Object, String> vertexToolTipTransformer;
-  protected Function<Object, String> edgeToolTipTransformer;
+  protected Function<? super V, String> vertexToolTipTransformer;
+  protected Function<? super E, String> edgeToolTipTransformer;
   protected Function<MouseEvent, String> mouseEventToolTipTransformer;
 
   /** provides MouseListener, MouseMotionListener, and MouseWheelListener events to the graph */
@@ -48,19 +48,19 @@ public class VisualizationViewer extends BasicVisualizationServer {
         }
       };
 
-  public VisualizationViewer(Network network, Layout layout) {
-    this(new DefaultVisualizationModel(network, layout));
+  public VisualizationViewer(Network<V, E> network, Layout<V> layout) {
+    this(new DefaultVisualizationModel<V, E>(network, layout));
   }
 
-  public VisualizationViewer(Network network, Layout layout, Dimension preferredSize) {
-    this(new DefaultVisualizationModel(network, layout, preferredSize), preferredSize);
+  public VisualizationViewer(Network<V, E> network, Layout<V> layout, Dimension preferredSize) {
+    this(new DefaultVisualizationModel<V, E>(network, layout, preferredSize), preferredSize);
   }
 
-  public VisualizationViewer(VisualizationModel model) {
+  public VisualizationViewer(VisualizationModel<V, E> model) {
     this(model, new Dimension(600, 600));
   }
 
-  public VisualizationViewer(VisualizationModel model, Dimension preferredSize) {
+  public VisualizationViewer(VisualizationModel<V, E> model, Dimension preferredSize) {
     super(model, preferredSize);
     setFocusable(true);
     addMouseListener(requestFocusListener);
@@ -108,8 +108,8 @@ public class VisualizationViewer extends BasicVisualizationServer {
    *
    * @param gel the mouse listener to add
    */
-  public void addGraphMouseListener(GraphMouseListener gel) {
-    addMouseListener(new MouseListenerTranslator(gel, this));
+  public void addGraphMouseListener(GraphMouseListener<V> gel) {
+    addMouseListener(new MouseListenerTranslator<V, E>(gel, this));
   }
 
   /**
@@ -123,7 +123,7 @@ public class VisualizationViewer extends BasicVisualizationServer {
   }
 
   /** @param edgeToolTipTransformer the edgeToolTipTransformer to set */
-  public void setEdgeToolTipTransformer(Function<Object, String> edgeToolTipTransformer) {
+  public void setEdgeToolTipTransformer(Function<? super E, String> edgeToolTipTransformer) {
     this.edgeToolTipTransformer = edgeToolTipTransformer;
     ToolTipManager.sharedInstance().registerComponent(this);
   }
@@ -136,19 +136,19 @@ public class VisualizationViewer extends BasicVisualizationServer {
   }
 
   /** @param vertexToolTipTransformer the vertexToolTipTransformer to set */
-  public void setVertexToolTipTransformer(Function<Object, String> vertexToolTipTransformer) {
+  public void setVertexToolTipTransformer(Function<? super V, String> vertexToolTipTransformer) {
     this.vertexToolTipTransformer = vertexToolTipTransformer;
     ToolTipManager.sharedInstance().registerComponent(this);
   }
 
   /** called by the superclass to display tooltips */
   public String getToolTipText(MouseEvent event) {
-    //        Layout layout = getGraphLayout();
+    //        Layout<V> layout = getGraphLayout();
     Point2D p = null;
     if (vertexToolTipTransformer != null) {
       p = event.getPoint();
       //renderContext.getBasicTransformer().inverseViewTransform(event.getPoint());
-      Object vertex = getPickSupport().getNode(p.getX(), p.getY());
+      V vertex = getPickSupport().getNode(p.getX(), p.getY());
       if (vertex != null) {
         return vertexToolTipTransformer.apply(vertex);
       }
@@ -157,7 +157,7 @@ public class VisualizationViewer extends BasicVisualizationServer {
       if (p == null) {
         p = renderContext.getMultiLayerTransformer().inverseTransform(Layer.VIEW, event.getPoint());
       }
-      Object edge = getPickSupport().getEdge(p.getX(), p.getY());
+      E edge = getPickSupport().getEdge(p.getX(), p.getY());
       if (edge != null) {
         return edgeToolTipTransformer.apply(edge);
       }

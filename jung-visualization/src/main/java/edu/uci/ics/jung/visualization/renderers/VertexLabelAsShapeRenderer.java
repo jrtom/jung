@@ -29,27 +29,30 @@ import java.util.function.Function;
  * the vertex location.
  *
  * @author Tom Nelson
+ * @param <V> the vertex type
+ * @param <V> the edge type
  */
-public class VertexLabelAsShapeRenderer implements Renderer.VertexLabel, Function<Object, Shape> {
+public class VertexLabelAsShapeRenderer<V, E>
+    implements Renderer.VertexLabel<V, E>, Function<V, Shape> {
 
-  protected Map<Object, Shape> shapes = new HashMap<Object, Shape>();
-  protected final Layout<Object> layout;
-  protected final RenderContext renderContext;
+  protected Map<V, Shape> shapes = new HashMap<V, Shape>();
+  protected final Layout<V> layout;
+  protected final RenderContext<V, ?> renderContext;
 
-  public VertexLabelAsShapeRenderer(Layout<Object> layout, RenderContext rc) {
+  public VertexLabelAsShapeRenderer(Layout<V> layout, RenderContext<V, ?> rc) {
     this.layout = layout;
     this.renderContext = rc;
   }
 
   public Component prepareRenderer(
-      RenderContext rc,
+      RenderContext<V, ?> rc,
       VertexLabelRenderer graphLabelRenderer,
       Object value,
       boolean isSelected,
-      Object vertex) {
+      V vertex) {
     return renderContext
         .getVertexLabelRenderer()
-        .getVertexLabelRendererComponent(
+        .<V>getVertexLabelRendererComponent(
             renderContext.getScreenDevice(),
             value,
             renderContext.getVertexFontTransformer().apply(vertex),
@@ -64,7 +67,7 @@ public class VertexLabelAsShapeRenderer implements Renderer.VertexLabel, Functio
    * the position of the vertex; otherwise the label is offset slightly.
    */
   public void labelVertex(
-      RenderContext renderContext, LayoutMediator layoutMediator, Object v, String label) {
+      RenderContext<V, E> renderContext, LayoutMediator<V, E> layoutMediator, V v, String label) {
     if (!renderContext.getVertexIncludePredicate().test(v)) {
       return;
     }
@@ -102,7 +105,7 @@ public class VertexLabelAsShapeRenderer implements Renderer.VertexLabel, Functio
     shapes.put(v, bounds);
   }
 
-  public Shape apply(Object v) {
+  public Shape apply(V v) {
     Component component =
         prepareRenderer(
             renderContext,

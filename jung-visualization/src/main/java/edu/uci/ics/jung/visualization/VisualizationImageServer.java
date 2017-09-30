@@ -24,10 +24,12 @@ import java.util.Map;
  * A class that could be used on the server side of a thin-client application. It creates the jung
  * visualization, then produces an image of it.
  *
- * @author Tom Nelson
+ * @author tom
+ * @param <V> the vertex type
+ * @param <E> the edge type
  */
 @SuppressWarnings("serial")
-public class VisualizationImageServer extends BasicVisualizationServer {
+public class VisualizationImageServer<V, E> extends BasicVisualizationServer<V, E> {
 
   Map<RenderingHints.Key, Object> renderingHints = new HashMap<RenderingHints.Key, Object>();
 
@@ -37,7 +39,8 @@ public class VisualizationImageServer extends BasicVisualizationServer {
    * @param layout the Layout instance; provides the vertex locations
    * @param preferredSize the preferred size of the image
    */
-  public VisualizationImageServer(Network network, Layout<Object> layout, Dimension preferredSize) {
+  public VisualizationImageServer(
+      Network<V, E> network, Layout<V> layout, Dimension preferredSize) {
     super(network, layout, preferredSize);
     setSize(preferredSize);
     renderingHints.put(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);

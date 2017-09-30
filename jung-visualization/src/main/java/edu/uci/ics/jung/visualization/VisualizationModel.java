@@ -22,15 +22,15 @@ import javax.swing.event.ChangeListener;
  *
  * @author Tom Nelson
  */
-public interface VisualizationModel extends ChangeEventSupport {
+public interface VisualizationModel<V, E> extends ChangeEventSupport {
 
   Relaxer getRelaxer();
 
-  LayoutMediator getLayoutMediator();
+  LayoutMediator<V, E> getLayoutMediator();
 
-  void setLayoutMediator(LayoutMediator layoutMediator);
+  void setLayoutMediator(LayoutMediator<V, E> layoutMediator);
 
-  void setLayoutMediator(LayoutMediator layoutMediator, Dimension d);
+  void setLayoutMediator(LayoutMediator<V, E> layoutMediator, Dimension d);
 
   /**
    * Register <code>l</code> as a listeners to changes in the model. The View registers in order to

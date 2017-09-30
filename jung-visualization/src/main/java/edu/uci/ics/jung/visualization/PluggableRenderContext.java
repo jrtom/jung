@@ -34,26 +34,26 @@ import javax.swing.CellRendererPane;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 
-public class PluggableRenderContext implements RenderContext {
+public class PluggableRenderContext<V, E> implements RenderContext<V, E> {
 
   protected float arrowPlacementTolerance = 1;
-  protected Predicate<Object> vertexIncludePredicate = n -> true;
-  protected Function<Object, Stroke> vertexStrokeTransformer = n -> new BasicStroke(1.0f);
+  protected Predicate<V> vertexIncludePredicate = n -> true;
+  protected Function<? super V, Stroke> vertexStrokeTransformer = n -> new BasicStroke(1.0f);
 
-  protected Function<Object, Shape> vertexShapeTransformer =
+  protected Function<? super V, Shape> vertexShapeTransformer =
       n -> new Ellipse2D.Float(-10, -10, 20, 20);
 
-  protected Function<Object, String> vertexLabelTransformer = n -> null;
-  protected Function<Object, Icon> vertexIconTransformer;
-  protected Function<Object, Font> vertexFontTransformer =
+  protected Function<? super V, String> vertexLabelTransformer = n -> null;
+  protected Function<V, Icon> vertexIconTransformer;
+  protected Function<? super V, Font> vertexFontTransformer =
       n -> new Font("Helvetica", Font.PLAIN, 12);
 
-  protected Function<Object, Paint> vertexDrawPaintTransformer = n -> Color.BLACK;
-  protected Function<Object, Paint> vertexFillPaintTransformer = n -> Color.RED;
+  protected Function<? super V, Paint> vertexDrawPaintTransformer = n -> Color.BLACK;
+  protected Function<? super V, Paint> vertexFillPaintTransformer = n -> Color.RED;
 
-  protected Function<Object, String> edgeLabelTransformer = e -> null;
-  protected Function<Object, Stroke> edgeStrokeTransformer = e -> new BasicStroke(1.0f);
-  protected Function<Object, Stroke> edgeArrowStrokeTransformer = e -> new BasicStroke(1.0f);
+  protected Function<? super E, String> edgeLabelTransformer = e -> null;
+  protected Function<? super E, Stroke> edgeStrokeTransformer = e -> new BasicStroke(1.0f);
+  protected Function<? super E, Stroke> edgeArrowStrokeTransformer = e -> new BasicStroke(1.0f);
 
   private static final int EDGE_ARROW_LENGTH = 10;
   private static final int EDGE_ARROW_WIDTH = 8;
@@ -61,33 +61,34 @@ public class PluggableRenderContext implements RenderContext {
   protected Shape edgeArrow;
   protected boolean renderEdgeArrow;
 
-  protected Predicate<Object> edgeIncludePredicate = n -> true;
-  protected Function<Object, Font> edgeFontTransformer = n -> new Font("Helvetica", Font.PLAIN, 12);
+  protected Predicate<E> edgeIncludePredicate = n -> true;
+  protected Function<? super E, Font> edgeFontTransformer =
+      n -> new Font("Helvetica", Font.PLAIN, 12);
 
   private static final float DIRECTED_EDGE_LABEL_CLOSENESS = 0.65f;
   private static final float UNDIRECTED_EDGE_LABEL_CLOSENESS = 0.65f;
   protected float edgeLabelCloseness;
 
-  protected Function<Context<Network, Object>, Shape> edgeShapeTransformer;
-  protected Function<Object, Paint> edgeFillPaintTransformer = n -> null;
-  protected Function<Object, Paint> edgeDrawPaintTransformer = n -> Color.black;
-  protected Function<Object, Paint> arrowFillPaintTransformer = n -> Color.black;
-  protected Function<Object, Paint> arrowDrawPaintTransformer = n -> Color.black;
+  protected Function<Context<Network, E>, Shape> edgeShapeTransformer;
+  protected Function<? super E, Paint> edgeFillPaintTransformer = n -> null;
+  protected Function<? super E, Paint> edgeDrawPaintTransformer = n -> Color.black;
+  protected Function<? super E, Paint> arrowFillPaintTransformer = n -> Color.black;
+  protected Function<? super E, Paint> arrowDrawPaintTransformer = n -> Color.black;
 
-  protected EdgeIndexFunction parallelEdgeIndexFunction;
+  protected EdgeIndexFunction<E> parallelEdgeIndexFunction;
 
   protected MultiLayerTransformer multiLayerTransformer = new BasicTransformer();
 
   /** pluggable support for picking graph elements by finding them based on their coordinates. */
-  protected NetworkElementAccessor pickSupport;
+  protected NetworkElementAccessor<V, E> pickSupport;
 
   protected int labelOffset = LABEL_OFFSET;
 
   /** the JComponent that this Renderer will display the graph on */
   protected JComponent screenDevice;
 
-  protected PickedState pickedVertexState;
-  protected PickedState pickedEdgeState;
+  protected PickedState<V> pickedVertexState;
+  protected PickedState<E> pickedEdgeState;
 
   /**
    * The CellRendererPane is used here just as it is in JTree and JTable, to allow a pluggable
@@ -102,11 +103,12 @@ public class PluggableRenderContext implements RenderContext {
 
   protected GraphicsDecorator graphicsContext;
 
-  private EdgeShape edgeShape;
-
-  PluggableRenderContext(Network graph) {
-    this.edgeShapeTransformer = new EdgeShape.QuadCurve();
-    this.parallelEdgeIndexFunction = new ParallelEdgeIndexFunction(graph);
+  private EdgeShape<E> edgeShape;
+  //Function<Context<Network,E>, Shape>
+  PluggableRenderContext(Network<V, E> graph) {
+    //    this.edgeShape = new EdgeShape<E>(graph);
+    this.edgeShapeTransformer = new EdgeShape.QuadCurve<E>();
+    this.parallelEdgeIndexFunction = new ParallelEdgeIndexFunction<V, E>(graph);
     if (graph.isDirected()) {
       this.edgeArrow =
           ArrowFactory.getNotchedArrow(EDGE_ARROW_WIDTH, EDGE_ARROW_LENGTH, EDGE_ARROW_NOTCH_DEPTH);
@@ -120,22 +122,22 @@ public class PluggableRenderContext implements RenderContext {
   }
 
   /** @return the vertexShapeTransformer */
-  public Function<Object, Shape> getVertexShapeTransformer() {
+  public Function<? super V, Shape> getVertexShapeTransformer() {
     return vertexShapeTransformer;
   }
 
   /** @param vertexShapeTransformer the vertexShapeTransformer to set */
-  public void setVertexShapeTransformer(Function<Object, Shape> vertexShapeTransformer) {
+  public void setVertexShapeTransformer(Function<? super V, Shape> vertexShapeTransformer) {
     this.vertexShapeTransformer = vertexShapeTransformer;
   }
 
   /** @return the vertexStrokeTransformer */
-  public Function<Object, Stroke> getVertexStrokeTransformer() {
+  public Function<? super V, Stroke> getVertexStrokeTransformer() {
     return vertexStrokeTransformer;
   }
 
   /** @param vertexStrokeTransformer the vertexStrokeTransformer to set */
-  public void setVertexStrokeTransformer(Function<Object, Stroke> vertexStrokeTransformer) {
+  public void setVertexStrokeTransformer(Function<? super V, Stroke> vertexStrokeTransformer) {
     this.vertexStrokeTransformer = vertexStrokeTransformer;
   }
 
@@ -171,19 +173,19 @@ public class PluggableRenderContext implements RenderContext {
     this.renderEdgeArrow = render;
   }
 
-  public Function<Object, Font> getEdgeFontTransformer() {
+  public Function<? super E, Font> getEdgeFontTransformer() {
     return edgeFontTransformer;
   }
 
-  public void setEdgeFontTransformer(Function<Object, Font> edgeFontTransformer) {
+  public void setEdgeFontTransformer(Function<? super E, Font> edgeFontTransformer) {
     this.edgeFontTransformer = edgeFontTransformer;
   }
 
-  public Predicate<Object> getEdgeIncludePredicate() {
+  public Predicate<E> getEdgeIncludePredicate() {
     return edgeIncludePredicate;
   }
 
-  public void setEdgeIncludePredicate(Predicate<Object> edgeIncludePredicate) {
+  public void setEdgeIncludePredicate(Predicate<E> edgeIncludePredicate) {
     this.edgeIncludePredicate = edgeIncludePredicate;
   }
 
@@ -203,58 +205,58 @@ public class PluggableRenderContext implements RenderContext {
     this.edgeLabelRenderer = edgeLabelRenderer;
   }
 
-  public Function<Object, Paint> getEdgeFillPaintTransformer() {
+  public Function<? super E, Paint> getEdgeFillPaintTransformer() {
     return edgeFillPaintTransformer;
   }
 
-  public void setEdgeDrawPaintTransformer(Function<Object, Paint> edgeDrawPaintTransformer) {
+  public void setEdgeDrawPaintTransformer(Function<? super E, Paint> edgeDrawPaintTransformer) {
     this.edgeDrawPaintTransformer = edgeDrawPaintTransformer;
   }
 
-  public Function<Object, Paint> getEdgeDrawPaintTransformer() {
+  public Function<? super E, Paint> getEdgeDrawPaintTransformer() {
     return edgeDrawPaintTransformer;
   }
 
-  public void setEdgeFillPaintTransformer(Function<Object, Paint> edgeFillPaintTransformer) {
+  public void setEdgeFillPaintTransformer(Function<? super E, Paint> edgeFillPaintTransformer) {
     this.edgeFillPaintTransformer = edgeFillPaintTransformer;
   }
 
-  public Function<Context<Network, Object>, Shape> getEdgeShapeTransformer() {
+  public Function<Context<Network, E>, Shape> getEdgeShapeTransformer() {
     return edgeShapeTransformer;
   }
 
-  public void setEdgeShapeTransformer(
-      Function<Context<Network, Object>, Shape> edgeShapeTransformer) {
+  public void setEdgeShapeTransformer(Function<Context<Network, E>, Shape> edgeShapeTransformer) {
     this.edgeShapeTransformer = edgeShapeTransformer;
     if (edgeShapeTransformer instanceof ParallelEdgeShapeTransformer) {
       @SuppressWarnings("unchecked")
-      ParallelEdgeShapeTransformer transformer =
-          (ParallelEdgeShapeTransformer) edgeShapeTransformer;
+      ParallelEdgeShapeTransformer<E> transformer =
+          (ParallelEdgeShapeTransformer<E>) edgeShapeTransformer;
       transformer.setEdgeIndexFunction(this.parallelEdgeIndexFunction);
     }
   }
 
-  public Function<Object, String> getEdgeLabelTransformer() {
+  public Function<? super E, String> getEdgeLabelTransformer() {
     return edgeLabelTransformer;
   }
 
-  public void setEdgeLabelTransformer(Function<Object, String> edgeLabelTransformer) {
+  public void setEdgeLabelTransformer(Function<? super E, String> edgeLabelTransformer) {
     this.edgeLabelTransformer = edgeLabelTransformer;
   }
 
-  public Function<Object, Stroke> edgestrokeTransformer() {
+  public Function<? super E, Stroke> edgestrokeTransformer() {
     return edgeStrokeTransformer;
   }
 
-  public void setEdgeStrokeTransformer(Function<Object, Stroke> edgeStrokeTransformer) {
+  public void setEdgeStrokeTransformer(Function<? super E, Stroke> edgeStrokeTransformer) {
     this.edgeStrokeTransformer = edgeStrokeTransformer;
   }
 
-  public Function<Object, Stroke> getEdgeArrowStrokeTransformer() {
+  public Function<? super E, Stroke> getEdgeArrowStrokeTransformer() {
     return edgeArrowStrokeTransformer;
   }
 
-  public void setEdgeArrowStrokeTransformer(Function<Object, Stroke> edgeArrowStrokeTransformer) {
+  public void setEdgeArrowStrokeTransformer(
+      Function<? super E, Stroke> edgeArrowStrokeTransformer) {
     this.edgeArrowStrokeTransformer = edgeArrowStrokeTransformer;
   }
 
@@ -274,30 +276,30 @@ public class PluggableRenderContext implements RenderContext {
     this.labelOffset = labelOffset;
   }
 
-  public EdgeIndexFunction getParallelEdgeIndexFunction() {
+  public EdgeIndexFunction<E> getParallelEdgeIndexFunction() {
     return parallelEdgeIndexFunction;
   }
 
-  public void setParallelEdgeIndexFunction(EdgeIndexFunction parallelEdgeIndexFunction) {
+  public void setParallelEdgeIndexFunction(EdgeIndexFunction<E> parallelEdgeIndexFunction) {
     this.parallelEdgeIndexFunction = parallelEdgeIndexFunction;
     // reset the edge shape Function, as the parallel edge index function
     // is used by it
     this.setEdgeShapeTransformer(getEdgeShapeTransformer());
   }
 
-  public PickedState getPickedEdgeState() {
+  public PickedState<E> getPickedEdgeState() {
     return pickedEdgeState;
   }
 
-  public void setPickedEdgeState(PickedState pickedEdgeState) {
+  public void setPickedEdgeState(PickedState<E> pickedEdgeState) {
     this.pickedEdgeState = pickedEdgeState;
   }
 
-  public PickedState getPickedVertexState() {
+  public PickedState<V> getPickedVertexState() {
     return pickedVertexState;
   }
 
-  public void setPickedVertexState(PickedState pickedVertexState) {
+  public void setPickedVertexState(PickedState<V> pickedVertexState) {
     this.pickedVertexState = pickedVertexState;
   }
 
@@ -318,27 +320,27 @@ public class PluggableRenderContext implements RenderContext {
     screenDevice.add(rendererPane);
   }
 
-  public Function<Object, Font> getVertexFontTransformer() {
+  public Function<? super V, Font> getVertexFontTransformer() {
     return vertexFontTransformer;
   }
 
-  public void setVertexFontTransformer(Function<Object, Font> vertexFontTransformer) {
+  public void setVertexFontTransformer(Function<? super V, Font> vertexFontTransformer) {
     this.vertexFontTransformer = vertexFontTransformer;
   }
 
-  public Function<Object, Icon> getVertexIconTransformer() {
+  public Function<V, Icon> getVertexIconTransformer() {
     return vertexIconTransformer;
   }
 
-  public void setVertexIconTransformer(Function<Object, Icon> vertexIconTransformer) {
+  public void setVertexIconTransformer(Function<V, Icon> vertexIconTransformer) {
     this.vertexIconTransformer = vertexIconTransformer;
   }
 
-  public Predicate<Object> getVertexIncludePredicate() {
+  public Predicate<V> getVertexIncludePredicate() {
     return vertexIncludePredicate;
   }
 
-  public void setVertexIncludePredicate(Predicate<Object> vertexIncludePredicate) {
+  public void setVertexIncludePredicate(Predicate<V> vertexIncludePredicate) {
     this.vertexIncludePredicate = vertexIncludePredicate;
   }
 
@@ -350,35 +352,35 @@ public class PluggableRenderContext implements RenderContext {
     this.vertexLabelRenderer = vertexLabelRenderer;
   }
 
-  public Function<Object, Paint> getVertexFillPaintTransformer() {
+  public Function<? super V, Paint> getVertexFillPaintTransformer() {
     return vertexFillPaintTransformer;
   }
 
-  public void setVertexFillPaintTransformer(Function<Object, Paint> vertexFillPaintTransformer) {
+  public void setVertexFillPaintTransformer(Function<? super V, Paint> vertexFillPaintTransformer) {
     this.vertexFillPaintTransformer = vertexFillPaintTransformer;
   }
 
-  public Function<Object, Paint> getVertexDrawPaintTransformer() {
+  public Function<? super V, Paint> getVertexDrawPaintTransformer() {
     return vertexDrawPaintTransformer;
   }
 
-  public void setVertexDrawPaintTransformer(Function<Object, Paint> vertexDrawPaintTransformer) {
+  public void setVertexDrawPaintTransformer(Function<? super V, Paint> vertexDrawPaintTransformer) {
     this.vertexDrawPaintTransformer = vertexDrawPaintTransformer;
   }
 
-  public Function<Object, String> getVertexLabelTransformer() {
+  public Function<? super V, String> getVertexLabelTransformer() {
     return vertexLabelTransformer;
   }
 
-  public void setVertexLabelTransformer(Function<Object, String> vertexLabelTransformer) {
+  public void setVertexLabelTransformer(Function<? super V, String> vertexLabelTransformer) {
     this.vertexLabelTransformer = vertexLabelTransformer;
   }
 
-  public NetworkElementAccessor getPickSupport() {
+  public NetworkElementAccessor<V, E> getPickSupport() {
     return pickSupport;
   }
 
-  public void setPickSupport(NetworkElementAccessor pickSupport) {
+  public void setPickSupport(NetworkElementAccessor<V, E> pickSupport) {
     this.pickSupport = pickSupport;
   }
 
@@ -390,19 +392,19 @@ public class PluggableRenderContext implements RenderContext {
     this.multiLayerTransformer = basicTransformer;
   }
 
-  public Function<Object, Paint> getArrowDrawPaintTransformer() {
+  public Function<? super E, Paint> getArrowDrawPaintTransformer() {
     return arrowDrawPaintTransformer;
   }
 
-  public Function<Object, Paint> getArrowFillPaintTransformer() {
+  public Function<? super E, Paint> getArrowFillPaintTransformer() {
     return arrowFillPaintTransformer;
   }
 
-  public void setArrowDrawPaintTransformer(Function<Object, Paint> arrowDrawPaintTransformer) {
+  public void setArrowDrawPaintTransformer(Function<? super E, Paint> arrowDrawPaintTransformer) {
     this.arrowDrawPaintTransformer = arrowDrawPaintTransformer;
   }
 
-  public void setArrowFillPaintTransformer(Function<Object, Paint> arrowFillPaintTransformer) {
+  public void setArrowFillPaintTransformer(Function<? super E, Paint> arrowFillPaintTransformer) {
     this.arrowFillPaintTransformer = arrowFillPaintTransformer;
   }
 }

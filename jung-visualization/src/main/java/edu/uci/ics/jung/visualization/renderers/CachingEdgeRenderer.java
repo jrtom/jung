@@ -26,17 +26,17 @@ import javax.swing.JComponent;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-public class CachingEdgeRenderer extends BasicEdgeRenderer
-    implements ChangeListener, LayoutChangeListener {
+public class CachingEdgeRenderer<V, E> extends BasicEdgeRenderer<V, E>
+    implements ChangeListener, LayoutChangeListener<V, E> {
 
-  protected Map<Object, Shape> edgeShapeMap = new HashMap<Object, Shape>();
-  protected Set<Object> dirtyEdges = new HashSet<Object>();
+  protected Map<E, Shape> edgeShapeMap = new HashMap<E, Shape>();
+  protected Set<E> dirtyEdges = new HashSet<E>();
 
   @SuppressWarnings({"rawtypes", "unchecked"})
-  public CachingEdgeRenderer(BasicVisualizationServer vv) {
+  public CachingEdgeRenderer(BasicVisualizationServer<V, E> vv) {
     //    super(vv.getGraphLayout(), vv.getRenderContext());
     vv.getRenderContext().getMultiLayerTransformer().addChangeListener(this);
-    Layout<Object> layout = vv.getGraphLayout();
+    Layout<V> layout = vv.getGraphLayout();
     if (layout instanceof LayoutEventSupport) {
       ((LayoutEventSupport) layout).addLayoutChangeListener(this);
     }
@@ -49,7 +49,7 @@ public class CachingEdgeRenderer extends BasicEdgeRenderer
    */
   @Override
   protected void drawSimpleEdge(
-      RenderContext renderContext, LayoutMediator layoutMediator, Object e) {
+      RenderContext<V, E> renderContext, LayoutMediator<V, E> layoutMediator, E e) {
 
     int[] coords = new int[4];
     boolean[] loop = new boolean[1];
@@ -68,7 +68,7 @@ public class CachingEdgeRenderer extends BasicEdgeRenderer
     boolean isLoop = loop[0];
 
     GraphicsDecorator g = renderContext.getGraphicsContext();
-    Network graph = layoutMediator.getNetwork();
+    Network<V, E> graph = layoutMediator.getNetwork();
     boolean edgeHit = true;
     boolean arrowHit = true;
     Rectangle deviceRectangle = null;
@@ -188,9 +188,9 @@ public class CachingEdgeRenderer extends BasicEdgeRenderer
   }
 
   @Override
-  public void layoutChanged(LayoutEvent evt) {
-    Object v = evt.getVertex();
-    Network graph = evt.getGraph();
+  public void layoutChanged(LayoutEvent<V, E> evt) {
+    V v = evt.getVertex();
+    Network<V, E> graph = evt.getGraph();
     dirtyEdges.addAll(graph.incidentEdges(v));
   }
 }

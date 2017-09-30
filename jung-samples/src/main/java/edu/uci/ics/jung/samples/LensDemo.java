@@ -93,7 +93,7 @@ public class LensDemo extends JApplet {
   Layout<String> gridLayout;
 
   /** the visual component and renderer for the graph */
-  VisualizationViewer vv;
+  VisualizationViewer<String, Number> vv;
 
   /** provides a Hyperbolic lens for the view */
   LensSupport hyperbolicViewSupport;
@@ -122,24 +122,24 @@ public class LensDemo extends JApplet {
     grid = this.generateVertexGrid(map, preferredSize, 25);
     gridLayout = new StaticLayout<String>(grid.asGraph(), vlf, preferredSize);
 
-    final VisualizationModel visualizationModel =
-        new DefaultVisualizationModel(graph, graphLayout, preferredSize);
-    vv = new VisualizationViewer(visualizationModel, preferredSize);
+    final VisualizationModel<String, Number> visualizationModel =
+        new DefaultVisualizationModel<String, Number>(graph, graphLayout, preferredSize);
+    vv = new VisualizationViewer<String, Number>(visualizationModel, preferredSize);
 
-    PickedState ps = vv.getPickedVertexState();
-    PickedState pes = vv.getPickedEdgeState();
+    PickedState<String> ps = vv.getPickedVertexState();
+    PickedState<Number> pes = vv.getPickedEdgeState();
     vv.getRenderContext()
         .setVertexFillPaintTransformer(
-            new PickableVertexPaintTransformer(ps, Color.red, Color.yellow));
+            new PickableVertexPaintTransformer<String>(ps, Color.red, Color.yellow));
     vv.getRenderContext()
         .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer(pes, Color.black, Color.cyan));
+            new PickableEdgePaintTransformer<Number>(pes, Color.black, Color.cyan));
     vv.setBackground(Color.white);
 
     vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
 
-    final Function<Object, Shape> ovals = vv.getRenderContext().getVertexShapeTransformer();
-    final Function<Object, Shape> squares = n -> new Rectangle2D.Float(-10, -10, 20, 20);
+    final Function<? super String, Shape> ovals = vv.getRenderContext().getVertexShapeTransformer();
+    final Function<? super String, Shape> squares = n -> new Rectangle2D.Float(-10, -10, 20, 20);
 
     // add a listener for ToolTips
     vv.setVertexToolTipTransformer(new ToStringLabeller());
@@ -149,31 +149,32 @@ public class LensDemo extends JApplet {
     content.add(gzsp);
 
     /** the regular graph mouse for the normal view */
-    final DefaultModalGraphMouse graphMouse = new DefaultModalGraphMouse();
+    final DefaultModalGraphMouse<String, Number> graphMouse =
+        new DefaultModalGraphMouse<String, Number>();
 
     vv.setGraphMouse(graphMouse);
     vv.addKeyListener(graphMouse.getModeKeyListener());
 
     hyperbolicViewSupport =
-        new ViewLensSupport(
+        new ViewLensSupport<String, Number>(
             vv,
             new HyperbolicShapeTransformer(
                 vv, vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.VIEW)),
             new ModalLensGraphMouse());
     hyperbolicLayoutSupport =
-        new LayoutLensSupport(
+        new LayoutLensSupport<String, Number>(
             vv,
             new HyperbolicTransformer(
                 vv, vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT)),
             new ModalLensGraphMouse());
     magnifyViewSupport =
-        new ViewLensSupport(
+        new ViewLensSupport<String, Number>(
             vv,
             new MagnifyShapeTransformer(
                 vv, vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.VIEW)),
             new ModalLensGraphMouse(new LensMagnificationGraphMousePlugin(1.f, 6.f, .2f)));
     magnifyLayoutSupport =
-        new LayoutLensSupport(
+        new LayoutLensSupport<String, Number>(
             vv,
             new MagnifyTransformer(
                 vv, vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT)),

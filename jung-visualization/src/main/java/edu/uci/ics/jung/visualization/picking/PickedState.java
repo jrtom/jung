@@ -19,7 +19,7 @@ import java.util.Set;
  * @author Tom Nelson
  * @author Joshua O'Madadhain
  */
-public interface PickedState extends PickedInfo, ItemSelectable {
+public interface PickedState<T> extends PickedInfo<T>, ItemSelectable {
   /**
    * Marks <code>v</code> as "picked" if <code>b == true</code>, and unmarks <code>v</code> as
    * picked if <code>b == false</code>.
@@ -28,14 +28,14 @@ public interface PickedState extends PickedInfo, ItemSelectable {
    * @param b true if {@code v} is to be marked as picked, false if to be marked as unpicked
    * @return the "picked" state of <code>v</code> prior to this call
    */
-  boolean pick(Object v, boolean b);
+  boolean pick(T v, boolean b);
 
   /** Clears the "picked" state from all elements. */
   void clear();
 
   /** @return all "picked" elements. */
-  Set<Object> getPicked();
+  Set<T> getPicked();
 
   /** @return <code>true</code> if <code>v</code> is currently "picked". */
-  boolean isPicked(Object v);
+  boolean isPicked(T v);
 }

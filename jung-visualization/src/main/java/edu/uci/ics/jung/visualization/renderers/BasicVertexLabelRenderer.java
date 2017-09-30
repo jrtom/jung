@@ -24,7 +24,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
-public class BasicVertexLabelRenderer implements Renderer.VertexLabel {
+public class BasicVertexLabelRenderer<V, E> implements Renderer.VertexLabel<V, E> {
 
   protected Position position = Position.SE;
   private Positioner positioner = new OutsidePositioner();
@@ -40,15 +40,15 @@ public class BasicVertexLabelRenderer implements Renderer.VertexLabel {
   }
 
   public Component prepareRenderer(
-      RenderContext renderContext,
-      LayoutMediator layoutMediator,
+      RenderContext<V, E> renderContext,
+      LayoutMediator<V, E> layoutMediator,
       VertexLabelRenderer graphLabelRenderer,
       Object value,
       boolean isSelected,
-      Object vertex) {
+      V vertex) {
     return renderContext
         .getVertexLabelRenderer()
-        .getVertexLabelRendererComponent(
+        .<V>getVertexLabelRendererComponent(
             renderContext.getScreenDevice(),
             value,
             renderContext.getVertexFontTransformer().apply(vertex),
@@ -63,7 +63,7 @@ public class BasicVertexLabelRenderer implements Renderer.VertexLabel {
    * the position of the vertex; otherwise the label is offset slightly.
    */
   public void labelVertex(
-      RenderContext renderContext, LayoutMediator layoutMediator, Object v, String label) {
+      RenderContext<V, E> renderContext, LayoutMediator<V, E> layoutMediator, V v, String label) {
     if (!renderContext.getVertexIncludePredicate().test(v)) {
       return;
     }

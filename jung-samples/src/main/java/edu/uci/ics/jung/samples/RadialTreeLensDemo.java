@@ -78,7 +78,7 @@ public class RadialTreeLensDemo extends JApplet {
   RadialTreeLayout<String> radialLayout;
 
   /** the visual component and renderer for the graph */
-  VisualizationViewer vv;
+  VisualizationViewer<String, Integer> vv;
 
   /** provides a Hyperbolic lens for the view */
   LensSupport hyperbolicViewSupport;
@@ -97,18 +97,18 @@ public class RadialTreeLensDemo extends JApplet {
 
     Dimension preferredSize = new Dimension(600, 600);
 
-    final VisualizationModel visualizationModel =
-        new DefaultVisualizationModel(graph, radialLayout, preferredSize);
-    vv = new VisualizationViewer(visualizationModel, preferredSize);
+    final VisualizationModel<String, Integer> visualizationModel =
+        new DefaultVisualizationModel<String, Integer>(graph, radialLayout, preferredSize);
+    vv = new VisualizationViewer<String, Integer>(visualizationModel, preferredSize);
 
-    PickedState ps = vv.getPickedVertexState();
-    PickedState pes = vv.getPickedEdgeState();
+    PickedState<String> ps = vv.getPickedVertexState();
+    PickedState<Integer> pes = vv.getPickedEdgeState();
     vv.getRenderContext()
         .setVertexFillPaintTransformer(
-            new PickableVertexPaintTransformer(ps, Color.red, Color.yellow));
+            new PickableVertexPaintTransformer<String>(ps, Color.red, Color.yellow));
     vv.getRenderContext()
         .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer(pes, Color.black, Color.cyan));
+            new PickableEdgePaintTransformer<Integer>(pes, Color.black, Color.cyan));
     vv.setBackground(Color.white);
 
     vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
@@ -121,7 +121,8 @@ public class RadialTreeLensDemo extends JApplet {
     GraphZoomScrollPane gzsp = new GraphZoomScrollPane(vv);
     content.add(gzsp);
 
-    final DefaultModalGraphMouse graphMouse = new DefaultModalGraphMouse();
+    final DefaultModalGraphMouse<String, Integer> graphMouse =
+        new DefaultModalGraphMouse<String, Integer>();
 
     vv.setGraphMouse(graphMouse);
     vv.addKeyListener(graphMouse.getModeKeyListener());
@@ -129,7 +130,7 @@ public class RadialTreeLensDemo extends JApplet {
     vv.addPreRenderPaintable(rings);
 
     hyperbolicViewSupport =
-        new ViewLensSupport(
+        new ViewLensSupport<String, Integer>(
             vv,
             new HyperbolicShapeTransformer(
                 vv, vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.VIEW)),

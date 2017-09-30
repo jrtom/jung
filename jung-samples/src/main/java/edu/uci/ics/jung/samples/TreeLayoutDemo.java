@@ -65,7 +65,7 @@ public class TreeLayoutDemo extends JApplet {
   CTreeNetwork<String, Integer> graph;
 
   /** the visual component and renderer for the graph */
-  VisualizationViewer vv;
+  VisualizationViewer<String, Integer> vv;
 
   VisualizationServer.Paintable rings;
 
@@ -83,7 +83,7 @@ public class TreeLayoutDemo extends JApplet {
     treeLayout = new TreeLayout<String>(graph.asGraph());
     radialLayout = new RadialTreeLayout<String>(graph.asGraph());
     radialLayout.setSize(new Dimension(600, 600));
-    vv = new VisualizationViewer(graph, treeLayout, new Dimension(600, 600));
+    vv = new VisualizationViewer<String, Integer>(graph, treeLayout, new Dimension(600, 600));
     vv.setBackground(Color.white);
     vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.line());
     vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
@@ -96,7 +96,8 @@ public class TreeLayoutDemo extends JApplet {
     final GraphZoomScrollPane panel = new GraphZoomScrollPane(vv);
     content.add(panel);
 
-    final DefaultModalGraphMouse graphMouse = new DefaultModalGraphMouse();
+    final DefaultModalGraphMouse<String, Integer> graphMouse =
+        new DefaultModalGraphMouse<String, Integer>();
 
     vv.setGraphMouse(graphMouse);
 
@@ -128,8 +129,8 @@ public class TreeLayoutDemo extends JApplet {
           public void itemStateChanged(ItemEvent e) {
             if (e.getStateChange() == ItemEvent.SELECTED) {
 
-              LayoutTransition lt =
-                  new LayoutTransition(
+              LayoutTransition<String, Integer> lt =
+                  new LayoutTransition<String, Integer>(
                       vv,
                       vv.getModel().getLayoutMediator(),
                       new LayoutMediator(graph, radialLayout));
@@ -138,8 +139,8 @@ public class TreeLayoutDemo extends JApplet {
               vv.getRenderContext().getMultiLayerTransformer().setToIdentity();
               vv.addPreRenderPaintable(rings);
             } else {
-              LayoutTransition lt =
-                  new LayoutTransition(
+              LayoutTransition<String, Integer> lt =
+                  new LayoutTransition<String, Integer>(
                       vv, vv.getModel().getLayoutMediator(), new LayoutMediator(graph, treeLayout));
               Animator animator = new Animator(lt);
               animator.start();

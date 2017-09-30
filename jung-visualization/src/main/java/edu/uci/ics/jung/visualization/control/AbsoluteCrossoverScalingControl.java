@@ -30,7 +30,7 @@ public class AbsoluteCrossoverScalingControl extends CrossoverScalingControl
    * @param amount the amount by which to scale
    * @param at the point of reference for scaling
    */
-  public void scale(VisualizationServer vv, float amount, Point2D at) {
+  public void scale(VisualizationServer<?, ?> vv, float amount, Point2D at) {
     MutableTransformer layoutTransformer =
         vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT);
     MutableTransformer viewTransformer =

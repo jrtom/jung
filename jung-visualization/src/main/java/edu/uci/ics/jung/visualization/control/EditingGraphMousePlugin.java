@@ -18,11 +18,11 @@ import javax.swing.JComponent;
  *
  * @author Tom Nelson
  */
-public class EditingGraphMousePlugin extends AbstractGraphMousePlugin
+public class EditingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
     implements MouseListener, MouseMotionListener {
 
-  protected VertexSupport vertexSupport;
-  protected EdgeSupport edgeSupport;
+  protected VertexSupport<V, E> vertexSupport;
+  protected EdgeSupport<V, E> edgeSupport;
   private Creating createMode = Creating.UNDETERMINED;
 
   private enum Creating {
@@ -38,7 +38,7 @@ public class EditingGraphMousePlugin extends AbstractGraphMousePlugin
    * @param vertexFactory for creating vertices
    * @param edgeFactory for creating edges
    */
-  public EditingGraphMousePlugin(Supplier<Object> vertexFactory, Supplier<Object> edgeFactory) {
+  public EditingGraphMousePlugin(Supplier<V> vertexFactory, Supplier<E> edgeFactory) {
     this(MouseEvent.BUTTON1_MASK, vertexFactory, edgeFactory);
   }
 
@@ -50,11 +50,11 @@ public class EditingGraphMousePlugin extends AbstractGraphMousePlugin
    * @param edgeFactory for creating edges
    */
   public EditingGraphMousePlugin(
-      int modifiers, Supplier<Object> vertexFactory, Supplier<Object> edgeFactory) {
+      int modifiers, Supplier<V> vertexFactory, Supplier<E> edgeFactory) {
     super(modifiers);
     this.cursor = Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR);
-    this.vertexSupport = new SimpleVertexSupport(vertexFactory);
-    this.edgeSupport = new SimpleEdgeSupport(edgeFactory);
+    this.vertexSupport = new SimpleVertexSupport<V, E>(vertexFactory);
+    this.edgeSupport = new SimpleEdgeSupport<V, E>(edgeFactory);
   }
 
   /**
@@ -73,11 +73,11 @@ public class EditingGraphMousePlugin extends AbstractGraphMousePlugin
   @SuppressWarnings("unchecked")
   public void mousePressed(MouseEvent e) {
     if (checkModifiers(e)) {
-      final VisualizationViewer vv = (VisualizationViewer) e.getSource();
+      final VisualizationViewer<V, E> vv = (VisualizationViewer<V, E>) e.getSource();
       final Point2D p = e.getPoint();
-      NetworkElementAccessor pickSupport = vv.getPickSupport();
+      NetworkElementAccessor<V, E> pickSupport = vv.getPickSupport();
       if (pickSupport != null) {
-        final Object vertex = pickSupport.getNode(p.getX(), p.getY());
+        final V vertex = pickSupport.getNode(p.getX(), p.getY());
         if (vertex != null) { // get ready to make an edge
           this.createMode = Creating.EDGE;
           edgeSupport.startEdgeCreate(vv, vertex, e.getPoint());
@@ -96,11 +96,11 @@ public class EditingGraphMousePlugin extends AbstractGraphMousePlugin
   @SuppressWarnings("unchecked")
   public void mouseReleased(MouseEvent e) {
     if (checkModifiers(e)) {
-      final VisualizationViewer vv = (VisualizationViewer) e.getSource();
+      final VisualizationViewer<V, E> vv = (VisualizationViewer<V, E>) e.getSource();
       final Point2D p = e.getPoint();
       if (createMode == Creating.EDGE) {
-        NetworkElementAccessor pickSupport = vv.getPickSupport();
-        Object vertex = null;
+        NetworkElementAccessor<V, E> pickSupport = vv.getPickSupport();
+        V vertex = null;
         // TODO: how does it make any sense for pickSupport to be null in this scenario?
         if (pickSupport != null) {
           vertex = pickSupport.getNode(p.getX(), p.getY());
@@ -124,7 +124,7 @@ public class EditingGraphMousePlugin extends AbstractGraphMousePlugin
   @SuppressWarnings("unchecked")
   public void mouseDragged(MouseEvent e) {
     if (checkModifiers(e)) {
-      VisualizationViewer vv = (VisualizationViewer) e.getSource();
+      VisualizationViewer<V, E> vv = (VisualizationViewer<V, E>) e.getSource();
       if (createMode == Creating.EDGE) {
         edgeSupport.midEdgeCreate(vv, e.getPoint());
       } else if (createMode == Creating.VERTEX) {
@@ -147,19 +147,19 @@ public class EditingGraphMousePlugin extends AbstractGraphMousePlugin
 
   public void mouseMoved(MouseEvent e) {}
 
-  public VertexSupport getVertexSupport() {
+  public VertexSupport<V, E> getVertexSupport() {
     return vertexSupport;
   }
 
-  public void setVertexSupport(VertexSupport vertexSupport) {
+  public void setVertexSupport(VertexSupport<V, E> vertexSupport) {
     this.vertexSupport = vertexSupport;
   }
 
-  public EdgeSupport edgesupport() {
+  public EdgeSupport<V, E> edgesupport() {
     return edgeSupport;
   }
 
-  public void setEdgeSupport(EdgeSupport edgeSupport) {
+  public void setEdgeSupport(EdgeSupport<V, E> edgeSupport) {
     this.edgeSupport = edgeSupport;
   }
 }

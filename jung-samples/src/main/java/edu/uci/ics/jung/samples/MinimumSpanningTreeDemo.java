@@ -62,10 +62,10 @@ public class MinimumSpanningTreeDemo extends JApplet {
   Network<String, Number> tree;
 
   /** the visual components and renderers for the graph */
-  VisualizationViewer vv0;
+  VisualizationViewer<String, Number> vv0;
 
-  VisualizationViewer vv1;
-  VisualizationViewer vv2;
+  VisualizationViewer<String, Number> vv1;
+  VisualizationViewer<String, Number> vv2;
 
   /** the normal Function */
   MutableTransformer layoutTransformer;
@@ -90,15 +90,18 @@ public class MinimumSpanningTreeDemo extends JApplet {
     Layout<String> layout2 = new StaticLayout<String>(graph.asGraph(), layout1);
 
     // create the two models, each with a different layout
-    VisualizationModel vm0 = new DefaultVisualizationModel(graph, layout0, preferredSize);
-    VisualizationModel vm1 = new DefaultVisualizationModel(tree, layout1, preferredSizeRect);
-    VisualizationModel vm2 = new DefaultVisualizationModel(graph, layout2, preferredSizeRect);
+    VisualizationModel<String, Number> vm0 =
+        new DefaultVisualizationModel<String, Number>(graph, layout0, preferredSize);
+    VisualizationModel<String, Number> vm1 =
+        new DefaultVisualizationModel<String, Number>(tree, layout1, preferredSizeRect);
+    VisualizationModel<String, Number> vm2 =
+        new DefaultVisualizationModel<String, Number>(graph, layout2, preferredSizeRect);
 
     // create the two views, one for each model
     // they share the same renderer
-    vv0 = new VisualizationViewer(vm0, preferredSize);
-    vv1 = new VisualizationViewer(vm1, preferredSizeRect);
-    vv2 = new VisualizationViewer(vm2, preferredSizeRect);
+    vv0 = new VisualizationViewer<String, Number>(vm0, preferredSize);
+    vv1 = new VisualizationViewer<String, Number>(vm1, preferredSizeRect);
+    vv2 = new VisualizationViewer<String, Number>(vm2, preferredSizeRect);
 
     vv1.getRenderContext()
         .setMultiLayerTransformer(vv0.getRenderContext().getMultiLayerTransformer());
@@ -126,12 +129,12 @@ public class MinimumSpanningTreeDemo extends JApplet {
     vv2.setForeground(Color.darkGray);
 
     // share one PickedState between the two views
-    PickedState ps = new MultiPickedState();
+    PickedState<String> ps = new MultiPickedState<String>();
     vv0.setPickedVertexState(ps);
     vv1.setPickedVertexState(ps);
     vv2.setPickedVertexState(ps);
 
-    PickedState pes = new MultiPickedState();
+    PickedState<Number> pes = new MultiPickedState<Number>();
     vv0.setPickedEdgeState(pes);
     vv1.setPickedEdgeState(pes);
     vv2.setPickedEdgeState(pes);
@@ -139,17 +142,19 @@ public class MinimumSpanningTreeDemo extends JApplet {
     // set an edge paint function that will show picking for edges
     vv0.getRenderContext()
         .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer(vv0.getPickedEdgeState(), Color.black, Color.red));
+            new PickableEdgePaintTransformer<Number>(
+                vv0.getPickedEdgeState(), Color.black, Color.red));
     vv0.getRenderContext()
         .setVertexFillPaintTransformer(
-            new PickableVertexPaintTransformer(
+            new PickableVertexPaintTransformer<String>(
                 vv0.getPickedVertexState(), Color.red, Color.yellow));
     vv1.getRenderContext()
         .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer(vv1.getPickedEdgeState(), Color.black, Color.red));
+            new PickableEdgePaintTransformer<Number>(
+                vv1.getPickedEdgeState(), Color.black, Color.red));
     vv1.getRenderContext()
         .setVertexFillPaintTransformer(
-            new PickableVertexPaintTransformer(
+            new PickableVertexPaintTransformer<String>(
                 vv1.getPickedVertexState(), Color.red, Color.yellow));
 
     // add default listeners for ToolTips
@@ -192,9 +197,9 @@ public class MinimumSpanningTreeDemo extends JApplet {
     content.add(panel);
 
     // create a GraphMouse for each view
-    DefaultModalGraphMouse gm0 = new DefaultModalGraphMouse();
-    DefaultModalGraphMouse gm1 = new DefaultModalGraphMouse();
-    DefaultModalGraphMouse gm2 = new DefaultModalGraphMouse();
+    DefaultModalGraphMouse<String, Number> gm0 = new DefaultModalGraphMouse<String, Number>();
+    DefaultModalGraphMouse<String, Number> gm1 = new DefaultModalGraphMouse<String, Number>();
+    DefaultModalGraphMouse<String, Number> gm2 = new DefaultModalGraphMouse<String, Number>();
 
     vv0.setGraphMouse(gm0);
     vv1.setGraphMouse(gm1);

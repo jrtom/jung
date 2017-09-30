@@ -67,7 +67,7 @@ public class L2RTreeLayoutDemo extends JApplet {
   CTreeNetwork<String, Integer> graph;
 
   /** the visual component and renderer for the graph */
-  VisualizationViewer vv;
+  VisualizationViewer<String, Integer> vv;
 
   VisualizationServer.Paintable rings;
 
@@ -85,7 +85,7 @@ public class L2RTreeLayoutDemo extends JApplet {
     treeLayout = new TreeLayout<String>(graph.asGraph());
     radialLayout = new RadialTreeLayout<String>(graph.asGraph());
     radialLayout.setSize(new Dimension(600, 600));
-    vv = new VisualizationViewer(graph, treeLayout, new Dimension(600, 600));
+    vv = new VisualizationViewer<String, Integer>(graph, treeLayout, new Dimension(600, 600));
     vv.setBackground(Color.white);
     vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.quadCurve());
     vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
@@ -100,7 +100,8 @@ public class L2RTreeLayoutDemo extends JApplet {
     final GraphZoomScrollPane panel = new GraphZoomScrollPane(vv);
     content.add(panel);
 
-    final DefaultModalGraphMouse graphMouse = new DefaultModalGraphMouse();
+    final DefaultModalGraphMouse<String, Integer> graphMouse =
+        new DefaultModalGraphMouse<String, Integer>();
 
     vv.setGraphMouse(graphMouse);
 
@@ -132,8 +133,8 @@ public class L2RTreeLayoutDemo extends JApplet {
           public void itemStateChanged(ItemEvent e) {
             if (e.getStateChange() == ItemEvent.SELECTED) {
 
-              LayoutTransition lt =
-                  new LayoutTransition(
+              LayoutTransition<String, Integer> lt =
+                  new LayoutTransition<String, Integer>(
                       vv,
                       vv.getModel().getLayoutMediator(),
                       new LayoutMediator(graph, radialLayout));
@@ -142,8 +143,8 @@ public class L2RTreeLayoutDemo extends JApplet {
               vv.getRenderContext().getMultiLayerTransformer().setToIdentity();
               vv.addPreRenderPaintable(rings);
             } else {
-              LayoutTransition lt =
-                  new LayoutTransition(
+              LayoutTransition<String, Integer> lt =
+                  new LayoutTransition<String, Integer>(
                       vv, vv.getModel().getLayoutMediator(), new LayoutMediator(graph, treeLayout));
               Animator animator = new Animator(lt);
               animator.start();
@@ -169,8 +170,8 @@ public class L2RTreeLayoutDemo extends JApplet {
     content.add(controls, BorderLayout.SOUTH);
   }
 
-  private void setLtoR(VisualizationViewer vv) {
-    Layout<Object> layout = vv.getModel().getLayoutMediator().getLayout();
+  private void setLtoR(VisualizationViewer<String, Integer> vv) {
+    Layout<String> layout = vv.getModel().getLayoutMediator().getLayout();
     Dimension d = layout.getSize();
     Point2D center = new Point2D.Double(d.width / 2, d.height / 2);
     vv.getRenderContext()

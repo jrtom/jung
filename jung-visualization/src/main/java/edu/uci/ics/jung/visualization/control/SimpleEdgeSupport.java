@@ -6,20 +6,21 @@ import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 import java.awt.geom.Point2D;
 import java.util.function.Supplier;
 
-public class SimpleEdgeSupport implements EdgeSupport {
+public class SimpleEdgeSupport<V, E> implements EdgeSupport<V, E> {
 
   protected Point2D down;
-  protected EdgeEffects edgeEffects;
-  protected Supplier edgeFactory;
-  protected Object startVertex;
+  protected EdgeEffects<V, E> edgeEffects;
+  protected Supplier<E> edgeFactory;
+  protected V startVertex;
 
-  public SimpleEdgeSupport(Supplier edgeFactory) {
+  public SimpleEdgeSupport(Supplier<E> edgeFactory) {
     this.edgeFactory = edgeFactory;
-    this.edgeEffects = new CubicCurveEdgeEffects();
+    this.edgeEffects = new CubicCurveEdgeEffects<V, E>();
   }
 
   @Override
-  public void startEdgeCreate(BasicVisualizationServer vv, Object startVertex, Point2D startPoint) {
+  public void startEdgeCreate(
+      BasicVisualizationServer<V, E> vv, V startVertex, Point2D startPoint) {
     this.startVertex = startVertex;
     this.down = startPoint;
     this.edgeEffects.startEdgeEffects(vv, startPoint, startPoint);
@@ -30,7 +31,7 @@ public class SimpleEdgeSupport implements EdgeSupport {
   }
 
   @Override
-  public void midEdgeCreate(BasicVisualizationServer vv, Point2D midPoint) {
+  public void midEdgeCreate(BasicVisualizationServer<V, E> vv, Point2D midPoint) {
     if (startVertex != null) {
       this.edgeEffects.midEdgeEffects(vv, down, midPoint);
       if (vv.getModel().getLayoutMediator().getNetwork().isDirected()) {
@@ -41,12 +42,13 @@ public class SimpleEdgeSupport implements EdgeSupport {
   }
 
   @Override
-  public void endEdgeCreate(BasicVisualizationServer vv, Object endVertex) {
+  public void endEdgeCreate(BasicVisualizationServer<V, E> vv, V endVertex) {
     Preconditions.checkState(
         vv.getModel().getLayoutMediator().getNetwork() instanceof MutableNetwork<?, ?>,
         "graph must be mutable");
     if (startVertex != null) {
-      MutableNetwork graph = (MutableNetwork) vv.getModel().getLayoutMediator().getNetwork();
+      MutableNetwork<V, E> graph =
+          (MutableNetwork<V, E>) vv.getModel().getLayoutMediator().getNetwork();
       graph.addEdge(startVertex, endVertex, edgeFactory.get());
       vv.repaint();
     }
@@ -56,26 +58,26 @@ public class SimpleEdgeSupport implements EdgeSupport {
   }
 
   @Override
-  public void abort(BasicVisualizationServer vv) {
+  public void abort(BasicVisualizationServer<V, E> vv) {
     startVertex = null;
     edgeEffects.endEdgeEffects(vv);
     edgeEffects.endArrowEffects(vv);
     vv.repaint();
   }
 
-  public EdgeEffects getEdgeEffects() {
+  public EdgeEffects<V, E> getEdgeEffects() {
     return edgeEffects;
   }
 
-  public void setEdgeEffects(EdgeEffects edgeEffects) {
+  public void setEdgeEffects(EdgeEffects<V, E> edgeEffects) {
     this.edgeEffects = edgeEffects;
   }
 
-  public Supplier getEdgeFactory() {
+  public Supplier<E> getEdgeFactory() {
     return edgeFactory;
   }
 
-  public void setEdgeFactory(Supplier edgeFactory) {
+  public void setEdgeFactory(Supplier<E> edgeFactory) {
     this.edgeFactory = edgeFactory;
   }
 }

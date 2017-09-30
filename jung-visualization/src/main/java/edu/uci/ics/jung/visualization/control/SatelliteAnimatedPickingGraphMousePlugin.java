@@ -28,8 +28,8 @@ import java.awt.geom.Point2D;
  * @see AnimatedPickingGraphMousePlugin
  * @author Tom Nelson
  */
-public class SatelliteAnimatedPickingGraphMousePlugin extends AnimatedPickingGraphMousePlugin
-    implements MouseListener, MouseMotionListener {
+public class SatelliteAnimatedPickingGraphMousePlugin<V, E>
+    extends AnimatedPickingGraphMousePlugin<V, E> implements MouseListener, MouseMotionListener {
 
   /** create an instance */
   public SatelliteAnimatedPickingGraphMousePlugin() {
@@ -44,12 +44,13 @@ public class SatelliteAnimatedPickingGraphMousePlugin extends AnimatedPickingGra
   @SuppressWarnings("unchecked")
   public void mouseReleased(MouseEvent e) {
     if (e.getModifiers() == modifiers) {
-      final VisualizationViewer vv = (VisualizationViewer) e.getSource();
+      final VisualizationViewer<V, E> vv = (VisualizationViewer<V, E>) e.getSource();
       if (vv instanceof SatelliteVisualizationViewer) {
-        final VisualizationViewer vvMaster = ((SatelliteVisualizationViewer) vv).getMaster();
+        final VisualizationViewer<V, E> vvMaster =
+            ((SatelliteVisualizationViewer<V, E>) vv).getMaster();
 
         if (vertex != null) {
-          Layout<Object> layout = vvMaster.getGraphLayout();
+          Layout<V> layout = vvMaster.getGraphLayout();
           Point2D q = layout.apply(vertex);
           Point2D lvc =
               vvMaster

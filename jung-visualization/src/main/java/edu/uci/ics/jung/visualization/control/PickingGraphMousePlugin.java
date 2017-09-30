@@ -39,14 +39,14 @@ import javax.swing.JComponent;
  *
  * @author Tom Nelson
  */
-public class PickingGraphMousePlugin extends AbstractGraphMousePlugin
+public class PickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
     implements MouseListener, MouseMotionListener {
 
   /** the picked Vertex, if any */
-  protected Object vertex;
+  protected V vertex;
 
   /** the picked Edge, if any */
-  protected Object edge;
+  protected E edge;
 
   /** the x distance from the picked vertex center to the mouse point */
   protected double offsetx;
@@ -130,12 +130,12 @@ public class PickingGraphMousePlugin extends AbstractGraphMousePlugin
   @SuppressWarnings("unchecked")
   public void mousePressed(MouseEvent e) {
     down = e.getPoint();
-    VisualizationViewer vv = (VisualizationViewer) e.getSource();
-    NetworkElementAccessor pickSupport = vv.getPickSupport();
-    PickedState pickedVertexState = vv.getPickedVertexState();
-    PickedState pickedEdgeState = vv.getPickedEdgeState();
+    VisualizationViewer<V, E> vv = (VisualizationViewer<V, E>) e.getSource();
+    NetworkElementAccessor<V, E> pickSupport = vv.getPickSupport();
+    PickedState<V> pickedVertexState = vv.getPickedVertexState();
+    PickedState<E> pickedEdgeState = vv.getPickedEdgeState();
     if (pickSupport != null && pickedVertexState != null) {
-      Layout<Object> layout = vv.getGraphLayout();
+      Layout<V> layout = vv.getGraphLayout();
       if (e.getModifiers() == modifiers) {
         rect.setFrameFromDiagonal(down, down);
         // p is the screen point for the mouse event
@@ -203,7 +203,7 @@ public class PickingGraphMousePlugin extends AbstractGraphMousePlugin
    */
   @SuppressWarnings("unchecked")
   public void mouseReleased(MouseEvent e) {
-    VisualizationViewer vv = (VisualizationViewer) e.getSource();
+    VisualizationViewer<V, E> vv = (VisualizationViewer<V, E>) e.getSource();
     if (e.getModifiers() == modifiers) {
       if (down != null) {
         Point2D out = e.getPoint();
@@ -236,17 +236,17 @@ public class PickingGraphMousePlugin extends AbstractGraphMousePlugin
   @SuppressWarnings("unchecked")
   public void mouseDragged(MouseEvent e) {
     if (locked == false) {
-      VisualizationViewer vv = (VisualizationViewer) e.getSource();
+      VisualizationViewer<V, E> vv = (VisualizationViewer<V, E>) e.getSource();
       if (vertex != null) {
         Point p = e.getPoint();
         Point2D graphPoint = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(p);
         Point2D graphDown = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(down);
-        Layout<Object> layout = vv.getGraphLayout();
+        Layout<V> layout = vv.getGraphLayout();
         double dx = graphPoint.getX() - graphDown.getX();
         double dy = graphPoint.getY() - graphDown.getY();
-        PickedState ps = vv.getPickedVertexState();
+        PickedState<V> ps = vv.getPickedVertexState();
 
-        for (Object v : ps.getPicked()) {
+        for (V v : ps.getPicked()) {
           Point2D vp = layout.apply(v);
           vp.setLocation(vp.getX() + dx, vp.getY() + dy);
           layout.setLocation(v, vp);
@@ -289,8 +289,8 @@ public class PickingGraphMousePlugin extends AbstractGraphMousePlugin
    * @param clear whether to reset existing picked state
    */
   protected void pickContainedVertices(
-      VisualizationViewer vv, Point2D down, Point2D out, boolean clear) {
-    PickedState pickedVertexState = vv.getPickedVertexState();
+      VisualizationViewer<V, E> vv, Point2D down, Point2D out, boolean clear) {
+    PickedState<V> pickedVertexState = vv.getPickedVertexState();
 
     Rectangle2D pickRectangle = new Rectangle2D.Double();
     pickRectangle.setFrameFromDiagonal(down, out);
@@ -299,10 +299,10 @@ public class PickingGraphMousePlugin extends AbstractGraphMousePlugin
       if (clear) {
         pickedVertexState.clear();
       }
-      NetworkElementAccessor pickSupport = vv.getPickSupport();
+      NetworkElementAccessor<V, E> pickSupport = vv.getPickSupport();
 
-      Collection<Object> picked = pickSupport.getNodes(pickRectangle);
-      for (Object v : picked) {
+      Collection<V> picked = pickSupport.getNodes(pickRectangle);
+      for (V v : picked) {
         pickedVertexState.pick(v, true);
       }
     }

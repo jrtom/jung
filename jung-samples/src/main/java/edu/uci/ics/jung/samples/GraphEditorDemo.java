@@ -66,7 +66,7 @@ public class GraphEditorDemo extends JApplet implements Printable {
   AbstractLayout<Number> layout;
 
   /** the visual component and renderer for the graph */
-  VisualizationViewer vv;
+  VisualizationViewer<Number, Number> vv;
 
   String instructions =
       "<html>"
@@ -125,24 +125,26 @@ public class GraphEditorDemo extends JApplet implements Printable {
 
     this.layout = new StaticLayout<Number>(graph.asGraph(), new Dimension(600, 600));
 
-    vv = new VisualizationViewer(graph, layout);
+    vv = new VisualizationViewer<Number, Number>(graph, layout);
     vv.setBackground(Color.white);
 
     Function<Object, String> labeller = new ToStringLabeller();
     vv.getRenderContext().setVertexLabelTransformer(labeller);
     vv.getRenderContext().setEdgeLabelTransformer(labeller);
-    vv.getRenderContext().setParallelEdgeIndexFunction(new ParallelEdgeIndexFunction(graph));
+    vv.getRenderContext()
+        .setParallelEdgeIndexFunction(new ParallelEdgeIndexFunction<Number, Number>(graph));
 
     vv.setVertexToolTipTransformer(vv.getRenderContext().getVertexLabelTransformer());
 
     Container content = getContentPane();
     final GraphZoomScrollPane panel = new GraphZoomScrollPane(vv);
     content.add(panel);
-    Supplier<Object> vertexFactory = new VertexFactory();
-    Supplier<Object> edgeFactory = new EdgeFactory();
+    Supplier<Number> vertexFactory = new VertexFactory();
+    Supplier<Number> edgeFactory = new EdgeFactory();
 
-    final EditingModalGraphMouse graphMouse =
-        new EditingModalGraphMouse(vv.getRenderContext(), vertexFactory, edgeFactory);
+    final EditingModalGraphMouse<Number, Number> graphMouse =
+        new EditingModalGraphMouse<Number, Number>(
+            vv.getRenderContext(), vertexFactory, edgeFactory);
 
     // the EditingGraphMouse will pass mouse event coordinates to the
     // vertexLocations function to set the locations of the vertices as
@@ -177,8 +179,8 @@ public class GraphEditorDemo extends JApplet implements Printable {
           }
         });
 
-    AnnotationControls annotationControls =
-        new AnnotationControls(graphMouse.getAnnotatingPlugin());
+    AnnotationControls<Number, Number> annotationControls =
+        new AnnotationControls<Number, Number>(graphMouse.getAnnotatingPlugin());
     JPanel controls = new JPanel();
     controls.add(plus);
     controls.add(minus);
@@ -226,21 +228,21 @@ public class GraphEditorDemo extends JApplet implements Printable {
     }
   }
 
-  class VertexFactory implements Supplier<Object> {
+  class VertexFactory implements Supplier<Number> {
 
     int i = 0;
 
-    public Object get() {
-      return new Integer(i++);
+    public Number get() {
+      return i++;
     }
   }
 
-  class EdgeFactory implements Supplier<Object> {
+  class EdgeFactory implements Supplier<Number> {
 
     int i = 0;
 
-    public Object get() {
-      return new Integer(i++);
+    public Number get() {
+      return i++;
     }
   }
 

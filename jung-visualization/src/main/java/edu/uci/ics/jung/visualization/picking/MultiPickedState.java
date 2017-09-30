@@ -25,11 +25,11 @@ import java.util.Set;
  * @author Tom Nelson
  * @author Joshua O'Madadhain
  */
-public class MultiPickedState extends AbstractPickedState implements PickedState {
+public class MultiPickedState<T> extends AbstractPickedState<T> implements PickedState<T> {
   /** the 'picked' vertices */
-  protected Set<Object> picked = new LinkedHashSet<Object>();
+  protected Set<T> picked = new LinkedHashSet<T>();
 
-  public boolean pick(Object v, boolean state) {
+  public boolean pick(T v, boolean state) {
     boolean prior_state = this.picked.contains(v);
     if (state) {
       picked.add(v);
@@ -49,25 +49,25 @@ public class MultiPickedState extends AbstractPickedState implements PickedState
   }
 
   public void clear() {
-    Collection<Object> unpicks = new ArrayList<Object>(picked);
-    for (Object v : unpicks) {
+    Collection<T> unpicks = new ArrayList<T>(picked);
+    for (T v : unpicks) {
       pick(v, false);
     }
     picked.clear();
   }
 
-  public Set<Object> getPicked() {
+  public Set<T> getPicked() {
     return Collections.unmodifiableSet(picked);
   }
 
-  public boolean isPicked(Object e) {
+  public boolean isPicked(T e) {
     return picked.contains(e);
   }
 
   /** for the ItemSelectable interface contract */
   @SuppressWarnings("unchecked")
-  public Object[] getSelectedObjects() {
-    List<Object> list = new ArrayList<Object>(picked);
-    return (Object[]) list.toArray();
+  public T[] getSelectedObjects() {
+    List<T> list = new ArrayList<T>(picked);
+    return (T[]) list.toArray();
   }
 }

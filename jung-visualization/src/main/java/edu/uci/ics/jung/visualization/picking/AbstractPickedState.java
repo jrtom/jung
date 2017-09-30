@@ -19,7 +19,7 @@ import javax.swing.event.EventListenerList;
  *
  * @author Tom Nelson
  */
-public abstract class AbstractPickedState implements PickedState {
+public abstract class AbstractPickedState<T> implements PickedState<T> {
 
   protected EventListenerList listenerList = new EventListenerList();
 

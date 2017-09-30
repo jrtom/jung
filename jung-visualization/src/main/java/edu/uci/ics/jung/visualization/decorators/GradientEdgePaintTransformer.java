@@ -33,14 +33,14 @@ import java.util.function.Function;
  *
  * @author Joshua O'Madadhain
  */
-public class GradientEdgePaintTransformer implements Function<Object, Paint> {
+public class GradientEdgePaintTransformer<N, E> implements Function<E, Paint> {
   protected Color c1;
   protected Color c2;
-  protected Network graph;
-  protected Layout<Object> layout;
+  protected Network<N, E> graph;
+  protected Layout<N> layout;
   protected BidirectionalTransformer transformer;
 
-  public GradientEdgePaintTransformer(Color c1, Color c2, VisualizationViewer vv) {
+  public GradientEdgePaintTransformer(Color c1, Color c2, VisualizationViewer<N, E> vv) {
     this.c1 = c1;
     this.c2 = c2;
     this.graph = vv.getModel().getLayoutMediator().getNetwork();
@@ -49,10 +49,10 @@ public class GradientEdgePaintTransformer implements Function<Object, Paint> {
         vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT);
   }
 
-  public Paint apply(Object e) {
-    EndpointPair<Object> endpoints = graph.incidentNodes(e);
-    Object b = endpoints.nodeU();
-    Object f = endpoints.nodeV();
+  public Paint apply(E e) {
+    EndpointPair<N> endpoints = graph.incidentNodes(e);
+    N b = endpoints.nodeU();
+    N f = endpoints.nodeV();
     Point2D pb = transformer.transform(layout.apply(b));
     Point2D pf = transformer.transform(layout.apply(f));
     float xB = (float) pb.getX();
@@ -78,7 +78,7 @@ public class GradientEdgePaintTransformer implements Function<Object, Paint> {
    * @param e the edge for which a color is to be retrieved
    * @return the constructor-supplied color {@code c1}
    */
-  protected Color getColor1(Object e) {
+  protected Color getColor1(E e) {
     return c1;
   }
 
@@ -89,7 +89,7 @@ public class GradientEdgePaintTransformer implements Function<Object, Paint> {
    * @param e the edge for which a color is to be retrieved
    * @return the constructor-supplied color {@code c2}
    */
-  protected Color getColor2(Object e) {
+  protected Color getColor2(E e) {
     return c2;
   }
 }

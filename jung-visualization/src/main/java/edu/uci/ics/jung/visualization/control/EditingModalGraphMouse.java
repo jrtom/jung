@@ -20,17 +20,17 @@ import javax.swing.JMenu;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.plaf.basic.BasicIconFactory;
 
-public class EditingModalGraphMouse extends AbstractModalGraphMouse
+public class EditingModalGraphMouse<V, E> extends AbstractModalGraphMouse
     implements ModalGraphMouse, ItemSelectable {
 
-  protected Supplier<Object> vertexFactory;
-  protected Supplier<Object> edgeFactory;
-  protected EditingGraphMousePlugin editingPlugin;
-  protected LabelEditingGraphMousePlugin labelEditingPlugin;
-  protected EditingPopupGraphMousePlugin popupEditingPlugin;
-  protected AnnotatingGraphMousePlugin annotatingPlugin;
+  protected Supplier<V> vertexFactory;
+  protected Supplier<E> edgeFactory;
+  protected EditingGraphMousePlugin<V, E> editingPlugin;
+  protected LabelEditingGraphMousePlugin<V, E> labelEditingPlugin;
+  protected EditingPopupGraphMousePlugin<V, E> popupEditingPlugin;
+  protected AnnotatingGraphMousePlugin<V, E> annotatingPlugin;
   protected MultiLayerTransformer basicTransformer;
-  protected RenderContext rc;
+  protected RenderContext<V, E> rc;
 
   /**
    * Creates an instance with the specified rendering context and vertex/edge factories, and with
@@ -41,7 +41,7 @@ public class EditingModalGraphMouse extends AbstractModalGraphMouse
    * @param edgeFactory used to construct edges
    */
   public EditingModalGraphMouse(
-      RenderContext rc, Supplier<Object> vertexFactory, Supplier<Object> edgeFactory) {
+      RenderContext<V, E> rc, Supplier<V> vertexFactory, Supplier<E> edgeFactory) {
     this(rc, vertexFactory, edgeFactory, 1.1f, 1 / 1.1f);
   }
 
@@ -56,9 +56,9 @@ public class EditingModalGraphMouse extends AbstractModalGraphMouse
    * @param out amount to zoom out by for each action
    */
   public EditingModalGraphMouse(
-      RenderContext rc,
-      Supplier<Object> vertexFactory,
-      Supplier<Object> edgeFactory,
+      RenderContext<V, E> rc,
+      Supplier<V> vertexFactory,
+      Supplier<E> edgeFactory,
       float in,
       float out) {
     super(in, out);
@@ -73,16 +73,16 @@ public class EditingModalGraphMouse extends AbstractModalGraphMouse
   /** create the plugins, and load the plugins for TRANSFORMING mode */
   @Override
   protected void loadPlugins() {
-    pickingPlugin = new PickingGraphMousePlugin();
-    animatedPickingPlugin = new AnimatedPickingGraphMousePlugin();
+    pickingPlugin = new PickingGraphMousePlugin<V, E>();
+    animatedPickingPlugin = new AnimatedPickingGraphMousePlugin<V, E>();
     translatingPlugin = new TranslatingGraphMousePlugin(InputEvent.BUTTON1_MASK);
     scalingPlugin = new ScalingGraphMousePlugin(new CrossoverScalingControl(), 0, in, out);
     rotatingPlugin = new RotatingGraphMousePlugin();
     shearingPlugin = new ShearingGraphMousePlugin();
-    editingPlugin = new EditingGraphMousePlugin(vertexFactory, edgeFactory);
-    labelEditingPlugin = new LabelEditingGraphMousePlugin();
-    annotatingPlugin = new AnnotatingGraphMousePlugin(rc);
-    popupEditingPlugin = new EditingPopupGraphMousePlugin(vertexFactory, edgeFactory);
+    editingPlugin = new EditingGraphMousePlugin<V, E>(vertexFactory, edgeFactory);
+    labelEditingPlugin = new LabelEditingGraphMousePlugin<V, E>();
+    annotatingPlugin = new AnnotatingGraphMousePlugin<V, E>(rc);
+    popupEditingPlugin = new EditingPopupGraphMousePlugin<V, E>(vertexFactory, edgeFactory);
     add(scalingPlugin);
     setMode(Mode.EDITING);
   }
@@ -287,22 +287,22 @@ public class EditingModalGraphMouse extends AbstractModalGraphMouse
   }
 
   /** @return the annotatingPlugin */
-  public AnnotatingGraphMousePlugin getAnnotatingPlugin() {
+  public AnnotatingGraphMousePlugin<V, E> getAnnotatingPlugin() {
     return annotatingPlugin;
   }
 
   /** @return the editingPlugin */
-  public EditingGraphMousePlugin getEditingPlugin() {
+  public EditingGraphMousePlugin<V, E> getEditingPlugin() {
     return editingPlugin;
   }
 
   /** @return the labelEditingPlugin */
-  public LabelEditingGraphMousePlugin getLabelEditingPlugin() {
+  public LabelEditingGraphMousePlugin<V, E> getLabelEditingPlugin() {
     return labelEditingPlugin;
   }
 
   /** @return the popupEditingPlugin */
-  public EditingPopupGraphMousePlugin getPopupEditingPlugin() {
+  public EditingPopupGraphMousePlugin<V, E> getPopupEditingPlugin() {
     return popupEditingPlugin;
   }
 }

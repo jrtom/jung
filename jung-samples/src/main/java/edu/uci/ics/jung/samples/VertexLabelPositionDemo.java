@@ -56,7 +56,7 @@ public class VertexLabelPositionDemo extends JApplet {
   FRLayout<String> graphLayout;
 
   /** the visual component and renderer for the graph */
-  VisualizationViewer vv;
+  VisualizationViewer<String, Number> vv;
 
   ScalingControl scaler;
 
@@ -71,18 +71,18 @@ public class VertexLabelPositionDemo extends JApplet {
 
     Dimension preferredSize = new Dimension(600, 600);
 
-    final VisualizationModel visualizationModel =
-        new DefaultVisualizationModel(graph, graphLayout, preferredSize);
-    vv = new VisualizationViewer(visualizationModel, preferredSize);
+    final VisualizationModel<String, Number> visualizationModel =
+        new DefaultVisualizationModel<String, Number>(graph, graphLayout, preferredSize);
+    vv = new VisualizationViewer<String, Number>(visualizationModel, preferredSize);
 
-    PickedState ps = vv.getPickedVertexState();
-    PickedState pes = vv.getPickedEdgeState();
+    PickedState<String> ps = vv.getPickedVertexState();
+    PickedState<Number> pes = vv.getPickedEdgeState();
     vv.getRenderContext()
         .setVertexFillPaintTransformer(
-            new PickableVertexPaintTransformer(ps, Color.red, Color.yellow));
+            new PickableVertexPaintTransformer<String>(ps, Color.red, Color.yellow));
     vv.getRenderContext()
         .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer(pes, Color.black, Color.cyan));
+            new PickableEdgePaintTransformer<Number>(pes, Color.black, Color.cyan));
     vv.setBackground(Color.white);
     vv.getRenderer().getVertexLabelRenderer().setPosition(Renderer.VertexLabel.Position.W);
 
@@ -96,7 +96,8 @@ public class VertexLabelPositionDemo extends JApplet {
     content.add(gzsp);
 
     /** the regular graph mouse for the normal view */
-    final DefaultModalGraphMouse graphMouse = new DefaultModalGraphMouse();
+    final DefaultModalGraphMouse<String, Number> graphMouse =
+        new DefaultModalGraphMouse<String, Number>();
 
     vv.setGraphMouse(graphMouse);
     vv.addKeyListener(graphMouse.getModeKeyListener());

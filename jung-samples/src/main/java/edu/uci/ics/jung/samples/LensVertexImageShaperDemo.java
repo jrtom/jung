@@ -84,7 +84,7 @@ public class LensVertexImageShaperDemo extends JApplet {
   Network<Number, Number> graph;
 
   /** the visual component and renderer for the graph */
-  VisualizationViewer vv;
+  VisualizationViewer<Number, Number> vv;
 
   /** some icon names to use */
   String[] iconNames = {
@@ -112,8 +112,8 @@ public class LensVertexImageShaperDemo extends JApplet {
     graph = createGraph();
 
     // Maps for the labels and icons
-    Map<Object, String> map = new HashMap<>();
-    Map<Object, Icon> iconMap = new HashMap<>();
+    Map<Number, String> map = new HashMap<Number, String>();
+    Map<Number, Icon> iconMap = new HashMap<Number, Icon>();
     for (Number node : graph.nodes()) {
       int i = node.intValue();
       map.put(node, iconNames[i % iconNames.length]);
@@ -131,27 +131,29 @@ public class LensVertexImageShaperDemo extends JApplet {
 
     FRLayout<Number> layout = new FRLayout<Number>(graph.asGraph());
     layout.setMaxIterations(100);
-    vv = new VisualizationViewer(graph, layout, new Dimension(600, 600));
+    vv = new VisualizationViewer<Number, Number>(graph, layout, new Dimension(600, 600));
 
-    Function<Object, Paint> vpf =
-        new PickableVertexPaintTransformer(vv.getPickedVertexState(), Color.white, Color.yellow);
+    Function<Number, Paint> vpf =
+        new PickableVertexPaintTransformer<Number>(
+            vv.getPickedVertexState(), Color.white, Color.yellow);
     vv.getRenderContext().setVertexFillPaintTransformer(vpf);
     vv.getRenderContext()
         .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer(vv.getPickedEdgeState(), Color.black, Color.cyan));
+            new PickableEdgePaintTransformer<Number>(
+                vv.getPickedEdgeState(), Color.black, Color.cyan));
 
     vv.setBackground(Color.white);
 
-    final Function<Object, String> vertexStringerImpl = new VertexStringerImpl(map);
+    final Function<Number, String> vertexStringerImpl = new VertexStringerImpl<Number>(map);
     vv.getRenderContext().setVertexLabelTransformer(vertexStringerImpl);
     vv.getRenderContext().setVertexLabelRenderer(new DefaultVertexLabelRenderer(Color.cyan));
     vv.getRenderContext().setEdgeLabelRenderer(new DefaultEdgeLabelRenderer(Color.cyan));
 
     // features on and off. For a real application, use VertexIconAndShapeFunction instead.
-    final VertexIconShapeTransformer vertexImageShapeFunction =
-        new VertexIconShapeTransformer(new EllipseVertexShapeTransformer());
+    final VertexIconShapeTransformer<Number> vertexImageShapeFunction =
+        new VertexIconShapeTransformer<Number>(new EllipseVertexShapeTransformer<Number>());
 
-    final Function<Object, Icon> vertexIconFunction = iconMap::get;
+    final Function<Number, Icon> vertexIconFunction = iconMap::get;
 
     vertexImageShapeFunction.setIconMap(iconMap);
 
@@ -160,7 +162,7 @@ public class LensVertexImageShaperDemo extends JApplet {
 
     // Get the pickedState and add a listener that will decorate the
     // Vertex images with a checkmark icon when they are picked
-    PickedState ps = vv.getPickedVertexState();
+    PickedState<Number> ps = vv.getPickedVertexState();
     ps.addItemListener(new PickWithIconListener(vertexIconFunction));
 
     vv.addPostRenderPaintable(
@@ -202,7 +204,8 @@ public class LensVertexImageShaperDemo extends JApplet {
     final GraphZoomScrollPane panel = new GraphZoomScrollPane(vv);
     content.add(panel);
 
-    final DefaultModalGraphMouse graphMouse = new DefaultModalGraphMouse();
+    final DefaultModalGraphMouse<Number, Number> graphMouse =
+        new DefaultModalGraphMouse<Number, Number>();
     vv.setGraphMouse(graphMouse);
 
     final ScalingControl scaler = new CrossoverScalingControl();
@@ -237,12 +240,12 @@ public class LensVertexImageShaperDemo extends JApplet {
     controls.add(modePanel);
     content.add(controls, BorderLayout.SOUTH);
 
-    this.viewSupport = new MagnifyImageLensSupport(vv);
+    this.viewSupport = new MagnifyImageLensSupport<Number, Number>(vv);
     //        	new ViewLensSupport<Number,Number>(vv, new HyperbolicShapeTransformer(vv,
     //        		vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.VIEW)),
     //                new ModalLensGraphMouse());
 
-    this.modelSupport = new LayoutLensSupport(vv);
+    this.modelSupport = new LayoutLensSupport<Number, Number>(vv);
 
     graphMouse.addItemListener(modelSupport.getGraphMouse().getModeListener());
     graphMouse.addItemListener(viewSupport.getGraphMouse().getModeListener());
@@ -308,7 +311,9 @@ public class LensVertexImageShaperDemo extends JApplet {
       this.map = map;
     }
 
-    /** */
+    /**
+     * @see edu.uci.ics.jung.graph.decorators.VertexStringer#getLabel(edu.uci.ics.jung.graph.Vertex)
+     */
     public String apply(V v) {
       if (isEnabled()) {
         return map.get(v);
@@ -354,10 +359,10 @@ public class LensVertexImageShaperDemo extends JApplet {
   }
 
   public static class PickWithIconListener implements ItemListener {
-    Function<Object, Icon> imager;
+    Function<Number, Icon> imager;
     Icon checked;
 
-    public PickWithIconListener(Function<Object, Icon> imager) {
+    public PickWithIconListener(Function<Number, Icon> imager) {
       this.imager = imager;
       checked = new Checkmark(Color.red);
     }

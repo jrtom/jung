@@ -86,7 +86,7 @@ public class VertexImageShaperDemo extends JApplet {
   Network<Number, Number> graph;
 
   /** the visual component and renderer for the graph */
-  VisualizationViewer vv;
+  VisualizationViewer<Number, Number> vv;
 
   /** some icon names to use */
   String[] iconNames = {
@@ -109,8 +109,8 @@ public class VertexImageShaperDemo extends JApplet {
     graph = createGraph();
 
     // Maps for the labels and icons
-    Map<Object, String> map = new HashMap<Object, String>();
-    Map<Object, Icon> iconMap = new HashMap<Object, Icon>();
+    Map<Number, String> map = new HashMap<Number, String>();
+    Map<Number, Icon> iconMap = new HashMap<Number, Icon>();
     for (Number node : graph.nodes()) {
       int i = node.intValue();
       map.put(node, iconNames[i % iconNames.length]);
@@ -129,23 +129,25 @@ public class VertexImageShaperDemo extends JApplet {
     FRLayout<Number> layout = new FRLayout<Number>(graph.asGraph());
     layout.setMaxIterations(100);
     layout.setInitializer(new RandomLocationTransformer<Number>(new Dimension(400, 400), 0));
-    vv = new VisualizationViewer(graph, layout, new Dimension(400, 400));
+    vv = new VisualizationViewer<Number, Number>(graph, layout, new Dimension(400, 400));
 
     // This demo uses a special renderer to turn outlines on and off.
     // you do not need to do this in a real application.
     // Instead, just let vv use the Renderer it already has
-    vv.getRenderer().setVertexRenderer(new DemoRenderer());
+    vv.getRenderer().setVertexRenderer(new DemoRenderer<Number, Number>());
 
-    Function<Object, Paint> vpf =
-        new PickableVertexPaintTransformer(vv.getPickedVertexState(), Color.white, Color.yellow);
+    Function<Number, Paint> vpf =
+        new PickableVertexPaintTransformer<Number>(
+            vv.getPickedVertexState(), Color.white, Color.yellow);
     vv.getRenderContext().setVertexFillPaintTransformer(vpf);
     vv.getRenderContext()
         .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer(vv.getPickedEdgeState(), Color.black, Color.cyan));
+            new PickableEdgePaintTransformer<Number>(
+                vv.getPickedEdgeState(), Color.black, Color.cyan));
 
     vv.setBackground(Color.white);
 
-    final Function<Object, String> vertexStringerImpl = new VertexStringerImpl<Object, String>(map);
+    final Function<Number, String> vertexStringerImpl = new VertexStringerImpl<Number, String>(map);
     vv.getRenderContext().setVertexLabelTransformer(vertexStringerImpl);
     vv.getRenderContext().setVertexLabelRenderer(new DefaultVertexLabelRenderer(Color.cyan));
     vv.getRenderContext().setEdgeLabelRenderer(new DefaultEdgeLabelRenderer(Color.cyan));
@@ -158,11 +160,12 @@ public class VertexImageShaperDemo extends JApplet {
 
     // For this demo only, I use a special class that lets me turn various
     // features on and off. For a real application, use VertexIconShapeTransformer instead.
-    final DemoVertexIconShapeTransformer vertexIconShapeTransformer =
-        new DemoVertexIconShapeTransformer(new EllipseVertexShapeTransformer());
+    final DemoVertexIconShapeTransformer<Number> vertexIconShapeTransformer =
+        new DemoVertexIconShapeTransformer<Number>(new EllipseVertexShapeTransformer<Number>());
     vertexIconShapeTransformer.setIconMap(iconMap);
 
-    final DemoVertexIconTransformer vertexIconTransformer = new DemoVertexIconTransformer(iconMap);
+    final DemoVertexIconTransformer<Number> vertexIconTransformer =
+        new DemoVertexIconTransformer<Number>(iconMap);
 
     vv.getRenderContext().setVertexShapeTransformer(vertexIconShapeTransformer);
     vv.getRenderContext().setVertexIconTransformer(vertexIconTransformer);
@@ -172,7 +175,7 @@ public class VertexImageShaperDemo extends JApplet {
 
     // Get the pickedState and add a listener that will decorate the
     // Vertex images with a checkmark icon when they are picked
-    PickedState ps = vv.getPickedVertexState();
+    PickedState<Number> ps = vv.getPickedVertexState();
     ps.addItemListener(new PickWithIconListener<Number>(vertexIconTransformer));
 
     vv.addPostRenderPaintable(
@@ -214,7 +217,8 @@ public class VertexImageShaperDemo extends JApplet {
     final GraphZoomScrollPane panel = new GraphZoomScrollPane(vv);
     content.add(panel);
 
-    final DefaultModalGraphMouse graphMouse = new DefaultModalGraphMouse();
+    final DefaultModalGraphMouse<Number, Number> graphMouse =
+        new DefaultModalGraphMouse<Number, Number>();
     vv.setGraphMouse(graphMouse);
     vv.addKeyListener(graphMouse.getModeKeyListener());
     final ScalingControl scaler = new CrossoverScalingControl();
@@ -422,11 +426,11 @@ public class VertexImageShaperDemo extends JApplet {
    * this class exists only to provide settings to turn on/off shapes and image fill in this demo.
    * In a real application, use VertexIconShapeTransformer instead.
    */
-  public static class DemoVertexIconShapeTransformer extends VertexIconShapeTransformer {
+  public static class DemoVertexIconShapeTransformer<V> extends VertexIconShapeTransformer<V> {
 
     boolean shapeImages = true;
 
-    public DemoVertexIconShapeTransformer(Function<Object, Shape> delegate) {
+    public DemoVertexIconShapeTransformer(Function<V, Shape> delegate) {
       super(delegate);
     }
 
@@ -440,7 +444,7 @@ public class VertexImageShaperDemo extends JApplet {
       this.shapeImages = shapeImages;
     }
 
-    public Shape transform(Object v) {
+    public Shape transform(V v) {
       Icon icon = (Icon) iconMap.get(v);
 
       if (icon != null && icon instanceof ImageIcon) {
@@ -476,10 +480,10 @@ public class VertexImageShaperDemo extends JApplet {
    *
    * @author Tom Nelson
    */
-  class DemoRenderer extends BasicVertexRenderer {
+  class DemoRenderer<V, E> extends BasicVertexRenderer<V, E> {
 
     public void paintIconForVertex(
-        RenderContext renderContext, LayoutMediator layoutMediator, Object v) {
+        RenderContext<V, E> renderContext, LayoutMediator<V, E> layoutMediator, V v) {
 
       Point2D p = layoutMediator.getLayout().apply(v);
       p = renderContext.getMultiLayerTransformer().transform(Layer.LAYOUT, p);
@@ -488,10 +492,10 @@ public class VertexImageShaperDemo extends JApplet {
 
       GraphicsDecorator g = renderContext.getGraphicsContext();
       boolean outlineImages = false;
-      Function<Object, Icon> vertexIconFunction = renderContext.getVertexIconTransformer();
+      Function<V, Icon> vertexIconFunction = renderContext.getVertexIconTransformer();
 
       if (vertexIconFunction instanceof DemoVertexIconTransformer) {
-        outlineImages = ((DemoVertexIconTransformer) vertexIconFunction).isOutlineImages();
+        outlineImages = ((DemoVertexIconTransformer<V>) vertexIconFunction).isOutlineImages();
       }
       Icon icon = vertexIconFunction.apply(v);
       if (icon == null || outlineImages) {

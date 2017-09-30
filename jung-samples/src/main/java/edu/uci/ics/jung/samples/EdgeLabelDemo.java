@@ -68,7 +68,7 @@ public class EdgeLabelDemo extends JApplet {
   Network<Integer, Number> graph;
 
   /** the visual component and renderer for the graph */
-  VisualizationViewer vv;
+  VisualizationViewer<Integer, Number> vv;
 
   /** */
   VertexLabelRenderer vertexLabelRenderer;
@@ -85,25 +85,27 @@ public class EdgeLabelDemo extends JApplet {
     graph = buildGraph();
 
     Layout<Integer> layout = new CircleLayout<Integer>(graph.asGraph());
-    vv = new VisualizationViewer(graph, layout, new Dimension(600, 400));
+    vv = new VisualizationViewer<Integer, Number>(graph, layout, new Dimension(600, 400));
     vv.setBackground(Color.white);
 
     vertexLabelRenderer = vv.getRenderContext().getVertexLabelRenderer();
     edgeLabelRenderer = vv.getRenderContext().getEdgeLabelRenderer();
 
-    Function<Object, String> stringer =
-        new Function<Object, String>() {
-          public String apply(Object e) {
-            return "Edge:" + graph.incidentNodes((Number) e).toString();
+    Function<Number, String> stringer =
+        new Function<Number, String>() {
+          public String apply(Number e) {
+            return "Edge:" + graph.incidentNodes(e).toString();
           }
         };
     vv.getRenderContext().setEdgeLabelTransformer(stringer);
     vv.getRenderContext()
         .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer(vv.getPickedEdgeState(), Color.black, Color.cyan));
+            new PickableEdgePaintTransformer<Number>(
+                vv.getPickedEdgeState(), Color.black, Color.cyan));
     vv.getRenderContext()
         .setVertexFillPaintTransformer(
-            new PickableVertexPaintTransformer(vv.getPickedVertexState(), Color.red, Color.yellow));
+            new PickableVertexPaintTransformer<Integer>(
+                vv.getPickedVertexState(), Color.red, Color.yellow));
     // add my listener for ToolTips
     vv.setVertexToolTipTransformer(new ToStringLabeller());
 
@@ -112,7 +114,8 @@ public class EdgeLabelDemo extends JApplet {
     Container content = getContentPane();
     content.add(panel);
 
-    final DefaultModalGraphMouse graphMouse = new DefaultModalGraphMouse();
+    final DefaultModalGraphMouse<Integer, Number> graphMouse =
+        new DefaultModalGraphMouse<Integer, Number>();
     vv.setGraphMouse(graphMouse);
 
     JButton plus = new JButton("+");
@@ -202,7 +205,7 @@ public class EdgeLabelDemo extends JApplet {
           @SuppressWarnings("rawtypes")
           public void stateChanged(ChangeEvent e) {
             JSlider s = (JSlider) e.getSource();
-            Function<Context<Network, Object>, Shape> edgeShapeFunction =
+            Function<Context<Network, Number>, Shape> edgeShapeFunction =
                 vv.getRenderContext().getEdgeShapeTransformer();
             if (edgeShapeFunction instanceof ParallelEdgeShapeTransformer) {
               ((ParallelEdgeShapeTransformer) edgeShapeFunction)

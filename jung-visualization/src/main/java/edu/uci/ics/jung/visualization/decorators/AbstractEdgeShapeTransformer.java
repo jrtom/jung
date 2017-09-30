@@ -23,10 +23,10 @@ public abstract class AbstractEdgeShapeTransformer<V, E>
     implements Function<Context<Network<V, E>, E>, Shape> {
 
   /** Specifies how far apart to place the control points for edges being drawn in parallel. */
-  protected float controlOffsetIncrement = 20.f;
+  protected float control_offset_increment = 20.f;
 
   /** Sets the value of <code>control_offset_increment</code>. */
   public void setControlOffsetIncrement(float y) {
-    controlOffsetIncrement = y;
+    control_offset_increment = y;
   }
 }

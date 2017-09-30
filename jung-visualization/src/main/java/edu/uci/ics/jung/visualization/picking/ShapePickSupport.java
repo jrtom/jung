@@ -37,7 +37,7 @@ import java.util.function.Predicate;
  *
  * @author Tom Nelson
  */
-public class ShapePickSupport implements NetworkElementAccessor<Object, Object> {
+public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
 
   /**
    * The available picking heuristics:
@@ -66,7 +66,7 @@ public class ShapePickSupport implements NetworkElementAccessor<Object, Object> 
    * to retrieve properties such as the layout, renderer, vertex and edge shapes, and coordinate
    * transformations.
    */
-  protected VisualizationServer vv;
+  protected VisualizationServer<V, E> vv;
 
   /** The current picking heuristic for this instance. Defaults to <code>CENTERED</code>. */
   protected Style style = Style.CENTERED;
@@ -80,7 +80,7 @@ public class ShapePickSupport implements NetworkElementAccessor<Object, Object> 
    * @param vv source of the current <code>Layout</code>.
    * @param pickSize the size of the pick footprint for line edges
    */
-  public ShapePickSupport(VisualizationServer vv, float pickSize) {
+  public ShapePickSupport(VisualizationServer<V, E> vv, float pickSize) {
     this.vv = vv;
     this.pickSize = pickSize;
   }
@@ -91,7 +91,7 @@ public class ShapePickSupport implements NetworkElementAccessor<Object, Object> 
    *
    * @param vv the visualization server used for rendering
    */
-  public ShapePickSupport(VisualizationServer vv) {
+  public ShapePickSupport(VisualizationServer<V, E> vv) {
     this.vv = vv;
     this.pickSize = 2;
   }
@@ -148,9 +148,9 @@ public class ShapePickSupport implements NetworkElementAccessor<Object, Object> 
    * @return the vertex whose shape contains (x,y), and whose center is closest to the pick point
    */
   @Override
-  public Object getNode(double x, double y) {
+  public V getNode(double x, double y) {
 
-    Object closest = null;
+    V closest = null;
     double minDistance = Double.MAX_VALUE;
     Point2D ip =
         vv.getRenderContext()
@@ -158,11 +158,11 @@ public class ShapePickSupport implements NetworkElementAccessor<Object, Object> 
             .inverseTransform(Layer.VIEW, new Point2D.Double(x, y));
     x = ip.getX();
     y = ip.getY();
-    Layout<Object> layout = vv.getModel().getLayoutMediator().getLayout();
+    Layout<V> layout = vv.getModel().getLayoutMediator().getLayout();
 
     while (true) {
       try {
-        for (Object v : getFilteredVertices()) {
+        for (V v : getFilteredVertices()) {
 
           Shape shape = vv.getRenderContext().getVertexShapeTransformer().apply(v);
           // get the vertex location
@@ -215,16 +215,16 @@ public class ShapePickSupport implements NetworkElementAccessor<Object, Object> 
    *     contained in <code>shape</code>.
    */
   @Override
-  public Collection getNodes(Shape shape) {
-    Set pickedVertices = new HashSet();
+  public Collection<V> getNodes(Shape shape) {
+    Set<V> pickedVertices = new HashSet<V>();
 
     // remove the view transform from the rectangle
     shape = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(Layer.VIEW, shape);
 
     while (true) {
       try {
-        Layout<Object> layout = vv.getModel().getLayoutMediator().getLayout();
-        for (Object v : getFilteredVertices()) {
+        Layout<V> layout = vv.getModel().getLayoutMediator().getLayout();
+        for (V v : getFilteredVertices()) {
           Point2D p = layout.apply(v);
           if (p == null) {
             continue;
@@ -250,7 +250,7 @@ public class ShapePickSupport implements NetworkElementAccessor<Object, Object> 
    * @return an edge whose shape intersects the pick area centered on the location {@code (x,y)}
    */
   @Override
-  public Object getEdge(double x, double y) {
+  public E getEdge(double x, double y) {
 
     Point2D ip =
         vv.getRenderContext()
@@ -265,11 +265,11 @@ public class ShapePickSupport implements NetworkElementAccessor<Object, Object> 
     Rectangle2D pickArea =
         new Rectangle2D.Float(
             (float) x - pickSize / 2, (float) y - pickSize / 2, pickSize, pickSize);
-    Object closest = null;
+    E closest = null;
     double minDistance = Double.MAX_VALUE;
     while (true) {
       try {
-        for (Object e : getFilteredEdges()) {
+        for (E e : getFilteredEdges()) {
 
           Shape edgeShape = getTransformedEdgeShape(e);
           if (edgeShape == null) {
@@ -314,15 +314,16 @@ public class ShapePickSupport implements NetworkElementAccessor<Object, Object> 
    * Retrieves the shape template for <code>e</code> and transforms it according to the positions of
    * its endpoints in <code>layout</code>.
    *
+   * @param layout the <code>Layout</code> which specifies <code>e</code>'s endpoints' positions
    * @param e the edge whose shape is to be returned
    * @return the transformed shape
    */
-  private Shape getTransformedEdgeShape(Object e) {
-    EndpointPair endpoints = vv.getModel().getLayoutMediator().getNetwork().incidentNodes(e);
-    Object v1 = endpoints.nodeU();
-    Object v2 = endpoints.nodeV();
+  private Shape getTransformedEdgeShape(E e) {
+    EndpointPair<V> endpoints = vv.getModel().getLayoutMediator().getNetwork().incidentNodes(e);
+    V v1 = endpoints.nodeU();
+    V v2 = endpoints.nodeV();
     boolean isLoop = v1.equals(v2);
-    Layout<Object> layout = vv.getModel().getLayoutMediator().getLayout();
+    Layout<V> layout = vv.getModel().getLayoutMediator().getLayout();
     Point2D p1 =
         vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, layout.apply(v1));
     Point2D p2 =
@@ -365,15 +366,15 @@ public class ShapePickSupport implements NetworkElementAccessor<Object, Object> 
     return edgeShape;
   }
 
-  protected Collection getFilteredVertices() {
-    Set nodes = vv.getModel().getLayoutMediator().getNetwork().nodes();
+  protected Collection<V> getFilteredVertices() {
+    Set<V> nodes = vv.getModel().getLayoutMediator().getNetwork().nodes();
     return verticesAreFiltered()
         ? Sets.filter(nodes, vv.getRenderContext().getVertexIncludePredicate()::test)
         : nodes;
   }
 
-  protected Collection getFilteredEdges() {
-    Set edges = vv.getModel().getLayoutMediator().getNetwork().edges();
+  protected Collection<E> getFilteredEdges() {
+    Set<E> edges = vv.getModel().getLayoutMediator().getNetwork().edges();
     return edgesAreFiltered()
         ? Sets.filter(edges, vv.getRenderContext().getEdgeIncludePredicate()::test)
         : edges;
@@ -386,9 +387,9 @@ public class ShapePickSupport implements NetworkElementAccessor<Object, Object> 
    *     visualization, <code>false</code> otherwise
    */
   protected boolean verticesAreFiltered() {
-    Predicate vertexIncludePredicate = vv.getRenderContext().getVertexIncludePredicate();
+    Predicate<V> vertexIncludePredicate = vv.getRenderContext().getVertexIncludePredicate();
     return vertexIncludePredicate != null
-        && !vertexIncludePredicate.equals((Predicate) (n -> true));
+        && !vertexIncludePredicate.equals((Predicate<V>) (n -> true));
   }
 
   /**
@@ -398,19 +399,20 @@ public class ShapePickSupport implements NetworkElementAccessor<Object, Object> 
    *     visualization, <code>false</code> otherwise
    */
   protected boolean edgesAreFiltered() {
-    Predicate edgeIncludePredicate = vv.getRenderContext().getEdgeIncludePredicate();
-    return edgeIncludePredicate != null && !edgeIncludePredicate.equals((Predicate) (n -> true));
+    Predicate<E> edgeIncludePredicate = vv.getRenderContext().getEdgeIncludePredicate();
+    return edgeIncludePredicate != null && !edgeIncludePredicate.equals((Predicate<V>) (n -> true));
   }
 
   /**
    * Returns <code>true</code> if this vertex in this graph is included in the collections of
    * elements to be rendered, and <code>false</code> otherwise.
    *
+   * @param context the vertex and graph to be queried
    * @return <code>true</code> if this vertex is included in the collections of elements to be
    *     rendered, <code>false</code> otherwise.
    */
-  protected boolean isVertexRendered(Object vertex) {
-    Predicate<Object> vertexIncludePredicate = vv.getRenderContext().getVertexIncludePredicate();
+  protected boolean isVertexRendered(V vertex) {
+    Predicate<V> vertexIncludePredicate = vv.getRenderContext().getVertexIncludePredicate();
     return vertexIncludePredicate == null || vertexIncludePredicate.test(vertex);
   }
 
@@ -418,19 +420,20 @@ public class ShapePickSupport implements NetworkElementAccessor<Object, Object> 
    * Returns <code>true</code> if this edge and its endpoints in this graph are all included in the
    * collections of elements to be rendered, and <code>false</code> otherwise.
    *
+   * @param context the edge and graph to be queried
    * @return <code>true</code> if this edge and its endpoints are all included in the collections of
    *     elements to be rendered, <code>false</code> otherwise.
    */
-  protected boolean isEdgeRendered(Object edge) {
-    Predicate vertexIncludePredicate = vv.getRenderContext().getVertexIncludePredicate();
-    Predicate edgeIncludePredicate = vv.getRenderContext().getEdgeIncludePredicate();
-    Network g = vv.getModel().getLayoutMediator().getNetwork();
+  protected boolean isEdgeRendered(E edge) {
+    Predicate<V> vertexIncludePredicate = vv.getRenderContext().getVertexIncludePredicate();
+    Predicate<E> edgeIncludePredicate = vv.getRenderContext().getEdgeIncludePredicate();
+    Network<V, E> g = vv.getModel().getLayoutMediator().getNetwork();
     if (edgeIncludePredicate != null && !edgeIncludePredicate.test(edge)) {
       return false;
     }
-    EndpointPair endpoints = g.incidentNodes(edge);
-    Object v1 = endpoints.nodeU();
-    Object v2 = endpoints.nodeV();
+    EndpointPair<V> endpoints = g.incidentNodes(edge);
+    V v1 = endpoints.nodeU();
+    V v2 = endpoints.nodeV();
     return vertexIncludePredicate == null
         || (vertexIncludePredicate.test(v1) && vertexIncludePredicate.test(v2));
   }

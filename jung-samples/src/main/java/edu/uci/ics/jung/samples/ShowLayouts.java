@@ -86,9 +86,9 @@ public class ShowLayouts extends JApplet {
   /** @author danyelf */
   private static final class LayoutChooser implements ActionListener {
     private final JComboBox<?> jcb;
-    private final VisualizationViewer vv;
+    private final VisualizationViewer<Integer, Number> vv;
 
-    private LayoutChooser(JComboBox<?> jcb, VisualizationViewer vv) {
+    private LayoutChooser(JComboBox<?> jcb, VisualizationViewer<Integer, Number> vv) {
       super();
       this.jcb = jcb;
       this.vv = vv;
@@ -103,8 +103,8 @@ public class ShowLayouts extends JApplet {
         layout.setInitializer(vv.getGraphLayout());
         layout.setSize(vv.getSize());
 
-        LayoutTransition lt =
-            new LayoutTransition(
+        LayoutTransition<Integer, Number> lt =
+            new LayoutTransition<Integer, Number>(
                 vv, vv.getModel().getLayoutMediator(), new LayoutMediator(network, layout));
         Animator animator = new Animator(lt);
         animator.start();
@@ -151,13 +151,16 @@ public class ShowLayouts extends JApplet {
 
     Network g = g_array[4]; // initial graph
 
-    final VisualizationViewer vv = new VisualizationViewer(g, new FRLayout(g.asGraph()));
+    final VisualizationViewer<Integer, Number> vv =
+        new VisualizationViewer<Integer, Number>(g, new FRLayout(g.asGraph()));
 
     vv.getRenderContext()
         .setVertexFillPaintTransformer(
-            new PickableVertexPaintTransformer(vv.getPickedVertexState(), Color.red, Color.yellow));
+            new PickableVertexPaintTransformer<Integer>(
+                vv.getPickedVertexState(), Color.red, Color.yellow));
 
-    final DefaultModalGraphMouse graphMouse = new DefaultModalGraphMouse();
+    final DefaultModalGraphMouse<Integer, Number> graphMouse =
+        new DefaultModalGraphMouse<Integer, Number>();
     vv.setGraphMouse(graphMouse);
 
     final ScalingControl scaler = new CrossoverScalingControl();
@@ -193,7 +196,8 @@ public class ShowLayouts extends JApplet {
         });
 
     JComboBox modeBox = graphMouse.getModeComboBox();
-    modeBox.addItemListener(((DefaultModalGraphMouse) vv.getGraphMouse()).getModeListener());
+    modeBox.addItemListener(
+        ((DefaultModalGraphMouse<Integer, Number>) vv.getGraphMouse()).getModeListener());
 
     JPanel jp = new JPanel();
     jp.setBackground(Color.WHITE);

@@ -56,7 +56,7 @@ public class AnimatingAddNodeDemo extends javax.swing.JApplet {
 
   private MutableNetwork<Number, Number> g = null;
 
-  private VisualizationViewer vv = null;
+  private VisualizationViewer<Number, Number> vv = null;
 
   private AbstractLayout<Number> layout = null;
 
@@ -93,7 +93,7 @@ public class AnimatingAddNodeDemo extends javax.swing.JApplet {
 
     Layout<Number> staticLayout = new StaticLayout<Number>(g.asGraph(), layout);
 
-    vv = new VisualizationViewer(ig, staticLayout, new Dimension(600, 600));
+    vv = new VisualizationViewer<Number, Number>(ig, staticLayout, new Dimension(600, 600));
 
     JRootPane rp = this.getRootPane();
     rp.putClientProperty("defeatSystemEventQueueCheck", Boolean.TRUE);
@@ -102,7 +102,7 @@ public class AnimatingAddNodeDemo extends javax.swing.JApplet {
     getContentPane().setBackground(java.awt.Color.lightGray);
     getContentPane().setFont(new Font("Serif", Font.PLAIN, 12));
 
-    vv.setGraphMouse(new DefaultModalGraphMouse());
+    vv.setGraphMouse(new DefaultModalGraphMouse<Number, Number>());
 
     vv.getRenderer().getVertexLabelRenderer().setPosition(Renderer.VertexLabel.Position.CNTR);
     vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
@@ -137,8 +137,8 @@ public class AnimatingAddNodeDemo extends javax.swing.JApplet {
               relaxer.stop();
               relaxer.prerelax();
               StaticLayout<Number> staticLayout = new StaticLayout<Number>(g.asGraph(), layout);
-              LayoutTransition lt =
-                  new LayoutTransition(
+              LayoutTransition<Number, Number> lt =
+                  new LayoutTransition<Number, Number>(
                       vv, vv.getModel().getLayoutMediator(), new LayoutMediator(g, staticLayout));
               Animator animator = new Animator(lt);
               animator.start();
@@ -152,8 +152,8 @@ public class AnimatingAddNodeDemo extends javax.swing.JApplet {
               relaxer.stop();
               relaxer.prerelax();
               StaticLayout<Number> staticLayout = new StaticLayout<Number>(g.asGraph(), layout);
-              LayoutTransition lt =
-                  new LayoutTransition(
+              LayoutTransition<Number, Number> lt =
+                  new LayoutTransition<Number, Number>(
                       vv, vv.getModel().getLayoutMediator(), new LayoutMediator(g, staticLayout));
               Animator animator = new Animator(lt);
               animator.start();
@@ -210,8 +210,8 @@ public class AnimatingAddNodeDemo extends javax.swing.JApplet {
         relaxer.stop();
         relaxer.prerelax();
         StaticLayout<Number> staticLayout = new StaticLayout<Number>(g.asGraph(), layout);
-        LayoutTransition lt =
-            new LayoutTransition(
+        LayoutTransition<Number, Number> lt =
+            new LayoutTransition<Number, Number>(
                 vv, vv.getModel().getLayoutMediator(), new LayoutMediator(g, staticLayout));
         Animator animator = new Animator(lt);
         animator.start();

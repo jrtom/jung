@@ -30,9 +30,9 @@ import java.util.function.Function;
  *
  * @author Joshua O'Madadhain
  */
-public class VertexShapeFactory {
-  protected Function<Object, Integer> vsf;
-  protected Function<Object, Float> varf;
+public class VertexShapeFactory<V> {
+  protected Function<? super V, Integer> vsf;
+  protected Function<? super V, Float> varf;
 
   /**
    * Creates an instance with the specified vertex size and aspect ratio functions.
@@ -40,7 +40,7 @@ public class VertexShapeFactory {
    * @param vsf provides a size (width) for each vertex
    * @param varf provides a height/width ratio for each vertex
    */
-  public VertexShapeFactory(Function<Object, Integer> vsf, Function<Object, Float> varf) {
+  public VertexShapeFactory(Function<? super V, Integer> vsf, Function<? super V, Float> varf) {
     this.vsf = vsf;
     this.varf = varf;
   }
@@ -62,7 +62,7 @@ public class VertexShapeFactory {
    * @param v the vertex for which the shape will be drawn
    * @return a rectangle for this vertex
    */
-  public Rectangle2D getRectangle(Object v) {
+  public Rectangle2D getRectangle(V v) {
     float width = vsf.apply(v);
     float height = width * varf.apply(v);
     float h_offset = -(width / 2);
@@ -80,7 +80,7 @@ public class VertexShapeFactory {
    * @param v the vertex for which the shape will be drawn
    * @return an ellipse for this vertex
    */
-  public Ellipse2D getEllipse(Object v) {
+  public Ellipse2D getEllipse(V v) {
     theEllipse.setFrame(getRectangle(v));
     return theEllipse;
   }
@@ -94,7 +94,7 @@ public class VertexShapeFactory {
    * @param v the vertex for which the shape will be drawn
    * @return an round rectangle for this vertex
    */
-  public RoundRectangle2D getRoundRectangle(Object v) {
+  public RoundRectangle2D getRoundRectangle(V v) {
     Rectangle2D frame = getRectangle(v);
     float arc_size = (float) Math.min(frame.getHeight(), frame.getWidth()) / 2;
     theRoundRectangle.setRoundRect(
@@ -112,7 +112,7 @@ public class VertexShapeFactory {
    * @param num_sides the number of sides of the polygon; must be &ge; 3.
    * @return a regular polygon for this vertex
    */
-  public Shape getRegularPolygon(Object v, int num_sides) {
+  public Shape getRegularPolygon(V v, int num_sides) {
     Preconditions.checkArgument(num_sides >= 3, "Number of sides must be >= 3");
     Rectangle2D frame = getRectangle(v);
     float width = (float) frame.getWidth();
@@ -155,7 +155,7 @@ public class VertexShapeFactory {
    * @param num_points the number of points of the polygon; must be &ge; 5.
    * @return an star shape for this vertex
    */
-  public Shape getRegularStar(Object v, int num_points) {
+  public Shape getRegularStar(V v, int num_points) {
     Preconditions.checkArgument(num_points >= 5, "Number of points must be >= 5");
     Rectangle2D frame = getRectangle(v);
     float width = (float) frame.getWidth();

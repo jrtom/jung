@@ -44,7 +44,7 @@ public class CrossoverScalingControl implements ScalingControl {
     return crossover;
   }
 
-  public void scale(VisualizationServer vv, float amount, Point2D at) {
+  public void scale(VisualizationServer<?, ?> vv, float amount, Point2D at) {
 
     MutableTransformer layoutTransformer =
         vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT);

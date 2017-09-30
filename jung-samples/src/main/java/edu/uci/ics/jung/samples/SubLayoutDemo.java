@@ -92,13 +92,13 @@ public class SubLayoutDemo extends JApplet {
   Class<Layout>[] layoutClasses =
       new Class[] {CircleLayout.class, SpringLayout.class, FRLayout.class, KKLayout.class};
   /** the visual component and renderer for the graph */
-  VisualizationViewer vv;
+  VisualizationViewer<String, Number> vv;
 
   AggregateLayout<String> clusteringLayout;
 
   Dimension subLayoutSize;
 
-  PickedState ps;
+  PickedState<String> ps;
 
   @SuppressWarnings("rawtypes")
   Class<CircleLayout> subLayoutType = CircleLayout.class;
@@ -116,24 +116,26 @@ public class SubLayoutDemo extends JApplet {
     //new SubLayoutDecorator<String,Number>(new FRLayout<String>(graph.asGraph()));
 
     Dimension preferredSize = new Dimension(600, 600);
-    final VisualizationModel visualizationModel =
-        new DefaultVisualizationModel(graph, clusteringLayout, preferredSize);
-    vv = new VisualizationViewer(visualizationModel, preferredSize);
+    final VisualizationModel<String, Number> visualizationModel =
+        new DefaultVisualizationModel<String, Number>(graph, clusteringLayout, preferredSize);
+    vv = new VisualizationViewer<String, Number>(visualizationModel, preferredSize);
 
     ps = vv.getPickedVertexState();
     vv.getRenderContext()
         .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer(vv.getPickedEdgeState(), Color.black, Color.red));
+            new PickableEdgePaintTransformer<Number>(
+                vv.getPickedEdgeState(), Color.black, Color.red));
     vv.getRenderContext()
         .setVertexFillPaintTransformer(
-            new PickableVertexPaintTransformer(vv.getPickedVertexState(), Color.red, Color.yellow));
+            new PickableVertexPaintTransformer<String>(
+                vv.getPickedVertexState(), Color.red, Color.yellow));
     vv.setBackground(Color.white);
 
     // add a listener for ToolTips
     vv.setVertexToolTipTransformer(new ToStringLabeller());
 
     /** the regular graph mouse for the normal view */
-    final DefaultModalGraphMouse graphMouse = new DefaultModalGraphMouse();
+    final DefaultModalGraphMouse<?, ?> graphMouse = new DefaultModalGraphMouse<Object, Object>();
 
     vv.setGraphMouse(graphMouse);
 
@@ -345,13 +347,13 @@ public class SubLayoutDemo extends JApplet {
   private void cluster(boolean state) {
     if (state == true) {
       // put the picked vertices into a new sublayout
-      Collection<Object> picked = ps.getPicked();
+      Collection<String> picked = ps.getPicked();
       if (picked.size() > 1) {
         Point2D center = new Point2D.Double();
         double x = 0;
         double y = 0;
-        for (Object vertex : picked) {
-          Point2D p = clusteringLayout.apply((String) vertex);
+        for (String vertex : picked) {
+          Point2D p = clusteringLayout.apply(vertex);
           x += p.getX();
           y += p.getY();
         }
@@ -362,9 +364,9 @@ public class SubLayoutDemo extends JApplet {
         MutableNetwork<String, Number> subGraph;
         try {
           subGraph = NetworkBuilder.from(graph).build();
-          for (Object vertex : picked) {
-            subGraph.addNode((String) vertex);
-            for (Number edge : graph.incidentEdges((String) vertex)) {
+          for (String vertex : picked) {
+            subGraph.addNode(vertex);
+            for (Number edge : graph.incidentEdges(vertex)) {
               EndpointPair<String> endpoints = graph.incidentNodes(edge);
               String nodeU = endpoints.nodeU();
               String nodeV = endpoints.nodeV();

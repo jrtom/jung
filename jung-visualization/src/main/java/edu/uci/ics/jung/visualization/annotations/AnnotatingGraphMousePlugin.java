@@ -36,7 +36,7 @@ import javax.swing.JOptionPane;
  *
  * @author Tom Nelson
  */
-public class AnnotatingGraphMousePlugin extends AbstractGraphMousePlugin
+public class AnnotatingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
     implements MouseListener, MouseMotionListener {
 
   /** additional modifiers for the action of adding to an existing selection */
@@ -63,7 +63,7 @@ public class AnnotatingGraphMousePlugin extends AbstractGraphMousePlugin
   protected MultiLayerTransformer basicTransformer;
 
   /** holds rendering settings */
-  protected RenderContext rc;
+  protected RenderContext<V, E> rc;
 
   /** set to true when the AnnotationPaintable has been added to the view component */
   protected boolean added = false;
@@ -74,7 +74,7 @@ public class AnnotatingGraphMousePlugin extends AbstractGraphMousePlugin
    *
    * @param rc the RenderContext for which this plugin will be used
    */
-  public AnnotatingGraphMousePlugin(RenderContext rc) {
+  public AnnotatingGraphMousePlugin(RenderContext<V, E> rc) {
     this(rc, InputEvent.BUTTON1_MASK, InputEvent.BUTTON1_MASK | InputEvent.SHIFT_MASK);
   }
 
@@ -86,7 +86,7 @@ public class AnnotatingGraphMousePlugin extends AbstractGraphMousePlugin
    * @param additionalModifiers for additional selection
    */
   public AnnotatingGraphMousePlugin(
-      RenderContext rc, int selectionModifiers, int additionalModifiers) {
+      RenderContext<V, E> rc, int selectionModifiers, int additionalModifiers) {
     super(selectionModifiers);
     this.rc = rc;
     this.basicTransformer = rc.getMultiLayerTransformer();
@@ -129,7 +129,7 @@ public class AnnotatingGraphMousePlugin extends AbstractGraphMousePlugin
    */
   @SuppressWarnings("unchecked")
   public void mousePressed(MouseEvent e) {
-    VisualizationViewer vv = (VisualizationViewer) e.getSource();
+    VisualizationViewer<V, E> vv = (VisualizationViewer<V, E>) e.getSource();
     down = e.getPoint();
 
     if (added == false) {
@@ -159,7 +159,7 @@ public class AnnotatingGraphMousePlugin extends AbstractGraphMousePlugin
   /** Completes the process of adding a Shape annotation and removed the transient paintable */
   @SuppressWarnings("unchecked")
   public void mouseReleased(MouseEvent e) {
-    VisualizationViewer vv = (VisualizationViewer) e.getSource();
+    VisualizationViewer<V, E> vv = (VisualizationViewer<V, E>) e.getSource();
     if (e.isPopupTrigger()) {
       String annotationString = JOptionPane.showInputDialog(vv, "Annotation:");
       if (annotationString != null && annotationString.length() > 0) {
@@ -189,7 +189,7 @@ public class AnnotatingGraphMousePlugin extends AbstractGraphMousePlugin
    */
   @SuppressWarnings("unchecked")
   public void mouseDragged(MouseEvent e) {
-    VisualizationViewer vv = (VisualizationViewer) e.getSource();
+    VisualizationViewer<V, E> vv = (VisualizationViewer<V, E>) e.getSource();
 
     Point2D out = e.getPoint();
     if (e.getModifiers() == additionalModifiers) {

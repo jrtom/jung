@@ -29,37 +29,39 @@ import java.awt.Dimension;
  *
  * @author Tom Nelson
  */
-public class MagnifyImageLensSupport extends AbstractLensSupport {
+public class MagnifyImageLensSupport<V, E> extends AbstractLensSupport<V, E> {
 
-  protected RenderContext renderContext;
+  protected RenderContext<V, E> renderContext;
   protected GraphicsDecorator lensGraphicsDecorator;
   protected GraphicsDecorator savedGraphicsDecorator;
-  protected Renderer renderer;
-  protected Renderer transformingRenderer;
-  protected NetworkElementAccessor pickSupport;
-  protected Renderer.Edge savedEdgeRenderer;
-  protected Renderer.Edge reshapingEdgeRenderer;
+  protected Renderer<V, E> renderer;
+  protected Renderer<V, E> transformingRenderer;
+  protected NetworkElementAccessor<V, E> pickSupport;
+  protected Renderer.Edge<V, E> savedEdgeRenderer;
+  protected Renderer.Edge<V, E> reshapingEdgeRenderer;
 
   static final String instructions =
       "<html><center>Mouse-Drag the Lens center to move it<p>"
           + "Mouse-Drag the Lens edge to resize it<p>"
           + "Ctrl+MouseWheel to change magnification</center></html>";
 
-  public MagnifyImageLensSupport(VisualizationViewer vv) {
+  public MagnifyImageLensSupport(VisualizationViewer<V, E> vv) {
     this(vv, new MagnifyShapeTransformer(vv), new ModalLensGraphMouse());
   }
 
   public MagnifyImageLensSupport(
-      VisualizationViewer vv, LensTransformer lensTransformer, ModalGraphMouse lensGraphMouse) {
+      VisualizationViewer<V, E> vv,
+      LensTransformer lensTransformer,
+      ModalGraphMouse lensGraphMouse) {
     super(vv, lensGraphMouse);
     this.renderContext = vv.getRenderContext();
     this.pickSupport = renderContext.getPickSupport();
     this.renderer = vv.getRenderer();
-    this.transformingRenderer = new BasicRenderer();
+    this.transformingRenderer = new BasicRenderer<V, E>();
     this.savedGraphicsDecorator = renderContext.getGraphicsContext();
     this.lensTransformer = lensTransformer;
     this.savedEdgeRenderer = vv.getRenderer().getEdgeRenderer();
-    this.reshapingEdgeRenderer = new ReshapingEdgeRenderer();
+    this.reshapingEdgeRenderer = new ReshapingEdgeRenderer<V, E>();
     this.reshapingEdgeRenderer.setEdgeArrowRenderingSupport(
         savedEdgeRenderer.getEdgeArrowRenderingSupport());
 
@@ -80,7 +82,7 @@ public class MagnifyImageLensSupport extends AbstractLensSupport {
     if (lensControls == null) {
       lensControls = new LensControls(lensTransformer);
     }
-    renderContext.setPickSupport(new ViewLensShapePickSupport(vv));
+    renderContext.setPickSupport(new ViewLensShapePickSupport<V, E>(vv));
     lensTransformer.setDelegate(
         vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.VIEW));
     vv.getRenderContext().getMultiLayerTransformer().setTransformer(Layer.VIEW, lensTransformer);

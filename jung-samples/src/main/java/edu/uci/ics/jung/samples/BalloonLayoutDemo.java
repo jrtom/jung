@@ -69,7 +69,7 @@ public class BalloonLayoutDemo extends JApplet {
   CTreeNetwork<String, Integer> graph;
 
   /** the visual component and renderer for the graph */
-  VisualizationViewer vv;
+  VisualizationViewer<String, Integer> vv;
 
   VisualizationServer.Paintable rings;
 
@@ -89,7 +89,7 @@ public class BalloonLayoutDemo extends JApplet {
     layout = new TreeLayout<String>(graph.asGraph());
     radialLayout = new BalloonLayout<String>(graph.asGraph());
     radialLayout.setSize(new Dimension(900, 900));
-    vv = new VisualizationViewer(graph, layout, new Dimension(600, 600));
+    vv = new VisualizationViewer<String, Integer>(graph, layout, new Dimension(600, 600));
     vv.setBackground(Color.white);
     vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.quadCurve());
     vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
@@ -102,13 +102,14 @@ public class BalloonLayoutDemo extends JApplet {
     final GraphZoomScrollPane panel = new GraphZoomScrollPane(vv);
     content.add(panel);
 
-    final DefaultModalGraphMouse graphMouse = new DefaultModalGraphMouse();
+    final DefaultModalGraphMouse<String, Integer> graphMouse =
+        new DefaultModalGraphMouse<String, Integer>();
 
     vv.setGraphMouse(graphMouse);
     vv.addKeyListener(graphMouse.getModeKeyListener());
 
     hyperbolicViewSupport =
-        new ViewLensSupport(
+        new ViewLensSupport<String, Integer>(
             vv,
             new HyperbolicShapeTransformer(
                 vv, vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.VIEW)),
@@ -146,8 +147,8 @@ public class BalloonLayoutDemo extends JApplet {
           public void itemStateChanged(ItemEvent e) {
             if (e.getStateChange() == ItemEvent.SELECTED) {
 
-              LayoutTransition lt =
-                  new LayoutTransition(
+              LayoutTransition<String, Integer> lt =
+                  new LayoutTransition<String, Integer>(
                       vv,
                       vv.getModel().getLayoutMediator(),
                       new LayoutMediator(graph, radialLayout));
@@ -160,8 +161,8 @@ public class BalloonLayoutDemo extends JApplet {
               vv.addPreRenderPaintable(rings);
             } else {
 
-              LayoutTransition lt =
-                  new LayoutTransition(
+              LayoutTransition<String, Integer> lt =
+                  new LayoutTransition<String, Integer>(
                       vv, vv.getModel().getLayoutMediator(), new LayoutMediator(graph, layout));
               Animator animator = new Animator(lt);
               animator.start();

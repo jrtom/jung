@@ -33,11 +33,11 @@ import javax.swing.JToolBar;
  *
  * @author Tom Nelson - tomnelson@dev.java.net
  */
-public class AnnotationControls {
+public class AnnotationControls<V, E> {
 
-  protected AnnotatingGraphMousePlugin annotatingPlugin;
+  protected AnnotatingGraphMousePlugin<V, E> annotatingPlugin;
 
-  public AnnotationControls(AnnotatingGraphMousePlugin annotatingPlugin) {
+  public AnnotationControls(AnnotatingGraphMousePlugin<V, E> annotatingPlugin) {
     this.annotatingPlugin = annotatingPlugin;
   }
 

@@ -20,24 +20,24 @@ import java.util.function.Function;
  * Paints each vertex according to the <code>Paint</code> parameters given in the constructor, so
  * that picked and non-picked vertices can be made to look different.
  */
-public class PickableVertexPaintTransformer implements Function<Object, Paint> {
+public class PickableVertexPaintTransformer<V> implements Function<V, Paint> {
 
   protected Paint fill_paint;
   protected Paint picked_paint;
-  protected PickedInfo pi;
+  protected PickedInfo<V> pi;
 
   /**
    * @param pi specifies which vertices report as "picked"
    * @param fill_paint <code>Paint</code> used to fill vertex shapes
    * @param picked_paint <code>Paint</code> used to fill picked vertex shapes
    */
-  public PickableVertexPaintTransformer(PickedInfo pi, Paint fill_paint, Paint picked_paint) {
+  public PickableVertexPaintTransformer(PickedInfo<V> pi, Paint fill_paint, Paint picked_paint) {
     this.pi = Preconditions.checkNotNull(pi);
     this.fill_paint = Preconditions.checkNotNull(fill_paint);
     this.picked_paint = Preconditions.checkNotNull(picked_paint);
   }
 
-  public Paint apply(Object v) {
+  public Paint apply(V v) {
     return pi.isPicked(v) ? picked_paint : fill_paint;
   }
 }

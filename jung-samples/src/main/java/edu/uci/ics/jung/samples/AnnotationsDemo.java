@@ -91,17 +91,21 @@ public class AnnotationsDemo<V, E> extends JApplet {
     FRLayout<String> layout = new FRLayout<String>(graph.asGraph());
     layout.setMaxIterations(500);
 
-    VisualizationModel vm = new DefaultVisualizationModel(graph, layout, preferredSize1);
+    VisualizationModel<String, Number> vm =
+        new DefaultVisualizationModel<String, Number>(graph, layout, preferredSize1);
 
     // create 2 views that share the same model
-    final VisualizationViewer vv = new VisualizationViewer(vm, preferredSize1);
+    final VisualizationViewer<String, Number> vv =
+        new VisualizationViewer<String, Number>(vm, preferredSize1);
     vv.setBackground(Color.white);
     vv.getRenderContext()
         .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer(vv.getPickedEdgeState(), Color.black, Color.cyan));
+            new PickableEdgePaintTransformer<Number>(
+                vv.getPickedEdgeState(), Color.black, Color.cyan));
     vv.getRenderContext()
         .setVertexFillPaintTransformer(
-            new PickableVertexPaintTransformer(vv.getPickedVertexState(), Color.red, Color.yellow));
+            new PickableVertexPaintTransformer<String>(
+                vv.getPickedVertexState(), Color.red, Color.yellow));
     vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
     vv.getRenderer().getVertexLabelRenderer().setPosition(Renderer.VertexLabel.Position.CNTR);
 
@@ -117,12 +121,13 @@ public class AnnotationsDemo<V, E> extends JApplet {
     helpDialog = new JDialog();
     helpDialog.getContentPane().add(new JLabel(instructions));
 
-    RenderContext rc = vv.getRenderContext();
-    AnnotatingGraphMousePlugin annotatingPlugin = new AnnotatingGraphMousePlugin(rc);
+    RenderContext<String, Number> rc = vv.getRenderContext();
+    AnnotatingGraphMousePlugin<String, Number> annotatingPlugin =
+        new AnnotatingGraphMousePlugin<String, Number>(rc);
     // create a GraphMouse for the main view
     //
-    final AnnotatingModalGraphMouse graphMouse =
-        new AnnotatingModalGraphMouse(rc, annotatingPlugin);
+    final AnnotatingModalGraphMouse<String, Number> graphMouse =
+        new AnnotatingModalGraphMouse<String, Number>(rc, annotatingPlugin);
     vv.setGraphMouse(graphMouse);
     vv.addKeyListener(graphMouse.getModeKeyListener());
 
@@ -170,7 +175,8 @@ public class AnnotationsDemo<V, E> extends JApplet {
     JPanel annotationControlPanel = new JPanel();
     annotationControlPanel.setBorder(BorderFactory.createTitledBorder("Annotation Controls"));
 
-    AnnotationControls annotationControls = new AnnotationControls(annotatingPlugin);
+    AnnotationControls<String, Number> annotationControls =
+        new AnnotationControls<String, Number>(annotatingPlugin);
 
     annotationControlPanel.add(annotationControls.getAnnotationsToolBar());
     controls.add(annotationControlPanel);

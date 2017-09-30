@@ -23,16 +23,16 @@ import java.awt.geom.Point2D;
  *
  * @author danyelf
  */
-public class MouseListenerTranslator extends MouseAdapter {
+public class MouseListenerTranslator<V, E> extends MouseAdapter {
 
-  private VisualizationViewer vv;
-  private GraphMouseListener gel;
+  private VisualizationViewer<V, E> vv;
+  private GraphMouseListener<V> gel;
 
   /**
    * @param gel listens for mouse events
    * @param vv the viewer used for visualization
    */
-  public MouseListenerTranslator(GraphMouseListener gel, VisualizationViewer vv) {
+  public MouseListenerTranslator(GraphMouseListener<V> gel, VisualizationViewer<V, E> vv) {
     this.gel = gel;
     this.vv = vv;
   }
@@ -44,13 +44,13 @@ public class MouseListenerTranslator extends MouseAdapter {
    * @param point
    * @return
    */
-  private Object getVertex(Point2D point) {
+  private V getVertex(Point2D point) {
     // adjust for scale and offset in the VisualizationViewer
     Point2D p = point;
     //vv.getRenderContext().getBasicTransformer().inverseViewTransform(point);
-    NetworkElementAccessor pickSupport = vv.getPickSupport();
+    NetworkElementAccessor<V, E> pickSupport = vv.getPickSupport();
     //        Layout<V> layout = vv.getGraphLayout();
-    Object v = null;
+    V v = null;
     if (pickSupport != null) {
       v = pickSupport.getNode(p.getX(), p.getY());
     }
@@ -58,7 +58,7 @@ public class MouseListenerTranslator extends MouseAdapter {
   }
   /** @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent) */
   public void mouseClicked(MouseEvent e) {
-    Object v = getVertex(e.getPoint());
+    V v = getVertex(e.getPoint());
     if (v != null) {
       gel.graphClicked(v, e);
     }
@@ -66,7 +66,7 @@ public class MouseListenerTranslator extends MouseAdapter {
 
   /** @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent) */
   public void mousePressed(MouseEvent e) {
-    Object v = getVertex(e.getPoint());
+    V v = getVertex(e.getPoint());
     if (v != null) {
       gel.graphPressed(v, e);
     }
@@ -74,7 +74,7 @@ public class MouseListenerTranslator extends MouseAdapter {
 
   /** @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent) */
   public void mouseReleased(MouseEvent e) {
-    Object v = getVertex(e.getPoint());
+    V v = getVertex(e.getPoint());
     if (v != null) {
       gel.graphReleased(v, e);
     }

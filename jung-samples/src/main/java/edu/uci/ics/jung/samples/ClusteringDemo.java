@@ -70,11 +70,11 @@ import javax.swing.event.ChangeListener;
 @SuppressWarnings("serial")
 public class ClusteringDemo extends JApplet {
 
-  VisualizationViewer vv;
+  VisualizationViewer<Number, Number> vv;
 
-  LoadingCache<Object, Paint> vertexPaints =
+  LoadingCache<Number, Paint> vertexPaints =
       CacheBuilder.newBuilder().build(CacheLoader.from(() -> Color.white));
-  LoadingCache<Object, Paint> edgePaints =
+  LoadingCache<Number, Paint> edgePaints =
       CacheBuilder.newBuilder().build(CacheLoader.from(() -> Color.blue));
 
   private static final Stroke THIN = new BasicStroke(1);
@@ -150,7 +150,7 @@ public class ClusteringDemo extends JApplet {
     final AggregateLayout<Number> layout =
         new AggregateLayout<Number>(new FRLayout<Number>(graph.asGraph()));
 
-    vv = new VisualizationViewer(graph, layout);
+    vv = new VisualizationViewer<Number, Number>(graph, layout);
     vv.setBackground(Color.white);
     //Tell the renderer to use our own customized color rendering
     vv.getRenderContext().setVertexFillPaintTransformer(vertexPaints);
@@ -180,7 +180,7 @@ public class ClusteringDemo extends JApplet {
           }
         });
 
-    DefaultModalGraphMouse gm = new DefaultModalGraphMouse();
+    DefaultModalGraphMouse<Number, Number> gm = new DefaultModalGraphMouse<Number, Number>();
     vv.setGraphMouse(gm);
 
     final JToggleButton groupVertices = new JToggleButton("Group Clusters");

@@ -46,19 +46,19 @@ public class DrawnIconVertexDemo {
   Network<Integer, Number> graph;
 
   /** the visual component and renderer for the graph */
-  VisualizationViewer vv;
+  VisualizationViewer<Integer, Number> vv;
 
   public DrawnIconVertexDemo() {
 
     // create a simple graph for the demo
     graph = createGraph();
 
-    vv = new VisualizationViewer(graph, new FRLayout<Integer>(graph.asGraph()));
+    vv = new VisualizationViewer<Integer, Number>(graph, new FRLayout<Integer>(graph.asGraph()));
     vv.getRenderContext()
         .setVertexLabelTransformer(
-            new Function<Object, String>() {
+            new Function<Integer, String>() {
 
-              public String apply(Object v) {
+              public String apply(Integer v) {
                 return "Vertex " + v;
               }
             });
@@ -67,13 +67,13 @@ public class DrawnIconVertexDemo {
 
     vv.getRenderContext()
         .setVertexIconTransformer(
-            new Function<Object, Icon>() {
+            new Function<Integer, Icon>() {
 
               /*
                * Implements the Icon interface to draw an Icon with background color and
                * a text label
                */
-              public Icon apply(final Object v) {
+              public Icon apply(final Integer v) {
                 return new Icon() {
 
                   public int getIconHeight() {
@@ -104,11 +104,11 @@ public class DrawnIconVertexDemo {
 
     vv.getRenderContext()
         .setVertexFillPaintTransformer(
-            new PickableVertexPaintTransformer(
+            new PickableVertexPaintTransformer<Integer>(
                 vv.getPickedVertexState(), Color.white, Color.yellow));
     vv.getRenderContext()
         .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer(
+            new PickableEdgePaintTransformer<Number>(
                 vv.getPickedEdgeState(), Color.black, Color.lightGray));
 
     vv.setBackground(Color.white);
@@ -123,7 +123,8 @@ public class DrawnIconVertexDemo {
     content.add(panel);
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-    final DefaultModalGraphMouse gm = new DefaultModalGraphMouse();
+    final DefaultModalGraphMouse<Integer, Number> gm =
+        new DefaultModalGraphMouse<Integer, Number>();
     vv.setGraphMouse(gm);
 
     final ScalingControl scaler = new CrossoverScalingControl();

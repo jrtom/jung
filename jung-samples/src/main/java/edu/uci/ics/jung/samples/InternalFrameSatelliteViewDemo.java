@@ -73,9 +73,9 @@ public class InternalFrameSatelliteViewDemo {
   Network<String, Number> graph;
 
   /** the visual component and renderer for the graph */
-  VisualizationViewer vv;
+  VisualizationViewer<String, Number> vv;
 
-  VisualizationViewer satellite;
+  VisualizationViewer<String, Number> satellite;
 
   JInternalFrame dialog;
 
@@ -89,29 +89,32 @@ public class InternalFrameSatelliteViewDemo {
 
     Layout<String> layout = new ISOMLayout<String, Number>(graph);
 
-    vv = new VisualizationViewer(graph, layout, new Dimension(600, 600));
+    vv = new VisualizationViewer<String, Number>(graph, layout, new Dimension(600, 600));
     vv.getRenderContext()
         .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer(vv.getPickedEdgeState(), Color.black, Color.cyan));
+            new PickableEdgePaintTransformer<Number>(
+                vv.getPickedEdgeState(), Color.black, Color.cyan));
     vv.getRenderContext()
         .setVertexFillPaintTransformer(
-            new PickableVertexPaintTransformer(vv.getPickedVertexState(), Color.red, Color.yellow));
+            new PickableVertexPaintTransformer<String>(
+                vv.getPickedVertexState(), Color.red, Color.yellow));
 
     // add my listener for ToolTips
     vv.setVertexToolTipTransformer(new ToStringLabeller());
-    final DefaultModalGraphMouse graphMouse = new DefaultModalGraphMouse();
+    final DefaultModalGraphMouse<String, Number> graphMouse =
+        new DefaultModalGraphMouse<String, Number>();
     vv.setGraphMouse(graphMouse);
 
-    satellite = new SatelliteVisualizationViewer(vv, new Dimension(200, 200));
+    satellite = new SatelliteVisualizationViewer<String, Number>(vv, new Dimension(200, 200));
     satellite
         .getRenderContext()
         .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer(
+            new PickableEdgePaintTransformer<Number>(
                 satellite.getPickedEdgeState(), Color.black, Color.cyan));
     satellite
         .getRenderContext()
         .setVertexFillPaintTransformer(
-            new PickableVertexPaintTransformer(
+            new PickableVertexPaintTransformer<String>(
                 satellite.getPickedVertexState(), Color.red, Color.yellow));
 
     ScalingControl satelliteScaler = new CrossoverScalingControl();

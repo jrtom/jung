@@ -38,7 +38,7 @@ public class VisualizationImageServerDemo {
   Network<Integer, Double> graph;
 
   /** the visual component and renderer for the graph */
-  VisualizationImageServer vv;
+  VisualizationImageServer<Integer, Double> vv;
 
   /** */
   public VisualizationImageServerDemo() {
@@ -47,11 +47,13 @@ public class VisualizationImageServerDemo {
     graph = createGraph();
 
     vv =
-        new VisualizationImageServer(graph, new KKLayout(graph.asGraph()), new Dimension(600, 600));
+        new VisualizationImageServer<Integer, Double>(
+            graph, new KKLayout<Integer>(graph.asGraph()), new Dimension(600, 600));
 
     vv.getRenderer()
         .setVertexRenderer(
-            new GradientVertexRenderer(vv, Color.white, Color.red, Color.white, Color.blue, false));
+            new GradientVertexRenderer<Integer, Double>(
+                vv, Color.white, Color.red, Color.white, Color.blue, false));
     vv.getRenderContext().setEdgeDrawPaintTransformer(e -> Color.lightGray);
     vv.getRenderContext().setArrowFillPaintTransformer(e -> Color.lightGray);
     vv.getRenderContext().setArrowDrawPaintTransformer(e -> Color.lightGray);

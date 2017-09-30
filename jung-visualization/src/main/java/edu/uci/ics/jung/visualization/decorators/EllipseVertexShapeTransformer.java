@@ -15,16 +15,15 @@ import java.awt.Shape;
 import java.util.function.Function;
 
 /** @author Joshua O'Madadhain */
-public class EllipseVertexShapeTransformer extends AbstractVertexShapeTransformer
-    implements Function<Object, Shape> {
+public class EllipseVertexShapeTransformer<V> extends AbstractVertexShapeTransformer<V>
+    implements Function<V, Shape> {
   public EllipseVertexShapeTransformer() {}
 
-  public EllipseVertexShapeTransformer(
-      Function<Object, Integer> vsf, Function<Object, Float> varf) {
+  public EllipseVertexShapeTransformer(Function<V, Integer> vsf, Function<V, Float> varf) {
     super(vsf, varf);
   }
 
-  public Shape apply(Object v) {
+  public Shape apply(V v) {
     return factory.getEllipse(v);
   }
 }

@@ -52,9 +52,9 @@ public class TwoModelDemo extends JApplet {
   Network<String, Number> graph;
 
   /** the visual components and renderers for the graph */
-  VisualizationViewer vv1;
+  VisualizationViewer<String, Number> vv1;
 
-  VisualizationViewer vv2;
+  VisualizationViewer<String, Number> vv2;
 
   /** the normal Function */
   MutableTransformer layoutTransformer;
@@ -73,13 +73,15 @@ public class TwoModelDemo extends JApplet {
     Layout<String> layout2 = new ISOMLayout<String, Number>(graph);
 
     // create the two models, each with a different layout
-    VisualizationModel vm1 = new DefaultVisualizationModel(graph, layout1, preferredSize);
-    VisualizationModel vm2 = new DefaultVisualizationModel(graph, layout2, preferredSize);
+    VisualizationModel<String, Number> vm1 =
+        new DefaultVisualizationModel<String, Number>(graph, layout1, preferredSize);
+    VisualizationModel<String, Number> vm2 =
+        new DefaultVisualizationModel<String, Number>(graph, layout2, preferredSize);
 
     // create the two views, one for each model
     // they share the same renderer
-    vv1 = new VisualizationViewer(vm1, preferredSize);
-    vv2 = new VisualizationViewer(vm2, preferredSize);
+    vv1 = new VisualizationViewer<String, Number>(vm1, preferredSize);
+    vv2 = new VisualizationViewer<String, Number>(vm2, preferredSize);
     vv1.setRenderContext(vv2.getRenderContext());
 
     // share the model Function between the two models
@@ -97,20 +99,21 @@ public class TwoModelDemo extends JApplet {
     vv2.setBackground(Color.white);
 
     // share one PickedState between the two views
-    PickedState ps = new MultiPickedState();
+    PickedState<String> ps = new MultiPickedState<String>();
     vv1.setPickedVertexState(ps);
     vv2.setPickedVertexState(ps);
-    PickedState pes = new MultiPickedState();
+    PickedState<Number> pes = new MultiPickedState<Number>();
     vv1.setPickedEdgeState(pes);
     vv2.setPickedEdgeState(pes);
 
     // set an edge paint function that will show picking for edges
     vv1.getRenderContext()
         .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer(vv1.getPickedEdgeState(), Color.black, Color.red));
+            new PickableEdgePaintTransformer<Number>(
+                vv1.getPickedEdgeState(), Color.black, Color.red));
     vv1.getRenderContext()
         .setVertexFillPaintTransformer(
-            new PickableVertexPaintTransformer(
+            new PickableVertexPaintTransformer<String>(
                 vv1.getPickedVertexState(), Color.red, Color.yellow));
     // add default listeners for ToolTips
     vv1.setVertexToolTipTransformer(new ToStringLabeller());
@@ -124,9 +127,9 @@ public class TwoModelDemo extends JApplet {
     content.add(panel);
 
     // create a GraphMouse for each view
-    final DefaultModalGraphMouse gm1 = new DefaultModalGraphMouse();
+    final DefaultModalGraphMouse<String, Number> gm1 = new DefaultModalGraphMouse<String, Number>();
 
-    DefaultModalGraphMouse gm2 = new DefaultModalGraphMouse();
+    DefaultModalGraphMouse<String, Number> gm2 = new DefaultModalGraphMouse<String, Number>();
 
     vv1.setGraphMouse(gm1);
     vv2.setGraphMouse(gm2);

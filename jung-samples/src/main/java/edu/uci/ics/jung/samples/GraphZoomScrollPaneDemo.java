@@ -56,7 +56,7 @@ public class GraphZoomScrollPaneDemo {
   Network<Integer, Number> graph;
 
   /** the visual component and renderer for the graph */
-  VisualizationViewer vv;
+  VisualizationViewer<Integer, Number> vv;
 
   /** create an instance of a simple graph with controls to demo the zoom features. */
   public GraphZoomScrollPaneDemo() {
@@ -72,7 +72,7 @@ public class GraphZoomScrollPaneDemo {
       System.err.println("Can't load \"" + imageLocation + "\"");
     }
     final ImageIcon icon = sandstoneIcon;
-    vv = new VisualizationViewer(graph, new KKLayout<Integer>(graph.asGraph()));
+    vv = new VisualizationViewer<Integer, Number>(graph, new KKLayout<Integer>(graph.asGraph()));
 
     if (icon != null) {
       vv.addPreRenderPaintable(
@@ -122,7 +122,8 @@ public class GraphZoomScrollPaneDemo {
     vv.addGraphMouseListener(new TestGraphMouseListener<Integer>());
     vv.getRenderer()
         .setVertexRenderer(
-            new GradientVertexRenderer(vv, Color.white, Color.red, Color.white, Color.blue, false));
+            new GradientVertexRenderer<Integer, Number>(
+                vv, Color.white, Color.red, Color.white, Color.blue, false));
     vv.getRenderContext().setEdgeDrawPaintTransformer(e -> Color.lightGray);
     vv.getRenderContext().setArrowFillPaintTransformer(a -> Color.lightGray);
     vv.getRenderContext().setArrowDrawPaintTransformer(a -> Color.lightGray);
@@ -130,9 +131,9 @@ public class GraphZoomScrollPaneDemo {
     // add my listeners for ToolTips
     vv.setVertexToolTipTransformer(new ToStringLabeller());
     vv.setEdgeToolTipTransformer(
-        new Function<Object, String>() {
-          public String apply(Object edge) {
-            return "E" + graph.incidentNodes((Number) edge).toString();
+        new Function<Number, String>() {
+          public String apply(Number edge) {
+            return "E" + graph.incidentNodes(edge).toString();
           }
         });
 
@@ -147,7 +148,7 @@ public class GraphZoomScrollPaneDemo {
     final GraphZoomScrollPane panel = new GraphZoomScrollPane(vv);
     content.add(panel);
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    final AbstractModalGraphMouse graphMouse = new DefaultModalGraphMouse();
+    final AbstractModalGraphMouse graphMouse = new DefaultModalGraphMouse<Integer, Number>();
     vv.setGraphMouse(graphMouse);
 
     vv.addKeyListener(graphMouse.getModeKeyListener());

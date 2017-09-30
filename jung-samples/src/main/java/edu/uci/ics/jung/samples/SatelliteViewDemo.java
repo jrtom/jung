@@ -110,28 +110,34 @@ public class SatelliteViewDemo<V, E> extends JApplet {
     layout.setMaxIterations(500);
 
     // create one model that both views will share
-    VisualizationModel vm = new DefaultVisualizationModel(graph, layout, preferredSize1);
+    VisualizationModel<String, Number> vm =
+        new DefaultVisualizationModel<String, Number>(graph, layout, preferredSize1);
 
     // create 2 views that share the same model
-    final VisualizationViewer vv1 = new VisualizationViewer(vm, preferredSize1);
-    final SatelliteVisualizationViewer vv2 = new SatelliteVisualizationViewer(vv1, preferredSize2);
+    final VisualizationViewer<String, Number> vv1 =
+        new VisualizationViewer<String, Number>(vm, preferredSize1);
+    final SatelliteVisualizationViewer<String, Number> vv2 =
+        new SatelliteVisualizationViewer<String, Number>(vv1, preferredSize2);
     vv1.setBackground(Color.white);
     vv1.getRenderContext()
         .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer(vv1.getPickedEdgeState(), Color.black, Color.cyan));
+            new PickableEdgePaintTransformer<Number>(
+                vv1.getPickedEdgeState(), Color.black, Color.cyan));
     vv1.getRenderContext()
         .setVertexFillPaintTransformer(
-            new PickableVertexPaintTransformer(
+            new PickableVertexPaintTransformer<String>(
                 vv1.getPickedVertexState(), Color.red, Color.yellow));
     vv2.getRenderContext()
         .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer(vv2.getPickedEdgeState(), Color.black, Color.cyan));
+            new PickableEdgePaintTransformer<Number>(
+                vv2.getPickedEdgeState(), Color.black, Color.cyan));
     vv2.getRenderContext()
         .setVertexFillPaintTransformer(
-            new PickableVertexPaintTransformer(
+            new PickableVertexPaintTransformer<String>(
                 vv2.getPickedVertexState(), Color.red, Color.yellow));
     vv1.getRenderer()
-        .setVertexRenderer(new GradientVertexRenderer(vv1, Color.red, Color.white, true));
+        .setVertexRenderer(
+            new GradientVertexRenderer<String, Number>(vv1, Color.red, Color.white, true));
     vv1.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
     vv1.getRenderer().getVertexLabelRenderer().setPosition(Renderer.VertexLabel.Position.CNTR);
 
@@ -163,7 +169,8 @@ public class SatelliteViewDemo<V, E> extends JApplet {
     helpDialog.getContentPane().add(new JLabel(instructions));
 
     // create a GraphMouse for the main view
-    final DefaultModalGraphMouse graphMouse = new DefaultModalGraphMouse();
+    final DefaultModalGraphMouse<String, Number> graphMouse =
+        new DefaultModalGraphMouse<String, Number>();
     vv1.setGraphMouse(graphMouse);
 
     final ScalingControl scaler = new CrossoverScalingControl();
@@ -184,7 +191,7 @@ public class SatelliteViewDemo<V, E> extends JApplet {
         });
 
     JComboBox<?> modeBox = graphMouse.getModeComboBox();
-    modeBox.addItemListener(((DefaultModalGraphMouse) vv2.getGraphMouse()).getModeListener());
+    modeBox.addItemListener(((DefaultModalGraphMouse<?, ?>) vv2.getGraphMouse()).getModeListener());
 
     JCheckBox gridBox = new JCheckBox("Show Grid");
     gridBox.addItemListener(
@@ -212,7 +219,7 @@ public class SatelliteViewDemo<V, E> extends JApplet {
     content.add(controls, BorderLayout.SOUTH);
   }
 
-  protected void showGrid(VisualizationViewer vv, boolean state) {
+  protected void showGrid(VisualizationViewer<?, ?> vv, boolean state) {
     if (state == true) {
       vv.addPreRenderPaintable(viewGrid);
     } else {
@@ -228,10 +235,10 @@ public class SatelliteViewDemo<V, E> extends JApplet {
    */
   static class ViewGrid implements Paintable {
 
-    VisualizationViewer master;
-    VisualizationViewer vv;
+    VisualizationViewer<?, ?> master;
+    VisualizationViewer<?, ?> vv;
 
-    public ViewGrid(VisualizationViewer vv, VisualizationViewer master) {
+    public ViewGrid(VisualizationViewer<?, ?> vv, VisualizationViewer<?, ?> master) {
       this.vv = vv;
       this.master = master;
     }

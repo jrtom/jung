@@ -31,7 +31,8 @@ import org.slf4j.LoggerFactory;
  *
  * @author Tom Nelson
  */
-public class DefaultVisualizationModel implements VisualizationModel, ChangeEventSupport {
+public class DefaultVisualizationModel<N, E>
+    implements VisualizationModel<N, E>, ChangeEventSupport {
 
   Logger log = LoggerFactory.getLogger(DefaultVisualizationModel.class);
 
@@ -40,13 +41,13 @@ public class DefaultVisualizationModel implements VisualizationModel, ChangeEven
   /** manages the thread that applies the current layout algorithm */
   protected Relaxer relaxer;
 
-  protected LayoutMediator layoutMediator;
+  protected LayoutMediator<N, E> layoutMediator;
 
   /** listens for changes in the layout, forwards to the viewer */
   protected ChangeListener changeListener;
 
   /** @param layout The Layout to apply, with its associated Network */
-  public DefaultVisualizationModel(Network network, Layout layout) {
+  public DefaultVisualizationModel(Network<N, E> network, Layout<N> layout) {
     this(network, layout, null);
   }
 
@@ -56,7 +57,7 @@ public class DefaultVisualizationModel implements VisualizationModel, ChangeEven
    * @param layout the layout to use
    * @param d The preferred size of the View that will display this graph
    */
-  public DefaultVisualizationModel(Network network, Layout layout, Dimension d) {
+  public DefaultVisualizationModel(Network<N, E> network, Layout<N> layout, Dimension d) {
     if (changeListener == null) {
       changeListener =
           new ChangeListener() {
@@ -74,20 +75,20 @@ public class DefaultVisualizationModel implements VisualizationModel, ChangeEven
    * @param layoutMediator the new layoutMediator to use
    * @param viewSize the size of the View that will display this layout
    */
-  public void setLayoutMediator(LayoutMediator layoutMediator, Dimension viewSize) {
+  public void setLayoutMediator(LayoutMediator<N, E> layoutMediator, Dimension viewSize) {
 
-    Layout currentLayout = this.layoutMediator != null ? this.layoutMediator.getLayout() : null;
+    Layout<N> currentLayout = this.layoutMediator != null ? this.layoutMediator.getLayout() : null;
     // remove listener from old layout
     if (currentLayout != null && currentLayout instanceof ChangeEventSupport) {
       ((ChangeEventSupport) currentLayout).removeChangeListener(changeListener);
     }
-    Layout newLayout = layoutMediator.getLayout();
+    Layout<N> newLayout = layoutMediator.getLayout();
 
     // set to new layout
     if (newLayout instanceof ChangeEventSupport) {
       this.layoutMediator = layoutMediator;
     } else {
-      newLayout = new ObservableCachingLayout(layoutMediator.getNetwork(), newLayout);
+      newLayout = new ObservableCachingLayout<N, E>(layoutMediator.getNetwork(), newLayout);
       this.layoutMediator = new LayoutMediator(layoutMediator.getNetwork(), newLayout);
     }
 
@@ -106,8 +107,8 @@ public class DefaultVisualizationModel implements VisualizationModel, ChangeEven
       relaxer.stop();
       relaxer = null;
     }
-    //        Layout decoratedLayout = (layout instanceof LayoutDecorator)
-    //        	? ((LayoutDecorator) layout).getDelegate()
+    //        Layout<N> decoratedLayout = (layout instanceof LayoutDecorator)
+    //        	? ((LayoutDecorator<N>) layout).getDelegate()
     //        	: layout;
     if (newLayout instanceof IterativeContext) {
       newLayout.initialize();
@@ -121,7 +122,7 @@ public class DefaultVisualizationModel implements VisualizationModel, ChangeEven
     fireStateChanged();
   }
 
-  public LayoutMediator getLayoutMediator() {
+  public LayoutMediator<N, E> getLayoutMediator() {
     return layoutMediator;
   }
 
@@ -129,7 +130,7 @@ public class DefaultVisualizationModel implements VisualizationModel, ChangeEven
    * set the graph Layout and if it is not already initialized, initialize it to the default
    * VisualizationViewer preferred size of 600x600
    */
-  public void setLayoutMediator(LayoutMediator layoutMediator) {
+  public void setLayoutMediator(LayoutMediator<N, E> layoutMediator) {
     setLayoutMediator(layoutMediator, null);
   }
 
