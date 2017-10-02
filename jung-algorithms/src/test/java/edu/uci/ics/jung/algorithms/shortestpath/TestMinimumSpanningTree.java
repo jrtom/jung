@@ -6,6 +6,7 @@ import com.google.common.graph.NetworkBuilder;
 import edu.uci.ics.jung.graph.MutableCTreeNetwork;
 import edu.uci.ics.jung.graph.TreeNetworkBuilder;
 import junit.framework.TestCase;
+import org.junit.Assert;
 
 public class TestMinimumSpanningTree extends TestCase {
 
@@ -31,6 +32,16 @@ public class TestMinimumSpanningTree extends TestCase {
 
     assertEquals(graph.nodes(), mst.nodes());
     assertEquals(graph.edges(), mst.edges());
+  }
+
+  public void testSanity() {
+    MutableNetwork<String, Integer> network = NetworkBuilder.directed().build();
+    network.addNode("ROOT");
+    network.addEdge("ROOT", "LEAF0", 0);
+    network.addEdge("ROOT", "LEAF1", 1);
+
+    Network<String, Integer> mst = MinimumSpanningTree.extractFrom(network, e -> 1.0);
+    Assert.assertEquals(network, mst);
   }
 
   // TODO: add tests:
