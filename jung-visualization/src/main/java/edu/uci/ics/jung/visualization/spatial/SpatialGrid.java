@@ -11,9 +11,13 @@ import java.awt.geom.Point2D;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** Created by Tom Nelson */
 public class SpatialGrid<N> implements Spatial<N> {
+
+  Logger log = LoggerFactory.getLogger(SpatialGrid.class);
 
   private int horizontalCount;
 
@@ -196,6 +200,8 @@ public class SpatialGrid<N> implements Spatial<N> {
     for (Integer index : getVisibleTiles(d, xOffset, yOffset)) {
       visibleNodes.addAll(this.map.get(index));
     }
+    log.debug(
+        "visibleNodes in x:" + xOffset + ",y:" + yOffset + ",d:" + d + " are " + visibleNodes);
     return visibleNodes;
   }
 
@@ -204,6 +210,7 @@ public class SpatialGrid<N> implements Spatial<N> {
     for (Integer index : getVisibleTiles(visibleArea)) {
       visibleNodes.addAll(this.map.get(index));
     }
+    log.debug("visibleNodes in " + visibleArea + " are " + visibleNodes);
     return visibleNodes;
   }
 

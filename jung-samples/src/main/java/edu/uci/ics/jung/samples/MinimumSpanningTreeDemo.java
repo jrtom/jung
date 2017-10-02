@@ -44,6 +44,8 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Demonstrates a single graph with 3 layouts in 3 views. The first view is an undirected graph
@@ -56,6 +58,7 @@ import javax.swing.JPanel;
 @SuppressWarnings("serial")
 public class MinimumSpanningTreeDemo extends JApplet {
 
+  Logger log = LoggerFactory.getLogger(MinimumSpanningTreeDemo.class);
   /** the graph */
   Network<String, Number> graph;
 
@@ -208,7 +211,6 @@ public class MinimumSpanningTreeDemo extends JApplet {
     // create zoom buttons for scaling the Function that is
     // shared between the two models.
     final ScalingControl scaler = new CrossoverScalingControl();
-
     vv0.scaleToLayout(scaler);
     vv1.scaleToLayout(scaler);
     vv2.scaleToLayout(scaler);

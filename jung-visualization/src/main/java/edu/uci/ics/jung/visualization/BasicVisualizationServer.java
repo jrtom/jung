@@ -294,45 +294,31 @@ public class BasicVisualizationServer<V, E> extends JPanel
     }
   }
 
+  protected Rectangle viewOnLayout() {
+
+    Dimension d = this.getSize();
+    Rectangle deviceRectangle = new Rectangle(0, 0, d.width, d.height);
+
+    MultiLayerTransformer vt = renderContext.getMultiLayerTransformer();
+    Shape s = new Rectangle2D.Double(0, 0, d.width, d.height);
+    return vt.inverseTransform(s).getBounds();
+  }
+
   protected Spatial getSpatial(Graphics2D g2d, Layout<V> layout, Dimension d)
       throws NoninvertibleTransformException {
-
-    AffineTransform spatialTransform = new AffineTransform(g2d.getTransform());
-
-    spatialTransform.concatenate(
-        renderContext.getMultiLayerTransformer().getTransformer(Layer.LAYOUT).getTransform());
-    spatialTransform.concatenate(
-        renderContext.getMultiLayerTransformer().getTransformer(Layer.VIEW).getTransform());
-
-    spatialTransform = spatialTransform.createInverse();
 
     Dimension layoutSize = model.getLayoutMediator().getLayout().getSize();
     AffineTransform layoutTransform =
         renderContext.getMultiLayerTransformer().getTransformer(Layer.LAYOUT).getTransform();
     Rectangle2D layoutRectangle = new Rectangle2D.Double(0, 0, layoutSize.width, layoutSize.height);
     Shape transformedLayoutShape = layoutTransform.createTransformedShape(layoutRectangle);
-    Point2D viewOriginOnLayout = new Point2D.Double();
-    Point2D viewExtremeOnLayout = new Point2D.Double();
 
-    layoutTransform.inverseTransform(new Point2D.Double(0, 0), viewOriginOnLayout);
-    layoutTransform.inverseTransform(
-        new Point2D.Double(getSize().width, getSize().height), viewExtremeOnLayout);
-
-    Rectangle2D viewProjection = new Rectangle2D.Double();
-    viewProjection.setFrameFromDiagonal(viewOriginOnLayout, viewExtremeOnLayout);
+    Rectangle viewOnLayout = viewOnLayout();
 
     Rectangle2D union = new Rectangle2D.Double();
-    Rectangle2D.union(transformedLayoutShape.getBounds(), viewProjection, union);
+    Rectangle2D.union(transformedLayoutShape.getBounds(), viewOnLayout, union);
 
-    if (log.isDebugEnabled()) {
-      log.debug(
-          "the union of "
-              + transformedLayoutShape.getBounds()
-              + " and "
-              + viewProjection.getBounds()
-              + " is "
-              + union.getBounds());
-    }
+    log.debug("viewOnLayout:" + viewOnLayout);
 
     SpatialGrid<V> spatial = new SpatialGrid<V>(union.getBounds(), 20, 20);
     Multimap<Integer, V> spatialMap = spatial.getMap();
@@ -341,14 +327,7 @@ public class BasicVisualizationServer<V, E> extends JPanel
       spatialMap.put(spatial.getBoxNumberFromLocation(layout.apply(node)), node);
     }
 
-    Rectangle2D shape = new Rectangle2D.Double(0, 0, (double) d.width, (double) d.height);
-
-    Shape visibleShape = spatialTransform.createTransformedShape(shape);
-
-    Rectangle visibleRectangle = visibleShape.getBounds();
-    if (log.isDebugEnabled()) {
-      log.debug("visibleRectangle:" + visibleRectangle.getBounds());
-    }
+    Rectangle visibleRectangle = viewOnLayout.getBounds();
     spatial.setVisibleArea(visibleRectangle);
     return spatial;
   }
@@ -372,10 +351,15 @@ public class BasicVisualizationServer<V, E> extends JPanel
     g2d.fillRect(0, 0, d.width, d.height);
 
     AffineTransform oldXform = g2d.getTransform();
+    log.debug("the oldXform is " + oldXform);
     AffineTransform newXform = new AffineTransform(oldXform);
     newXform.concatenate(
         renderContext.getMultiLayerTransformer().getTransformer(Layer.VIEW).getTransform());
-
+    log.debug(
+        "concatenated "
+            + renderContext.getMultiLayerTransformer().getTransformer(Layer.VIEW).getTransform()
+            + " to get newXform: "
+            + newXform);
     g2d.setTransform(newXform);
 
     // if there are  preRenderers set, paint them

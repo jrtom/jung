@@ -11,23 +11,38 @@ import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
+import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.io.PajekNetReader;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
+import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
+import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
+import edu.uci.ics.jung.visualization.control.ScalingControl;
+import java.awt.*;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.function.Supplier;
-import javax.swing.JFrame;
+import javax.swing.*;
 
 /** A class that shows the minimal work necessary to load and visualize a graph. */
-public class SimpleGraphDraw {
+public class SimpleGraphSpatialTest {
 
   @SuppressWarnings({"rawtypes", "unchecked"})
   public static void main(String[] args) throws IOException {
     JFrame jf = new JFrame();
     Network g = getGraph();
-    VisualizationViewer vv = new VisualizationViewer(g, new FRLayout(g.asGraph()));
+    Dimension viewPreferredSize = new Dimension(300, 300);
+    Dimension layoutPreferredSize = new Dimension(400, 400);
+    Layout layout = new FRLayout(g.asGraph(), layoutPreferredSize);
+
+    ScalingControl scaler = new CrossoverScalingControl();
+    VisualizationViewer vv = new VisualizationViewer(g, layout, viewPreferredSize);
+    final DefaultModalGraphMouse graphMouse = new DefaultModalGraphMouse();
+    vv.setGraphMouse(graphMouse);
+
+    vv.scaleToLayout(scaler);
     jf.getContentPane().add(vv);
+
     jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     jf.pack();
     jf.setVisible(true);
@@ -51,7 +66,8 @@ public class SimpleGraphDraw {
             });
     MutableNetwork g = NetworkBuilder.undirected().build();
     Reader reader =
-        new InputStreamReader(SimpleGraphDraw.class.getResourceAsStream("/datasets/simple.net"));
+        new InputStreamReader(
+            SimpleGraphSpatialTest.class.getResourceAsStream("/datasets/simple.net"));
     pnr.load(reader, g);
     return g;
   }
