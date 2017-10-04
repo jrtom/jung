@@ -62,7 +62,7 @@ public class MinimumSpanningTree<N, E> {
       if (edge == null) {
         tree.addNode(node);
       } else {
-        tree.addEdge(node, graph.incidentNodes(edge).adjacentNode(node), edge);
+        tree.addEdge(graph.incidentNodes(edge).adjacentNode(node), node, edge);
       }
       for (N adjacentNode : graph.adjacentNodes(node)) {
         if (!remainingNodes.contains(adjacentNode)) {
