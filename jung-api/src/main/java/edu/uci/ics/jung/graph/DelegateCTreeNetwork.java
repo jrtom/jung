@@ -194,8 +194,7 @@ class DelegateCTreeNetwork<N, E> implements MutableCTreeNetwork<N, E> {
       height = Optional.of(0);
     } else {
       int nodeDepth = depths.get(parent) + 1;
-      height =
-          Optional.of(Math.max(nodeDepth, (height.equals(Optional.empty()) ? 0 : height.get())));
+      height = Optional.of(Math.max(nodeDepth, height.orElse(0)));
       depths.put(node, nodeDepth);
     }
   }
