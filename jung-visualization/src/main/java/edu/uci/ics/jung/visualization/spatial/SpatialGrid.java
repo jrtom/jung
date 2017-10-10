@@ -193,7 +193,6 @@ public class SpatialGrid<N> implements Spatial<N> {
     this.map.clear();
     for (N node : nodes) {
       this.map.put(this.getBoxNumberFromLocation(layout.apply(node)), node);
-      //      updateBox(node, layout.apply(node));
     }
   }
   /**

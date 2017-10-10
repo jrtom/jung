@@ -41,10 +41,19 @@ public class BasicRenderer<V, E> implements Renderer<V, E> {
       render(renderContext, layoutMediator);
       return;
     }
-    Set<V> visibleNodes =
-        (Set)
-            spatial.getVisibleNodes(
-                ((VisualizationServer) renderContext.getScreenDevice()).viewOnLayout());
+    Set<V> visibleNodes = null;
+    try {
+      visibleNodes =
+              (Set)
+                      spatial.getVisibleNodes(
+                              ((VisualizationServer) renderContext.getScreenDevice()).viewOnLayout());
+    } catch (ConcurrentModificationException ex) {
+      // skip rendering until graph node index is stable,
+      // this can happen if the layout relax thread is changing locations while the
+      // visualization is rendering
+      return;
+    }
+
     Network<V, E> network = layoutMediator.getNetwork();
     Set<E> visibleEdges = Sets.newHashSet(network.edges());
     for (E edge : network.edges()) {
