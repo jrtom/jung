@@ -12,23 +12,26 @@ package edu.uci.ics.jung.visualization;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor;
+import edu.uci.ics.jung.visualization.annotations.Annotation;
+import edu.uci.ics.jung.visualization.annotations.AnnotationPaintable;
+import edu.uci.ics.jung.visualization.annotations.AnnotationRenderer;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
+import edu.uci.ics.jung.visualization.layout.ObservableCachingLayout;
 import edu.uci.ics.jung.visualization.picking.MultiPickedState;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import edu.uci.ics.jung.visualization.picking.ShapePickSupport;
 import edu.uci.ics.jung.visualization.renderers.BasicRenderer;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
+import edu.uci.ics.jung.visualization.spatial.Spatial;
+import edu.uci.ics.jung.visualization.spatial.SpatialGrid;
 import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
 import edu.uci.ics.jung.visualization.util.Caching;
 import edu.uci.ics.jung.visualization.util.ChangeEventSupport;
 import edu.uci.ics.jung.visualization.util.DefaultChangeEventSupport;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
+import edu.uci.ics.jung.visualization.util.LayoutMediator;
+import java.awt.*;
 import java.awt.RenderingHints.Key;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
@@ -36,14 +39,18 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A class that maintains many of the details necessary for creating visualizations of graphs. This
@@ -57,6 +64,8 @@ import javax.swing.event.ChangeListener;
 @SuppressWarnings("serial")
 public class BasicVisualizationServer<V, E> extends JPanel
     implements ChangeListener, ChangeEventSupport, VisualizationServer<V, E> {
+
+  static Logger log = LoggerFactory.getLogger(BasicVisualizationServer.class);
 
   protected ChangeEventSupport changeSupport = new DefaultChangeEventSupport(this);
 
@@ -140,8 +149,8 @@ public class BasicVisualizationServer<V, E> extends JPanel
    */
   public BasicVisualizationServer(VisualizationModel<V, E> model, Dimension preferredSize) {
     this.model = model;
-    renderContext = new PluggableRenderContext<V, E>(model.getNetwork());
-    renderer = new BasicRenderer<V, E>(model.getGraphLayout(), renderContext);
+    renderContext = new PluggableRenderContext<V, E>(model.getLayoutMediator().getNetwork());
+    renderer = new BasicRenderer<V, E>();
     model.addChangeListener(this);
     setDoubleBuffered(false);
     this.addComponentListener(new VisualizationListener(this));
@@ -224,12 +233,19 @@ public class BasicVisualizationServer<V, E> extends JPanel
     return renderer;
   }
 
-  public void setGraphLayout(Layout<V> layout) {
+  public void setLayoutMediator(LayoutMediator<V, E> layoutMediator, Dimension d) {
+    model.setLayoutMediator(layoutMediator, d);
+  }
+
+  public void setLayoutMediator(LayoutMediator<V, E> layoutMediator) {
+    if (log.isDebugEnabled()) {
+      log.debug("setLayoutMediator to " + layoutMediator);
+    }
     Dimension viewSize = getPreferredSize();
     if (this.isShowing()) {
       viewSize = getSize();
     }
-    model.setGraphLayout(layout, viewSize);
+    this.setLayoutMediator(layoutMediator, viewSize);
   }
 
   public void scaleToLayout(ScalingControl scaler) {
@@ -244,7 +260,7 @@ public class BasicVisualizationServer<V, E> extends JPanel
   }
 
   public Layout<V> getGraphLayout() {
-    return model.getGraphLayout();
+    return model.getLayoutMediator().getLayout();
   }
 
   @Override
@@ -255,7 +271,7 @@ public class BasicVisualizationServer<V, E> extends JPanel
       if (d.width <= 0 || d.height <= 0) {
         d = this.getPreferredSize();
       }
-      model.getGraphLayout().setSize(d);
+      model.getLayoutMediator().getLayout().setSize(d);
     }
   }
 
@@ -281,6 +297,16 @@ public class BasicVisualizationServer<V, E> extends JPanel
     }
   }
 
+  public Rectangle2D viewOnLayout() {
+
+    Dimension d = this.getSize();
+    Rectangle deviceRectangle = new Rectangle(0, 0, d.width, d.height);
+
+    MultiLayerTransformer vt = renderContext.getMultiLayerTransformer();
+    Shape s = new Rectangle2D.Double(0, 0, d.width, d.height);
+    return vt.inverseTransform(s).getBounds2D();
+  }
+
   protected void renderGraph(Graphics2D g2d) {
     if (renderContext.getGraphicsContext() == null) {
       renderContext.setGraphicsContext(new GraphicsDecorator(g2d));
@@ -288,7 +314,7 @@ public class BasicVisualizationServer<V, E> extends JPanel
       renderContext.getGraphicsContext().setDelegate(g2d);
     }
     renderContext.setScreenDevice(this);
-    Layout<V> layout = model.getGraphLayout();
+    Layout<V> layout = model.getLayoutMediator().getLayout();
 
     g2d.setRenderingHints(renderingHints);
 
@@ -306,6 +332,35 @@ public class BasicVisualizationServer<V, E> extends JPanel
 
     g2d.setTransform(newXform);
 
+    Spatial spatial = ((ObservableCachingLayout) layout).getSpatial();
+
+    AnnotationPaintable lowerAnnotationPaintable = null;
+    // when logging is set to trace, the grid will be drawn on the graph visualization
+    if (log.isTraceEnabled()) {
+      AnnotationRenderer annotationRenderer = new AnnotationRenderer();
+      lowerAnnotationPaintable = new AnnotationPaintable(renderContext, annotationRenderer);
+      if (spatial != null) {
+        Collection<Rectangle2D> grid = ((SpatialGrid) spatial).getGrid();
+        int num = 0;
+        for (Rectangle2D r : grid) {
+          Point2D p =
+              this.getRenderContext()
+                  .getMultiLayerTransformer()
+                  .inverseTransform(new Point2D.Double(r.getX(), r.getY()));
+          Annotation<Shape> annotation =
+              new Annotation<Shape>(r, Annotation.Layer.LOWER, Color.BLACK, false, p);
+          lowerAnnotationPaintable.add(annotation);
+          Point2D center =
+              new Point2D.Double(r.getX() + r.getWidth() / 2, r.getY() + r.getHeight() / 2);
+          Annotation<String> annotation2 =
+              new Annotation<String>("" + num, Annotation.Layer.LOWER, Color.BLACK, false, center);
+          lowerAnnotationPaintable.add(annotation2);
+          num++;
+        }
+        this.addPreRenderPaintable(lowerAnnotationPaintable);
+      }
+    }
+
     // if there are  preRenderers set, paint them
     for (Paintable paintable : preRenderers) {
 
@@ -317,12 +372,14 @@ public class BasicVisualizationServer<V, E> extends JPanel
         g2d.setTransform(newXform);
       }
     }
+    if (lowerAnnotationPaintable != null) {
+      this.removePreRenderPaintable(lowerAnnotationPaintable);
+    }
 
     if (layout instanceof Caching) {
       ((Caching) layout).clear();
     }
-
-    renderer.render();
+    renderer.render(renderContext, model.getLayoutMediator(), spatial);
 
     // if there are postRenderers set, do it
     for (Paintable paintable : postRenderers) {

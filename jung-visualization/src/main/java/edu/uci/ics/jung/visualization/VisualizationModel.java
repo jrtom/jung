@@ -10,10 +10,9 @@
 
 package edu.uci.ics.jung.visualization;
 
-import com.google.common.graph.Network;
-import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.algorithms.layout.util.Relaxer;
 import edu.uci.ics.jung.visualization.util.ChangeEventSupport;
+import edu.uci.ics.jung.visualization.util.LayoutMediator;
 import java.awt.Dimension;
 import javax.swing.event.ChangeListener;
 
@@ -27,26 +26,11 @@ public interface VisualizationModel<V, E> extends ChangeEventSupport {
 
   Relaxer getRelaxer();
 
-  /**
-   * set the graph Layout
-   *
-   * @param layout the layout to use
-   */
-  void setGraphLayout(Layout<V> layout);
+  LayoutMediator<V, E> getLayoutMediator();
 
-  /**
-   * Sets the graph Layout and initialize the Layout size to the passed dimensions. The passed
-   * Dimension will often be the size of the View that will display the graph.
-   *
-   * @param layout the layout to use
-   * @param d the dimensions to use
-   */
-  void setGraphLayout(Layout<V> layout, Dimension d);
+  void setLayoutMediator(LayoutMediator<V, E> layoutMediator);
 
-  /** @return the current graph layout */
-  Layout<V> getGraphLayout();
-
-  Network<V, E> getNetwork();
+  void setLayoutMediator(LayoutMediator<V, E> layoutMediator, Dimension d);
 
   /**
    * Register <code>l</code> as a listeners to changes in the model. The View registers in order to

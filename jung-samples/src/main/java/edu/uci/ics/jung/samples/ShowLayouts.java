@@ -26,6 +26,7 @@ import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
 import edu.uci.ics.jung.visualization.layout.LayoutTransition;
 import edu.uci.ics.jung.visualization.util.Animator;
+import edu.uci.ics.jung.visualization.util.LayoutMediator;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.GridLayout;
@@ -97,11 +98,14 @@ public class ShowLayouts extends JApplet {
       Layouts layoutType = (Layouts) jcb.getSelectedItem();
       try {
         // TODO: is this the right input network?  or should it be g_array[graph_index]?
-        Layout<Integer> layout = createLayout(layoutType, vv.getModel().getNetwork());
+        Network network = g_array[graph_index];
+        Layout<Integer> layout = createLayout(layoutType, network);
         layout.setInitializer(vv.getGraphLayout());
         layout.setSize(vv.getSize());
+
         LayoutTransition<Integer, Number> lt =
-            new LayoutTransition<>(vv, vv.getGraphLayout(), layout);
+            new LayoutTransition<Integer, Number>(
+                vv, vv.getModel().getLayoutMediator(), new LayoutMediator(network, layout));
         Animator animator = new Animator(lt);
         animator.start();
         vv.getRenderContext().getMultiLayerTransformer().setToIdentity();
@@ -238,20 +242,20 @@ public class ShowLayouts extends JApplet {
     this.getContentPane().add(getGraphPanel());
   }
 
-  private static <N, E> Layout<N> createLayout(Layouts layoutType, Network<N, E> network) {
+  private static Layout createLayout(Layouts layoutType, Network network) {
     switch (layoutType) {
       case CIRCLE:
-        return new CircleLayout<N>(network.asGraph());
+        return new CircleLayout(network.asGraph());
       case FRUCHTERMAN_REINGOLD:
-        return new FRLayout<N>(network.asGraph());
+        return new FRLayout(network.asGraph());
       case KAMADA_KAWAI:
-        return new KKLayout<N>(network.asGraph());
+        return new KKLayout(network.asGraph());
       case SELF_ORGANIZING_MAP:
-        return new ISOMLayout<N, E>(network);
+        return new ISOMLayout(network);
       case SPRING:
-        return new SpringLayout<N>(network.asGraph());
+        return new SpringLayout(network.asGraph());
       case SPRING2:
-        return new SpringLayout2<N>(network.asGraph());
+        return new SpringLayout2(network.asGraph());
       default:
         throw new IllegalArgumentException("Unrecognized layout type");
     }

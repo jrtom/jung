@@ -107,6 +107,8 @@ public class EditingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
         }
         if (vertex != null) {
           edgeSupport.endEdgeCreate(vv, vertex);
+        } else {
+          edgeSupport.abort(vv);
         }
       } else if (createMode == Creating.VERTEX) {
         vertexSupport.endVertexCreate(vv, e.getPoint());

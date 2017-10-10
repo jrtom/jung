@@ -72,13 +72,13 @@ public class ClosestShapePickSupport<V, E> implements NetworkElementAccessor<V, 
   /** @see edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor#getNode(double, double) */
   @Override
   public V getNode(double x, double y) {
-    Layout<V> layout = vv.getGraphLayout();
+    Layout<V> layout = vv.getModel().getLayoutMediator().getLayout();
     // first, find the closest vertex to (x,y)
     double minDistance = Double.MAX_VALUE;
     V closest = null;
     while (true) {
       try {
-        for (V v : vv.getModel().getNetwork().nodes()) {
+        for (V v : vv.getModel().getLayoutMediator().getNetwork().nodes()) {
           Point2D p = layout.apply(v);
           double dx = p.getX() - x;
           double dy = p.getY() - y;

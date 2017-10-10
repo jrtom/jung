@@ -92,7 +92,7 @@ public class GraphFromGraphMLDemo {
     vv.addGraphMouseListener(new TestGraphMouseListener<Number>());
     vv.getRenderer()
         .setVertexRenderer(
-            new GradientVertexRenderer<Number>(
+            new GradientVertexRenderer<Number, Number>(
                 vv, Color.white, Color.red, Color.white, Color.blue, false));
 
     // add my listeners for ToolTips

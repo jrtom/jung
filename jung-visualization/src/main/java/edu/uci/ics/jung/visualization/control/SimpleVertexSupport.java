@@ -26,10 +26,12 @@ public class SimpleVertexSupport<V, E> implements VertexSupport<V, E> {
 
   public void startVertexCreate(BasicVisualizationServer<V, E> vv, Point2D point) {
     Preconditions.checkState(
-        vv.getModel().getNetwork() instanceof MutableNetwork<?, ?>, "graph must be mutable");
+        vv.getModel().getLayoutMediator().getNetwork() instanceof MutableNetwork<?, ?>,
+        "graph must be mutable");
     V newVertex = vertexFactory.get();
     Layout<V> layout = vv.getGraphLayout();
-    MutableNetwork<V, E> graph = (MutableNetwork<V, E>) vv.getModel().getNetwork();
+    MutableNetwork<V, E> graph =
+        (MutableNetwork<V, E>) vv.getModel().getLayoutMediator().getNetwork();
     graph.addNode(newVertex);
     layout.setLocation(
         newVertex, vv.getRenderContext().getMultiLayerTransformer().inverseTransform(point));

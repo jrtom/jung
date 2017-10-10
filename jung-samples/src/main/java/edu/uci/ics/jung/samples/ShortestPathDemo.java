@@ -98,7 +98,7 @@ public class ShortestPathDemo extends JPanel {
                 p1 = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, p1);
                 p2 = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, p2);
                 Renderer<String, Number> renderer = vv.getRenderer();
-                renderer.renderEdge(e);
+                renderer.renderEdge(vv.getRenderContext(), vv.getModel().getLayoutMediator(), e);
               }
             }
           }

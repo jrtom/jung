@@ -20,6 +20,7 @@ import edu.uci.ics.jung.visualization.renderers.EdgeLabelRenderer;
 import edu.uci.ics.jung.visualization.renderers.VertexLabelRenderer;
 import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
 import edu.uci.ics.jung.visualization.util.ArrowFactory;
+import edu.uci.ics.jung.visualization.util.Context;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
@@ -34,8 +35,6 @@ import javax.swing.Icon;
 import javax.swing.JComponent;
 
 public class PluggableRenderContext<V, E> implements RenderContext<V, E> {
-
-  private final Network<V, E> network;
 
   protected float arrowPlacementTolerance = 1;
   protected Predicate<V> vertexIncludePredicate = n -> true;
@@ -70,7 +69,7 @@ public class PluggableRenderContext<V, E> implements RenderContext<V, E> {
   private static final float UNDIRECTED_EDGE_LABEL_CLOSENESS = 0.65f;
   protected float edgeLabelCloseness;
 
-  protected Function<? super E, Shape> edgeShapeTransformer;
+  protected Function<Context<Network, E>, Shape> edgeShapeTransformer;
   protected Function<? super E, Paint> edgeFillPaintTransformer = n -> null;
   protected Function<? super E, Paint> edgeDrawPaintTransformer = n -> Color.black;
   protected Function<? super E, Paint> arrowFillPaintTransformer = n -> Color.black;
@@ -105,11 +104,10 @@ public class PluggableRenderContext<V, E> implements RenderContext<V, E> {
   protected GraphicsDecorator graphicsContext;
 
   private EdgeShape<E> edgeShape;
-
+  //Function<Context<Network,E>, Shape>
   PluggableRenderContext(Network<V, E> graph) {
-    this.network = graph;
-    this.edgeShape = new EdgeShape<E>(graph);
-    this.edgeShapeTransformer = edgeShape.new QuadCurve();
+    //    this.edgeShape = new EdgeShape<E>(graph);
+    this.edgeShapeTransformer = new EdgeShape.QuadCurve<E>();
     this.parallelEdgeIndexFunction = new ParallelEdgeIndexFunction<V, E>(graph);
     if (graph.isDirected()) {
       this.edgeArrow =
@@ -121,11 +119,6 @@ public class PluggableRenderContext<V, E> implements RenderContext<V, E> {
       this.renderEdgeArrow = false;
       this.edgeLabelCloseness = UNDIRECTED_EDGE_LABEL_CLOSENESS;
     }
-  }
-
-  @Override
-  public Network<V, E> getNetwork() {
-    return network;
   }
 
   /** @return the vertexShapeTransformer */
@@ -228,11 +221,11 @@ public class PluggableRenderContext<V, E> implements RenderContext<V, E> {
     this.edgeFillPaintTransformer = edgeFillPaintTransformer;
   }
 
-  public Function<? super E, Shape> getEdgeShapeTransformer() {
+  public Function<Context<Network, E>, Shape> getEdgeShapeTransformer() {
     return edgeShapeTransformer;
   }
 
-  public void setEdgeShapeTransformer(Function<? super E, Shape> edgeShapeTransformer) {
+  public void setEdgeShapeTransformer(Function<Context<Network, E>, Shape> edgeShapeTransformer) {
     this.edgeShapeTransformer = edgeShapeTransformer;
     if (edgeShapeTransformer instanceof ParallelEdgeShapeTransformer) {
       @SuppressWarnings("unchecked")

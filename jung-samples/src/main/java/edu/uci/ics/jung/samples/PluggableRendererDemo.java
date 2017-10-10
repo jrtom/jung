@@ -35,8 +35,6 @@ import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.picking.PickedInfo;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import edu.uci.ics.jung.visualization.renderers.BasicEdgeArrowRenderingSupport;
-import edu.uci.ics.jung.visualization.renderers.CachingEdgeRenderer;
-import edu.uci.ics.jung.visualization.renderers.CachingVertexRenderer;
 import edu.uci.ics.jung.visualization.renderers.CenterEdgeArrowRenderingSupport;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
 import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
@@ -239,8 +237,8 @@ public class PluggableRendererDemo extends JApplet implements ActionListener {
     Layout<Integer> layout = new FRLayout<Integer>(graph.asGraph());
     vv = new VisualizationViewer<Integer, Number>(graph, layout);
 
-    vv.getRenderer().setVertexRenderer(new CachingVertexRenderer<Integer, Number>(vv));
-    vv.getRenderer().setEdgeRenderer(new CachingEdgeRenderer<Integer, Number>(vv));
+    //    vv.getRenderer().setVertexRenderer(new CachingVertexRenderer<Integer, Number>(vv));
+    //    vv.getRenderer().setEdgeRenderer(new CachingEdgeRenderer<Integer, Number>(vv));
 
     PickedState<Integer> picked_state = vv.getPickedVertexState();
 
@@ -286,7 +284,7 @@ public class PluggableRendererDemo extends JApplet implements ActionListener {
     vv.getRenderContext().setEdgeFontTransformer(eff);
     vv.getRenderContext().setEdgeStrokeTransformer(ewcs);
     vv.getRenderContext().setEdgeIncludePredicate(show_edge);
-    vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.line(graph));
+    vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.line());
 
     vv.getRenderContext().setArrowFillPaintTransformer(n -> Color.lightGray);
     vv.getRenderContext().setArrowDrawPaintTransformer(n -> Color.black);
@@ -339,7 +337,7 @@ public class PluggableRendererDemo extends JApplet implements ActionListener {
             edgeFactory,
             4,
             3);
-    generator.evolveGraph(20);
+    generator.evolveGraph(200);
     MutableNetwork<Integer, Number> g = generator.get();
     for (Number e : g.edges()) {
       edge_weight.put(e, Math.random());
@@ -635,15 +633,15 @@ public class PluggableRendererDemo extends JApplet implements ActionListener {
       vssa.setStretching(source.isSelected());
     } else if (source == e_line) {
       if (source.isSelected()) {
-        vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.line(graph));
+        vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.line());
       }
     } else if (source == e_ortho) {
       if (source.isSelected()) {
-        vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.orthogonal(graph));
+        vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.orthogonal());
       }
     } else if (source == e_wedge) {
       if (source.isSelected()) {
-        vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.wedge(graph, 10));
+        vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.wedge(10));
       }
     }
     //        else if (source == e_bent)
@@ -655,11 +653,11 @@ public class PluggableRendererDemo extends JApplet implements ActionListener {
     //        }
     else if (source == e_quad) {
       if (source.isSelected()) {
-        vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.quadCurve(graph));
+        vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.quadCurve());
       }
     } else if (source == e_cubic) {
       if (source.isSelected()) {
-        vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.cubicCurve(graph));
+        vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.cubicCurve());
       }
     } else if (source == e_filter_small) {
       show_edge.filterSmall(source.isSelected());

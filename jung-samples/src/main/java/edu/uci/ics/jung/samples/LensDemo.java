@@ -36,6 +36,7 @@ import edu.uci.ics.jung.visualization.transform.MagnifyTransformer;
 import edu.uci.ics.jung.visualization.transform.shape.HyperbolicShapeTransformer;
 import edu.uci.ics.jung.visualization.transform.shape.MagnifyShapeTransformer;
 import edu.uci.ics.jung.visualization.transform.shape.ViewLensSupport;
+import edu.uci.ics.jung.visualization.util.LayoutMediator;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
@@ -277,7 +278,7 @@ public class LensDemo extends JApplet {
 
           public void itemStateChanged(ItemEvent e) {
             if (e.getStateChange() == ItemEvent.SELECTED) {
-              visualizationModel.setGraphLayout(graphLayout);
+              visualizationModel.setLayoutMediator(new LayoutMediator(graph, graphLayout));
               vv.getRenderContext().setVertexShapeTransformer(ovals);
               vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
               vv.repaint();
@@ -290,7 +291,7 @@ public class LensDemo extends JApplet {
 
           public void itemStateChanged(ItemEvent e) {
             if (e.getStateChange() == ItemEvent.SELECTED) {
-              visualizationModel.setGraphLayout(gridLayout);
+              visualizationModel.setLayoutMediator(new LayoutMediator(grid, gridLayout));
               vv.getRenderContext().setVertexShapeTransformer(squares);
               vv.getRenderContext().setVertexLabelTransformer(n -> null);
               vv.repaint();

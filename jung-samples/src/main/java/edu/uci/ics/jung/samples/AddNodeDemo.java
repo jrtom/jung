@@ -27,6 +27,7 @@ import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
+import edu.uci.ics.jung.visualization.util.LayoutMediator;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -38,6 +39,8 @@ import java.util.TimerTask;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JRootPane;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Demonstrates visualization of a graph being actively updated.
@@ -46,6 +49,7 @@ import javax.swing.JRootPane;
  */
 public class AddNodeDemo extends javax.swing.JApplet {
 
+  private static final Logger log = LoggerFactory.getLogger(AddNodeDemo.class);
   /** */
   private static final long serialVersionUID = -5345319851341875800L;
 
@@ -61,8 +65,6 @@ public class AddNodeDemo extends javax.swing.JApplet {
 
   protected JButton switchLayout;
 
-  //    public static final LengthFunction<Number> UNITLENGTHFUNCTION = new SpringLayout.UnitLengthFunction<Number>(
-  //            100);
   public static final int EDGE_LENGTH = 100;
 
   @Override
@@ -81,15 +83,19 @@ public class AddNodeDemo extends javax.swing.JApplet {
               case EDGE_REMOVED:
                 NetworkEvent.Edge<Number, Number> edgeEvent =
                     (NetworkEvent.Edge<Number, Number>) evt;
-                System.err.println(
-                    "got "
-                        + evt
-                        + " with endpoints: "
-                        + original.incidentNodes(edgeEvent.getEdge()));
+                if (log.isDebugEnabled()) {
+                  log.debug(
+                      "got "
+                          + evt
+                          + " with endpoints: "
+                          + original.incidentNodes(edgeEvent.getEdge()));
+                }
                 break;
               case VERTEX_ADDED:
               case VERTEX_REMOVED:
-                System.err.println("got " + evt);
+                if (log.isDebugEnabled()) {
+                  log.debug("got " + evt);
+                }
                 break;
               default:
                 throw new IllegalArgumentException("Unrecognized event type: " + evt);
@@ -97,9 +103,7 @@ public class AddNodeDemo extends javax.swing.JApplet {
           }
         });
     this.g = og;
-    //create a graphdraw
     layout = new FRLayout2<Number>(g.asGraph());
-    //        ((FRLayout)layout).setMaxIterations(200);
 
     vv = new VisualizationViewer<Number, Number>(g, layout, new Dimension(600, 600));
 
@@ -127,19 +131,23 @@ public class AddNodeDemo extends javax.swing.JApplet {
               switchLayout.setText("Switch to FRLayout");
               layout = new SpringLayout<Number>(g.asGraph(), e -> EDGE_LENGTH);
               layout.setSize(d);
-              vv.getModel().setGraphLayout(layout, d);
+              vv.setLayoutMediator(new LayoutMediator(g, layout), d);
               Layout<Number> delegateLayout =
-                  ((LayoutDecorator<Number>) vv.getModel().getGraphLayout()).getDelegate();
-              System.err.println("layout: " + delegateLayout.getClass().getName());
-              //                    vv.repaint();
+                  ((LayoutDecorator<Number>) vv.getModel().getLayoutMediator().getLayout())
+                      .getDelegate();
+              if (log.isDebugEnabled()) {
+                log.debug("layout: " + delegateLayout.getClass().getName());
+              }
             } else {
               switchLayout.setText("Switch to SpringLayout");
               layout = new FRLayout<Number>(g.asGraph(), d);
-              vv.getModel().setGraphLayout(layout, d);
+              vv.setLayoutMediator(new LayoutMediator(g, layout), d);
               Layout<Number> delegateLayout =
-                  ((LayoutDecorator<Number>) vv.getModel().getGraphLayout()).getDelegate();
-              System.err.println("layout: " + delegateLayout.getClass().getName());
-              //                    vv.repaint();
+                  ((LayoutDecorator<Number>) vv.getModel().getLayoutMediator().getLayout())
+                      .getDelegate();
+              if (log.isDebugEnabled()) {
+                log.debug("layout: " + delegateLayout.getClass().getName());
+              }
             }
           }
         });
@@ -170,7 +178,9 @@ public class AddNodeDemo extends javax.swing.JApplet {
         Relaxer relaxer = vv.getModel().getRelaxer();
         relaxer.pause();
         g.addNode(v1);
-        System.err.println("added node " + v1);
+        if (log.isDebugEnabled()) {
+          log.debug("added node " + v1);
+        }
 
         // wire it to some edges
         if (v_prev != null) {
@@ -190,7 +200,7 @@ public class AddNodeDemo extends javax.swing.JApplet {
       }
 
     } catch (Exception e) {
-      System.out.println(e);
+      log.debug("got exception ", e);
     }
   }
 

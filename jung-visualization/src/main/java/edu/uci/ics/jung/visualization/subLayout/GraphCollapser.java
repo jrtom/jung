@@ -9,12 +9,14 @@
  */
 package edu.uci.ics.jung.visualization.subLayout;
 
-import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -71,66 +73,99 @@ public class GraphCollapser {
     return graph;
   }
 
-  public Network expand(Network inGraph, Network clusterGraph) {
-    MutableNetwork graph = graphBuilder.build();
-    Collection clusterNodes = clusterGraph.nodes();
-    logger.fine("cluster to expand is " + clusterNodes);
+  public Network expand(Network originalNetwork, Network inGraph, Network clusterGraphNode) {
 
-    // put all clusterGraph vertices and edges into the new Graph
-    for (Object node : clusterNodes) {
-      graph.addNode(node);
-      for (Object edge : clusterGraph.incidentEdges(node)) {
-        Object u = clusterGraph.incidentNodes(edge).nodeU();
-        Object v = clusterGraph.incidentNodes(edge).nodeV();
-        graph.addEdge(u, v, edge);
-      }
-    }
-    // add all the vertices from the current graph except for
-    // the cluster we are expanding
+    NetworkBuilder networkBuilder = NetworkBuilder.from(originalNetwork);
+    // build a new empty network
+    MutableNetwork newGraph = networkBuilder.build();
+    // add all the nodes from inGraph that are not clusterGraphNode and are not in clusterGraphNode
     for (Object node : inGraph.nodes()) {
-      if (node.equals(clusterGraph) == false) {
-        graph.addNode(node);
+      if (!node.equals(clusterGraphNode) && !this.contains(clusterGraphNode, node)) {
+        newGraph.addNode(node);
       }
     }
 
-    // now that all vertices have been added, add the edges,
-    // ensuring that no edge contains a vertex that has not
-    // already been added
-    for (Object node : inGraph.nodes()) {
-      if (node.equals(clusterGraph) == false) {
-        for (Object edge : inGraph.incidentEdges(node)) {
-          Object u = inGraph.incidentNodes(edge).nodeU();
-          Object v = inGraph.incidentNodes(edge).nodeV();
-          // only add edges if both u and v are not already in the graph
-          if (!(clusterNodes.contains(u) && clusterNodes.contains(v))) {
-            continue;
-          }
+    // add all edges that don't have an endpoint that either is clusterGraphNode or is in clusterGraphNode
+    for (Object edge : inGraph.edges()) {
+      EndpointPair endpoints = inGraph.incidentNodes(edge);
+      boolean dontWantThis = false;
+      for (Object endpoint : endpoints) {
+        dontWantThis |=
+            endpoint.equals(clusterGraphNode) || this.contains(clusterGraphNode, endpoint);
+      }
+      if (dontWantThis == false) {
+        newGraph.addEdge(endpoints.nodeU(), endpoints.nodeV(), edge);
+      }
+    }
 
-          if (clusterGraph.equals(u)) {
-            Object originalU = originalGraph.incidentNodes(edge).nodeU();
-            Object newU = findNode(graph, originalU);
-            Preconditions.checkNotNull(newU);
-            graph.addEdge(newU, v, edge);
-          } else if (clusterGraph.equals(v)) {
-            Object originalV = originalGraph.incidentNodes(edge).nodeV();
-            Object newV = findNode(graph, originalV);
-            Preconditions.checkNotNull(newV);
-            graph.addEdge(u, newV, edge);
-          } else {
-            graph.addEdge(u, v, edge);
+    // add all the nodes from the clusterGraphNode
+    for (Object node : clusterGraphNode.nodes()) {
+      newGraph.addNode(node);
+    }
+
+    // add all the edges that are in the clusterGraphNode
+    for (Object edge : clusterGraphNode.edges()) {
+      EndpointPair endpoints = clusterGraphNode.incidentNodes(edge);
+      newGraph.addEdge(endpoints.nodeU(), endpoints.nodeV(), edge);
+    }
+
+    // add edges from ingraph where one endpoint is the clusterGraphNode
+    // it will now be connected to the node that was expanded from clusterGraphNode
+    for (Object edge : inGraph.edges()) {
+      Set endpointsFromCollapsedGraph = Sets.newHashSet(inGraph.incidentNodes(edge));
+      for (Object endpoint : inGraph.incidentNodes(edge)) {
+        if (endpoint.equals(clusterGraphNode)) {
+          // get the endpoints for this edge from the original graph
+          Set endpointsFromOriginalGraph = Sets.newHashSet(originalNetwork.incidentNodes(edge));
+          // remove the endpoint that is the cluster i am expanding
+          endpointsFromCollapsedGraph.remove(endpoint);
+          // put in the one that is in the collapsedGraphNode i am expanding
+          for (Object originalEndpoint : endpointsFromOriginalGraph) {
+            if (this.contains(clusterGraphNode, originalEndpoint)) {
+              endpointsFromCollapsedGraph.add(originalEndpoint);
+              break;
+            }
           }
+          List list = Lists.newArrayList(endpointsFromCollapsedGraph);
+          newGraph.addEdge(list.get(0), list.get(1), edge);
         }
       }
     }
-    return graph;
+    return newGraph;
   }
 
-  Object findNode(Network inGraph, Object inNode) {
+  /**
+   * @param inGraph
+   * @param inNode
+   * @return
+   */
+  public Object findNode(Network inGraph, Object inNode) {
+    /** if the inNode is in the inGraph, return the inNode */
+    if (inGraph.nodes().contains(inNode)) {
+      return inNode;
+    }
+
+    /**
+     * if the inNode is part of a node that is a Network, return the Network that contains inNode
+     */
+    for (Object node : inGraph.nodes()) {
+      if ((node instanceof Network) && contains((Network) node, inNode)) {
+        // return the node that is a Network containing inNode
+        return node;
+      }
+    }
+    return null;
+  }
+
+  Object findOriginalNode(Network inGraph, Object inNode, Network clusterGraph) {
     if (inGraph.nodes().contains(inNode)) {
       return inNode;
     }
 
     for (Object node : inGraph.nodes()) {
+      if ((node instanceof Network) && !node.equals(clusterGraph)) {
+        return node;
+      }
       if ((node instanceof Network) && contains((Network) node, inNode)) {
         return node;
       }
@@ -138,9 +173,10 @@ public class GraphCollapser {
     return null;
   }
 
-  private boolean contains(Network inGraph, Object inNode) {
+  public boolean contains(Network inGraph, Object inNode) {
     boolean contained = false;
     if (inGraph.nodes().contains(inNode)) {
+      // inNode is one of the nodes in inGraph
       return true;
     }
 
@@ -159,7 +195,7 @@ public class GraphCollapser {
         Object u = inGraph.incidentNodes(edge).nodeU();
         Object v = inGraph.incidentNodes(edge).nodeV();
         if (picked.contains(u) && picked.contains(v)) {
-          clusterGraph.addEdge(edge, u, v);
+          clusterGraph.addEdge(u, v, edge);
         }
       }
     }

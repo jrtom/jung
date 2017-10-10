@@ -6,6 +6,7 @@ import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.VisualizationServer;
 import edu.uci.ics.jung.visualization.util.ChangeEventSupport;
+import edu.uci.ics.jung.visualization.util.LayoutMediator;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -21,12 +22,13 @@ public class BoundingRectanglePaintable<V, E> implements VisualizationServer.Pai
   protected Layout<V> layout;
   protected List<Rectangle2D> rectangles;
 
-  public BoundingRectanglePaintable(RenderContext<V, E> rc, Layout<V> layout) {
+  public BoundingRectanglePaintable(RenderContext<V, E> rc, LayoutMediator<V, E> layoutMediator) {
     super();
     this.rc = rc;
     this.layout = layout;
-    this.graph = rc.getNetwork();
-    final BoundingRectangleCollector<V, E> brc = new BoundingRectangleCollector<V, E>(rc, layout);
+    this.graph = layoutMediator.getNetwork();
+    final BoundingRectangleCollector<V, E> brc =
+        new BoundingRectangleCollector<V, E>(rc, layoutMediator);
     this.rectangles = brc.getRectangles();
     if (layout instanceof ChangeEventSupport) {
       ((ChangeEventSupport) layout)

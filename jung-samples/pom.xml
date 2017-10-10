@@ -12,7 +12,6 @@
     Sample programs using JUNG. Nearly all JUNG capabilities are demonstrated here.
     Please study the source code for these examples prior to asking how to do something.
   </description>
-
   <dependencies>
     <dependency>
       <groupId>net.sf.jung</groupId>

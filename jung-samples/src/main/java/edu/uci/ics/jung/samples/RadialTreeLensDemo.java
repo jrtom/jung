@@ -112,7 +112,7 @@ public class RadialTreeLensDemo extends JApplet {
     vv.setBackground(Color.white);
 
     vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
-    vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.line(graph));
+    vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.line());
 
     // add a listener for ToolTips
     vv.setVertexToolTipTransformer(new ToStringLabeller());

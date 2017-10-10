@@ -9,14 +9,13 @@
  */
 package edu.uci.ics.jung.visualization.renderers;
 
-import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.VisualizationServer;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
+import edu.uci.ics.jung.visualization.util.LayoutMediator;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.GradientPaint;
 import java.awt.Paint;
 import java.awt.Rectangle;
@@ -24,7 +23,6 @@ import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
-import javax.swing.JComponent;
 
 /**
  * A renderer that will fill vertex shapes with a GradientPaint
@@ -33,7 +31,7 @@ import javax.swing.JComponent;
  * @param <V> the vertex type
  * @param <V> the edge type
  */
-public class GradientVertexRenderer<V> implements Renderer.Vertex<V> {
+public class GradientVertexRenderer<V, E> implements Renderer.Vertex<V, E> {
 
   Color colorOne;
   Color colorTwo;
@@ -41,16 +39,12 @@ public class GradientVertexRenderer<V> implements Renderer.Vertex<V> {
   Color pickedColorTwo;
   PickedState<V> pickedState;
   boolean cyclic;
-  protected final Layout<V> layout;
-  protected final RenderContext<V, ?> renderContext;
 
   public GradientVertexRenderer(
       VisualizationServer<V, ?> vv, Color colorOne, Color colorTwo, boolean cyclic) {
     this.colorOne = colorOne;
     this.colorTwo = colorTwo;
     this.cyclic = cyclic;
-    this.layout = vv.getGraphLayout();
-    this.renderContext = vv.getRenderContext();
   }
 
   public GradientVertexRenderer(
@@ -66,17 +60,15 @@ public class GradientVertexRenderer<V> implements Renderer.Vertex<V> {
     this.pickedColorTwo = pickedColorTwo;
     this.pickedState = vv.getPickedVertexState();
     this.cyclic = cyclic;
-    this.layout = vv.getGraphLayout();
-    this.renderContext = vv.getRenderContext();
   }
 
-  public void paintVertex(V v) {
+  public void paintVertex(
+      RenderContext<V, E> renderContext, LayoutMediator<V, E> layoutMediator, V v) {
     if (renderContext.getVertexIncludePredicate().test(v)) {
-      boolean vertexHit = true;
       // get the shape to be rendered
       Shape shape = renderContext.getVertexShapeTransformer().apply(v);
 
-      Point2D p = layout.apply(v);
+      Point2D p = layoutMediator.getLayout().apply(v);
       p = renderContext.getMultiLayerTransformer().transform(Layer.LAYOUT, p);
 
       float x = (float) p.getX();
@@ -88,29 +80,11 @@ public class GradientVertexRenderer<V> implements Renderer.Vertex<V> {
       // transform the vertex shape with xtransform
       shape = xform.createTransformedShape(shape);
 
-      vertexHit = vertexHit(shape);
-
-      if (vertexHit) {
-        paintShapeForVertex(v, shape);
-      }
+      paintShapeForVertex(renderContext, v, shape);
     }
   }
 
-  protected boolean vertexHit(Shape s) {
-    JComponent vv = renderContext.getScreenDevice();
-    Rectangle deviceRectangle = null;
-    if (vv != null) {
-      Dimension d = vv.getSize();
-      deviceRectangle = new Rectangle(0, 0, d.width, d.height);
-    }
-    return renderContext
-        .getMultiLayerTransformer()
-        .getTransformer(Layer.VIEW)
-        .transform(s)
-        .intersects(deviceRectangle);
-  }
-
-  protected void paintShapeForVertex(V v, Shape shape) {
+  protected void paintShapeForVertex(RenderContext<V, E> renderContext, V v, Shape shape) {
     GraphicsDecorator g = renderContext.getGraphicsContext();
     Paint oldPaint = g.getPaint();
     Rectangle r = shape.getBounds();
