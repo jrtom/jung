@@ -44,9 +44,9 @@ public class BasicRenderer<V, E> implements Renderer<V, E> {
     Set<V> visibleNodes = null;
     try {
       visibleNodes =
-              (Set)
-                      spatial.getVisibleNodes(
-                              ((VisualizationServer) renderContext.getScreenDevice()).viewOnLayout());
+          (Set)
+              spatial.getVisibleNodes(
+                  ((VisualizationServer) renderContext.getScreenDevice()).viewOnLayout());
     } catch (ConcurrentModificationException ex) {
       // skip rendering until graph node index is stable,
       // this can happen if the layout relax thread is changing locations while the
