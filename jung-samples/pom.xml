@@ -12,7 +12,21 @@
     Sample programs using JUNG. Nearly all JUNG capabilities are demonstrated here.
     Please study the source code for these examples prior to asking how to do something.
   </description>
+  <properties>
+    <version.slf4j>1.7.5</version.slf4j>
+    <version.log4j>1.2.16</version.log4j>
+  </properties>
   <dependencies>
+  <dependency>
+    <groupId>org.slf4j</groupId>
+    <artifactId>slf4j-log4j12</artifactId>
+    <version>${version.slf4j}</version>
+  </dependency>
+  <dependency>
+    <groupId>log4j</groupId>
+    <artifactId>log4j</artifactId>
+    <version>${version.log4j}</version>
+  </dependency>
     <dependency>
       <groupId>net.sf.jung</groupId>
       <artifactId>jung-api</artifactId>
