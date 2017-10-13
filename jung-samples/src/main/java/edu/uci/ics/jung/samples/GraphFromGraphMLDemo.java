@@ -31,6 +31,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import javax.swing.JButton;
@@ -83,7 +84,7 @@ public class GraphFromGraphMLDemo {
             vertexFactory, edgeFactory);
     final MutableNetwork<Number, Number> graph =
         NetworkBuilder.directed().allowsSelfLoops(true).build();
-    gmlr.load(filename, graph);
+    gmlr.load(new InputStreamReader(this.getClass().getResourceAsStream(filename)), graph);
 
     // create a simple graph for the demo
     Layout<Number> layout = new FRLayout<Number>(graph.asGraph());
@@ -175,10 +176,10 @@ public class GraphFromGraphMLDemo {
    */
   public static void main(String[] args)
       throws ParserConfigurationException, SAXException, IOException {
-    String filename = "simple.graphml";
+    String filePath = "/datasets/simple.graphml";
     if (args.length > 0) {
-      filename = args[0];
+      filePath = args[0];
     }
-    new GraphFromGraphMLDemo(filename);
+    new GraphFromGraphMLDemo(filePath);
   }
 }
