@@ -238,9 +238,6 @@ public class BasicVisualizationServer<V, E> extends JPanel
   }
 
   public void setLayoutMediator(LayoutMediator<V, E> layoutMediator) {
-    if (log.isDebugEnabled()) {
-      log.debug("setLayoutMediator to " + layoutMediator);
-    }
     Dimension viewSize = getPreferredSize();
     if (this.isShowing()) {
       viewSize = getSize();

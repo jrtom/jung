@@ -96,9 +96,6 @@ public class ObservableCachingLayout<V, E> extends LayoutDecorator<V>
       for (V node : graph.nodes()) {
         spatialMap.put(spatial.getBoxNumberFromLocation(this.apply(node)), node);
       }
-      if (log.isDebugEnabled()) {
-        log.debug("now the updated map is " + spatialMap);
-      }
     }
   }
 

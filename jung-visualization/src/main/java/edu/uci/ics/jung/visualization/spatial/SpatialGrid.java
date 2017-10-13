@@ -1,19 +1,15 @@
 package edu.uci.ics.jung.visualization.spatial;
 
 import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
-import com.google.common.collect.Multimaps;
 import com.google.common.collect.Sets;
 import java.awt.*;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import org.slf4j.Logger;
@@ -93,19 +89,17 @@ public class SpatialGrid<N> implements Spatial<N> {
     if (log.isTraceEnabled()) {
       if (log.isTraceEnabled()) {
         log.trace(
-            boxX
-                + ","
-                + boxY
-                + " clamped to "
-                + Math.max(0, Math.min(boxX, this.horizontalCount - 1))
-                + ","
-                + Math.max(0, Math.min(boxY, this.verticalCount - 1)));
+            "{},{} clamped to {},{}",
+            boxX,
+            boxY,
+            Math.max(0, Math.min(boxX, this.horizontalCount - 1)),
+            Math.max(0, Math.min(boxY, this.verticalCount - 1)));
       }
     }
     boxX = Math.max(0, Math.min(boxX, this.horizontalCount - 1));
     boxY = Math.max(0, Math.min(boxY, this.verticalCount - 1));
     if (log.isTraceEnabled()) {
-      log.trace("getBoxNumber(" + boxX + "," + boxY + "):" + (boxY * this.horizontalCount + boxX));
+      log.trace("getBoxNumber({},{}):{}", boxX, boxY, (boxY * this.horizontalCount + boxX));
     }
     return boxY * this.horizontalCount + boxX;
   }
@@ -149,7 +143,7 @@ public class SpatialGrid<N> implements Spatial<N> {
     for (Rectangle2D r : getGrid()) {
       if (r.contains(p)) {
         if (log.isTraceEnabled()) {
-          log.trace("r:" + r.getBounds2D() + " contains " + p);
+          log.trace("r:{} contains {}", r.getBounds2D(), p);
         }
         return count;
       } else {
@@ -184,7 +178,7 @@ public class SpatialGrid<N> implements Spatial<N> {
       }
     }
     if (log.isTraceEnabled()) {
-      log.trace("boxIndex for (" + x + "," + y + ") is " + Arrays.toString(boxIndex));
+      log.trace("boxIndex for ({},{}) is {}", x, y, Arrays.toString(boxIndex));
     }
     return boxIndex;
   }
@@ -195,53 +189,6 @@ public class SpatialGrid<N> implements Spatial<N> {
       this.map.put(this.getBoxNumberFromLocation(layout.apply(node)), node);
     }
   }
-  /**
-   * update the location of a node in the map of box number to node lists
-   *
-   * @param node // * @param x // * @param y
-   */
-  public void updateBox(N node, Point2D p) {
-    if (log.isTraceEnabled()) {
-      log.trace("updateBox(" + node + "," + p.getX() + "," + p.getY());
-    }
-    int newBoxNumber = this.getBoxNumberFromLocation(p);
-    if (log.isTraceEnabled()) {
-      log.trace("newBoxNumber:" + newBoxNumber);
-    }
-    ListMultimap<N, Integer> inverse = Multimaps.invertFrom(map, ArrayListMultimap.create());
-    if (log.isTraceEnabled()) {
-      log.trace("inverseMap:" + inverse);
-    }
-    List<Integer> oldBoxes = inverse.get(node);
-    if (log.isTraceEnabled()) {
-      log.trace("oldBoxes:" + oldBoxes);
-    }
-    if (oldBoxes.contains(newBoxNumber) == false) {
-      if (log.isTraceEnabled()) {
-        log.trace(newBoxNumber + " is not in " + oldBoxes + ", so....");
-      }
-      for (Iterator<Map.Entry<Integer, N>> iterator = map.entries().iterator();
-          iterator.hasNext();
-          ) {
-        Map.Entry<Integer, N> entry = iterator.next();
-        if (node.equals(entry.getValue())) {
-          iterator.remove();
-          if (log.isTraceEnabled()) {
-            log.trace("removed " + entry);
-          }
-        }
-      }
-      if (log.isTraceEnabled()) {
-        log.trace("map was:" + map);
-      }
-
-      map.put(newBoxNumber, node);
-      if (log.isTraceEnabled()) {
-        log.trace("map now:" + map);
-      }
-    }
-  }
-
   /** given a rectangular area and an offset, return the tiles that are contained in it */
   public Collection<Integer> getVisibleTiles(Rectangle2D visibleArea) {
     Set<Integer> visibleTiles = Sets.newHashSet();
@@ -256,7 +203,7 @@ public class SpatialGrid<N> implements Spatial<N> {
       }
     }
     if (log.isDebugEnabled()) {
-      log.debug("visibleTiles are " + visibleTiles);
+      log.debug("visibleTiles are {}", visibleTiles);
     }
     return visibleTiles;
   }
@@ -264,8 +211,8 @@ public class SpatialGrid<N> implements Spatial<N> {
   public Collection<N> getVisibleNodes(Rectangle2D visibleArea) {
     visibleArea = visibleArea.createIntersection(this.layoutArea);
     if (log.isDebugEnabled()) {
-      log.debug("visibleArea:" + visibleArea);
-      log.debug("map is " + map);
+      log.debug("visibleArea: {}", visibleArea);
+      log.debug("map is {}", map);
     }
     Collection<N> visibleNodes = Sets.newHashSet();
     Collection<Integer> tiles = getVisibleTiles(visibleArea);
@@ -274,14 +221,14 @@ public class SpatialGrid<N> implements Spatial<N> {
       if (toAdd.size() > 0) {
         visibleNodes.addAll(toAdd);
         if (log.isTraceEnabled()) {
-          log.trace("added all of:" + toAdd + " from index " + index + " to visibleNodes");
+          log.trace("added all of: {} from index {} to visibleNodes", toAdd, index);
         }
       }
     }
     if (log.isDebugEnabled()) {
-      log.debug("visibleNodes in tiles:" + tiles);
-      log.debug("  in visibleArea:" + visibleArea.getBounds2D());
-      log.debug("    are:" + visibleNodes);
+      log.debug("visibleNodes in tiles:{}", tiles);
+      log.debug("  in visibleArea:{}", visibleArea.getBounds2D());
+      log.debug("    are:{}", visibleNodes);
     }
     return visibleNodes;
   }

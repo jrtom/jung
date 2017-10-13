@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="INFO">
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <Logger name="edu.uci.ics.jung.visualization.renderers" level="info">
+            <AppenderRef ref="Console"/>
+        </Logger>
+        <Logger name="edu.uci.ics.jung.visualization.spatial" level="info">
+            <AppenderRef ref="Console"/>
+        </Logger>
+         <Logger name="edu.uci.ics.jung.visualization.BasicVisualizationServer" level="info">
+            <AppenderRef ref="Console"/>
+        </Logger>
+        <Root level="INFO">
+            <AppenderRef ref="Console"/>
+        </Root>
+    </Loggers>
+</Configuration>

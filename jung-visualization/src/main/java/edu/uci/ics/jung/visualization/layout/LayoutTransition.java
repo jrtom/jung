@@ -28,9 +28,6 @@ public class LayoutTransition<V, E> implements IterativeContext {
       VisualizationViewer<V, E> vv,
       LayoutMediator<V, E> startLayoutMediator,
       LayoutMediator<V, E> endLayoutMediator) {
-    if (log.isDebugEnabled()) {
-      log.debug("transition from " + startLayoutMediator + " to " + endLayoutMediator);
-    }
     this.vv = vv;
     this.startLayoutMediator = startLayoutMediator;
     Network<V, E> network = endLayoutMediator.getNetwork();

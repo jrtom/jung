@@ -85,16 +85,13 @@ public class AddNodeDemo extends javax.swing.JApplet {
                     (NetworkEvent.Edge<Number, Number>) evt;
                 if (log.isDebugEnabled()) {
                   log.debug(
-                      "got "
-                          + evt
-                          + " with endpoints: "
-                          + original.incidentNodes(edgeEvent.getEdge()));
+                      "got {} with endpoints:{}", evt, original.incidentNodes(edgeEvent.getEdge()));
                 }
                 break;
               case VERTEX_ADDED:
               case VERTEX_REMOVED:
                 if (log.isDebugEnabled()) {
-                  log.debug("got " + evt);
+                  log.debug("got {}", evt);
                 }
                 break;
               default:
@@ -136,7 +133,7 @@ public class AddNodeDemo extends javax.swing.JApplet {
                   ((LayoutDecorator<Number>) vv.getModel().getLayoutMediator().getLayout())
                       .getDelegate();
               if (log.isDebugEnabled()) {
-                log.debug("layout: " + delegateLayout.getClass().getName());
+                log.debug("layout: {}", delegateLayout.getClass().getName());
               }
             } else {
               switchLayout.setText("Switch to SpringLayout");
@@ -146,7 +143,7 @@ public class AddNodeDemo extends javax.swing.JApplet {
                   ((LayoutDecorator<Number>) vv.getModel().getLayoutMediator().getLayout())
                       .getDelegate();
               if (log.isDebugEnabled()) {
-                log.debug("layout: " + delegateLayout.getClass().getName());
+                log.debug("layout: {}", delegateLayout.getClass().getName());
               }
             }
           }
@@ -179,7 +176,7 @@ public class AddNodeDemo extends javax.swing.JApplet {
         relaxer.pause();
         g.addNode(v1);
         if (log.isDebugEnabled()) {
-          log.debug("added node " + v1);
+          log.debug("added node {}", v1);
         }
 
         // wire it to some edges

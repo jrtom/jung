@@ -60,25 +60,11 @@ public class BasicRenderer<V, E> implements Renderer<V, E> {
       EndpointPair<V> endpoints = network.incidentNodes(edge);
       boolean keep = false;
       for (V v : endpoints) {
-        if (log.isTraceEnabled()) {
-          log.trace("keep was:" + keep);
-          log.trace("checking to see if endpoint " + v + " is in visibleNodes:" + visibleNodes);
-        }
         keep |= visibleNodes.contains(v);
-        if (log.isTraceEnabled()) {
-          log.trace("keep now:" + keep);
-        }
       }
       if (!keep) {
-        if (log.isTraceEnabled()) {
-          log.trace("removing " + edge + " from visibleEdges:" + visibleEdges);
-        }
         visibleEdges.remove(edge);
       }
-    }
-    if (log.isDebugEnabled()) {
-      log.debug("visibleNodes:" + visibleNodes);
-      log.debug("visibleEdges:" + visibleEdges);
     }
     // paint all the edges
     try {
