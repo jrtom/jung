@@ -337,7 +337,7 @@ public class PluggableRendererDemo extends JApplet implements ActionListener {
             edgeFactory,
             4,
             3);
-    generator.evolveGraph(200);
+    generator.evolveGraph(20);
     MutableNetwork<Integer, Number> g = generator.get();
     for (Number e : g.edges()) {
       edge_weight.put(e, Math.random());

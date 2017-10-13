@@ -350,10 +350,14 @@ public class BasicVisualizationServer<V, E> extends JPanel
           Annotation<Shape> annotation =
               new Annotation<Shape>(r, Annotation.Layer.LOWER, Color.BLACK, false, p);
           lowerAnnotationPaintable.add(annotation);
+          String label = num + ":" + spatial.getMap().get(num);
+          int stringWidth = g2d.getFontMetrics().stringWidth(label);
           Point2D center =
-              new Point2D.Double(r.getX() + r.getWidth() / 2, r.getY() + r.getHeight() / 2);
+              new Point2D.Double(
+                  r.getX() + (r.getWidth() - stringWidth) / 2, r.getY() + r.getHeight() / 2);
+
           Annotation<String> annotation2 =
-              new Annotation<String>("" + num, Annotation.Layer.LOWER, Color.BLACK, false, center);
+              new Annotation<String>(label, Annotation.Layer.LOWER, Color.BLACK, false, center);
           lowerAnnotationPaintable.add(annotation2);
           num++;
         }

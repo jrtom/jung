@@ -18,12 +18,13 @@ import com.google.common.graph.NetworkBuilder;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class GraphCollapser {
 
-  private static final Logger logger = Logger.getLogger(GraphCollapser.class.getClass().getName());
+  private static final Logger logger = LoggerFactory.getLogger(GraphCollapser.class);
   private Network originalGraph;
   private NetworkBuilder graphBuilder;
 

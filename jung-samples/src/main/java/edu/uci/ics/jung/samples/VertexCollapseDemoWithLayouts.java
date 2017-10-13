@@ -263,7 +263,6 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
 
           public void actionPerformed(ActionEvent e) {
             Collection picked = new HashSet(vv.getPickedVertexState().getPicked());
-            //            Network network = vv.getModel().getLayoutMediator().getNetwork();
             for (Object v : picked) {
               if (v instanceof Network) {
                 Network inGraph = vv.getModel().getLayoutMediator().getNetwork();
@@ -284,7 +283,6 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
 
           public void actionPerformed(ActionEvent e) {
             layout = createLayout((Layouts) jcb.getSelectedItem(), graph);
-            //                layout.setGraph(graph);
             exclusions.clear();
             vv.setLayoutMediator(new LayoutMediator(graph, layout));
             vv.repaint();
