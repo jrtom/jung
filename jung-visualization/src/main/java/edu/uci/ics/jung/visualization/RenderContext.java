@@ -40,8 +40,6 @@ public interface RenderContext<V, E> {
   /** Specifies the offset for the edge labels. */
   int LABEL_OFFSET = 10;
 
-  //  Network<V, E> getNetwork();
-
   int getLabelOffset();
 
   void setLabelOffset(int labelOffset);

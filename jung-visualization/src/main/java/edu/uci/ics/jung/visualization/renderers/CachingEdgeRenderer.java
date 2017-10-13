@@ -142,7 +142,6 @@ public class CachingEdgeRenderer<V, E> extends BasicEdgeRenderer<V, E>
 
   @Override
   public void stateChanged(ChangeEvent evt) {
-    //		System.err.println("got change event "+evt);
     edgeShapeMap.clear();
   }
 

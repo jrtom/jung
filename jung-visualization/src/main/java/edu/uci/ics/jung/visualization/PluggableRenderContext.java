@@ -104,9 +104,8 @@ public class PluggableRenderContext<V, E> implements RenderContext<V, E> {
   protected GraphicsDecorator graphicsContext;
 
   private EdgeShape<E> edgeShape;
-  //Function<Context<Network,E>, Shape>
+
   PluggableRenderContext(Network<V, E> graph) {
-    //    this.edgeShape = new EdgeShape<E>(graph);
     this.edgeShapeTransformer = new EdgeShape.QuadCurve<E>();
     this.parallelEdgeIndexFunction = new ParallelEdgeIndexFunction<V, E>(graph);
     if (graph.isDirected()) {
