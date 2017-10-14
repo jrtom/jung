@@ -17,6 +17,8 @@ import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
+import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
+import edu.uci.ics.jung.visualization.renderers.Renderer;
 import java.awt.*;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -31,14 +33,18 @@ public class SimpleGraphSpatialTest {
   public static void main(String[] args) throws IOException {
     JFrame jf = new JFrame();
     Network g = getGraph();
-    Dimension viewPreferredSize = new Dimension(300, 300);
-    Dimension layoutPreferredSize = new Dimension(400, 400);
+    Dimension viewPreferredSize = new Dimension(600, 600);
+    Dimension layoutPreferredSize = new Dimension(600, 600);
     Layout layout = new FRLayout(g.asGraph(), layoutPreferredSize);
 
     ScalingControl scaler = new CrossoverScalingControl();
     VisualizationViewer vv = new VisualizationViewer(g, layout, viewPreferredSize);
     final DefaultModalGraphMouse graphMouse = new DefaultModalGraphMouse();
     vv.setGraphMouse(graphMouse);
+    vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
+    vv.getRenderer().getVertexLabelRenderer().setPosition(Renderer.VertexLabel.Position.CNTR);
+    vv.addKeyListener(graphMouse.getModeKeyListener());
+    vv.setToolTipText("<html><center>Type 'p' for Pick mode<p>Type 't' for Transform mode");
 
     vv.scaleToLayout(scaler);
     jf.getContentPane().add(vv);

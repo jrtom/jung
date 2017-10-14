@@ -46,6 +46,10 @@ public class DefaultVisualizationModel<N, E>
   /** listens for changes in the layout, forwards to the viewer */
   protected ChangeListener changeListener;
 
+  protected int horizontalSpatialGridCount = 5;
+
+  protected int verticalSpatialGridCount = 5;
+
   /** @param layout The Layout to apply, with its associated Network */
   public DefaultVisualizationModel(Network<N, E> network, Layout<N> layout) {
     this(network, layout, null);
@@ -88,7 +92,12 @@ public class DefaultVisualizationModel<N, E>
     if (newLayout instanceof ChangeEventSupport) {
       this.layoutMediator = layoutMediator;
     } else {
-      newLayout = new ObservableCachingLayout<N, E>(layoutMediator.getNetwork(), newLayout);
+      newLayout =
+          new ObservableCachingLayout<N, E>(
+              layoutMediator.getNetwork(),
+              newLayout,
+              this.horizontalSpatialGridCount,
+              this.verticalSpatialGridCount);
       this.layoutMediator = new LayoutMediator(layoutMediator.getNetwork(), newLayout);
     }
 
@@ -178,5 +187,21 @@ public class DefaultVisualizationModel<N, E>
    */
   public void fireStateChanged() {
     changeSupport.fireStateChanged();
+  }
+
+  public int getHorizontalSpatialGridCount() {
+    return horizontalSpatialGridCount;
+  }
+
+  public void setHorizontalSpatialGridCount(int horizontalSpatialGridCount) {
+    this.horizontalSpatialGridCount = horizontalSpatialGridCount;
+  }
+
+  public int getVerticalSpatialGridCount() {
+    return verticalSpatialGridCount;
+  }
+
+  public void setVerticalSpatialGridCount(int verticalSpatialGridCount) {
+    this.verticalSpatialGridCount = verticalSpatialGridCount;
   }
 }

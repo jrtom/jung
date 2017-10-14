@@ -48,6 +48,8 @@ public class ObservableCachingLayout<V, E> extends LayoutDecorator<V>
   protected ChangeEventSupport changeSupport = new DefaultChangeEventSupport(this);
   protected Network<V, E> graph;
   protected Spatial<V> spatial;
+  protected int horizontalCount = 5;
+  protected int verticalCount = 5;
 
   protected LoadingCache<V, Point2D> locations;
 
@@ -55,12 +57,19 @@ public class ObservableCachingLayout<V, E> extends LayoutDecorator<V>
       new ArrayList<LayoutChangeListener<V, E>>();
 
   public ObservableCachingLayout(Network<V, E> graph, Layout<V> delegate) {
+    this(graph, delegate, 5, 5);
+  }
+
+  public ObservableCachingLayout(
+      Network<V, E> graph, Layout<V> delegate, int horizontalCount, int verticalCount) {
     super(delegate);
     this.graph = graph;
+    this.horizontalCount = horizontalCount;
+    this.verticalCount = verticalCount;
     Function<V, Point2D> chain = delegate.andThen(p -> (Point2D) p.clone());
     this.locations = CacheBuilder.newBuilder().build(CacheLoader.from(chain::apply));
     if (delegate.getSize() != null) {
-      setupSpatialGrid(delegate.getSize());
+      setupSpatialGrid(delegate.getSize(), this.horizontalCount, this.verticalCount);
     }
   }
 
@@ -99,16 +108,19 @@ public class ObservableCachingLayout<V, E> extends LayoutDecorator<V>
     }
   }
 
-  protected void setupSpatialGrid(Dimension delegateSize) {
+  protected void setupSpatialGrid(Dimension delegateSize, int horizontalCount, int verticalCount) {
     this.spatial =
-        new SpatialGrid(new Rectangle(0, 0, delegateSize.width, delegateSize.height), 10, 10);
+        new SpatialGrid(
+            new Rectangle(0, 0, delegateSize.width, delegateSize.height),
+            horizontalCount,
+            verticalCount);
     spatial.recalculate(this.delegate, graph.nodes());
   }
 
   @Override
   public void setSize(Dimension d) {
     super.setSize(d);
-    setupSpatialGrid(delegate.getSize());
+    setupSpatialGrid(delegate.getSize(), this.horizontalCount, this.verticalCount);
   }
 
   private Rectangle2D getUnion(Rectangle2D rect, Point2D p) {
