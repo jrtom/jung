@@ -9,11 +9,8 @@
  */
 package edu.uci.ics.jung.visualization.renderers;
 
-import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.spatial.Spatial;
-import edu.uci.ics.jung.visualization.transform.MutableTransformer;
-import edu.uci.ics.jung.visualization.transform.MutableTransformerDecorator;
 import edu.uci.ics.jung.visualization.util.LayoutMediator;
 import java.awt.*;
 import javax.swing.*;
@@ -52,28 +49,6 @@ public interface Renderer<V, E> {
   Renderer.Edge<V, E> getEdgeRenderer();
 
   Renderer.EdgeLabel<V, E> getEdgeLabelRenderer();
-
-  class Hit {
-    public static <V, E> boolean shapeHit2(
-        RenderContext<V, E> renderContext, LayoutMediator<V, E> layoutMediator, Shape s) {
-      return true;
-    }
-
-    public static <V, E> boolean shapeHit(
-        RenderContext<V, E> renderContext, LayoutMediator<V, E> layoutMediator, Shape s) {
-      JComponent vv = renderContext.getScreenDevice();
-      Rectangle deviceRectangle = null;
-      if (vv != null) {
-        Dimension d = vv.getSize();
-        deviceRectangle = new Rectangle(0, 0, d.width, d.height);
-      }
-      MutableTransformer vt = renderContext.getMultiLayerTransformer().getTransformer(Layer.VIEW);
-      if (vt instanceof MutableTransformerDecorator) {
-        vt = ((MutableTransformerDecorator) vt).getDelegate();
-      }
-      return vt.transform(s).intersects(deviceRectangle);
-    }
-  }
 
   interface Vertex<V, E> {
     void paintVertex(RenderContext<V, E> renderContext, LayoutMediator<V, E> layoutMediator, V v);
