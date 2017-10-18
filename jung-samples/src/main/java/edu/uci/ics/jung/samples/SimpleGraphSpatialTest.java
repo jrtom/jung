@@ -25,12 +25,29 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.function.Supplier;
 import javax.swing.*;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.config.LoggerConfig;
 
 /** A class that shows the minimal work necessary to load and visualize a graph. */
 public class SimpleGraphSpatialTest {
 
+  Logger log = LogManager.getLogger(SimpleGraphSpatialTest.class);
+
   @SuppressWarnings({"rawtypes", "unchecked"})
   public static void main(String[] args) throws IOException {
+
+    // programmatically set the log level so that the spatial grid is drawn for this demo
+    LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+    Configuration config = ctx.getConfiguration();
+    LoggerConfig loggerConfig =
+        config.getLoggerConfig("edu.uci.ics.jung.visualization.BasicVisualizationServer");
+    loggerConfig.setLevel(Level.TRACE);
+    ctx.updateLoggers();
+
     JFrame jf = new JFrame();
     Network g = getGraph();
     Dimension viewPreferredSize = new Dimension(600, 600);
