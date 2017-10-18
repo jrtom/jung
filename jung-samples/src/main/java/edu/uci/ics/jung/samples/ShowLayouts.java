@@ -27,12 +27,6 @@ import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
 import edu.uci.ics.jung.visualization.layout.LayoutTransition;
 import edu.uci.ics.jung.visualization.util.Animator;
 import edu.uci.ics.jung.visualization.util.LayoutMediator;
-
-import javax.swing.JApplet;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.GridLayout;
@@ -40,6 +34,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import javax.swing.JApplet;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 /**
  * Demonstrates several of the graph layout algorithms. Allows the user to interactively select one
@@ -166,12 +165,13 @@ public class ShowLayouts extends JApplet {
     vv.setGraphMouse(graphMouse);
 
     // this reinforces that the generics (or lack of) declarations are correct
-    vv.setVertexToolTipTransformer(new Function<Object,String>(){
-      @Override
-      public String apply(Object node) {
-        return node.toString() + ". with neighbors:"+g_array[graph_index].adjacentNodes(node);
-      }
-    });
+    vv.setVertexToolTipTransformer(
+        new Function<Object, String>() {
+          @Override
+          public String apply(Object node) {
+            return node.toString() + ". with neighbors:" + g_array[graph_index].adjacentNodes(node);
+          }
+        });
 
     final ScalingControl scaler = new CrossoverScalingControl();
 
