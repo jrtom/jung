@@ -30,7 +30,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
-import org.apache.logging.log4j.core.config.LoggerConfig;
 
 /** A class that shows the minimal work necessary to load and visualize a graph. */
 public class SimpleGraphSpatialTest {
@@ -40,12 +39,13 @@ public class SimpleGraphSpatialTest {
   @SuppressWarnings({"rawtypes", "unchecked"})
   public static void main(String[] args) throws IOException {
 
-    // programmatically set the log level so that the spatial grid is drawn for this demo
+    // programmatically set the log level so that the spatial grid is drawn for this demo and the SpatialGrid logging is output
     LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
     Configuration config = ctx.getConfiguration();
-    LoggerConfig loggerConfig =
-        config.getLoggerConfig("edu.uci.ics.jung.visualization.BasicVisualizationServer");
-    loggerConfig.setLevel(Level.TRACE);
+    config
+        .getLoggerConfig("edu.uci.ics.jung.visualization.BasicVisualizationServer")
+        .setLevel(Level.TRACE);
+    config.getLoggerConfig("edu.uci.ics.jung.visualization.spatial").setLevel(Level.DEBUG);
     ctx.updateLoggers();
 
     JFrame jf = new JFrame();
