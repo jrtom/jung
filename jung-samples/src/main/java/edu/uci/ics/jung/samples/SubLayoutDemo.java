@@ -15,6 +15,7 @@ import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.algorithms.layout.KKLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.algorithms.layout.SpringLayout;
+import edu.uci.ics.jung.algorithms.layout.util.RandomLocationTransformer;
 import edu.uci.ics.jung.graph.util.TestGraphs;
 import edu.uci.ics.jung.visualization.DefaultVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
@@ -230,6 +231,8 @@ public class SubLayoutDemo extends JApplet {
           public void itemStateChanged(ItemEvent e) {
             if (e.getStateChange() == ItemEvent.SELECTED) {
               subLayoutType = (Class<CircleLayout>) e.getItem();
+              uncluster();
+              clusterPicked();
             }
           }
         });
@@ -262,6 +265,8 @@ public class SubLayoutDemo extends JApplet {
           public void itemStateChanged(ItemEvent e) {
             if (e.getStateChange() == ItemEvent.SELECTED) {
               subLayoutSize = (Dimension) e.getItem();
+              uncluster();
+              clusterPicked();
             }
           }
         });
@@ -378,7 +383,7 @@ public class SubLayoutDemo extends JApplet {
           }
 
           Layout<String> subLayout = getLayoutFor(subLayoutType, subGraph);
-          subLayout.setInitializer(vv.getGraphLayout());
+          subLayout.setInitializer(new RandomLocationTransformer<String>(subLayoutSize));
           subLayout.setSize(subLayoutSize);
           clusteringLayout.put(subLayout, center);
           vv.setLayoutMediator(new LayoutMediator(graph, clusteringLayout));
