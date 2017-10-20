@@ -35,6 +35,8 @@ public class SpatialGrid<N> implements Spatial<N> {
 
   private Rectangle2D layoutArea;
 
+  private Collection<Rectangle2D> gridCache;
+
   /**
    * Create an instance
    *
@@ -53,21 +55,24 @@ public class SpatialGrid<N> implements Spatial<N> {
     this.layoutArea = bounds;
     this.boxWidth = size.getWidth() / horizontalCount;
     this.boxHeight = size.getHeight() / verticalCount;
+    this.gridCache = null;
   }
 
   public Collection<Rectangle2D> getGrid() {
-    Collection<Rectangle2D> grid = Lists.newArrayList();
-    for (int j = 0; j < verticalCount; j++) {
-      for (int i = 0; i < horizontalCount; i++) {
-        grid.add(
-            new Rectangle2D.Double(
-                this.layoutArea.getX() + i * boxWidth,
-                this.layoutArea.getY() + j * boxHeight,
-                boxWidth,
-                boxHeight));
+    if (gridCache == null) {
+      gridCache = Lists.newArrayList();
+      for (int j = 0; j < verticalCount; j++) {
+        for (int i = 0; i < horizontalCount; i++) {
+          gridCache.add(
+              new Rectangle2D.Double(
+                  this.layoutArea.getX() + i * boxWidth,
+                  this.layoutArea.getY() + j * boxHeight,
+                  boxWidth,
+                  boxHeight));
+        }
       }
     }
-    return grid;
+    return gridCache;
   }
 
   /**
