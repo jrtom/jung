@@ -294,14 +294,11 @@ public class BasicVisualizationServer<V, E> extends JPanel
     }
   }
 
-  public Rectangle2D viewOnLayout() {
-
+  public Shape viewOnLayout() {
     Dimension d = this.getSize();
-    Rectangle deviceRectangle = new Rectangle(0, 0, d.width, d.height);
-
     MultiLayerTransformer vt = renderContext.getMultiLayerTransformer();
     Shape s = new Rectangle2D.Double(0, 0, d.width, d.height);
-    return vt.inverseTransform(s).getBounds2D();
+    return vt.inverseTransform(s);
   }
 
   protected void renderGraph(Graphics2D g2d) {

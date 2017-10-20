@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import java.awt.*;
+import java.awt.geom.Area;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.Arrays;
@@ -198,16 +199,12 @@ public class SpatialGrid<N> implements Spatial<N> {
     }
   }
   /** given a rectangular area and an offset, return the tiles that are contained in it */
-  public Collection<Integer> getVisibleTiles(Rectangle2D visibleArea) {
+  public Collection<Integer> getVisibleTiles(Shape visibleArea) {
     Set<Integer> visibleTiles = Sets.newHashSet();
-    int[] upperLeftBox = getBoxIndex(visibleArea.getMinX(), visibleArea.getMinY());
-    int[] lowerRightBox = getBoxIndex(visibleArea.getMaxX() - 1, visibleArea.getMaxY() - 1);
-    for (int i = upperLeftBox[0]; i <= lowerRightBox[0]; i++) {
-      for (int j = upperLeftBox[1]; j <= lowerRightBox[1]; j++) {
-        int boxNumber = getBoxNumber(i, j);
-        if (boxNumber >= 0) {
-          visibleTiles.add(boxNumber);
-        }
+    List<Rectangle2D> grid = (List) getGrid();
+    for (int i = 0; i < this.horizontalCount * this.verticalCount; i++) {
+      if (visibleArea.intersects(grid.get(i))) {
+        visibleTiles.add(i);
       }
     }
     if (log.isDebugEnabled()) {
@@ -216,14 +213,15 @@ public class SpatialGrid<N> implements Spatial<N> {
     return visibleTiles;
   }
 
-  public Collection<N> getVisibleNodes(Rectangle2D visibleArea) {
-    visibleArea = visibleArea.createIntersection(this.layoutArea);
+  public Collection<N> getVisibleNodes(Shape visibleArea) {
+    Area area = new Area(visibleArea);
+    area.intersect(new Area(this.layoutArea));
     if (log.isDebugEnabled()) {
-      log.debug("visibleArea: {}", visibleArea);
+      log.debug("visibleArea: {}", area);
       log.debug("map is {}", map);
     }
     Collection<N> visibleNodes = Sets.newHashSet();
-    Collection<Integer> tiles = getVisibleTiles(visibleArea);
+    Collection<Integer> tiles = getVisibleTiles(area);
     for (Integer index : tiles) {
       Collection<N> toAdd = this.map.get(index);
       if (toAdd.size() > 0) {
@@ -235,7 +233,7 @@ public class SpatialGrid<N> implements Spatial<N> {
     }
     if (log.isDebugEnabled()) {
       log.debug("visibleNodes in tiles:{}", tiles);
-      log.debug("  in visibleArea:{}", visibleArea.getBounds2D());
+      log.debug("  in visibleArea:{}", area.getBounds2D());
       log.debug("    are:{}", visibleNodes);
     }
     return visibleNodes;
@@ -243,10 +241,6 @@ public class SpatialGrid<N> implements Spatial<N> {
 
   public Rectangle2D getLayoutArea() {
     return layoutArea;
-  }
-
-  public void setLayoutArea(Rectangle2D layoutArea) {
-    this.layoutArea = layoutArea;
   }
 
   /**

@@ -13,7 +13,6 @@ package edu.uci.ics.jung.visualization.layout;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.google.common.collect.Multimap;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.algorithms.layout.LayoutDecorator;
@@ -100,11 +99,7 @@ public class ObservableCachingLayout<V, E> extends LayoutDecorator<V>
     fireLayoutChanged(v);
     if (!spatial.getLayoutArea().contains(location)) {
       spatial.setBounds(getUnion(spatial.getLayoutArea(), location));
-      Multimap<Integer, V> spatialMap = spatial.getMap();
-      spatial.getMap().clear();
-      for (V node : graph.nodes()) {
-        spatialMap.put(spatial.getBoxNumberFromLocation(this.apply(node)), node);
-      }
+      spatial.recalculate(this.delegate, graph.nodes());
     }
   }
 

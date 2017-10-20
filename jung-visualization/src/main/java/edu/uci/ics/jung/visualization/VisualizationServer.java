@@ -14,8 +14,8 @@ import edu.uci.ics.jung.visualization.picking.PickedState;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
 import java.awt.Graphics;
 import java.awt.RenderingHints.Key;
+import java.awt.Shape;
 import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 import java.util.Map;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -42,7 +42,7 @@ public interface VisualizationServer<V, E> {
    */
   boolean isDoubleBuffered();
 
-  Rectangle2D viewOnLayout();
+  Shape viewOnLayout();
 
   /** @return the model. */
   VisualizationModel<V, E> getModel();

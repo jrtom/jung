@@ -12,11 +12,9 @@ public interface Spatial<N> {
 
   Multimap<Integer, N> getMap();
 
-  Collection<N> getVisibleNodes(Rectangle2D r);
+  Collection<N> getVisibleNodes(Shape r);
 
   Rectangle2D getLayoutArea();
-
-  void setLayoutArea(Rectangle2D layoutArea);
 
   void recalculate(Function<N, Point2D> layout, Collection<N> nodes);
 
