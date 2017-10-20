@@ -140,7 +140,7 @@ public class ObservableCachingLayout<V, E> extends LayoutDecorator<V>
   }
 
   public void fireStateChanged() {
-    if (spatial != null) spatial.recalculate(this.delegate, delegate.nodes());
+    if (spatial != null) spatial.recalculate(this.delegate, graph.nodes());
     changeSupport.fireStateChanged();
   }
 
