@@ -412,7 +412,9 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
         layout.setSize(vv.getSize());
         LayoutTransition lt =
             new LayoutTransition(
-                vv, vv.getModel().getLayoutMediator(), new LayoutMediator(network, layout));
+                vv,
+                vv.getModel().getLayoutMediator().getLayout(),
+                new LayoutMediator(network, layout));
         Animator animator = new Animator(lt);
         animator.start();
         vv.getRenderContext().getMultiLayerTransformer().setToIdentity();

@@ -150,7 +150,7 @@ public class BalloonLayoutDemo extends JApplet {
               LayoutTransition<String, Integer> lt =
                   new LayoutTransition<String, Integer>(
                       vv,
-                      vv.getModel().getLayoutMediator(),
+                      vv.getModel().getLayoutMediator().getLayout(),
                       new LayoutMediator(graph, radialLayout));
               Animator animator = new Animator(lt);
               animator.start();
@@ -163,7 +163,9 @@ public class BalloonLayoutDemo extends JApplet {
 
               LayoutTransition<String, Integer> lt =
                   new LayoutTransition<String, Integer>(
-                      vv, vv.getModel().getLayoutMediator(), new LayoutMediator(graph, layout));
+                      vv,
+                      vv.getModel().getLayoutMediator().getLayout(),
+                      new LayoutMediator(graph, layout));
               Animator animator = new Animator(lt);
               animator.start();
               vv.getRenderContext()

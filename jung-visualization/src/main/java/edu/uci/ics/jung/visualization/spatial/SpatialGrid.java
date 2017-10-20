@@ -9,6 +9,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
@@ -185,8 +186,15 @@ public class SpatialGrid<N> implements Spatial<N> {
 
   public void recalculate(Function<N, Point2D> layout, Collection<N> nodes) {
     this.map.clear();
-    for (N node : nodes) {
-      this.map.put(this.getBoxNumberFromLocation(layout.apply(node)), node);
+    while (true) {
+      try {
+        for (N node : nodes) {
+          this.map.put(this.getBoxNumberFromLocation(layout.apply(node)), node);
+        }
+        break;
+      } catch (ConcurrentModificationException ex) {
+        // ignore
+      }
     }
   }
   /** given a rectangular area and an offset, return the tiles that are contained in it */

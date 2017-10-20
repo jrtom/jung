@@ -136,7 +136,7 @@ public class L2RTreeLayoutDemo extends JApplet {
               LayoutTransition<String, Integer> lt =
                   new LayoutTransition<String, Integer>(
                       vv,
-                      vv.getModel().getLayoutMediator(),
+                      vv.getModel().getLayoutMediator().getLayout(),
                       new LayoutMediator(graph, radialLayout));
               Animator animator = new Animator(lt);
               animator.start();
@@ -145,7 +145,9 @@ public class L2RTreeLayoutDemo extends JApplet {
             } else {
               LayoutTransition<String, Integer> lt =
                   new LayoutTransition<String, Integer>(
-                      vv, vv.getModel().getLayoutMediator(), new LayoutMediator(graph, treeLayout));
+                      vv,
+                      vv.getModel().getLayoutMediator().getLayout(),
+                      new LayoutMediator(graph, treeLayout));
               Animator animator = new Animator(lt);
               animator.start();
               vv.getRenderContext().getMultiLayerTransformer().setToIdentity();

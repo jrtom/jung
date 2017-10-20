@@ -38,7 +38,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JRootPane;
+import javax.swing.JPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +47,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author danyelf
  */
-public class AddNodeDemo extends javax.swing.JApplet {
+public class AddNodeDemo extends JPanel {
 
   private static final Logger log = LoggerFactory.getLogger(AddNodeDemo.class);
   /** */
@@ -67,8 +67,7 @@ public class AddNodeDemo extends javax.swing.JApplet {
 
   public static final int EDGE_LENGTH = 100;
 
-  @Override
-  public void init() {
+  public AddNodeDemo() {
 
     //create a graph
     MutableNetwork<Number, Number> original =
@@ -104,12 +103,9 @@ public class AddNodeDemo extends javax.swing.JApplet {
 
     vv = new VisualizationViewer<Number, Number>(g, layout, new Dimension(600, 600));
 
-    JRootPane rp = this.getRootPane();
-    rp.putClientProperty("defeatSystemEventQueueCheck", Boolean.TRUE);
-
-    getContentPane().setLayout(new BorderLayout());
-    getContentPane().setBackground(java.awt.Color.lightGray);
-    getContentPane().setFont(new Font("Serif", Font.PLAIN, 12));
+    this.setLayout(new BorderLayout());
+    this.setBackground(java.awt.Color.lightGray);
+    this.setFont(new Font("Serif", Font.PLAIN, 12));
 
     vv.getModel().getRelaxer().setSleepTime(500);
     vv.setGraphMouse(new DefaultModalGraphMouse<Number, Number>());
@@ -117,7 +113,7 @@ public class AddNodeDemo extends javax.swing.JApplet {
     vv.getRenderer().getVertexLabelRenderer().setPosition(Renderer.VertexLabel.Position.CNTR);
     vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
     vv.setForeground(Color.white);
-    getContentPane().add(vv);
+    this.add(vv);
     switchLayout = new JButton("Switch to SpringLayout");
     switchLayout.addActionListener(
         new ActionListener() {
@@ -149,17 +145,11 @@ public class AddNodeDemo extends javax.swing.JApplet {
           }
         });
 
-    getContentPane().add(switchLayout, BorderLayout.SOUTH);
+    this.add(switchLayout, BorderLayout.SOUTH);
 
     timer = new Timer();
-  }
 
-  @Override
-  public void start() {
-    validate();
-    //set timer so applet will change
     timer.schedule(new RemindTask(), 1000, 1000); //subsequent rate
-    vv.repaint();
   }
 
   Integer v_prev = null;
@@ -217,9 +207,6 @@ public class AddNodeDemo extends javax.swing.JApplet {
     JFrame frame = new JFrame();
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     frame.getContentPane().add(and);
-
-    and.init();
-    and.start();
     frame.pack();
     frame.setVisible(true);
   }

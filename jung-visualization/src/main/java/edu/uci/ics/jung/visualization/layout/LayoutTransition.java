@@ -9,14 +9,10 @@ import edu.uci.ics.jung.algorithms.util.IterativeContext;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.util.LayoutMediator;
 import java.awt.geom.Point2D;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class LayoutTransition<V, E> implements IterativeContext {
 
-  Logger log = LoggerFactory.getLogger(LayoutTransition.class);
-
-  protected LayoutMediator<V, E> startLayoutMediator;
+  protected Layout<V> startLayout;
   protected LayoutMediator<V, E> endLayoutMediator;
   protected LayoutMediator<V, E> transitionLayoutMediator;
   protected boolean done = false;
@@ -25,13 +21,10 @@ public class LayoutTransition<V, E> implements IterativeContext {
   protected VisualizationViewer<V, E> vv;
 
   public LayoutTransition(
-      VisualizationViewer<V, E> vv,
-      LayoutMediator<V, E> startLayoutMediator,
-      LayoutMediator<V, E> endLayoutMediator) {
+      VisualizationViewer<V, E> vv, Layout<V> startLayout, LayoutMediator<V, E> endLayoutMediator) {
     this.vv = vv;
-    this.startLayoutMediator = startLayoutMediator;
+    this.startLayout = startLayout;
     Network<V, E> network = endLayoutMediator.getNetwork();
-    Layout<V> startLayout = startLayoutMediator.getLayout();
     Layout<V> transitionLayout = new StaticLayout(network.asGraph(), startLayout);
     this.endLayoutMediator = endLayoutMediator;
     if (endLayoutMediator.getLayout() instanceof IterativeContext) {
