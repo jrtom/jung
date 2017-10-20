@@ -17,7 +17,17 @@ import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** Created by Tom Nelson */
+/**
+ * A Spatial Data Structure to optimize rendering performance. The SpatialGrid is used to determine
+ * which graph nodes are actually visible for a given rendering situation. Only the visible nodes
+ * are passed to the rendering pipeline. When used with Edges, only Edges with at least one visible
+ * endpoint are passed to the rendering pipeline.
+ *
+ * <p>See SimpleGraphSpatialTest (jung-samples) for a rendering that exposes the internals of the
+ * SpatialGrid.
+ *
+ * <p>Created by Tom Nelson
+ */
 public class SpatialGrid<N> implements Spatial<N> {
 
   Logger log = LoggerFactory.getLogger(SpatialGrid.class);
@@ -35,7 +45,7 @@ public class SpatialGrid<N> implements Spatial<N> {
 
   private Rectangle2D layoutArea;
 
-  private Collection<Rectangle2D> gridCache;
+  private List<Rectangle2D> gridCache;
 
   /**
    * Create an instance
@@ -50,6 +60,12 @@ public class SpatialGrid<N> implements Spatial<N> {
     this.setBounds(bounds);
   }
 
+  /**
+   * Set the size of the spatial grid and recompute the box widths and heights. null out the
+   * obsolete grid cache
+   *
+   * @param bounds
+   */
   public void setBounds(Rectangle2D bounds) {
     this.size = bounds.getBounds().getSize();
     this.layoutArea = bounds;
@@ -58,7 +74,13 @@ public class SpatialGrid<N> implements Spatial<N> {
     this.gridCache = null;
   }
 
-  public Collection<Rectangle2D> getGrid() {
+  /**
+   * Lazily compute the gridCache if needed. The gridCache is a list of rectangles overlaying the
+   * layout area. They are numbered from 0 to horizontalCount*verticalCount-1
+   *
+   * @return the
+   */
+  public List<Rectangle2D> getGrid() {
     if (gridCache == null) {
       gridCache = Lists.newArrayList();
       for (int j = 0; j < verticalCount; j++) {
@@ -116,30 +138,6 @@ public class SpatialGrid<N> implements Spatial<N> {
   }
 
   /**
-   * given a box number, return the x,y coordinates in the grid coordinate system
-   *
-   * @param boxIndex
-   * @return
-   */
-  public int[] getBoxXYFromBoxIndex(int boxIndex) {
-    int[] boxXY = new int[2];
-    boxXY[0] = boxIndex % this.horizontalCount;
-    boxXY[1] = boxIndex / this.horizontalCount;
-    return boxXY;
-  }
-
-  /**
-   * given x,y in the view coordinate system, return the box number that contains it
-   *
-   * @param x
-   * @param y
-   * @return
-   */
-  public int getBoxNumberFromLocation(int x, int y) {
-    return this.getBoxNumber(this.getBoxIndex(x, y));
-  }
-
-  /**
    * give a Point in the coordinate system, return the box number that contains it
    *
    * @param p
@@ -190,6 +188,12 @@ public class SpatialGrid<N> implements Spatial<N> {
     return boxIndex;
   }
 
+  /**
+   * Recalculate the contents of the Map of box number to contained Nodes
+   *
+   * @param layout
+   * @param nodes
+   */
   public void recalculate(Function<N, Point2D> layout, Collection<N> nodes) {
     this.map.clear();
     while (true) {
@@ -203,10 +207,11 @@ public class SpatialGrid<N> implements Spatial<N> {
       }
     }
   }
-  /** given a rectangular area and an offset, return the tiles that are contained in it */
+
+  /** given a rectangular area and an offset, return the tile numbers that are contained in it */
   public Collection<Integer> getVisibleTiles(Shape visibleArea) {
     Set<Integer> visibleTiles = Sets.newHashSet();
-    List<Rectangle2D> grid = (List) getGrid();
+    List<Rectangle2D> grid = getGrid();
     for (int i = 0; i < this.horizontalCount * this.verticalCount; i++) {
       if (visibleArea.intersects(grid.get(i))) {
         visibleTiles.add(i);
@@ -218,6 +223,13 @@ public class SpatialGrid<N> implements Spatial<N> {
     return visibleTiles;
   }
 
+  /**
+   * Given an area, return a collection of the nodes that are contained in it (the nodes that are
+   * contained in the boxes that intersect with the area)
+   *
+   * @param visibleArea a shape projected on the grid
+   * @return the nodes that should be visible
+   */
   public Collection<N> getVisibleNodes(Shape visibleArea) {
     Area area = new Area(visibleArea);
     area.intersect(new Area(this.layoutArea));
@@ -244,34 +256,8 @@ public class SpatialGrid<N> implements Spatial<N> {
     return visibleNodes;
   }
 
+  /** @return the layout area rectangle for this grid */
   public Rectangle2D getLayoutArea() {
     return layoutArea;
-  }
-
-  /**
-   * given the boxX, boxY for a box, get the list of adjacent boxes, including myself
-   *
-   * @param boxX
-   * @param boxY
-   * @return
-   */
-  public List<Integer> getAdjacentCellList(int boxX, int boxY) {
-    List<Integer> adjacents = Lists.newArrayList();
-    final int[] foo = {-1, 0, 1};
-    for (int i : foo) {
-      for (int j : foo) {
-        int x = boxX + i;
-        int y = boxY + j;
-        if (0 <= x && x < horizontalCount && 0 <= y && y < verticalCount) {
-          adjacents.add(y * horizontalCount + x);
-        }
-      }
-    }
-    return adjacents;
-  }
-
-  public List<Integer> getAdjacentCellList(int boxIndex) {
-    int[] boxXY = getBoxXYFromBoxIndex(boxIndex);
-    return getAdjacentCellList(boxXY[0], boxXY[1]);
   }
 }

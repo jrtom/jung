@@ -42,7 +42,6 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -334,7 +333,7 @@ public class BasicVisualizationServer<V, E> extends JPanel
       AnnotationRenderer annotationRenderer = new AnnotationRenderer();
       lowerAnnotationPaintable = new AnnotationPaintable(renderContext, annotationRenderer);
       if (spatial != null) {
-        Collection<Rectangle2D> grid = ((SpatialGrid) spatial).getGrid();
+        List<Rectangle2D> grid = ((SpatialGrid) spatial).getGrid();
         int num = 0;
         for (Rectangle2D r : grid) {
           Point2D p =
