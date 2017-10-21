@@ -218,7 +218,7 @@ public class SpatialGrid<N> implements Spatial<N> {
       }
     }
     if (log.isDebugEnabled()) {
-      log.debug("visibleTiles are {}", visibleTiles);
+      log.debug("visible boxes:{}", visibleTiles);
     }
     return visibleTiles;
   }
@@ -233,9 +233,8 @@ public class SpatialGrid<N> implements Spatial<N> {
   public Collection<N> getVisibleNodes(Shape visibleArea) {
     Area area = new Area(visibleArea);
     area.intersect(new Area(this.layoutArea));
-    if (log.isDebugEnabled()) {
-      log.debug("visibleArea: {}", area);
-      log.debug("map is {}", map);
+    if (log.isTraceEnabled()) {
+      log.trace("map is {}", map);
     }
     Collection<N> visibleNodes = Sets.newHashSet();
     Collection<Integer> tiles = getVisibleTiles(area);
@@ -249,9 +248,7 @@ public class SpatialGrid<N> implements Spatial<N> {
       }
     }
     if (log.isDebugEnabled()) {
-      log.debug("visibleNodes in tiles:{}", tiles);
-      log.debug("  in visibleArea:{}", area.getBounds2D());
-      log.debug("    are:{}", visibleNodes);
+      log.debug("visibleNodes:{}", visibleNodes);
     }
     return visibleNodes;
   }
