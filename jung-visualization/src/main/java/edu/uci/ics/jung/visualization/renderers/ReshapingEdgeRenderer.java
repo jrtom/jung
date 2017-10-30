@@ -11,22 +11,20 @@ package edu.uci.ics.jung.visualization.renderers;
 
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Network;
-import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.transform.LensTransformer;
 import edu.uci.ics.jung.visualization.transform.MutableTransformer;
 import edu.uci.ics.jung.visualization.transform.shape.TransformingGraphics;
-import java.awt.Dimension;
+import edu.uci.ics.jung.visualization.util.Context;
+import edu.uci.ics.jung.visualization.util.LayoutMediator;
 import java.awt.Paint;
-import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RectangularShape;
-import javax.swing.JComponent;
 
 /**
  * uses a flatness argument to break edges into smaller segments. This produces a more detailed
@@ -39,25 +37,22 @@ import javax.swing.JComponent;
 public class ReshapingEdgeRenderer<V, E> extends BasicEdgeRenderer<V, E>
     implements Renderer.Edge<V, E> {
 
-  public ReshapingEdgeRenderer(Layout<V> layout, RenderContext<V, E> rc) {
-    super(layout, rc);
-  }
-
   /**
    * Draws the edge <code>e</code>, whose endpoints are at <code>(x1,y1)</code> and <code>(x2,y2)
    * </code>, on the graphics context <code>g</code>. The <code>Shape</code> provided by the <code>
    * EdgeShapeFunction</code> instance is scaled in the x-direction so that its width is equal to
    * the distance between <code>(x1,y1)</code> and <code>(x2,y2)</code>.
    */
-  protected void drawSimpleEdge(E e) {
+  protected void drawSimpleEdge(
+      RenderContext<V, E> renderContext, LayoutMediator<V, E> layoutMediator, E e) {
 
     TransformingGraphics g = (TransformingGraphics) renderContext.getGraphicsContext();
-    Network<V, E> graph = renderContext.getNetwork();
+    Network<V, E> graph = layoutMediator.getNetwork();
     EndpointPair<V> endpoints = graph.incidentNodes(e);
     V v1 = endpoints.nodeU();
     V v2 = endpoints.nodeV();
-    Point2D p1 = layout.apply(v1);
-    Point2D p2 = layout.apply(v2);
+    Point2D p1 = layoutMediator.getLayout().apply(v1);
+    Point2D p2 = layoutMediator.getLayout().apply(v2);
     p1 = renderContext.getMultiLayerTransformer().transform(Layer.LAYOUT, p1);
     p2 = renderContext.getMultiLayerTransformer().transform(Layer.LAYOUT, p2);
     float x1 = (float) p1.getX();
@@ -78,16 +73,7 @@ public class ReshapingEdgeRenderer<V, E> extends BasicEdgeRenderer<V, E>
 
     boolean isLoop = v1.equals(v2);
     Shape s2 = renderContext.getVertexShapeTransformer().apply(v2);
-    Shape edgeShape = renderContext.getEdgeShapeTransformer().apply(e);
-
-    boolean edgeHit = true;
-    boolean arrowHit = true;
-    Rectangle deviceRectangle = null;
-    JComponent vv = renderContext.getScreenDevice();
-    if (vv != null) {
-      Dimension d = vv.getSize();
-      deviceRectangle = new Rectangle(0, 0, d.width, d.height);
-    }
+    Shape edgeShape = renderContext.getEdgeShapeTransformer().apply(Context.getInstance(graph, e));
 
     AffineTransform xform = AffineTransform.getTranslateInstance(x1, y1);
 
@@ -112,99 +98,73 @@ public class ReshapingEdgeRenderer<V, E> extends BasicEdgeRenderer<V, E>
 
     edgeShape = xform.createTransformedShape(edgeShape);
 
-    MutableTransformer vt = renderContext.getMultiLayerTransformer().getTransformer(Layer.VIEW);
-    if (vt instanceof LensTransformer) {
-      vt = ((LensTransformer) vt).getDelegate();
+    Paint oldPaint = g.getPaint();
+
+    // get Paints for filling and drawing
+    // (filling is done first so that drawing and label use same Paint)
+    Paint fill_paint = renderContext.getEdgeFillPaintTransformer().apply(e);
+    if (fill_paint != null) {
+      g.setPaint(fill_paint);
+      g.fill(edgeShape, flatness);
     }
-    edgeHit = vt.transform(edgeShape).intersects(deviceRectangle);
+    Paint draw_paint = renderContext.getEdgeDrawPaintTransformer().apply(e);
+    if (draw_paint != null) {
+      g.setPaint(draw_paint);
+      g.draw(edgeShape, flatness);
+    }
 
-    if (edgeHit == true) {
+    float scalex = (float) g.getTransform().getScaleX();
+    float scaley = (float) g.getTransform().getScaleY();
+    // see if arrows are too small to bother drawing
+    if (scalex < .3 || scaley < .3) {
+      return;
+    }
 
-      Paint oldPaint = g.getPaint();
+    if (renderContext.renderEdgeArrow()) {
 
-      // get Paints for filling and drawing
-      // (filling is done first so that drawing and label use same Paint)
-      Paint fill_paint = renderContext.getEdgeFillPaintTransformer().apply(e);
-      if (fill_paint != null) {
-        g.setPaint(fill_paint);
-        g.fill(edgeShape, flatness);
-      }
-      Paint draw_paint = renderContext.getEdgeDrawPaintTransformer().apply(e);
-      if (draw_paint != null) {
-        g.setPaint(draw_paint);
-        g.draw(edgeShape, flatness);
-      }
+      Shape destVertexShape = renderContext.getVertexShapeTransformer().apply(v2);
 
-      float scalex = (float) g.getTransform().getScaleX();
-      float scaley = (float) g.getTransform().getScaleY();
-      // see if arrows are too small to bother drawing
-      if (scalex < .3 || scaley < .3) {
+      AffineTransform xf = AffineTransform.getTranslateInstance(x2, y2);
+      destVertexShape = xf.createTransformedShape(destVertexShape);
+
+      AffineTransform at =
+          edgeArrowRenderingSupport.getArrowTransform(
+              renderContext, new GeneralPath(edgeShape), destVertexShape);
+      if (at == null) {
         return;
       }
+      Shape arrow = renderContext.getEdgeArrow();
+      arrow = at.createTransformedShape(arrow);
+      g.setPaint(renderContext.getArrowFillPaintTransformer().apply(e));
+      g.fill(arrow);
+      g.setPaint(renderContext.getArrowDrawPaintTransformer().apply(e));
+      g.draw(arrow);
 
-      if (renderContext.renderEdgeArrow()) {
+      if (!graph.isDirected()) {
+        Shape vertexShape = renderContext.getVertexShapeTransformer().apply(v1);
+        xf = AffineTransform.getTranslateInstance(x1, y1);
+        vertexShape = xf.createTransformedShape(vertexShape);
 
-        Shape destVertexShape = renderContext.getVertexShapeTransformer().apply(v2);
-
-        AffineTransform xf = AffineTransform.getTranslateInstance(x2, y2);
-        destVertexShape = xf.createTransformedShape(destVertexShape);
-
-        arrowHit =
-            renderContext
-                .getMultiLayerTransformer()
-                .getTransformer(Layer.VIEW)
-                .transform(destVertexShape)
-                .intersects(deviceRectangle);
-        if (arrowHit) {
-
-          AffineTransform at =
-              edgeArrowRenderingSupport.getArrowTransform(
-                  renderContext, new GeneralPath(edgeShape), destVertexShape);
-          if (at == null) {
-            return;
-          }
-          Shape arrow = renderContext.getEdgeArrow();
-          arrow = at.createTransformedShape(arrow);
-          g.setPaint(renderContext.getArrowFillPaintTransformer().apply(e));
-          g.fill(arrow);
-          g.setPaint(renderContext.getArrowDrawPaintTransformer().apply(e));
-          g.draw(arrow);
+        at =
+            edgeArrowRenderingSupport.getReverseArrowTransform(
+                renderContext, new GeneralPath(edgeShape), vertexShape, !isLoop);
+        if (at == null) {
+          return;
         }
-        if (!graph.isDirected()) {
-          Shape vertexShape = renderContext.getVertexShapeTransformer().apply(v1);
-          xf = AffineTransform.getTranslateInstance(x1, y1);
-          vertexShape = xf.createTransformedShape(vertexShape);
-
-          arrowHit =
-              renderContext
-                  .getMultiLayerTransformer()
-                  .getTransformer(Layer.VIEW)
-                  .transform(vertexShape)
-                  .intersects(deviceRectangle);
-
-          if (arrowHit) {
-            AffineTransform at =
-                edgeArrowRenderingSupport.getReverseArrowTransform(
-                    renderContext, new GeneralPath(edgeShape), vertexShape, !isLoop);
-            if (at == null) {
-              return;
-            }
-            Shape arrow = renderContext.getEdgeArrow();
-            arrow = at.createTransformedShape(arrow);
-            g.setPaint(renderContext.getArrowFillPaintTransformer().apply(e));
-            g.fill(arrow);
-            g.setPaint(renderContext.getArrowDrawPaintTransformer().apply(e));
-            g.draw(arrow);
-          }
-        }
+        arrow = renderContext.getEdgeArrow();
+        arrow = at.createTransformedShape(arrow);
+        g.setPaint(renderContext.getArrowFillPaintTransformer().apply(e));
+        g.fill(arrow);
+        g.setPaint(renderContext.getArrowDrawPaintTransformer().apply(e));
+        g.draw(arrow);
       }
-      // use existing paint for text if no draw paint specified
-      if (draw_paint == null) {
-        g.setPaint(oldPaint);
-      }
-
-      // restore old paint
+    }
+    // use existing paint for text if no draw paint specified
+    if (draw_paint == null) {
       g.setPaint(oldPaint);
     }
+
+    // restore old paint
+    g.setPaint(oldPaint);
   }
 }

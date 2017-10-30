@@ -43,7 +43,7 @@ public class GradientEdgePaintTransformer<N, E> implements Function<E, Paint> {
   public GradientEdgePaintTransformer(Color c1, Color c2, VisualizationViewer<N, E> vv) {
     this.c1 = c1;
     this.c2 = c2;
-    this.graph = vv.getModel().getNetwork();
+    this.graph = vv.getModel().getLayoutMediator().getNetwork();
     this.layout = vv.getGraphLayout();
     this.transformer =
         vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT);

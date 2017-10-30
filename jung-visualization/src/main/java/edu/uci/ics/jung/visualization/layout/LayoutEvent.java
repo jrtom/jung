@@ -1,13 +1,13 @@
 package edu.uci.ics.jung.visualization.layout;
 
-import com.google.common.graph.Graph;
+import com.google.common.graph.Network;
 
-public class LayoutEvent<V> {
+public class LayoutEvent<V, E> {
 
-  V vertex;
-  Graph<V> graph;
+  final V vertex;
+  final Network<V, E> graph;
 
-  public LayoutEvent(V vertex, Graph<V> graph) {
+  public LayoutEvent(V vertex, Network<V, E> graph) {
     this.vertex = vertex;
     this.graph = graph;
   }
@@ -16,15 +16,7 @@ public class LayoutEvent<V> {
     return vertex;
   }
 
-  public void setVertex(V vertex) {
-    this.vertex = vertex;
-  }
-
-  public Graph<V> getGraph() {
+  public Network<V, E> getGraph() {
     return graph;
-  }
-
-  public void setGraph(Graph<V> graph) {
-    this.graph = graph;
   }
 }

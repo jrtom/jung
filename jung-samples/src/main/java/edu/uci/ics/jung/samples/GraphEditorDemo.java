@@ -12,6 +12,7 @@ import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.NetworkBuilder;
 import edu.uci.ics.jung.algorithms.layout.AbstractLayout;
 import edu.uci.ics.jung.algorithms.layout.StaticLayout;
+import edu.uci.ics.jung.graph.util.ParallelEdgeIndexFunction;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.annotations.AnnotationControls;
@@ -130,6 +131,8 @@ public class GraphEditorDemo extends JApplet implements Printable {
     Function<Object, String> labeller = new ToStringLabeller();
     vv.getRenderContext().setVertexLabelTransformer(labeller);
     vv.getRenderContext().setEdgeLabelTransformer(labeller);
+    vv.getRenderContext()
+        .setParallelEdgeIndexFunction(new ParallelEdgeIndexFunction<Number, Number>(graph));
 
     vv.setVertexToolTipTransformer(vv.getRenderContext().getVertexLabelTransformer());
 

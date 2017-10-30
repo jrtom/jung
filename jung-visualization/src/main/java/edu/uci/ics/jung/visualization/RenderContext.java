@@ -7,6 +7,7 @@ import edu.uci.ics.jung.visualization.picking.PickedState;
 import edu.uci.ics.jung.visualization.renderers.EdgeLabelRenderer;
 import edu.uci.ics.jung.visualization.renderers.VertexLabelRenderer;
 import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
+import edu.uci.ics.jung.visualization.util.Context;
 import java.awt.BasicStroke;
 import java.awt.Font;
 import java.awt.Paint;
@@ -38,8 +39,6 @@ public interface RenderContext<V, E> {
 
   /** Specifies the offset for the edge labels. */
   int LABEL_OFFSET = 10;
-
-  Network<V, E> getNetwork();
 
   int getLabelOffset();
 
@@ -89,9 +88,9 @@ public interface RenderContext<V, E> {
 
   void setArrowFillPaintTransformer(Function<? super E, Paint> arrowFillPaintTransformer);
 
-  Function<? super E, Shape> getEdgeShapeTransformer();
+  Function<Context<Network, E>, Shape> getEdgeShapeTransformer();
 
-  void setEdgeShapeTransformer(Function<? super E, Shape> edgeShapeTransformer);
+  void setEdgeShapeTransformer(Function<Context<Network, E>, Shape> edgeShapeTransformer);
 
   Function<? super E, String> getEdgeLabelTransformer();
 

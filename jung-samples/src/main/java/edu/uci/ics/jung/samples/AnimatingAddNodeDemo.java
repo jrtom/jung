@@ -29,6 +29,7 @@ import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.layout.LayoutTransition;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
 import edu.uci.ics.jung.visualization.util.Animator;
+import edu.uci.ics.jung.visualization.util.LayoutMediator;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -41,14 +42,18 @@ import java.util.Timer;
 import java.util.TimerTask;
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JRootPane;
+import javax.swing.JPanel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A variation of AddNodeDemo that animates transitions between graph states.
  *
  * @author Tom Nelson
  */
-public class AnimatingAddNodeDemo extends javax.swing.JApplet {
+public class AnimatingAddNodeDemo extends JPanel {
+
+  Logger log = LoggerFactory.getLogger(AnimatingAddNodeDemo.class);
 
   /** */
   private static final long serialVersionUID = -5345319851341875800L;
@@ -67,19 +72,18 @@ public class AnimatingAddNodeDemo extends javax.swing.JApplet {
 
   public static final int EDGE_LENGTH = 100;
 
-  @Override
-  public void init() {
+  public AnimatingAddNodeDemo() {
 
     //create a graph
     MutableNetwork<Number, Number> original =
-        NetworkBuilder.directed().allowsParallelEdges(true).build();
+        NetworkBuilder.directed().allowsParallelEdges(true).allowsSelfLoops(true).build();
     MutableNetwork<Number, Number> ig = Graphs.synchronizedNetwork(original);
     ObservableNetwork<Number, Number> og = new ObservableNetwork<Number, Number>(ig);
     og.addGraphEventListener(
         new NetworkEventListener<Number, Number>() {
 
           public void handleGraphEvent(NetworkEvent<Number, Number> evt) {
-            System.err.println("got " + evt);
+            log.debug("got " + evt);
           }
         });
     this.g = og;
@@ -94,12 +98,9 @@ public class AnimatingAddNodeDemo extends javax.swing.JApplet {
 
     vv = new VisualizationViewer<Number, Number>(ig, staticLayout, new Dimension(600, 600));
 
-    JRootPane rp = this.getRootPane();
-    rp.putClientProperty("defeatSystemEventQueueCheck", Boolean.TRUE);
-
-    getContentPane().setLayout(new BorderLayout());
-    getContentPane().setBackground(java.awt.Color.lightGray);
-    getContentPane().setFont(new Font("Serif", Font.PLAIN, 12));
+    this.setLayout(new BorderLayout());
+    this.setBackground(java.awt.Color.lightGray);
+    this.setFont(new Font("Serif", Font.PLAIN, 12));
 
     vv.setGraphMouse(new DefaultModalGraphMouse<Number, Number>());
 
@@ -116,12 +117,12 @@ public class AnimatingAddNodeDemo extends javax.swing.JApplet {
           @Override
           public void componentResized(ComponentEvent arg0) {
             super.componentResized(arg0);
-            System.err.println("resized");
+            log.debug("resized");
             layout.setSize(arg0.getComponent().getSize());
           }
         });
 
-    getContentPane().add(vv);
+    this.add(vv);
     switchLayout = new JButton("Switch to SpringLayout");
     switchLayout.addActionListener(
         new ActionListener() {
@@ -137,7 +138,10 @@ public class AnimatingAddNodeDemo extends javax.swing.JApplet {
               relaxer.prerelax();
               StaticLayout<Number> staticLayout = new StaticLayout<Number>(g.asGraph(), layout);
               LayoutTransition<Number, Number> lt =
-                  new LayoutTransition<Number, Number>(vv, vv.getGraphLayout(), staticLayout);
+                  new LayoutTransition<Number, Number>(
+                      vv,
+                      vv.getModel().getLayoutMediator().getLayout(),
+                      new LayoutMediator(g, staticLayout));
               Animator animator = new Animator(lt);
               animator.start();
               vv.repaint();
@@ -151,7 +155,10 @@ public class AnimatingAddNodeDemo extends javax.swing.JApplet {
               relaxer.prerelax();
               StaticLayout<Number> staticLayout = new StaticLayout<Number>(g.asGraph(), layout);
               LayoutTransition<Number, Number> lt =
-                  new LayoutTransition<Number, Number>(vv, vv.getGraphLayout(), staticLayout);
+                  new LayoutTransition<Number, Number>(
+                      vv,
+                      vv.getModel().getLayoutMediator().getLayout(),
+                      new LayoutMediator(g, staticLayout));
               Animator animator = new Animator(lt);
               animator.start();
               vv.repaint();
@@ -159,15 +166,10 @@ public class AnimatingAddNodeDemo extends javax.swing.JApplet {
           }
         });
 
-    getContentPane().add(switchLayout, BorderLayout.SOUTH);
+    this.add(switchLayout, BorderLayout.SOUTH);
 
     timer = new Timer();
-  }
 
-  @Override
-  public void start() {
-    validate();
-    //set timer so applet will change
     timer.schedule(new RemindTask(), 1000, 1000); //subsequent rate
     vv.repaint();
   }
@@ -208,7 +210,10 @@ public class AnimatingAddNodeDemo extends javax.swing.JApplet {
         relaxer.prerelax();
         StaticLayout<Number> staticLayout = new StaticLayout<Number>(g.asGraph(), layout);
         LayoutTransition<Number, Number> lt =
-            new LayoutTransition<Number, Number>(vv, vv.getGraphLayout(), staticLayout);
+            new LayoutTransition<Number, Number>(
+                vv,
+                vv.getModel().getLayoutMediator().getLayout(),
+                new LayoutMediator(g, staticLayout));
         Animator animator = new Animator(lt);
         animator.start();
         //				vv.getRenderContext().getMultiLayerTransformer().setToIdentity();
@@ -219,7 +224,7 @@ public class AnimatingAddNodeDemo extends javax.swing.JApplet {
       }
 
     } catch (Exception e) {
-      System.out.println(e);
+      log.warn("exception:", e);
     }
   }
 
@@ -239,9 +244,6 @@ public class AnimatingAddNodeDemo extends javax.swing.JApplet {
     JFrame frame = new JFrame();
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     frame.getContentPane().add(and);
-
-    and.init();
-    and.start();
     frame.pack();
     frame.setVisible(true);
   }

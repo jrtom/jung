@@ -9,12 +9,12 @@
  */
 package edu.uci.ics.jung.visualization;
 
-import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
 import java.awt.Graphics;
 import java.awt.RenderingHints.Key;
+import java.awt.Shape;
 import java.awt.geom.Point2D;
 import java.util.Map;
 import javax.swing.event.ChangeEvent;
@@ -42,6 +42,8 @@ public interface VisualizationServer<V, E> {
    */
   boolean isDoubleBuffered();
 
+  Shape viewOnLayout();
+
   /** @return the model. */
   VisualizationModel<V, E> getModel();
 
@@ -67,16 +69,6 @@ public interface VisualizationServer<V, E> {
 
   /** @return the renderer used by this instance. */
   Renderer<V, E> getRenderer();
-
-  /**
-   * Replaces the current graph layout with {@code layout}.
-   *
-   * @param layout the new layout to set
-   */
-  void setGraphLayout(Layout<V> layout);
-
-  /** @return the current graph layout. */
-  Layout<V> getGraphLayout();
 
   /**
    * Makes the component visible if {@code aFlag} is true, or invisible if false.

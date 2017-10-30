@@ -126,7 +126,7 @@ public class WorldMapGraphDemo extends JApplet {
 
     vv.getRenderer()
         .setVertexRenderer(
-            new GradientVertexRenderer<String>(
+            new GradientVertexRenderer<String, Number>(
                 vv, Color.white, Color.red, Color.white, Color.blue, false));
 
     // add my listeners for ToolTips
@@ -219,7 +219,7 @@ public class WorldMapGraphDemo extends JApplet {
 
   private Network<String, Number> buildGraph(Map<String, String[]> map) {
     MutableNetwork<String, Number> graph =
-        NetworkBuilder.directed().allowsParallelEdges(true).build();
+        NetworkBuilder.directed().allowsParallelEdges(true).allowsSelfLoops(true).build();
     for (String city : map.keySet()) {
       graph.addNode(city);
     }

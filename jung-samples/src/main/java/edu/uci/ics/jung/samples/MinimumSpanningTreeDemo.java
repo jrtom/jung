@@ -44,6 +44,8 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Demonstrates a single graph with 3 layouts in 3 views. The first view is an undirected graph
@@ -56,6 +58,7 @@ import javax.swing.JPanel;
 @SuppressWarnings("serial")
 public class MinimumSpanningTreeDemo extends JApplet {
 
+  Logger log = LoggerFactory.getLogger(MinimumSpanningTreeDemo.class);
   /** the graph */
   Network<String, Number> graph;
 
@@ -72,7 +75,7 @@ public class MinimumSpanningTreeDemo extends JApplet {
 
   Dimension preferredSize = new Dimension(300, 300);
   Dimension preferredLayoutSize = new Dimension(400, 400);
-  Dimension preferredSizeRect = new Dimension(500, 250);
+  Dimension preferredSizeRect = new Dimension(800, 250);
 
   /** create an instance of a simple graph in two views with controls to demo the zoom features. */
   public MinimumSpanningTreeDemo() {
@@ -88,6 +91,7 @@ public class MinimumSpanningTreeDemo extends JApplet {
     layout0.setSize(preferredLayoutSize);
     Layout<String> layout1 = new TreeLayout<String>(tree.asGraph());
     Layout<String> layout2 = new StaticLayout<String>(graph.asGraph(), layout1);
+    layout2.setSize(layout1.getSize());
 
     // create the two models, each with a different layout
     VisualizationModel<String, Number> vm0 =
@@ -108,7 +112,7 @@ public class MinimumSpanningTreeDemo extends JApplet {
     vv2.getRenderContext()
         .setMultiLayerTransformer(vv0.getRenderContext().getMultiLayerTransformer());
 
-    vv1.getRenderContext().setEdgeShapeTransformer(EdgeShape.line(graph));
+    vv1.getRenderContext().setEdgeShapeTransformer(EdgeShape.line());
 
     vv0.addChangeListener(vv1);
     vv1.addChangeListener(vv2);
@@ -208,10 +212,7 @@ public class MinimumSpanningTreeDemo extends JApplet {
     // create zoom buttons for scaling the Function that is
     // shared between the two models.
     final ScalingControl scaler = new CrossoverScalingControl();
-
     vv0.scaleToLayout(scaler);
-    vv1.scaleToLayout(scaler);
-    vv2.scaleToLayout(scaler);
 
     JButton plus = new JButton("+");
     plus.addActionListener(

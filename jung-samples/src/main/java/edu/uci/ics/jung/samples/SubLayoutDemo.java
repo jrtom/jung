@@ -8,16 +8,14 @@
  */
 package edu.uci.ics.jung.samples;
 
-import com.google.common.graph.EndpointPair;
-import com.google.common.graph.MutableNetwork;
-import com.google.common.graph.Network;
-import com.google.common.graph.NetworkBuilder;
+import com.google.common.graph.*;
 import edu.uci.ics.jung.algorithms.layout.AggregateLayout;
 import edu.uci.ics.jung.algorithms.layout.CircleLayout;
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.algorithms.layout.KKLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.algorithms.layout.SpringLayout;
+import edu.uci.ics.jung.algorithms.layout.util.RandomLocationTransformer;
 import edu.uci.ics.jung.graph.util.TestGraphs;
 import edu.uci.ics.jung.visualization.DefaultVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
@@ -31,6 +29,7 @@ import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.picking.PickedState;
+import edu.uci.ics.jung.visualization.util.LayoutMediator;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -205,7 +204,7 @@ public class SubLayoutDemo extends JApplet {
                 Layout<String> layout = getLayoutFor(clazz, graph);
                 layout.setInitializer(vv.getGraphLayout());
                 clusteringLayout.setDelegate(layout);
-                vv.setGraphLayout(clusteringLayout);
+                vv.setLayoutMediator(new LayoutMediator(graph, clusteringLayout));
               } catch (Exception ex) {
                 ex.printStackTrace();
               }
@@ -232,6 +231,8 @@ public class SubLayoutDemo extends JApplet {
           public void itemStateChanged(ItemEvent e) {
             if (e.getStateChange() == ItemEvent.SELECTED) {
               subLayoutType = (Class<CircleLayout>) e.getItem();
+              uncluster();
+              clusterPicked();
             }
           }
         });
@@ -264,6 +265,8 @@ public class SubLayoutDemo extends JApplet {
           public void itemStateChanged(ItemEvent e) {
             if (e.getStateChange() == ItemEvent.SELECTED) {
               subLayoutSize = (Dimension) e.getItem();
+              uncluster();
+              clusterPicked();
             }
           }
         });
@@ -333,8 +336,8 @@ public class SubLayoutDemo extends JApplet {
   // TODO: needs refactoring to create the layout; see VertexCollapseDemoWithLayouts
   private Layout<String> getLayoutFor(
       Class<CircleLayout> layoutClass, Network<String, Number> graph) throws Exception {
-    Object[] args = new Object[] {graph};
-    Constructor<CircleLayout> constructor = layoutClass.getConstructor(new Class[] {Network.class});
+    Object[] args = new Object[] {graph.asGraph()};
+    Constructor<CircleLayout> constructor = layoutClass.getConstructor(Graph.class);
     return constructor.newInstance(args);
   }
 
@@ -380,10 +383,10 @@ public class SubLayoutDemo extends JApplet {
           }
 
           Layout<String> subLayout = getLayoutFor(subLayoutType, subGraph);
-          subLayout.setInitializer(vv.getGraphLayout());
+          subLayout.setInitializer(new RandomLocationTransformer<String>(subLayoutSize));
           subLayout.setSize(subLayoutSize);
           clusteringLayout.put(subLayout, center);
-          vv.setGraphLayout(clusteringLayout);
+          vv.setLayoutMediator(new LayoutMediator(graph, clusteringLayout));
 
         } catch (Exception e) {
           e.printStackTrace();
@@ -392,7 +395,7 @@ public class SubLayoutDemo extends JApplet {
     } else {
       // remove all sublayouts
       this.clusteringLayout.removeAll();
-      vv.setGraphLayout(clusteringLayout);
+      vv.setLayoutMediator(new LayoutMediator(graph, clusteringLayout));
     }
   }
 

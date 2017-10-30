@@ -70,8 +70,8 @@ public class VertexLabelAsShapeDemo extends JApplet {
     vv = new VisualizationViewer<String, Number>(visualizationModel, preferredSize);
 
     // this class will provide both label drawing and vertex shapes
-    VertexLabelAsShapeRenderer<String> vlasr =
-        new VertexLabelAsShapeRenderer<String>(layout, vv.getRenderContext());
+    VertexLabelAsShapeRenderer<String, Number> vlasr =
+        new VertexLabelAsShapeRenderer<String, Number>(layout, vv.getRenderContext());
 
     // customize the render context
     vv.getRenderContext()
@@ -84,7 +84,8 @@ public class VertexLabelAsShapeDemo extends JApplet {
 
     // customize the renderer
     vv.getRenderer()
-        .setVertexRenderer(new GradientVertexRenderer<String>(vv, Color.gray, Color.white, true));
+        .setVertexRenderer(
+            new GradientVertexRenderer<String, Number>(vv, Color.gray, Color.white, true));
     vv.getRenderer().setVertexLabelRenderer(vlasr);
 
     vv.setBackground(Color.black);

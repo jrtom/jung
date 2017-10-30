@@ -299,7 +299,7 @@ public class ClusteringDemo extends JApplet {
   }
 
   private void groupCluster(AggregateLayout<Number> layout, Set<Number> vertices) {
-    if (vertices.size() < vv.getModel().getNetwork().nodes().size()) {
+    if (vertices.size() < vv.getModel().getLayoutMediator().getLayout().nodes().size()) {
       Point2D center = layout.apply(vertices.iterator().next());
       MutableNetwork<Number, Number> subGraph = NetworkBuilder.undirected().build();
       for (Number v : vertices) {

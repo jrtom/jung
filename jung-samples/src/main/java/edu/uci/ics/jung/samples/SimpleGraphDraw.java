@@ -14,6 +14,8 @@ import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.io.PajekNetReader;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.function.Supplier;
 import javax.swing.JFrame;
 
@@ -32,7 +34,8 @@ public class SimpleGraphDraw {
   }
 
   /**
-   * Generates a graph: in this case, reads it from the file "samples/datasetsgraph/simple.net"
+   * Generates a graph: in this case, reads it from the file (in the classpath):
+   * "datasets/simple.net"
    *
    * @return A sample undirected graph
    * @throws IOException if there is an error in reading the file
@@ -47,8 +50,9 @@ public class SimpleGraphDraw {
               }
             });
     MutableNetwork g = NetworkBuilder.undirected().build();
-
-    pnr.load("src/main/resources/datasets/simple.net", g);
+    Reader reader =
+        new InputStreamReader(SimpleGraphDraw.class.getResourceAsStream("/datasets/simple.net"));
+    pnr.load(reader, g);
     return g;
   }
 }

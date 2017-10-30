@@ -4,6 +4,8 @@ import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.visualization.RenderContext;
+import edu.uci.ics.jung.visualization.util.Context;
+import edu.uci.ics.jung.visualization.util.LayoutMediator;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
@@ -18,10 +20,10 @@ public class BoundingRectangleCollector<V, E> {
   protected Layout<V> layout;
   protected List<Rectangle2D> rectangles = new ArrayList<Rectangle2D>();
 
-  public BoundingRectangleCollector(RenderContext<V, E> rc, Layout<V> layout) {
+  public BoundingRectangleCollector(RenderContext<V, E> rc, LayoutMediator<V, E> layoutMediator) {
     this.rc = rc;
     this.layout = layout;
-    this.graph = rc.getNetwork();
+    this.graph = layoutMediator.getNetwork();
     compute();
   }
 
@@ -48,7 +50,7 @@ public class BoundingRectangleCollector<V, E> {
 
       boolean isLoop = v1.equals(v2);
       Shape s2 = rc.getVertexShapeTransformer().apply(v2);
-      Shape edgeShape = rc.getEdgeShapeTransformer().apply(e);
+      Shape edgeShape = rc.getEdgeShapeTransformer().apply(Context.getInstance(graph, e));
 
       AffineTransform xform = AffineTransform.getTranslateInstance(x1, y1);
 
