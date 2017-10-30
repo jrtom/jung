@@ -444,7 +444,8 @@ public class VertexImageShaperDemo extends JApplet {
       this.shapeImages = shapeImages;
     }
 
-    public Shape transform(V v) {
+    @Override
+    public Shape apply(V v) {
       Icon icon = (Icon) iconMap.get(v);
 
       if (icon != null && icon instanceof ImageIcon) {
