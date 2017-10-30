@@ -219,7 +219,7 @@ public class WorldMapGraphDemo extends JApplet {
 
   private Network<String, Number> buildGraph(Map<String, String[]> map) {
     MutableNetwork<String, Number> graph =
-        NetworkBuilder.directed().allowsParallelEdges(true).build();
+        NetworkBuilder.directed().allowsParallelEdges(true).allowsSelfLoops(true).build();
     for (String city : map.keySet()) {
       graph.addNode(city);
     }
