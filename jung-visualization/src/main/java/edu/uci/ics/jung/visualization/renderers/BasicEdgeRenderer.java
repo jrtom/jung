@@ -14,11 +14,11 @@ import com.google.common.graph.Network;
 import edu.uci.ics.jung.graph.util.EdgeIndexFunction;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.RenderContext;
+import edu.uci.ics.jung.visualization.VisualizationModel;
 import edu.uci.ics.jung.visualization.decorators.EdgeShape;
 import edu.uci.ics.jung.visualization.decorators.ParallelEdgeShapeTransformer;
 import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
 import edu.uci.ics.jung.visualization.util.Context;
-import edu.uci.ics.jung.visualization.util.LayoutMediator;
 import java.awt.Paint;
 import java.awt.Shape;
 import java.awt.Stroke;
@@ -35,14 +35,16 @@ public class BasicEdgeRenderer<V, E> implements Renderer.Edge<V, E> {
 
   @Override
   public void paintEdge(
-      RenderContext<V, E> renderContext, LayoutMediator<V, E> layoutMediator, E e) {
+      RenderContext<V, E> renderContext,
+      VisualizationModel<V, E, Point2D> visualizationModel,
+      E e) {
     GraphicsDecorator g2d = renderContext.getGraphicsContext();
     if (!renderContext.getEdgeIncludePredicate().test(e)) {
       return;
     }
 
     // don't draw edge if either incident vertex is not drawn
-    EndpointPair<V> endpoints = layoutMediator.getNetwork().incidentNodes(e);
+    EndpointPair<V> endpoints = visualizationModel.getNetwork().incidentNodes(e);
     V u = endpoints.nodeU();
     V v = endpoints.nodeV();
     Predicate<V> nodeIncludePredicate = renderContext.getVertexIncludePredicate();
@@ -56,7 +58,7 @@ public class BasicEdgeRenderer<V, E> implements Renderer.Edge<V, E> {
       g2d.setStroke(new_stroke);
     }
 
-    drawSimpleEdge(renderContext, layoutMediator, e);
+    drawSimpleEdge(renderContext, visualizationModel, e);
 
     // restore paint and stroke
     if (new_stroke != null) {
@@ -66,16 +68,16 @@ public class BasicEdgeRenderer<V, E> implements Renderer.Edge<V, E> {
 
   protected Shape prepareFinalEdgeShape(
       RenderContext<V, E> renderContext,
-      LayoutMediator<V, E> layoutMediator,
+      VisualizationModel<V, E, Point2D> visualizationModel,
       E e,
       int[] coords,
       boolean[] loop) {
-    EndpointPair<V> endpoints = layoutMediator.getNetwork().incidentNodes(e);
+    EndpointPair<V> endpoints = visualizationModel.getNetwork().incidentNodes(e);
     V v1 = endpoints.nodeU();
     V v2 = endpoints.nodeV();
 
-    Point2D p1 = layoutMediator.getLayout().apply(v1);
-    Point2D p2 = layoutMediator.getLayout().apply(v2);
+    Point2D p1 = visualizationModel.getLayoutModel().apply(v1);
+    Point2D p2 = visualizationModel.getLayoutModel().apply(v2);
     p1 = renderContext.getMultiLayerTransformer().transform(Layer.LAYOUT, p1);
     p2 = renderContext.getMultiLayerTransformer().transform(Layer.LAYOUT, p2);
     float x1 = (float) p1.getX();
@@ -92,7 +94,7 @@ public class BasicEdgeRenderer<V, E> implements Renderer.Edge<V, E> {
     Shape edgeShape =
         renderContext
             .getEdgeShapeTransformer()
-            .apply(Context.getInstance(layoutMediator.getNetwork(), e));
+            .apply(Context.getInstance(visualizationModel.getNetwork(), e));
 
     AffineTransform xform = AffineTransform.getTranslateInstance(x1, y1);
 
@@ -173,11 +175,13 @@ public class BasicEdgeRenderer<V, E> implements Renderer.Edge<V, E> {
    * @param e the edge to be drawn
    */
   protected void drawSimpleEdge(
-      RenderContext<V, E> renderContext, LayoutMediator<V, E> layoutMediator, E e) {
+      RenderContext<V, E> renderContext,
+      VisualizationModel<V, E, Point2D> visualizationModel,
+      E e) {
 
     int[] coords = new int[4];
     boolean[] loop = new boolean[1];
-    Shape edgeShape = prepareFinalEdgeShape(renderContext, layoutMediator, e, coords, loop);
+    Shape edgeShape = prepareFinalEdgeShape(renderContext, visualizationModel, e, coords, loop);
 
     int x1 = coords[0];
     int y1 = coords[1];
@@ -186,7 +190,7 @@ public class BasicEdgeRenderer<V, E> implements Renderer.Edge<V, E> {
     boolean isLoop = loop[0];
 
     GraphicsDecorator g = renderContext.getGraphicsContext();
-    Network<V, E> network = layoutMediator.getNetwork();
+    Network<V, E> network = visualizationModel.getNetwork();
 
     Paint oldPaint = g.getPaint();
 

@@ -10,19 +10,19 @@
 
 package edu.uci.ics.jung.visualization.control;
 
-import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
+import edu.uci.ics.jung.visualization.layout.LayoutModel;
 import edu.uci.ics.jung.visualization.transform.MutableAffineTransformer;
 import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
 import edu.uci.ics.jung.visualization.transform.shape.ShapeTransformer;
-import edu.uci.ics.jung.visualization.util.Caching;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
 
 /**
  * A VisualizationViewer that can act as a satellite view for another (master) VisualizationViewer.
@@ -34,16 +34,16 @@ import java.awt.geom.AffineTransform;
  * @author Tom Nelson
  */
 @SuppressWarnings("serial")
-public class SatelliteVisualizationViewer<V, E> extends VisualizationViewer<V, E> {
+public class SatelliteVisualizationViewer<N, E> extends VisualizationViewer<N, E> {
 
   /** the master VisualizationViewer that this is a satellite view for */
-  protected VisualizationViewer<V, E> master;
+  protected VisualizationViewer<N, E> master;
 
   /**
    * @param master the master VisualizationViewer for which this is a satellite view
-   * @param preferredSize the specified size of the component
+   * @param preferredSize the specified layoutSize of the component
    */
-  public SatelliteVisualizationViewer(VisualizationViewer<V, E> master, Dimension preferredSize) {
+  public SatelliteVisualizationViewer(VisualizationViewer<N, E> master, Dimension preferredSize) {
     super(master.getModel(), preferredSize);
     this.master = master;
 
@@ -52,7 +52,7 @@ public class SatelliteVisualizationViewer<V, E> extends VisualizationViewer<V, E
     setGraphMouse(gm);
 
     // this adds the Lens to the satellite view
-    addPreRenderPaintable(new ViewLens<V, E>(this, master));
+    addPreRenderPaintable(new ViewLens<N, E>(this, master));
 
     // get a copy of the current layout transform
     // it may have been scaled to fit the graph
@@ -91,11 +91,11 @@ public class SatelliteVisualizationViewer<V, E> extends VisualizationViewer<V, E
       renderContext.getGraphicsContext().setDelegate(g2d);
     }
     renderContext.setScreenDevice(this);
-    Layout<V> layout = model.getLayoutMediator().getLayout();
+    LayoutModel<N, Point2D> layoutModel = getModel().getLayoutModel();
 
     g2d.setRenderingHints(renderingHints);
 
-    // the size of the VisualizationViewer
+    // the layoutSize of the VisualizationViewer
     Dimension d = getSize();
 
     // clear the offscreen image
@@ -121,11 +121,7 @@ public class SatelliteVisualizationViewer<V, E> extends VisualizationViewer<V, E
       }
     }
 
-    if (layout instanceof Caching) {
-      ((Caching) layout).clear();
-    }
-
-    renderer.render(renderContext, model.getLayoutMediator());
+    renderer.render(renderContext, model);
 
     // if there are postRenderers set, do it
     for (Paintable paintable : postRenderers) {
@@ -142,7 +138,7 @@ public class SatelliteVisualizationViewer<V, E> extends VisualizationViewer<V, E
   }
 
   /** @return Returns the master. */
-  public VisualizationViewer<V, E> getMaster() {
+  public VisualizationViewer<N, E> getMaster() {
     return master;
   }
 
@@ -152,12 +148,12 @@ public class SatelliteVisualizationViewer<V, E> extends VisualizationViewer<V, E
    *
    * @author Tom Nelson
    */
-  static class ViewLens<V, E> implements Paintable {
+  static class ViewLens<N, E> implements Paintable {
 
-    VisualizationViewer<V, E> master;
-    VisualizationViewer<V, E> vv;
+    VisualizationViewer<N, E> master;
+    VisualizationViewer<N, E> vv;
 
-    public ViewLens(VisualizationViewer<V, E> vv, VisualizationViewer<V, E> master) {
+    public ViewLens(VisualizationViewer<N, E> vv, VisualizationViewer<N, E> master) {
       this.vv = vv;
       this.master = master;
     }

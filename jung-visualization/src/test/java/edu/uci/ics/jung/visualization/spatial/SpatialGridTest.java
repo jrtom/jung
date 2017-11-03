@@ -14,7 +14,7 @@ public class SpatialGridTest {
   @Test
   public void testBoxLocations() {
     SpatialGrid spatial = new SpatialGrid(new Rectangle(0, 0, 100, 100), 4, 4);
-    log.info("grid is " + spatial.getGrid());
+    log.trace("grid is " + spatial.getGrid());
     showBoxIndex(spatial, 10, 10);
     showBoxIndex(spatial, 49, 49);
     showBoxIndex(spatial, 50, 50);
@@ -26,7 +26,7 @@ public class SpatialGridTest {
     showVisibleTiles(spatial, new Rectangle(25, 25, 30, 30));
     showVisibleTiles(spatial, new Rectangle(99, 99, 30, 30));
 
-    //        log.info("spatial.getBoxIndex(10,10):"+ Arrays.toString(spatial.getBoxIndex(10,10)));
+    //        log.trace("spatial.getBoxIndex(10,10):"+ Arrays.toString(spatial.getBoxIndex(10,10)));
   }
 
   private void showBoxIndex(SpatialGrid spatial, int x, int y) {

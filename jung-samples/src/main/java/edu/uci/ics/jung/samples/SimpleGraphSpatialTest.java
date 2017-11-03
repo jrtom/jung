@@ -10,16 +10,19 @@ package edu.uci.ics.jung.samples;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
-import edu.uci.ics.jung.algorithms.layout.FRLayout;
-import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.io.PajekNetReader;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
+import edu.uci.ics.jung.visualization.layout.AWTDomainModel;
+import edu.uci.ics.jung.visualization.layout.DomainModel;
+import edu.uci.ics.jung.visualization.layout.FRLayoutAlgorithm;
+import edu.uci.ics.jung.visualization.layout.LayoutAlgorithm;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
 import java.awt.*;
+import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -35,6 +38,8 @@ import org.apache.logging.log4j.core.config.Configuration;
 public class SimpleGraphSpatialTest {
 
   Logger log = LogManager.getLogger(SimpleGraphSpatialTest.class);
+
+  private static final DomainModel<Point2D> domainModel = new AWTDomainModel();
 
   @SuppressWarnings({"rawtypes", "unchecked"})
   public static void main(String[] args) throws IOException {
@@ -52,10 +57,11 @@ public class SimpleGraphSpatialTest {
     Network g = getGraph();
     Dimension viewPreferredSize = new Dimension(600, 600);
     Dimension layoutPreferredSize = new Dimension(600, 600);
-    Layout layout = new FRLayout(g.asGraph(), layoutPreferredSize);
+    LayoutAlgorithm layoutAlgorithm = new FRLayoutAlgorithm(domainModel); //, layoutPreferredSize);
 
     ScalingControl scaler = new CrossoverScalingControl();
-    VisualizationViewer vv = new VisualizationViewer(g, layout, viewPreferredSize);
+    VisualizationViewer vv =
+        new VisualizationViewer(g, layoutAlgorithm, layoutPreferredSize, viewPreferredSize);
     final DefaultModalGraphMouse graphMouse = new DefaultModalGraphMouse();
     vv.setGraphMouse(graphMouse);
     vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());

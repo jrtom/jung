@@ -9,9 +9,8 @@
 package edu.uci.ics.jung.samples;
 
 import com.google.common.graph.Network;
-import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.graph.util.TestGraphs;
-import edu.uci.ics.jung.visualization.DefaultVisualizationModel;
+import edu.uci.ics.jung.visualization.BaseVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.VisualizationModel;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
@@ -21,6 +20,9 @@ import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
+import edu.uci.ics.jung.visualization.layout.AWTDomainModel;
+import edu.uci.ics.jung.visualization.layout.DomainModel;
+import edu.uci.ics.jung.visualization.layout.FRLayoutAlgorithm;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
 import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
@@ -33,6 +35,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.geom.Point2D;
 import javax.swing.BorderFactory;
 import javax.swing.JApplet;
 import javax.swing.JButton;
@@ -50,10 +53,12 @@ import javax.swing.JPanel;
 @SuppressWarnings("serial")
 public class VertexLabelPositionDemo extends JApplet {
 
+  private static final DomainModel<Point2D> domainModel = new AWTDomainModel();
+
   /** the graph */
   Network<String, Number> graph;
 
-  FRLayout<String> graphLayout;
+  FRLayoutAlgorithm<String, Point2D> graphLayoutAlgorithm;
 
   /** the visual component and renderer for the graph */
   VisualizationViewer<String, Number> vv;
@@ -66,13 +71,13 @@ public class VertexLabelPositionDemo extends JApplet {
     // create a simple graph for the demo
     graph = TestGraphs.getOneComponentGraph();
 
-    graphLayout = new FRLayout<String>(graph.asGraph());
-    graphLayout.setMaxIterations(1000);
+    graphLayoutAlgorithm = new FRLayoutAlgorithm<>(domainModel);
+    graphLayoutAlgorithm.setMaxIterations(1000);
 
     Dimension preferredSize = new Dimension(600, 600);
 
-    final VisualizationModel<String, Number> visualizationModel =
-        new DefaultVisualizationModel<String, Number>(graph, graphLayout, preferredSize);
+    final VisualizationModel<String, Number, Point2D> visualizationModel =
+        new BaseVisualizationModel<>(graph, graphLayoutAlgorithm, preferredSize);
     vv = new VisualizationViewer<String, Number>(visualizationModel, preferredSize);
 
     PickedState<String> ps = vv.getPickedVertexState();

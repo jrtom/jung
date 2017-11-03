@@ -11,7 +11,6 @@ package edu.uci.ics.jung.samples;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
-import edu.uci.ics.jung.algorithms.layout.KKLayout;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
@@ -21,6 +20,9 @@ import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.GraphMouseListener;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
+import edu.uci.ics.jung.visualization.layout.AWTDomainModel;
+import edu.uci.ics.jung.visualization.layout.DomainModel;
+import edu.uci.ics.jung.visualization.layout.KKLayoutAlgorithm;
 import edu.uci.ics.jung.visualization.renderers.BasicVertexLabelRenderer.InsidePositioner;
 import edu.uci.ics.jung.visualization.renderers.GradientVertexRenderer;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
@@ -34,6 +36,7 @@ import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Point2D;
 import java.util.function.Function;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -51,6 +54,8 @@ import javax.swing.JPanel;
  * @author Tom Nelson
  */
 public class GraphZoomScrollPaneDemo {
+
+  private static final DomainModel<Point2D> domainModel = new AWTDomainModel();
 
   /** the graph */
   Network<Integer, Number> graph;
@@ -72,7 +77,7 @@ public class GraphZoomScrollPaneDemo {
       System.err.println("Can't load \"" + imageLocation + "\"");
     }
     final ImageIcon icon = sandstoneIcon;
-    vv = new VisualizationViewer<Integer, Number>(graph, new KKLayout<Integer>(graph.asGraph()));
+    vv = new VisualizationViewer<>(graph, new KKLayoutAlgorithm<>(domainModel));
 
     if (icon != null) {
       vv.addPreRenderPaintable(

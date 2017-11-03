@@ -9,8 +9,6 @@
 package edu.uci.ics.jung.samples;
 
 import com.google.common.graph.Network;
-import edu.uci.ics.jung.algorithms.layout.ISOMLayout;
-import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.graph.util.TestGraphs;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
@@ -22,6 +20,10 @@ import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
+import edu.uci.ics.jung.visualization.layout.AWTDomainModel;
+import edu.uci.ics.jung.visualization.layout.DomainModel;
+import edu.uci.ics.jung.visualization.layout.ISOMLayoutAlgorithm;
+import edu.uci.ics.jung.visualization.layout.LayoutAlgorithm;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
@@ -29,6 +31,7 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.geom.Point2D;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDesktopPane;
@@ -43,6 +46,8 @@ import javax.swing.JPanel;
  * @author Tom Nelson
  */
 public class InternalFrameSatelliteViewDemo {
+
+  private static final DomainModel<Point2D> domainModel = new AWTDomainModel();
 
   static final String instructions =
       "<html>"
@@ -87,16 +92,15 @@ public class InternalFrameSatelliteViewDemo {
     // create a simple graph for the demo
     graph = TestGraphs.getOneComponentGraph();
 
-    Layout<String> layout = new ISOMLayout<String, Number>(graph);
+    LayoutAlgorithm<String, Point2D> layout = new ISOMLayoutAlgorithm<>(domainModel);
 
-    vv = new VisualizationViewer<String, Number>(graph, layout, new Dimension(600, 600));
+    vv = new VisualizationViewer<>(graph, layout, new Dimension(600, 600));
     vv.getRenderContext()
         .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer<Number>(
-                vv.getPickedEdgeState(), Color.black, Color.cyan));
+            new PickableEdgePaintTransformer<>(vv.getPickedEdgeState(), Color.black, Color.cyan));
     vv.getRenderContext()
         .setVertexFillPaintTransformer(
-            new PickableVertexPaintTransformer<String>(
+            new PickableVertexPaintTransformer<>(
                 vv.getPickedVertexState(), Color.red, Color.yellow));
 
     // add my listener for ToolTips
@@ -105,16 +109,16 @@ public class InternalFrameSatelliteViewDemo {
         new DefaultModalGraphMouse<String, Number>();
     vv.setGraphMouse(graphMouse);
 
-    satellite = new SatelliteVisualizationViewer<String, Number>(vv, new Dimension(200, 200));
+    satellite = new SatelliteVisualizationViewer<>(vv, new Dimension(200, 200));
     satellite
         .getRenderContext()
         .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer<Number>(
+            new PickableEdgePaintTransformer<>(
                 satellite.getPickedEdgeState(), Color.black, Color.cyan));
     satellite
         .getRenderContext()
         .setVertexFillPaintTransformer(
-            new PickableVertexPaintTransformer<String>(
+            new PickableVertexPaintTransformer<>(
                 satellite.getPickedVertexState(), Color.red, Color.yellow));
 
     ScalingControl satelliteScaler = new CrossoverScalingControl();

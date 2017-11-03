@@ -13,11 +13,11 @@ import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.RenderContext;
+import edu.uci.ics.jung.visualization.VisualizationModel;
 import edu.uci.ics.jung.visualization.transform.LensTransformer;
 import edu.uci.ics.jung.visualization.transform.MutableTransformer;
 import edu.uci.ics.jung.visualization.transform.shape.TransformingGraphics;
 import edu.uci.ics.jung.visualization.util.Context;
-import edu.uci.ics.jung.visualization.util.LayoutMediator;
 import java.awt.Paint;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
@@ -44,15 +44,17 @@ public class ReshapingEdgeRenderer<V, E> extends BasicEdgeRenderer<V, E>
    * the distance between <code>(x1,y1)</code> and <code>(x2,y2)</code>.
    */
   protected void drawSimpleEdge(
-      RenderContext<V, E> renderContext, LayoutMediator<V, E> layoutMediator, E e) {
+      RenderContext<V, E> renderContext,
+      VisualizationModel<V, E, Point2D> visualizationModel,
+      E e) {
 
     TransformingGraphics g = (TransformingGraphics) renderContext.getGraphicsContext();
-    Network<V, E> graph = layoutMediator.getNetwork();
+    Network<V, E> graph = visualizationModel.getNetwork();
     EndpointPair<V> endpoints = graph.incidentNodes(e);
     V v1 = endpoints.nodeU();
     V v2 = endpoints.nodeV();
-    Point2D p1 = layoutMediator.getLayout().apply(v1);
-    Point2D p2 = layoutMediator.getLayout().apply(v2);
+    Point2D p1 = visualizationModel.getLayoutModel().apply(v1);
+    Point2D p2 = visualizationModel.getLayoutModel().apply(v2);
     p1 = renderContext.getMultiLayerTransformer().transform(Layer.LAYOUT, p1);
     p2 = renderContext.getMultiLayerTransformer().transform(Layer.LAYOUT, p2);
     float x1 = (float) p1.getX();

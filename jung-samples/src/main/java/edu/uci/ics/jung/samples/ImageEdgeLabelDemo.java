@@ -11,7 +11,6 @@ package edu.uci.ics.jung.samples;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
-import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
@@ -20,6 +19,9 @@ import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
+import edu.uci.ics.jung.visualization.layout.AWTDomainModel;
+import edu.uci.ics.jung.visualization.layout.DomainModel;
+import edu.uci.ics.jung.visualization.layout.FRLayoutAlgorithm;
 import edu.uci.ics.jung.visualization.renderers.DefaultEdgeLabelRenderer;
 import edu.uci.ics.jung.visualization.renderers.DefaultVertexLabelRenderer;
 import java.awt.BorderLayout;
@@ -29,6 +31,7 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.geom.Point2D;
 import java.net.URL;
 import java.util.function.Function;
 import javax.swing.BorderFactory;
@@ -44,6 +47,8 @@ import javax.swing.JPanel;
  * @author Tom Nelson
  */
 public class ImageEdgeLabelDemo extends JApplet {
+
+  private static final DomainModel<Point2D> domainModel = new AWTDomainModel();
 
   /** */
   private static final long serialVersionUID = -4332663871914930864L;
@@ -61,9 +66,9 @@ public class ImageEdgeLabelDemo extends JApplet {
     // create a simple graph for the demo
     graph = createGraph(VERTEX_COUNT);
 
-    FRLayout<Number> layout = new FRLayout<Number>(graph.asGraph());
-    layout.setMaxIterations(100);
-    vv = new VisualizationViewer<Number, Number>(graph, layout, new Dimension(400, 400));
+    FRLayoutAlgorithm<Number, Point2D> layoutAlgorithm = new FRLayoutAlgorithm<>(domainModel);
+    layoutAlgorithm.setMaxIterations(100);
+    vv = new VisualizationViewer<>(graph, layoutAlgorithm, new Dimension(400, 400));
 
     vv.getRenderContext()
         .setEdgeDrawPaintTransformer(
@@ -130,7 +135,7 @@ public class ImageEdgeLabelDemo extends JApplet {
   /**
    * create some vertices
    *
-   * @param count how many to create
+   * @param vertexCount how many to create
    * @return the Vertices in an array
    */
   private Network<Number, Number> createGraph(int vertexCount) {

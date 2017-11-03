@@ -11,12 +11,12 @@ package edu.uci.ics.jung.samples;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
-import edu.uci.ics.jung.algorithms.layout.FRLayout;
-import edu.uci.ics.jung.algorithms.layout.util.RandomLocationTransformer;
+import edu.uci.ics.jung.visualization.BaseVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.LayeredIcon;
 import edu.uci.ics.jung.visualization.RenderContext;
+import edu.uci.ics.jung.visualization.VisualizationModel;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
@@ -26,6 +26,10 @@ import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.decorators.VertexIconShapeTransformer;
+import edu.uci.ics.jung.visualization.layout.AWTDomainModel;
+import edu.uci.ics.jung.visualization.layout.DomainModel;
+import edu.uci.ics.jung.visualization.layout.FRLayoutAlgorithm;
+import edu.uci.ics.jung.visualization.layout.util.RandomLocationTransformer;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import edu.uci.ics.jung.visualization.renderers.BasicVertexRenderer;
 import edu.uci.ics.jung.visualization.renderers.Checkmark;
@@ -33,7 +37,6 @@ import edu.uci.ics.jung.visualization.renderers.DefaultEdgeLabelRenderer;
 import edu.uci.ics.jung.visualization.renderers.DefaultVertexLabelRenderer;
 import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
 import edu.uci.ics.jung.visualization.util.ImageShapeUtils;
-import edu.uci.ics.jung.visualization.util.LayoutMediator;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
@@ -78,6 +81,8 @@ import javax.swing.JPanel;
  * @author Tom Nelson
  */
 public class VertexImageShaperDemo extends JApplet {
+
+  private static final DomainModel<Point2D> domainModel = new AWTDomainModel();
 
   /** */
   private static final long serialVersionUID = -4332663871914930864L;
@@ -126,10 +131,18 @@ public class VertexImageShaperDemo extends JApplet {
       }
     }
 
-    FRLayout<Number> layout = new FRLayout<Number>(graph.asGraph());
-    layout.setMaxIterations(100);
-    layout.setInitializer(new RandomLocationTransformer<Number>(new Dimension(400, 400), 0));
-    vv = new VisualizationViewer<Number, Number>(graph, layout, new Dimension(400, 400));
+    FRLayoutAlgorithm<Number, Point2D> layoutAlgorithm = new FRLayoutAlgorithm<>(domainModel);
+    layoutAlgorithm.setMaxIterations(100);
+    //    layoutAlgorithm.setInitializer(new RandomLocationTransformer<>(new Dimension(400, 400), 0));
+
+    vv =
+        new VisualizationViewer<>(
+            new BaseVisualizationModel(
+                graph,
+                layoutAlgorithm,
+                new RandomLocationTransformer<>(domainModel, 400, 400, 0),
+                new Dimension(400, 400)),
+            new Dimension(400, 400));
 
     // This demo uses a special renderer to turn outlines on and off.
     // you do not need to do this in a real application.
@@ -483,10 +496,11 @@ public class VertexImageShaperDemo extends JApplet {
    */
   class DemoRenderer<V, E> extends BasicVertexRenderer<V, E> {
 
+    @Override
     public void paintIconForVertex(
-        RenderContext<V, E> renderContext, LayoutMediator<V, E> layoutMediator, V v) {
+        RenderContext<V, E> renderContext, VisualizationModel<V, E, Point2D> model, V v) {
 
-      Point2D p = layoutMediator.getLayout().apply(v);
+      Point2D p = model.getLayoutModel().apply(v);
       p = renderContext.getMultiLayerTransformer().transform(Layer.LAYOUT, p);
       float x = (float) p.getX();
       float y = (float) p.getY();
@@ -504,7 +518,7 @@ public class VertexImageShaperDemo extends JApplet {
         Shape s =
             AffineTransform.getTranslateInstance(x, y)
                 .createTransformedShape(renderContext.getVertexShapeTransformer().apply(v));
-        paintShapeForVertex(renderContext, layoutMediator, v, s);
+        paintShapeForVertex(renderContext, model, v, s);
       }
       if (icon != null) {
         int xLoc = (int) (x - icon.getIconWidth() / 2);

@@ -3,6 +3,7 @@ package edu.uci.ics.jung.visualization.spatial;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
 import com.google.common.collect.Sets;
 import java.awt.*;
 import java.awt.geom.Area;
@@ -38,7 +39,7 @@ public class SpatialGrid<N> implements Spatial<N> {
 
   private Dimension size;
 
-  private Multimap<Integer, N> map = ArrayListMultimap.create();
+  private Multimap<Integer, N> map = Multimaps.synchronizedListMultimap(ArrayListMultimap.create());
 
   private double boxWidth;
   private double boxHeight;
@@ -61,7 +62,7 @@ public class SpatialGrid<N> implements Spatial<N> {
   }
 
   /**
-   * Set the size of the spatial grid and recompute the box widths and heights. null out the
+   * Set the layoutSize of the spatial grid and recompute the box widths and heights. null out the
    * obsolete grid cache
    *
    * @param bounds
@@ -146,15 +147,13 @@ public class SpatialGrid<N> implements Spatial<N> {
   public int getBoxNumberFromLocation(Point2D p) {
     int count = 0;
     for (Rectangle2D r : getGrid()) {
-      if (r.contains(p)) {
-        if (log.isTraceEnabled()) {
-          log.trace("r:{} contains {}", r.getBounds2D(), p);
-        }
+      if (r.contains(p) || r.intersects(p.getX(), p.getY(), 1, 1)) {
         return count;
       } else {
         count++;
       }
     }
+    log.trace("no box for  {}", p);
     return -1;
   }
 
@@ -191,21 +190,50 @@ public class SpatialGrid<N> implements Spatial<N> {
   /**
    * Recalculate the contents of the Map of box number to contained Nodes
    *
-   * @param layout
+   * @param layoutModel
    * @param nodes
    */
-  public void recalculate(Function<N, Point2D> layout, Collection<N> nodes) {
+  public void recalculate(Function<N, Point2D> layoutModel, Collection<N> nodes) {
     this.map.clear();
     while (true) {
       try {
         for (N node : nodes) {
-          this.map.put(this.getBoxNumberFromLocation(layout.apply(node)), node);
+          this.map.put(this.getBoxNumberFromLocation(layoutModel.apply(node)), node);
         }
         break;
       } catch (ConcurrentModificationException ex) {
         // ignore
       }
     }
+  }
+
+  /**
+   * update the location of a node in the map of box number to node lists
+   *
+   * @param node
+   * @param p the location of the node in the layout
+   */
+  public void update(N node, Point2D p) {
+    int rightBox = this.getBoxNumberFromLocation(p);
+    // node should end up in box 'rightBox'
+    // check to see if it is already there
+    if (map.get(rightBox).contains(node)) {
+      // nothing to do here, just return
+      return;
+    }
+    // remove node from the first (and only) wrong box it is found in
+    Integer wrongBox = null;
+    for (Integer box : map.keySet()) {
+      if (map.get(box).contains(node)) {
+        // remove it and stop, because node can be in only one box
+        wrongBox = box;
+        break;
+      }
+    }
+    if (wrongBox != null) {
+      map.remove(wrongBox, node);
+    }
+    map.put(rightBox, node);
   }
 
   /** given a rectangular area and an offset, return the tile numbers that are contained in it */

@@ -11,9 +11,10 @@ import com.google.common.collect.Sets;
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.visualization.RenderContext;
+import edu.uci.ics.jung.visualization.VisualizationModel;
 import edu.uci.ics.jung.visualization.VisualizationServer;
 import edu.uci.ics.jung.visualization.spatial.Spatial;
-import edu.uci.ics.jung.visualization.util.LayoutMediator;
+import java.awt.geom.Point2D;
 import java.util.ConcurrentModificationException;
 import java.util.Set;
 import org.slf4j.Logger;
@@ -36,9 +37,11 @@ public class BasicRenderer<V, E> implements Renderer<V, E> {
   protected Renderer.EdgeLabel<V, E> edgeLabelRenderer = new BasicEdgeLabelRenderer<V, E>();
 
   public void render(
-      RenderContext<V, E> renderContext, LayoutMediator<V, E> layoutMediator, Spatial<V> spatial) {
+      RenderContext<V, E> renderContext,
+      VisualizationModel<V, E, Point2D> visualizationModel,
+      Spatial<V> spatial) {
     if (spatial == null) {
-      render(renderContext, layoutMediator);
+      render(renderContext, visualizationModel);
       return;
     }
     Set<V> visibleNodes = null;
@@ -54,7 +57,7 @@ public class BasicRenderer<V, E> implements Renderer<V, E> {
       return;
     }
 
-    Network<V, E> network = layoutMediator.getNetwork();
+    Network<V, E> network = visualizationModel.getNetwork();
     Set<E> visibleEdges = Sets.newHashSet(network.edges());
     for (E edge : network.edges()) {
       EndpointPair<V> endpoints = network.incidentNodes(edge);
@@ -69,8 +72,8 @@ public class BasicRenderer<V, E> implements Renderer<V, E> {
     // paint all the edges
     try {
       for (E e : visibleEdges) {
-        renderEdge(renderContext, layoutMediator, e);
-        renderEdgeLabel(renderContext, layoutMediator, e);
+        renderEdge(renderContext, visualizationModel, e);
+        renderEdgeLabel(renderContext, visualizationModel, e);
       }
     } catch (ConcurrentModificationException cme) {
       renderContext.getScreenDevice().repaint();
@@ -79,8 +82,8 @@ public class BasicRenderer<V, E> implements Renderer<V, E> {
     // paint all the vertices
     try {
       for (V v : visibleNodes) {
-        renderVertex(renderContext, layoutMediator, v);
-        renderVertexLabel(renderContext, layoutMediator, v);
+        renderVertex(renderContext, visualizationModel, v);
+        renderVertexLabel(renderContext, visualizationModel, v);
       }
     } catch (ConcurrentModificationException cme) {
       renderContext.getScreenDevice().repaint();
@@ -88,13 +91,14 @@ public class BasicRenderer<V, E> implements Renderer<V, E> {
   }
 
   @Override
-  public void render(RenderContext<V, E> renderContext, LayoutMediator<V, E> layoutMediator) {
-    Network<V, E> network = layoutMediator.getNetwork();
+  public void render(
+      RenderContext<V, E> renderContext, VisualizationModel<V, E, Point2D> visualizationModel) {
+    Network<V, E> network = visualizationModel.getNetwork();
     // paint all the edges
     try {
       for (E e : network.edges()) {
-        renderEdge(renderContext, layoutMediator, e);
-        renderEdgeLabel(renderContext, layoutMediator, e);
+        renderEdge(renderContext, visualizationModel, e);
+        renderEdgeLabel(renderContext, visualizationModel, e);
       }
     } catch (ConcurrentModificationException cme) {
       renderContext.getScreenDevice().repaint();
@@ -103,8 +107,8 @@ public class BasicRenderer<V, E> implements Renderer<V, E> {
     // paint all the vertices
     try {
       for (V v : network.nodes()) {
-        renderVertex(renderContext, layoutMediator, v);
-        renderVertexLabel(renderContext, layoutMediator, v);
+        renderVertex(renderContext, visualizationModel, v);
+        renderVertexLabel(renderContext, visualizationModel, v);
       }
     } catch (ConcurrentModificationException cme) {
       renderContext.getScreenDevice().repaint();
@@ -112,25 +116,33 @@ public class BasicRenderer<V, E> implements Renderer<V, E> {
   }
 
   public void renderVertex(
-      RenderContext<V, E> renderContext, LayoutMediator<V, E> layoutMediator, V v) {
-    vertexRenderer.paintVertex(renderContext, layoutMediator, v);
+      RenderContext<V, E> renderContext,
+      VisualizationModel<V, E, Point2D> visualizationModel,
+      V v) {
+    vertexRenderer.paintVertex(renderContext, visualizationModel, v);
   }
 
   public void renderVertexLabel(
-      RenderContext<V, E> renderContext, LayoutMediator<V, E> layoutMediator, V v) {
+      RenderContext<V, E> renderContext,
+      VisualizationModel<V, E, Point2D> visualizationModel,
+      V v) {
     vertexLabelRenderer.labelVertex(
-        renderContext, layoutMediator, v, renderContext.getVertexLabelTransformer().apply(v));
+        renderContext, visualizationModel, v, renderContext.getVertexLabelTransformer().apply(v));
   }
 
   public void renderEdge(
-      RenderContext<V, E> renderContext, LayoutMediator<V, E> layoutMediator, E e) {
-    edgeRenderer.paintEdge(renderContext, layoutMediator, e);
+      RenderContext<V, E> renderContext,
+      VisualizationModel<V, E, Point2D> visualizationModel,
+      E e) {
+    edgeRenderer.paintEdge(renderContext, visualizationModel, e);
   }
 
   public void renderEdgeLabel(
-      RenderContext<V, E> renderContext, LayoutMediator<V, E> layoutMediator, E e) {
+      RenderContext<V, E> renderContext,
+      VisualizationModel<V, E, Point2D> visualizationModel,
+      E e) {
     edgeLabelRenderer.labelEdge(
-        renderContext, layoutMediator, e, renderContext.getEdgeLabelTransformer().apply(e));
+        renderContext, visualizationModel, e, renderContext.getEdgeLabelTransformer().apply(e));
   }
 
   public void setVertexRenderer(Renderer.Vertex<V, E> r) {

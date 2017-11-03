@@ -10,13 +10,12 @@ import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
 import edu.uci.ics.jung.algorithms.generators.random.EppsteinPowerLawGenerator;
-import edu.uci.ics.jung.algorithms.layout.FRLayout;
-import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.algorithms.shortestpath.BFSDistanceLabeler;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
+import edu.uci.ics.jung.visualization.layout.*;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
@@ -50,6 +49,8 @@ public class ShortestPathDemo extends JPanel {
   /** */
   private static final long serialVersionUID = 7526217664458188502L;
 
+  private static final DomainModel<Point2D> domainModel = new AWTDomainModel();
+
   /** Starting vertex */
   private String mFrom;
 
@@ -64,9 +65,9 @@ public class ShortestPathDemo extends JPanel {
     this.mGraph = getGraph();
     setBackground(Color.WHITE);
     // show graph
-    final Layout<String> layout = new FRLayout<String>(mGraph.asGraph());
+    final LayoutAlgorithm<String, Point2D> layoutAlgorithm = new FRLayoutAlgorithm<>(domainModel);
     final VisualizationViewer<String, Number> vv =
-        new VisualizationViewer<String, Number>(mGraph, layout);
+        new VisualizationViewer<String, Number>(mGraph, layoutAlgorithm);
     vv.setBackground(Color.WHITE);
 
     vv.getRenderContext().setVertexDrawPaintTransformer(new MyVertexDrawPaintFunction<String>());
@@ -75,6 +76,7 @@ public class ShortestPathDemo extends JPanel {
     vv.getRenderContext().setEdgeStrokeTransformer(new MyEdgeStrokeFunction());
     vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
     vv.setGraphMouse(new DefaultModalGraphMouse<String, Number>());
+    LayoutModel<String, Point2D> layoutModel = vv.getModel().getLayoutModel();
     vv.addPostRenderPaintable(
         new VisualizationViewer.Paintable() {
 
@@ -93,12 +95,12 @@ public class ShortestPathDemo extends JPanel {
                 EndpointPair<String> endpoints = mGraph.incidentNodes(e);
                 String v1 = endpoints.nodeU();
                 String v2 = endpoints.nodeV();
-                Point2D p1 = layout.apply(v1);
-                Point2D p2 = layout.apply(v2);
+                Point2D p1 = layoutModel.apply(v1);
+                Point2D p2 = layoutModel.apply(v2);
                 p1 = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, p1);
                 p2 = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, p2);
                 Renderer<String, Number> renderer = vv.getRenderer();
-                renderer.renderEdge(vv.getRenderContext(), vv.getModel().getLayoutMediator(), e);
+                renderer.renderEdge(vv.getRenderContext(), vv.getModel(), e);
               }
             }
           }

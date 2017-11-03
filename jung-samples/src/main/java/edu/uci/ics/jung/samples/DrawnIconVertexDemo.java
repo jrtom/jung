@@ -11,7 +11,6 @@ package edu.uci.ics.jung.samples;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
-import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
@@ -20,6 +19,9 @@ import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
+import edu.uci.ics.jung.visualization.layout.AWTDomainModel;
+import edu.uci.ics.jung.visualization.layout.DomainModel;
+import edu.uci.ics.jung.visualization.layout.FRLayoutAlgorithm;
 import edu.uci.ics.jung.visualization.renderers.DefaultEdgeLabelRenderer;
 import edu.uci.ics.jung.visualization.renderers.DefaultVertexLabelRenderer;
 import java.awt.BorderLayout;
@@ -29,6 +31,7 @@ import java.awt.Container;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.geom.Point2D;
 import java.util.function.Function;
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -42,6 +45,8 @@ import javax.swing.JPanel;
  */
 public class DrawnIconVertexDemo {
 
+  private static final DomainModel<Point2D> domainModel = new AWTDomainModel();
+
   /** the graph */
   Network<Integer, Number> graph;
 
@@ -53,7 +58,7 @@ public class DrawnIconVertexDemo {
     // create a simple graph for the demo
     graph = createGraph();
 
-    vv = new VisualizationViewer<Integer, Number>(graph, new FRLayout<Integer>(graph.asGraph()));
+    vv = new VisualizationViewer<>(graph, new FRLayoutAlgorithm<>(domainModel));
     vv.getRenderContext()
         .setVertexLabelTransformer(
             new Function<Integer, String>() {

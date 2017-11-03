@@ -111,7 +111,7 @@ public abstract class LensTransformer extends MutableTransformerDecorator
     this.delegate.setToIdentity();
   }
 
-  /** react to size changes on a component */
+  /** react to layoutSize changes on a component */
   protected class ComponentListenerImpl extends ComponentAdapter {
     public void componentResized(ComponentEvent e) {
       setComponent(e.getComponent());

@@ -11,7 +11,6 @@ package edu.uci.ics.jung.samples;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
-import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
@@ -22,6 +21,9 @@ import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.decorators.VertexIconShapeTransformer;
+import edu.uci.ics.jung.visualization.layout.AWTDomainModel;
+import edu.uci.ics.jung.visualization.layout.DomainModel;
+import edu.uci.ics.jung.visualization.layout.FRLayoutAlgorithm;
 import edu.uci.ics.jung.visualization.renderers.DefaultEdgeLabelRenderer;
 import edu.uci.ics.jung.visualization.renderers.DefaultVertexLabelRenderer;
 import java.awt.BorderLayout;
@@ -31,6 +33,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.geom.Point2D;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -48,6 +51,8 @@ import javax.swing.JPanel;
  */
 public class UnicodeLabelDemo {
 
+  private static final DomainModel<Point2D> domainModel = new AWTDomainModel();
+
   /** the graph */
   Network<Integer, Number> graph;
 
@@ -62,7 +67,7 @@ public class UnicodeLabelDemo {
     graph = createGraph();
     Map<Integer, Icon> iconMap = new HashMap<Integer, Icon>();
 
-    vv = new VisualizationViewer<Integer, Number>(graph, new FRLayout<Integer>(graph.asGraph()));
+    vv = new VisualizationViewer<>(graph, new FRLayoutAlgorithm<>(domainModel));
     vv.getRenderContext().setVertexLabelTransformer(new UnicodeVertexStringer());
     vv.getRenderContext().setVertexLabelRenderer(new DefaultVertexLabelRenderer(Color.cyan));
     vv.getRenderContext().setEdgeLabelRenderer(new DefaultEdgeLabelRenderer(Color.cyan));
@@ -157,9 +162,7 @@ public class UnicodeLabelDemo {
       }
     }
 
-    /**
-     * @see edu.uci.ics.jung.graph.decorators.VertexStringer#getLabel(edu.uci.ics.jung.graph.Vertex)
-     */
+    /** */
     public String getLabel(Integer v) {
       if (showLabels) {
         return map.get(v);

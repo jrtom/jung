@@ -1,14 +1,15 @@
 package edu.uci.ics.jung.visualization.renderers;
 
-import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 import edu.uci.ics.jung.visualization.RenderContext;
+import edu.uci.ics.jung.visualization.VisualizationModel;
 import edu.uci.ics.jung.visualization.layout.LayoutChangeListener;
 import edu.uci.ics.jung.visualization.layout.LayoutEvent;
 import edu.uci.ics.jung.visualization.layout.LayoutEventSupport;
+import edu.uci.ics.jung.visualization.layout.LayoutNetworkEvent;
 import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
-import edu.uci.ics.jung.visualization.util.LayoutMediator;
 import java.awt.Shape;
+import java.awt.geom.Point2D;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -17,31 +18,33 @@ import javax.swing.Icon;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-public class CachingVertexRenderer<V, E> extends BasicVertexRenderer<V, E>
-    implements ChangeListener, LayoutChangeListener<V, E> {
+public class CachingVertexRenderer<N, E> extends BasicVertexRenderer<N, E>
+    implements ChangeListener, LayoutChangeListener<N, Point2D> {
 
-  protected Map<V, Shape> vertexShapeMap = new HashMap<V, Shape>();
+  protected Map<N, Shape> vertexShapeMap = new HashMap<>();
 
-  protected Set<V> dirtyVertices = new HashSet<V>();
+  protected Set<N> dirtyVertices = new HashSet<>();
 
   @SuppressWarnings({"rawtypes", "unchecked"})
-  public CachingVertexRenderer(BasicVisualizationServer<V, E> vv) {
+  public CachingVertexRenderer(BasicVisualizationServer<N, E> vv) {
     vv.getRenderContext().getMultiLayerTransformer().addChangeListener(this);
-    Layout<V> layout = vv.getGraphLayout();
-    if (layout instanceof LayoutEventSupport) {
-      ((LayoutEventSupport) layout).addLayoutChangeListener(this);
+    VisualizationModel<N, E, Point2D> visualizationModel = vv.getModel();
+    if (visualizationModel instanceof LayoutEventSupport) {
+      ((LayoutEventSupport) visualizationModel).addLayoutChangeListener(this);
     }
   }
 
   /** Paint <code>v</code>'s icon on <code>g</code> at <code>(x,y)</code>. */
   protected void paintIconForVertex(
-      RenderContext<V, E> renderContext, LayoutMediator<V, E> layoutMediator, V v) {
+      RenderContext<N, E> renderContext,
+      VisualizationModel<N, E, Point2D> visualizationModel,
+      N v) {
     GraphicsDecorator g = renderContext.getGraphicsContext();
 
     int[] coords = new int[2];
     Shape shape = vertexShapeMap.get(v);
     if (shape == null || dirtyVertices.contains(v)) {
-      shape = prepareFinalVertexShape(renderContext, layoutMediator, v, coords);
+      shape = prepareFinalVertexShape(renderContext, visualizationModel, v, coords);
       vertexShapeMap.put(v, shape);
       dirtyVertices.remove(v);
     }
@@ -52,10 +55,10 @@ public class CachingVertexRenderer<V, E> extends BasicVertexRenderer<V, E>
         g.draw(icon, renderContext.getScreenDevice(), shape, coords[0], coords[1]);
 
       } else {
-        paintShapeForVertex(renderContext, layoutMediator, v, shape);
+        paintShapeForVertex(renderContext, visualizationModel, v, shape);
       }
     } else {
-      paintShapeForVertex(renderContext, layoutMediator, v, shape);
+      paintShapeForVertex(renderContext, visualizationModel, v, shape);
     }
   }
 
@@ -63,7 +66,11 @@ public class CachingVertexRenderer<V, E> extends BasicVertexRenderer<V, E>
     vertexShapeMap.clear();
   }
 
-  public void layoutChanged(LayoutEvent<V, E> evt) {
-    this.dirtyVertices.add(evt.getVertex());
+  public void layoutChanged(LayoutEvent<N, Point2D> evt) {
+    this.dirtyVertices.add(evt.getNode());
+  }
+
+  public void layoutChanged(LayoutNetworkEvent<N, Point2D> evt) {
+    this.dirtyVertices.add(evt.getNode());
   }
 }

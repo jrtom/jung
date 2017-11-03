@@ -14,9 +14,6 @@ import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
 import edu.uci.ics.jung.algorithms.generators.random.BarabasiAlbertGenerator;
-import edu.uci.ics.jung.algorithms.layout.FRLayout;
-import edu.uci.ics.jung.algorithms.layout.Layout;
-import edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.algorithms.scoring.VoltageScorer;
 import edu.uci.ics.jung.algorithms.scoring.util.VertexScoreTransformer;
 import edu.uci.ics.jung.graph.util.Graphs;
@@ -32,6 +29,7 @@ import edu.uci.ics.jung.visualization.decorators.EdgeShape;
 import edu.uci.ics.jung.visualization.decorators.GradientEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.NumberFormattingTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
+import edu.uci.ics.jung.visualization.layout.*;
 import edu.uci.ics.jung.visualization.picking.PickedInfo;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import edu.uci.ics.jung.visualization.renderers.BasicEdgeArrowRenderingSupport;
@@ -114,8 +112,9 @@ import javax.swing.JRadioButton;
  *             calculated 'voltage'. Otherwise, vertices are unlabeled.
  *         <li>"vertex degree shapes": if checked, vertices are drawn with a polygon with number of
  *             sides proportional to its degree. Otherwise, vertices are drawn as ellipses.
- *         <li>"vertex voltage size": if checked, vertices are drawn with a size proportional to
- *             their voltage ranking. Otherwise, all vertices are drawn at the same size.
+ *         <li>"vertex voltage layoutSize": if checked, vertices are drawn with a layoutSize
+ *             proportional to their voltage ranking. Otherwise, all vertices are drawn at the same
+ *             layoutSize.
  *         <li>"vertex degree ratio stretch": if checked, vertices are drawn with an aspect ratio
  *             (height/width ratio) proportional to the ratio of their indegree to their outdegree.
  *             Otherwise, vertices are drawn with an aspect ratio of 1.
@@ -160,6 +159,9 @@ import javax.swing.JRadioButton;
  */
 @SuppressWarnings("serial")
 public class PluggableRendererDemo extends JApplet implements ActionListener {
+
+  private static final DomainModel<Point2D> domainModel = new AWTDomainModel();
+
   protected JCheckBox v_color;
   protected JCheckBox e_color;
   protected JCheckBox v_stroke;
@@ -234,8 +236,8 @@ public class PluggableRendererDemo extends JApplet implements ActionListener {
   public JPanel startFunction() {
     this.graph = buildGraph();
 
-    Layout<Integer> layout = new FRLayout<Integer>(graph.asGraph());
-    vv = new VisualizationViewer<Integer, Number>(graph, layout);
+    LayoutAlgorithm<Integer, Point2D> layoutAlgorithm = new FRLayoutAlgorithm<>(domainModel);
+    vv = new VisualizationViewer<>(graph, layoutAlgorithm);
 
     //    vv.getRenderer().setVertexRenderer(new CachingVertexRenderer<Integer, Number>(vv));
     //    vv.getRenderer().setEdgeRenderer(new CachingEdgeRenderer<Integer, Number>(vv));
@@ -411,7 +413,7 @@ public class PluggableRendererDemo extends JApplet implements ActionListener {
     v_labels.addActionListener(this);
     v_shape = new JCheckBox("shape by degree");
     v_shape.addActionListener(this);
-    v_size = new JCheckBox("size by voltage");
+    v_size = new JCheckBox("layoutSize by voltage");
     v_size.addActionListener(this);
     v_size.setSelected(true);
     v_aspect = new JCheckBox("stretch by degree ratio");
@@ -865,7 +867,7 @@ public class PluggableRendererDemo extends JApplet implements ActionListener {
   }
 
   /**
-   * Controls the shape, size, and aspect ratio for each vertex.
+   * Controls the shape, layoutSize, and aspect ratio for each vertex.
    *
    * @author Joshua O'Madadhain
    */

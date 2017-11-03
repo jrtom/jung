@@ -8,10 +8,11 @@
  */
 package edu.uci.ics.jung.visualization.picking;
 
-import edu.uci.ics.jung.algorithms.layout.Layout;
-import edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.visualization.Layer;
+import edu.uci.ics.jung.visualization.VisualizationModel;
 import edu.uci.ics.jung.visualization.VisualizationServer;
+import edu.uci.ics.jung.visualization.layout.LayoutModel;
+import edu.uci.ics.jung.visualization.layout.NetworkElementAccessor;
 import java.awt.Shape;
 import java.awt.geom.Point2D;
 import java.util.Collection;
@@ -36,9 +37,9 @@ import java.util.ConcurrentModificationException;
  * non-convex shapes) is true, then <code>ShapePickSupport</code> and this class should have the
  * same behavior.
  */
-public class ClosestShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
+public class ClosestShapePickSupport<N, E> implements NetworkElementAccessor<N, E> {
 
-  protected VisualizationServer<V, E> vv;
+  protected VisualizationServer<N, E> vv;
   protected float pickSize;
 
   /**
@@ -47,9 +48,9 @@ public class ClosestShapePickSupport<V, E> implements NetworkElementAccessor<V, 
    * <code>Layout</code>.
    *
    * @param vv source of the current <code>Layout</code>.
-   * @param pickSize the size of the pick footprint for line edges
+   * @param pickSize the layoutSize of the pick footprint for line edges
    */
-  public ClosestShapePickSupport(VisualizationServer<V, E> vv, float pickSize) {
+  public ClosestShapePickSupport(VisualizationServer<N, E> vv, float pickSize) {
     this.vv = vv;
     this.pickSize = pickSize;
   }
@@ -60,7 +61,7 @@ public class ClosestShapePickSupport<V, E> implements NetworkElementAccessor<V, 
    *
    * @param vv source of the current <code>Layout</code>.
    */
-  public ClosestShapePickSupport(VisualizationServer<V, E> vv) {
+  public ClosestShapePickSupport(VisualizationServer<N, E> vv) {
     this.vv = vv;
   }
 
@@ -71,15 +72,16 @@ public class ClosestShapePickSupport<V, E> implements NetworkElementAccessor<V, 
 
   /** @see edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor#getNode(double, double) */
   @Override
-  public V getNode(double x, double y) {
-    Layout<V> layout = vv.getModel().getLayoutMediator().getLayout();
+  public N getNode(double x, double y) {
+    VisualizationModel<N, E, Point2D> visualizationModel = vv.getModel();
+    LayoutModel<N, Point2D> layoutModel = visualizationModel.getLayoutModel();
     // first, find the closest vertex to (x,y)
     double minDistance = Double.MAX_VALUE;
-    V closest = null;
+    N closest = null;
     while (true) {
       try {
-        for (V v : vv.getModel().getLayoutMediator().getNetwork().nodes()) {
-          Point2D p = layout.apply(v);
+        for (N v : visualizationModel.getNetwork().nodes()) {
+          Point2D p = layoutModel.apply(v);
           double dx = p.getX() - x;
           double dy = p.getY() - y;
           double dist = dx * dx + dy * dy;
@@ -98,7 +100,7 @@ public class ClosestShapePickSupport<V, E> implements NetworkElementAccessor<V, 
     // get the vertex shape
     Shape shape = vv.getRenderContext().getVertexShapeTransformer().apply(closest);
     // get the vertex location
-    Point2D p = layout.apply(closest);
+    Point2D p = layoutModel.apply(closest);
     // transform the vertex location to screen coords
     p = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, p);
 
@@ -114,7 +116,7 @@ public class ClosestShapePickSupport<V, E> implements NetworkElementAccessor<V, 
 
   /** @see edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor#getNodes(java.awt.Shape) */
   @Override
-  public Collection<V> getNodes(Shape rectangle) {
+  public Collection<N> getNodes(Shape rectangle) {
     // FIXME: RadiusPickSupport and ShapePickSupport are not using the same mechanism!
     // talk to Tom and make sure I understand which should be used.
     // in particular, there are some transformations that the latter uses; the latter is also

@@ -12,13 +12,6 @@ package edu.uci.ics.jung.samples;
 
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.NetworkBuilder;
-import edu.uci.ics.jung.algorithms.layout.AbstractLayout;
-import edu.uci.ics.jung.algorithms.layout.FRLayout;
-import edu.uci.ics.jung.algorithms.layout.FRLayout2;
-import edu.uci.ics.jung.algorithms.layout.Layout;
-import edu.uci.ics.jung.algorithms.layout.LayoutDecorator;
-import edu.uci.ics.jung.algorithms.layout.SpringLayout;
-import edu.uci.ics.jung.algorithms.layout.util.Relaxer;
 import edu.uci.ics.jung.graph.ObservableNetwork;
 import edu.uci.ics.jung.graph.event.NetworkEvent;
 import edu.uci.ics.jung.graph.event.NetworkEventListener;
@@ -26,14 +19,16 @@ import edu.uci.ics.jung.graph.util.Graphs;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
+import edu.uci.ics.jung.visualization.layout.*;
+import edu.uci.ics.jung.visualization.layout.util.Relaxer;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
-import edu.uci.ics.jung.visualization.util.LayoutMediator;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.geom.Point2D;
 import java.util.Timer;
 import java.util.TimerTask;
 import javax.swing.JButton;
@@ -49,6 +44,8 @@ import org.slf4j.LoggerFactory;
  */
 public class AddNodeDemo extends JPanel {
 
+  private static final DomainModel<Point2D> domainModel = new AWTDomainModel();
+
   private static final Logger log = LoggerFactory.getLogger(AddNodeDemo.class);
   /** */
   private static final long serialVersionUID = -5345319851341875800L;
@@ -57,7 +54,7 @@ public class AddNodeDemo extends JPanel {
 
   private VisualizationViewer<Number, Number> vv = null;
 
-  private AbstractLayout<Number> layout = null;
+  private LayoutAlgorithm<Number, Point2D> layoutAlgorithm = null;
 
   Timer timer;
 
@@ -99,15 +96,14 @@ public class AddNodeDemo extends JPanel {
           }
         });
     this.g = og;
-    layout = new FRLayout2<Number>(g.asGraph());
+    layoutAlgorithm = new FRLayoutAlgorithm<>(domainModel);
 
-    vv = new VisualizationViewer<Number, Number>(g, layout, new Dimension(600, 600));
+    vv = new VisualizationViewer<>(g, layoutAlgorithm, new Dimension(600, 600));
 
     this.setLayout(new BorderLayout());
     this.setBackground(java.awt.Color.lightGray);
     this.setFont(new Font("Serif", Font.PLAIN, 12));
 
-    vv.getModel().getRelaxer().setSleepTime(500);
     vv.setGraphMouse(new DefaultModalGraphMouse<Number, Number>());
 
     vv.getRenderer().getVertexLabelRenderer().setPosition(Renderer.VertexLabel.Position.CNTR);
@@ -119,28 +115,14 @@ public class AddNodeDemo extends JPanel {
         new ActionListener() {
 
           public void actionPerformed(ActionEvent ae) {
-            Dimension d = new Dimension(600, 600);
             if (switchLayout.getText().indexOf("Spring") > 0) {
               switchLayout.setText("Switch to FRLayout");
-              layout = new SpringLayout<Number>(g.asGraph(), e -> EDGE_LENGTH);
-              layout.setSize(d);
-              vv.setLayoutMediator(new LayoutMediator(g, layout), d);
-              Layout<Number> delegateLayout =
-                  ((LayoutDecorator<Number>) vv.getModel().getLayoutMediator().getLayout())
-                      .getDelegate();
-              if (log.isDebugEnabled()) {
-                log.debug("layout: {}", delegateLayout.getClass().getName());
-              }
+              layoutAlgorithm = new SpringLayoutAlgorithm<>(domainModel, e -> EDGE_LENGTH);
+              vv.getModel().setLayoutAlgorithm(layoutAlgorithm);
             } else {
               switchLayout.setText("Switch to SpringLayout");
-              layout = new FRLayout<Number>(g.asGraph(), d);
-              vv.setLayoutMediator(new LayoutMediator(g, layout), d);
-              Layout<Number> delegateLayout =
-                  ((LayoutDecorator<Number>) vv.getModel().getLayoutMediator().getLayout())
-                      .getDelegate();
-              if (log.isDebugEnabled()) {
-                log.debug("layout: {}", delegateLayout.getClass().getName());
-              }
+              layoutAlgorithm = new FRLayoutAlgorithm<>(domainModel);
+              vv.getModel().setLayoutAlgorithm(layoutAlgorithm);
             }
           }
         });
@@ -159,10 +141,9 @@ public class AddNodeDemo extends JPanel {
     try {
 
       if (g.nodes().size() < 100) {
-        layout.lock(true);
         Integer v1 = g.nodes().size();
 
-        Relaxer relaxer = vv.getModel().getRelaxer();
+        Relaxer relaxer = vv.getModel().getLayoutModel().getRelaxer();
         relaxer.pause();
         g.addNode(v1);
         if (log.isDebugEnabled()) {
@@ -179,9 +160,8 @@ public class AddNodeDemo extends JPanel {
 
         v_prev = v1;
 
-        layout.initialize();
+        vv.getModel().getLayoutModel().accept(layoutAlgorithm);
         relaxer.resume();
-        layout.lock(false);
       } else {
         done = true;
       }

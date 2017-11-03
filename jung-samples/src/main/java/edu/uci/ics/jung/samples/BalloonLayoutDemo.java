@@ -8,8 +8,6 @@
  */
 package edu.uci.ics.jung.samples;
 
-import edu.uci.ics.jung.algorithms.layout.BalloonLayout;
-import edu.uci.ics.jung.algorithms.layout.TreeLayout;
 import edu.uci.ics.jung.graph.CTreeNetwork;
 import edu.uci.ics.jung.graph.MutableCTreeNetwork;
 import edu.uci.ics.jung.graph.TreeNetworkBuilder;
@@ -24,37 +22,21 @@ import edu.uci.ics.jung.visualization.control.ModalLensGraphMouse;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.EdgeShape;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
-import edu.uci.ics.jung.visualization.layout.LayoutTransition;
+import edu.uci.ics.jung.visualization.layout.AWTDomainModel;
+import edu.uci.ics.jung.visualization.layout.BalloonLayoutAlgorithm;
+import edu.uci.ics.jung.visualization.layout.DomainModel;
+import edu.uci.ics.jung.visualization.layout.TreeLayoutAlgorithm;
 import edu.uci.ics.jung.visualization.transform.LensSupport;
 import edu.uci.ics.jung.visualization.transform.MutableTransformer;
 import edu.uci.ics.jung.visualization.transform.MutableTransformerDecorator;
 import edu.uci.ics.jung.visualization.transform.shape.HyperbolicShapeTransformer;
 import edu.uci.ics.jung.visualization.transform.shape.ViewLensSupport;
-import edu.uci.ics.jung.visualization.util.Animator;
-import edu.uci.ics.jung.visualization.util.LayoutMediator;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.GridLayout;
-import java.awt.Shape;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.*;
 import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
-import javax.swing.BorderFactory;
-import javax.swing.JApplet;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JToggleButton;
+import javax.swing.*;
 
 /**
  * Demonstrates the visualization of a Tree using TreeLayout and BalloonLayout. An examiner lens
@@ -64,6 +46,8 @@ import javax.swing.JToggleButton;
  */
 @SuppressWarnings("serial")
 public class BalloonLayoutDemo extends JApplet {
+
+  private static final DomainModel<Point2D> domainModel = new AWTDomainModel();
 
   /** the graph */
   CTreeNetwork<String, Integer> graph;
@@ -75,9 +59,9 @@ public class BalloonLayoutDemo extends JApplet {
 
   String root;
 
-  TreeLayout<String> layout;
+  TreeLayoutAlgorithm<String, Point2D> layoutAlgorithm;
 
-  BalloonLayout<String> radialLayout;
+  BalloonLayoutAlgorithm<String, Point2D> radialLayoutAlgorithm;
   /** provides a Hyperbolic lens for the view */
   LensSupport hyperbolicViewSupport;
 
@@ -86,17 +70,19 @@ public class BalloonLayoutDemo extends JApplet {
     // create a simple graph for the demo
     graph = createTree();
 
-    layout = new TreeLayout<String>(graph.asGraph());
-    radialLayout = new BalloonLayout<String>(graph.asGraph());
-    radialLayout.setSize(new Dimension(900, 900));
-    vv = new VisualizationViewer<String, Integer>(graph, layout, new Dimension(600, 600));
+    layoutAlgorithm = new TreeLayoutAlgorithm<>(domainModel);
+    radialLayoutAlgorithm = new BalloonLayoutAlgorithm<>(domainModel);
+
+    vv =
+        new VisualizationViewer<>(
+            graph, layoutAlgorithm, new Dimension(900, 900), new Dimension(600, 600));
     vv.setBackground(Color.white);
     vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.quadCurve());
     vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
     // add a listener for ToolTips
     vv.setVertexToolTipTransformer(new ToStringLabeller());
     vv.getRenderContext().setArrowFillPaintTransformer(a -> Color.lightGray);
-    rings = new Rings(radialLayout);
+    rings = new Rings(radialLayoutAlgorithm);
 
     Container content = getContentPane();
     final GraphZoomScrollPane panel = new GraphZoomScrollPane(vv);
@@ -126,64 +112,39 @@ public class BalloonLayoutDemo extends JApplet {
     vv.scaleToLayout(scaler);
 
     JButton plus = new JButton("+");
-    plus.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            scaler.scale(vv, 1.1f, vv.getCenter());
-          }
-        });
+    plus.addActionListener(e -> scaler.scale(vv, 1.1f, vv.getCenter()));
+
     JButton minus = new JButton("-");
-    minus.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            scaler.scale(vv, 1 / 1.1f, vv.getCenter());
-          }
-        });
+    minus.addActionListener(e -> scaler.scale(vv, 1 / 1.1f, vv.getCenter()));
 
     JToggleButton radial = new JToggleButton("Balloon");
     radial.addItemListener(
-        new ItemListener() {
+        e -> {
+          if (e.getStateChange() == ItemEvent.SELECTED) {
 
-          public void itemStateChanged(ItemEvent e) {
-            if (e.getStateChange() == ItemEvent.SELECTED) {
+            vv.getModel().setLayoutAlgorithm(radialLayoutAlgorithm);
+            vv.getRenderContext()
+                .getMultiLayerTransformer()
+                .getTransformer(Layer.LAYOUT)
+                .setToIdentity();
+            vv.addPreRenderPaintable(rings);
 
-              LayoutTransition<String, Integer> lt =
-                  new LayoutTransition<String, Integer>(
-                      vv,
-                      vv.getModel().getLayoutMediator().getLayout(),
-                      new LayoutMediator(graph, radialLayout));
-              Animator animator = new Animator(lt);
-              animator.start();
-              vv.getRenderContext()
-                  .getMultiLayerTransformer()
-                  .getTransformer(Layer.LAYOUT)
-                  .setToIdentity();
-              vv.addPreRenderPaintable(rings);
-            } else {
+          } else {
 
-              LayoutTransition<String, Integer> lt =
-                  new LayoutTransition<String, Integer>(
-                      vv,
-                      vv.getModel().getLayoutMediator().getLayout(),
-                      new LayoutMediator(graph, layout));
-              Animator animator = new Animator(lt);
-              animator.start();
-              vv.getRenderContext()
-                  .getMultiLayerTransformer()
-                  .getTransformer(Layer.LAYOUT)
-                  .setToIdentity();
-              vv.removePreRenderPaintable(rings);
-            }
-            vv.repaint();
+            vv.getModel().setLayoutAlgorithm(layoutAlgorithm);
+
+            vv.getRenderContext()
+                .getMultiLayerTransformer()
+                .getTransformer(Layer.LAYOUT)
+                .setToIdentity();
+            vv.removePreRenderPaintable(rings);
           }
+          vv.repaint();
         });
+
     final JRadioButton hyperView = new JRadioButton("Hyperbolic View");
     hyperView.addItemListener(
-        new ItemListener() {
-          public void itemStateChanged(ItemEvent e) {
-            hyperbolicViewSupport.activate(e.getStateChange() == ItemEvent.SELECTED);
-          }
-        });
+        e -> hyperbolicViewSupport.activate(e.getStateChange() == ItemEvent.SELECTED));
 
     JPanel scaleGrid = new JPanel(new GridLayout(1, 0));
     scaleGrid.setBorder(BorderFactory.createTitledBorder("Zoom"));
@@ -200,10 +161,10 @@ public class BalloonLayoutDemo extends JApplet {
 
   class Rings implements VisualizationServer.Paintable {
 
-    BalloonLayout<String> layout;
+    BalloonLayoutAlgorithm<String, Point2D> layoutAlgorithm;
 
-    public Rings(BalloonLayout<String> layout) {
-      this.layout = layout;
+    public Rings(BalloonLayoutAlgorithm<String, Point2D> layoutAlgorithm) {
+      this.layoutAlgorithm = layoutAlgorithm;
     }
 
     public void paint(Graphics g) {
@@ -212,12 +173,12 @@ public class BalloonLayoutDemo extends JApplet {
       Graphics2D g2d = (Graphics2D) g;
 
       Ellipse2D ellipse = new Ellipse2D.Double();
-      for (String v : layout.nodes()) {
-        Double radius = layout.getRadii().get(v);
+      for (String v : vv.getModel().getNetwork().nodes()) {
+        Double radius = layoutAlgorithm.getRadii().get(v);
         if (radius == null) {
           continue;
         }
-        Point2D p = layout.apply(v);
+        Point2D p = vv.getModel().getLayoutModel().apply(v);
         ellipse.setFrame(-radius, -radius, 2 * radius, 2 * radius);
         AffineTransform at = AffineTransform.getTranslateInstance(p.getX(), p.getY());
         Shape shape = at.createTransformedShape(ellipse);

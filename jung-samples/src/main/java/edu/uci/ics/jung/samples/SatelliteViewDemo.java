@@ -9,9 +9,8 @@
 package edu.uci.ics.jung.samples;
 
 import com.google.common.graph.Network;
-import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.graph.util.TestGraphs;
-import edu.uci.ics.jung.visualization.DefaultVisualizationModel;
+import edu.uci.ics.jung.visualization.BaseVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationModel;
@@ -24,6 +23,9 @@ import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
+import edu.uci.ics.jung.visualization.layout.AWTDomainModel;
+import edu.uci.ics.jung.visualization.layout.DomainModel;
+import edu.uci.ics.jung.visualization.layout.FRLayoutAlgorithm;
 import edu.uci.ics.jung.visualization.renderers.GradientVertexRenderer;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
 import edu.uci.ics.jung.visualization.transform.shape.ShapeTransformer;
@@ -42,6 +44,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.geom.GeneralPath;
+import java.awt.geom.Point2D;
 import javax.swing.JApplet;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -63,6 +66,8 @@ import javax.swing.ToolTipManager;
  */
 @SuppressWarnings("serial")
 public class SatelliteViewDemo<V, E> extends JApplet {
+
+  private static final DomainModel<Point2D> domainModel = new AWTDomainModel();
 
   static final String instructions =
       "<html>"
@@ -106,12 +111,14 @@ public class SatelliteViewDemo<V, E> extends JApplet {
     Dimension preferredSize2 = new Dimension(300, 300);
 
     // create one layout for the graph
-    FRLayout<String> layout = new FRLayout<String>(graph.asGraph());
-    layout.setMaxIterations(500);
+    FRLayoutAlgorithm<String, Point2D> layoutAlgorithm = new FRLayoutAlgorithm<>(domainModel);
+    // not used, for testing only
+    //    CircleLayoutAlgorithm<String, Point2D> clayout = new CircleLayoutAlgorithm<>(domainModel);
+    layoutAlgorithm.setMaxIterations(500);
 
     // create one model that both views will share
-    VisualizationModel<String, Number> vm =
-        new DefaultVisualizationModel<String, Number>(graph, layout, preferredSize1);
+    VisualizationModel<String, Number, Point2D> vm =
+        new BaseVisualizationModel<>(graph, layoutAlgorithm, preferredSize1);
 
     // create 2 views that share the same model
     final VisualizationViewer<String, Number> vv1 =

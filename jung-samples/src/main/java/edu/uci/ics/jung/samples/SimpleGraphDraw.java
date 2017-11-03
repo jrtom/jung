@@ -10,9 +10,11 @@ package edu.uci.ics.jung.samples;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
-import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.io.PajekNetReader;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
+import edu.uci.ics.jung.visualization.layout.AWTDomainModel;
+import edu.uci.ics.jung.visualization.layout.FRLayoutAlgorithm;
+import edu.uci.ics.jung.visualization.layout.LayoutAlgorithm;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -26,7 +28,8 @@ public class SimpleGraphDraw {
   public static void main(String[] args) throws IOException {
     JFrame jf = new JFrame();
     Network g = getGraph();
-    VisualizationViewer vv = new VisualizationViewer(g, new FRLayout(g.asGraph()));
+    LayoutAlgorithm layoutAlgorithm = new FRLayoutAlgorithm(new AWTDomainModel());
+    VisualizationViewer vv = new VisualizationViewer(g, layoutAlgorithm);
     jf.getContentPane().add(vv);
     jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     jf.pack();

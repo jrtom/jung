@@ -1,57 +1,47 @@
 /*
- * Copyright (c) 2005, The JUNG Authors
+ * Copyright (c) 2003, The JUNG Authors
+ *
  * All rights reserved.
  *
- * This software is open-source under the BSD license; see either "license.txt"
- * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
- *
- * Created on May 4, 2005
+ * This software is open-source under the BSD license; see either
+ * "license.txt" or
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  */
-
 package edu.uci.ics.jung.visualization;
 
-import edu.uci.ics.jung.algorithms.layout.util.Relaxer;
-import edu.uci.ics.jung.visualization.util.ChangeEventSupport;
-import edu.uci.ics.jung.visualization.util.LayoutMediator;
+import com.google.common.graph.Network;
+import edu.uci.ics.jung.visualization.layout.LayoutAlgorithm;
+import edu.uci.ics.jung.visualization.layout.LayoutModel;
+import edu.uci.ics.jung.visualization.spatial.Spatial;
 import java.awt.Dimension;
 import javax.swing.event.ChangeListener;
 
-/**
- * Interface for the state holding model of the VisualizationViewer. Refactored and extracted from
- * the 1.6.0 version of VisualizationViewer
- *
- * @author Tom Nelson
- */
-public interface VisualizationModel<V, E> extends ChangeEventSupport {
+/** */
+public interface VisualizationModel<N, E, P> { //extends LayoutModel<N,P> {
 
-  Relaxer getRelaxer();
+  Dimension DEFAULT_SIZE = new Dimension(600, 600);
 
-  LayoutMediator<V, E> getLayoutMediator();
+  /** @param d the space to use to lay out this graph */
+  void setLayoutSize(Dimension d);
 
-  void setLayoutMediator(LayoutMediator<V, E> layoutMediator);
+  /** @return the current layoutSize of the visualization's space */
+  Dimension getLayoutSize();
 
-  void setLayoutMediator(LayoutMediator<V, E> layoutMediator, Dimension d);
+  void setLayoutAlgorithm(LayoutAlgorithm<N, P> layoutAlgorithm);
 
-  /**
-   * Register <code>l</code> as a listeners to changes in the model. The View registers in order to
-   * repaint itself when the model changes.
-   *
-   * @param l the listener to add
-   */
-  void addChangeListener(ChangeListener l);
+  LayoutAlgorithm<N, P> getLayoutAlgorithm();
 
-  /**
-   * Removes a ChangeListener.
-   *
-   * @param l the listener to be removed
-   */
-  void removeChangeListener(ChangeListener l);
+  LayoutModel<N, P> getLayoutModel();
 
-  /**
-   * Returns an array of all the <code>ChangeListener</code>s added with addChangeListener().
-   *
-   * @return all of the <code>ChangeListener</code>s added or an empty array if no listeners have
-   *     been added
-   */
-  ChangeListener[] getChangeListeners();
+  void setLayoutModel(LayoutModel<N, P> layoutModel);
+
+  Network<N, E> getNetwork();
+
+  void setNetwork(Network<N, E> network);
+
+  //  void setNetwork(Network<N, E> network, boolean forceUpdate);
+
+  Spatial<N> getSpatial();
+
+  void addChangeListener(ChangeListener changeListener);
 }

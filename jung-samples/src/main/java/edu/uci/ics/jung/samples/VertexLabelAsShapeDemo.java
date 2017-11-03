@@ -9,10 +9,8 @@
 package edu.uci.ics.jung.samples;
 
 import com.google.common.graph.Network;
-import edu.uci.ics.jung.algorithms.layout.FRLayout;
-import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.graph.util.TestGraphs;
-import edu.uci.ics.jung.visualization.DefaultVisualizationModel;
+import edu.uci.ics.jung.visualization.BaseVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.VisualizationModel;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
@@ -21,6 +19,10 @@ import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
+import edu.uci.ics.jung.visualization.layout.AWTDomainModel;
+import edu.uci.ics.jung.visualization.layout.DomainModel;
+import edu.uci.ics.jung.visualization.layout.FRLayoutAlgorithm;
+import edu.uci.ics.jung.visualization.layout.LayoutAlgorithm;
 import edu.uci.ics.jung.visualization.renderers.DefaultVertexLabelRenderer;
 import edu.uci.ics.jung.visualization.renderers.GradientVertexRenderer;
 import edu.uci.ics.jung.visualization.renderers.VertexLabelAsShapeRenderer;
@@ -32,6 +34,7 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.geom.Point2D;
 import javax.swing.BorderFactory;
 import javax.swing.JApplet;
 import javax.swing.JButton;
@@ -47,6 +50,8 @@ import javax.swing.JPanel;
  */
 public class VertexLabelAsShapeDemo extends JApplet {
 
+  private static final DomainModel<Point2D> domainModel = new AWTDomainModel();
+
   /** */
   private static final long serialVersionUID = 1017336668368978842L;
 
@@ -54,7 +59,7 @@ public class VertexLabelAsShapeDemo extends JApplet {
 
   VisualizationViewer<String, Number> vv;
 
-  Layout<String> layout;
+  LayoutAlgorithm<String, Point2D> layoutAlgorithm;
 
   /** create an instance of a simple graph with basic controls */
   public VertexLabelAsShapeDemo() {
@@ -62,16 +67,16 @@ public class VertexLabelAsShapeDemo extends JApplet {
     // create a simple graph for the demo
     graph = TestGraphs.getOneComponentGraph();
 
-    layout = new FRLayout<String>(graph.asGraph());
+    layoutAlgorithm = new FRLayoutAlgorithm<>(domainModel);
 
     Dimension preferredSize = new Dimension(400, 400);
-    final VisualizationModel<String, Number> visualizationModel =
-        new DefaultVisualizationModel<String, Number>(graph, layout, preferredSize);
+    final VisualizationModel<String, Number, Point2D> visualizationModel =
+        new BaseVisualizationModel<>(graph, layoutAlgorithm, preferredSize);
     vv = new VisualizationViewer<String, Number>(visualizationModel, preferredSize);
 
     // this class will provide both label drawing and vertex shapes
     VertexLabelAsShapeRenderer<String, Number> vlasr =
-        new VertexLabelAsShapeRenderer<String, Number>(layout, vv.getRenderContext());
+        new VertexLabelAsShapeRenderer<String, Number>(visualizationModel, vv.getRenderContext());
 
     // customize the render context
     vv.getRenderContext()

@@ -1,22 +1,27 @@
 package edu.uci.ics.jung.visualization.layout;
 
-import com.google.common.graph.Network;
+/**
+ * an event with information about a node and its (new?) location
+ *
+ * @author Tom Nelson
+ * @param <N>
+ * @param <P>
+ */
+public class LayoutEvent<N, P> {
 
-public class LayoutEvent<V, E> {
+  final N node;
+  final P location;
 
-  final V vertex;
-  final Network<V, E> graph;
-
-  public LayoutEvent(V vertex, Network<V, E> graph) {
-    this.vertex = vertex;
-    this.graph = graph;
+  public LayoutEvent(N node, P location) {
+    this.node = node;
+    this.location = location;
   }
 
-  public V getVertex() {
-    return vertex;
+  public N getNode() {
+    return node;
   }
 
-  public Network<V, E> getGraph() {
-    return graph;
+  public P getLocation() {
+    return location;
   }
 }

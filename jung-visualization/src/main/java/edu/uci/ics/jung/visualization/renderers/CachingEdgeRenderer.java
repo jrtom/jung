@@ -1,18 +1,16 @@
 package edu.uci.ics.jung.visualization.renderers;
 
 import com.google.common.graph.Network;
-import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 import edu.uci.ics.jung.visualization.RenderContext;
-import edu.uci.ics.jung.visualization.layout.LayoutChangeListener;
-import edu.uci.ics.jung.visualization.layout.LayoutEvent;
-import edu.uci.ics.jung.visualization.layout.LayoutEventSupport;
+import edu.uci.ics.jung.visualization.VisualizationModel;
+import edu.uci.ics.jung.visualization.layout.*;
 import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
-import edu.uci.ics.jung.visualization.util.LayoutMediator;
 import java.awt.Paint;
 import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -20,18 +18,18 @@ import java.util.Set;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-public class CachingEdgeRenderer<V, E> extends BasicEdgeRenderer<V, E>
-    implements ChangeListener, LayoutChangeListener<V, E> {
+public class CachingEdgeRenderer<N, E> extends BasicEdgeRenderer<N, E>
+    implements ChangeListener, LayoutChangeListener<N, Point2D> {
 
   protected Map<E, Shape> edgeShapeMap = new HashMap<E, Shape>();
-  protected Set<E> dirtyEdges = new HashSet<E>();
+  protected Set dirtyEdges = new HashSet<>();
 
   @SuppressWarnings({"rawtypes", "unchecked"})
-  public CachingEdgeRenderer(BasicVisualizationServer<V, E> vv) {
+  public CachingEdgeRenderer(BasicVisualizationServer<N, E> vv) {
     vv.getRenderContext().getMultiLayerTransformer().addChangeListener(this);
-    Layout<V> layout = vv.getGraphLayout();
-    if (layout instanceof LayoutEventSupport) {
-      ((LayoutEventSupport) layout).addLayoutChangeListener(this);
+    LayoutModel<N, Point2D> layoutModel = vv.getModel().getLayoutModel();
+    if (layoutModel instanceof LayoutEventSupport) {
+      ((LayoutEventSupport) layoutModel).addLayoutChangeListener(this);
     }
   }
   /**
@@ -42,14 +40,16 @@ public class CachingEdgeRenderer<V, E> extends BasicEdgeRenderer<V, E>
    */
   @Override
   protected void drawSimpleEdge(
-      RenderContext<V, E> renderContext, LayoutMediator<V, E> layoutMediator, E e) {
+      RenderContext<N, E> renderContext,
+      VisualizationModel<N, E, Point2D> visualizationModel,
+      E e) {
 
     int[] coords = new int[4];
     boolean[] loop = new boolean[1];
 
     Shape edgeShape = edgeShapeMap.get(e);
     if (edgeShape == null || dirtyEdges.contains(e)) {
-      edgeShape = prepareFinalEdgeShape(renderContext, layoutMediator, e, coords, loop);
+      edgeShape = prepareFinalEdgeShape(renderContext, visualizationModel, e, coords, loop);
       edgeShapeMap.put(e, edgeShape);
       dirtyEdges.remove(e);
     }
@@ -61,7 +61,7 @@ public class CachingEdgeRenderer<V, E> extends BasicEdgeRenderer<V, E>
     boolean isLoop = loop[0];
 
     GraphicsDecorator g = renderContext.getGraphicsContext();
-    Network<V, E> graph = layoutMediator.getNetwork();
+    Network<N, E> graph = visualizationModel.getNetwork();
 
     Paint oldPaint = g.getPaint();
 
@@ -145,10 +145,14 @@ public class CachingEdgeRenderer<V, E> extends BasicEdgeRenderer<V, E>
     edgeShapeMap.clear();
   }
 
-  @Override
-  public void layoutChanged(LayoutEvent<V, E> evt) {
-    V v = evt.getVertex();
-    Network<V, E> graph = evt.getGraph();
-    dirtyEdges.addAll(graph.incidentEdges(v));
+  //  @Override
+  public void layoutChanged(LayoutNetworkEvent<N, Point2D> evt) {
+    N node = evt.getNode();
+    Network<N, ?> network = evt.getNetwork();
+    dirtyEdges.addAll(network.incidentEdges(node));
+  }
+
+  public void layoutChanged(LayoutEvent<N, Point2D> evt) {
+    System.err.println("FIX ME");
   }
 }

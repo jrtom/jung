@@ -11,21 +11,27 @@ package edu.uci.ics.jung.visualization.renderers;
 
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.RenderContext;
+import edu.uci.ics.jung.visualization.VisualizationModel;
 import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
-import edu.uci.ics.jung.visualization.util.LayoutMediator;
 import java.awt.Paint;
 import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import javax.swing.Icon;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BasicVertexRenderer<V, E> implements Renderer.Vertex<V, E> {
 
+  private static final Logger log = LoggerFactory.getLogger(BasicVertexRenderer.class);
+
   public void paintVertex(
-      RenderContext<V, E> renderContext, LayoutMediator<V, E> layoutMediator, V v) {
+      RenderContext<V, E> renderContext,
+      VisualizationModel<V, E, Point2D> visualizationModel,
+      V v) {
     if (renderContext.getVertexIncludePredicate().test(v)) {
-      paintIconForVertex(renderContext, layoutMediator, v);
+      paintIconForVertex(renderContext, visualizationModel, v);
     }
   }
 
@@ -37,11 +43,15 @@ public class BasicVertexRenderer<V, E> implements Renderer.Vertex<V, E> {
    * @return the vertex shape in view coordinates
    */
   protected Shape prepareFinalVertexShape(
-      RenderContext<V, E> renderContext, LayoutMediator<V, E> layoutMediator, V v, int[] coords) {
+      RenderContext<V, E> renderContext,
+      VisualizationModel<V, E, Point2D> visualizationModel,
+      V v,
+      int[] coords) {
 
     // get the shape to be rendered
     Shape shape = renderContext.getVertexShapeTransformer().apply(v);
-    Point2D p = layoutMediator.getLayout().apply(v);
+    Point2D p = visualizationModel.getLayoutModel().apply(v);
+    log.trace("prepared a shape for " + v + " to go at " + p);
     p = renderContext.getMultiLayerTransformer().transform(Layer.LAYOUT, p);
     float x = (float) p.getX();
     float y = (float) p.getY();
@@ -61,10 +71,12 @@ public class BasicVertexRenderer<V, E> implements Renderer.Vertex<V, E> {
    * @param v the vertex to be painted
    */
   protected void paintIconForVertex(
-      RenderContext<V, E> renderContext, LayoutMediator<V, E> layoutMediator, V v) {
+      RenderContext<V, E> renderContext,
+      VisualizationModel<V, E, Point2D> visualizationModel,
+      V v) {
     GraphicsDecorator g = renderContext.getGraphicsContext();
     int[] coords = new int[2];
-    Shape shape = prepareFinalVertexShape(renderContext, layoutMediator, v, coords);
+    Shape shape = prepareFinalVertexShape(renderContext, visualizationModel, v, coords);
 
     if (renderContext.getVertexIconTransformer() != null) {
       Icon icon = renderContext.getVertexIconTransformer().apply(v);
@@ -73,15 +85,18 @@ public class BasicVertexRenderer<V, E> implements Renderer.Vertex<V, E> {
         g.draw(icon, renderContext.getScreenDevice(), shape, coords[0], coords[1]);
 
       } else {
-        paintShapeForVertex(renderContext, layoutMediator, v, shape);
+        paintShapeForVertex(renderContext, visualizationModel, v, shape);
       }
     } else {
-      paintShapeForVertex(renderContext, layoutMediator, v, shape);
+      paintShapeForVertex(renderContext, visualizationModel, v, shape);
     }
   }
 
   protected void paintShapeForVertex(
-      RenderContext<V, E> renderContext, LayoutMediator<V, E> layoutMediator, V v, Shape shape) {
+      RenderContext<V, E> renderContext,
+      VisualizationModel<V, E, Point2D> visualizationModel,
+      V v,
+      Shape shape) {
     GraphicsDecorator g = renderContext.getGraphicsContext();
     Paint oldPaint = g.getPaint();
     Paint fillPaint = renderContext.getVertexFillPaintTransformer().apply(v);

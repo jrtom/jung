@@ -8,9 +8,6 @@
  */
 package edu.uci.ics.jung.samples;
 
-import edu.uci.ics.jung.algorithms.layout.PolarPoint;
-import edu.uci.ics.jung.algorithms.layout.RadialTreeLayout;
-import edu.uci.ics.jung.algorithms.layout.TreeLayout;
 import edu.uci.ics.jung.graph.CTreeNetwork;
 import edu.uci.ics.jung.graph.MutableCTreeNetwork;
 import edu.uci.ics.jung.graph.TreeNetworkBuilder;
@@ -25,9 +22,7 @@ import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.EdgeShape;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
-import edu.uci.ics.jung.visualization.layout.LayoutTransition;
-import edu.uci.ics.jung.visualization.util.Animator;
-import edu.uci.ics.jung.visualization.util.LayoutMediator;
+import edu.uci.ics.jung.visualization.layout.*;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
@@ -62,6 +57,8 @@ import javax.swing.JToggleButton;
 @SuppressWarnings("serial")
 public class TreeLayoutDemo extends JApplet {
 
+  private static final DomainModel<Point2D> domainModel = new AWTDomainModel();
+
   CTreeNetwork<String, Integer> graph;
 
   /** the visual component and renderer for the graph */
@@ -71,26 +68,26 @@ public class TreeLayoutDemo extends JApplet {
 
   String root;
 
-  TreeLayout<String> treeLayout;
+  TreeLayoutAlgorithm<String, Point2D> treeLayoutAlgorithm;
 
-  RadialTreeLayout<String> radialLayout;
+  RadialTreeLayoutAlgorithm<String, Point2D> radialLayoutAlgorithm;
 
   public TreeLayoutDemo() {
 
     // create a simple graph for the demo
     graph = createTree();
 
-    treeLayout = new TreeLayout<String>(graph.asGraph());
-    radialLayout = new RadialTreeLayout<String>(graph.asGraph());
-    radialLayout.setSize(new Dimension(600, 600));
-    vv = new VisualizationViewer<String, Integer>(graph, treeLayout, new Dimension(600, 600));
+    treeLayoutAlgorithm = new TreeLayoutAlgorithm<>(domainModel);
+    radialLayoutAlgorithm = new RadialTreeLayoutAlgorithm<>(domainModel);
+    //    radialLayout.setSize(new Dimension(600, 600));
+    vv = new VisualizationViewer<>(graph, treeLayoutAlgorithm, new Dimension(600, 600));
     vv.setBackground(Color.white);
     vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.line());
     vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
     // add a listener for ToolTips
     vv.setVertexToolTipTransformer(new ToStringLabeller());
     vv.getRenderContext().setArrowFillPaintTransformer(n -> Color.lightGray);
-    rings = new Rings();
+    //    rings = new Rings();
 
     Container content = getContentPane();
     final GraphZoomScrollPane panel = new GraphZoomScrollPane(vv);
@@ -129,24 +126,24 @@ public class TreeLayoutDemo extends JApplet {
           public void itemStateChanged(ItemEvent e) {
             if (e.getStateChange() == ItemEvent.SELECTED) {
 
-              LayoutTransition<String, Integer> lt =
-                  new LayoutTransition<String, Integer>(
-                      vv,
-                      vv.getModel().getLayoutMediator().getLayout(),
-                      new LayoutMediator(graph, radialLayout));
-              Animator animator = new Animator(lt);
-              animator.start();
+              //              LayoutAlgorithmTransition<String, Integer, Point2D> lt =
+              //                  new LayoutAlgorithmTransition<>(vv.getModel(), radialLayoutAlgorithm);
+              //              Animator animator = new Animator(lt);
+              //              animator.start();
               vv.getRenderContext().getMultiLayerTransformer().setToIdentity();
+              vv.getModel().getLayoutModel().accept(radialLayoutAlgorithm);
+              if (rings == null) {
+                rings = new Rings(vv.getModel().getLayoutModel());
+              }
               vv.addPreRenderPaintable(rings);
             } else {
-              LayoutTransition<String, Integer> lt =
-                  new LayoutTransition<String, Integer>(
-                      vv,
-                      vv.getModel().getLayoutMediator().getLayout(),
-                      new LayoutMediator(graph, treeLayout));
-              Animator animator = new Animator(lt);
-              animator.start();
+              //              LayoutAlgorithmTransition<String, Integer, Point2D> lt =
+              //                  new LayoutAlgorithmTransition<>(vv.getModel(), treeLayoutAlgorithm);
+              //              Animator animator = new Animator(lt);
+              //              animator.start();
               vv.getRenderContext().getMultiLayerTransformer().setToIdentity();
+              LayoutModel layoutModel = vv.getModel().getLayoutModel();
+              vv.getModel().getLayoutModel().accept(treeLayoutAlgorithm);
               vv.removePreRenderPaintable(rings);
             }
             vv.repaint();
@@ -169,14 +166,16 @@ public class TreeLayoutDemo extends JApplet {
   class Rings implements VisualizationServer.Paintable {
 
     Collection<Double> depths;
+    LayoutModel<String, Point2D> layoutModel;
 
-    public Rings() {
+    public Rings(LayoutModel<String, Point2D> layoutModel) {
+      this.layoutModel = layoutModel;
       depths = getDepths();
     }
 
     private Collection<Double> getDepths() {
       Set<Double> depths = new HashSet<Double>();
-      Map<String, PolarPoint> polarLocations = radialLayout.getPolarLocations();
+      Map<String, PolarPoint> polarLocations = radialLayoutAlgorithm.getPolarLocations();
       for (String v : graph.nodes()) {
         PolarPoint pp = polarLocations.get(v);
         depths.add(pp.getRadius());
@@ -188,7 +187,7 @@ public class TreeLayoutDemo extends JApplet {
       g.setColor(Color.lightGray);
 
       Graphics2D g2d = (Graphics2D) g;
-      Point2D center = radialLayout.getCenter();
+      Point2D center = radialLayoutAlgorithm.getCenter(layoutModel);
 
       Ellipse2D ellipse = new Ellipse2D.Double();
       for (double d : depths) {

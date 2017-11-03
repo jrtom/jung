@@ -11,16 +11,20 @@ package edu.uci.ics.jung.samples;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
-import edu.uci.ics.jung.algorithms.layout.Layout;
-import edu.uci.ics.jung.algorithms.layout.StaticLayout;
+import edu.uci.ics.jung.visualization.BaseVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.Layer;
+import edu.uci.ics.jung.visualization.VisualizationModel;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.AbstractModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
+import edu.uci.ics.jung.visualization.layout.AWTDomainModel;
+import edu.uci.ics.jung.visualization.layout.DomainModel;
+import edu.uci.ics.jung.visualization.layout.LayoutAlgorithm;
+import edu.uci.ics.jung.visualization.layout.StaticLayoutAlgorithm;
 import edu.uci.ics.jung.visualization.renderers.BasicVertexLabelRenderer.InsidePositioner;
 import edu.uci.ics.jung.visualization.renderers.GradientVertexRenderer;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
@@ -54,6 +58,8 @@ import javax.swing.JPanel;
 @SuppressWarnings("serial")
 public class WorldMapGraphDemo extends JApplet {
 
+  private static final DomainModel<Point2D> domainModel = new AWTDomainModel();
+
   /** the graph */
   Network<String, Number> graph;
 
@@ -84,14 +90,15 @@ public class WorldMapGraphDemo extends JApplet {
 
     Dimension layoutSize = new Dimension(2000, 1000);
 
-    Layout<String> layout =
-        new StaticLayout<String>(
-            graph.asGraph(),
-            new CityTransformer(map)
-                .andThen(new LatLonPixelTransformer(new Dimension(2000, 1000))));
+    LayoutAlgorithm<String, Point2D> layoutAlgorithm = new StaticLayoutAlgorithm<>(domainModel);
 
-    layout.setSize(layoutSize);
-    vv = new VisualizationViewer<String, Number>(graph, layout, new Dimension(800, 400));
+    Function<String, Point2D> initializer =
+        new CityTransformer(map).andThen(new LatLonPixelTransformer(new Dimension(2000, 1000)));
+    VisualizationModel<String, Number, Point2D> model =
+        new BaseVisualizationModel<>(
+            graph, layoutAlgorithm, initializer, new Dimension(2000, 1000));
+
+    vv = new VisualizationViewer<>(model, new Dimension(800, 400));
 
     if (icon != null) {
       vv.addPreRenderPaintable(

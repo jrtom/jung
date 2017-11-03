@@ -9,11 +9,11 @@
  */
 package edu.uci.ics.jung.visualization.renderers;
 
-import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.RenderContext;
+import edu.uci.ics.jung.visualization.VisualizationModel;
+import edu.uci.ics.jung.visualization.layout.LayoutModel;
 import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
-import edu.uci.ics.jung.visualization.util.LayoutMediator;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Rectangle;
@@ -29,30 +29,31 @@ import java.util.function.Function;
  * the vertex location.
  *
  * @author Tom Nelson
- * @param <V> the vertex type
- * @param <V> the edge type
+ * @param <N> the vertex type
+ * @param <N> the edge type
  */
-public class VertexLabelAsShapeRenderer<V, E>
-    implements Renderer.VertexLabel<V, E>, Function<V, Shape> {
+public class VertexLabelAsShapeRenderer<N, E>
+    implements Renderer.VertexLabel<N, E>, Function<N, Shape> {
 
-  protected Map<V, Shape> shapes = new HashMap<V, Shape>();
-  protected final Layout<V> layout;
-  protected final RenderContext<V, ?> renderContext;
+  protected Map<N, Shape> shapes = new HashMap<N, Shape>();
+  protected final LayoutModel<N, Point2D> layoutModel;
+  protected final RenderContext<N, ?> renderContext;
 
-  public VertexLabelAsShapeRenderer(Layout<V> layout, RenderContext<V, ?> rc) {
-    this.layout = layout;
+  public VertexLabelAsShapeRenderer(
+      VisualizationModel<N, E, Point2D> visualizationModel, RenderContext<N, ?> rc) {
+    this.layoutModel = visualizationModel.getLayoutModel();
     this.renderContext = rc;
   }
 
   public Component prepareRenderer(
-      RenderContext<V, ?> rc,
+      RenderContext<N, ?> rc,
       VertexLabelRenderer graphLabelRenderer,
       Object value,
       boolean isSelected,
-      V vertex) {
+      N vertex) {
     return renderContext
         .getVertexLabelRenderer()
-        .<V>getVertexLabelRendererComponent(
+        .<N>getVertexLabelRendererComponent(
             renderContext.getScreenDevice(),
             value,
             renderContext.getVertexFontTransformer().apply(vertex),
@@ -67,7 +68,10 @@ public class VertexLabelAsShapeRenderer<V, E>
    * the position of the vertex; otherwise the label is offset slightly.
    */
   public void labelVertex(
-      RenderContext<V, E> renderContext, LayoutMediator<V, E> layoutMediator, V v, String label) {
+      RenderContext<N, E> renderContext,
+      VisualizationModel<N, E, Point2D> visualizationModel,
+      N v,
+      String label) {
     if (!renderContext.getVertexIncludePredicate().test(v)) {
       return;
     }
@@ -84,7 +88,7 @@ public class VertexLabelAsShapeRenderer<V, E>
     int h_offset = -d.width / 2;
     int v_offset = -d.height / 2;
 
-    Point2D p = layout.apply(v);
+    Point2D p = layoutModel.apply(v);
     p = renderContext.getMultiLayerTransformer().transform(Layer.LAYOUT, p);
 
     int x = (int) p.getX();
@@ -105,7 +109,7 @@ public class VertexLabelAsShapeRenderer<V, E>
     shapes.put(v, bounds);
   }
 
-  public Shape apply(V v) {
+  public Shape apply(N v) {
     Component component =
         prepareRenderer(
             renderContext,

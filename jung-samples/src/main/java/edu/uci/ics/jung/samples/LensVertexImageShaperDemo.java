@@ -11,7 +11,6 @@ package edu.uci.ics.jung.samples;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
-import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.LayeredIcon;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
@@ -24,6 +23,9 @@ import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.decorators.VertexIconShapeTransformer;
+import edu.uci.ics.jung.visualization.layout.AWTDomainModel;
+import edu.uci.ics.jung.visualization.layout.DomainModel;
+import edu.uci.ics.jung.visualization.layout.FRLayoutAlgorithm;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import edu.uci.ics.jung.visualization.renderers.Checkmark;
 import edu.uci.ics.jung.visualization.renderers.DefaultEdgeLabelRenderer;
@@ -44,6 +46,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.geom.Point2D;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -79,6 +82,8 @@ public class LensVertexImageShaperDemo extends JApplet {
 
   /** */
   private static final long serialVersionUID = 5432239991020505763L;
+
+  private static final DomainModel<Point2D> domainModel = new AWTDomainModel();
 
   /** the graph */
   Network<Number, Number> graph;
@@ -129,9 +134,9 @@ public class LensVertexImageShaperDemo extends JApplet {
       }
     }
 
-    FRLayout<Number> layout = new FRLayout<Number>(graph.asGraph());
-    layout.setMaxIterations(100);
-    vv = new VisualizationViewer<Number, Number>(graph, layout, new Dimension(600, 600));
+    FRLayoutAlgorithm<Number, Point2D> layoutAlgorithm = new FRLayoutAlgorithm<>(domainModel);
+    layoutAlgorithm.setMaxIterations(100);
+    vv = new VisualizationViewer<>(graph, layoutAlgorithm, new Dimension(600, 600));
 
     Function<Number, Paint> vpf =
         new PickableVertexPaintTransformer<Number>(
@@ -311,9 +316,7 @@ public class LensVertexImageShaperDemo extends JApplet {
       this.map = map;
     }
 
-    /**
-     * @see edu.uci.ics.jung.graph.decorators.VertexStringer#getLabel(edu.uci.ics.jung.graph.Vertex)
-     */
+    /** */
     public String apply(V v) {
       if (isEnabled()) {
         return map.get(v);

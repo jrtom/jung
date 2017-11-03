@@ -11,11 +11,12 @@ package edu.uci.ics.jung.visualization.renderers;
 
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.RenderContext;
+import edu.uci.ics.jung.visualization.VisualizationModel;
+import edu.uci.ics.jung.visualization.layout.LayoutModel;
 import edu.uci.ics.jung.visualization.transform.BidirectionalTransformer;
 import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
 import edu.uci.ics.jung.visualization.transform.shape.ShapeTransformer;
 import edu.uci.ics.jung.visualization.transform.shape.TransformingGraphics;
-import edu.uci.ics.jung.visualization.util.LayoutMediator;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
@@ -24,7 +25,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
-public class BasicVertexLabelRenderer<V, E> implements Renderer.VertexLabel<V, E> {
+public class BasicVertexLabelRenderer<N, E> implements Renderer.VertexLabel<N, E> {
 
   protected Position position = Position.SE;
   private Positioner positioner = new OutsidePositioner();
@@ -40,15 +41,15 @@ public class BasicVertexLabelRenderer<V, E> implements Renderer.VertexLabel<V, E
   }
 
   public Component prepareRenderer(
-      RenderContext<V, E> renderContext,
-      LayoutMediator<V, E> layoutMediator,
+      RenderContext<N, E> renderContext,
+      LayoutModel<N, Point2D> layoutModel,
       VertexLabelRenderer graphLabelRenderer,
       Object value,
       boolean isSelected,
-      V vertex) {
+      N vertex) {
     return renderContext
         .getVertexLabelRenderer()
-        .<V>getVertexLabelRendererComponent(
+        .<N>getVertexLabelRendererComponent(
             renderContext.getScreenDevice(),
             value,
             renderContext.getVertexFontTransformer().apply(vertex),
@@ -63,11 +64,15 @@ public class BasicVertexLabelRenderer<V, E> implements Renderer.VertexLabel<V, E
    * the position of the vertex; otherwise the label is offset slightly.
    */
   public void labelVertex(
-      RenderContext<V, E> renderContext, LayoutMediator<V, E> layoutMediator, V v, String label) {
+      RenderContext<N, E> renderContext,
+      VisualizationModel<N, E, Point2D> visualizationModel,
+      N v,
+      String label) {
     if (!renderContext.getVertexIncludePredicate().test(v)) {
       return;
     }
-    Point2D pt = layoutMediator.getLayout().apply(v);
+    LayoutModel<N, Point2D> layoutModel = visualizationModel.getLayoutModel();
+    Point2D pt = layoutModel.apply(v);
     pt = renderContext.getMultiLayerTransformer().transform(Layer.LAYOUT, pt);
 
     float x = (float) pt.getX();
@@ -76,7 +81,7 @@ public class BasicVertexLabelRenderer<V, E> implements Renderer.VertexLabel<V, E
     Component component =
         prepareRenderer(
             renderContext,
-            layoutMediator,
+            layoutModel,
             renderContext.getVertexLabelRenderer(),
             label,
             renderContext.getPickedVertexState().isPicked(v),

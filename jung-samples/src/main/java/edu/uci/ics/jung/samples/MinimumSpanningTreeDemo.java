@@ -9,13 +9,9 @@
 package edu.uci.ics.jung.samples;
 
 import com.google.common.graph.Network;
-import edu.uci.ics.jung.algorithms.layout.KKLayout;
-import edu.uci.ics.jung.algorithms.layout.Layout;
-import edu.uci.ics.jung.algorithms.layout.StaticLayout;
-import edu.uci.ics.jung.algorithms.layout.TreeLayout;
 import edu.uci.ics.jung.algorithms.shortestpath.MinimumSpanningTree;
 import edu.uci.ics.jung.graph.util.TestGraphs;
-import edu.uci.ics.jung.visualization.DefaultVisualizationModel;
+import edu.uci.ics.jung.visualization.BaseVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.VisualizationModel;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
@@ -26,6 +22,7 @@ import edu.uci.ics.jung.visualization.decorators.EdgeShape;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
+import edu.uci.ics.jung.visualization.layout.*;
 import edu.uci.ics.jung.visualization.picking.MultiPickedState;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
@@ -38,6 +35,7 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.geom.Point2D;
 import javax.swing.BorderFactory;
 import javax.swing.JApplet;
 import javax.swing.JButton;
@@ -59,6 +57,9 @@ import org.slf4j.LoggerFactory;
 public class MinimumSpanningTreeDemo extends JApplet {
 
   Logger log = LoggerFactory.getLogger(MinimumSpanningTreeDemo.class);
+
+  private static final DomainModel<Point2D> domainModel = new AWTDomainModel();
+
   /** the graph */
   Network<String, Number> graph;
 
@@ -87,25 +88,28 @@ public class MinimumSpanningTreeDemo extends JApplet {
     tree = MinimumSpanningTree.extractFrom(graph, e -> 1.0);
 
     // create two layouts for the one graph, one layout for each model
-    Layout<String> layout0 = new KKLayout<String>(graph.asGraph());
-    layout0.setSize(preferredLayoutSize);
-    Layout<String> layout1 = new TreeLayout<String>(tree.asGraph());
-    Layout<String> layout2 = new StaticLayout<String>(graph.asGraph(), layout1);
-    layout2.setSize(layout1.getSize());
+    LayoutAlgorithm<String, Point2D> layout0 = new KKLayoutAlgorithm<>(domainModel);
+    //    layout0.setLayoutSize(preferredLayoutSize);
+    LayoutAlgorithm<String, Point2D> layout1 = new TreeLayoutAlgorithm<>(domainModel);
+    LayoutAlgorithm<String, Point2D> layout2 = new StaticLayoutAlgorithm<>(domainModel);
+    //    layout2.setSize(layout1.getSize());
 
     // create the two models, each with a different layout
-    VisualizationModel<String, Number> vm0 =
-        new DefaultVisualizationModel<String, Number>(graph, layout0, preferredSize);
-    VisualizationModel<String, Number> vm1 =
-        new DefaultVisualizationModel<String, Number>(tree, layout1, preferredSizeRect);
-    VisualizationModel<String, Number> vm2 =
-        new DefaultVisualizationModel<String, Number>(graph, layout2, preferredSizeRect);
+    VisualizationModel<String, Number, Point2D> vm0 =
+        new BaseVisualizationModel<String, Number>(graph, layout0, preferredSize);
+    VisualizationModel<String, Number, Point2D> vm1 =
+        new BaseVisualizationModel<String, Number>(tree, layout1, preferredSizeRect);
+    // initializer is the layout model for vm1
+    // and the size is also set to the same size required for the Tree in layout1
+    VisualizationModel<String, Number, Point2D> vm2 =
+        new BaseVisualizationModel<String, Number>(
+            graph, layout2, vm1.getLayoutModel(), vm1.getLayoutSize());
 
     // create the two views, one for each model
     // they share the same renderer
-    vv0 = new VisualizationViewer<String, Number>(vm0, preferredSize);
-    vv1 = new VisualizationViewer<String, Number>(vm1, preferredSizeRect);
-    vv2 = new VisualizationViewer<String, Number>(vm2, preferredSizeRect);
+    vv0 = new VisualizationViewer<>(vm0, preferredSize);
+    vv1 = new VisualizationViewer<>(vm1, preferredSizeRect);
+    vv2 = new VisualizationViewer<>(vm2, preferredSizeRect);
 
     vv1.getRenderContext()
         .setMultiLayerTransformer(vv0.getRenderContext().getMultiLayerTransformer());

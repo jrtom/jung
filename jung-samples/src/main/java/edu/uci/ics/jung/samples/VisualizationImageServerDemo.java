@@ -11,9 +11,11 @@ package edu.uci.ics.jung.samples;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
-import edu.uci.ics.jung.algorithms.layout.KKLayout;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
+import edu.uci.ics.jung.visualization.layout.AWTDomainModel;
+import edu.uci.ics.jung.visualization.layout.DomainModel;
+import edu.uci.ics.jung.visualization.layout.KKLayoutAlgorithm;
 import edu.uci.ics.jung.visualization.renderers.BasicVertexLabelRenderer.InsidePositioner;
 import edu.uci.ics.jung.visualization.renderers.GradientVertexRenderer;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
@@ -34,6 +36,8 @@ import javax.swing.JLabel;
  */
 public class VisualizationImageServerDemo {
 
+  private static final DomainModel<Point2D> domainModel = new AWTDomainModel();
+
   /** the graph */
   Network<Integer, Double> graph;
 
@@ -47,8 +51,8 @@ public class VisualizationImageServerDemo {
     graph = createGraph();
 
     vv =
-        new VisualizationImageServer<Integer, Double>(
-            graph, new KKLayout<Integer>(graph.asGraph()), new Dimension(600, 600));
+        new VisualizationImageServer<>(
+            graph, new KKLayoutAlgorithm<>(domainModel), new Dimension(600, 600));
 
     vv.getRenderer()
         .setVertexRenderer(

@@ -11,11 +11,8 @@ package edu.uci.ics.jung.samples;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
-import edu.uci.ics.jung.algorithms.layout.FRLayout;
-import edu.uci.ics.jung.algorithms.layout.Layout;
-import edu.uci.ics.jung.algorithms.layout.StaticLayout;
 import edu.uci.ics.jung.graph.util.TestGraphs;
-import edu.uci.ics.jung.visualization.DefaultVisualizationModel;
+import edu.uci.ics.jung.visualization.BaseVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationModel;
@@ -28,6 +25,7 @@ import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
+import edu.uci.ics.jung.visualization.layout.*;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import edu.uci.ics.jung.visualization.transform.HyperbolicTransformer;
 import edu.uci.ics.jung.visualization.transform.LayoutLensSupport;
@@ -36,7 +34,6 @@ import edu.uci.ics.jung.visualization.transform.MagnifyTransformer;
 import edu.uci.ics.jung.visualization.transform.shape.HyperbolicShapeTransformer;
 import edu.uci.ics.jung.visualization.transform.shape.MagnifyShapeTransformer;
 import edu.uci.ics.jung.visualization.transform.shape.ViewLensSupport;
-import edu.uci.ics.jung.visualization.util.LayoutMediator;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
@@ -82,15 +79,17 @@ import javax.swing.plaf.basic.BasicLabelUI;
 @SuppressWarnings("serial")
 public class LensDemo extends JApplet {
 
+  private static final DomainModel<Point2D> domainModel = new AWTDomainModel();
+
   /** the graph */
   Network<String, Number> graph;
 
-  FRLayout<String> graphLayout;
+  FRLayoutAlgorithm<String, Point2D> graphLayoutAlgorithm;
 
   /** a grid shaped graph */
   Network<String, Number> grid;
 
-  Layout<String> gridLayout;
+  LayoutAlgorithm<String, Point2D> gridLayoutAlgorithm;
 
   /** the visual component and renderer for the graph */
   VisualizationViewer<String, Number> vv;
@@ -113,17 +112,17 @@ public class LensDemo extends JApplet {
     // create a simple graph for the demo
     graph = TestGraphs.getOneComponentGraph();
 
-    graphLayout = new FRLayout<String>(graph.asGraph());
-    graphLayout.setMaxIterations(1000);
+    graphLayoutAlgorithm = new FRLayoutAlgorithm<>(domainModel);
+    graphLayoutAlgorithm.setMaxIterations(1000);
 
     Dimension preferredSize = new Dimension(600, 600);
     Map<String, Point2D> map = new HashMap<String, Point2D>();
     Function<String, Point2D> vlf = map::get;
     grid = this.generateVertexGrid(map, preferredSize, 25);
-    gridLayout = new StaticLayout<String>(grid.asGraph(), vlf, preferredSize);
+    gridLayoutAlgorithm = new StaticLayoutAlgorithm<>(domainModel);
 
-    final VisualizationModel<String, Number> visualizationModel =
-        new DefaultVisualizationModel<String, Number>(graph, graphLayout, preferredSize);
+    final VisualizationModel<String, Number, Point2D> visualizationModel =
+        new BaseVisualizationModel<String, Number>(graph, graphLayoutAlgorithm, preferredSize);
     vv = new VisualizationViewer<String, Number>(visualizationModel, preferredSize);
 
     PickedState<String> ps = vv.getPickedVertexState();
@@ -278,7 +277,7 @@ public class LensDemo extends JApplet {
 
           public void itemStateChanged(ItemEvent e) {
             if (e.getStateChange() == ItemEvent.SELECTED) {
-              visualizationModel.setLayoutMediator(new LayoutMediator(graph, graphLayout));
+              visualizationModel.setLayoutAlgorithm(graphLayoutAlgorithm);
               vv.getRenderContext().setVertexShapeTransformer(ovals);
               vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
               vv.repaint();
@@ -291,7 +290,7 @@ public class LensDemo extends JApplet {
 
           public void itemStateChanged(ItemEvent e) {
             if (e.getStateChange() == ItemEvent.SELECTED) {
-              visualizationModel.setLayoutMediator(new LayoutMediator(grid, gridLayout));
+              visualizationModel.setLayoutAlgorithm(gridLayoutAlgorithm);
               vv.getRenderContext().setVertexShapeTransformer(squares);
               vv.getRenderContext().setVertexLabelTransformer(n -> null);
               vv.repaint();

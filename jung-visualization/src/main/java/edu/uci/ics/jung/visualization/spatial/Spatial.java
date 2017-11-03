@@ -21,4 +21,15 @@ public interface Spatial<N> {
   void setBounds(Rectangle2D bounds);
 
   int getBoxNumberFromLocation(Point2D p);
+
+  void update(N node, Point2D p);
+
+  default Rectangle2D getUnion(Rectangle2D rect, Point2D p) {
+    double left = Math.min(p.getX(), rect.getX());
+    double top = Math.min(p.getY(), rect.getY());
+    double right = Math.max(p.getX(), rect.getX() + rect.getWidth());
+    double bottom = Math.max(p.getY(), rect.getY() + rect.getHeight());
+
+    return new Rectangle2D.Double(left, top, right - left, bottom - top);
+  }
 }

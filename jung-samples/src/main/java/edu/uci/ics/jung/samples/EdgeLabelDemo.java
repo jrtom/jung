@@ -11,8 +11,6 @@ package edu.uci.ics.jung.samples;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
-import edu.uci.ics.jung.algorithms.layout.CircleLayout;
-import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
@@ -24,6 +22,10 @@ import edu.uci.ics.jung.visualization.decorators.ParallelEdgeShapeTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
+import edu.uci.ics.jung.visualization.layout.AWTDomainModel;
+import edu.uci.ics.jung.visualization.layout.CircleLayoutAlgorithm;
+import edu.uci.ics.jung.visualization.layout.DomainModel;
+import edu.uci.ics.jung.visualization.layout.LayoutAlgorithm;
 import edu.uci.ics.jung.visualization.renderers.EdgeLabelRenderer;
 import edu.uci.ics.jung.visualization.renderers.VertexLabelRenderer;
 import edu.uci.ics.jung.visualization.util.Context;
@@ -37,6 +39,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.geom.Point2D;
 import java.util.function.Function;
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
@@ -64,6 +67,8 @@ import javax.swing.event.ChangeListener;
 public class EdgeLabelDemo extends JApplet {
   private static final long serialVersionUID = -6077157664507049647L;
 
+  private static final DomainModel<Point2D> domainModel = new AWTDomainModel();
+
   /** the graph */
   Network<Integer, Number> graph;
 
@@ -84,8 +89,8 @@ public class EdgeLabelDemo extends JApplet {
     // create a simple graph for the demo
     graph = buildGraph();
 
-    Layout<Integer> layout = new CircleLayout<Integer>(graph.asGraph());
-    vv = new VisualizationViewer<Integer, Number>(graph, layout, new Dimension(600, 400));
+    LayoutAlgorithm<Integer, Point2D> layoutAlgorithm = new CircleLayoutAlgorithm<>(domainModel);
+    vv = new VisualizationViewer<Integer, Number>(graph, layoutAlgorithm, new Dimension(600, 400));
     vv.setBackground(Color.white);
 
     vertexLabelRenderer = vv.getRenderContext().getVertexLabelRenderer();
@@ -111,7 +116,7 @@ public class EdgeLabelDemo extends JApplet {
         new ToStringLabeller() {
           @Override
           public String apply(Object o) {
-            return super.apply(o) + " " + layout.apply((Integer) o);
+            return super.apply(o) + " " + vv.getModel().getLayoutModel().apply((Integer) o);
           }
         });
 

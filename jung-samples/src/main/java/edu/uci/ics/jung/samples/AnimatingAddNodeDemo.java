@@ -11,13 +11,6 @@ package edu.uci.ics.jung.samples;
 
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.NetworkBuilder;
-import edu.uci.ics.jung.algorithms.layout.AbstractLayout;
-import edu.uci.ics.jung.algorithms.layout.FRLayout;
-import edu.uci.ics.jung.algorithms.layout.Layout;
-import edu.uci.ics.jung.algorithms.layout.SpringLayout;
-import edu.uci.ics.jung.algorithms.layout.StaticLayout;
-import edu.uci.ics.jung.algorithms.layout.util.Relaxer;
-import edu.uci.ics.jung.algorithms.layout.util.VisRunner;
 import edu.uci.ics.jung.algorithms.util.IterativeContext;
 import edu.uci.ics.jung.graph.ObservableNetwork;
 import edu.uci.ics.jung.graph.event.NetworkEvent;
@@ -26,10 +19,10 @@ import edu.uci.ics.jung.graph.util.Graphs;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
-import edu.uci.ics.jung.visualization.layout.LayoutTransition;
+import edu.uci.ics.jung.visualization.layout.*;
+import edu.uci.ics.jung.visualization.layout.util.Relaxer;
+import edu.uci.ics.jung.visualization.layout.util.VisRunner;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
-import edu.uci.ics.jung.visualization.util.Animator;
-import edu.uci.ics.jung.visualization.util.LayoutMediator;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -38,6 +31,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.geom.Point2D;
 import java.util.Timer;
 import java.util.TimerTask;
 import javax.swing.JButton;
@@ -55,6 +49,8 @@ public class AnimatingAddNodeDemo extends JPanel {
 
   Logger log = LoggerFactory.getLogger(AnimatingAddNodeDemo.class);
 
+  private static final DomainModel<Point2D> domainModel = new AWTDomainModel();
+
   /** */
   private static final long serialVersionUID = -5345319851341875800L;
 
@@ -62,7 +58,7 @@ public class AnimatingAddNodeDemo extends JPanel {
 
   private VisualizationViewer<Number, Number> vv = null;
 
-  private AbstractLayout<Number> layout = null;
+  private AbstractLayoutAlgorithm<Number, Point2D> layoutAlgorithm = null;
 
   Timer timer;
 
@@ -88,15 +84,18 @@ public class AnimatingAddNodeDemo extends JPanel {
         });
     this.g = og;
     //create a graphdraw
-    layout = new FRLayout<Number>(g.asGraph());
-    layout.setSize(new Dimension(600, 600));
-    Relaxer relaxer = new VisRunner((IterativeContext) layout);
+    layoutAlgorithm = new FRLayoutAlgorithm<>(domainModel);
+    //    layout.setSize(new Dimension(600, 600));
+    Relaxer relaxer = new VisRunner((IterativeContext) layoutAlgorithm);
     relaxer.stop();
     relaxer.prerelax();
 
-    Layout<Number> staticLayout = new StaticLayout<Number>(g.asGraph(), layout);
+    LayoutAlgorithm<Number, Point2D> staticLayoutAlgorithm =
+        new StaticLayoutAlgorithm<>(domainModel);
+    //    VisualizationModel<Number, Number, Point2D> model =
+    //            new BaseVisualizationModel<>(g, staticLayoutAlgorithm, layoutAlgorithm, new Dimension(600, 600))
 
-    vv = new VisualizationViewer<Number, Number>(ig, staticLayout, new Dimension(600, 600));
+    vv = new VisualizationViewer<>(ig, staticLayoutAlgorithm, new Dimension(600, 600));
 
     this.setLayout(new BorderLayout());
     this.setBackground(java.awt.Color.lightGray);
@@ -118,7 +117,7 @@ public class AnimatingAddNodeDemo extends JPanel {
           public void componentResized(ComponentEvent arg0) {
             super.componentResized(arg0);
             log.debug("resized");
-            layout.setSize(arg0.getComponent().getSize());
+            vv.getModel().setLayoutSize(arg0.getComponent().getSize());
           }
         });
 
@@ -131,36 +130,34 @@ public class AnimatingAddNodeDemo extends JPanel {
             Dimension d = vv.getSize(); //new Dimension(600,600);
             if (switchLayout.getText().indexOf("Spring") > 0) {
               switchLayout.setText("Switch to FRLayout");
-              layout = new SpringLayout<Number>(g.asGraph(), e -> EDGE_LENGTH);
-              layout.setSize(d);
-              Relaxer relaxer = new VisRunner((IterativeContext) layout);
-              relaxer.stop();
-              relaxer.prerelax();
-              StaticLayout<Number> staticLayout = new StaticLayout<Number>(g.asGraph(), layout);
-              LayoutTransition<Number, Number> lt =
-                  new LayoutTransition<Number, Number>(
-                      vv,
-                      vv.getModel().getLayoutMediator().getLayout(),
-                      new LayoutMediator(g, staticLayout));
-              Animator animator = new Animator(lt);
-              animator.start();
+              layoutAlgorithm = new SpringLayoutAlgorithm<>(domainModel, e -> EDGE_LENGTH);
+              //              layoutAlgorithm.setSize(d);
+              //              Relaxer relaxer = new VisRunner((IterativeContext) layoutAlgorithm);
+              //              relaxer.stop();
+              //              relaxer.prerelax();
+              //              StaticLayoutAlgorithm<Number, Point2D> staticLayout =
+              //                  new StaticLayoutAlgorithm<>(domainModel);
+              //              LayoutAlgorithmTransition<Number, Number, Point2D> lt =
+              //                  new LayoutAlgorithmTransition<>(vv.getModel(), staticLayoutAlgorithm);
+              //              Animator animator = new Animator(lt);
+              //              animator.start();
+              vv.getModel().setLayoutAlgorithm(layoutAlgorithm);
               vv.repaint();
 
             } else {
               switchLayout.setText("Switch to SpringLayout");
-              layout = new FRLayout<Number>(g.asGraph(), d);
-              layout.setSize(d);
-              Relaxer relaxer = new VisRunner((IterativeContext) layout);
-              relaxer.stop();
-              relaxer.prerelax();
-              StaticLayout<Number> staticLayout = new StaticLayout<Number>(g.asGraph(), layout);
-              LayoutTransition<Number, Number> lt =
-                  new LayoutTransition<Number, Number>(
-                      vv,
-                      vv.getModel().getLayoutMediator().getLayout(),
-                      new LayoutMediator(g, staticLayout));
-              Animator animator = new Animator(lt);
-              animator.start();
+              layoutAlgorithm = new FRLayoutAlgorithm<>(domainModel);
+              //              layoutAlgorithm.setSize(d);
+              //              Relaxer relaxer = new VisRunner((IterativeContext) layoutAlgorithm);
+              //              relaxer.stop();
+              //              relaxer.prerelax();
+              //              StaticLayoutAlgorithm<Number, Point2D> staticLayout =
+              //                  new StaticLayoutAlgorithm<>(domainModel);
+              //              LayoutAlgorithmTransition<Number, Number, Point2D> lt =
+              //                  new LayoutAlgorithmTransition<>(vv.getModel(), staticLayoutAlgorithm);
+              //              Animator animator = new Animator(lt);
+              //              animator.start();
+              vv.getModel().setLayoutAlgorithm(layoutAlgorithm);
               vv.repaint();
             }
           }
@@ -203,20 +200,20 @@ public class AnimatingAddNodeDemo extends JPanel {
 
         v_prev = v1;
 
-        layout.initialize();
+        //        layoutAlgorithm.initialize();
 
-        Relaxer relaxer = new VisRunner((IterativeContext) layout);
+        Relaxer relaxer = new VisRunner((IterativeContext) layoutAlgorithm);
         relaxer.stop();
         relaxer.prerelax();
-        StaticLayout<Number> staticLayout = new StaticLayout<Number>(g.asGraph(), layout);
-        LayoutTransition<Number, Number> lt =
-            new LayoutTransition<Number, Number>(
-                vv,
-                vv.getModel().getLayoutMediator().getLayout(),
-                new LayoutMediator(g, staticLayout));
-        Animator animator = new Animator(lt);
-        animator.start();
+        StaticLayoutAlgorithm<Number, Point2D> staticLayoutAlgorithm =
+            new StaticLayoutAlgorithm<>(domainModel);
+        //        LayoutAlgorithmTransition<Number, Number, Point2D> lt =
+        //            new LayoutAlgorithmTransition<>(vv.getModel(), staticLayoutAlgorithm);
+        //        Animator animator = new Animator(lt);
+        //        animator.start();
         //				vv.getRenderContext().getMultiLayerTransformer().setToIdentity();
+        vv.getModel().getLayoutModel().accept(layoutAlgorithm);
+
         vv.repaint();
 
       } else {

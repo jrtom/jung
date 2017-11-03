@@ -9,15 +9,8 @@
 package edu.uci.ics.jung.samples;
 
 import com.google.common.graph.Network;
-import edu.uci.ics.jung.algorithms.layout.CircleLayout;
-import edu.uci.ics.jung.algorithms.layout.FRLayout;
-import edu.uci.ics.jung.algorithms.layout.ISOMLayout;
-import edu.uci.ics.jung.algorithms.layout.KKLayout;
-import edu.uci.ics.jung.algorithms.layout.Layout;
-import edu.uci.ics.jung.algorithms.layout.SpringLayout;
-import edu.uci.ics.jung.algorithms.layout.SpringLayout2;
 import edu.uci.ics.jung.graph.util.TestGraphs;
-import edu.uci.ics.jung.visualization.DefaultVisualizationModel;
+import edu.uci.ics.jung.visualization.BaseVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.VisualizationModel;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
@@ -27,10 +20,8 @@ import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.EllipseVertexShapeTransformer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
-import edu.uci.ics.jung.visualization.layout.LayoutTransition;
+import edu.uci.ics.jung.visualization.layout.*;
 import edu.uci.ics.jung.visualization.subLayout.GraphCollapser;
-import edu.uci.ics.jung.visualization.util.Animator;
-import edu.uci.ics.jung.visualization.util.LayoutMediator;
 import edu.uci.ics.jung.visualization.util.PredicatedParallelEdgeIndexFunction;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -70,6 +61,8 @@ import javax.swing.JPanel;
 @SuppressWarnings("serial")
 public class VertexCollapseDemoWithLayouts extends JApplet {
 
+  private static final DomainModel<Point2D> domainModel = new AWTDomainModel();
+
   String instructions =
       "<html>Use the mouse to select multiple vertices"
           + "<p>either by dragging a region, or by shift-clicking"
@@ -106,7 +99,7 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
   VisualizationViewer vv;
 
   @SuppressWarnings("rawtypes")
-  Layout layout;
+  LayoutAlgorithm layoutAlgorithm;
 
   GraphCollapser collapser;
 
@@ -118,11 +111,11 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
 
     collapser = new GraphCollapser(graph);
 
-    layout = new FRLayout(graph.asGraph());
+    layoutAlgorithm = new FRLayoutAlgorithm(new AWTDomainModel());
 
     Dimension preferredSize = new Dimension(400, 400);
     final VisualizationModel visualizationModel =
-        new DefaultVisualizationModel(graph, layout, preferredSize);
+        new BaseVisualizationModel(graph, layoutAlgorithm, preferredSize);
     vv = new VisualizationViewer(visualizationModel, preferredSize);
 
     vv.getRenderContext().setVertexShapeTransformer(new ClusterVertexShapeFunction());
@@ -198,21 +191,21 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
           public void actionPerformed(ActionEvent e) {
             Collection picked = new HashSet(vv.getPickedVertexState().getPicked());
             if (picked.size() > 1) {
-              Network inGraph = vv.getModel().getLayoutMediator().getNetwork();
+              LayoutModel layoutModel = vv.getModel().getLayoutModel();
+              Network inGraph = vv.getModel().getNetwork();
               Network clusterGraph = collapser.getClusterGraph(inGraph, picked);
               Network g = collapser.collapse(inGraph, clusterGraph);
               double sumx = 0;
               double sumy = 0;
               for (Object v : picked) {
-                Point2D p = (Point2D) layout.apply(v);
+                Point2D p = (Point2D) layoutModel.apply(v);
                 sumx += p.getX();
                 sumy += p.getY();
               }
               Point2D cp = new Point2D.Double(sumx / picked.size(), sumy / picked.size());
-              layout.setLocation(clusterGraph, cp);
+              layoutModel.set(clusterGraph, cp);
               vv.getRenderContext().getParallelEdgeIndexFunction().reset();
-              LayoutMediator newLayoutMediator = new LayoutMediator(g, layout);
-              vv.setLayoutMediator(newLayoutMediator);
+              vv.getModel().setLayoutModel(layoutModel);
               vv.getPickedVertexState().clear();
               vv.repaint();
             }
@@ -229,7 +222,7 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
               Iterator pickedIter = picked.iterator();
               Object nodeU = pickedIter.next();
               Object nodeV = pickedIter.next();
-              Network graph = vv.getModel().getLayoutMediator().getNetwork();
+              Network graph = vv.getModel().getNetwork();
               Collection edges = new HashSet(graph.incidentEdges(nodeU));
               edges.retainAll(graph.incidentEdges(nodeV));
               exclusions.addAll(edges);
@@ -248,7 +241,7 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
               Iterator pickedIter = picked.iterator();
               Object nodeU = pickedIter.next();
               Object nodeV = pickedIter.next();
-              Network graph = vv.getModel().getLayoutMediator().getNetwork();
+              Network graph = vv.getModel().getNetwork();
               Collection edges = new HashSet(graph.incidentEdges(nodeU));
               edges.retainAll(graph.incidentEdges(nodeV));
               exclusions.removeAll(edges);
@@ -265,11 +258,10 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
             Collection picked = new HashSet(vv.getPickedVertexState().getPicked());
             for (Object v : picked) {
               if (v instanceof Network) {
-                Network inGraph = vv.getModel().getLayoutMediator().getNetwork();
+                Network inGraph = vv.getModel().getNetwork();
                 Network g = collapser.expand(graph, inGraph, (Network) v);
                 vv.getRenderContext().getParallelEdgeIndexFunction().reset();
-                LayoutMediator newLayoutMediator = new LayoutMediator(g, layout);
-                vv.setLayoutMediator(newLayoutMediator);
+                vv.getModel().setLayoutAlgorithm(layoutAlgorithm);
               }
               vv.getPickedVertexState().clear();
               vv.repaint();
@@ -282,9 +274,9 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
         new ActionListener() {
 
           public void actionPerformed(ActionEvent e) {
-            layout = createLayout((Layouts) jcb.getSelectedItem(), graph);
+            layoutAlgorithm = createLayout((Layouts) jcb.getSelectedItem(), graph);
             exclusions.clear();
-            vv.setLayoutMediator(new LayoutMediator(graph, layout));
+            vv.getModel().setLayoutAlgorithm(layoutAlgorithm);
             vv.repaint();
           }
         });
@@ -370,20 +362,21 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
     }
   }
 
-  private static <N, E> Layout<N> createLayout(Layouts layoutType, Network<N, E> network) {
+  private static <N, E> LayoutAlgorithm<N, Point2D> createLayout(
+      Layouts layoutType, Network<N, E> network) {
     switch (layoutType) {
       case CIRCLE:
-        return new CircleLayout<N>(network.asGraph());
+        return new CircleLayoutAlgorithm<>(new AWTDomainModel());
       case FRUCHTERMAN_REINGOLD:
-        return new FRLayout<N>(network.asGraph());
+        return new FRLayoutAlgorithm<>(new AWTDomainModel());
       case KAMADA_KAWAI:
-        return new KKLayout<N>(network.asGraph());
+        return new KKLayoutAlgorithm<>(new AWTDomainModel());
       case SELF_ORGANIZING_MAP:
-        return new ISOMLayout<N, E>(network);
+        return new ISOMLayoutAlgorithm<>(new AWTDomainModel());
       case SPRING:
-        return new SpringLayout<N>(network.asGraph());
-      case SPRING2:
-        return new SpringLayout2<N>(network.asGraph());
+        return new SpringLayoutAlgorithm<>(new AWTDomainModel());
+        //      case SPRING2:
+        //        return new SpringLayout2<N, E>(network);
       default:
         throw new IllegalArgumentException("Unrecognized layout type");
     }
@@ -406,17 +399,18 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
       Layouts layoutType = (Layouts) jcb.getSelectedItem();
 
       try {
-        Network network = vv.getModel().getLayoutMediator().getNetwork();
-        layout = createLayout(layoutType, network);
-        layout.setInitializer(vv.getGraphLayout());
-        layout.setSize(vv.getSize());
-        LayoutTransition lt =
-            new LayoutTransition(
-                vv,
-                vv.getModel().getLayoutMediator().getLayout(),
-                new LayoutMediator(network, layout));
-        Animator animator = new Animator(lt);
-        animator.start();
+        Network network = vv.getModel().getNetwork();
+        layoutAlgorithm = createLayout(layoutType, network);
+        //        vv.getModel().getLayout().setInitializer(vv.getModel().getLayout());
+        //        layoutAlgorithm.setSize(vv.getSize());
+        VisualizationModel model = vv.getModel();
+        //        VisualizationModel newModel =
+        //            new BaseVisualizationModel(
+        //                network, layoutAlgorithm, vv.getModel().getLayout(), vv.getModel().getLayoutSize());
+        //        LayoutAlgorithmTransition lt = new LayoutAlgorithmTransition(model, layoutAlgorithm);
+        //        Animator animator = new Animator(lt);
+        //        animator.start();
+        vv.getModel().setLayoutAlgorithm(layoutAlgorithm);
         vv.getRenderContext().getMultiLayerTransformer().setToIdentity();
         vv.repaint();
 

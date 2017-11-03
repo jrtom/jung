@@ -8,13 +8,10 @@
  */
 package edu.uci.ics.jung.samples;
 
-import edu.uci.ics.jung.algorithms.layout.PolarPoint;
-import edu.uci.ics.jung.algorithms.layout.RadialTreeLayout;
-import edu.uci.ics.jung.algorithms.layout.TreeLayout;
 import edu.uci.ics.jung.graph.CTreeNetwork;
 import edu.uci.ics.jung.graph.MutableCTreeNetwork;
 import edu.uci.ics.jung.graph.TreeNetworkBuilder;
-import edu.uci.ics.jung.visualization.DefaultVisualizationModel;
+import edu.uci.ics.jung.visualization.BaseVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationModel;
@@ -28,6 +25,7 @@ import edu.uci.ics.jung.visualization.decorators.EdgeShape;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
+import edu.uci.ics.jung.visualization.layout.*;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import edu.uci.ics.jung.visualization.transform.LensSupport;
 import edu.uci.ics.jung.visualization.transform.shape.HyperbolicShapeTransformer;
@@ -67,15 +65,17 @@ import javax.swing.JRadioButton;
 @SuppressWarnings("serial")
 public class RadialTreeLensDemo extends JApplet {
 
+  private static final DomainModel<Point2D> domainModel = new AWTDomainModel();
+
   CTreeNetwork<String, Integer> graph;
 
   VisualizationServer.Paintable rings;
 
   String root;
 
-  TreeLayout<String> layout;
+  //  TreeLayoutAlgorithm<String, Point2D> layoutAlgorithm;
 
-  RadialTreeLayout<String> radialLayout;
+  RadialTreeLayoutAlgorithm<String, Point2D> radialLayoutAlgorithm;
 
   /** the visual component and renderer for the graph */
   VisualizationViewer<String, Integer> vv;
@@ -91,14 +91,14 @@ public class RadialTreeLensDemo extends JApplet {
     // create a simple graph for the demo
     graph = createTree();
 
-    layout = new TreeLayout<String>(graph.asGraph());
-    radialLayout = new RadialTreeLayout<String>(graph.asGraph());
-    radialLayout.setSize(new Dimension(600, 600));
+    //    layoutAlgorithm = new TreeLayoutAlgorithm<>(domainModel);
+    radialLayoutAlgorithm = new RadialTreeLayoutAlgorithm<>(domainModel);
+    //    radialLayoutAlgorithm.setSize(new Dimension(600, 600));
 
     Dimension preferredSize = new Dimension(600, 600);
 
-    final VisualizationModel<String, Integer> visualizationModel =
-        new DefaultVisualizationModel<String, Integer>(graph, radialLayout, preferredSize);
+    final VisualizationModel<String, Integer, Point2D> visualizationModel =
+        new BaseVisualizationModel<>(graph, radialLayoutAlgorithm, preferredSize);
     vv = new VisualizationViewer<String, Integer>(visualizationModel, preferredSize);
 
     PickedState<String> ps = vv.getPickedVertexState();
@@ -126,7 +126,7 @@ public class RadialTreeLensDemo extends JApplet {
 
     vv.setGraphMouse(graphMouse);
     vv.addKeyListener(graphMouse.getModeKeyListener());
-    rings = new Rings();
+    rings = new Rings(vv.getModel().getLayoutModel());
     vv.addPreRenderPaintable(rings);
 
     hyperbolicViewSupport =
@@ -226,14 +226,16 @@ public class RadialTreeLensDemo extends JApplet {
   class Rings implements VisualizationServer.Paintable {
 
     Collection<Double> depths;
+    LayoutModel<String, Point2D> layoutModel;
 
-    public Rings() {
+    public Rings(LayoutModel<String, Point2D> layoutModel) {
+      this.layoutModel = layoutModel;
       depths = getDepths();
     }
 
     private Collection<Double> getDepths() {
       Set<Double> depths = new HashSet<Double>();
-      Map<String, PolarPoint> polarLocations = radialLayout.getPolarLocations();
+      Map<String, PolarPoint> polarLocations = radialLayoutAlgorithm.getPolarLocations();
       for (String v : graph.nodes()) {
         PolarPoint pp = polarLocations.get(v);
         depths.add(pp.getRadius());
@@ -244,7 +246,7 @@ public class RadialTreeLensDemo extends JApplet {
     public void paint(Graphics g) {
       g.setColor(Color.gray);
       Graphics2D g2d = (Graphics2D) g;
-      Point2D center = radialLayout.getCenter();
+      Point2D center = radialLayoutAlgorithm.getCenter(layoutModel);
 
       Ellipse2D ellipse = new Ellipse2D.Double();
       for (double d : depths) {
@@ -256,7 +258,7 @@ public class RadialTreeLensDemo extends JApplet {
     }
 
     public boolean useTransform() {
-      return true;
+      return false;
     }
   }
 

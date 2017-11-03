@@ -9,10 +9,8 @@
 package edu.uci.ics.jung.samples;
 
 import com.google.common.graph.Network;
-import edu.uci.ics.jung.algorithms.layout.FRLayout;
-import edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.graph.util.TestGraphs;
-import edu.uci.ics.jung.visualization.DefaultVisualizationModel;
+import edu.uci.ics.jung.visualization.BaseVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.VisualizationModel;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
@@ -29,6 +27,10 @@ import edu.uci.ics.jung.visualization.decorators.EdgeShape;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
+import edu.uci.ics.jung.visualization.layout.AWTDomainModel;
+import edu.uci.ics.jung.visualization.layout.DomainModel;
+import edu.uci.ics.jung.visualization.layout.FRLayoutAlgorithm;
+import edu.uci.ics.jung.visualization.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.visualization.picking.MultiPickedState;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import edu.uci.ics.jung.visualization.picking.ShapePickSupport;
@@ -43,6 +45,7 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import javax.swing.JApplet;
 import javax.swing.JButton;
@@ -60,6 +63,8 @@ import javax.swing.JTextArea;
  */
 @SuppressWarnings("serial")
 public class MultiViewDemo extends JApplet {
+
+  private static final DomainModel<Point2D> domainModel = new AWTDomainModel();
 
   /** the graph */
   Network<String, Number> graph;
@@ -102,12 +107,12 @@ public class MultiViewDemo extends JApplet {
     graph = TestGraphs.getOneComponentGraph();
 
     // create one layout for the graph
-    FRLayout<String> layout = new FRLayout<String>(graph.asGraph());
-    layout.setMaxIterations(1000);
+    FRLayoutAlgorithm<String, Point2D> layoutAlgorithm = new FRLayoutAlgorithm<>(domainModel);
+    layoutAlgorithm.setMaxIterations(1000);
 
     // create one model that all 3 views will share
-    VisualizationModel<String, Number> visualizationModel =
-        new DefaultVisualizationModel<String, Number>(graph, layout, preferredSize);
+    VisualizationModel<String, Number, Point2D> visualizationModel =
+        new BaseVisualizationModel<>(graph, layoutAlgorithm, preferredSize);
 
     // create 3 views that share the same model
     vv1 = new VisualizationViewer<String, Number>(visualizationModel, preferredSize);
