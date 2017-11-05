@@ -61,6 +61,11 @@ public class LoadingCacheLayoutModel<N, P> extends AbstractObservableLayoutModel
   @Override
   public void set(N node, P location) {
     if (!locked) {
+      //      for (Map.Entry<N,P> entry : locations.asMap().entrySet()) {
+      //        if (locations.getUnchecked(node).equals(location)) {
+      //          log.error("while setting {}, locations already had {} for {}",node,entry.getValue(),entry.getKey());
+      //        }
+      //      }
       this.locations.put(node, location);
       fireStateChanged();
     }

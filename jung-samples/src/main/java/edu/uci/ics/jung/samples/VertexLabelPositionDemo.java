@@ -14,35 +14,21 @@ import edu.uci.ics.jung.visualization.BaseVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.VisualizationModel;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
+import edu.uci.ics.jung.visualization.control.AbstractModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
-import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.layout.AWTDomainModel;
 import edu.uci.ics.jung.visualization.layout.DomainModel;
 import edu.uci.ics.jung.visualization.layout.FRLayoutAlgorithm;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
 import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
+import java.awt.*;
 import java.awt.geom.Point2D;
-import javax.swing.BorderFactory;
-import javax.swing.JApplet;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JMenuBar;
-import javax.swing.JPanel;
+import javax.swing.*;
 
 /**
  * Demonstrates vertex label positioning controlled by the user. In the AUTO setting, labels are
@@ -78,31 +64,30 @@ public class VertexLabelPositionDemo extends JApplet {
 
     final VisualizationModel<String, Number, Point2D> visualizationModel =
         new BaseVisualizationModel<>(graph, graphLayoutAlgorithm, preferredSize);
-    vv = new VisualizationViewer<String, Number>(visualizationModel, preferredSize);
+    vv = new VisualizationViewer<>(visualizationModel, preferredSize);
 
     PickedState<String> ps = vv.getPickedVertexState();
     PickedState<Number> pes = vv.getPickedEdgeState();
     vv.getRenderContext()
         .setVertexFillPaintTransformer(
-            new PickableVertexPaintTransformer<String>(ps, Color.red, Color.yellow));
+            new PickableVertexPaintTransformer<>(ps, Color.red, Color.yellow));
     vv.getRenderContext()
         .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer<Number>(pes, Color.black, Color.cyan));
+            new PickableEdgePaintTransformer<>(pes, Color.black, Color.cyan));
     vv.setBackground(Color.white);
     vv.getRenderer().getVertexLabelRenderer().setPosition(Renderer.VertexLabel.Position.W);
 
-    vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
+    vv.getRenderContext().setVertexLabelTransformer(n -> n);
 
     // add a listener for ToolTips
-    vv.setVertexToolTipTransformer(new ToStringLabeller());
+    vv.setVertexToolTipTransformer(n -> n);
 
     Container content = getContentPane();
     GraphZoomScrollPane gzsp = new GraphZoomScrollPane(vv);
     content.add(gzsp);
 
-    /** the regular graph mouse for the normal view */
-    final DefaultModalGraphMouse<String, Number> graphMouse =
-        new DefaultModalGraphMouse<String, Number>();
+    // the regular graph mouse for the normal view
+    final AbstractModalGraphMouse graphMouse = new DefaultModalGraphMouse<>();
 
     vv.setGraphMouse(graphMouse);
     vv.addKeyListener(graphMouse.getModeKeyListener());
@@ -110,25 +95,17 @@ public class VertexLabelPositionDemo extends JApplet {
     final ScalingControl scaler = new CrossoverScalingControl();
 
     JButton plus = new JButton("+");
-    plus.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            scaler.scale(vv, 1.1f, vv.getCenter());
-          }
-        });
+    plus.addActionListener(e -> scaler.scale(vv, 1.1f, vv.getCenter()));
+
     JButton minus = new JButton("-");
-    minus.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            scaler.scale(vv, 1 / 1.1f, vv.getCenter());
-          }
-        });
+    minus.addActionListener(e -> scaler.scale(vv, 1 / 1.1f, vv.getCenter()));
+
     JPanel positionPanel = new JPanel();
     positionPanel.setBorder(BorderFactory.createTitledBorder("Label Position"));
     JMenuBar menubar = new JMenuBar();
     menubar.add(graphMouse.getModeMenu());
     gzsp.setCorner(menubar);
-    JComboBox<Position> cb = new JComboBox<Position>();
+    JComboBox<Position> cb = new JComboBox<>();
     cb.addItem(Renderer.VertexLabel.Position.N);
     cb.addItem(Renderer.VertexLabel.Position.NE);
     cb.addItem(Renderer.VertexLabel.Position.E);
@@ -141,13 +118,12 @@ public class VertexLabelPositionDemo extends JApplet {
     cb.addItem(Renderer.VertexLabel.Position.CNTR);
     cb.addItem(Renderer.VertexLabel.Position.AUTO);
     cb.addItemListener(
-        new ItemListener() {
-          public void itemStateChanged(ItemEvent e) {
-            Renderer.VertexLabel.Position position = (Renderer.VertexLabel.Position) e.getItem();
-            vv.getRenderer().getVertexLabelRenderer().setPosition(position);
-            vv.repaint();
-          }
+        e -> {
+          Renderer.VertexLabel.Position position = (Renderer.VertexLabel.Position) e.getItem();
+          vv.getRenderer().getVertexLabelRenderer().setPosition(position);
+          vv.repaint();
         });
+
     cb.setSelectedItem(Renderer.VertexLabel.Position.SE);
     positionPanel.add(cb);
     JPanel controls = new JPanel();
@@ -163,7 +139,7 @@ public class VertexLabelPositionDemo extends JApplet {
 
   public static void main(String[] args) {
     JFrame f = new JFrame();
-    f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     f.getContentPane().add(new VertexLabelPositionDemo());
     f.pack();
     f.setVisible(true);

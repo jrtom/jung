@@ -28,7 +28,8 @@ public class LayoutAlgorithmTest {
     layoutModel = new LoadingCacheLayoutModel<>(graph, domainModel, 500, 500);
     testLayoutAlgorithm(new SpringLayoutAlgorithm<String, TestDomainModel.Point>(domainModel));
     testLayoutAlgorithm(new KKLayoutAlgorithm<String, TestDomainModel.Point>(domainModel));
-    //        testLayoutAlgorithm(new ISOMLayoutAlgorithm<String, TestDomainModel.Point>(domainModel));
+    // ISOM seems to put some nodes in the same location, so the test will fail
+    //    testLayoutAlgorithm(new ISOMLayoutAlgorithm<String, TestDomainModel.Point>(domainModel));
     testLayoutAlgorithm(new CircleLayoutAlgorithm<String, TestDomainModel.Point>(domainModel));
   }
 
@@ -40,6 +41,7 @@ public class LayoutAlgorithmTest {
   }
 
   private void testLayoutAlgorithm(LayoutAlgorithm<String, TestDomainModel.Point> layoutAlgorithm) {
+    layoutModel.clear();
     layoutModel.accept(layoutAlgorithm);
     testUniqueLocations();
   }
@@ -52,7 +54,8 @@ public class LayoutAlgorithmTest {
       locations.add(layoutModel.get(node));
     }
     // make sure that the algorithm as provided unique locations for all nodes
-    Assert.assertEquals(locations.size(), nodes.size());
+
+    Assert.assertEquals(nodes.size(), locations.size());
   }
 
   private CTreeNetwork<String, Integer> createTree() {

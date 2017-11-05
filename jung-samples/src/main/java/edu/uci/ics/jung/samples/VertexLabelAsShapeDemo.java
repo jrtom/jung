@@ -26,21 +26,9 @@ import edu.uci.ics.jung.visualization.layout.LayoutAlgorithm;
 import edu.uci.ics.jung.visualization.renderers.DefaultVertexLabelRenderer;
 import edu.uci.ics.jung.visualization.renderers.GradientVertexRenderer;
 import edu.uci.ics.jung.visualization.renderers.VertexLabelAsShapeRenderer;
-import java.awt.BasicStroke;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.*;
 import java.awt.geom.Point2D;
-import javax.swing.BorderFactory;
-import javax.swing.JApplet;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
+import javax.swing.*;
 
 /**
  * This demo shows how to use the vertex labels themselves as the vertex shapes. Additionally, it
@@ -72,11 +60,11 @@ public class VertexLabelAsShapeDemo extends JApplet {
     Dimension preferredSize = new Dimension(400, 400);
     final VisualizationModel<String, Number, Point2D> visualizationModel =
         new BaseVisualizationModel<>(graph, layoutAlgorithm, preferredSize);
-    vv = new VisualizationViewer<String, Number>(visualizationModel, preferredSize);
+    vv = new VisualizationViewer<>(visualizationModel, preferredSize);
 
     // this class will provide both label drawing and vertex shapes
     VertexLabelAsShapeRenderer<String, Number> vlasr =
-        new VertexLabelAsShapeRenderer<String, Number>(visualizationModel, vv.getRenderContext());
+        new VertexLabelAsShapeRenderer<>(visualizationModel, vv.getRenderContext());
 
     // customize the render context
     vv.getRenderContext()
@@ -89,17 +77,15 @@ public class VertexLabelAsShapeDemo extends JApplet {
 
     // customize the renderer
     vv.getRenderer()
-        .setVertexRenderer(
-            new GradientVertexRenderer<String, Number>(vv, Color.gray, Color.white, true));
+        .setVertexRenderer(new GradientVertexRenderer<>(vv, Color.gray, Color.white, true));
     vv.getRenderer().setVertexLabelRenderer(vlasr);
 
     vv.setBackground(Color.black);
 
     // add a listener for ToolTips
-    vv.setVertexToolTipTransformer(new ToStringLabeller());
+    vv.setVertexToolTipTransformer(n -> n);
 
-    final DefaultModalGraphMouse<String, Number> graphMouse =
-        new DefaultModalGraphMouse<String, Number>();
+    final DefaultModalGraphMouse<String, Number> graphMouse = new DefaultModalGraphMouse<>();
 
     vv.setGraphMouse(graphMouse);
     vv.addKeyListener(graphMouse.getModeKeyListener());
@@ -115,19 +101,10 @@ public class VertexLabelAsShapeDemo extends JApplet {
     final ScalingControl scaler = new CrossoverScalingControl();
 
     JButton plus = new JButton("+");
-    plus.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            scaler.scale(vv, 1.1f, vv.getCenter());
-          }
-        });
+    plus.addActionListener(e -> scaler.scale(vv, 1.1f, vv.getCenter()));
+
     JButton minus = new JButton("-");
-    minus.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            scaler.scale(vv, 1 / 1.1f, vv.getCenter());
-          }
-        });
+    minus.addActionListener(e -> scaler.scale(vv, 1 / 1.1f, vv.getCenter()));
 
     JPanel controls = new JPanel();
     JPanel zoomControls = new JPanel(new GridLayout(2, 1));
@@ -141,7 +118,7 @@ public class VertexLabelAsShapeDemo extends JApplet {
 
   public static void main(String[] args) {
     JFrame f = new JFrame();
-    f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     f.getContentPane().add(new VertexLabelAsShapeDemo());
     f.pack();
     f.setVisible(true);

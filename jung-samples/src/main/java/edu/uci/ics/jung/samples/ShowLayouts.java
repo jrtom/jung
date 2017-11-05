@@ -18,11 +18,11 @@ import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.layout.*;
+import edu.uci.ics.jung.visualization.renderers.Renderer;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.Point2D;
-import java.util.function.Function;
 import java.util.function.Supplier;
 import javax.swing.*;
 
@@ -42,7 +42,6 @@ public class ShowLayouts extends JApplet {
     "Two component graph",
     "Random mixed-mode graph",
     "Miscellaneous multicomponent graph",
-    "Random directed acyclic graph",
     "One component graph",
     "Chain+isolate graph",
     "Trivial (disconnected) graph"
@@ -53,8 +52,7 @@ public class ShowLayouts extends JApplet {
     FRUCHTERMAN_REINGOLD,
     CIRCLE,
     SPRING,
-    SELF_ORGANIZING_MAP,
-    DAG
+    SELF_ORGANIZING_MAP
   };
 
   public static class GraphChooser implements ActionListener {
@@ -68,13 +66,10 @@ public class ShowLayouts extends JApplet {
 
     public void actionPerformed(ActionEvent e) {
       SwingUtilities.invokeLater(
-          new Runnable() {
-            @Override
-            public void run() {
-              JComboBox<?> cb = (JComboBox<?>) e.getSource();
-              graph_index = cb.getSelectedIndex();
-              vv.getModel().setNetwork(g_array[graph_index]);
-            }
+          () -> {
+            JComboBox<?> cb = (JComboBox<?>) e.getSource();
+            graph_index = cb.getSelectedIndex();
+            vv.getModel().setNetwork(g_array[graph_index]);
           });
     }
   }
@@ -92,24 +87,11 @@ public class ShowLayouts extends JApplet {
 
     public void actionPerformed(ActionEvent arg0) {
       SwingUtilities.invokeLater(
-          new Runnable() {
-            @Override
-            public void run() {
-              Layouts layoutType = (Layouts) jcb.getSelectedItem();
-              try {
-                Network network = g_array[graph_index];
-                LayoutAlgorithm layoutAlgorithm = createLayout(layoutType, network);
-                vv.getModel().setLayoutAlgorithm(layoutAlgorithm);
-                //                LayoutAlgorithmTransition lt =
-                //                    new LayoutAlgorithmTransition(vv.getModel(), layoutAlgorithm);
-                //                Animator animator = new Animator(lt);
-                //                animator.start();
-                //                vv.getRenderContext().getMultiLayerTransformer().setToIdentity();
-                vv.repaint();
-              } catch (Exception e) {
-                e.printStackTrace();
-              }
-            }
+          () -> {
+            Layouts layoutType = (Layouts) jcb.getSelectedItem();
+            Network network = vv.getModel().getNetwork();
+            LayoutAlgorithm layoutAlgorithm = createLayout(layoutType, network);
+            LayoutAlgorithmTransition.animate(vv.getModel(), layoutAlgorithm);
           });
     }
   }
@@ -142,15 +124,13 @@ public class ShowLayouts extends JApplet {
     generator.evolveGraph(20);
     g_array[1] = generator.get();
     g_array[2] = TestGraphs.getDemoGraph();
-    g_array[3] = TestGraphs.createDirectedAcyclicGraph(4, 4, 0.3);
-    g_array[4] = TestGraphs.getOneComponentGraph();
-    g_array[5] = TestGraphs.createChainPlusIsolates(18, 5);
-    g_array[6] = TestGraphs.createChainPlusIsolates(0, 20);
+    g_array[3] = TestGraphs.getOneComponentGraph();
+    g_array[4] = TestGraphs.createChainPlusIsolates(18, 5);
+    g_array[5] = TestGraphs.createChainPlusIsolates(0, 20);
 
-    Network g = g_array[4]; // initial graph
+    Network g = g_array[3]; // initial graph
 
-    final VisualizationViewer<Integer, Number> vv =
-        new VisualizationViewer<Integer, Number>(g, new FRLayoutAlgorithm(domainModel));
+    final VisualizationViewer vv = new VisualizationViewer<Integer, Number>(g);
 
     vv.getRenderContext()
         .setVertexFillPaintTransformer(
@@ -158,6 +138,7 @@ public class ShowLayouts extends JApplet {
                 vv.getPickedVertexState(), Color.red, Color.yellow));
 
     vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
+    vv.getRenderer().getVertexLabelRenderer().setPosition(Renderer.VertexLabel.Position.CNTR);
 
     final DefaultModalGraphMouse<Integer, Number> graphMouse =
         new DefaultModalGraphMouse<Integer, Number>();
@@ -165,37 +146,18 @@ public class ShowLayouts extends JApplet {
 
     // this reinforces that the generics (or lack of) declarations are correct
     vv.setVertexToolTipTransformer(
-        new Function<Object, String>() {
-          @Override
-          public String apply(Object node) {
-            return node.toString() + ". with neighbors:" + g_array[graph_index].adjacentNodes(node);
-          }
+        node -> {
+          return node.toString()
+              + ". with neighbors:"
+              + vv.getModel().getNetwork().adjacentNodes(node);
         });
 
     final ScalingControl scaler = new CrossoverScalingControl();
 
     JButton plus = new JButton("+");
-    plus.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            scaler.scale(vv, 1.1f, vv.getCenter());
-          }
-        });
+    plus.addActionListener(e -> scaler.scale(vv, 1.1f, vv.getCenter()));
     JButton minus = new JButton("-");
-    minus.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            scaler.scale(vv, 1 / 1.1f, vv.getCenter());
-          }
-        });
-    JButton reset = new JButton("reset");
-    reset.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            LayoutAlgorithm layoutAlgorithm = vv.getModel().getLayoutAlgorithm();
-            vv.getModel().getLayoutModel().accept(layoutAlgorithm);
-          }
-        });
+    minus.addActionListener(e -> scaler.scale(vv, 1 / 1.1f, vv.getCenter()));
 
     JComboBox modeBox = graphMouse.getModeComboBox();
     modeBox.addItemListener(
@@ -217,7 +179,6 @@ public class ShowLayouts extends JApplet {
     //            }
     //        });
     jcb.addActionListener(new LayoutChooser(jcb, vv));
-    //        jcb.setSelectedItem(FRLayout.class);
     jcb.setSelectedItem(Layouts.FRUCHTERMAN_REINGOLD);
 
     JPanel control_panel = new JPanel(new GridLayout(2, 1));
@@ -229,7 +190,7 @@ public class ShowLayouts extends JApplet {
 
     final JComboBox graph_chooser = new JComboBox(graph_names);
     // do this before adding the listener so there is no event fired
-    graph_chooser.setSelectedIndex(4);
+    graph_chooser.setSelectedIndex(3);
 
     graph_chooser.addActionListener(new GraphChooser(jcb, vv));
 
@@ -238,7 +199,6 @@ public class ShowLayouts extends JApplet {
     bottomControls.add(plus);
     bottomControls.add(minus);
     bottomControls.add(modeBox);
-    bottomControls.add(reset);
     return jp;
   }
 
@@ -259,8 +219,6 @@ public class ShowLayouts extends JApplet {
         return new ISOMLayoutAlgorithm(domainModel);
       case SPRING:
         return new SpringLayoutAlgorithm(domainModel);
-      case DAG:
-        return new DAGLayoutAlgorithm(domainModel);
       default:
         throw new IllegalArgumentException("Unrecognized layout type");
     }

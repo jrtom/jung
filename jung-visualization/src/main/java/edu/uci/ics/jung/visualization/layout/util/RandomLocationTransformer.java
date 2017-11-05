@@ -20,7 +20,7 @@ import java.util.function.Function;
  * Provides a random node location within the bounds of the width and height. This provides a random
  * location for unmapped nodes the first time they are accessed.
  *
- * <p><b>Note</b>: the generated values are not cached, so apply() will generate a new random
+ * <p><b>Note</b>: the generated values are not cached, so animate() will generate a new random
  * location for the passed node every time it is called. If you want a consistent value, wrap this
  * // * layout's generated values in a instance.
  *

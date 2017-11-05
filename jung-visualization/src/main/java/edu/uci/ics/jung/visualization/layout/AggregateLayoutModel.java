@@ -86,6 +86,14 @@ public class AggregateLayoutModel<N, P> implements LayoutModel<N, P> {
   }
 
   @Override
+  public void stopRelaxer() {
+    delegate.stopRelaxer();
+    for (LayoutModel<N, P> childLayoutModel : layouts.keySet()) {
+      childLayoutModel.stopRelaxer();
+    }
+  }
+
+  @Override
   public void set(N node, P location) {
     delegate.set(node, location);
   }

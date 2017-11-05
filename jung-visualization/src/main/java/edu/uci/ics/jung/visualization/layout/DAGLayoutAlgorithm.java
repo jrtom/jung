@@ -147,7 +147,7 @@ public class DAGLayoutAlgorithm<N, P> extends SpringLayoutAlgorithm<N, P> {
   //  public void setSize(Dimension size) {
   //    super.setSize(size);
   //    for (N node : graph.nodes()) {
-  //      initializeLocation(node, apply(node), getSize());
+  //      initializeLocation(node, animate(node), getSize());
   //    }
   //  }
   //

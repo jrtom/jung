@@ -10,6 +10,8 @@
 package edu.uci.ics.jung.visualization.layout.util;
 
 import edu.uci.ics.jung.algorithms.util.IterativeContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of a relaxer thread for layouts. Extracted from the {@code VisualizationModel} in
@@ -19,6 +21,7 @@ import edu.uci.ics.jung.algorithms.util.IterativeContext;
  */
 public class VisRunner implements Relaxer, Runnable {
 
+  private static final Logger log = LoggerFactory.getLogger(VisRunner.class);
   protected boolean running;
   protected IterativeContext process;
   protected boolean stop;
@@ -34,6 +37,9 @@ public class VisRunner implements Relaxer, Runnable {
    * @param process the process (generally a layout) for which this instance is created
    */
   public VisRunner(IterativeContext process) {
+    if (log.isTraceEnabled()) {
+      log.trace("created for {}", process);
+    }
     this.process = process;
   }
 
@@ -61,6 +67,10 @@ public class VisRunner implements Relaxer, Runnable {
   }
 
   public void relax() {
+    if (log.isTraceEnabled()) {
+      log.trace("relaxing for {}", this.process);
+    }
+
     // in case its running
     stop();
     stop = false;
@@ -86,6 +96,10 @@ public class VisRunner implements Relaxer, Runnable {
 
   public synchronized void stop() {
     if (thread != null) {
+      if (log.isTraceEnabled()) {
+        log.trace("stopping for {}", this.process);
+      }
+
       manualSuspend = false;
       stop = true;
       // interrupt the relaxer, in case it is paused or sleeping
@@ -107,6 +121,9 @@ public class VisRunner implements Relaxer, Runnable {
   }
 
   public void run() {
+    if (log.isTraceEnabled()) {
+      log.trace("running for {}", this.process);
+    }
     running = true;
     try {
       while (!process.done() && !stop) {
@@ -134,6 +151,9 @@ public class VisRunner implements Relaxer, Runnable {
 
     } finally {
       running = false;
+      if (log.isTraceEnabled()) {
+        log.trace("done with {}", this.process);
+      }
     }
   }
 }

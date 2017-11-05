@@ -11,20 +11,13 @@ package edu.uci.ics.jung.samples;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
-import edu.uci.ics.jung.visualization.BaseVisualizationModel;
-import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
-import edu.uci.ics.jung.visualization.Layer;
-import edu.uci.ics.jung.visualization.LayeredIcon;
-import edu.uci.ics.jung.visualization.RenderContext;
-import edu.uci.ics.jung.visualization.VisualizationModel;
-import edu.uci.ics.jung.visualization.VisualizationViewer;
+import edu.uci.ics.jung.visualization.*;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.EllipseVertexShapeTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
-import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.decorators.VertexIconShapeTransformer;
 import edu.uci.ics.jung.visualization.layout.AWTDomainModel;
 import edu.uci.ics.jung.visualization.layout.DomainModel;
@@ -37,19 +30,7 @@ import edu.uci.ics.jung.visualization.renderers.DefaultEdgeLabelRenderer;
 import edu.uci.ics.jung.visualization.renderers.DefaultVertexLabelRenderer;
 import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
 import edu.uci.ics.jung.visualization.util.ImageShapeUtils;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.GridLayout;
-import java.awt.Image;
-import java.awt.Paint;
-import java.awt.Shape;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.geom.AffineTransform;
@@ -58,15 +39,7 @@ import java.awt.geom.Rectangle2D;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
-import javax.swing.BorderFactory;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JApplet;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
+import javax.swing.*;
 
 /**
  * Demonstrates the use of images to represent graph vertices. The images are supplied via the
@@ -114,8 +87,8 @@ public class VertexImageShaperDemo extends JApplet {
     graph = createGraph();
 
     // Maps for the labels and icons
-    Map<Number, String> map = new HashMap<Number, String>();
-    Map<Number, Icon> iconMap = new HashMap<Number, Icon>();
+    Map<Number, String> map = new HashMap<>();
+    Map<Number, Icon> iconMap = new HashMap<>();
     for (Number node : graph.nodes()) {
       int i = node.intValue();
       map.put(node, iconNames[i % iconNames.length]);
@@ -147,20 +120,18 @@ public class VertexImageShaperDemo extends JApplet {
     // This demo uses a special renderer to turn outlines on and off.
     // you do not need to do this in a real application.
     // Instead, just let vv use the Renderer it already has
-    vv.getRenderer().setVertexRenderer(new DemoRenderer<Number, Number>());
+    vv.getRenderer().setVertexRenderer(new DemoRenderer<>());
 
     Function<Number, Paint> vpf =
-        new PickableVertexPaintTransformer<Number>(
-            vv.getPickedVertexState(), Color.white, Color.yellow);
+        new PickableVertexPaintTransformer<>(vv.getPickedVertexState(), Color.white, Color.yellow);
     vv.getRenderContext().setVertexFillPaintTransformer(vpf);
     vv.getRenderContext()
         .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer<Number>(
-                vv.getPickedEdgeState(), Color.black, Color.cyan));
+            new PickableEdgePaintTransformer<>(vv.getPickedEdgeState(), Color.black, Color.cyan));
 
     vv.setBackground(Color.white);
 
-    final Function<Number, String> vertexStringerImpl = new VertexStringerImpl<Number, String>(map);
+    final Function<Number, String> vertexStringerImpl = new VertexStringerImpl<>(map);
     vv.getRenderContext().setVertexLabelTransformer(vertexStringerImpl);
     vv.getRenderContext().setVertexLabelRenderer(new DefaultVertexLabelRenderer(Color.cyan));
     vv.getRenderContext().setEdgeLabelRenderer(new DefaultEdgeLabelRenderer(Color.cyan));
@@ -174,11 +145,11 @@ public class VertexImageShaperDemo extends JApplet {
     // For this demo only, I use a special class that lets me turn various
     // features on and off. For a real application, use VertexIconShapeTransformer instead.
     final DemoVertexIconShapeTransformer<Number> vertexIconShapeTransformer =
-        new DemoVertexIconShapeTransformer<Number>(new EllipseVertexShapeTransformer<Number>());
+        new DemoVertexIconShapeTransformer<>(new EllipseVertexShapeTransformer<>());
     vertexIconShapeTransformer.setIconMap(iconMap);
 
     final DemoVertexIconTransformer<Number> vertexIconTransformer =
-        new DemoVertexIconTransformer<Number>(iconMap);
+        new DemoVertexIconTransformer<>(iconMap);
 
     vv.getRenderContext().setVertexShapeTransformer(vertexIconShapeTransformer);
     vv.getRenderContext().setVertexIconTransformer(vertexIconTransformer);
@@ -189,7 +160,7 @@ public class VertexImageShaperDemo extends JApplet {
     // Get the pickedState and add a listener that will decorate the
     // Vertex images with a checkmark icon when they are picked
     PickedState<Number> ps = vv.getPickedVertexState();
-    ps.addItemListener(new PickWithIconListener<Number>(vertexIconTransformer));
+    ps.addItemListener(new PickWithIconListener<>(vertexIconTransformer));
 
     vv.addPostRenderPaintable(
         new VisualizationViewer.Paintable() {
@@ -224,63 +195,46 @@ public class VertexImageShaperDemo extends JApplet {
         });
 
     // add a listener for ToolTips
-    vv.setVertexToolTipTransformer(new ToStringLabeller());
+    vv.setVertexToolTipTransformer(Object::toString);
 
     Container content = getContentPane();
     final GraphZoomScrollPane panel = new GraphZoomScrollPane(vv);
     content.add(panel);
 
-    final DefaultModalGraphMouse<Number, Number> graphMouse =
-        new DefaultModalGraphMouse<Number, Number>();
+    final DefaultModalGraphMouse<Number, Number> graphMouse = new DefaultModalGraphMouse<>();
     vv.setGraphMouse(graphMouse);
     vv.addKeyListener(graphMouse.getModeKeyListener());
     final ScalingControl scaler = new CrossoverScalingControl();
 
     JButton plus = new JButton("+");
-    plus.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            scaler.scale(vv, 1.1f, vv.getCenter());
-          }
-        });
+    plus.addActionListener(e -> scaler.scale(vv, 1.1f, vv.getCenter()));
+
     JButton minus = new JButton("-");
-    minus.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            scaler.scale(vv, 1 / 1.1f, vv.getCenter());
-          }
-        });
+    minus.addActionListener(e -> scaler.scale(vv, 1 / 1.1f, vv.getCenter()));
 
     JCheckBox shape = new JCheckBox("Shape");
     shape.addItemListener(
-        new ItemListener() {
-
-          public void itemStateChanged(ItemEvent e) {
-            vertexIconShapeTransformer.setShapeImages(e.getStateChange() == ItemEvent.SELECTED);
-            vv.repaint();
-          }
+        e -> {
+          vertexIconShapeTransformer.setShapeImages(e.getStateChange() == ItemEvent.SELECTED);
+          vv.repaint();
         });
+
     shape.setSelected(true);
 
     JCheckBox fill = new JCheckBox("Fill");
     fill.addItemListener(
-        new ItemListener() {
-
-          public void itemStateChanged(ItemEvent e) {
-            vertexIconTransformer.setFillImages(e.getStateChange() == ItemEvent.SELECTED);
-            vv.repaint();
-          }
+        e -> {
+          vertexIconTransformer.setFillImages(e.getStateChange() == ItemEvent.SELECTED);
+          vv.repaint();
         });
+
     fill.setSelected(true);
 
     JCheckBox drawOutlines = new JCheckBox("Outline");
     drawOutlines.addItemListener(
-        new ItemListener() {
-
-          public void itemStateChanged(ItemEvent e) {
-            vertexIconTransformer.setOutlineImages(e.getStateChange() == ItemEvent.SELECTED);
-            vv.repaint();
-          }
+        e -> {
+          vertexIconTransformer.setOutlineImages(e.getStateChange() == ItemEvent.SELECTED);
+          vv.repaint();
         });
 
     JComboBox<?> modeBox = graphMouse.getModeComboBox();
@@ -337,9 +291,9 @@ public class VertexImageShaperDemo extends JApplet {
    *
    * @author Tom Nelson
    */
-  public static class VertexStringerImpl<V, S> implements Function<V, String> {
+  public static class VertexStringerImpl<V> implements Function<V, String> {
 
-    Map<V, String> map = new HashMap<V, String>();
+    Map<V, String> map = new HashMap<>();
 
     boolean enabled = true;
 
@@ -371,25 +325,25 @@ public class VertexImageShaperDemo extends JApplet {
 
   Network<Number, Number> createGraph() {
     MutableNetwork<Number, Number> graph = NetworkBuilder.directed().build();
-    graph.addEdge(0, 1, new Double(Math.random()));
-    graph.addEdge(3, 0, new Double(Math.random()));
-    graph.addEdge(0, 4, new Double(Math.random()));
-    graph.addEdge(4, 5, new Double(Math.random()));
-    graph.addEdge(5, 3, new Double(Math.random()));
-    graph.addEdge(2, 1, new Double(Math.random()));
-    graph.addEdge(4, 1, new Double(Math.random()));
-    graph.addEdge(8, 2, new Double(Math.random()));
-    graph.addEdge(3, 8, new Double(Math.random()));
-    graph.addEdge(6, 7, new Double(Math.random()));
-    graph.addEdge(7, 5, new Double(Math.random()));
-    graph.addEdge(0, 9, new Double(Math.random()));
-    graph.addEdge(9, 8, new Double(Math.random()));
-    graph.addEdge(7, 6, new Double(Math.random()));
-    graph.addEdge(6, 5, new Double(Math.random()));
-    graph.addEdge(4, 2, new Double(Math.random()));
-    graph.addEdge(5, 4, new Double(Math.random()));
-    graph.addEdge(4, 10, new Double(Math.random()));
-    graph.addEdge(10, 4, new Double(Math.random()));
+    graph.addEdge(0, 1, Math.random());
+    graph.addEdge(3, 0, Math.random());
+    graph.addEdge(0, 4, Math.random());
+    graph.addEdge(4, 5, Math.random());
+    graph.addEdge(5, 3, Math.random());
+    graph.addEdge(2, 1, Math.random());
+    graph.addEdge(4, 1, Math.random());
+    graph.addEdge(8, 2, Math.random());
+    graph.addEdge(3, 8, Math.random());
+    graph.addEdge(6, 7, Math.random());
+    graph.addEdge(7, 5, Math.random());
+    graph.addEdge(0, 9, Math.random());
+    graph.addEdge(9, 8, Math.random());
+    graph.addEdge(7, 6, Math.random());
+    graph.addEdge(6, 5, Math.random());
+    graph.addEdge(4, 2, Math.random());
+    graph.addEdge(5, 4, Math.random());
+    graph.addEdge(4, 10, Math.random());
+    graph.addEdge(10, 4, Math.random());
 
     return graph;
   }
@@ -403,7 +357,7 @@ public class VertexImageShaperDemo extends JApplet {
   public static class DemoVertexIconTransformer<V> implements Function<V, Icon> {
     boolean fillImages = true;
     boolean outlineImages = false;
-    Map<V, Icon> iconMap = new HashMap<V, Icon>();
+    Map<V, Icon> iconMap = new HashMap<>();
 
     public DemoVertexIconTransformer(Map<V, Icon> iconMap) {
       this.iconMap = iconMap;
@@ -428,7 +382,7 @@ public class VertexImageShaperDemo extends JApplet {
 
     public Icon apply(V v) {
       if (fillImages) {
-        return (Icon) iconMap.get(v);
+        return iconMap.get(v);
       } else {
         return null;
       }
@@ -459,7 +413,7 @@ public class VertexImageShaperDemo extends JApplet {
 
     @Override
     public Shape apply(V v) {
-      Icon icon = (Icon) iconMap.get(v);
+      Icon icon = iconMap.get(v);
 
       if (icon != null && icon instanceof ImageIcon) {
 
@@ -531,7 +485,7 @@ public class VertexImageShaperDemo extends JApplet {
   public static void main(String[] args) {
     JFrame frame = new JFrame();
     Container content = frame.getContentPane();
-    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
     content.add(new VertexImageShaperDemo());
     frame.pack();

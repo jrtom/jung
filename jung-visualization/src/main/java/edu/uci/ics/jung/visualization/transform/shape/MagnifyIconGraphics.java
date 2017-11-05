@@ -20,7 +20,7 @@ import java.awt.geom.Rectangle2D;
 import javax.swing.Icon;
 
 /**
- * Subclassed to apply a magnification transform to an icon.
+ * Subclassed to animate a magnification transform to an icon.
  *
  * @author Tom Nelson
  */

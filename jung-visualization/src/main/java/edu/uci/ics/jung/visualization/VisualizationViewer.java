@@ -48,6 +48,14 @@ public class VisualizationViewer<N, E> extends BasicVisualizationServer<N, E> {
         }
       };
 
+  public VisualizationViewer(Network<N, E> network) {
+    this(network, null);
+  }
+
+  public VisualizationViewer(Network<N, E> network, Dimension layoutSize, Dimension viewSize) {
+    this(network, null, layoutSize, viewSize);
+  }
+
   public VisualizationViewer(
       Network<N, E> network,
       LayoutAlgorithm<N, Point2D> layoutAlgorithm,

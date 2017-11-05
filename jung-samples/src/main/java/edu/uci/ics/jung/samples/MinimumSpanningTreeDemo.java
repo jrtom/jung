@@ -21,27 +21,13 @@ import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.EdgeShape;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
-import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.layout.*;
 import edu.uci.ics.jung.visualization.picking.MultiPickedState;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
-import edu.uci.ics.jung.visualization.transform.MutableTransformer;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.*;
 import java.awt.geom.Point2D;
-import javax.swing.BorderFactory;
-import javax.swing.JApplet;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
+import javax.swing.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +42,7 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings("serial")
 public class MinimumSpanningTreeDemo extends JApplet {
 
-  Logger log = LoggerFactory.getLogger(MinimumSpanningTreeDemo.class);
+  private static final Logger log = LoggerFactory.getLogger(MinimumSpanningTreeDemo.class);
 
   private static final DomainModel<Point2D> domainModel = new AWTDomainModel();
 
@@ -71,11 +57,7 @@ public class MinimumSpanningTreeDemo extends JApplet {
   VisualizationViewer<String, Number> vv1;
   VisualizationViewer<String, Number> vv2;
 
-  /** the normal Function */
-  MutableTransformer layoutTransformer;
-
   Dimension preferredSize = new Dimension(300, 300);
-  Dimension preferredLayoutSize = new Dimension(400, 400);
   Dimension preferredSizeRect = new Dimension(800, 250);
 
   /** create an instance of a simple graph in two views with controls to demo the zoom features. */
@@ -87,23 +69,19 @@ public class MinimumSpanningTreeDemo extends JApplet {
 
     tree = MinimumSpanningTree.extractFrom(graph, e -> 1.0);
 
-    // create two layouts for the one graph, one layout for each model
     LayoutAlgorithm<String, Point2D> layout0 = new KKLayoutAlgorithm<>(domainModel);
-    //    layout0.setLayoutSize(preferredLayoutSize);
     LayoutAlgorithm<String, Point2D> layout1 = new TreeLayoutAlgorithm<>(domainModel);
     LayoutAlgorithm<String, Point2D> layout2 = new StaticLayoutAlgorithm<>(domainModel);
-    //    layout2.setSize(layout1.getSize());
 
     // create the two models, each with a different layout
     VisualizationModel<String, Number, Point2D> vm0 =
-        new BaseVisualizationModel<String, Number>(graph, layout0, preferredSize);
+        new BaseVisualizationModel<>(graph, layout0, preferredSize);
     VisualizationModel<String, Number, Point2D> vm1 =
-        new BaseVisualizationModel<String, Number>(tree, layout1, preferredSizeRect);
+        new BaseVisualizationModel<>(tree, layout1, preferredSizeRect);
     // initializer is the layout model for vm1
     // and the size is also set to the same size required for the Tree in layout1
     VisualizationModel<String, Number, Point2D> vm2 =
-        new BaseVisualizationModel<String, Number>(
-            graph, layout2, vm1.getLayoutModel(), vm1.getLayoutSize());
+        new BaseVisualizationModel<>(graph, layout2, vm1.getLayoutModel(), vm1.getLayoutSize());
 
     // create the two views, one for each model
     // they share the same renderer
@@ -121,8 +99,8 @@ public class MinimumSpanningTreeDemo extends JApplet {
     vv0.addChangeListener(vv1);
     vv1.addChangeListener(vv2);
 
-    vv0.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
-    vv2.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
+    vv0.getRenderContext().setVertexLabelTransformer(Object::toString);
+    vv2.getRenderContext().setVertexLabelTransformer(Object::toString);
 
     Color back = Color.decode("0xffffbb");
     vv0.setBackground(back);
@@ -137,12 +115,12 @@ public class MinimumSpanningTreeDemo extends JApplet {
     vv2.setForeground(Color.darkGray);
 
     // share one PickedState between the two views
-    PickedState<String> ps = new MultiPickedState<String>();
+    PickedState<String> ps = new MultiPickedState<>();
     vv0.setPickedVertexState(ps);
     vv1.setPickedVertexState(ps);
     vv2.setPickedVertexState(ps);
 
-    PickedState<Number> pes = new MultiPickedState<Number>();
+    PickedState<Number> pes = new MultiPickedState<>();
     vv0.setPickedEdgeState(pes);
     vv1.setPickedEdgeState(pes);
     vv2.setPickedEdgeState(pes);
@@ -150,25 +128,23 @@ public class MinimumSpanningTreeDemo extends JApplet {
     // set an edge paint function that will show picking for edges
     vv0.getRenderContext()
         .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer<Number>(
-                vv0.getPickedEdgeState(), Color.black, Color.red));
+            new PickableEdgePaintTransformer<>(vv0.getPickedEdgeState(), Color.black, Color.red));
     vv0.getRenderContext()
         .setVertexFillPaintTransformer(
-            new PickableVertexPaintTransformer<String>(
+            new PickableVertexPaintTransformer<>(
                 vv0.getPickedVertexState(), Color.red, Color.yellow));
     vv1.getRenderContext()
         .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer<Number>(
-                vv1.getPickedEdgeState(), Color.black, Color.red));
+            new PickableEdgePaintTransformer<>(vv1.getPickedEdgeState(), Color.black, Color.red));
     vv1.getRenderContext()
         .setVertexFillPaintTransformer(
-            new PickableVertexPaintTransformer<String>(
+            new PickableVertexPaintTransformer<>(
                 vv1.getPickedVertexState(), Color.red, Color.yellow));
 
     // add default listeners for ToolTips
-    vv0.setVertexToolTipTransformer(new ToStringLabeller());
-    vv1.setVertexToolTipTransformer(new ToStringLabeller());
-    vv2.setVertexToolTipTransformer(new ToStringLabeller());
+    vv0.setVertexToolTipTransformer(Object::toString);
+    vv1.setVertexToolTipTransformer(Object::toString);
+    vv2.setVertexToolTipTransformer(Object::toString);
 
     vv0.setLayout(new BorderLayout());
     vv1.setLayout(new BorderLayout());
@@ -205,9 +181,9 @@ public class MinimumSpanningTreeDemo extends JApplet {
     content.add(panel);
 
     // create a GraphMouse for each view
-    DefaultModalGraphMouse<String, Number> gm0 = new DefaultModalGraphMouse<String, Number>();
-    DefaultModalGraphMouse<String, Number> gm1 = new DefaultModalGraphMouse<String, Number>();
-    DefaultModalGraphMouse<String, Number> gm2 = new DefaultModalGraphMouse<String, Number>();
+    DefaultModalGraphMouse<String, Number> gm0 = new DefaultModalGraphMouse<>();
+    DefaultModalGraphMouse<String, Number> gm1 = new DefaultModalGraphMouse<>();
+    DefaultModalGraphMouse<String, Number> gm2 = new DefaultModalGraphMouse<>();
 
     vv0.setGraphMouse(gm0);
     vv1.setGraphMouse(gm1);
@@ -219,19 +195,10 @@ public class MinimumSpanningTreeDemo extends JApplet {
     vv0.scaleToLayout(scaler);
 
     JButton plus = new JButton("+");
-    plus.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            scaler.scale(vv1, 1.1f, vv1.getCenter());
-          }
-        });
+    plus.addActionListener(e -> scaler.scale(vv1, 1.1f, vv1.getCenter()));
+
     JButton minus = new JButton("-");
-    minus.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            scaler.scale(vv1, 1 / 1.1f, vv1.getCenter());
-          }
-        });
+    minus.addActionListener(e -> scaler.scale(vv1, 1 / 1.1f, vv1.getCenter()));
 
     JPanel zoomPanel = new JPanel(new GridLayout(1, 2));
     zoomPanel.setBorder(BorderFactory.createTitledBorder("Zoom"));
@@ -252,7 +219,7 @@ public class MinimumSpanningTreeDemo extends JApplet {
 
   public static void main(String[] args) {
     JFrame f = new JFrame();
-    f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     f.getContentPane().add(new MinimumSpanningTreeDemo());
     f.pack();
     f.setVisible(true);

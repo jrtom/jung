@@ -2,8 +2,8 @@ package edu.uci.ics.jung.visualization.layout;
 
 import edu.uci.ics.jung.algorithms.util.IterativeContext;
 import edu.uci.ics.jung.visualization.VisualizationModel;
-import edu.uci.ics.jung.visualization.layout.util.VisRunner;
-import java.awt.*;
+import edu.uci.ics.jung.visualization.layout.util.Relaxer;
+import edu.uci.ics.jung.visualization.util.Animator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,10 +17,10 @@ import org.slf4j.LoggerFactory;
 public class LayoutAlgorithmTransition<N, E, P> implements IterativeContext {
 
   private static Logger log = LoggerFactory.getLogger(LayoutAlgorithmTransition.class);
-  //  protected LayoutAlgorithm<N, P> startLayoutAlgorithm;
+
   protected LayoutAlgorithm<N, P> endLayoutAlgorithm;
-  //  protected LayoutAlgorithm<N, P> transitionLayoutAlgorithm;
   protected LayoutModel<N, P> transitionLayoutModel;
+  protected LayoutModel<N, P> initialLayoutModel;
   protected boolean done = false;
   protected int count = 20;
   protected int counter = 0;
@@ -28,28 +28,53 @@ public class LayoutAlgorithmTransition<N, E, P> implements IterativeContext {
   protected VisualizationModel<N, E, P> visualizationModel;
   protected DomainModel<P> domainModel;
 
-  public LayoutAlgorithmTransition(
+  public static <N, E, P> void animate(
       VisualizationModel<N, E, P> visualizationModel, LayoutAlgorithm<N, P> endLayoutAlgorithm) {
-    log.info("transition to " + endLayoutAlgorithm);
+    new LayoutAlgorithmTransition(visualizationModel, endLayoutAlgorithm);
+  }
+
+  public static <N, E, P> void apply(
+      VisualizationModel<N, E, P> visualizationModel, LayoutAlgorithm<N, P> endLayoutAlgorithm) {
+    visualizationModel.setLayoutAlgorithm(endLayoutAlgorithm);
+  }
+
+  private LayoutAlgorithmTransition(
+      VisualizationModel<N, E, P> visualizationModel, LayoutAlgorithm<N, P> endLayoutAlgorithm) {
+    if (log.isTraceEnabled()) {
+      log.trace(
+          "transition from {} to {}", visualizationModel.getLayoutAlgorithm(), endLayoutAlgorithm);
+    }
     this.visualizationModel = visualizationModel;
     this.layoutModel = visualizationModel.getLayoutModel();
-    log.info("current LayoutAlgorithm is " + visualizationModel.getLayoutAlgorithm());
+    // stop any relaxing that is going on now
+    Relaxer relaxer = this.layoutModel.getRelaxer();
+    if (relaxer != null) {
+      relaxer.stop();
+    }
     this.domainModel = layoutModel.getDomainModel();
-    LayoutModel<N, P> currentLayoutModel = visualizationModel.getLayoutModel();
     LayoutAlgorithm<N, P> transitionLayoutAlgorithm = new StaticLayoutAlgorithm(domainModel);
+    visualizationModel.setLayoutAlgorithm(transitionLayoutAlgorithm);
+
+    this.initialLayoutModel =
+        new LoadingCacheLayoutModel<N, P>(
+            visualizationModel.getNetwork().asGraph(),
+            layoutModel.getDomainModel(),
+            layoutModel.getWidth(),
+            layoutModel.getHeight());
+    initialLayoutModel.setInitializer(layoutModel);
+
+    // the layout model still has locations from its previous algor
     this.transitionLayoutModel =
         new LoadingCacheLayoutModel<N, P>(
             visualizationModel.getNetwork().asGraph(),
             layoutModel.getDomainModel(),
             layoutModel.getWidth(),
             layoutModel.getHeight());
-    transitionLayoutModel.setInitializer(currentLayoutModel);
 
-    transitionLayoutModel.accept(transitionLayoutAlgorithm);
+    transitionLayoutModel.accept(endLayoutAlgorithm);
     this.endLayoutAlgorithm = endLayoutAlgorithm;
-    VisRunner visRunner = new VisRunner(this);
-    visRunner.setSleepTime(1000);
-    visRunner.relax();
+    Animator animator = new Animator(this);
+    animator.start();
   }
 
   public boolean done() {
@@ -58,17 +83,17 @@ public class LayoutAlgorithmTransition<N, E, P> implements IterativeContext {
 
   public void step() {
     for (N v : visualizationModel.getNetwork().nodes()) {
-      P tp = transitionLayoutModel.apply(v);
-      P fp = layoutModel.apply(v);
+      P tp = initialLayoutModel.apply(v);
+      P fp = transitionLayoutModel.apply(v);
       double dx = (domainModel.getX(fp) - domainModel.getX(tp)) / (count - counter);
       double dy = (domainModel.getY(fp) - domainModel.getY(tp)) / (count - counter);
-      transitionLayoutModel.set(v, domainModel.getX(tp) + dx, domainModel.getY(tp) + dy);
+      layoutModel.set(v, domainModel.getX(tp) + dx, domainModel.getY(tp) + dy);
     }
     counter++;
     if (counter >= count) {
       done = true;
+      this.transitionLayoutModel.stopRelaxer();
       this.visualizationModel.setLayoutAlgorithm(endLayoutAlgorithm);
     }
-    //    vv.repaint();
   }
 }

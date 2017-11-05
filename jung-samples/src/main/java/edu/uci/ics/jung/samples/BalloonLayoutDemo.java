@@ -15,17 +15,10 @@ import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationServer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
-import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
-import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
-import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
-import edu.uci.ics.jung.visualization.control.ModalLensGraphMouse;
-import edu.uci.ics.jung.visualization.control.ScalingControl;
+import edu.uci.ics.jung.visualization.control.*;
 import edu.uci.ics.jung.visualization.decorators.EdgeShape;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
-import edu.uci.ics.jung.visualization.layout.AWTDomainModel;
-import edu.uci.ics.jung.visualization.layout.BalloonLayoutAlgorithm;
-import edu.uci.ics.jung.visualization.layout.DomainModel;
-import edu.uci.ics.jung.visualization.layout.TreeLayoutAlgorithm;
+import edu.uci.ics.jung.visualization.layout.*;
 import edu.uci.ics.jung.visualization.transform.LensSupport;
 import edu.uci.ics.jung.visualization.transform.MutableTransformer;
 import edu.uci.ics.jung.visualization.transform.MutableTransformerDecorator;
@@ -80,7 +73,7 @@ public class BalloonLayoutDemo extends JApplet {
     vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.quadCurve());
     vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
     // add a listener for ToolTips
-    vv.setVertexToolTipTransformer(new ToStringLabeller());
+    vv.setVertexToolTipTransformer(n -> n.toString());
     vv.getRenderContext().setArrowFillPaintTransformer(a -> Color.lightGray);
     rings = new Rings(radialLayoutAlgorithm);
 
@@ -118,11 +111,18 @@ public class BalloonLayoutDemo extends JApplet {
     minus.addActionListener(e -> scaler.scale(vv, 1 / 1.1f, vv.getCenter()));
 
     JToggleButton radial = new JToggleButton("Balloon");
+    final JRadioButton animateTransition = new JRadioButton("Animate Transition");
+
     radial.addItemListener(
         e -> {
           if (e.getStateChange() == ItemEvent.SELECTED) {
+            ((JToggleButton) e.getSource()).setText("Tree");
+            if (animateTransition.isSelected()) {
+              LayoutAlgorithmTransition.animate(vv.getModel(), radialLayoutAlgorithm);
+            } else {
+              LayoutAlgorithmTransition.apply(vv.getModel(), radialLayoutAlgorithm);
+            }
 
-            vv.getModel().setLayoutAlgorithm(radialLayoutAlgorithm);
             vv.getRenderContext()
                 .getMultiLayerTransformer()
                 .getTransformer(Layer.LAYOUT)
@@ -130,8 +130,12 @@ public class BalloonLayoutDemo extends JApplet {
             vv.addPreRenderPaintable(rings);
 
           } else {
-
-            vv.getModel().setLayoutAlgorithm(layoutAlgorithm);
+            ((JToggleButton) e.getSource()).setText("Balloon");
+            if (animateTransition.isSelected()) {
+              LayoutAlgorithmTransition.animate(vv.getModel(), layoutAlgorithm);
+            } else {
+              LayoutAlgorithmTransition.apply(vv.getModel(), layoutAlgorithm);
+            }
 
             vv.getRenderContext()
                 .getMultiLayerTransformer()
@@ -148,6 +152,8 @@ public class BalloonLayoutDemo extends JApplet {
 
     JPanel scaleGrid = new JPanel(new GridLayout(1, 0));
     scaleGrid.setBorder(BorderFactory.createTitledBorder("Zoom"));
+    JPanel viewControls = new JPanel();
+    viewControls.setLayout(new GridLayout(2, 1));
 
     JPanel controls = new JPanel();
     scaleGrid.add(plus);
@@ -155,7 +161,9 @@ public class BalloonLayoutDemo extends JApplet {
     controls.add(radial);
     controls.add(scaleGrid);
     controls.add(modeBox);
-    controls.add(hyperView);
+    viewControls.add(hyperView);
+    viewControls.add(animateTransition);
+    controls.add(viewControls);
     content.add(controls, BorderLayout.SOUTH);
   }
 

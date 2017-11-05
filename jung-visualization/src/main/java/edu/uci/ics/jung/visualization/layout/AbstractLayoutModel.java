@@ -42,6 +42,13 @@ public abstract class AbstractLayoutModel<N, P> implements LayoutModel<N, P> {
     return this.visRunner;
   }
 
+  /** stop any running Relazer */
+  public void stopRelaxer() {
+    if (this.visRunner != null) {
+      this.visRunner.stop();
+    }
+  }
+
   /**
    * accept the visit of a LayoutAlgorithm. If it is an IterativeContext, create a VisRunner to run
    * its relaxer in a new Thread. If there is a current VisRunner, stop it first.
@@ -71,6 +78,7 @@ public abstract class AbstractLayoutModel<N, P> implements LayoutModel<N, P> {
   protected void setupVisRunner(IterativeContext iterativeContext) {
     log.trace("set up a visRunner: {}", iterativeContext);
     this.visRunner = new VisRunner(iterativeContext);
+    this.visRunner.setSleepTime(500);
     this.visRunner.prerelax();
     this.visRunner.relax();
   }
@@ -196,8 +204,8 @@ public abstract class AbstractLayoutModel<N, P> implements LayoutModel<N, P> {
 
   /**
    * @param node the node whose coordinates are to be offset
-   * @param xOffset the change to apply to this node's x coordinate
-   * @param yOffset the change to apply to this node's y coordinate
+   * @param xOffset the change to animate to this node's x coordinate
+   * @param yOffset the change to animate to this node's y coordinate
    */
   protected void offsetnode(N node, double xOffset, double yOffset) {
     if (!locked && !isLocked(node)) {

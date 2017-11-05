@@ -14,7 +14,6 @@ import com.google.common.collect.Lists;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.visualization.layout.*;
 import edu.uci.ics.jung.visualization.spatial.Spatial;
-import edu.uci.ics.jung.visualization.util.Caching;
 import edu.uci.ics.jung.visualization.util.ChangeEventSupport;
 import edu.uci.ics.jung.visualization.util.DefaultChangeEventSupport;
 import java.awt.Dimension;
@@ -126,15 +125,19 @@ public class BaseVisualizationModel<N, E>
   }
 
   public void setLayoutModel(LayoutModel<N, Point2D> layoutModel) {
+    // stop any Relaxer threads before abandoning the previous LayoutModel
+    if (this.layoutModel != null) {
+      this.layoutModel.stopRelaxer();
+    }
     this.layoutModel = layoutModel;
   }
 
   public void setLayoutAlgorithm(LayoutAlgorithm<N, Point2D> layoutAlgorithm) {
     this.layoutAlgorithm = layoutAlgorithm;
     log.trace("setLayoutAlgorithm to " + layoutAlgorithm);
-    if (layoutModel instanceof Caching) {
-      ((Caching) layoutModel).clear();
-    }
+    //    if (layoutModel instanceof Caching) {
+    //      ((Caching) layoutModel).clear();
+    //    }
     layoutModel.accept(layoutAlgorithm);
   }
 
