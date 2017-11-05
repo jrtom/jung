@@ -1,8 +1,12 @@
 package edu.uci.ics.jung.visualization.layout;
 
+import edu.uci.ics.jung.algorithms.layout.DomainModel;
+import edu.uci.ics.jung.algorithms.layout.LayoutAlgorithm;
+import edu.uci.ics.jung.algorithms.layout.LayoutModel;
+import edu.uci.ics.jung.algorithms.layout.StaticLayoutAlgorithm;
 import edu.uci.ics.jung.algorithms.util.IterativeContext;
+import edu.uci.ics.jung.algorithms.util.Relaxer;
 import edu.uci.ics.jung.visualization.VisualizationModel;
-import edu.uci.ics.jung.visualization.layout.util.Relaxer;
 import edu.uci.ics.jung.visualization.util.Animator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

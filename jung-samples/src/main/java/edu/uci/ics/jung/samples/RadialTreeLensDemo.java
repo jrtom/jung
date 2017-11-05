@@ -8,6 +8,10 @@
  */
 package edu.uci.ics.jung.samples;
 
+import edu.uci.ics.jung.algorithms.layout.DomainModel;
+import edu.uci.ics.jung.algorithms.layout.LayoutModel;
+import edu.uci.ics.jung.algorithms.layout.PolarPoint;
+import edu.uci.ics.jung.algorithms.layout.RadialTreeLayoutAlgorithm;
 import edu.uci.ics.jung.graph.CTreeNetwork;
 import edu.uci.ics.jung.graph.MutableCTreeNetwork;
 import edu.uci.ics.jung.graph.TreeNetworkBuilder;

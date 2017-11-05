@@ -12,6 +12,9 @@ package edu.uci.ics.jung.visualization.layout;
 
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Network;
+import edu.uci.ics.jung.algorithms.layout.DomainModel;
+import edu.uci.ics.jung.algorithms.layout.LayoutModel;
+import edu.uci.ics.jung.algorithms.layout.RadiusNetworkNodeAccessor;
 import java.awt.*;
 import java.util.ConcurrentModificationException;
 import java.util.HashSet;

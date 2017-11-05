@@ -1,5 +1,6 @@
 package edu.uci.ics.jung.visualization.layout;
 
+import edu.uci.ics.jung.algorithms.layout.DomainModel;
 import java.awt.geom.Point2D;
 
 /**

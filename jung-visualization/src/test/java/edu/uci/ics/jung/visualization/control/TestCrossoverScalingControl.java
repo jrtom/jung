@@ -1,11 +1,11 @@
 package edu.uci.ics.jung.visualization.control;
 
 import com.google.common.graph.Network;
+import edu.uci.ics.jung.algorithms.layout.FRLayoutAlgorithm;
 import edu.uci.ics.jung.graph.util.TestGraphs;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 import edu.uci.ics.jung.visualization.VisualizationServer;
 import edu.uci.ics.jung.visualization.layout.AWTDomainModel;
-import edu.uci.ics.jung.visualization.layout.FRLayoutAlgorithm;
 import java.awt.geom.Point2D;
 import junit.framework.TestCase;
 

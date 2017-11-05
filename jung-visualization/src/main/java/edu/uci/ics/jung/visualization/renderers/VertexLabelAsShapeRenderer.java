@@ -9,10 +9,10 @@
  */
 package edu.uci.ics.jung.visualization.renderers;
 
+import edu.uci.ics.jung.algorithms.layout.LayoutModel;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.VisualizationModel;
-import edu.uci.ics.jung.visualization.layout.LayoutModel;
 import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
 import java.awt.Component;
 import java.awt.Dimension;

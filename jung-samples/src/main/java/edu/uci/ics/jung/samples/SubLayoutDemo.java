@@ -9,6 +9,7 @@
 package edu.uci.ics.jung.samples;
 
 import com.google.common.graph.*;
+import edu.uci.ics.jung.algorithms.layout.*;
 import edu.uci.ics.jung.graph.util.TestGraphs;
 import edu.uci.ics.jung.visualization.BaseVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
@@ -400,13 +401,13 @@ public class SubLayoutDemo extends JApplet {
           //          subLayout.setSize(subLayoutSize);
           //          clusteringLayoutModel.put(subLayoutAlgorithm, center);
           LayoutModel<String, Point2D> newLayoutModel =
-              new LoadingCacheLayoutModel<>(
+              new LoadingCacheLayoutModel(
                   subGraph.asGraph(),
                   domainModel,
                   subLayoutSize.width,
                   subLayoutSize.height,
-                  new RandomLocationTransformer<String, Point2D>(
-                      domainModel, subLayoutSize.width, subLayoutSize.height));
+                  new RandomLocationTransformer(
+                      new Dimension(subLayoutSize.width, subLayoutSize.height)));
 
           //          VisualizationModel newModel =
           //              new BaseVisualizationModel(subGraph, subLayoutAlgorithm, subLayoutSize);

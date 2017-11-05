@@ -1,5 +1,7 @@
 package edu.uci.ics.jung.visualization.layout;
 
+import edu.uci.ics.jung.algorithms.layout.DomainModel;
+
 /** Created by Tom Nelson */
 public class TestDomainModel implements DomainModel<TestDomainModel.Point> {
 

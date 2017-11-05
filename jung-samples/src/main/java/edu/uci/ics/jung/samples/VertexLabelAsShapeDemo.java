@@ -9,6 +9,9 @@
 package edu.uci.ics.jung.samples;
 
 import com.google.common.graph.Network;
+import edu.uci.ics.jung.algorithms.layout.DomainModel;
+import edu.uci.ics.jung.algorithms.layout.FRLayoutAlgorithm;
+import edu.uci.ics.jung.algorithms.layout.LayoutAlgorithm;
 import edu.uci.ics.jung.graph.util.TestGraphs;
 import edu.uci.ics.jung.visualization.BaseVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
@@ -20,9 +23,6 @@ import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.layout.AWTDomainModel;
-import edu.uci.ics.jung.visualization.layout.DomainModel;
-import edu.uci.ics.jung.visualization.layout.FRLayoutAlgorithm;
-import edu.uci.ics.jung.visualization.layout.LayoutAlgorithm;
 import edu.uci.ics.jung.visualization.renderers.DefaultVertexLabelRenderer;
 import edu.uci.ics.jung.visualization.renderers.GradientVertexRenderer;
 import edu.uci.ics.jung.visualization.renderers.VertexLabelAsShapeRenderer;

@@ -9,6 +9,7 @@
 package edu.uci.ics.jung.samples;
 
 import com.google.common.graph.Network;
+import edu.uci.ics.jung.algorithms.layout.*;
 import edu.uci.ics.jung.graph.util.TestGraphs;
 import edu.uci.ics.jung.visualization.BaseVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;

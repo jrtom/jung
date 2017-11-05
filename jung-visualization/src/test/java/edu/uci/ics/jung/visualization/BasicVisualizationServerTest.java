@@ -2,8 +2,8 @@ package edu.uci.ics.jung.visualization;
 
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
+import edu.uci.ics.jung.algorithms.layout.CircleLayoutAlgorithm;
 import edu.uci.ics.jung.visualization.layout.AWTDomainModel;
-import edu.uci.ics.jung.visualization.layout.CircleLayoutAlgorithm;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import junit.framework.TestCase;
 

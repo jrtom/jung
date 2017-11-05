@@ -8,7 +8,7 @@
  */
 package edu.uci.ics.jung.visualization.transform.shape;
 
-import edu.uci.ics.jung.visualization.layout.PolarPoint;
+import edu.uci.ics.jung.algorithms.layout.PolarPoint;
 import edu.uci.ics.jung.visualization.transform.MagnifyTransformer;
 import edu.uci.ics.jung.visualization.transform.MutableTransformer;
 import java.awt.Component;

@@ -2,6 +2,7 @@ package edu.uci.ics.jung.visualization;
 
 import com.google.common.graph.GraphBuilder;
 import com.google.common.graph.MutableGraph;
+import edu.uci.ics.jung.algorithms.layout.*;
 import edu.uci.ics.jung.visualization.layout.*;
 import java.awt.geom.Point2D;
 import org.junit.Test;

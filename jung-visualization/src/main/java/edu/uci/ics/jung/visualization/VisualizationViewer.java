@@ -10,9 +10,9 @@
 package edu.uci.ics.jung.visualization;
 
 import com.google.common.graph.Network;
+import edu.uci.ics.jung.algorithms.layout.LayoutAlgorithm;
 import edu.uci.ics.jung.visualization.control.GraphMouseListener;
 import edu.uci.ics.jung.visualization.control.MouseListenerTranslator;
-import edu.uci.ics.jung.visualization.layout.LayoutAlgorithm;
 import java.awt.Dimension;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;

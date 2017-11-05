@@ -10,6 +10,7 @@ package edu.uci.ics.jung.samples;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
 import edu.uci.ics.jung.algorithms.generators.random.BarabasiAlbertGenerator;
+import edu.uci.ics.jung.algorithms.layout.*;
 import edu.uci.ics.jung.graph.util.TestGraphs;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;

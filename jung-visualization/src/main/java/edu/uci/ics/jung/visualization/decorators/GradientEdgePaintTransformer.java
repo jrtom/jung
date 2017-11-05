@@ -15,9 +15,9 @@ import static edu.uci.ics.jung.graph.util.Graphs.isSelfLoop;
 
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Network;
+import edu.uci.ics.jung.algorithms.layout.LayoutModel;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
-import edu.uci.ics.jung.visualization.layout.LayoutModel;
 import edu.uci.ics.jung.visualization.transform.BidirectionalTransformer;
 import java.awt.Color;
 import java.awt.GradientPaint;

@@ -8,10 +8,10 @@
  */
 package edu.uci.ics.jung.visualization.picking;
 
+import edu.uci.ics.jung.algorithms.layout.LayoutModel;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationModel;
 import edu.uci.ics.jung.visualization.VisualizationServer;
-import edu.uci.ics.jung.visualization.layout.LayoutModel;
 import edu.uci.ics.jung.visualization.layout.NetworkElementAccessor;
 import java.awt.Shape;
 import java.awt.geom.Point2D;

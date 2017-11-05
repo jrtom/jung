@@ -1,12 +1,12 @@
 package edu.uci.ics.jung.visualization.renderers;
 
+import edu.uci.ics.jung.algorithms.layout.LayoutChangeListener;
+import edu.uci.ics.jung.algorithms.layout.LayoutEvent;
+import edu.uci.ics.jung.algorithms.layout.LayoutEventSupport;
+import edu.uci.ics.jung.algorithms.layout.LayoutNetworkEvent;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.VisualizationModel;
-import edu.uci.ics.jung.visualization.layout.LayoutChangeListener;
-import edu.uci.ics.jung.visualization.layout.LayoutEvent;
-import edu.uci.ics.jung.visualization.layout.LayoutEventSupport;
-import edu.uci.ics.jung.visualization.layout.LayoutNetworkEvent;
 import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
 import java.awt.Shape;
 import java.awt.geom.Point2D;

@@ -8,6 +8,7 @@
  */
 package edu.uci.ics.jung.samples;
 
+import edu.uci.ics.jung.algorithms.layout.*;
 import edu.uci.ics.jung.graph.CTreeNetwork;
 import edu.uci.ics.jung.graph.MutableCTreeNetwork;
 import edu.uci.ics.jung.graph.TreeNetworkBuilder;

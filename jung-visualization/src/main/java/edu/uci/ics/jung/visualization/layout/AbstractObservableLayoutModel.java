@@ -2,6 +2,7 @@ package edu.uci.ics.jung.visualization.layout;
 
 import com.google.common.collect.Lists;
 import com.google.common.graph.Graph;
+import edu.uci.ics.jung.algorithms.layout.*;
 import edu.uci.ics.jung.visualization.util.ChangeEventSupport;
 import edu.uci.ics.jung.visualization.util.DefaultChangeEventSupport;
 import java.util.List;

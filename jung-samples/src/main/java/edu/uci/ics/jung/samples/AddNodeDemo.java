@@ -11,6 +11,7 @@ package edu.uci.ics.jung.samples;
 
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.NetworkBuilder;
+import edu.uci.ics.jung.algorithms.layout.*;
 import edu.uci.ics.jung.graph.ObservableNetwork;
 import edu.uci.ics.jung.graph.util.Graphs;
 import edu.uci.ics.jung.visualization.VisualizationViewer;

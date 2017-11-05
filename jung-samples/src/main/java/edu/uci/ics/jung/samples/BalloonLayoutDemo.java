@@ -8,6 +8,9 @@
  */
 package edu.uci.ics.jung.samples;
 
+import edu.uci.ics.jung.algorithms.layout.BalloonLayoutAlgorithm;
+import edu.uci.ics.jung.algorithms.layout.DomainModel;
+import edu.uci.ics.jung.algorithms.layout.TreeLayoutAlgorithm;
 import edu.uci.ics.jung.graph.CTreeNetwork;
 import edu.uci.ics.jung.graph.MutableCTreeNetwork;
 import edu.uci.ics.jung.graph.TreeNetworkBuilder;
@@ -19,6 +22,7 @@ import edu.uci.ics.jung.visualization.control.*;
 import edu.uci.ics.jung.visualization.decorators.EdgeShape;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.layout.*;
+import edu.uci.ics.jung.visualization.layout.LayoutAlgorithmTransition;
 import edu.uci.ics.jung.visualization.transform.LensSupport;
 import edu.uci.ics.jung.visualization.transform.MutableTransformer;
 import edu.uci.ics.jung.visualization.transform.MutableTransformerDecorator;

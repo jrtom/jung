@@ -8,9 +8,9 @@
  */
 package edu.uci.ics.jung.visualization.transform;
 
+import edu.uci.ics.jung.algorithms.layout.DomainModel;
+import edu.uci.ics.jung.algorithms.layout.PolarPoint;
 import edu.uci.ics.jung.visualization.layout.AWTDomainModel;
-import edu.uci.ics.jung.visualization.layout.DomainModel;
-import edu.uci.ics.jung.visualization.layout.PolarPoint;
 import java.awt.Component;
 import java.awt.geom.Point2D;
 

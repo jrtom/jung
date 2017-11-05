@@ -10,8 +10,8 @@
 package edu.uci.ics.jung.visualization;
 
 import com.google.common.graph.Network;
-import edu.uci.ics.jung.visualization.layout.LayoutAlgorithm;
-import edu.uci.ics.jung.visualization.layout.LayoutModel;
+import edu.uci.ics.jung.algorithms.layout.LayoutAlgorithm;
+import edu.uci.ics.jung.algorithms.layout.LayoutModel;
 import edu.uci.ics.jung.visualization.spatial.Spatial;
 import java.awt.Dimension;
 import javax.swing.event.ChangeListener;

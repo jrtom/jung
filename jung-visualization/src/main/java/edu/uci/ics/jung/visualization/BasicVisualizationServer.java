@@ -10,13 +10,13 @@
 package edu.uci.ics.jung.visualization;
 
 import com.google.common.graph.Network;
+import edu.uci.ics.jung.algorithms.layout.LayoutAlgorithm;
 import edu.uci.ics.jung.visualization.annotations.Annotation;
 import edu.uci.ics.jung.visualization.annotations.AnnotationPaintable;
 import edu.uci.ics.jung.visualization.annotations.AnnotationRenderer;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
-import edu.uci.ics.jung.visualization.layout.LayoutAlgorithm;
 import edu.uci.ics.jung.visualization.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.visualization.picking.MultiPickedState;
 import edu.uci.ics.jung.visualization.picking.PickedState;

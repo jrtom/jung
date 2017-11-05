@@ -9,6 +9,8 @@
 package edu.uci.ics.jung.samples;
 
 import com.google.common.graph.Network;
+import edu.uci.ics.jung.algorithms.layout.DomainModel;
+import edu.uci.ics.jung.algorithms.layout.FRLayoutAlgorithm;
 import edu.uci.ics.jung.graph.util.TestGraphs;
 import edu.uci.ics.jung.visualization.BaseVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
@@ -27,8 +29,6 @@ import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.layout.AWTDomainModel;
-import edu.uci.ics.jung.visualization.layout.DomainModel;
-import edu.uci.ics.jung.visualization.layout.FRLayoutAlgorithm;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
 import java.awt.BorderLayout;
 import java.awt.Color;

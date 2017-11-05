@@ -10,7 +10,7 @@
 package edu.uci.ics.jung.visualization;
 
 import com.google.common.graph.Network;
-import edu.uci.ics.jung.visualization.layout.LayoutAlgorithm;
+import edu.uci.ics.jung.algorithms.layout.LayoutAlgorithm;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Image;

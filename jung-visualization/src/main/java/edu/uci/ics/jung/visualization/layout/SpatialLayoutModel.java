@@ -1,6 +1,8 @@
 package edu.uci.ics.jung.visualization.layout;
 
 import com.google.common.graph.Graph;
+import edu.uci.ics.jung.algorithms.layout.LayoutAlgorithm;
+import edu.uci.ics.jung.algorithms.layout.LayoutModel;
 import edu.uci.ics.jung.visualization.spatial.Spatial;
 import edu.uci.ics.jung.visualization.spatial.SpatialGrid;
 import edu.uci.ics.jung.visualization.util.Caching;

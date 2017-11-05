@@ -11,53 +11,41 @@
  */
 package edu.uci.ics.jung.visualization.layout.util;
 
-import edu.uci.ics.jung.visualization.layout.DomainModel;
+import java.awt.*;
+import java.awt.geom.Point2D;
 import java.util.Date;
 import java.util.Random;
 import java.util.function.Function;
 
 /**
- * Provides a random node location within the bounds of the width and height. This provides a random
- * location for unmapped nodes the first time they are accessed.
- *
- * <p><b>Note</b>: the generated values are not cached, so animate() will generate a new random
- * location for the passed node every time it is called. If you want a consistent value, wrap this
- * // * layout's generated values in a instance.
- *
  * @author Tom Nelson
  * @param <N> the node type
  */
-public class RandomLocationTransformer<N, P> implements Function<N, P> {
-  protected double width;
-  protected double height;
-  protected Random random;
-  protected DomainModel<P> domainModel;
+public class RandomLocationTransformer<N> implements Function<N, Point2D> {
+  Dimension d;
+  Random random;
 
   /**
-   * Creates an instance with the specified layoutSize which uses the current time as the random
-   * seed.
+   * Creates an instance with the specified size which uses the current time as the random seed.
    *
-   * @param width, height the layoutSize of the layout area
+   * @param d the size of the layout area
    */
-  public RandomLocationTransformer(DomainModel<P> domainModel, double width, double height) {
-    this(domainModel, width, height, new Date().getTime());
+  public RandomLocationTransformer(Dimension d) {
+    this(d, new Date().getTime());
   }
 
   /**
    * Creates an instance with the specified dimension and random seed.
    *
-   * @param
+   * @param d the size of the layout area
    * @param seed the seed for the internal random number generator
    */
-  public RandomLocationTransformer(
-      DomainModel<P> domainModel, double width, double height, long seed) {
-    this.domainModel = domainModel;
-    this.width = width;
-    this.height = height;
+  public RandomLocationTransformer(final Dimension d, long seed) {
+    this.d = d;
     this.random = new Random(seed);
   }
 
-  public P apply(N node) {
-    return domainModel.newPoint(random.nextDouble() * width, random.nextDouble() * height);
+  public Point2D apply(N node) {
+    return new Point2D.Double(random.nextDouble() * d.width, random.nextDouble() * d.height);
   }
 }

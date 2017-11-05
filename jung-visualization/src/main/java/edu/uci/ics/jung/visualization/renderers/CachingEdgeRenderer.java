@@ -1,10 +1,10 @@
 package edu.uci.ics.jung.visualization.renderers;
 
 import com.google.common.graph.Network;
+import edu.uci.ics.jung.algorithms.layout.*;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.VisualizationModel;
-import edu.uci.ics.jung.visualization.layout.*;
 import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
 import java.awt.Paint;
 import java.awt.Shape;
