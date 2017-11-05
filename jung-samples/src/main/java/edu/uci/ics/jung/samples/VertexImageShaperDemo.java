@@ -13,6 +13,7 @@ import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
 import edu.uci.ics.jung.algorithms.layout.DomainModel;
 import edu.uci.ics.jung.algorithms.layout.FRLayoutAlgorithm;
+import edu.uci.ics.jung.algorithms.util.RandomLocationTransformer;
 import edu.uci.ics.jung.visualization.*;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
@@ -22,7 +23,6 @@ import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.VertexIconShapeTransformer;
 import edu.uci.ics.jung.visualization.layout.AWTDomainModel;
-import edu.uci.ics.jung.visualization.layout.util.RandomLocationTransformer;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import edu.uci.ics.jung.visualization.renderers.BasicVertexRenderer;
 import edu.uci.ics.jung.visualization.renderers.Checkmark;
@@ -113,7 +113,7 @@ public class VertexImageShaperDemo extends JApplet {
             new BaseVisualizationModel(
                 graph,
                 layoutAlgorithm,
-                new RandomLocationTransformer(new Dimension(400, 400)),
+                new RandomLocationTransformer(domainModel, 400, 400),
                 new Dimension(400, 400)),
             new Dimension(400, 400));
 

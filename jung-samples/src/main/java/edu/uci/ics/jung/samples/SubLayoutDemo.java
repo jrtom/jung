@@ -10,6 +10,7 @@ package edu.uci.ics.jung.samples;
 
 import com.google.common.graph.*;
 import edu.uci.ics.jung.algorithms.layout.*;
+import edu.uci.ics.jung.algorithms.util.RandomLocationTransformer;
 import edu.uci.ics.jung.graph.util.TestGraphs;
 import edu.uci.ics.jung.visualization.BaseVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
@@ -23,7 +24,7 @@ import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.layout.*;
-import edu.uci.ics.jung.visualization.layout.util.RandomLocationTransformer;
+//import edu.uci.ics.jung.visualization.layout.util.RandomLocationTransformer;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -406,8 +407,8 @@ public class SubLayoutDemo extends JApplet {
                   domainModel,
                   subLayoutSize.width,
                   subLayoutSize.height,
-                  new RandomLocationTransformer(
-                      new Dimension(subLayoutSize.width, subLayoutSize.height)));
+                  new RandomLocationTransformer<>(domainModel,
+                      subLayoutSize.width, subLayoutSize.height));
 
           //          VisualizationModel newModel =
           //              new BaseVisualizationModel(subGraph, subLayoutAlgorithm, subLayoutSize);
