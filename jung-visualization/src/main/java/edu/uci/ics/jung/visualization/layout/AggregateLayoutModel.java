@@ -8,10 +8,13 @@
  *
  *
  */
-package edu.uci.ics.jung.algorithms.layout;
+package edu.uci.ics.jung.visualization.layout;
 
 import com.google.common.collect.Maps;
 import com.google.common.graph.Graph;
+import edu.uci.ics.jung.algorithms.layout.DomainModel;
+import edu.uci.ics.jung.algorithms.layout.LayoutAlgorithm;
+import edu.uci.ics.jung.algorithms.layout.LayoutModel;
 import edu.uci.ics.jung.algorithms.util.IterativeContext;
 import edu.uci.ics.jung.algorithms.util.Relaxer;
 import java.awt.geom.AffineTransform;
