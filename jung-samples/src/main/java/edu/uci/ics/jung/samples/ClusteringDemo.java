@@ -22,15 +22,15 @@ import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.VisualizationModel;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
-import edu.uci.ics.jung.visualization.layout.*;
-import java.awt.BasicStroke;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.GridLayout;
-import java.awt.Paint;
-import java.awt.Stroke;
+import edu.uci.ics.jung.visualization.layout.AWTDomainModel;
+import edu.uci.ics.jung.visualization.layout.AggregateLayoutModel;
+import edu.uci.ics.jung.visualization.layout.CircleLayoutAlgorithm;
+import edu.uci.ics.jung.visualization.layout.DomainModel;
+import edu.uci.ics.jung.visualization.layout.FRLayoutAlgorithm;
+import edu.uci.ics.jung.visualization.layout.LayoutAlgorithm;
+import edu.uci.ics.jung.visualization.layout.LayoutModel;
+import edu.uci.ics.jung.visualization.layout.LoadingCacheLayoutModel;
+import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.geom.Point2D;
 import java.io.BufferedReader;
@@ -40,15 +40,7 @@ import java.io.InputStreamReader;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.function.Supplier;
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JApplet;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JSlider;
-import javax.swing.JToggleButton;
+import javax.swing.*;
 import javax.swing.border.TitledBorder;
 
 /**
@@ -95,7 +87,7 @@ public class ClusteringDemo extends JApplet {
     JFrame jf = new JFrame();
     jf.getContentPane().add(cd);
 
-    jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    jf.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     jf.pack();
     jf.setVisible(true);
   }
@@ -132,8 +124,7 @@ public class ClusteringDemo extends JApplet {
         };
 
     PajekNetReader<MutableNetwork<Number, Number>, Number, Number> pnr =
-        new PajekNetReader<MutableNetwork<Number, Number>, Number, Number>(
-            vertexFactory, edgeFactory);
+        new PajekNetReader<>(vertexFactory, edgeFactory);
 
     final MutableNetwork<Number, Number> graph = NetworkBuilder.undirected().build();
 
@@ -143,10 +134,10 @@ public class ClusteringDemo extends JApplet {
     //specify the Fruchterman-Rheingold layout algorithm
     LayoutAlgorithm<Number, Point2D> algorithm = new FRLayoutAlgorithm<>(domainModel);
     LayoutModel<Number, Point2D> delegateModel =
-        new LoadingCacheLayoutModel<Number, Point2D>(graph.asGraph(), domainModel, 600, 600);
+        new LoadingCacheLayoutModel<>(graph.asGraph(), domainModel, 600, 600);
 
     final AggregateLayoutModel<Number, Point2D> layoutModel =
-        new AggregateLayoutModel<Number, Point2D>(delegateModel);
+        new AggregateLayoutModel<>(delegateModel);
     VisualizationModel visualizationModel =
         new BaseVisualizationModel(graph, layoutModel, algorithm);
 
@@ -172,7 +163,7 @@ public class ClusteringDemo extends JApplet {
           vv.getModel().getLayoutModel().accept(layoutAlgorithm);
         });
 
-    DefaultModalGraphMouse<Number, Number> gm = new DefaultModalGraphMouse<Number, Number>();
+    DefaultModalGraphMouse<Number, Number> gm = new DefaultModalGraphMouse<>();
     vv.setGraphMouse(gm);
 
     final JToggleButton groupVertices = new JToggleButton("Group Clusters");
@@ -257,7 +248,7 @@ public class ClusteringDemo extends JApplet {
     layoutModel.removeAll();
 
     EdgeBetweennessClusterer<Number, Number> clusterer =
-        new EdgeBetweennessClusterer<Number, Number>(numEdgesToRemove);
+        new EdgeBetweennessClusterer<>(numEdgesToRemove);
     Set<Set<Number>> clusterSet = clusterer.apply(graph);
     Set<Number> edges = clusterer.getEdgesRemoved();
 

@@ -21,13 +21,9 @@ import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.EdgeShape;
-import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.layout.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.util.Collection;
@@ -54,8 +50,6 @@ public class L2RTreeLayoutDemo extends JApplet {
 
   VisualizationServer.Paintable rings;
 
-  String root;
-
   TreeLayoutAlgorithm<String, Point2D> treeLayoutAlgorithm;
 
   RadialTreeLayoutAlgorithm<String, Point2D> radialLayoutAlgorithm;
@@ -67,17 +61,14 @@ public class L2RTreeLayoutDemo extends JApplet {
 
     treeLayoutAlgorithm = new TreeLayoutAlgorithm<>(domainModel);
     radialLayoutAlgorithm = new RadialTreeLayoutAlgorithm<>(domainModel);
-    //    radialLayoutAlgorithm.setSize(new Dimension(600, 600));
-    vv =
-        new VisualizationViewer<String, Integer>(
-            graph, treeLayoutAlgorithm, new Dimension(600, 600));
+    vv = new VisualizationViewer<>(graph, treeLayoutAlgorithm, new Dimension(600, 600));
     vv.setBackground(Color.white);
     vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.quadCurve());
-    vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
+    vv.getRenderContext().setVertexLabelTransformer(Object::toString);
     // add a listener for ToolTips
-    vv.setVertexToolTipTransformer(new ToStringLabeller());
+    vv.setVertexToolTipTransformer(Object::toString);
     vv.getRenderContext().setArrowFillPaintTransformer(a -> Color.lightGray);
-    rings = new Rings(vv.getModel().getLayoutModel());
+    //    rings = new Rings(vv.getModel().getLayoutModel());
 
     setLtoR(vv);
 
@@ -85,8 +76,7 @@ public class L2RTreeLayoutDemo extends JApplet {
     final GraphZoomScrollPane panel = new GraphZoomScrollPane(vv);
     content.add(panel);
 
-    final DefaultModalGraphMouse<String, Integer> graphMouse =
-        new DefaultModalGraphMouse<String, Integer>();
+    final DefaultModalGraphMouse<String, Integer> graphMouse = new DefaultModalGraphMouse<>();
 
     vv.setGraphMouse(graphMouse);
 
@@ -97,47 +87,29 @@ public class L2RTreeLayoutDemo extends JApplet {
     final ScalingControl scaler = new CrossoverScalingControl();
 
     JButton plus = new JButton("+");
-    plus.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            scaler.scale(vv, 1.1f, vv.getCenter());
-          }
-        });
+    plus.addActionListener(e -> scaler.scale(vv, 1.1f, vv.getCenter()));
+
     JButton minus = new JButton("-");
-    minus.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            scaler.scale(vv, 1 / 1.1f, vv.getCenter());
-          }
-        });
+    minus.addActionListener(e -> scaler.scale(vv, 1 / 1.1f, vv.getCenter()));
 
     JToggleButton radial = new JToggleButton("Radial");
     radial.addItemListener(
-        new ItemListener() {
-
-          public void itemStateChanged(ItemEvent e) {
-            if (e.getStateChange() == ItemEvent.SELECTED) {
-
-              //              LayoutAlgorithmTransition<String, Integer, Point2D> lt =
-              //                  new LayoutAlgorithmTransition<>(vv.getModel(), radialLayoutAlgorithm);
-              //              Animator animator = new Animator(lt);
-              //              animator.start();
-              vv.getModel().setLayoutAlgorithm(radialLayoutAlgorithm);
-              vv.getRenderContext().getMultiLayerTransformer().setToIdentity();
-              vv.addPreRenderPaintable(rings);
-            } else {
-              //              LayoutAlgorithmTransition<String, Integer, Point2D> lt =
-              //                  new LayoutAlgorithmTransition<>(vv.getModel(), treeLayoutAlgorithm);
-              //              Animator animator = new Animator(lt);
-              //              animator.start();
-              vv.getModel().setLayoutAlgorithm(treeLayoutAlgorithm);
-              vv.getRenderContext().getMultiLayerTransformer().setToIdentity();
-              setLtoR(vv);
-              vv.removePreRenderPaintable(rings);
+        e -> {
+          if (e.getStateChange() == ItemEvent.SELECTED) {
+            LayoutAlgorithmTransition.animate(vv.getModel(), radialLayoutAlgorithm);
+            vv.getRenderContext().getMultiLayerTransformer().setToIdentity();
+            if (rings == null) {
+              rings = new Rings(vv.getModel().getLayoutModel());
             }
-
-            vv.repaint();
+            vv.addPreRenderPaintable(rings);
+          } else {
+            LayoutAlgorithmTransition.animate(vv.getModel(), treeLayoutAlgorithm);
+            vv.getRenderContext().getMultiLayerTransformer().setToIdentity();
+            setLtoR(vv);
+            vv.removePreRenderPaintable(rings);
           }
+
+          vv.repaint();
         });
 
     JPanel scaleGrid = new JPanel(new GridLayout(1, 0));
@@ -174,7 +146,7 @@ public class L2RTreeLayoutDemo extends JApplet {
     }
 
     private Collection<Double> getDepths() {
-      Set<Double> depths = new HashSet<Double>();
+      Set<Double> depths = new HashSet<>();
       Map<String, PolarPoint> polarLocations = radialLayoutAlgorithm.getPolarLocations();
       for (String v : graph.nodes()) {
         PolarPoint pp = polarLocations.get(v);
@@ -249,7 +221,7 @@ public class L2RTreeLayoutDemo extends JApplet {
   public static void main(String[] args) {
     JFrame frame = new JFrame();
     Container content = frame.getContentPane();
-    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
     content.add(new L2RTreeLayoutDemo());
     frame.pack();

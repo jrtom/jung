@@ -33,9 +33,8 @@ public class LoadingCacheLayoutModel<N, P> extends AbstractObservableLayoutModel
       Function<N, P> initializer) {
     super(graph, domainModel, width, height);
     Function<N, P> chain =
-        initializer.andThen(
-            p -> (P) domainModel.newPoint(domainModel.getX(p), domainModel.getY(p)));
-    this.locations = CacheBuilder.newBuilder().build(CacheLoader.from(initializer::apply));
+        initializer.andThen(p -> domainModel.newPoint(domainModel.getX(p), domainModel.getY(p)));
+    this.locations = CacheBuilder.newBuilder().build(CacheLoader.from(chain::apply));
   }
 
   public LoadingCacheLayoutModel(
@@ -47,9 +46,8 @@ public class LoadingCacheLayoutModel<N, P> extends AbstractObservableLayoutModel
 
   public void setInitializer(Function<N, P> initializer) {
     Function<N, P> chain =
-        initializer.andThen(
-            p -> (P) domainModel.newPoint(domainModel.getX(p), domainModel.getY(p)));
-    this.locations = CacheBuilder.newBuilder().build(CacheLoader.from(initializer::apply));
+        initializer.andThen(p -> domainModel.newPoint(domainModel.getX(p), domainModel.getY(p)));
+    this.locations = CacheBuilder.newBuilder().build(CacheLoader.from(chain::apply));
   }
 
   @Override

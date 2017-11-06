@@ -6,31 +6,20 @@ import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import javax.swing.*;
 
-/** Created by Tom Nelson */
+/** @author Tom Nelson */
 public class ControlHelpers {
 
   public static JComponent getZoomControls(VisualizationServer vv, String title) {
 
     final ScalingControl scaler = new CrossoverScalingControl();
     JButton plus = new JButton("+");
-    plus.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            scaler.scale(vv, 1.1f, vv.getCenter());
-          }
-        });
+    plus.addActionListener(e -> scaler.scale(vv, 1.1f, vv.getCenter()));
     JButton minus = new JButton("-");
-    minus.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            scaler.scale(vv, 1 / 1.1f, vv.getCenter());
-          }
-        });
-    JPanel zoomPanel = new JPanel(new GridLayout(0, 1));
+    minus.addActionListener(e -> scaler.scale(vv, 1 / 1.1f, vv.getCenter()));
+
+    JPanel zoomPanel = new JPanel(new GridLayout(1, 2));
     zoomPanel.setBorder(BorderFactory.createTitledBorder(title));
     zoomPanel.add(plus);
     zoomPanel.add(minus);

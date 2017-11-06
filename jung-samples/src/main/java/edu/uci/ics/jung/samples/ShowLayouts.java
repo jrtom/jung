@@ -53,14 +53,12 @@ public class ShowLayouts extends JApplet {
     CIRCLE,
     SPRING,
     SELF_ORGANIZING_MAP
-  };
+  }
 
   public static class GraphChooser implements ActionListener {
-    private JComboBox<?> layout_combo;
     private final VisualizationViewer<Integer, Number> vv;
 
-    public GraphChooser(JComboBox<?> layout_combo, VisualizationViewer<Integer, Number> vv) {
-      this.layout_combo = layout_combo;
+    public GraphChooser(VisualizationViewer<Integer, Number> vv) {
       this.vv = vv;
     }
 
@@ -89,8 +87,7 @@ public class ShowLayouts extends JApplet {
       SwingUtilities.invokeLater(
           () -> {
             Layouts layoutType = (Layouts) jcb.getSelectedItem();
-            Network network = vv.getModel().getNetwork();
-            LayoutAlgorithm layoutAlgorithm = createLayout(layoutType, network);
+            LayoutAlgorithm layoutAlgorithm = createLayout(layoutType);
             LayoutAlgorithmTransition.animate(vv.getModel(), layoutAlgorithm);
           });
     }
@@ -119,7 +116,7 @@ public class ShowLayouts extends JApplet {
 
     g_array[0] = TestGraphs.createTestGraph(false);
     BarabasiAlbertGenerator<Integer, Number> generator =
-        new BarabasiAlbertGenerator<Integer, Number>(
+        new BarabasiAlbertGenerator<>(
             NetworkBuilder.directed().allowsParallelEdges(true), vertexFactory, edgeFactory, 4, 3);
     generator.evolveGraph(20);
     g_array[1] = generator.get();
@@ -140,17 +137,13 @@ public class ShowLayouts extends JApplet {
     vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
     vv.getRenderer().getVertexLabelRenderer().setPosition(Renderer.VertexLabel.Position.CNTR);
 
-    final DefaultModalGraphMouse<Integer, Number> graphMouse =
-        new DefaultModalGraphMouse<Integer, Number>();
+    final DefaultModalGraphMouse<Integer, Number> graphMouse = new DefaultModalGraphMouse<>();
     vv.setGraphMouse(graphMouse);
 
     // this reinforces that the generics (or lack of) declarations are correct
     vv.setVertexToolTipTransformer(
-        node -> {
-          return node.toString()
-              + ". with neighbors:"
-              + vv.getModel().getNetwork().adjacentNodes(node);
-        });
+        node ->
+            node.toString() + ". with neighbors:" + vv.getModel().getNetwork().adjacentNodes(node));
 
     final ScalingControl scaler = new CrossoverScalingControl();
 
@@ -192,7 +185,7 @@ public class ShowLayouts extends JApplet {
     // do this before adding the listener so there is no event fired
     graph_chooser.setSelectedIndex(3);
 
-    graph_chooser.addActionListener(new GraphChooser(jcb, vv));
+    graph_chooser.addActionListener(new GraphChooser(vv));
 
     topControls.add(jcb);
     topControls.add(graph_chooser);
@@ -203,11 +196,10 @@ public class ShowLayouts extends JApplet {
   }
 
   public void start() {
-    Object lo = this.getContentPane().getLayout();
     this.getContentPane().add(getGraphPanel());
   }
 
-  private static LayoutAlgorithm createLayout(Layouts layoutType, Network network) {
+  private static LayoutAlgorithm createLayout(Layouts layoutType) {
     switch (layoutType) {
       case CIRCLE:
         return new CircleLayoutAlgorithm(domainModel);
@@ -233,7 +225,7 @@ public class ShowLayouts extends JApplet {
 
     JFrame jf = new JFrame();
     jf.getContentPane().add(jp);
-    jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    jf.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     jf.pack();
     jf.setVisible(true);
   }

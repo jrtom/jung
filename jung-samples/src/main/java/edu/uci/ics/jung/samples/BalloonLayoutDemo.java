@@ -17,7 +17,6 @@ import edu.uci.ics.jung.visualization.VisualizationServer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.*;
 import edu.uci.ics.jung.visualization.decorators.EdgeShape;
-import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.layout.*;
 import edu.uci.ics.jung.visualization.transform.LensSupport;
 import edu.uci.ics.jung.visualization.transform.MutableTransformer;
@@ -50,8 +49,6 @@ public class BalloonLayoutDemo extends JApplet {
 
   VisualizationServer.Paintable rings;
 
-  String root;
-
   TreeLayoutAlgorithm<String, Point2D> layoutAlgorithm;
 
   BalloonLayoutAlgorithm<String, Point2D> radialLayoutAlgorithm;
@@ -70,10 +67,11 @@ public class BalloonLayoutDemo extends JApplet {
         new VisualizationViewer<>(
             graph, layoutAlgorithm, new Dimension(900, 900), new Dimension(600, 600));
     vv.setBackground(Color.white);
-    vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.quadCurve());
-    vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
+    vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.line());
+    vv.getRenderContext().setVertexLabelTransformer(Object::toString);
     // add a listener for ToolTips
-    vv.setVertexToolTipTransformer(n -> n.toString());
+    vv.setVertexToolTipTransformer(Object::toString);
+
     vv.getRenderContext().setArrowFillPaintTransformer(a -> Color.lightGray);
     rings = new Rings(radialLayoutAlgorithm);
 
@@ -81,14 +79,13 @@ public class BalloonLayoutDemo extends JApplet {
     final GraphZoomScrollPane panel = new GraphZoomScrollPane(vv);
     content.add(panel);
 
-    final DefaultModalGraphMouse<String, Integer> graphMouse =
-        new DefaultModalGraphMouse<String, Integer>();
+    final DefaultModalGraphMouse<String, Integer> graphMouse = new DefaultModalGraphMouse<>();
 
     vv.setGraphMouse(graphMouse);
     vv.addKeyListener(graphMouse.getModeKeyListener());
 
     hyperbolicViewSupport =
-        new ViewLensSupport<String, Integer>(
+        new ViewLensSupport<>(
             vv,
             new HyperbolicShapeTransformer(
                 vv, vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.VIEW)),
@@ -255,7 +252,7 @@ public class BalloonLayoutDemo extends JApplet {
   public static void main(String[] args) {
     JFrame frame = new JFrame();
     Container content = frame.getContentPane();
-    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
     content.add(new BalloonLayoutDemo());
     frame.pack();

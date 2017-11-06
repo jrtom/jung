@@ -39,7 +39,7 @@ public interface VisualizationModel<N, E, P> { //extends LayoutModel<N,P> {
 
   void setNetwork(Network<N, E> network);
 
-  //  void setNetwork(Network<N, E> network, boolean forceUpdate);
+  void setNetwork(Network<N, E> network, boolean forceUpdate);
 
   Spatial<N> getSpatial();
 

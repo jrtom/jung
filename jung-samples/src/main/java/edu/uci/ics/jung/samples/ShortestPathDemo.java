@@ -14,30 +14,19 @@ import edu.uci.ics.jung.algorithms.shortestpath.BFSDistanceLabeler;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
-import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
-import edu.uci.ics.jung.visualization.layout.*;
+import edu.uci.ics.jung.visualization.layout.AWTDomainModel;
+import edu.uci.ics.jung.visualization.layout.DomainModel;
+import edu.uci.ics.jung.visualization.layout.FRLayoutAlgorithm;
+import edu.uci.ics.jung.visualization.layout.LayoutAlgorithm;
+import edu.uci.ics.jung.visualization.layout.LayoutModel;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
-import java.awt.BasicStroke;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Graphics;
-import java.awt.Paint;
-import java.awt.Stroke;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.*;
 import java.awt.geom.Point2D;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.SwingConstants;
+import javax.swing.*;
 
 /**
  * Demonstrates use of the shortest path algorithm and visualization of the results.
@@ -67,14 +56,14 @@ public class ShortestPathDemo extends JPanel {
     // show graph
     final LayoutAlgorithm<String, Point2D> layoutAlgorithm = new FRLayoutAlgorithm<>(domainModel);
     final VisualizationViewer<String, Number> vv =
-        new VisualizationViewer<String, Number>(mGraph, layoutAlgorithm);
+        new VisualizationViewer<>(mGraph, layoutAlgorithm);
     vv.setBackground(Color.WHITE);
 
-    vv.getRenderContext().setVertexDrawPaintTransformer(new MyVertexDrawPaintFunction<String>());
-    vv.getRenderContext().setVertexFillPaintTransformer(new MyVertexFillPaintFunction<String>());
+    vv.getRenderContext().setVertexDrawPaintTransformer(new MyVertexDrawPaintFunction<>());
+    vv.getRenderContext().setVertexFillPaintTransformer(new MyVertexFillPaintFunction<>());
     vv.getRenderContext().setEdgeDrawPaintTransformer(new MyEdgePaintFunction());
     vv.getRenderContext().setEdgeStrokeTransformer(new MyEdgeStrokeFunction());
-    vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
+    vv.getRenderContext().setVertexLabelTransformer(Object::toString);
     vv.setGraphMouse(new DefaultModalGraphMouse<String, Number>());
     LayoutModel<String, Point2D> layoutModel = vv.getModel().getLayoutModel();
     vv.addPostRenderPaintable(
@@ -205,23 +194,20 @@ public class ShortestPathDemo extends JPanel {
     for (String node : mGraph.nodes()) {
       nodes[i++] = node;
     }
-    final JComboBox<String> choices = new JComboBox<String>(nodes);
+    final JComboBox<String> choices = new JComboBox<>(nodes);
     choices.setSelectedIndex(-1);
     choices.setBackground(Color.WHITE);
     choices.addActionListener(
-        new ActionListener() {
+        e -> {
+          String v = (String) choices.getSelectedItem();
 
-          public void actionPerformed(ActionEvent e) {
-            String v = (String) choices.getSelectedItem();
-
-            if (from) {
-              mFrom = v;
-            } else {
-              mTo = v;
-            }
-            drawShortest();
-            repaint();
+          if (from) {
+            mFrom = v;
+          } else {
+            mTo = v;
           }
+          drawShortest();
+          repaint();
         });
     return choices;
   }
@@ -231,9 +217,9 @@ public class ShortestPathDemo extends JPanel {
     if (mFrom == null || mTo == null) {
       return;
     }
-    BFSDistanceLabeler<String> bdl = new BFSDistanceLabeler<String>();
+    BFSDistanceLabeler<String> bdl = new BFSDistanceLabeler<>();
     bdl.labelDistances(mGraph.asGraph(), mFrom);
-    mPred = new HashSet<String>();
+    mPred = new HashSet<>();
 
     // grab a predecessor
     String v = mTo;
@@ -242,7 +228,7 @@ public class ShortestPathDemo extends JPanel {
     while (prd != null && prd.size() > 0) {
       v = prd.iterator().next();
       mPred.add(v);
-      if (v == mFrom) {
+      if (v.equals(mFrom)) {
         return;
       }
       prd = bdl.getPredecessors(v);
@@ -251,7 +237,7 @@ public class ShortestPathDemo extends JPanel {
 
   public static void main(String[] s) {
     JFrame jf = new JFrame();
-    jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    jf.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     jf.getContentPane().add(new ShortestPathDemo());
     jf.pack();
     jf.setVisible(true);
@@ -259,7 +245,7 @@ public class ShortestPathDemo extends JPanel {
 
   /** @return the graph for this demo */
   Network<String, Number> getGraph() {
-    Graph<String> g = new EppsteinPowerLawGenerator<String>(new VertexFactory(), 26, 50, 50).get();
+    Graph<String> g = new EppsteinPowerLawGenerator<>(new VertexFactory(), 26, 50, 50).get();
     // convert this graph into a Network because the visualization system can't handle Graphs (yet)
     MutableNetwork<String, Number> graph =
         NetworkBuilder.undirected().nodeOrder(ElementOrder.<String>natural()).build();

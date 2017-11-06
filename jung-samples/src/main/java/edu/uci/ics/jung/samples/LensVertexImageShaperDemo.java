@@ -50,18 +50,7 @@ import java.awt.geom.Point2D;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
-import javax.swing.BorderFactory;
-import javax.swing.ButtonGroup;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JApplet;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
+import javax.swing.*;
 
 /**
  * Demonstrates the use of images to represent graph vertices. The images are added to the
@@ -338,25 +327,25 @@ public class LensVertexImageShaperDemo extends JApplet {
 
   Network<Number, Number> createGraph() {
     MutableNetwork<Number, Number> graph = NetworkBuilder.directed().build();
-    graph.addEdge(0, 1, new Double(Math.random()));
-    graph.addEdge(3, 0, new Double(Math.random()));
-    graph.addEdge(0, 4, new Double(Math.random()));
-    graph.addEdge(4, 5, new Double(Math.random()));
-    graph.addEdge(5, 3, new Double(Math.random()));
-    graph.addEdge(2, 1, new Double(Math.random()));
-    graph.addEdge(4, 1, new Double(Math.random()));
-    graph.addEdge(8, 2, new Double(Math.random()));
-    graph.addEdge(3, 8, new Double(Math.random()));
-    graph.addEdge(6, 7, new Double(Math.random()));
-    graph.addEdge(7, 5, new Double(Math.random()));
-    graph.addEdge(0, 9, new Double(Math.random()));
-    graph.addEdge(9, 8, new Double(Math.random()));
-    graph.addEdge(7, 6, new Double(Math.random()));
-    graph.addEdge(6, 5, new Double(Math.random()));
-    graph.addEdge(4, 2, new Double(Math.random()));
-    graph.addEdge(5, 4, new Double(Math.random()));
-    graph.addEdge(4, 10, new Double(Math.random()));
-    graph.addEdge(10, 4, new Double(Math.random()));
+    graph.addEdge(0, 1, Math.random());
+    graph.addEdge(3, 0, Math.random());
+    graph.addEdge(0, 4, Math.random());
+    graph.addEdge(4, 5, Math.random());
+    graph.addEdge(5, 3, Math.random());
+    graph.addEdge(2, 1, Math.random());
+    graph.addEdge(4, 1, Math.random());
+    graph.addEdge(8, 2, Math.random());
+    graph.addEdge(3, 8, Math.random());
+    graph.addEdge(6, 7, Math.random());
+    graph.addEdge(7, 5, Math.random());
+    graph.addEdge(0, 9, Math.random());
+    graph.addEdge(9, 8, Math.random());
+    graph.addEdge(7, 6, Math.random());
+    graph.addEdge(6, 5, Math.random());
+    graph.addEdge(4, 2, Math.random());
+    graph.addEdge(5, 4, Math.random());
+    graph.addEdge(4, 10, Math.random());
+    graph.addEdge(10, 4, Math.random());
 
     return graph;
   }
@@ -385,7 +374,7 @@ public class LensVertexImageShaperDemo extends JApplet {
   public static void main(String[] args) {
     JFrame frame = new JFrame();
     Container content = frame.getContentPane();
-    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
     content.add(new LensVertexImageShaperDemo());
     frame.pack();

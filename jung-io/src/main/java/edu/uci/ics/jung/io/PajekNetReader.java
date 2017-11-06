@@ -256,7 +256,8 @@ public class PajekNetReader<G extends MutableNetwork<V, E>, V, E> {
       String[] initial_split = curLine.trim().split("\"");
       // if there are any quote marks, there should be exactly 2
       Preconditions.checkArgument(
-          initial_split.length == 2, "Unbalanced (or too many) " + "quote marks in " + curLine);
+          initial_split.length == 2 || initial_split.length == 3,
+          "Unbalanced (or too many) " + "quote marks in " + curLine);
       index = initial_split[0].trim();
       label = initial_split[1].trim();
       if (initial_split.length == 3) {
