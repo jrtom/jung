@@ -144,15 +144,16 @@ public class TreeLayoutAlgorithm<N, P> extends AbstractLayoutAlgorithm<N, P> {
 
     int size = 0;
     for (N node : roots) {
-      int childrenNum = layoutModel.getGraph().successors(node).size();
-
-      if (childrenNum != 0) {
-        for (N element : layoutModel.getGraph().successors(node)) {
-          size += calculateDimensionX(layoutModel, element) + distX;
-        }
-      }
-      size = Math.max(0, size - distX);
-      basePositions.put(node, size);
+      size += calculateDimensionX(layoutModel, node);
+      //      int childrenNum = layoutModel.getGraph().successors(node).size();
+      //
+      //      if (childrenNum != 0) {
+      //        for (N element : layoutModel.getGraph().successors(node)) {
+      //          size += calculateDimensionX(layoutModel, element) + distX;
+      //        }
+      //      }
+      //      size = Math.max(0, size - distX);
+      //      basePositions.put(node, size);
     }
 
     return size;

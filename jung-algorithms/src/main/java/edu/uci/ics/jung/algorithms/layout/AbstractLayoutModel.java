@@ -64,9 +64,12 @@ public abstract class AbstractLayoutModel<N, P> implements LayoutModel<N, P> {
     if (log.isTraceEnabled()) {
       log.trace("{} will visit {}", layoutAlgorithm, this);
     }
-    layoutAlgorithm.visit(this);
-    if (layoutAlgorithm instanceof IterativeContext) {
-      setupVisRunner((IterativeContext) layoutAlgorithm);
+    if (layoutAlgorithm != null) {
+      layoutAlgorithm.visit(this);
+
+      if (layoutAlgorithm instanceof IterativeContext) {
+        setupVisRunner((IterativeContext) layoutAlgorithm);
+      }
     }
   }
 

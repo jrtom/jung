@@ -22,23 +22,10 @@ import edu.uci.ics.jung.visualization.control.SatelliteVisualizationViewer;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
-import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.layout.AWTDomainModel;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.*;
 import java.awt.geom.Point2D;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JDesktopPane;
-import javax.swing.JFrame;
-import javax.swing.JInternalFrame;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
+import javax.swing.*;
 
 /**
  * Similar to the SatelliteViewDemo, but using JInternalFrame.
@@ -104,9 +91,8 @@ public class InternalFrameSatelliteViewDemo {
                 vv.getPickedVertexState(), Color.red, Color.yellow));
 
     // add my listener for ToolTips
-    vv.setVertexToolTipTransformer(new ToStringLabeller());
-    final DefaultModalGraphMouse<String, Number> graphMouse =
-        new DefaultModalGraphMouse<String, Number>();
+    vv.setVertexToolTipTransformer(Object::toString);
+    final DefaultModalGraphMouse<String, Number> graphMouse = new DefaultModalGraphMouse<>();
     vv.setGraphMouse(graphMouse);
 
     satellite = new SatelliteVisualizationViewer<>(vv, new Dimension(200, 200));
@@ -130,7 +116,7 @@ public class InternalFrameSatelliteViewDemo {
     JPanel panel = new JPanel(new BorderLayout());
     panel.add(desktop);
     content.add(panel);
-    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
     JInternalFrame vvFrame = new JInternalFrame();
     vvFrame.getContentPane().add(vv);
@@ -149,34 +135,18 @@ public class InternalFrameSatelliteViewDemo {
     final ScalingControl scaler = new CrossoverScalingControl();
 
     JButton plus = new JButton("+");
-    plus.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            scaler.scale(vv, 1.1f, vv.getCenter());
-          }
-        });
+    plus.addActionListener(e -> scaler.scale(vv, 1.1f, vv.getCenter()));
     JButton minus = new JButton("-");
-    minus.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            scaler.scale(vv, 1 / 1.1f, vv.getCenter());
-          }
-        });
+    minus.addActionListener(e -> scaler.scale(vv, 1 / 1.1f, vv.getCenter()));
+
     JButton dismiss = new JButton("Dismiss");
-    dismiss.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            dialog.setVisible(false);
-          }
-        });
+    dismiss.addActionListener(e -> dialog.setVisible(false));
+
     JButton help = new JButton("Help");
     help.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
+        e ->
             JOptionPane.showInternalMessageDialog(
-                dialog, instructions, "Instructions", JOptionPane.PLAIN_MESSAGE);
-          }
-        });
+                dialog, instructions, "Instructions", JOptionPane.PLAIN_MESSAGE));
     JPanel controls = new JPanel(new GridLayout(2, 2));
     controls.add(plus);
     controls.add(minus);
@@ -187,15 +157,13 @@ public class InternalFrameSatelliteViewDemo {
 
     JButton zoomer = new JButton("Show Satellite View");
     zoomer.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            dialog.pack();
-            dialog.setLocation(desktop.getWidth() - dialog.getWidth(), 0);
-            dialog.show();
-            try {
-              dialog.setSelected(true);
-            } catch (java.beans.PropertyVetoException ex) {
-            }
+        e -> {
+          dialog.pack();
+          dialog.setLocation(desktop.getWidth() - dialog.getWidth(), 0);
+          dialog.show();
+          try {
+            dialog.setSelected(true);
+          } catch (java.beans.PropertyVetoException ex) {
           }
         });
 

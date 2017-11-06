@@ -16,22 +16,19 @@ import edu.uci.ics.jung.algorithms.layout.FRLayoutAlgorithm;
 import edu.uci.ics.jung.algorithms.layout.LayoutAlgorithm;
 import edu.uci.ics.jung.algorithms.layout.LayoutModel;
 import edu.uci.ics.jung.graph.util.TestGraphs;
+import edu.uci.ics.jung.samples.util.ControlHelpers;
 import edu.uci.ics.jung.visualization.BaseVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.VisualizationModel;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
-import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
-import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.EllipseVertexShapeTransformer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.layout.AWTDomainModel;
 import edu.uci.ics.jung.visualization.subLayout.GraphCollapser;
 import edu.uci.ics.jung.visualization.util.PredicatedParallelEdgeIndexFunction;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.geom.Point2D;
 import java.util.Collection;
 import java.util.HashSet;
@@ -101,10 +98,8 @@ public class VertexCollapseDemo extends JApplet {
     layoutAlgorithm = new FRLayoutAlgorithm(domainModel);
 
     Dimension preferredSize = new Dimension(400, 400);
-    //    LayoutModel layoutModel = new SpatialLayoutModel(graph.asGraph(), preferredSize.width, preferredSize.height);
-    //    LayoutModel aggregateLayoutModel = new AggregateLayoutModel(layoutModel);
+
     final VisualizationModel visualizationModel =
-        //            new BaseVisualizationModel(graph, aggregateLayoutModel, layoutAlgorithm);
         new BaseVisualizationModel(graph, layoutAlgorithm, preferredSize);
     vv = new VisualizationViewer(visualizationModel, preferredSize);
 
@@ -144,156 +139,109 @@ public class VertexCollapseDemo extends JApplet {
     modeBox.addItemListener(graphMouse.getModeListener());
     graphMouse.setMode(ModalGraphMouse.Mode.PICKING);
 
-    final ScalingControl scaler = new CrossoverScalingControl();
-
-    JButton plus = new JButton("+");
-    plus.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            scaler.scale(vv, 1.1f, vv.getCenter());
-          }
-        });
-    JButton minus = new JButton("-");
-    minus.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            scaler.scale(vv, 1 / 1.1f, vv.getCenter());
-          }
-        });
-
     JButton collapse = new JButton("Collapse");
     collapse.addActionListener(
-        new ActionListener() {
+        e -> {
+          Collection picked = new HashSet(vv.getPickedVertexState().getPicked());
+          if (picked.size() > 1) {
+            Network inGraph = vv.getModel().getNetwork();
+            LayoutModel layoutModel = vv.getModel().getLayoutModel();
+            Network clusterGraph = collapser.getClusterGraph(inGraph, picked);
+            log.info("clusterGraph:" + clusterGraph);
+            Network g = collapser.collapse(inGraph, clusterGraph);
+            log.info("g:" + g);
 
-          public void actionPerformed(ActionEvent e) {
-            Collection picked = new HashSet(vv.getPickedVertexState().getPicked());
-            if (picked.size() > 1) {
-              Network inGraph = vv.getModel().getNetwork();
-              LayoutModel layoutModel = vv.getModel().getLayoutModel();
-              Network clusterGraph = collapser.getClusterGraph(inGraph, picked);
-              log.info("clusterGraph:" + clusterGraph);
-              Network g = collapser.collapse(inGraph, clusterGraph);
-              log.info("g:" + g);
-
-              double sumx = 0;
-              double sumy = 0;
-              for (Object v : picked) {
-                Point2D p = (Point2D) layoutModel.apply(v);
-                sumx += p.getX();
-                sumy += p.getY();
-              }
-              Point2D cp = new Point2D.Double(sumx / picked.size(), sumy / picked.size());
-              layoutModel.lock(false);
-              layoutModel.set(clusterGraph, cp);
-              log.info("put the cluster at " + cp);
-              layoutModel.lock(clusterGraph, true);
-              layoutModel.lock(true);
-              vv.getModel().setNetwork(g);
-
-              //              layoutModel.setGraph(g.asGraph());
-              //              Map<Object, Point2D> locations = Maps.newHashMap();
-              //              for (Object node : g.nodes()) {
-              //                locations.put(node, (Point2D) layoutModel.get(node));
-              //              }
-              //              log.info("locations are:" + locations);
-              vv.getRenderContext().getParallelEdgeIndexFunction().reset();
-              layoutModel.accept(vv.getModel().getLayoutAlgorithm());
-              //              vv.getModel().setLayout(layout);
-              vv.getPickedVertexState().clear();
-              vv.repaint();
+            double sumx = 0;
+            double sumy = 0;
+            for (Object v : picked) {
+              Point2D p = (Point2D) layoutModel.apply(v);
+              sumx += p.getX();
+              sumy += p.getY();
             }
+            Point2D cp = new Point2D.Double(sumx / picked.size(), sumy / picked.size());
+            layoutModel.lock(false);
+            layoutModel.set(clusterGraph, cp);
+            log.info("put the cluster at " + cp);
+            layoutModel.lock(clusterGraph, true);
+            layoutModel.lock(true);
+            vv.getModel().setNetwork(g);
+
+            vv.getRenderContext().getParallelEdgeIndexFunction().reset();
+            layoutModel.accept(vv.getModel().getLayoutAlgorithm());
+            vv.getPickedVertexState().clear();
+            vv.repaint();
           }
         });
+
     JButton expand = new JButton("Expand");
     expand.addActionListener(
-        new ActionListener() {
+        e -> {
+          Collection picked = new HashSet(vv.getPickedVertexState().getPicked());
+          for (Object v : picked) {
+            if (v instanceof Network) {
+              Network inGraph = vv.getModel().getNetwork();
+              LayoutModel layoutModel = vv.getModel().getLayoutModel();
+              Network g = collapser.expand(graph, inGraph, (Network) v);
 
-          public void actionPerformed(ActionEvent e) {
-            Collection picked = new HashSet(vv.getPickedVertexState().getPicked());
-            for (Object v : picked) {
-              if (v instanceof Network) {
-                Network inGraph = vv.getModel().getNetwork();
-                LayoutModel layoutModel = vv.getModel().getLayoutModel();
-                Network g = collapser.expand(graph, inGraph, (Network) v);
+              layoutModel.lock(false);
+              vv.getModel().setNetwork(g);
 
-                layoutModel.lock(false);
-                vv.getModel().setNetwork(g);
-
-                vv.getRenderContext().getParallelEdgeIndexFunction().reset();
-                //                vv.getModel().setLayout(layout);
-              }
-              vv.getPickedVertexState().clear();
-              vv.repaint();
+              vv.getRenderContext().getParallelEdgeIndexFunction().reset();
+              //                vv.getModel().setLayout(layout);
             }
+            vv.getPickedVertexState().clear();
+            vv.repaint();
           }
         });
 
     JButton compressEdges = new JButton("Compress Edges");
     compressEdges.addActionListener(
-        new ActionListener() {
-
-          public void actionPerformed(ActionEvent e) {
-            Set picked = vv.getPickedVertexState().getPicked();
-            if (picked.size() == 2) {
-              Iterator pickedIter = picked.iterator();
-              Object nodeU = pickedIter.next();
-              Object nodeV = pickedIter.next();
-              Network graph = vv.getModel().getNetwork();
-              Collection edges = new HashSet(graph.incidentEdges(nodeU));
-              edges.retainAll(graph.incidentEdges(nodeV));
-              exclusions.addAll(edges);
-              vv.repaint();
-            }
+        e -> {
+          Set picked = vv.getPickedVertexState().getPicked();
+          if (picked.size() == 2) {
+            Iterator pickedIter = picked.iterator();
+            Object nodeU = pickedIter.next();
+            Object nodeV = pickedIter.next();
+            Network graph = vv.getModel().getNetwork();
+            Collection edges = new HashSet(graph.incidentEdges(nodeU));
+            edges.retainAll(graph.incidentEdges(nodeV));
+            exclusions.addAll(edges);
+            vv.repaint();
           }
         });
 
     JButton expandEdges = new JButton("Expand Edges");
     expandEdges.addActionListener(
-        new ActionListener() {
-
-          public void actionPerformed(ActionEvent e) {
-            Set picked = vv.getPickedVertexState().getPicked();
-            if (picked.size() == 2) {
-              Iterator pickedIter = picked.iterator();
-              Object nodeU = pickedIter.next();
-              Object nodeV = pickedIter.next();
-              Network graph = vv.getModel().getNetwork();
-              Collection edges = new HashSet(graph.incidentEdges(nodeU));
-              edges.retainAll(graph.incidentEdges(nodeV));
-              exclusions.removeAll(edges);
-              vv.repaint();
-            }
+        e -> {
+          Set picked = vv.getPickedVertexState().getPicked();
+          if (picked.size() == 2) {
+            Iterator pickedIter = picked.iterator();
+            Object nodeU = pickedIter.next();
+            Object nodeV = pickedIter.next();
+            Network graph = vv.getModel().getNetwork();
+            Collection edges = new HashSet(graph.incidentEdges(nodeU));
+            edges.retainAll(graph.incidentEdges(nodeV));
+            exclusions.removeAll(edges);
+            vv.repaint();
           }
         });
 
     JButton reset = new JButton("Reset");
     reset.addActionListener(
-        new ActionListener() {
-
-          public void actionPerformed(ActionEvent e) {
-            vv.getModel().setNetwork(graph);
-            //            LayoutModel layoutModel = vv.getModel().getLayoutModel(); // ??????????????????
-            //            vv.getModel().setLayout(layout);
-            exclusions.clear();
-            vv.repaint();
-          }
+        e -> {
+          vv.getModel().setNetwork(graph);
+          exclusions.clear();
+          vv.repaint();
         });
 
     JButton help = new JButton("Help");
     help.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
+        e ->
             JOptionPane.showMessageDialog(
-                (JComponent) e.getSource(), instructions, "Help", JOptionPane.PLAIN_MESSAGE);
-          }
-        });
+                (JComponent) e.getSource(), instructions, "Help", JOptionPane.PLAIN_MESSAGE));
 
     JPanel controls = new JPanel();
-    JPanel zoomControls = new JPanel(new GridLayout(2, 1));
-    zoomControls.setBorder(BorderFactory.createTitledBorder("Zoom"));
-    zoomControls.add(plus);
-    zoomControls.add(minus);
-    controls.add(zoomControls);
+    controls.add(ControlHelpers.getZoomControls(vv, "Zoom"));
     JPanel collapseControls = new JPanel(new GridLayout(3, 1));
     collapseControls.setBorder(BorderFactory.createTitledBorder("Picked"));
     collapseControls.add(collapse);
@@ -369,7 +317,7 @@ public class VertexCollapseDemo extends JApplet {
       for (current = nodeIt + 1; current <= 3; ++current) {
         i = "" + nodeIt;
         next = "" + current;
-        g.addEdge(i, next, Double.valueOf(Math.pow((double) (nodeIt + 2), (double) current)));
+        g.addEdge(i, next, Math.pow((double) (nodeIt + 2), (double) current));
       }
     }
 
@@ -378,14 +326,14 @@ public class VertexCollapseDemo extends JApplet {
         if (Math.random() <= 0.6D) {
           i = "" + nodeIt;
           next = "" + current;
-          g.addEdge(i, next, Double.valueOf(Math.pow((double) (nodeIt + 2), (double) current)));
+          g.addEdge(i, next, Math.pow((double) (nodeIt + 2), (double) current));
         }
       }
     }
 
-    Iterator var5 = g.nodes().iterator();
-    String var6 = (String) var5.next();
-    int var7 = 0;
+    //    Iterator var5 = g.nodes().iterator();
+    //    String var6 = (String) var5.next();
+    //    int var7 = 0;
 
     //    while(var5.hasNext()) {
     //      next = (String)var5.next();
@@ -397,7 +345,7 @@ public class VertexCollapseDemo extends JApplet {
 
   public static void main(String[] args) {
     JFrame f = new JFrame();
-    f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     f.getContentPane().add(new VertexCollapseDemo());
     f.pack();
     f.setVisible(true);

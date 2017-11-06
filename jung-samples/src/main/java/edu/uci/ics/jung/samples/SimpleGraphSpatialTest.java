@@ -26,7 +26,6 @@ import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.util.function.Supplier;
 import javax.swing.*;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -37,7 +36,7 @@ import org.apache.logging.log4j.core.config.Configuration;
 /** A class that shows the minimal work necessary to load and visualize a graph. */
 public class SimpleGraphSpatialTest {
 
-  Logger log = LogManager.getLogger(SimpleGraphSpatialTest.class);
+  private static final Logger log = LogManager.getLogger(SimpleGraphSpatialTest.class);
 
   private static final DomainModel<Point2D> domainModel = new AWTDomainModel();
 
@@ -72,7 +71,7 @@ public class SimpleGraphSpatialTest {
     vv.scaleToLayout(scaler);
     jf.getContentPane().add(vv);
 
-    jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    jf.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     jf.pack();
     jf.setVisible(true);
   }
@@ -86,13 +85,8 @@ public class SimpleGraphSpatialTest {
    */
   @SuppressWarnings({"rawtypes", "unchecked"})
   public static Network getGraph() throws IOException {
-    PajekNetReader pnr =
-        new PajekNetReader(
-            new Supplier() {
-              public Object get() {
-                return new Object();
-              }
-            });
+    PajekNetReader pnr = new PajekNetReader(Object::new);
+
     MutableNetwork g = NetworkBuilder.undirected().build();
     Reader reader =
         new InputStreamReader(

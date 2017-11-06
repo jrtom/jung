@@ -158,9 +158,13 @@ public class BaseVisualizationModel<N, E>
   }
 
   public void setNetwork(Network<N, E> network) {
+    this.setNetwork(network, true);
+  }
+
+  public void setNetwork(Network<N, E> network, boolean forceUpdate) {
     this.network = network;
     this.layoutModel.setGraph(network.asGraph());
-    if (this.layoutAlgorithm != null) {
+    if (forceUpdate && this.layoutAlgorithm != null) {
       layoutModel.accept(this.layoutAlgorithm);
       this.fireStateChanged();
     }

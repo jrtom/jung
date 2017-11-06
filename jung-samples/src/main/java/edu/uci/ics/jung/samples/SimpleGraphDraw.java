@@ -18,8 +18,7 @@ import edu.uci.ics.jung.visualization.layout.AWTDomainModel;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.util.function.Supplier;
-import javax.swing.JFrame;
+import javax.swing.*;
 
 /** A class that shows the minimal work necessary to load and visualize a graph. */
 public class SimpleGraphDraw {
@@ -31,7 +30,7 @@ public class SimpleGraphDraw {
     LayoutAlgorithm layoutAlgorithm = new FRLayoutAlgorithm(new AWTDomainModel());
     VisualizationViewer vv = new VisualizationViewer(g, layoutAlgorithm);
     jf.getContentPane().add(vv);
-    jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    jf.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     jf.pack();
     jf.setVisible(true);
   }
@@ -45,13 +44,8 @@ public class SimpleGraphDraw {
    */
   @SuppressWarnings({"rawtypes", "unchecked"})
   public static Network getGraph() throws IOException {
-    PajekNetReader pnr =
-        new PajekNetReader(
-            new Supplier() {
-              public Object get() {
-                return new Object();
-              }
-            });
+    PajekNetReader pnr = new PajekNetReader(Object::new);
+
     MutableNetwork g = NetworkBuilder.undirected().build();
     Reader reader =
         new InputStreamReader(SimpleGraphDraw.class.getResourceAsStream("/datasets/simple.net"));

@@ -15,20 +15,19 @@ import edu.uci.ics.jung.algorithms.layout.RadialTreeLayoutAlgorithm;
 import edu.uci.ics.jung.graph.CTreeNetwork;
 import edu.uci.ics.jung.graph.MutableCTreeNetwork;
 import edu.uci.ics.jung.graph.TreeNetworkBuilder;
+import edu.uci.ics.jung.samples.util.ControlHelpers;
 import edu.uci.ics.jung.visualization.BaseVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationModel;
 import edu.uci.ics.jung.visualization.VisualizationServer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
-import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalLensGraphMouse;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.EdgeShape;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
-import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.layout.*;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import edu.uci.ics.jung.visualization.transform.LensSupport;
@@ -42,23 +41,14 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.Shape;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import javax.swing.BorderFactory;
-import javax.swing.JApplet;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JMenuBar;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
+import javax.swing.*;
 
 /**
  * Shows a RadialTreeLayout view of a Forest. A hyperbolic projection lens may also be applied to
@@ -103,30 +93,29 @@ public class RadialTreeLensDemo extends JApplet {
 
     final VisualizationModel<String, Integer, Point2D> visualizationModel =
         new BaseVisualizationModel<>(graph, radialLayoutAlgorithm, preferredSize);
-    vv = new VisualizationViewer<String, Integer>(visualizationModel, preferredSize);
+    vv = new VisualizationViewer<>(visualizationModel, preferredSize);
 
     PickedState<String> ps = vv.getPickedVertexState();
     PickedState<Integer> pes = vv.getPickedEdgeState();
     vv.getRenderContext()
         .setVertexFillPaintTransformer(
-            new PickableVertexPaintTransformer<String>(ps, Color.red, Color.yellow));
+            new PickableVertexPaintTransformer<>(ps, Color.red, Color.yellow));
     vv.getRenderContext()
         .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer<Integer>(pes, Color.black, Color.cyan));
+            new PickableEdgePaintTransformer<>(pes, Color.black, Color.cyan));
     vv.setBackground(Color.white);
 
-    vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
+    vv.getRenderContext().setVertexLabelTransformer(Object::toString);
     vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.line());
 
     // add a listener for ToolTips
-    vv.setVertexToolTipTransformer(new ToStringLabeller());
+    vv.setVertexToolTipTransformer(Object::toString);
 
     Container content = getContentPane();
     GraphZoomScrollPane gzsp = new GraphZoomScrollPane(vv);
     content.add(gzsp);
 
-    final DefaultModalGraphMouse<String, Integer> graphMouse =
-        new DefaultModalGraphMouse<String, Integer>();
+    final DefaultModalGraphMouse<String, Integer> graphMouse = new DefaultModalGraphMouse<>();
 
     vv.setGraphMouse(graphMouse);
     vv.addKeyListener(graphMouse.getModeKeyListener());
@@ -134,36 +123,15 @@ public class RadialTreeLensDemo extends JApplet {
     vv.addPreRenderPaintable(rings);
 
     hyperbolicViewSupport =
-        new ViewLensSupport<String, Integer>(
+        new ViewLensSupport<>(
             vv,
             new HyperbolicShapeTransformer(
                 vv, vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.VIEW)),
             new ModalLensGraphMouse());
 
-    final ScalingControl scaler = new CrossoverScalingControl();
-
-    JButton plus = new JButton("+");
-    plus.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            scaler.scale(vv, 1.1f, vv.getCenter());
-          }
-        });
-    JButton minus = new JButton("-");
-    minus.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            scaler.scale(vv, 1 / 1.1f, vv.getCenter());
-          }
-        });
-
     final JRadioButton hyperView = new JRadioButton("Hyperbolic View");
     hyperView.addItemListener(
-        new ItemListener() {
-          public void itemStateChanged(ItemEvent e) {
-            hyperbolicViewSupport.activate(e.getStateChange() == ItemEvent.SELECTED);
-          }
-        });
+        e -> hyperbolicViewSupport.activate(e.getStateChange() == ItemEvent.SELECTED));
 
     graphMouse.addItemListener(hyperbolicViewSupport.getGraphMouse().getModeListener());
 
@@ -172,18 +140,14 @@ public class RadialTreeLensDemo extends JApplet {
     gzsp.setCorner(menubar);
 
     JPanel controls = new JPanel();
-    JPanel zoomControls = new JPanel(new GridLayout(2, 1));
-    zoomControls.setBorder(BorderFactory.createTitledBorder("Zoom"));
     JPanel hyperControls = new JPanel(new GridLayout(3, 2));
     hyperControls.setBorder(BorderFactory.createTitledBorder("Examiner Lens"));
-    zoomControls.add(plus);
-    zoomControls.add(minus);
     JPanel modeControls = new JPanel(new BorderLayout());
     modeControls.setBorder(BorderFactory.createTitledBorder("Mouse Mode"));
     modeControls.add(graphMouse.getModeComboBox());
     hyperControls.add(hyperView);
 
-    controls.add(zoomControls);
+    controls.add(ControlHelpers.getZoomControls(vv, "Zoom"));
     controls.add(hyperControls);
     controls.add(modeControls);
     content.add(controls, BorderLayout.SOUTH);
@@ -238,7 +202,7 @@ public class RadialTreeLensDemo extends JApplet {
     }
 
     private Collection<Double> getDepths() {
-      Set<Double> depths = new HashSet<Double>();
+      Set<Double> depths = new HashSet<>();
       Map<String, PolarPoint> polarLocations = radialLayoutAlgorithm.getPolarLocations();
       for (String v : graph.nodes()) {
         PolarPoint pp = polarLocations.get(v);
@@ -268,7 +232,7 @@ public class RadialTreeLensDemo extends JApplet {
 
   public static void main(String[] args) {
     JFrame f = new JFrame();
-    f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     f.getContentPane().add(new RadialTreeLensDemo());
     f.pack();
     f.setVisible(true);
