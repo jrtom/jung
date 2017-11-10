@@ -57,6 +57,7 @@ public abstract class AbstractLayoutModel<N, P> implements LayoutModel<N, P> {
    */
   @Override
   public void accept(LayoutAlgorithm<N, P> layoutAlgorithm) {
+    setFireEvents(true);
     if (this.visRunner != null) {
       log.trace("stopped the old visRunner: {}", this.visRunner);
       this.visRunner.stop();
@@ -82,7 +83,11 @@ public abstract class AbstractLayoutModel<N, P> implements LayoutModel<N, P> {
     log.trace("set up a visRunner: {}", iterativeContext);
     this.visRunner = new VisRunner(iterativeContext);
     this.visRunner.setSleepTime(500);
+    this.setFireEvents(false);
+    log.trace("prerelax");
     this.visRunner.prerelax();
+    this.setFireEvents(true);
+    log.trace("relax");
     this.visRunner.relax();
   }
 

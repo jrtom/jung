@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * unused for now
+ * Manages the transition to a new LayoutAlgorithm. The transition can me animated or immediate.
  *
  * @param <N>
  * @param <E>
@@ -20,7 +20,7 @@ public class LayoutAlgorithmTransition<N, E, P> implements IterativeContext {
 
   protected LayoutAlgorithm<N, P> endLayoutAlgorithm;
   protected LayoutModel<N, P> transitionLayoutModel;
-  protected LayoutModel<N, P> initialLayoutModel;
+  //  protected LayoutModel<N, P> initialLayoutModel;
   protected boolean done = false;
   protected int count = 20;
   protected int counter = 0;
@@ -55,13 +55,14 @@ public class LayoutAlgorithmTransition<N, E, P> implements IterativeContext {
     LayoutAlgorithm<N, P> transitionLayoutAlgorithm = new StaticLayoutAlgorithm(domainModel);
     visualizationModel.setLayoutAlgorithm(transitionLayoutAlgorithm);
 
-    this.initialLayoutModel =
-        new LoadingCacheLayoutModel<N, P>(
-            visualizationModel.getNetwork().asGraph(),
-            layoutModel.getDomainModel(),
-            layoutModel.getWidth(),
-            layoutModel.getHeight());
-    initialLayoutModel.setInitializer(layoutModel);
+    //    this.initialLayoutModel =
+    //        new LoadingCacheLayoutModel<N, P>(
+    //            visualizationModel.getNetwork().asGraph(),
+    //            layoutModel.getDomainModel(),
+    //            layoutModel.getWidth(),
+    //            layoutModel.getHeight());
+    //    initialLayoutModel.setInitializer(layoutModel);
+    //    this.initialLayoutModel = layoutModel;
 
     // the layout model still has locations from its previous algor
     this.transitionLayoutModel =
@@ -83,7 +84,7 @@ public class LayoutAlgorithmTransition<N, E, P> implements IterativeContext {
 
   public void step() {
     for (N v : visualizationModel.getNetwork().nodes()) {
-      P tp = initialLayoutModel.apply(v);
+      P tp = layoutModel.apply(v);
       P fp = transitionLayoutModel.apply(v);
       double dx = (domainModel.getX(fp) - domainModel.getX(tp)) / (count - counter);
       double dy = (domainModel.getY(fp) - domainModel.getY(tp)) / (count - counter);

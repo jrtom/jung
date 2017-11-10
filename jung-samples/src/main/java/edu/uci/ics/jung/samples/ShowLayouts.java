@@ -127,11 +127,11 @@ public class ShowLayouts extends JApplet {
 
     Network g = g_array[3]; // initial graph
 
-    final VisualizationViewer vv = new VisualizationViewer<Integer, Number>(g);
+    final VisualizationViewer vv = new VisualizationViewer<>(g);
 
     vv.getRenderContext()
         .setVertexFillPaintTransformer(
-            new PickableVertexPaintTransformer<Integer>(
+            new PickableVertexPaintTransformer<>(
                 vv.getPickedVertexState(), Color.red, Color.yellow));
 
     vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());

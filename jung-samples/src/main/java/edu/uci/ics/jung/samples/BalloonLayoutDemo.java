@@ -71,7 +71,6 @@ public class BalloonLayoutDemo extends JApplet {
     vv.getRenderContext().setVertexLabelTransformer(Object::toString);
     // add a listener for ToolTips
     vv.setVertexToolTipTransformer(Object::toString);
-
     vv.getRenderContext().setArrowFillPaintTransformer(a -> Color.lightGray);
     rings = new Rings(radialLayoutAlgorithm);
 

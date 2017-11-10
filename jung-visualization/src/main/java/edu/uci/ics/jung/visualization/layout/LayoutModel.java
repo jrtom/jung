@@ -31,6 +31,8 @@ public interface LayoutModel<N, P> extends Function<N, P> {
 
   void stopRelaxer();
 
+  void setFireEvents(boolean fireEvents);
+
   /**
    * @param node the node whose locked state is being queried
    * @return <code>true</code> if the position of node <code>v</code> is locked

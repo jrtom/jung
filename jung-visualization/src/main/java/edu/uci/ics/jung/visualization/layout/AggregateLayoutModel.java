@@ -94,6 +94,11 @@ public class AggregateLayoutModel<N, P> implements LayoutModel<N, P> {
   }
 
   @Override
+  public void setFireEvents(boolean fireEvents) {
+    delegate.setFireEvents(fireEvents);
+  }
+
+  @Override
   public void set(N node, P location) {
     delegate.set(node, location);
   }
