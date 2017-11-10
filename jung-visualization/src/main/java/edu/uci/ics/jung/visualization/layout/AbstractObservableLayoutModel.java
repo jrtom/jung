@@ -7,9 +7,13 @@ import edu.uci.ics.jung.visualization.util.ChangeEventSupport;
 import edu.uci.ics.jung.visualization.util.DefaultChangeEventSupport;
 import java.util.List;
 import javax.swing.event.ChangeListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AbstractObservableLayoutModel<N, P> extends AbstractLayoutModel<N, P>
     implements LayoutModel<N, P>, ChangeEventSupport, LayoutEventSupport<N, P> {
+
+  private static final Logger log = LoggerFactory.getLogger(AbstractObservableLayoutModel.class);
 
   protected ChangeEventSupport changeSupport = new DefaultChangeEventSupport(this);
   protected List<LayoutChangeListener<N, P>> layoutChangeListeners = Lists.newArrayList();
@@ -18,6 +22,21 @@ public abstract class AbstractObservableLayoutModel<N, P> extends AbstractLayout
       Graph<N> graph, DomainModel<P> domainModel, int width, int height) { //Dimension size) {
     super(graph, domainModel, width, height);
   }
+
+  public boolean isFireEvents() {
+    return fireEvents;
+  }
+
+  @Override
+  public void setFireEvents(boolean fireEvents) {
+    log.trace("setFireEvents {}", fireEvents);
+    this.fireEvents = fireEvents;
+    if (fireEvents) {
+      fireStateChanged();
+    }
+  }
+
+  protected boolean fireEvents = true;
 
   @Override
   public void addChangeListener(ChangeListener l) {
@@ -36,7 +55,10 @@ public abstract class AbstractObservableLayoutModel<N, P> extends AbstractLayout
 
   @Override
   public void fireStateChanged() {
-    this.changeSupport.fireStateChanged();
+
+    if (this.fireEvents) {
+      this.changeSupport.fireStateChanged();
+    }
   }
 
   @Override
@@ -50,7 +72,7 @@ public abstract class AbstractObservableLayoutModel<N, P> extends AbstractLayout
   }
 
   protected void fireLayoutChanged(N node, P location, Graph<N> graph) {
-    if (!layoutChangeListeners.isEmpty()) {
+    if (this.fireEvents && !layoutChangeListeners.isEmpty()) {
       LayoutEvent<N, P> evt = new LayoutGraphEvent<N, P>(new LayoutEvent(node, location), graph);
       for (LayoutChangeListener<N, P> listener : layoutChangeListeners) {
         listener.layoutChanged(evt);

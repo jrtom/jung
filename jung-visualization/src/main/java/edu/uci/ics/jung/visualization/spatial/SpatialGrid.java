@@ -223,11 +223,13 @@ public class SpatialGrid<N> implements Spatial<N> {
     }
     // remove node from the first (and only) wrong box it is found in
     Integer wrongBox = null;
-    for (Integer box : map.keySet()) {
-      if (map.get(box).contains(node)) {
-        // remove it and stop, because node can be in only one box
-        wrongBox = box;
-        break;
+    synchronized (map) {
+      for (Integer box : map.keySet()) {
+        if (map.get(box).contains(node)) {
+          // remove it and stop, because node can be in only one box
+          wrongBox = box;
+          break;
+        }
       }
     }
     if (wrongBox != null) {

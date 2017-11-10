@@ -56,6 +56,11 @@ public class TestLayoutModel<N, P> extends AbstractLayoutModel<N, P> implements 
   }
 
   @Override
+  public void setFireEvents(boolean fireEvents) {
+    // no-op for test class
+  }
+
+  @Override
   public void set(N node, P location) {
     if (!locked) {
       this.locations.put(node, location);

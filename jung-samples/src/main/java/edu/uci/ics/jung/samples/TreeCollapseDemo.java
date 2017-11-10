@@ -24,9 +24,13 @@ import edu.uci.ics.jung.visualization.decorators.EdgeShape;
 import edu.uci.ics.jung.visualization.decorators.EllipseVertexShapeTransformer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.layout.AWTDomainModel;
+import edu.uci.ics.jung.visualization.layout.LayoutAlgorithmTransition;
 import edu.uci.ics.jung.visualization.subLayout.TreeCollapser;
+import edu.uci.ics.jung.visualization.transform.MutableTransformer;
+import edu.uci.ics.jung.visualization.transform.MutableTransformerDecorator;
 import java.awt.*;
 import java.awt.event.ItemEvent;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.util.Collection;
@@ -46,17 +50,27 @@ public class TreeCollapseDemo extends JApplet {
 
   private static final DomainModel<Point2D> domainModel = new AWTDomainModel();
 
+  enum Layouts {
+    TREE,
+    RADIAL,
+    BALLOON
+  }
+
   /** the original graph */
-  MutableCTreeNetwork<String, Integer> graph;
+  MutableCTreeNetwork<Object, Object> graph;
 
   /** the visual component and renderer for the graph */
-  VisualizationViewer<String, Integer> vv;
+  VisualizationViewer<Object, Object> vv;
 
   VisualizationServer.Paintable rings;
 
-  TreeLayoutAlgorithm<String, Point2D> layoutAlgorithm;
+  VisualizationServer.Paintable balloonRings;
 
-  RadialTreeLayoutAlgorithm<String, Point2D> radialLayoutAlgorithm;
+  TreeLayoutAlgorithm<Object, Point2D> layoutAlgorithm;
+
+  RadialTreeLayoutAlgorithm<Object, Point2D> radialLayoutAlgorithm;
+
+  BalloonLayoutAlgorithm<Object, Point2D> balloonLayoutAlgorithm;
 
   @SuppressWarnings("unchecked")
   public TreeCollapseDemo() {
@@ -65,11 +79,12 @@ public class TreeCollapseDemo extends JApplet {
     graph = createTree();
 
     layoutAlgorithm = new TreeLayoutAlgorithm<>(domainModel);
-    //        collapser = new TreeCollapser();
 
     radialLayoutAlgorithm = new RadialTreeLayoutAlgorithm<>(domainModel);
-    //    radialLayoutAlgorithm.setSize(new Dimension(600, 600));
-    vv = new VisualizationViewer<>(graph, layoutAlgorithm, new Dimension(600, 600));
+
+    balloonLayoutAlgorithm = new BalloonLayoutAlgorithm<>(domainModel);
+
+    vv = new VisualizationViewer(graph, layoutAlgorithm, new Dimension(600, 600));
     vv.setBackground(Color.white);
     vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.line());
     vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
@@ -77,7 +92,6 @@ public class TreeCollapseDemo extends JApplet {
     // add a listener for ToolTips
     vv.setVertexToolTipTransformer(new ToStringLabeller());
     vv.getRenderContext().setArrowFillPaintTransformer(n -> Color.lightGray);
-    //    rings = new Rings(vv.getModel().getLayoutModel());
 
     Container content = getContentPane();
     final GraphZoomScrollPane panel = new GraphZoomScrollPane(vv);
@@ -91,33 +105,49 @@ public class TreeCollapseDemo extends JApplet {
     modeBox.addItemListener(graphMouse.getModeListener());
     graphMouse.setMode(ModalGraphMouse.Mode.TRANSFORMING);
 
-    JToggleButton radial = new JToggleButton("Radial");
-    radial.addItemListener(
+    JComboBox layoutComboBox = new JComboBox(Layouts.values());
+    layoutComboBox.addItemListener(
         e -> {
           if (e.getStateChange() == ItemEvent.SELECTED) {
-            vv.getModel().setLayoutAlgorithm(radialLayoutAlgorithm);
-            vv.getRenderContext().getMultiLayerTransformer().setToIdentity();
-            if (rings == null) {
-              rings = new Rings(vv.getModel().getLayoutModel());
-            }
+            if (e.getItem() == Layouts.RADIAL) {
+              LayoutAlgorithmTransition.animate(vv.getModel(), radialLayoutAlgorithm);
 
-            vv.addPreRenderPaintable(rings);
-          } else {
-            vv.getModel().setLayoutAlgorithm(layoutAlgorithm);
-            vv.getRenderContext().getMultiLayerTransformer().setToIdentity();
-            vv.removePreRenderPaintable(rings);
+              vv.removePreRenderPaintable(balloonRings);
+              vv.getRenderContext().getMultiLayerTransformer().setToIdentity();
+              if (rings == null) {
+                rings = new Rings(vv.getModel().getLayoutModel());
+              }
+              vv.addPreRenderPaintable(rings);
+
+            } else if (e.getItem() == Layouts.BALLOON) {
+              LayoutAlgorithmTransition.animate(vv.getModel(), balloonLayoutAlgorithm);
+
+              vv.removePreRenderPaintable(rings);
+              vv.getRenderContext().getMultiLayerTransformer().setToIdentity();
+              if (balloonRings == null) {
+                balloonRings = new BalloonRings(balloonLayoutAlgorithm);
+              }
+
+              vv.addPreRenderPaintable(balloonRings);
+
+            } else {
+              LayoutAlgorithmTransition.animate(vv.getModel(), layoutAlgorithm);
+
+              vv.removePreRenderPaintable(rings);
+              vv.removePreRenderPaintable(balloonRings);
+              vv.getRenderContext().getMultiLayerTransformer().setToIdentity();
+            }
+            vv.repaint();
           }
-          vv.repaint();
         });
 
     JButton collapse = new JButton("Collapse");
     collapse.addActionListener(
         e -> {
-          Set<String> picked = vv.getPickedVertexState().getPicked();
+          Set<Object> picked = vv.getPickedVertexState().getPicked();
           if (picked.size() == 1) {
             Object root = picked.iterator().next();
             CTreeNetwork subTree = TreeCollapser.collapse(graph, root);
-            @SuppressWarnings("rawtypes")
             LayoutModel objectLayoutModel = vv.getModel().getLayoutModel();
             objectLayoutModel.set(subTree, objectLayoutModel.apply(root));
             vv.getModel().setNetwork(graph);
@@ -140,7 +170,7 @@ public class TreeCollapseDemo extends JApplet {
         });
 
     JPanel controls = new JPanel();
-    controls.add(radial);
+    controls.add(layoutComboBox);
     controls.add(ControlHelpers.getZoomControls(vv, "Zoom"));
     controls.add(modeBox);
     controls.add(collapse);
@@ -151,17 +181,17 @@ public class TreeCollapseDemo extends JApplet {
   class Rings implements VisualizationServer.Paintable {
 
     Collection<Double> depths;
-    LayoutModel<String, Point2D> layoutModel;
+    LayoutModel<Object, Point2D> layoutModel;
 
-    public Rings(LayoutModel<String, Point2D> layoutModel) {
+    public Rings(LayoutModel<Object, Point2D> layoutModel) {
       this.layoutModel = layoutModel;
       depths = getDepths();
     }
 
     private Collection<Double> getDepths() {
       Set<Double> depths = new HashSet<>();
-      Map<String, PolarPoint> polarLocations = radialLayoutAlgorithm.getPolarLocations();
-      for (String v : graph.nodes()) {
+      Map<Object, PolarPoint> polarLocations = radialLayoutAlgorithm.getPolarLocations();
+      for (Object v : graph.nodes()) {
         PolarPoint pp = polarLocations.get(v);
         depths.add(pp.getRadius());
       }
@@ -192,9 +222,51 @@ public class TreeCollapseDemo extends JApplet {
     }
   }
 
+  class BalloonRings implements VisualizationServer.Paintable {
+
+    BalloonLayoutAlgorithm<?, Point2D> layoutAlgorithm;
+
+    public BalloonRings(BalloonLayoutAlgorithm<?, Point2D> layoutAlgorithm) {
+      this.layoutAlgorithm = layoutAlgorithm;
+    }
+
+    public void paint(Graphics g) {
+      g.setColor(Color.gray);
+
+      Graphics2D g2d = (Graphics2D) g;
+
+      Ellipse2D ellipse = new Ellipse2D.Double();
+      for (Object v : vv.getModel().getNetwork().nodes()) {
+        Double radius = layoutAlgorithm.getRadii().get(v);
+        if (radius == null) {
+          continue;
+        }
+        Point2D p = vv.getModel().getLayoutModel().apply(v);
+        ellipse.setFrame(-radius, -radius, 2 * radius, 2 * radius);
+        AffineTransform at = AffineTransform.getTranslateInstance(p.getX(), p.getY());
+        Shape shape = at.createTransformedShape(ellipse);
+
+        MutableTransformer viewTransformer =
+            vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.VIEW);
+
+        if (viewTransformer instanceof MutableTransformerDecorator) {
+          shape = vv.getRenderContext().getMultiLayerTransformer().transform(shape);
+        } else {
+          shape = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, shape);
+        }
+
+        g2d.draw(shape);
+      }
+    }
+
+    public boolean useTransform() {
+      return true;
+    }
+  }
+
   /** */
-  private MutableCTreeNetwork<String, Integer> createTree() {
-    MutableCTreeNetwork<String, Integer> tree =
+  private MutableCTreeNetwork<Object, Object> createTree() {
+    MutableCTreeNetwork<Object, Object> tree =
         TreeNetworkBuilder.builder().expectedNodeCount(27).build();
 
     tree.addNode("root");
