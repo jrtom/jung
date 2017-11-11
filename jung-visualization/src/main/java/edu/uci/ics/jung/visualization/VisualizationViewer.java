@@ -10,9 +10,9 @@
 package edu.uci.ics.jung.visualization;
 
 import com.google.common.graph.Network;
-import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.visualization.control.GraphMouseListener;
 import edu.uci.ics.jung.visualization.control.MouseListenerTranslator;
+import edu.uci.ics.jung.visualization.layout.LayoutAlgorithm;
 import java.awt.Dimension;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
@@ -32,9 +32,9 @@ import javax.swing.ToolTipManager;
  * @author Danyel Fisher
  */
 @SuppressWarnings("serial")
-public class VisualizationViewer<V, E> extends BasicVisualizationServer<V, E> {
+public class VisualizationViewer<N, E> extends BasicVisualizationServer<N, E> {
 
-  protected Function<? super V, String> vertexToolTipTransformer;
+  protected Function<? super N, String> vertexToolTipTransformer;
   protected Function<? super E, String> edgeToolTipTransformer;
   protected Function<MouseEvent, String> mouseEventToolTipTransformer;
 
@@ -48,19 +48,36 @@ public class VisualizationViewer<V, E> extends BasicVisualizationServer<V, E> {
         }
       };
 
-  public VisualizationViewer(Network<V, E> network, Layout<V> layout) {
-    this(new DefaultVisualizationModel<V, E>(network, layout));
+  public VisualizationViewer(Network<N, E> network) {
+    this(network, null);
   }
 
-  public VisualizationViewer(Network<V, E> network, Layout<V> layout, Dimension preferredSize) {
-    this(new DefaultVisualizationModel<V, E>(network, layout, preferredSize), preferredSize);
+  public VisualizationViewer(Network<N, E> network, Dimension layoutSize, Dimension viewSize) {
+    this(network, null, layoutSize, viewSize);
   }
 
-  public VisualizationViewer(VisualizationModel<V, E> model) {
+  public VisualizationViewer(
+      Network<N, E> network,
+      LayoutAlgorithm<N, Point2D> layoutAlgorithm,
+      Dimension layoutSize,
+      Dimension viewSize) {
+    this(new BaseVisualizationModel<N, E>(network, layoutAlgorithm, layoutSize), viewSize);
+  }
+
+  public VisualizationViewer(Network<N, E> network, LayoutAlgorithm<N, Point2D> layoutAlgorithm) {
+    this(new BaseVisualizationModel<N, E>(network, layoutAlgorithm), DEFAULT_SIZE);
+  }
+
+  public VisualizationViewer(
+      Network<N, E> network, LayoutAlgorithm<N, Point2D> layoutAlgorithm, Dimension preferredSize) {
+    this(new BaseVisualizationModel<N, E>(network, layoutAlgorithm), preferredSize);
+  }
+
+  public VisualizationViewer(VisualizationModel<N, E, Point2D> model) {
     this(model, new Dimension(600, 600));
   }
 
-  public VisualizationViewer(VisualizationModel<V, E> model, Dimension preferredSize) {
+  public VisualizationViewer(VisualizationModel<N, E, Point2D> model, Dimension preferredSize) {
     super(model, preferredSize);
     setFocusable(true);
     addMouseListener(requestFocusListener);
@@ -108,8 +125,8 @@ public class VisualizationViewer<V, E> extends BasicVisualizationServer<V, E> {
    *
    * @param gel the mouse listener to add
    */
-  public void addGraphMouseListener(GraphMouseListener<V> gel) {
-    addMouseListener(new MouseListenerTranslator<V, E>(gel, this));
+  public void addGraphMouseListener(GraphMouseListener<N> gel) {
+    addMouseListener(new MouseListenerTranslator<N, E>(gel, this));
   }
 
   /**
@@ -136,19 +153,19 @@ public class VisualizationViewer<V, E> extends BasicVisualizationServer<V, E> {
   }
 
   /** @param vertexToolTipTransformer the vertexToolTipTransformer to set */
-  public void setVertexToolTipTransformer(Function<? super V, String> vertexToolTipTransformer) {
+  public void setVertexToolTipTransformer(Function<? super N, String> vertexToolTipTransformer) {
     this.vertexToolTipTransformer = vertexToolTipTransformer;
     ToolTipManager.sharedInstance().registerComponent(this);
   }
 
   /** called by the superclass to display tooltips */
   public String getToolTipText(MouseEvent event) {
-    //        Layout<V> layout = getGraphLayout();
+    //        Layout<V, Point2D> layout = getGraphLayout();
     Point2D p = null;
     if (vertexToolTipTransformer != null) {
       p = event.getPoint();
       //renderContext.getBasicTransformer().inverseViewTransform(event.getPoint());
-      V vertex = getPickSupport().getNode(p.getX(), p.getY());
+      N vertex = getPickSupport().getNode(p.getX(), p.getY());
       if (vertex != null) {
         return vertexToolTipTransformer.apply(vertex);
       }

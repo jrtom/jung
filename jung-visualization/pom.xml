@@ -9,8 +9,15 @@
   <artifactId>jung-visualization</artifactId>
   <name>JUNG - Visualization Support</name>
   <description>Core visualization support for the JUNG project</description>
-
+  <properties>
+    <version.slf4j>1.7.9</version.slf4j>
+  </properties>
   <dependencies>
+     <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>${version.slf4j}</version>
+    </dependency>
     <dependency>
       <groupId>net.sf.jung</groupId>
       <artifactId>jung-api</artifactId>

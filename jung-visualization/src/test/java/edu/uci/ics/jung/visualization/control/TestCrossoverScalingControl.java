@@ -1,10 +1,11 @@
 package edu.uci.ics.jung.visualization.control;
 
 import com.google.common.graph.Network;
-import com.google.common.graph.NetworkBuilder;
-import edu.uci.ics.jung.algorithms.layout.FRLayout;
+import edu.uci.ics.jung.graph.util.TestGraphs;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 import edu.uci.ics.jung.visualization.VisualizationServer;
+import edu.uci.ics.jung.visualization.layout.AWTDomainModel;
+import edu.uci.ics.jung.visualization.layout.FRLayoutAlgorithm;
 import java.awt.geom.Point2D;
 import junit.framework.TestCase;
 
@@ -20,8 +21,8 @@ public class TestCrossoverScalingControl extends TestCase {
   @Override
   public void setUp() {
     sc = new CrossoverScalingControl();
-    Network<?, ?> network = NetworkBuilder.directed().build();
-    vv = new BasicVisualizationServer(network, new FRLayout(network.asGraph()));
+    Network<?, ?> network = TestGraphs.getDemoGraph();
+    vv = new BasicVisualizationServer(network, new FRLayoutAlgorithm(new AWTDomainModel()));
   }
 
   public void testCrossover() {

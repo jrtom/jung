@@ -10,33 +10,24 @@ package edu.uci.ics.jung.samples;
 
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.NetworkBuilder;
-import edu.uci.ics.jung.algorithms.layout.FRLayout;
-import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.io.GraphMLReader;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
-import edu.uci.ics.jung.visualization.control.AbstractModalGraphMouse;
-import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
-import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
-import edu.uci.ics.jung.visualization.control.GraphMouseListener;
-import edu.uci.ics.jung.visualization.control.ScalingControl;
-import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
+import edu.uci.ics.jung.visualization.control.*;
+import edu.uci.ics.jung.visualization.layout.AWTDomainModel;
+import edu.uci.ics.jung.visualization.layout.DomainModel;
+import edu.uci.ics.jung.visualization.layout.FRLayoutAlgorithm;
+import edu.uci.ics.jung.visualization.layout.LayoutAlgorithm;
 import edu.uci.ics.jung.visualization.renderers.BasicVertexLabelRenderer.InsidePositioner;
 import edu.uci.ics.jung.visualization.renderers.GradientVertexRenderer;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Container;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.*;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Point2D;
 import java.io.IOException;
-import java.util.function.Function;
+import java.io.InputStreamReader;
 import java.util.function.Supplier;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JMenuBar;
-import javax.swing.JPanel;
+import javax.swing.*;
 import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
 
@@ -46,6 +37,8 @@ import org.xml.sax.SAXException;
  * @author Tom Nelson
  */
 public class GraphFromGraphMLDemo {
+
+  private static final DomainModel<Point2D> domainModel = new AWTDomainModel();
 
   /** the visual component and renderer for the graph */
   VisualizationViewer<Number, Number> vv;
@@ -79,32 +72,26 @@ public class GraphFromGraphMLDemo {
         };
 
     GraphMLReader<MutableNetwork<Number, Number>, Number, Number> gmlr =
-        new GraphMLReader<MutableNetwork<Number, Number>, Number, Number>(
-            vertexFactory, edgeFactory);
+        new GraphMLReader<>(vertexFactory, edgeFactory);
     final MutableNetwork<Number, Number> graph =
         NetworkBuilder.directed().allowsSelfLoops(true).build();
-    gmlr.load(filename, graph);
+    gmlr.load(new InputStreamReader(this.getClass().getResourceAsStream(filename)), graph);
 
     // create a simple graph for the demo
-    Layout<Number> layout = new FRLayout<Number>(graph.asGraph());
-    vv = new VisualizationViewer<Number, Number>(graph, layout);
+    LayoutAlgorithm<Number, Point2D> layoutAlgorithm = new FRLayoutAlgorithm<>(domainModel);
+    vv = new VisualizationViewer<>(graph, layoutAlgorithm);
 
-    vv.addGraphMouseListener(new TestGraphMouseListener<Number>());
+    vv.addGraphMouseListener(new TestGraphMouseListener<>());
     vv.getRenderer()
         .setVertexRenderer(
-            new GradientVertexRenderer<Number>(
+            new GradientVertexRenderer<>(
                 vv, Color.white, Color.red, Color.white, Color.blue, false));
 
     // add my listeners for ToolTips
-    vv.setVertexToolTipTransformer(new ToStringLabeller());
-    vv.setEdgeToolTipTransformer(
-        new Function<Number, String>() {
-          public String apply(Number edge) {
-            return "E" + graph.incidentNodes(edge).toString();
-          }
-        });
+    vv.setVertexToolTipTransformer(Object::toString);
+    vv.setEdgeToolTipTransformer(edge -> "E" + graph.incidentNodes(edge).toString());
 
-    vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
+    vv.getRenderContext().setVertexLabelTransformer(Object::toString);
     vv.getRenderer().getVertexLabelRenderer().setPositioner(new InsidePositioner());
     vv.getRenderer().getVertexLabelRenderer().setPosition(Renderer.VertexLabel.Position.AUTO);
 
@@ -113,7 +100,7 @@ public class GraphFromGraphMLDemo {
     Container content = frame.getContentPane();
     final GraphZoomScrollPane panel = new GraphZoomScrollPane(vv);
     content.add(panel);
-    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     final AbstractModalGraphMouse graphMouse = new DefaultModalGraphMouse<Number, Number>();
     vv.setGraphMouse(graphMouse);
     vv.addKeyListener(graphMouse.getModeKeyListener());
@@ -128,19 +115,10 @@ public class GraphFromGraphMLDemo {
     final ScalingControl scaler = new CrossoverScalingControl();
 
     JButton plus = new JButton("+");
-    plus.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            scaler.scale(vv, 1.1f, vv.getCenter());
-          }
-        });
+    plus.addActionListener(e -> scaler.scale(vv, 1.1f, vv.getCenter()));
+
     JButton minus = new JButton("-");
-    minus.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            scaler.scale(vv, 1 / 1.1f, vv.getCenter());
-          }
-        });
+    minus.addActionListener(e -> scaler.scale(vv, 1 / 1.1f, vv.getCenter()));
 
     JPanel controls = new JPanel();
     controls.add(plus);
@@ -175,10 +153,10 @@ public class GraphFromGraphMLDemo {
    */
   public static void main(String[] args)
       throws ParserConfigurationException, SAXException, IOException {
-    String filename = "simple.graphml";
+    String filePath = "/datasets/simple.graphml";
     if (args.length > 0) {
-      filename = args[0];
+      filePath = args[0];
     }
-    new GraphFromGraphMLDemo(filename);
+    new GraphFromGraphMLDemo(filePath);
   }
 }

@@ -1,8 +1,14 @@
 package edu.uci.ics.jung.visualization.layout;
 
-public interface LayoutEventSupport<V> {
+/**
+ * interface for support to LayoutChangeListeners
+ *
+ * @param <V>
+ * @param <P>
+ */
+public interface LayoutEventSupport<V, P> {
 
-  void addLayoutChangeListener(LayoutChangeListener<V> listener);
+  void addLayoutChangeListener(LayoutChangeListener<V, P> listener);
 
-  void removeLayoutChangeListener(LayoutChangeListener<V> listener);
+  void removeLayoutChangeListener(LayoutChangeListener<V, P> listener);
 }

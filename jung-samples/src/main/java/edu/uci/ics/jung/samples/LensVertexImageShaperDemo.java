@@ -11,7 +11,6 @@ package edu.uci.ics.jung.samples;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
-import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.LayeredIcon;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
@@ -24,6 +23,9 @@ import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.decorators.VertexIconShapeTransformer;
+import edu.uci.ics.jung.visualization.layout.AWTDomainModel;
+import edu.uci.ics.jung.visualization.layout.DomainModel;
+import edu.uci.ics.jung.visualization.layout.FRLayoutAlgorithm;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import edu.uci.ics.jung.visualization.renderers.Checkmark;
 import edu.uci.ics.jung.visualization.renderers.DefaultEdgeLabelRenderer;
@@ -44,21 +46,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.geom.Point2D;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
-import javax.swing.BorderFactory;
-import javax.swing.ButtonGroup;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JApplet;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
+import javax.swing.*;
 
 /**
  * Demonstrates the use of images to represent graph vertices. The images are added to the
@@ -79,6 +71,8 @@ public class LensVertexImageShaperDemo extends JApplet {
 
   /** */
   private static final long serialVersionUID = 5432239991020505763L;
+
+  private static final DomainModel<Point2D> domainModel = new AWTDomainModel();
 
   /** the graph */
   Network<Number, Number> graph;
@@ -129,9 +123,9 @@ public class LensVertexImageShaperDemo extends JApplet {
       }
     }
 
-    FRLayout<Number> layout = new FRLayout<Number>(graph.asGraph());
-    layout.setMaxIterations(100);
-    vv = new VisualizationViewer<Number, Number>(graph, layout, new Dimension(600, 600));
+    FRLayoutAlgorithm<Number, Point2D> layoutAlgorithm = new FRLayoutAlgorithm<>(domainModel);
+    layoutAlgorithm.setMaxIterations(100);
+    vv = new VisualizationViewer<>(graph, layoutAlgorithm, new Dimension(600, 600));
 
     Function<Number, Paint> vpf =
         new PickableVertexPaintTransformer<Number>(
@@ -311,9 +305,7 @@ public class LensVertexImageShaperDemo extends JApplet {
       this.map = map;
     }
 
-    /**
-     * @see edu.uci.ics.jung.graph.decorators.VertexStringer#getLabel(edu.uci.ics.jung.graph.Vertex)
-     */
+    /** */
     public String apply(V v) {
       if (isEnabled()) {
         return map.get(v);
@@ -335,25 +327,25 @@ public class LensVertexImageShaperDemo extends JApplet {
 
   Network<Number, Number> createGraph() {
     MutableNetwork<Number, Number> graph = NetworkBuilder.directed().build();
-    graph.addEdge(0, 1, new Double(Math.random()));
-    graph.addEdge(3, 0, new Double(Math.random()));
-    graph.addEdge(0, 4, new Double(Math.random()));
-    graph.addEdge(4, 5, new Double(Math.random()));
-    graph.addEdge(5, 3, new Double(Math.random()));
-    graph.addEdge(2, 1, new Double(Math.random()));
-    graph.addEdge(4, 1, new Double(Math.random()));
-    graph.addEdge(8, 2, new Double(Math.random()));
-    graph.addEdge(3, 8, new Double(Math.random()));
-    graph.addEdge(6, 7, new Double(Math.random()));
-    graph.addEdge(7, 5, new Double(Math.random()));
-    graph.addEdge(0, 9, new Double(Math.random()));
-    graph.addEdge(9, 8, new Double(Math.random()));
-    graph.addEdge(7, 6, new Double(Math.random()));
-    graph.addEdge(6, 5, new Double(Math.random()));
-    graph.addEdge(4, 2, new Double(Math.random()));
-    graph.addEdge(5, 4, new Double(Math.random()));
-    graph.addEdge(4, 10, new Double(Math.random()));
-    graph.addEdge(10, 4, new Double(Math.random()));
+    graph.addEdge(0, 1, Math.random());
+    graph.addEdge(3, 0, Math.random());
+    graph.addEdge(0, 4, Math.random());
+    graph.addEdge(4, 5, Math.random());
+    graph.addEdge(5, 3, Math.random());
+    graph.addEdge(2, 1, Math.random());
+    graph.addEdge(4, 1, Math.random());
+    graph.addEdge(8, 2, Math.random());
+    graph.addEdge(3, 8, Math.random());
+    graph.addEdge(6, 7, Math.random());
+    graph.addEdge(7, 5, Math.random());
+    graph.addEdge(0, 9, Math.random());
+    graph.addEdge(9, 8, Math.random());
+    graph.addEdge(7, 6, Math.random());
+    graph.addEdge(6, 5, Math.random());
+    graph.addEdge(4, 2, Math.random());
+    graph.addEdge(5, 4, Math.random());
+    graph.addEdge(4, 10, Math.random());
+    graph.addEdge(10, 4, Math.random());
 
     return graph;
   }
@@ -382,7 +374,7 @@ public class LensVertexImageShaperDemo extends JApplet {
   public static void main(String[] args) {
     JFrame frame = new JFrame();
     Container content = frame.getContentPane();
-    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
     content.add(new LensVertexImageShaperDemo());
     frame.pack();

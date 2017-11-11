@@ -20,10 +20,10 @@ import java.util.function.Function;
  *
  * @author danyelf
  */
-public class ToStringLabeller implements Function<Object, String> {
+public class ToStringLabeller<V> implements Function<V, String> {
 
   /** @return o.toString() */
-  public String apply(Object o) {
+  public String apply(V o) {
     return o.toString();
   }
 }

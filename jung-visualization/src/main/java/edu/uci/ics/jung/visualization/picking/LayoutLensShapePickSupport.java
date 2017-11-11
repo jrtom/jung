@@ -13,9 +13,10 @@ package edu.uci.ics.jung.visualization.picking;
 
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Network;
-import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationServer;
+import edu.uci.ics.jung.visualization.layout.LayoutModel;
+import edu.uci.ics.jung.visualization.util.Context;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
@@ -32,30 +33,30 @@ import java.util.Set;
  *
  * @author Tom Nelson
  */
-public class LayoutLensShapePickSupport<V, E> extends ShapePickSupport<V, E> {
+public class LayoutLensShapePickSupport<N, E> extends ShapePickSupport<N, E> {
 
-  public LayoutLensShapePickSupport(VisualizationServer<V, E> vv, float pickSize) {
+  public LayoutLensShapePickSupport(VisualizationServer<N, E> vv, float pickSize) {
     super(vv, pickSize);
   }
 
-  public LayoutLensShapePickSupport(VisualizationServer<V, E> vv) {
+  public LayoutLensShapePickSupport(VisualizationServer<N, E> vv) {
     this(vv, 2);
   }
 
   @Override
-  public V getNode(double x, double y) {
+  public N getNode(double x, double y) {
 
-    V closest = null;
+    N closest = null;
     double minDistance = Double.MAX_VALUE;
-    Layout<V> layout = vv.getGraphLayout();
+    LayoutModel<N, Point2D> layoutModel = vv.getModel().getLayoutModel();
 
     while (true) {
       try {
-        for (V v : getFilteredVertices()) {
+        for (N v : getFilteredVertices()) {
 
           Shape shape = vv.getRenderContext().getVertexShapeTransformer().apply(v);
           // get the vertex location
-          Point2D p = layout.apply(v);
+          Point2D p = layoutModel.apply(v);
           if (p == null) {
             continue;
           }
@@ -93,13 +94,13 @@ public class LayoutLensShapePickSupport<V, E> extends ShapePickSupport<V, E> {
     return closest;
   }
 
-  public Collection<V> nodes(Layout<V> layout, Shape rectangle) {
-    Set<V> pickedVertices = new HashSet<V>();
+  public Collection<N> nodes(LayoutModel<N, Point2D> layoutModel, Shape rectangle) {
+    Set<N> pickedVertices = new HashSet<N>();
 
     while (true) {
       try {
-        for (V v : getFilteredVertices()) {
-          Point2D p = layout.apply(v);
+        for (N v : getFilteredVertices()) {
+          Point2D p = layoutModel.apply(v);
           if (p == null) {
             continue;
           }
@@ -118,8 +119,8 @@ public class LayoutLensShapePickSupport<V, E> extends ShapePickSupport<V, E> {
 
   public E getEdge(double x, double y) {
 
-    Layout<V> layout = vv.getGraphLayout();
-    Network<V, E> network = vv.getModel().getNetwork();
+    LayoutModel<N, Point2D> layoutModel = vv.getModel().getLayoutModel();
+    Network<N, E> network = vv.getModel().getNetwork();
     Point2D ip =
         vv.getRenderContext()
             .getMultiLayerTransformer()
@@ -138,18 +139,18 @@ public class LayoutLensShapePickSupport<V, E> extends ShapePickSupport<V, E> {
     while (true) {
       try {
         for (E e : getFilteredEdges()) {
-          EndpointPair<V> endpoints = network.incidentNodes(e);
-          V v1 = endpoints.nodeU();
-          V v2 = endpoints.nodeV();
+          EndpointPair<N> endpoints = network.incidentNodes(e);
+          N v1 = endpoints.nodeU();
+          N v2 = endpoints.nodeV();
           boolean isLoop = v1.equals(v2);
           Point2D p1 =
               vv.getRenderContext()
                   .getMultiLayerTransformer()
-                  .transform(Layer.LAYOUT, layout.apply(v1));
+                  .transform(Layer.LAYOUT, layoutModel.apply(v1));
           Point2D p2 =
               vv.getRenderContext()
                   .getMultiLayerTransformer()
-                  .transform(Layer.LAYOUT, layout.apply(v2));
+                  .transform(Layer.LAYOUT, layoutModel.apply(v2));
           if (p1 == null || p2 == null) {
             continue;
           }
@@ -161,9 +162,12 @@ public class LayoutLensShapePickSupport<V, E> extends ShapePickSupport<V, E> {
           // translate the edge to the starting vertex
           AffineTransform xform = AffineTransform.getTranslateInstance(x1, y1);
 
-          Shape edgeShape = vv.getRenderContext().getEdgeShapeTransformer().apply(e);
+          Shape edgeShape =
+              vv.getRenderContext()
+                  .getEdgeShapeTransformer()
+                  .apply(Context.getInstance(network, e));
           if (isLoop) {
-            // make the loops proportional to the size of the vertex
+            // make the loops proportional to the layoutSize of the vertex
             Shape s2 = vv.getRenderContext().getVertexShapeTransformer().apply(v2);
             Rectangle2D s2Bounds = s2.getBounds2D();
             xform.scale(s2Bounds.getWidth(), s2Bounds.getHeight());

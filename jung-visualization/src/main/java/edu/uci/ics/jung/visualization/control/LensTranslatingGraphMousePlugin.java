@@ -102,7 +102,7 @@ public class LensTranslatingGraphMousePlugin extends TranslatingGraphMousePlugin
   }
 
   /**
-   * called to set up translating the lens center or changing the size
+   * called to set up translating the lens center or changing the layoutSize
    *
    * @param Function
    * @param point

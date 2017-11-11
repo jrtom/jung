@@ -1,7 +1,7 @@
 package edu.uci.ics.jung.visualization.control;
 
-import edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
+import edu.uci.ics.jung.visualization.layout.NetworkElementAccessor;
 import java.awt.Cursor;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -107,6 +107,8 @@ public class EditingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
         }
         if (vertex != null) {
           edgeSupport.endEdgeCreate(vv, vertex);
+        } else {
+          edgeSupport.abort(vv);
         }
       } else if (createMode == Creating.VERTEX) {
         vertexSupport.endVertexCreate(vv, e.getPoint());

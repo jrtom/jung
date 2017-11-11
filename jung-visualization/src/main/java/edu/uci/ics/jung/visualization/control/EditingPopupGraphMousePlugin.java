@@ -1,8 +1,8 @@
 package edu.uci.ics.jung.visualization.control;
 
 import com.google.common.graph.MutableNetwork;
-import edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
+import edu.uci.ics.jung.visualization.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
@@ -81,8 +81,10 @@ public class EditingPopupGraphMousePlugin<V, E> extends AbstractPopupGraphMouseP
               public void actionPerformed(ActionEvent e) {
                 V newVertex = vertexFactory.get();
                 graph.addNode(newVertex);
-                vv.getGraphLayout()
-                    .setLocation(
+                vv.getModel()
+                    .getLayoutModel()
+                    //                    .getLayout()
+                    .set(
                         newVertex,
                         vv.getRenderContext().getMultiLayerTransformer().inverseTransform(p));
                 vv.repaint();

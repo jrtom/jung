@@ -10,12 +10,15 @@ package edu.uci.ics.jung.samples;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
-import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.io.PajekNetReader;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
+import edu.uci.ics.jung.visualization.layout.AWTDomainModel;
+import edu.uci.ics.jung.visualization.layout.FRLayoutAlgorithm;
+import edu.uci.ics.jung.visualization.layout.LayoutAlgorithm;
 import java.io.IOException;
-import java.util.function.Supplier;
-import javax.swing.JFrame;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import javax.swing.*;
 
 /** A class that shows the minimal work necessary to load and visualize a graph. */
 public class SimpleGraphDraw {
@@ -24,31 +27,29 @@ public class SimpleGraphDraw {
   public static void main(String[] args) throws IOException {
     JFrame jf = new JFrame();
     Network g = getGraph();
-    VisualizationViewer vv = new VisualizationViewer(g, new FRLayout(g.asGraph()));
+    LayoutAlgorithm layoutAlgorithm = new FRLayoutAlgorithm(new AWTDomainModel());
+    VisualizationViewer vv = new VisualizationViewer(g, layoutAlgorithm);
     jf.getContentPane().add(vv);
-    jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    jf.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     jf.pack();
     jf.setVisible(true);
   }
 
   /**
-   * Generates a graph: in this case, reads it from the file "samples/datasetsgraph/simple.net"
+   * Generates a graph: in this case, reads it from the file (in the classpath):
+   * "datasets/simple.net"
    *
    * @return A sample undirected graph
    * @throws IOException if there is an error in reading the file
    */
   @SuppressWarnings({"rawtypes", "unchecked"})
   public static Network getGraph() throws IOException {
-    PajekNetReader pnr =
-        new PajekNetReader(
-            new Supplier() {
-              public Object get() {
-                return new Object();
-              }
-            });
-    MutableNetwork g = NetworkBuilder.undirected().build();
+    PajekNetReader pnr = new PajekNetReader(Object::new);
 
-    pnr.load("src/main/resources/datasets/simple.net", g);
+    MutableNetwork g = NetworkBuilder.undirected().build();
+    Reader reader =
+        new InputStreamReader(SimpleGraphDraw.class.getResourceAsStream("/datasets/simple.net"));
+    pnr.load(reader, g);
     return g;
   }
 }

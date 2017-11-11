@@ -11,48 +11,25 @@ package edu.uci.ics.jung.samples;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
-import edu.uci.ics.jung.algorithms.layout.CircleLayout;
-import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
-import edu.uci.ics.jung.visualization.decorators.EdgeShape;
-import edu.uci.ics.jung.visualization.decorators.ParallelEdgeShapeTransformer;
-import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
-import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
-import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
+import edu.uci.ics.jung.visualization.decorators.*;
+import edu.uci.ics.jung.visualization.layout.AWTDomainModel;
+import edu.uci.ics.jung.visualization.layout.CircleLayoutAlgorithm;
+import edu.uci.ics.jung.visualization.layout.DomainModel;
+import edu.uci.ics.jung.visualization.layout.LayoutAlgorithm;
 import edu.uci.ics.jung.visualization.renderers.EdgeLabelRenderer;
 import edu.uci.ics.jung.visualization.renderers.VertexLabelRenderer;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.GridLayout;
-import java.awt.Shape;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import edu.uci.ics.jung.visualization.util.Context;
+import java.awt.*;
 import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
+import java.awt.geom.Point2D;
 import java.util.function.Function;
-import javax.swing.AbstractButton;
-import javax.swing.BorderFactory;
-import javax.swing.BoundedRangeModel;
-import javax.swing.Box;
-import javax.swing.ButtonGroup;
-import javax.swing.DefaultBoundedRangeModel;
-import javax.swing.JApplet;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JSlider;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
+import javax.swing.*;
 
 /**
  * Demonstrates jung support for drawing edge labels that can be positioned at any point along the
@@ -62,6 +39,8 @@ import javax.swing.event.ChangeListener;
  */
 public class EdgeLabelDemo extends JApplet {
   private static final long serialVersionUID = -6077157664507049647L;
+
+  private static final DomainModel<Point2D> domainModel = new AWTDomainModel();
 
   /** the graph */
   Network<Integer, Number> graph;
@@ -83,88 +62,74 @@ public class EdgeLabelDemo extends JApplet {
     // create a simple graph for the demo
     graph = buildGraph();
 
-    Layout<Integer> layout = new CircleLayout<Integer>(graph.asGraph());
-    vv = new VisualizationViewer<Integer, Number>(graph, layout, new Dimension(600, 400));
+    LayoutAlgorithm<Integer, Point2D> layoutAlgorithm = new CircleLayoutAlgorithm<>(domainModel);
+    vv = new VisualizationViewer<>(graph, layoutAlgorithm, new Dimension(600, 400));
     vv.setBackground(Color.white);
 
     vertexLabelRenderer = vv.getRenderContext().getVertexLabelRenderer();
     edgeLabelRenderer = vv.getRenderContext().getEdgeLabelRenderer();
 
-    Function<Number, String> stringer =
-        new Function<Number, String>() {
-          public String apply(Number e) {
-            return "Edge:" + graph.incidentNodes(e).toString();
-          }
-        };
+    Function<Number, String> stringer = e -> "Edge:" + graph.incidentNodes(e).toString();
+
     vv.getRenderContext().setEdgeLabelTransformer(stringer);
     vv.getRenderContext()
         .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer<Number>(
-                vv.getPickedEdgeState(), Color.black, Color.cyan));
+            new PickableEdgePaintTransformer<>(vv.getPickedEdgeState(), Color.black, Color.cyan));
     vv.getRenderContext()
         .setVertexFillPaintTransformer(
-            new PickableVertexPaintTransformer<Integer>(
+            new PickableVertexPaintTransformer<>(
                 vv.getPickedVertexState(), Color.red, Color.yellow));
     // add my listener for ToolTips
-    vv.setVertexToolTipTransformer(new ToStringLabeller());
+    vv.setVertexToolTipTransformer(
+        new ToStringLabeller() {
+          @Override
+          public String apply(Object o) {
+            return super.apply(o) + " " + vv.getModel().getLayoutModel().apply((Integer) o);
+          }
+        });
 
     // create a frome to hold the graph
     final GraphZoomScrollPane panel = new GraphZoomScrollPane(vv);
     Container content = getContentPane();
     content.add(panel);
 
-    final DefaultModalGraphMouse<Integer, Number> graphMouse =
-        new DefaultModalGraphMouse<Integer, Number>();
+    final DefaultModalGraphMouse<Integer, Number> graphMouse = new DefaultModalGraphMouse<>();
     vv.setGraphMouse(graphMouse);
 
     JButton plus = new JButton("+");
-    plus.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            scaler.scale(vv, 1.1f, vv.getCenter());
-          }
-        });
+    plus.addActionListener(e -> scaler.scale(vv, 1.1f, vv.getCenter()));
+
     JButton minus = new JButton("-");
-    minus.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            scaler.scale(vv, 1 / 1.1f, vv.getCenter());
-          }
-        });
+    minus.addActionListener(e -> scaler.scale(vv, 1 / 1.1f, vv.getCenter()));
 
     ButtonGroup radio = new ButtonGroup();
     JRadioButton lineButton = new JRadioButton("Line");
     lineButton.addItemListener(
-        new ItemListener() {
-          public void itemStateChanged(ItemEvent e) {
-            if (e.getStateChange() == ItemEvent.SELECTED) {
-              vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.line(graph));
-              vv.repaint();
-            }
+        e -> {
+          if (e.getStateChange() == ItemEvent.SELECTED) {
+            vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.line());
+            vv.repaint();
           }
         });
 
     JRadioButton quadButton = new JRadioButton("QuadCurve");
     quadButton.addItemListener(
-        new ItemListener() {
-          public void itemStateChanged(ItemEvent e) {
-            if (e.getStateChange() == ItemEvent.SELECTED) {
-              vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.quadCurve(graph));
-              vv.repaint();
-            }
+        e -> {
+          if (e.getStateChange() == ItemEvent.SELECTED) {
+            vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.quadCurve());
+            vv.repaint();
           }
         });
 
     JRadioButton cubicButton = new JRadioButton("CubicCurve");
     cubicButton.addItemListener(
-        new ItemListener() {
-          public void itemStateChanged(ItemEvent e) {
-            if (e.getStateChange() == ItemEvent.SELECTED) {
-              vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.cubicCurve(graph));
-              vv.repaint();
-            }
+        e -> {
+          if (e.getStateChange() == ItemEvent.SELECTED) {
+            vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.cubicCurve());
+            vv.repaint();
           }
         });
+
     radio.add(lineButton);
     radio.add(quadButton);
     radio.add(cubicButton);
@@ -173,13 +138,12 @@ public class EdgeLabelDemo extends JApplet {
 
     JCheckBox rotate = new JCheckBox("<html><center>EdgeType<p>Parallel</center></html>");
     rotate.addItemListener(
-        new ItemListener() {
-          public void itemStateChanged(ItemEvent e) {
-            AbstractButton b = (AbstractButton) e.getSource();
-            edgeLabelRenderer.setRotateEdgeLabels(b.isSelected());
-            vv.repaint();
-          }
+        e -> {
+          AbstractButton b = (AbstractButton) e.getSource();
+          edgeLabelRenderer.setRotateEdgeLabels(b.isSelected());
+          vv.repaint();
         });
+
     rotate.setSelected(true);
     EdgeClosenessUpdater edgeClosenessUpdater = new EdgeClosenessUpdater();
     JSlider closenessSlider =
@@ -200,17 +164,14 @@ public class EdgeLabelDemo extends JApplet {
           }
         };
     edgeOffsetSlider.addChangeListener(
-        new ChangeListener() {
-          @SuppressWarnings("rawtypes")
-          public void stateChanged(ChangeEvent e) {
-            JSlider s = (JSlider) e.getSource();
-            Function<? super Number, Shape> edgeShapeFunction =
-                vv.getRenderContext().getEdgeShapeTransformer();
-            if (edgeShapeFunction instanceof ParallelEdgeShapeTransformer) {
-              ((ParallelEdgeShapeTransformer) edgeShapeFunction)
-                  .setControlOffsetIncrement(s.getValue());
-              vv.repaint();
-            }
+        e -> {
+          JSlider s = (JSlider) e.getSource();
+          Function<Context<Network, Number>, Shape> edgeShapeFunction =
+              vv.getRenderContext().getEdgeShapeTransformer();
+          if (edgeShapeFunction instanceof ParallelEdgeShapeTransformer) {
+            ((ParallelEdgeShapeTransformer) edgeShapeFunction)
+                .setControlOffsetIncrement(s.getValue());
+            vv.repaint();
           }
         });
 
@@ -271,32 +232,31 @@ public class EdgeLabelDemo extends JApplet {
       this.rangeModel = new DefaultBoundedRangeModel(initialValue, 0, 0, 10);
 
       rangeModel.addChangeListener(
-          new ChangeListener() {
-            public void stateChanged(ChangeEvent e) {
-              vv.getRenderContext().setEdgeLabelCloseness(rangeModel.getValue() / 10f);
-              vv.repaint();
-            }
+          e -> {
+            vv.getRenderContext().setEdgeLabelCloseness(rangeModel.getValue() / 10f);
+            vv.repaint();
           });
     }
   }
 
   Network<Integer, Number> buildGraph() {
-    MutableNetwork<Integer, Number> graph = NetworkBuilder.directed().build();
+    MutableNetwork<Integer, Number> graph =
+        NetworkBuilder.directed().allowsParallelEdges(true).build();
 
-    graph.addEdge(0, 1, new Double(Math.random()));
-    graph.addEdge(0, 1, new Double(Math.random()));
-    graph.addEdge(0, 1, new Double(Math.random()));
-    graph.addEdge(1, 0, new Double(Math.random()));
-    graph.addEdge(1, 0, new Double(Math.random()));
-    graph.addEdge(1, 2, new Double(Math.random()));
-    graph.addEdge(1, 2, new Double(Math.random()));
+    graph.addEdge(0, 1, Math.random());
+    graph.addEdge(0, 1, Math.random());
+    graph.addEdge(0, 1, Math.random());
+    graph.addEdge(1, 0, Math.random());
+    graph.addEdge(1, 0, Math.random());
+    graph.addEdge(1, 2, Math.random());
+    graph.addEdge(1, 2, Math.random());
 
     return graph;
   }
 
   public static void main(String[] args) {
     JFrame frame = new JFrame();
-    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     Container content = frame.getContentPane();
     content.add(new EdgeLabelDemo());
     frame.pack();

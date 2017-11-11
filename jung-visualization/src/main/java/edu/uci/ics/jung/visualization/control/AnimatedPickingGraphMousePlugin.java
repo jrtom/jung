@@ -11,10 +11,10 @@
  */
 package edu.uci.ics.jung.visualization.control;
 
-import edu.uci.ics.jung.algorithms.layout.Layout;
-import edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
+import edu.uci.ics.jung.visualization.layout.LayoutModel;
+import edu.uci.ics.jung.visualization.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import java.awt.Cursor;
 import java.awt.event.InputEvent;
@@ -31,11 +31,11 @@ import javax.swing.JComponent;
  *
  * @author Tom Nelson
  */
-public class AnimatedPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
+public class AnimatedPickingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
     implements MouseListener, MouseMotionListener {
 
   /** the picked Vertex */
-  protected V vertex;
+  protected N vertex;
 
   /** Creates an instance with default modifiers of BUTTON1_MASK and CTRL_MASK */
   public AnimatedPickingGraphMousePlugin() {
@@ -60,9 +60,9 @@ public class AnimatedPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlu
   @SuppressWarnings("unchecked")
   public void mousePressed(MouseEvent e) {
     if (e.getModifiers() == modifiers) {
-      VisualizationViewer<V, E> vv = (VisualizationViewer<V, E>) e.getSource();
-      NetworkElementAccessor<V, E> pickSupport = vv.getPickSupport();
-      PickedState<V> pickedVertexState = vv.getPickedVertexState();
+      VisualizationViewer<N, E> vv = (VisualizationViewer<N, E>) e.getSource();
+      NetworkElementAccessor<N, E> pickSupport = vv.getPickSupport();
+      PickedState<N> pickedVertexState = vv.getPickedVertexState();
       if (pickSupport != null && pickedVertexState != null) {
         // p is the screen point for the mouse event
         Point2D p = e.getPoint();
@@ -87,12 +87,12 @@ public class AnimatedPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlu
   @SuppressWarnings("unchecked")
   public void mouseReleased(MouseEvent e) {
     if (e.getModifiers() == modifiers) {
-      final VisualizationViewer<V, E> vv = (VisualizationViewer<V, E>) e.getSource();
+      final VisualizationViewer<N, E> vv = (VisualizationViewer<N, E>) e.getSource();
       Point2D newCenter = null;
       if (vertex != null) {
         // center the picked vertex
-        Layout<V> layout = vv.getGraphLayout();
-        newCenter = layout.apply(vertex);
+        LayoutModel<N, Point2D> layoutModel = vv.getModel().getLayoutModel();
+        newCenter = layoutModel.apply(vertex);
       } else {
         // they did not pick a vertex to center, so
         // just center the graph

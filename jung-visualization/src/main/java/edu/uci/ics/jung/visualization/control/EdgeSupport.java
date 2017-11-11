@@ -18,4 +18,6 @@ public interface EdgeSupport<V, E> {
   void midEdgeCreate(BasicVisualizationServer<V, E> vv, Point2D midPoint);
 
   void endEdgeCreate(BasicVisualizationServer<V, E> vv, V endVertex);
+
+  void abort(BasicVisualizationServer<V, E> vv);
 }
