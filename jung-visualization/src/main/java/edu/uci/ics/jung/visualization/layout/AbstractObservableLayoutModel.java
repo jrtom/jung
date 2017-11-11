@@ -31,6 +31,8 @@ public abstract class AbstractObservableLayoutModel<N, P> extends AbstractLayout
   public void setFireEvents(boolean fireEvents) {
     log.trace("setFireEvents {}", fireEvents);
     this.fireEvents = fireEvents;
+    // any time we turn this back on, fire an event in case
+    // anything was missed while it was off
     if (fireEvents) {
       fireStateChanged();
     }

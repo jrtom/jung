@@ -82,10 +82,13 @@ public abstract class AbstractLayoutModel<N, P> implements LayoutModel<N, P> {
   protected void setupVisRunner(IterativeContext iterativeContext) {
     log.trace("set up a visRunner: {}", iterativeContext);
     this.visRunner = new VisRunner(iterativeContext);
-    this.visRunner.setSleepTime(500);
     this.setFireEvents(false);
     log.trace("prerelax");
     this.visRunner.prerelax();
+    // before calling relax, turn events back on
+    // it's possible that the laoyoutAlgorithm completed during the prelax
+    // phase. If so, setting fireEvents back to true will also cause an event
+    // to fire and will update for the last state of prerelax
     this.setFireEvents(true);
     log.trace("relax");
     this.visRunner.relax();
