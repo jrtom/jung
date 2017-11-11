@@ -63,7 +63,7 @@ public class GraphZoomScrollPane extends JPanel {
     super(new BorderLayout());
     this.vv = vv;
     addComponentListener(new ResizeListener());
-    Dimension d = vv.getGraphLayout().getSize();
+    Dimension d = vv.getModel().getLayoutSize();
     verticalScrollBar = new JScrollBar(JScrollBar.VERTICAL, 0, d.height, 0, d.height);
     horizontalScrollBar = new JScrollBar(JScrollBar.HORIZONTAL, 0, d.width, 0, d.width);
     verticalScrollBar.addAdjustmentListener(new VerticalAdjustmentListenerImpl());
@@ -152,10 +152,10 @@ public class GraphZoomScrollPane extends JPanel {
    * use the supplied vv characteristics to set the position and dimensions of the scroll bars.
    * Called in response to a ChangeEvent from the VisualizationViewer
    *
-   * @param xform the transform of the VisualizationViewer
+   * <p>// * @param xform the transform of the VisualizationViewer
    */
   private void setScrollBars(VisualizationViewer<?, ?> vv) {
-    Dimension d = vv.getGraphLayout().getSize();
+    Dimension d = vv.getModel().getLayoutSize();
     Rectangle2D vvBounds = vv.getBounds();
 
     // a rectangle representing the layout

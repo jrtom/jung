@@ -16,27 +16,18 @@ import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
 import edu.uci.ics.jung.algorithms.cluster.EdgeBetweennessClusterer;
-import edu.uci.ics.jung.algorithms.layout.AggregateLayout;
-import edu.uci.ics.jung.algorithms.layout.CircleLayout;
-import edu.uci.ics.jung.algorithms.layout.FRLayout;
-import edu.uci.ics.jung.algorithms.layout.Layout;
-import edu.uci.ics.jung.algorithms.layout.util.Relaxer;
+import edu.uci.ics.jung.algorithms.layout.*;
 import edu.uci.ics.jung.io.PajekNetReader;
+import edu.uci.ics.jung.visualization.BaseVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
+import edu.uci.ics.jung.visualization.VisualizationModel;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
-import java.awt.BasicStroke;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.GridLayout;
-import java.awt.Paint;
-import java.awt.Stroke;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import edu.uci.ics.jung.visualization.layout.AWTDomainModel;
+import edu.uci.ics.jung.visualization.layout.AggregateLayoutModel;
+import edu.uci.ics.jung.visualization.layout.LoadingCacheLayoutModel;
+import java.awt.*;
 import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.geom.Point2D;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -45,18 +36,8 @@ import java.io.InputStreamReader;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.function.Supplier;
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JApplet;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JSlider;
-import javax.swing.JToggleButton;
+import javax.swing.*;
 import javax.swing.border.TitledBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 /**
  * This simple app demonstrates how one can use our algorithms and visualization libraries in
@@ -71,6 +52,7 @@ import javax.swing.event.ChangeListener;
 public class ClusteringDemo extends JApplet {
 
   VisualizationViewer<Number, Number> vv;
+  DomainModel<Point2D> domainModel = new AWTDomainModel();
 
   LoadingCache<Number, Paint> vertexPaints =
       CacheBuilder.newBuilder().build(CacheLoader.from(() -> Color.white));
@@ -97,11 +79,11 @@ public class ClusteringDemo extends JApplet {
 
     ClusteringDemo cd = new ClusteringDemo();
     cd.start();
-    // Add a restart button so the graph can be redrawn to fit the size of the frame
+    // Add a restart button so the graph can be redrawn to fit the layoutSize of the frame
     JFrame jf = new JFrame();
     jf.getContentPane().add(cd);
 
-    jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    jf.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     jf.pack();
     jf.setVisible(true);
   }
@@ -138,8 +120,7 @@ public class ClusteringDemo extends JApplet {
         };
 
     PajekNetReader<MutableNetwork<Number, Number>, Number, Number> pnr =
-        new PajekNetReader<MutableNetwork<Number, Number>, Number, Number>(
-            vertexFactory, edgeFactory);
+        new PajekNetReader<>(vertexFactory, edgeFactory);
 
     final MutableNetwork<Number, Number> graph = NetworkBuilder.undirected().build();
 
@@ -147,10 +128,16 @@ public class ClusteringDemo extends JApplet {
 
     //Create a simple layout frame
     //specify the Fruchterman-Rheingold layout algorithm
-    final AggregateLayout<Number> layout =
-        new AggregateLayout<Number>(new FRLayout<Number>(graph.asGraph()));
+    LayoutAlgorithm<Number, Point2D> algorithm = new FRLayoutAlgorithm<>(domainModel);
+    LayoutModel<Number, Point2D> delegateModel =
+        new LoadingCacheLayoutModel<>(graph.asGraph(), domainModel, 600, 600);
 
-    vv = new VisualizationViewer<Number, Number>(graph, layout);
+    final AggregateLayoutModel<Number, Point2D> layoutModel =
+        new AggregateLayoutModel<>(delegateModel);
+    VisualizationModel visualizationModel =
+        new BaseVisualizationModel(graph, layoutModel, algorithm);
+
+    vv = new VisualizationViewer<>(visualizationModel);
     vv.setBackground(Color.white);
     //Tell the renderer to use our own customized color rendering
     vv.getRenderContext().setVertexFillPaintTransformer(vertexPaints);
@@ -167,20 +154,12 @@ public class ClusteringDemo extends JApplet {
     //add restart button
     JButton scramble = new JButton("Restart");
     scramble.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent arg0) {
-            Layout<Number> layout = vv.getGraphLayout();
-            layout.initialize();
-            Relaxer relaxer = vv.getModel().getRelaxer();
-            if (relaxer != null) {
-              relaxer.stop();
-              relaxer.prerelax();
-              relaxer.relax();
-            }
-          }
+        e -> {
+          LayoutAlgorithm<Number, Point2D> layoutAlgorithm = vv.getModel().getLayoutAlgorithm();
+          vv.getModel().getLayoutModel().accept(layoutAlgorithm);
         });
 
-    DefaultModalGraphMouse<Number, Number> gm = new DefaultModalGraphMouse<Number, Number>();
+    DefaultModalGraphMouse<Number, Number> gm = new DefaultModalGraphMouse<>();
     vv.setGraphMouse(gm);
 
     final JToggleButton groupVertices = new JToggleButton("Group Clusters");
@@ -211,37 +190,32 @@ public class ClusteringDemo extends JApplet {
 
     final TitledBorder sliderBorder = BorderFactory.createTitledBorder(eastSize);
     eastControls.setBorder(sliderBorder);
-    //eastControls.add(eastSize);
     eastControls.add(Box.createVerticalGlue());
 
     groupVertices.addItemListener(
-        new ItemListener() {
-          public void itemStateChanged(ItemEvent e) {
-            clusterAndRecolor(
-                layout,
-                graph,
-                edgeBetweennessSlider.getValue(),
-                similarColors,
-                e.getStateChange() == ItemEvent.SELECTED);
-            vv.repaint();
-          }
+        e -> {
+          clusterAndRecolor(
+              layoutModel,
+              graph,
+              edgeBetweennessSlider.getValue(),
+              similarColors,
+              e.getStateChange() == ItemEvent.SELECTED);
+          vv.repaint();
         });
 
-    clusterAndRecolor(layout, graph, 0, similarColors, groupVertices.isSelected());
+    clusterAndRecolor(layoutModel, graph, 0, similarColors, groupVertices.isSelected());
 
     edgeBetweennessSlider.addChangeListener(
-        new ChangeListener() {
-          public void stateChanged(ChangeEvent e) {
-            JSlider source = (JSlider) e.getSource();
-            if (!source.getValueIsAdjusting()) {
-              int numEdgesToRemove = source.getValue();
-              clusterAndRecolor(
-                  layout, graph, numEdgesToRemove, similarColors, groupVertices.isSelected());
-              sliderBorder.setTitle(COMMANDSTRING + edgeBetweennessSlider.getValue());
-              eastControls.repaint();
-              vv.validate();
-              vv.repaint();
-            }
+        e -> {
+          JSlider source = (JSlider) e.getSource();
+          if (!source.getValueIsAdjusting()) {
+            int numEdgesToRemove = source.getValue();
+            clusterAndRecolor(
+                layoutModel, graph, numEdgesToRemove, similarColors, groupVertices.isSelected());
+            sliderBorder.setTitle(COMMANDSTRING + edgeBetweennessSlider.getValue());
+            eastControls.repaint();
+            vv.validate();
+            vv.repaint();
           }
         });
 
@@ -261,16 +235,16 @@ public class ClusteringDemo extends JApplet {
   }
 
   public void clusterAndRecolor(
-      AggregateLayout<Number> layout,
+      AggregateLayoutModel<Number, Point2D> layoutModel,
       Network<Number, Number> graph,
       int numEdgesToRemove,
       Color[] colors,
       boolean groupClusters) {
 
-    layout.removeAll();
+    layoutModel.removeAll();
 
     EdgeBetweennessClusterer<Number, Number> clusterer =
-        new EdgeBetweennessClusterer<Number, Number>(numEdgesToRemove);
+        new EdgeBetweennessClusterer<>(numEdgesToRemove);
     Set<Set<Number>> clusterSet = clusterer.apply(graph);
     Set<Number> edges = clusterer.getEdgesRemoved();
 
@@ -283,7 +257,7 @@ public class ClusteringDemo extends JApplet {
 
       colorCluster(vertices, c);
       if (groupClusters == true) {
-        groupCluster(layout, vertices);
+        groupCluster(layoutModel, vertices);
       }
       i++;
     }
@@ -298,18 +272,21 @@ public class ClusteringDemo extends JApplet {
     }
   }
 
-  private void groupCluster(AggregateLayout<Number> layout, Set<Number> vertices) {
+  private void groupCluster(
+      AggregateLayoutModel<Number, Point2D> layoutModel, Set<Number> vertices) {
     if (vertices.size() < vv.getModel().getNetwork().nodes().size()) {
-      Point2D center = layout.apply(vertices.iterator().next());
+      Point2D center = layoutModel.apply(vertices.iterator().next());
       MutableNetwork<Number, Number> subGraph = NetworkBuilder.undirected().build();
       for (Number v : vertices) {
         subGraph.addNode(v);
       }
-      Layout<Number> subLayout = new CircleLayout<Number>(subGraph.asGraph());
-      subLayout.setInitializer(vv.getGraphLayout());
-      subLayout.setSize(new Dimension(40, 40));
+      LayoutAlgorithm<Number, Point2D> subLayoutAlgorithm =
+          new CircleLayoutAlgorithm<>(domainModel);
 
-      layout.put(subLayout, center);
+      LayoutModel<Number, Point2D> subModel =
+          new LoadingCacheLayoutModel(subGraph.asGraph(), domainModel, 40, 40);
+      layoutModel.put(subModel, center);
+      subModel.accept(subLayoutAlgorithm);
       vv.repaint();
     }
   }

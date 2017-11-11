@@ -8,7 +8,9 @@
  */
 package edu.uci.ics.jung.visualization.transform.shape;
 
+import edu.uci.ics.jung.algorithms.layout.DomainModel;
 import edu.uci.ics.jung.algorithms.layout.PolarPoint;
+import edu.uci.ics.jung.visualization.layout.AWTDomainModel;
 import edu.uci.ics.jung.visualization.transform.HyperbolicTransformer;
 import edu.uci.ics.jung.visualization.transform.MutableTransformer;
 import java.awt.Component;
@@ -26,10 +28,10 @@ import java.awt.geom.Point2D;
  */
 public class HyperbolicShapeTransformer extends HyperbolicTransformer
     implements ShapeFlatnessTransformer {
-
+  DomainModel<Point2D> domainModel = new AWTDomainModel();
   /**
-   * Create an instance, setting values from the passed component and registering to listen for size
-   * changes on the component.
+   * Create an instance, setting values from the passed component and registering to listen for
+   * layoutSize changes on the component.
    *
    * @param component the component in which rendering takes place
    */
@@ -38,8 +40,8 @@ public class HyperbolicShapeTransformer extends HyperbolicTransformer
   }
 
   /**
-   * Create an instance, setting values from the passed component and registering to listen for size
-   * changes on the component, with a possibly shared transform <code>delegate</code>.
+   * Create an instance, setting values from the passed component and registering to listen for
+   * layoutSize changes on the component, with a possibly shared transform <code>delegate</code>.
    *
    * @param component the component in which rendering takes place
    * @param delegate the transformer to use
@@ -169,7 +171,7 @@ public class HyperbolicShapeTransformer extends HyperbolicTransformer
     dx *= ratio;
     Point2D pointFromCenter = new Point2D.Double(dx, dy);
 
-    PolarPoint polar = PolarPoint.cartesianToPolar(pointFromCenter);
+    PolarPoint polar = PolarPoint.cartesianToPolar(domainModel, pointFromCenter);
     double theta = polar.getTheta();
     double radius = polar.getRadius();
     if (radius > viewRadius) {
@@ -184,7 +186,7 @@ public class HyperbolicShapeTransformer extends HyperbolicTransformer
     radius *= Math.PI / 2;
     radius = Math.abs(Math.atan(radius));
     radius *= viewRadius;
-    Point2D projectedPoint = PolarPoint.polarToCartesian(theta, radius);
+    Point2D projectedPoint = PolarPoint.polarToCartesian(domainModel, theta, radius);
     projectedPoint.setLocation(projectedPoint.getX() / ratio, projectedPoint.getY());
     Point2D translatedBack =
         new Point2D.Double(
@@ -206,7 +208,7 @@ public class HyperbolicShapeTransformer extends HyperbolicTransformer
 
     Point2D pointFromCenter = new Point2D.Double(dx, dy);
 
-    PolarPoint polar = PolarPoint.cartesianToPolar(pointFromCenter);
+    PolarPoint polar = PolarPoint.cartesianToPolar(domainModel, pointFromCenter);
 
     double radius = polar.getRadius();
     if (radius > viewRadius) {
@@ -220,7 +222,7 @@ public class HyperbolicShapeTransformer extends HyperbolicTransformer
     double mag = Math.tan(Math.PI / 2 * magnification);
     radius /= mag;
     polar.setRadius(radius);
-    Point2D projectedPoint = PolarPoint.polarToCartesian(polar);
+    Point2D projectedPoint = PolarPoint.polarToCartesian(domainModel, polar);
     projectedPoint.setLocation(projectedPoint.getX() / ratio, projectedPoint.getY());
     Point2D translatedBack =
         new Point2D.Double(

@@ -14,9 +14,9 @@ import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
 import edu.uci.ics.jung.algorithms.generators.random.BarabasiAlbertGenerator;
-import edu.uci.ics.jung.algorithms.layout.FRLayout;
-import edu.uci.ics.jung.algorithms.layout.Layout;
-import edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor;
+import edu.uci.ics.jung.algorithms.layout.DomainModel;
+import edu.uci.ics.jung.algorithms.layout.FRLayoutAlgorithm;
+import edu.uci.ics.jung.algorithms.layout.LayoutAlgorithm;
 import edu.uci.ics.jung.algorithms.scoring.VoltageScorer;
 import edu.uci.ics.jung.algorithms.scoring.util.VertexScoreTransformer;
 import edu.uci.ics.jung.graph.util.Graphs;
@@ -32,11 +32,10 @@ import edu.uci.ics.jung.visualization.decorators.EdgeShape;
 import edu.uci.ics.jung.visualization.decorators.GradientEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.NumberFormattingTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
+import edu.uci.ics.jung.visualization.layout.*;
 import edu.uci.ics.jung.visualization.picking.PickedInfo;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import edu.uci.ics.jung.visualization.renderers.BasicEdgeArrowRenderingSupport;
-import edu.uci.ics.jung.visualization.renderers.CachingEdgeRenderer;
-import edu.uci.ics.jung.visualization.renderers.CachingVertexRenderer;
 import edu.uci.ics.jung.visualization.renderers.CenterEdgeArrowRenderingSupport;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
 import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
@@ -53,8 +52,6 @@ import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.Point2D;
@@ -66,19 +63,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import javax.swing.AbstractAction;
-import javax.swing.AbstractButton;
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.ButtonGroup;
-import javax.swing.JApplet;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JRadioButton;
+import javax.swing.*;
 
 /**
  * Shows off some of the capabilities of <code>PluggableRenderer</code>. This code provides examples
@@ -116,8 +101,9 @@ import javax.swing.JRadioButton;
  *             calculated 'voltage'. Otherwise, vertices are unlabeled.
  *         <li>"vertex degree shapes": if checked, vertices are drawn with a polygon with number of
  *             sides proportional to its degree. Otherwise, vertices are drawn as ellipses.
- *         <li>"vertex voltage size": if checked, vertices are drawn with a size proportional to
- *             their voltage ranking. Otherwise, all vertices are drawn at the same size.
+ *         <li>"vertex voltage layoutSize": if checked, vertices are drawn with a layoutSize
+ *             proportional to their voltage ranking. Otherwise, all vertices are drawn at the same
+ *             layoutSize.
  *         <li>"vertex degree ratio stretch": if checked, vertices are drawn with an aspect ratio
  *             (height/width ratio) proportional to the ratio of their indegree to their outdegree.
  *             Otherwise, vertices are drawn with an aspect ratio of 1.
@@ -162,6 +148,9 @@ import javax.swing.JRadioButton;
  */
 @SuppressWarnings("serial")
 public class PluggableRendererDemo extends JApplet implements ActionListener {
+
+  private static final DomainModel<Point2D> domainModel = new AWTDomainModel();
+
   protected JCheckBox v_color;
   protected JCheckBox e_color;
   protected JCheckBox v_stroke;
@@ -210,13 +199,13 @@ public class PluggableRendererDemo extends JApplet implements ActionListener {
   protected static final Object VOLTAGE_KEY = "voltages";
   protected static final Object TRANSPARENCY = "transparency";
 
-  protected Map<Number, Number> edge_weight = new HashMap<Number, Number>();
+  protected Map<Number, Number> edge_weight = new HashMap<>();
   protected Function<Integer, Double> voltages;
-  protected Map<Integer, Number> transparency = new HashMap<Integer, Number>();
+  protected Map<Integer, Number> transparency = new HashMap<>();
 
   protected VisualizationViewer<Integer, Number> vv;
   protected DefaultModalGraphMouse<Integer, Number> gm;
-  protected Set<Integer> seedVertices = new HashSet<Integer>();
+  protected Set<Integer> seedVertices = new HashSet<>();
 
   private Network<Integer, Number> graph;
 
@@ -226,7 +215,7 @@ public class PluggableRendererDemo extends JApplet implements ActionListener {
 
   public static void main(String[] s) {
     JFrame jf = new JFrame();
-    jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    jf.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     JPanel jp = new PluggableRendererDemo().startFunction();
     jf.getContentPane().add(jp);
     jf.pack();
@@ -236,41 +225,37 @@ public class PluggableRendererDemo extends JApplet implements ActionListener {
   public JPanel startFunction() {
     this.graph = buildGraph();
 
-    Layout<Integer> layout = new FRLayout<Integer>(graph.asGraph());
-    vv = new VisualizationViewer<Integer, Number>(graph, layout);
+    LayoutAlgorithm<Integer, Point2D> layoutAlgorithm = new FRLayoutAlgorithm<>(domainModel);
+    vv = new VisualizationViewer<>(graph, layoutAlgorithm);
 
-    vv.getRenderer().setVertexRenderer(new CachingVertexRenderer<Integer, Number>(vv));
-    vv.getRenderer().setEdgeRenderer(new CachingEdgeRenderer<Integer, Number>(vv));
+    //    vv.getRenderer().setVertexRenderer(new CachingVertexRenderer<Integer, Number>(vv));
+    //    vv.getRenderer().setEdgeRenderer(new CachingEdgeRenderer<Integer, Number>(vv));
 
     PickedState<Integer> picked_state = vv.getPickedVertexState();
 
-    self_loop =
-        (e) -> {
-          return Graphs.isSelfLoop(graph, e);
-        };
+    self_loop = (e) -> Graphs.isSelfLoop(graph, e);
+
     // create decorators
-    seedFillColor = new SeedFillColor<Integer>(picked_state);
-    seedDrawColor = new SeedDrawColor<Integer>();
-    ewcs = new EdgeWeightStrokeFunction<Number>(edge_weight);
-    vsh = new VertexStrokeHighlight<Integer, Number>(graph, picked_state);
-    vff = new VertexFontTransformer<Integer>();
-    eff = new EdgeFontTransformer<Number>();
+    seedFillColor = new SeedFillColor<>(picked_state);
+    seedDrawColor = new SeedDrawColor<>();
+    ewcs = new EdgeWeightStrokeFunction<>(edge_weight);
+    vsh = new VertexStrokeHighlight<>(graph, picked_state);
+    vff = new VertexFontTransformer<>();
+    eff = new EdgeFontTransformer<>();
     vs_none = n -> null;
     es_none = e -> null;
-    vssa = new VertexShapeSizeAspect<Integer, Number>(graph, voltages);
-    show_vertex = new VertexDisplayPredicate<Integer>(graph, false);
-    show_edge = new EdgeDisplayPredicate<Number>(edge_weight, false);
+    vssa = new VertexShapeSizeAspect<>(graph, voltages);
+    show_vertex = new VertexDisplayPredicate<>(graph, false);
+    show_edge = new EdgeDisplayPredicate<>(edge_weight, false);
 
     // uses a gradient edge if unpicked, otherwise uses picked selection
     edgeDrawPaint =
-        new GradientPickedEdgePaintFunction<Integer, Number>(
-            new PickableEdgePaintTransformer<Number>(
-                vv.getPickedEdgeState(), Color.black, Color.cyan),
+        new GradientPickedEdgePaintFunction<>(
+            new PickableEdgePaintTransformer<>(vv.getPickedEdgeState(), Color.black, Color.cyan),
             vv);
     edgeFillPaint =
-        new GradientPickedEdgePaintFunction<Integer, Number>(
-            new PickableEdgePaintTransformer<Number>(
-                vv.getPickedEdgeState(), Color.black, Color.cyan),
+        new GradientPickedEdgePaintFunction<>(
+            new PickableEdgePaintTransformer<>(vv.getPickedEdgeState(), Color.black, Color.cyan),
             vv);
 
     vv.getRenderContext().setVertexFillPaintTransformer(seedFillColor);
@@ -286,7 +271,7 @@ public class PluggableRendererDemo extends JApplet implements ActionListener {
     vv.getRenderContext().setEdgeFontTransformer(eff);
     vv.getRenderContext().setEdgeStrokeTransformer(ewcs);
     vv.getRenderContext().setEdgeIncludePredicate(show_edge);
-    vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.line(graph));
+    vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.line());
 
     vv.getRenderContext().setArrowFillPaintTransformer(n -> Color.lightGray);
     vv.getRenderContext().setArrowDrawPaintTransformer(n -> Color.black);
@@ -296,7 +281,7 @@ public class PluggableRendererDemo extends JApplet implements ActionListener {
     vv.setBackground(Color.white);
     GraphZoomScrollPane scrollPane = new GraphZoomScrollPane(vv);
     jp.add(scrollPane);
-    gm = new DefaultModalGraphMouse<Integer, Number>();
+    gm = new DefaultModalGraphMouse<>();
     vv.setGraphMouse(gm);
     gm.add(new PopupGraphMousePlugin());
 
@@ -333,7 +318,7 @@ public class PluggableRendererDemo extends JApplet implements ActionListener {
           }
         };
     BarabasiAlbertGenerator<Integer, Number> generator =
-        new BarabasiAlbertGenerator<Integer, Number>(
+        new BarabasiAlbertGenerator<>(
             NetworkBuilder.directed().allowsSelfLoops(true).allowsParallelEdges(true),
             vertexFactory,
             edgeFactory,
@@ -344,7 +329,7 @@ public class PluggableRendererDemo extends JApplet implements ActionListener {
     for (Number e : g.edges()) {
       edge_weight.put(e, Math.random());
     }
-    es = new NumberFormattingTransformer<Number>(edge_weight::get);
+    es = new NumberFormattingTransformer<>(edge_weight::get);
 
     // collect the seeds used to define the random graph
     seedVertices = generator.seedNodes();
@@ -355,8 +340,8 @@ public class PluggableRendererDemo extends JApplet implements ActionListener {
 
     // use these seeds as source and sink vertices, run VoltageRanker
     boolean source = true;
-    Set<Integer> sources = new HashSet<Integer>();
-    Set<Integer> sinks = new HashSet<Integer>();
+    Set<Integer> sources = new HashSet<>();
+    Set<Integer> sinks = new HashSet<>();
     for (Integer v : seedVertices) {
       if (source) {
         sources.add(v);
@@ -366,24 +351,24 @@ public class PluggableRendererDemo extends JApplet implements ActionListener {
       source = !source;
     }
     VoltageScorer<Integer, Number> voltage_scores =
-        new VoltageScorer<Integer, Number>(g, edge_weight::get, sources, sinks);
+        new VoltageScorer<>(g, edge_weight::get, sources, sinks);
     voltage_scores.evaluate();
-    voltages = new VertexScoreTransformer<Integer, Double>(voltage_scores);
-    vs = new NumberFormattingTransformer<Integer>(voltages);
+    voltages = new VertexScoreTransformer<>(voltage_scores);
+    vs = new NumberFormattingTransformer<>(voltages);
 
     Collection<Integer> verts = g.nodes();
 
     // assign a transparency value of 0.9 to all vertices
     for (Integer v : verts) {
-      transparency.put(v, new Double(0.9));
+      transparency.put(v, 0.9);
     }
 
     // add a couple of self-loops (sanity check on rendering)
     Integer v = verts.iterator().next();
-    Number e = new Float(Math.random());
+    Number e = Math.random();
     edge_weight.put(e, e);
     g.addEdge(v, v, e);
-    e = new Float(Math.random());
+    e = Math.random();
     edge_weight.put(e, e);
     g.addEdge(v, v, e);
     return g;
@@ -413,7 +398,7 @@ public class PluggableRendererDemo extends JApplet implements ActionListener {
     v_labels.addActionListener(this);
     v_shape = new JCheckBox("shape by degree");
     v_shape.addActionListener(this);
-    v_size = new JCheckBox("size by voltage");
+    v_size = new JCheckBox("layoutSize by voltage");
     v_size.addActionListener(this);
     v_size.setSelected(true);
     v_aspect = new JCheckBox("stretch by degree ratio");
@@ -519,19 +504,10 @@ public class PluggableRendererDemo extends JApplet implements ActionListener {
     final ScalingControl scaler = new CrossoverScalingControl();
 
     JButton plus = new JButton("+");
-    plus.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            scaler.scale(vv, 1.1f, vv.getCenter());
-          }
-        });
+    plus.addActionListener(e -> scaler.scale(vv, 1.1f, vv.getCenter()));
+
     JButton minus = new JButton("-");
-    minus.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            scaler.scale(vv, 1 / 1.1f, vv.getCenter());
-          }
-        });
+    minus.addActionListener(e -> scaler.scale(vv, 1 / 1.1f, vv.getCenter()));
 
     JPanel zoomPanel = new JPanel();
     zoomPanel.setBorder(BorderFactory.createTitledBorder("Zoom"));
@@ -566,7 +542,7 @@ public class PluggableRendererDemo extends JApplet implements ActionListener {
     comboGrid.add(modePanel);
     fontPanel.add(comboGrid);
 
-    JComboBox<Position> cb = new JComboBox<Position>();
+    JComboBox<Position> cb = new JComboBox<>();
     cb.addItem(Renderer.VertexLabel.Position.N);
     cb.addItem(Renderer.VertexLabel.Position.NE);
     cb.addItem(Renderer.VertexLabel.Position.E);
@@ -579,12 +555,10 @@ public class PluggableRendererDemo extends JApplet implements ActionListener {
     cb.addItem(Renderer.VertexLabel.Position.CNTR);
     cb.addItem(Renderer.VertexLabel.Position.AUTO);
     cb.addItemListener(
-        new ItemListener() {
-          public void itemStateChanged(ItemEvent e) {
-            Renderer.VertexLabel.Position position = (Renderer.VertexLabel.Position) e.getItem();
-            vv.getRenderer().getVertexLabelRenderer().setPosition(position);
-            vv.repaint();
-          }
+        e -> {
+          Renderer.VertexLabel.Position position = (Renderer.VertexLabel.Position) e.getItem();
+          vv.getRenderer().getVertexLabelRenderer().setPosition(position);
+          vv.repaint();
         });
     cb.setSelectedItem(Renderer.VertexLabel.Position.SE);
     JPanel positionPanel = new JPanel();
@@ -618,11 +592,11 @@ public class PluggableRendererDemo extends JApplet implements ActionListener {
       if (source.isSelected()) {
         vv.getRenderer()
             .getEdgeRenderer()
-            .setEdgeArrowRenderingSupport(new CenterEdgeArrowRenderingSupport<Integer, Number>());
+            .setEdgeArrowRenderingSupport(new CenterEdgeArrowRenderingSupport<>());
       } else {
         vv.getRenderer()
             .getEdgeRenderer()
-            .setEdgeArrowRenderingSupport(new BasicEdgeArrowRenderingSupport<Integer, Number>());
+            .setEdgeArrowRenderingSupport(new BasicEdgeArrowRenderingSupport<>());
       }
     } else if (source == font) {
       vff.setBold(source.isSelected());
@@ -635,15 +609,15 @@ public class PluggableRendererDemo extends JApplet implements ActionListener {
       vssa.setStretching(source.isSelected());
     } else if (source == e_line) {
       if (source.isSelected()) {
-        vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.line(graph));
+        vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.line());
       }
     } else if (source == e_ortho) {
       if (source.isSelected()) {
-        vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.orthogonal(graph));
+        vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.orthogonal());
       }
     } else if (source == e_wedge) {
       if (source.isSelected()) {
-        vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.wedge(graph, 10));
+        vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.wedge(10));
       }
     }
     //        else if (source == e_bent)
@@ -655,11 +629,11 @@ public class PluggableRendererDemo extends JApplet implements ActionListener {
     //        }
     else if (source == e_quad) {
       if (source.isSelected()) {
-        vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.quadCurve(graph));
+        vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.quadCurve());
       }
     } else if (source == e_cubic) {
       if (source.isSelected()) {
-        vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.cubicCurve(graph));
+        vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.cubicCurve());
       }
     } else if (source == e_filter_small) {
       show_edge.filterSmall(source.isSelected());
@@ -749,11 +723,7 @@ public class PluggableRendererDemo extends JApplet implements ActionListener {
 
     protected boolean drawHeavy(E e) {
       double value = edge_weight.get(e).doubleValue();
-      if (value > 0.7) {
-        return true;
-      } else {
-        return false;
-      }
+      return value > 0.7;
     }
   }
 
@@ -867,7 +837,7 @@ public class PluggableRendererDemo extends JApplet implements ActionListener {
   }
 
   /**
-   * Controls the shape, size, and aspect ratio for each vertex.
+   * Controls the shape, layoutSize, and aspect ratio for each vertex.
    *
    * @author Joshua O'Madadhain
    */

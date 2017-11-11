@@ -28,8 +28,8 @@ public class MagnifyShapeTransformer extends MagnifyTransformer
     implements ShapeFlatnessTransformer {
 
   /**
-   * Create an instance, setting values from the passed component and registering to listen for size
-   * changes on the component.
+   * Create an instance, setting values from the passed component and registering to listen for
+   * layoutSize changes on the component.
    *
    * @param component the component used for rendering
    */
@@ -38,8 +38,8 @@ public class MagnifyShapeTransformer extends MagnifyTransformer
   }
 
   /**
-   * Create an instance, setting values from the passed component and registering to listen for size
-   * changes on the component, with a possibly shared transform <code>delegate</code>.
+   * Create an instance, setting values from the passed component and registering to listen for
+   * layoutSize changes on the component, with a possibly shared transform <code>delegate</code>.
    *
    * @param component the component used for rendering
    * @param delegate the transformer to use
@@ -169,7 +169,7 @@ public class MagnifyShapeTransformer extends MagnifyTransformer
     dx *= ratio;
     Point2D pointFromCenter = new Point2D.Double(dx, dy);
 
-    PolarPoint polar = PolarPoint.cartesianToPolar(pointFromCenter);
+    PolarPoint polar = PolarPoint.cartesianToPolar(domainModel, pointFromCenter);
     double theta = polar.getTheta();
     double radius = polar.getRadius();
     if (radius > viewRadius) {
@@ -180,7 +180,7 @@ public class MagnifyShapeTransformer extends MagnifyTransformer
     radius *= mag;
 
     radius = Math.min(radius, viewRadius);
-    Point2D projectedPoint = PolarPoint.polarToCartesian(theta, radius);
+    Point2D projectedPoint = PolarPoint.polarToCartesian(domainModel, theta, radius);
     projectedPoint.setLocation(projectedPoint.getX() / ratio, projectedPoint.getY());
     Point2D translatedBack =
         new Point2D.Double(
@@ -202,7 +202,7 @@ public class MagnifyShapeTransformer extends MagnifyTransformer
 
     Point2D pointFromCenter = new Point2D.Double(dx, dy);
 
-    PolarPoint polar = PolarPoint.cartesianToPolar(pointFromCenter);
+    PolarPoint polar = PolarPoint.cartesianToPolar(domainModel, pointFromCenter);
 
     double radius = polar.getRadius();
     if (radius > viewRadius) {
@@ -212,7 +212,7 @@ public class MagnifyShapeTransformer extends MagnifyTransformer
     double mag = magnification;
     radius /= mag;
     polar.setRadius(radius);
-    Point2D projectedPoint = PolarPoint.polarToCartesian(polar);
+    Point2D projectedPoint = PolarPoint.polarToCartesian(domainModel, polar);
     projectedPoint.setLocation(projectedPoint.getX() / ratio, projectedPoint.getY());
     Point2D translatedBack =
         new Point2D.Double(

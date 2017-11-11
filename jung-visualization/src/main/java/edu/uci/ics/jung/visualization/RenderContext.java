@@ -1,12 +1,13 @@
 package edu.uci.ics.jung.visualization;
 
 import com.google.common.graph.Network;
-import edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.graph.util.EdgeIndexFunction;
+import edu.uci.ics.jung.visualization.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import edu.uci.ics.jung.visualization.renderers.EdgeLabelRenderer;
 import edu.uci.ics.jung.visualization.renderers.VertexLabelRenderer;
 import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
+import edu.uci.ics.jung.visualization.util.Context;
 import java.awt.BasicStroke;
 import java.awt.Font;
 import java.awt.Paint;
@@ -18,7 +19,7 @@ import javax.swing.CellRendererPane;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 
-public interface RenderContext<V, E> {
+public interface RenderContext<N, E> {
 
   float[] dotting = {1.0f, 3.0f};
   float[] dashing = {5.0f};
@@ -38,8 +39,6 @@ public interface RenderContext<V, E> {
 
   /** Specifies the offset for the edge labels. */
   int LABEL_OFFSET = 10;
-
-  Network<V, E> getNetwork();
 
   int getLabelOffset();
 
@@ -89,9 +88,9 @@ public interface RenderContext<V, E> {
 
   void setArrowFillPaintTransformer(Function<? super E, Paint> arrowFillPaintTransformer);
 
-  Function<? super E, Shape> getEdgeShapeTransformer();
+  Function<Context<Network, E>, Shape> getEdgeShapeTransformer();
 
-  void setEdgeShapeTransformer(Function<? super E, Shape> edgeShapeTransformer);
+  void setEdgeShapeTransformer(Function<Context<Network, E>, Shape> edgeShapeTransformer);
 
   Function<? super E, String> getEdgeLabelTransformer();
 
@@ -117,9 +116,9 @@ public interface RenderContext<V, E> {
 
   void setPickedEdgeState(PickedState<E> pickedEdgeState);
 
-  PickedState<V> getPickedVertexState();
+  PickedState<N> getPickedVertexState();
 
-  void setPickedVertexState(PickedState<V> pickedVertexState);
+  void setPickedVertexState(PickedState<N> pickedVertexState);
 
   CellRendererPane getRendererPane();
 
@@ -129,41 +128,41 @@ public interface RenderContext<V, E> {
 
   void setScreenDevice(JComponent screenDevice);
 
-  Function<? super V, Font> getVertexFontTransformer();
+  Function<? super N, Font> getVertexFontTransformer();
 
-  void setVertexFontTransformer(Function<? super V, Font> vertexFontTransformer);
+  void setVertexFontTransformer(Function<? super N, Font> vertexFontTransformer);
 
-  Function<V, Icon> getVertexIconTransformer();
+  Function<N, Icon> getVertexIconTransformer();
 
-  void setVertexIconTransformer(Function<V, Icon> vertexIconTransformer);
+  void setVertexIconTransformer(Function<N, Icon> vertexIconTransformer);
 
-  Predicate<V> getVertexIncludePredicate();
+  Predicate<N> getVertexIncludePredicate();
 
-  void setVertexIncludePredicate(Predicate<V> vertexIncludePredicate);
+  void setVertexIncludePredicate(Predicate<N> vertexIncludePredicate);
 
   VertexLabelRenderer getVertexLabelRenderer();
 
   void setVertexLabelRenderer(VertexLabelRenderer vertexLabelRenderer);
 
-  Function<? super V, Paint> getVertexFillPaintTransformer();
+  Function<? super N, Paint> getVertexFillPaintTransformer();
 
-  void setVertexFillPaintTransformer(Function<? super V, Paint> vertexFillPaintTransformer);
+  void setVertexFillPaintTransformer(Function<? super N, Paint> vertexFillPaintTransformer);
 
-  Function<? super V, Paint> getVertexDrawPaintTransformer();
+  Function<? super N, Paint> getVertexDrawPaintTransformer();
 
-  void setVertexDrawPaintTransformer(Function<? super V, Paint> vertexDrawPaintTransformer);
+  void setVertexDrawPaintTransformer(Function<? super N, Paint> vertexDrawPaintTransformer);
 
-  Function<? super V, Shape> getVertexShapeTransformer();
+  Function<? super N, Shape> getVertexShapeTransformer();
 
-  void setVertexShapeTransformer(Function<? super V, Shape> vertexShapeTransformer);
+  void setVertexShapeTransformer(Function<? super N, Shape> vertexShapeTransformer);
 
-  Function<? super V, String> getVertexLabelTransformer();
+  Function<? super N, String> getVertexLabelTransformer();
 
-  void setVertexLabelTransformer(Function<? super V, String> vertexStringer);
+  void setVertexLabelTransformer(Function<? super N, String> vertexStringer);
 
-  Function<? super V, Stroke> getVertexStrokeTransformer();
+  Function<? super N, Stroke> getVertexStrokeTransformer();
 
-  void setVertexStrokeTransformer(Function<? super V, Stroke> vertexStrokeTransformer);
+  void setVertexStrokeTransformer(Function<? super N, Stroke> vertexStrokeTransformer);
 
   class DirectedEdgeArrowPredicate implements Predicate<Network<?, ?>> {
 
@@ -184,8 +183,8 @@ public interface RenderContext<V, E> {
   void setMultiLayerTransformer(MultiLayerTransformer basicTransformer);
 
   /** @return the pickSupport */
-  NetworkElementAccessor<V, E> getPickSupport();
+  NetworkElementAccessor<N, E> getPickSupport();
 
   /** @param pickSupport the pickSupport to set */
-  void setPickSupport(NetworkElementAccessor<V, E> pickSupport);
+  void setPickSupport(NetworkElementAccessor<N, E> pickSupport);
 }

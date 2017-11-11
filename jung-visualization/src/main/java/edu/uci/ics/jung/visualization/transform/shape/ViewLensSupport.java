@@ -8,11 +8,11 @@
  */
 package edu.uci.ics.jung.visualization.transform.shape;
 
-import edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
+import edu.uci.ics.jung.visualization.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.visualization.picking.ViewLensShapePickSupport;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
 import edu.uci.ics.jung.visualization.renderers.ReshapingEdgeRenderer;
@@ -48,8 +48,7 @@ public class ViewLensSupport<V, E> extends AbstractLensSupport<V, E> implements 
     lensTransformer.setViewRadius(d.width / 5);
     this.lensGraphicsDecorator = new TransformingFlatnessGraphics(lensTransformer);
     this.savedEdgeRenderer = vv.getRenderer().getEdgeRenderer();
-    this.reshapingEdgeRenderer =
-        new ReshapingEdgeRenderer<V, E>(vv.getGraphLayout(), renderContext);
+    this.reshapingEdgeRenderer = new ReshapingEdgeRenderer<V, E>();
     this.reshapingEdgeRenderer.setEdgeArrowRenderingSupport(
         savedEdgeRenderer.getEdgeArrowRenderingSupport());
   }

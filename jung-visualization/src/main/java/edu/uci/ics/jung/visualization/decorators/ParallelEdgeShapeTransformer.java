@@ -9,7 +9,9 @@
  */
 package edu.uci.ics.jung.visualization.decorators;
 
+import com.google.common.graph.Network;
 import edu.uci.ics.jung.graph.util.EdgeIndexFunction;
+import edu.uci.ics.jung.visualization.util.Context;
 import java.awt.Shape;
 import java.util.function.Function;
 
@@ -18,7 +20,8 @@ import java.util.function.Function;
  *
  * @author Tom Nelson
  */
-public abstract class ParallelEdgeShapeTransformer<E> implements Function<E, Shape> {
+public abstract class ParallelEdgeShapeTransformer<E>
+    implements Function<Context<Network, E>, Shape> {
   /** Specifies the distance between control points for edges being drawn in parallel. */
   protected float control_offset_increment = 20.f;
 

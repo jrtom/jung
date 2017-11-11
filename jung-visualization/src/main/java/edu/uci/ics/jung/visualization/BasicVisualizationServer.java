@@ -10,25 +10,26 @@
 package edu.uci.ics.jung.visualization;
 
 import com.google.common.graph.Network;
-import edu.uci.ics.jung.algorithms.layout.Layout;
-import edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor;
+import edu.uci.ics.jung.algorithms.layout.LayoutAlgorithm;
+import edu.uci.ics.jung.visualization.annotations.Annotation;
+import edu.uci.ics.jung.visualization.annotations.AnnotationPaintable;
+import edu.uci.ics.jung.visualization.annotations.AnnotationRenderer;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
+import edu.uci.ics.jung.visualization.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.visualization.picking.MultiPickedState;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import edu.uci.ics.jung.visualization.picking.ShapePickSupport;
 import edu.uci.ics.jung.visualization.renderers.BasicRenderer;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
+import edu.uci.ics.jung.visualization.spatial.Spatial;
+import edu.uci.ics.jung.visualization.spatial.SpatialGrid;
 import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
 import edu.uci.ics.jung.visualization.util.Caching;
 import edu.uci.ics.jung.visualization.util.ChangeEventSupport;
 import edu.uci.ics.jung.visualization.util.DefaultChangeEventSupport;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
+import java.awt.*;
 import java.awt.RenderingHints.Key;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
@@ -36,6 +37,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,6 +46,8 @@ import java.util.Map;
 import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A class that maintains many of the details necessary for creating visualizations of graphs. This
@@ -55,22 +59,24 @@ import javax.swing.event.ChangeListener;
  * @author Danyel Fisher
  */
 @SuppressWarnings("serial")
-public class BasicVisualizationServer<V, E> extends JPanel
-    implements ChangeListener, ChangeEventSupport, VisualizationServer<V, E> {
+public class BasicVisualizationServer<N, E> extends JPanel
+    implements ChangeListener, ChangeEventSupport, VisualizationServer<N, E> {
+
+  static Logger log = LoggerFactory.getLogger(BasicVisualizationServer.class);
 
   protected ChangeEventSupport changeSupport = new DefaultChangeEventSupport(this);
 
   /** holds the state of this View */
-  protected VisualizationModel<V, E> model;
+  protected VisualizationModel<N, E, Point2D> model;
 
   /** handles the actual drawing of graph elements */
-  protected Renderer<V, E> renderer;
+  protected Renderer<N, E> renderer;
 
   /** rendering hints used in drawing. Anti-aliasing is on by default */
   protected Map<Key, Object> renderingHints = new HashMap<Key, Object>();
 
   /** holds the state of which vertices of the graph are currently 'picked' */
-  protected PickedState<V> pickedVertexState;
+  protected PickedState<N> pickedVertexState;
 
   /** holds the state of which edges of the graph are currently 'picked' */
   protected PickedState<E> pickedEdgeState;
@@ -101,26 +107,27 @@ public class BasicVisualizationServer<V, E> extends JPanel
    */
   protected List<Paintable> postRenderers = new ArrayList<Paintable>();
 
-  protected RenderContext<V, E> renderContext;
+  protected RenderContext<N, E> renderContext;
 
   /**
    * Create an instance with the specified Layout.
    *
-   * @param layout The Layout to apply, with its associated Graph
+   * @param
    */
-  public BasicVisualizationServer(Network<V, E> network, Layout<V> layout) {
-    this(new DefaultVisualizationModel<V, E>(network, layout));
+  public BasicVisualizationServer(
+      Network<N, E> network, LayoutAlgorithm<N, Point2D> layoutAlgorithm) {
+    this(new BaseVisualizationModel<N, E>(network, layoutAlgorithm), DEFAULT_SIZE);
   }
 
   /**
    * Create an instance with the specified Layout and view dimension.
    *
-   * @param layout The Layout to apply, with its associated Graph
-   * @param preferredSize the preferred size of this View
+   * @param
+   * @param preferredSize the preferred layoutSize of this View
    */
   public BasicVisualizationServer(
-      Network<V, E> network, Layout<V> layout, Dimension preferredSize) {
-    this(new DefaultVisualizationModel<V, E>(network, layout, preferredSize), preferredSize);
+      Network<N, E> network, LayoutAlgorithm<N, Point2D> layoutAlgorithm, Dimension preferredSize) {
+    this(new BaseVisualizationModel<N, E>(network, layoutAlgorithm, preferredSize), preferredSize);
   }
 
   /**
@@ -128,32 +135,33 @@ public class BasicVisualizationServer<V, E> extends JPanel
    *
    * @param model the model to use
    */
-  public BasicVisualizationServer(VisualizationModel<V, E> model) {
-    this(model, new Dimension(600, 600));
+  public BasicVisualizationServer(VisualizationModel<N, E, Point2D> model) {
+    this(model, DEFAULT_SIZE);
   }
 
   /**
    * Create an instance with the specified model and view dimension.
    *
    * @param model the model to use
-   * @param preferredSize initial preferred size of the view
+   * @param preferredSize initial preferred layoutSize of the view
    */
-  public BasicVisualizationServer(VisualizationModel<V, E> model, Dimension preferredSize) {
+  public BasicVisualizationServer(
+      VisualizationModel<N, E, Point2D> model, Dimension preferredSize) {
     this.model = model;
-    renderContext = new PluggableRenderContext<V, E>(model.getNetwork());
-    renderer = new BasicRenderer<V, E>(model.getGraphLayout(), renderContext);
+    renderContext = new PluggableRenderContext<N, E>(model.getNetwork());
+    renderer = new BasicRenderer<N, E>();
     model.addChangeListener(this);
     setDoubleBuffered(false);
     this.addComponentListener(new VisualizationListener(this));
 
-    setPickSupport(new ShapePickSupport<V, E>(this));
-    setPickedVertexState(new MultiPickedState<V>());
+    setPickSupport(new ShapePickSupport<N, E>(this));
+    setPickedVertexState(new MultiPickedState<N>());
     setPickedEdgeState(new MultiPickedState<E>());
 
     renderContext.setEdgeDrawPaintTransformer(
         new PickableEdgePaintTransformer<E>(getPickedEdgeState(), Color.black, Color.cyan));
     renderContext.setVertexFillPaintTransformer(
-        new PickableVertexPaintTransformer<V>(getPickedVertexState(), Color.red, Color.yellow));
+        new PickableVertexPaintTransformer<N>(getPickedVertexState(), Color.red, Color.yellow));
 
     setPreferredSize(preferredSize);
     renderingHints.put(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -172,7 +180,7 @@ public class BasicVisualizationServer<V, E> extends JPanel
   }
 
   /**
-   * Always sanity-check getSize so that we don't use a value that is improbable
+   * Always sanity-check getLayoutSize so that we don't use a value that is improbable
    *
    * @see java.awt.Component#getSize()
    */
@@ -187,7 +195,7 @@ public class BasicVisualizationServer<V, E> extends JPanel
 
   /**
    * Ensure that, if doubleBuffering is enabled, the offscreen image buffer exists and is the
-   * correct size.
+   * correct layoutSize.
    *
    * @param d the expected Dimension of the offscreen buffer
    */
@@ -202,11 +210,11 @@ public class BasicVisualizationServer<V, E> extends JPanel
     }
   }
 
-  public VisualizationModel<V, E> getModel() {
+  public VisualizationModel<N, E, Point2D> getModel() {
     return model;
   }
 
-  public void setModel(VisualizationModel<V, E> model) {
+  public void setModel(VisualizationModel<N, E, Point2D> model) {
     this.model = model;
   }
 
@@ -215,21 +223,13 @@ public class BasicVisualizationServer<V, E> extends JPanel
     fireStateChanged();
   }
 
-  public void setRenderer(Renderer<V, E> r) {
+  public void setRenderer(Renderer<N, E> r) {
     this.renderer = r;
     repaint();
   }
 
-  public Renderer<V, E> getRenderer() {
+  public Renderer<N, E> getRenderer() {
     return renderer;
-  }
-
-  public void setGraphLayout(Layout<V> layout) {
-    Dimension viewSize = getPreferredSize();
-    if (this.isShowing()) {
-      viewSize = getSize();
-    }
-    model.setGraphLayout(layout, viewSize);
   }
 
   public void scaleToLayout(ScalingControl scaler) {
@@ -237,25 +237,9 @@ public class BasicVisualizationServer<V, E> extends JPanel
     if (this.isShowing()) {
       vd = getSize();
     }
-    Dimension ld = getGraphLayout().getSize();
+    Dimension ld = model.getLayoutSize();
     if (vd.equals(ld) == false) {
       scaler.scale(this, (float) (vd.getWidth() / ld.getWidth()), new Point2D.Double());
-    }
-  }
-
-  public Layout<V> getGraphLayout() {
-    return model.getGraphLayout();
-  }
-
-  @Override
-  public void setVisible(boolean aFlag) {
-    super.setVisible(aFlag);
-    if (aFlag == true) {
-      Dimension d = this.getSize();
-      if (d.width <= 0 || d.height <= 0) {
-        d = this.getPreferredSize();
-      }
-      model.getGraphLayout().setSize(d);
     }
   }
 
@@ -281,6 +265,13 @@ public class BasicVisualizationServer<V, E> extends JPanel
     }
   }
 
+  public Shape viewOnLayout() {
+    Dimension d = this.getSize();
+    MultiLayerTransformer vt = renderContext.getMultiLayerTransformer();
+    Shape s = new Rectangle2D.Double(0, 0, d.width, d.height);
+    return vt.inverseTransform(s);
+  }
+
   protected void renderGraph(Graphics2D g2d) {
     if (renderContext.getGraphicsContext() == null) {
       renderContext.setGraphicsContext(new GraphicsDecorator(g2d));
@@ -288,11 +279,10 @@ public class BasicVisualizationServer<V, E> extends JPanel
       renderContext.getGraphicsContext().setDelegate(g2d);
     }
     renderContext.setScreenDevice(this);
-    Layout<V> layout = model.getGraphLayout();
 
     g2d.setRenderingHints(renderingHints);
 
-    // the size of the VisualizationViewer
+    // the layoutSize of the VisualizationViewer
     Dimension d = getSize();
 
     // clear the offscreen image
@@ -306,6 +296,39 @@ public class BasicVisualizationServer<V, E> extends JPanel
 
     g2d.setTransform(newXform);
 
+    Spatial spatial = model.getSpatial();
+
+    AnnotationPaintable lowerAnnotationPaintable = null;
+    // when logging is set to trace, the grid will be drawn on the graph visualization
+    if (log.isTraceEnabled()) {
+      AnnotationRenderer annotationRenderer = new AnnotationRenderer();
+      lowerAnnotationPaintable = new AnnotationPaintable(renderContext, annotationRenderer);
+      if (spatial != null) {
+        List<Rectangle2D> grid = ((SpatialGrid) spatial).getGrid();
+        int num = 0;
+        for (Rectangle2D r : grid) {
+          Point2D p =
+              this.getRenderContext()
+                  .getMultiLayerTransformer()
+                  .inverseTransform(new Point2D.Double(r.getX(), r.getY()));
+          Annotation<Shape> annotation =
+              new Annotation<Shape>(r, Annotation.Layer.LOWER, Color.BLACK, false, p);
+          lowerAnnotationPaintable.add(annotation);
+          String label = num + ":" + spatial.getMap().get(num);
+          int stringWidth = g2d.getFontMetrics().stringWidth(label);
+          Point2D center =
+              new Point2D.Double(
+                  r.getX() + (r.getWidth() - stringWidth) / 2, r.getY() + r.getHeight() / 2);
+
+          Annotation<String> annotation2 =
+              new Annotation<String>(label, Annotation.Layer.LOWER, Color.BLACK, false, center);
+          lowerAnnotationPaintable.add(annotation2);
+          num++;
+        }
+        this.addPreRenderPaintable(lowerAnnotationPaintable);
+      }
+    }
+
     // if there are  preRenderers set, paint them
     for (Paintable paintable : preRenderers) {
 
@@ -317,12 +340,15 @@ public class BasicVisualizationServer<V, E> extends JPanel
         g2d.setTransform(newXform);
       }
     }
-
-    if (layout instanceof Caching) {
-      ((Caching) layout).clear();
+    if (lowerAnnotationPaintable != null) {
+      this.removePreRenderPaintable(lowerAnnotationPaintable);
     }
 
-    renderer.render();
+    if (model instanceof Caching) {
+      ((Caching) model).clear();
+    }
+
+    renderer.render(renderContext, model, spatial);
 
     // if there are postRenderers set, do it
     for (Paintable paintable : postRenderers) {
@@ -339,14 +365,15 @@ public class BasicVisualizationServer<V, E> extends JPanel
   }
 
   /**
-   * VisualizationListener reacts to changes in the size of the VisualizationViewer. When the size
-   * changes, it ensures that the offscreen image is sized properly. If the layout is locked to this
-   * view size, then the layout is also resized to be the same as the view size.
+   * VisualizationListener reacts to changes in the layoutSize of the VisualizationViewer. When the
+   * layoutSize changes, it ensures that the offscreen image is sized properly. If the layout is
+   * locked to this view layoutSize, then the layout is also resized to be the same as the view
+   * layoutSize.
    */
   protected class VisualizationListener extends ComponentAdapter {
-    protected BasicVisualizationServer<V, E> vv;
+    protected BasicVisualizationServer<N, E> vv;
 
-    public VisualizationListener(BasicVisualizationServer<V, E> vv) {
+    public VisualizationListener(BasicVisualizationServer<N, E> vv) {
       this.vv = vv;
     }
 
@@ -418,7 +445,7 @@ public class BasicVisualizationServer<V, E> extends JPanel
     changeSupport.fireStateChanged();
   }
 
-  public PickedState<V> getPickedVertexState() {
+  public PickedState<N> getPickedVertexState() {
     return pickedVertexState;
   }
 
@@ -426,7 +453,7 @@ public class BasicVisualizationServer<V, E> extends JPanel
     return pickedEdgeState;
   }
 
-  public void setPickedVertexState(PickedState<V> pickedVertexState) {
+  public void setPickedVertexState(PickedState<N> pickedVertexState) {
     if (pickEventListener != null && this.pickedVertexState != null) {
       this.pickedVertexState.removeItemListener(pickEventListener);
     }
@@ -462,11 +489,11 @@ public class BasicVisualizationServer<V, E> extends JPanel
     pickedEdgeState.addItemListener(pickEventListener);
   }
 
-  public NetworkElementAccessor<V, E> getPickSupport() {
+  public NetworkElementAccessor<N, E> getPickSupport() {
     return renderContext.getPickSupport();
   }
 
-  public void setPickSupport(NetworkElementAccessor<V, E> pickSupport) {
+  public void setPickSupport(NetworkElementAccessor<N, E> pickSupport) {
     renderContext.setPickSupport(pickSupport);
   }
 
@@ -475,11 +502,11 @@ public class BasicVisualizationServer<V, E> extends JPanel
     return new Point2D.Float(d.width / 2, d.height / 2);
   }
 
-  public RenderContext<V, E> getRenderContext() {
+  public RenderContext<N, E> getRenderContext() {
     return renderContext;
   }
 
-  public void setRenderContext(RenderContext<V, E> renderContext) {
+  public void setRenderContext(RenderContext<N, E> renderContext) {
     this.renderContext = renderContext;
   }
 }
