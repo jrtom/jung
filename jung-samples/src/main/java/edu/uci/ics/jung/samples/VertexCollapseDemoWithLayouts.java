@@ -238,13 +238,9 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
               Iterator pickedIter = picked.iterator();
               Object nodeU = pickedIter.next();
               Object nodeV = pickedIter.next();
-              //					Pair pair = new Pair(picked);
-              //					Network graph = layout.getGraph();
               Set edges =
                   Sets.intersection(
                       collapsedGraph.incidentEdges(nodeU), collapsedGraph.incidentEdges(nodeV));
-              //					Collection edges = new HashSet(graph.getIncidentEdges(pair.getFirst()));
-              //					edges.retainAll(graph.getIncidentEdges(pair.getSecond()));
               exclusions.addAll(edges);
               vv.repaint();
             }
@@ -261,13 +257,9 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
               Iterator pickedIter = picked.iterator();
               Object nodeU = pickedIter.next();
               Object nodeV = pickedIter.next();
-              //					Pair pair = new Pair(picked);
-              //					Network graph = layout.getGraph();
               Set edges =
                   Sets.intersection(
                       collapsedGraph.incidentEdges(nodeU), collapsedGraph.incidentEdges(nodeV));
-              //					Collection edges = new HashSet(graph.getIncidentEdges(pair.getFirst()));
-              //					edges.retainAll(graph.getIncidentEdges(pair.getSecond()));
               exclusions.removeAll(edges);
               vv.repaint();
             }

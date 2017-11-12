@@ -10,8 +10,9 @@
  */
 package edu.uci.ics.jung.algorithms.blockmodel;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.graph.Graph;
-import edu.uci.ics.jung.graph.util.Pair;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -39,22 +40,22 @@ import java.util.function.Function;
  */
 public class StructurallyEquivalent<V> implements Function<Graph<V>, VertexPartition<V>> {
   public VertexPartition<V> apply(Graph<V> g) {
-    Set<Pair<V>> vertex_pairs = getEquivalentPairs(g);
+    ImmutableSet<ImmutableList<V>> vertexPairs = getEquivalentPairs(g);
 
     Set<Set<V>> rv = new HashSet<Set<V>>();
     Map<V, Set<V>> intermediate = new HashMap<V, Set<V>>();
-    for (Pair<V> p : vertex_pairs) {
-      Set<V> res = intermediate.get(p.getFirst());
+    for (ImmutableList<V> pair : vertexPairs) {
+      Set<V> res = intermediate.get(pair.get(0));
       if (res == null) {
-        res = intermediate.get(p.getSecond());
+        res = intermediate.get(pair.get(1));
       }
       if (res == null) { // we haven't seen this one before
         res = new HashSet<V>();
       }
-      res.add(p.getFirst());
-      res.add(p.getSecond());
-      intermediate.put(p.getFirst(), res);
-      intermediate.put(p.getSecond(), res);
+      res.add(pair.get(0));
+      res.add(pair.get(1));
+      intermediate.put(pair.get(0), res);
+      intermediate.put(pair.get(1), res);
     }
     rv.addAll(intermediate.values());
 
@@ -63,9 +64,9 @@ public class StructurallyEquivalent<V> implements Function<Graph<V>, VertexParti
     Collection<V> singletons = new ArrayList<V>(g.nodes());
     singletons.removeAll(intermediate.keySet());
     for (V v : singletons) {
-      Set<V> v_set = Collections.singleton(v);
-      intermediate.put(v, v_set);
-      rv.add(v_set);
+      Set<V> vSet = Collections.singleton(v);
+      intermediate.put(v, vSet);
+      rv.add(vSet);
     }
 
     return new VertexPartition<V>(g, intermediate, rv);
@@ -76,11 +77,12 @@ public class StructurallyEquivalent<V> implements Function<Graph<V>, VertexParti
    * they connect to the exact same vertices. (Is this regular equivalence, or whathaveyou?)
    *
    * @param g the graph whose equivalent pairs are to be generated
-   * @return a Set of Pairs of vertices, where all the vertices in the inner Pairs are equivalent.
+   * @return an immutable set of pairs of vertices, where all pairs are represented as immutable
+   *     lists, and the vertices in the inner pairs are equivalent.
    */
-  protected Set<Pair<V>> getEquivalentPairs(Graph<V> g) {
+  protected ImmutableSet<ImmutableList<V>> getEquivalentPairs(Graph<V> g) {
 
-    Set<Pair<V>> rv = new HashSet<Pair<V>>();
+    ImmutableSet.Builder<ImmutableList<V>> rv = ImmutableSet.builder();
     Set<V> alreadyEquivalent = new HashSet<V>();
 
     List<V> l = new ArrayList<V>(g.nodes());
@@ -102,14 +104,14 @@ public class StructurallyEquivalent<V> implements Function<Graph<V>, VertexParti
         }
 
         if (isStructurallyEquivalent(g, v1, v2)) {
-          Pair<V> p = new Pair<V>(v1, v2);
+          ImmutableList<V> pair = ImmutableList.of(v1, v2);
           alreadyEquivalent.add(v2);
-          rv.add(p);
+          rv.add(pair);
         }
       }
     }
 
-    return rv;
+    return rv.build();
   }
 
   /**
