@@ -12,6 +12,7 @@
 package edu.uci.ics.jung.algorithms.util;
 
 import com.google.common.base.Preconditions;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -35,7 +36,7 @@ public class DiscreteDistribution {
    * @param reference the reference distribution
    * @return sum_i of {@code dist[i] * Math.log(dist[i] / reference[i])}
    */
-  public static double KullbackLeibler(double[] dist, double[] reference) {
+  public static double kullbackLeibler(double[] dist, double[] reference) {
     double distance = 0;
 
     Preconditions.checkArgument(
@@ -56,7 +57,7 @@ public class DiscreteDistribution {
    * @see #KullbackLeibler(double[], double[])
    */
   public static double symmetricKL(double[] dist, double[] reference) {
-    return KullbackLeibler(dist, reference) + KullbackLeibler(reference, dist);
+    return kullbackLeibler(dist, reference) + kullbackLeibler(reference, dist);
   }
 
   /**
@@ -100,20 +101,20 @@ public class DiscreteDistribution {
    * @return the cosine distance between {@code dist} and {@code reference}, considered as vectors
    */
   public static double cosine(double[] dist, double[] reference) {
-    double v_prod = 0; // dot product x*x
-    double w_prod = 0; // dot product y*y
-    double vw_prod = 0; // dot product x*y
+    double vProd = 0; // dot product x*x
+    double wProd = 0; // dot product y*y
+    double vwProd = 0; // dot product x*y
 
     Preconditions.checkArgument(
         dist.length == reference.length, "input arrays must be of the same length");
 
     for (int i = 0; i < dist.length; i++) {
-      vw_prod += dist[i] * reference[i];
-      v_prod += dist[i] * dist[i];
-      w_prod += reference[i] * reference[i];
+      vwProd += dist[i] * reference[i];
+      vProd += dist[i] * dist[i];
+      wProd += reference[i] * reference[i];
     }
     // cosine distance between v and w
-    return vw_prod / (Math.sqrt(v_prod) * Math.sqrt(w_prod));
+    return vwProd / (Math.sqrt(vProd) * Math.sqrt(wProd));
   }
 
   /**
@@ -146,14 +147,14 @@ public class DiscreteDistribution {
    * @param alpha the value to add to each entry prior to normalization
    */
   public static void normalize(double[] counts, double alpha) {
-    double total_count = 0;
+    double totalCount = 0;
 
     for (int i = 0; i < counts.length; i++) {
-      total_count += counts[i];
+      totalCount += counts[i];
     }
 
     for (int i = 0; i < counts.length; i++) {
-      counts[i] = (counts[i] + alpha) / (total_count + counts.length * alpha);
+      counts[i] = (counts[i] + alpha) / (totalCount + counts.length * alpha);
     }
   }
 
@@ -168,15 +169,17 @@ public class DiscreteDistribution {
   public static double[] mean(Collection<double[]> distributions) {
     Preconditions.checkArgument(
         !distributions.isEmpty(), "Distribution collection must be non-empty");
+    // TODO: Consider checking that the inner arrays of `distributions` are non-empty
+    // TODO: Consider using com.google.common.math.Stats.meanOf
     Iterator<double[]> iter = distributions.iterator();
     double[] first = iter.next();
-    double[][] d_array = new double[distributions.size()][first.length];
-    d_array[0] = first;
-    for (int i = 1; i < d_array.length; i++) {
-      d_array[i] = iter.next();
+    double[][] dArray = new double[distributions.size()][first.length];
+    dArray[0] = first;
+    for (int i = 1; i < dArray.length; i++) {
+      dArray[i] = iter.next();
     }
 
-    return mean(d_array);
+    return mean(dArray);
   }
 
   /**
@@ -188,17 +191,17 @@ public class DiscreteDistribution {
    * @return the mean of the distributions
    */
   public static double[] mean(double[][] distributions) {
-    double[] d_mean = new double[distributions[0].length];
-    for (int j = 0; j < d_mean.length; j++) {
-      d_mean[j] = 0;
-    }
+    // TODO: Consider checking that the array and inner arrays of `distributions` are non-empty
+    // TODO: Consider using com.google.common.math.Stats.meanOf
+    double[] dMean = new double[distributions[0].length];
+    Arrays.fill(dMean, 0);
 
     for (int i = 0; i < distributions.length; i++) {
-      for (int j = 0; j < d_mean.length; j++) {
-        d_mean[j] += distributions[i][j] / distributions.length;
+      for (int j = 0; j < dMean.length; j++) {
+        dMean[j] += distributions[i][j] / distributions.length;
       }
     }
 
-    return d_mean;
+    return dMean;
   }
 }
