@@ -11,10 +11,12 @@
  */
 package edu.uci.ics.jung.algorithms.util;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
+import com.google.common.collect.Iterables;
+import com.google.common.math.Stats;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Iterator;
 
 /**
  * A utility class for calculating properties of discrete distributions. Generally, these
@@ -39,8 +41,7 @@ public class DiscreteDistribution {
   public static double kullbackLeibler(double[] dist, double[] reference) {
     double distance = 0;
 
-    Preconditions.checkArgument(
-        dist.length == reference.length, "input arrays must be of the same length");
+    checkArgument(dist.length == reference.length, "input arrays must be of the same length");
 
     for (int i = 0; i < dist.length; i++) {
       if (dist[i] > 0 && reference[i] > 0) {
@@ -53,8 +54,8 @@ public class DiscreteDistribution {
   /**
    * @param dist the distribution whose divergence from {@code reference} is being measured
    * @param reference the reference distribution
-   * @return <code>KullbackLeibler(dist, reference) + KullbackLeibler(reference, dist)</code>
-   * @see #KullbackLeibler(double[], double[])
+   * @return <code>kullbackLeibler(dist, reference) + kullbackLeibler(reference, dist)</code>
+   * @see #kullbackLeibler(double[], double[])
    */
   public static double symmetricKL(double[] dist, double[] reference) {
     return kullbackLeibler(dist, reference) + kullbackLeibler(reference, dist);
@@ -72,8 +73,7 @@ public class DiscreteDistribution {
   public static double squaredError(double[] dist, double[] reference) {
     double error = 0;
 
-    Preconditions.checkArgument(
-        dist.length == reference.length, "input arrays must be of the same length");
+    checkArgument(dist.length == reference.length, "input arrays must be of the same length");
 
     for (int i = 0; i < dist.length; i++) {
       double difference = dist[i] - reference[i];
@@ -105,8 +105,7 @@ public class DiscreteDistribution {
     double wProd = 0; // dot product y*y
     double vwProd = 0; // dot product x*y
 
-    Preconditions.checkArgument(
-        dist.length == reference.length, "input arrays must be of the same length");
+    checkArgument(dist.length == reference.length, "input arrays must be of the same length");
 
     for (int i = 0; i < dist.length; i++) {
       vwProd += dist[i] * reference[i];
@@ -129,9 +128,9 @@ public class DiscreteDistribution {
   public static double entropy(double[] dist) {
     double total = 0;
 
-    for (int i = 0; i < dist.length; i++) {
-      if (dist[i] > 0) {
-        total += dist[i] * Math.log(dist[i]);
+    for (double aDist : dist) {
+      if (aDist > 0) {
+        total += aDist * Math.log(aDist);
       }
     }
     return -total;
@@ -149,8 +148,8 @@ public class DiscreteDistribution {
   public static void normalize(double[] counts, double alpha) {
     double totalCount = 0;
 
-    for (int i = 0; i < counts.length; i++) {
-      totalCount += counts[i];
+    for (double count : counts) {
+      totalCount += count;
     }
 
     for (int i = 0; i < counts.length; i++) {
@@ -165,43 +164,42 @@ public class DiscreteDistribution {
    * @see #mean(double[][])
    * @param distributions the distributions whose mean is to be calculated
    * @return the mean of the distributions
+   * @throws IllegalArgumentException if the outer distributions array is empty, or if any of the
+   *     inner distribution arrays are empty, or if not all of the inner distribution arrays are the
+   *     same length
    */
   public static double[] mean(Collection<double[]> distributions) {
-    Preconditions.checkArgument(
-        !distributions.isEmpty(), "Distribution collection must be non-empty");
-    // TODO: Consider checking that the inner arrays of `distributions` are non-empty
-    // TODO: Consider using com.google.common.math.Stats.meanOf
-    Iterator<double[]> iter = distributions.iterator();
-    double[] first = iter.next();
-    double[][] dArray = new double[distributions.size()][first.length];
-    dArray[0] = first;
-    for (int i = 1; i < dArray.length; i++) {
-      dArray[i] = iter.next();
-    }
+    checkArgument(!distributions.isEmpty(), "Distribution collection must be non-empty");
+    checkArraysAreNonEmpty(distributions);
+    checkArraysAreSameLength(distributions);
 
-    return mean(dArray);
+    return distributions.stream().mapToDouble(Stats::meanOf).toArray();
+  }
+
+  private static void checkArraysAreNonEmpty(Collection<double[]> arrays) {
+    checkArgument(
+        arrays.stream().mapToInt(d -> d.length).allMatch(len -> len != 0),
+        "All distributions (inner arrays) must be non-empty");
+  }
+
+  private static void checkArraysAreSameLength(Collection<double[]> arrays) {
+    int lengthOfFirstArray = Iterables.get(arrays, 0).length;
+    checkArgument(
+        arrays.stream().mapToInt(array -> array.length).allMatch(len -> len == lengthOfFirstArray),
+        "All distributions (inner arrays) must be the same length");
   }
 
   /**
-   * Returns the mean of the specified array of distributions, represented as normalized arrays of
-   * <code>double</code> values. Will throw an "index out of bounds" exception if the distribution
-   * arrays are not all of the same length.
+   * Returns the mean of the specified array of distributions, which are assumed to be normalized
+   * arrays of <code>double</code> values.
    *
    * @param distributions the distributions whose mean is to be calculated
    * @return the mean of the distributions
+   * @throws IllegalArgumentException if the outer distributions array is empty, or if any of the
+   *     inner distribution arrays are empty, or if not all of the inner distribution arrays are the
+   *     same length
    */
   public static double[] mean(double[][] distributions) {
-    // TODO: Consider checking that the array and inner arrays of `distributions` are non-empty
-    // TODO: Consider using com.google.common.math.Stats.meanOf
-    double[] dMean = new double[distributions[0].length];
-    Arrays.fill(dMean, 0);
-
-    for (int i = 0; i < distributions.length; i++) {
-      for (int j = 0; j < dMean.length; j++) {
-        dMean[j] += distributions[i][j] / distributions.length;
-      }
-    }
-
-    return dMean;
+    return mean(Arrays.asList(distributions));
   }
 }
