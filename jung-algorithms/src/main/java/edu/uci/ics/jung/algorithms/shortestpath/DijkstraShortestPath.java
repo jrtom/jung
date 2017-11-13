@@ -164,6 +164,7 @@ public class DijkstraShortestPath<V, E> extends DijkstraDistance<V, E>
         source,
         g);
 
+    // TODO: Consider replacing this with an `ArrayList` (http://errorprone.info/bugpattern/JdkObsolete)
     LinkedList<E> path = new LinkedList<E>();
 
     // collect path data; must use internal method rather than
