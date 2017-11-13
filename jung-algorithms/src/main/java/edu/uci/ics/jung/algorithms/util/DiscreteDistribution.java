@@ -26,41 +26,6 @@ import java.util.Iterator;
 public class DiscreteDistribution {
 
   /**
-   * Returns the Kullback-Leibler divergence between the two specified distributions, which must
-   * have the same number of elements. This is defined as the sum over all <code>i</code> of <code>
-   * dist[i] * Math.log(dist[i] / reference[i])</code>. Note that this value is not symmetric; see
-   * <code>symmetricKL</code> for a symmetric variant.
-   *
-   * @see #symmetricKL(double[], double[])
-   * @param dist the distribution whose divergence from {@code reference} is being measured
-   * @param reference the reference distribution
-   * @return sum_i of {@code dist[i] * Math.log(dist[i] / reference[i])}
-   */
-  public static double kullbackLeibler(double[] dist, double[] reference) {
-    double distance = 0;
-
-    Preconditions.checkArgument(
-        dist.length == reference.length, "input arrays must be of the same length");
-
-    for (int i = 0; i < dist.length; i++) {
-      if (dist[i] > 0 && reference[i] > 0) {
-        distance += dist[i] * Math.log(dist[i] / reference[i]);
-      }
-    }
-    return distance;
-  }
-
-  /**
-   * @param dist the distribution whose divergence from {@code reference} is being measured
-   * @param reference the reference distribution
-   * @return <code>KullbackLeibler(dist, reference) + KullbackLeibler(reference, dist)</code>
-   * @see #KullbackLeibler(double[], double[])
-   */
-  public static double symmetricKL(double[] dist, double[] reference) {
-    return kullbackLeibler(dist, reference) + kullbackLeibler(reference, dist);
-  }
-
-  /**
    * Returns the squared difference between the two specified distributions, which must have the
    * same number of elements. This is defined as the sum over all <code>i</code> of the square of
    * <code>(dist[i] - reference[i])</code>.
