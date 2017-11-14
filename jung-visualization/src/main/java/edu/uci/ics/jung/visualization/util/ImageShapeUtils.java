@@ -77,8 +77,8 @@ public class ImageShapeUtils {
    * the image
    *
    * <p>If the image is larger than max in either direction, scale the image down to max-by-max, do
-   * the trace (on fewer points) then scale the resulting shape back up to the size of the original
-   * image.
+   * the trace (on fewer points) then scale the resulting shape back up to the layoutSize of the
+   * original image.
    *
    * @param image the image to trace
    * @param max used to restrict number of points in the resulting shape

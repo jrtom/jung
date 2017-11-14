@@ -9,15 +9,13 @@
  */
 package edu.uci.ics.jung.algorithms.layout;
 
-import java.awt.geom.Point2D;
-
 /**
  * Represents a point in polar coordinates: distance and angle from the origin. Includes conversions
  * between polar and Cartesian coordinates (Point2D).
  *
- * @author Tom Nelson - tomnelson@dev.java.net
+ * @author Tom Nelson
  */
-public class PolarPoint {
+public class PolarPoint<P> {
   double theta;
   double radius;
 
@@ -59,8 +57,8 @@ public class PolarPoint {
    * @param polar the input location to convert
    * @return the result of converting <code>polar</code> to Cartesian coordinates.
    */
-  public static Point2D polarToCartesian(PolarPoint polar) {
-    return polarToCartesian(polar.getTheta(), polar.getRadius());
+  public static <P> P polarToCartesian(DomainModel<P> domainModel, PolarPoint polar) {
+    return polarToCartesian(domainModel, polar.getTheta(), polar.getRadius());
   }
 
   /**
@@ -68,16 +66,16 @@ public class PolarPoint {
    * @param radius the distance from the origin of the input location
    * @return the result of converting <code>(theta, radius)</code> to Cartesian coordinates.
    */
-  public static Point2D polarToCartesian(double theta, double radius) {
-    return new Point2D.Double(radius * Math.cos(theta), radius * Math.sin(theta));
+  public static <P> P polarToCartesian(DomainModel<P> domainModel, double theta, double radius) {
+    return domainModel.newPoint(radius * Math.cos(theta), radius * Math.sin(theta));
   }
 
   /**
    * @param point the input location
    * @return the result of converting <code>point</code> to polar coordinates.
    */
-  public static PolarPoint cartesianToPolar(Point2D point) {
-    return cartesianToPolar(point.getX(), point.getY());
+  public static <P> PolarPoint cartesianToPolar(DomainModel<P> domainModel, P point) {
+    return cartesianToPolar(domainModel, domainModel.getX(point), domainModel.getY(point));
   }
 
   /**
@@ -85,7 +83,7 @@ public class PolarPoint {
    * @param y the y coordinate of the input location
    * @return the result of converting <code>(x, y)</code> to polar coordinates.
    */
-  public static PolarPoint cartesianToPolar(double x, double y) {
+  public static <P> PolarPoint cartesianToPolar(DomainModel<P> domainModel, double x, double y) {
     double theta = Math.atan2(y, x);
     double radius = Math.sqrt(x * x + y * y);
     return new PolarPoint(theta, radius);

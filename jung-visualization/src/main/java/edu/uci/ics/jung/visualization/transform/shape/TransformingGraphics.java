@@ -22,14 +22,14 @@ import java.awt.image.ImageObserver;
 
 /**
  * subclassed to pass certain operations thru the Function before the base class method is applied
- * This is useful when you want to apply non-affine transformations to the Graphics2D used to draw
+ * This is useful when you want to animate non-affine transformations to the Graphics2D used to draw
  * elements of the graph.
  *
  * @author Tom Nelson
  */
 public class TransformingGraphics extends GraphicsDecorator {
 
-  /** the Function to apply */
+  /** the Function to animate */
   protected BidirectionalTransformer transformer;
 
   public TransformingGraphics(BidirectionalTransformer transformer) {
@@ -114,7 +114,7 @@ public class TransformingGraphics extends GraphicsDecorator {
     return delegate.drawImage(image, at, observer);
   }
 
-  /** transform the shape before letting the delegate apply 'hit' with it */
+  /** transform the shape before letting the delegate animate 'hit' with it */
   public boolean hit(Rectangle rect, Shape s, boolean onStroke) {
     Shape shape = ((ShapeTransformer) transformer).transform(s);
     return delegate.hit(rect, shape, onStroke);

@@ -11,10 +11,10 @@
  */
 package edu.uci.ics.jung.visualization.control;
 
-import edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.algorithms.util.MapSettableTransformer;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
+import edu.uci.ics.jung.visualization.layout.NetworkElementAccessor;
 import java.awt.Cursor;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
@@ -69,7 +69,7 @@ public class LabelEditingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
         if (vs instanceof MapSettableTransformer) {
           MapSettableTransformer<? super V, String> mst =
               (MapSettableTransformer<? super V, String>) vs;
-          //    				Layout<V> layout = vv.getGraphLayout();
+          //    				Layout<V, Point2D> layout = vv.getGraphLayout();
           // p is the screen point for the mouse event
           Point2D p = e.getPoint();
 

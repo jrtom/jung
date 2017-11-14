@@ -55,6 +55,14 @@ public class SimpleEdgeSupport<V, E> implements EdgeSupport<V, E> {
     edgeEffects.endArrowEffects(vv);
   }
 
+  @Override
+  public void abort(BasicVisualizationServer<V, E> vv) {
+    startVertex = null;
+    edgeEffects.endEdgeEffects(vv);
+    edgeEffects.endArrowEffects(vv);
+    vv.repaint();
+  }
+
   public EdgeEffects<V, E> getEdgeEffects() {
     return edgeEffects;
   }

@@ -11,11 +11,14 @@ package edu.uci.ics.jung.samples;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
-import edu.uci.ics.jung.algorithms.layout.FRLayout;
-import edu.uci.ics.jung.algorithms.layout.Layout;
-import edu.uci.ics.jung.algorithms.layout.StaticLayout;
+import edu.uci.ics.jung.algorithms.layout.DomainModel;
+import edu.uci.ics.jung.algorithms.layout.FRLayoutAlgorithm;
+import edu.uci.ics.jung.algorithms.layout.LayoutAlgorithm;
+import edu.uci.ics.jung.algorithms.layout.LayoutModel;
+import edu.uci.ics.jung.algorithms.layout.StaticLayoutAlgorithm;
+import edu.uci.ics.jung.algorithms.util.RandomLocationTransformer;
 import edu.uci.ics.jung.graph.util.TestGraphs;
-import edu.uci.ics.jung.visualization.DefaultVisualizationModel;
+import edu.uci.ics.jung.visualization.BaseVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationModel;
@@ -27,7 +30,8 @@ import edu.uci.ics.jung.visualization.control.ModalLensGraphMouse;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
-import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
+import edu.uci.ics.jung.visualization.layout.AWTDomainModel;
+import edu.uci.ics.jung.visualization.layout.LayoutAlgorithmTransition;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import edu.uci.ics.jung.visualization.transform.HyperbolicTransformer;
 import edu.uci.ics.jung.visualization.transform.LayoutLensSupport;
@@ -36,39 +40,15 @@ import edu.uci.ics.jung.visualization.transform.MagnifyTransformer;
 import edu.uci.ics.jung.visualization.transform.shape.HyperbolicShapeTransformer;
 import edu.uci.ics.jung.visualization.transform.shape.MagnifyShapeTransformer;
 import edu.uci.ics.jung.visualization.transform.shape.ViewLensSupport;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.GridLayout;
-import java.awt.Insets;
-import java.awt.Rectangle;
-import java.awt.Shape;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.*;
 import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.ButtonGroup;
-import javax.swing.Icon;
-import javax.swing.JApplet;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenuBar;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
+import javax.swing.*;
 import javax.swing.plaf.basic.BasicLabelUI;
 
 /**
@@ -81,15 +61,17 @@ import javax.swing.plaf.basic.BasicLabelUI;
 @SuppressWarnings("serial")
 public class LensDemo extends JApplet {
 
+  private static final DomainModel<Point2D> domainModel = new AWTDomainModel();
+
   /** the graph */
   Network<String, Number> graph;
 
-  FRLayout<String> graphLayout;
+  FRLayoutAlgorithm<String, Point2D> graphLayoutAlgorithm;
 
   /** a grid shaped graph */
   Network<String, Number> grid;
 
-  Layout<String> gridLayout;
+  LayoutAlgorithm<String, Point2D> gridLayoutAlgorithm;
 
   /** the visual component and renderer for the graph */
   VisualizationViewer<String, Number> vv;
@@ -112,68 +94,67 @@ public class LensDemo extends JApplet {
     // create a simple graph for the demo
     graph = TestGraphs.getOneComponentGraph();
 
-    graphLayout = new FRLayout<String>(graph.asGraph());
-    graphLayout.setMaxIterations(1000);
+    graphLayoutAlgorithm = new FRLayoutAlgorithm<>(domainModel);
+    graphLayoutAlgorithm.setMaxIterations(1000);
 
     Dimension preferredSize = new Dimension(600, 600);
-    Map<String, Point2D> map = new HashMap<String, Point2D>();
+    Map<String, Point2D> map = new HashMap<>();
     Function<String, Point2D> vlf = map::get;
     grid = this.generateVertexGrid(map, preferredSize, 25);
-    gridLayout = new StaticLayout<String>(grid.asGraph(), vlf, preferredSize);
+    gridLayoutAlgorithm = new StaticLayoutAlgorithm<>(domainModel);
 
-    final VisualizationModel<String, Number> visualizationModel =
-        new DefaultVisualizationModel<String, Number>(graph, graphLayout, preferredSize);
-    vv = new VisualizationViewer<String, Number>(visualizationModel, preferredSize);
+    final VisualizationModel<String, Number, Point2D> visualizationModel =
+        new BaseVisualizationModel<>(graph, graphLayoutAlgorithm, preferredSize);
+    vv = new VisualizationViewer<>(visualizationModel, preferredSize);
 
     PickedState<String> ps = vv.getPickedVertexState();
     PickedState<Number> pes = vv.getPickedEdgeState();
     vv.getRenderContext()
         .setVertexFillPaintTransformer(
-            new PickableVertexPaintTransformer<String>(ps, Color.red, Color.yellow));
+            new PickableVertexPaintTransformer<>(ps, Color.red, Color.yellow));
     vv.getRenderContext()
         .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer<Number>(pes, Color.black, Color.cyan));
+            new PickableEdgePaintTransformer<>(pes, Color.black, Color.cyan));
     vv.setBackground(Color.white);
 
-    vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
+    vv.getRenderContext().setVertexLabelTransformer(Object::toString);
 
     final Function<? super String, Shape> ovals = vv.getRenderContext().getVertexShapeTransformer();
     final Function<? super String, Shape> squares = n -> new Rectangle2D.Float(-10, -10, 20, 20);
 
     // add a listener for ToolTips
-    vv.setVertexToolTipTransformer(new ToStringLabeller());
+    vv.setVertexToolTipTransformer(Object::toString);
 
     Container content = getContentPane();
     GraphZoomScrollPane gzsp = new GraphZoomScrollPane(vv);
     content.add(gzsp);
 
-    /** the regular graph mouse for the normal view */
-    final DefaultModalGraphMouse<String, Number> graphMouse =
-        new DefaultModalGraphMouse<String, Number>();
+    // the regular graph mouse for the normal view
+    final DefaultModalGraphMouse<String, Number> graphMouse = new DefaultModalGraphMouse<>();
 
     vv.setGraphMouse(graphMouse);
     vv.addKeyListener(graphMouse.getModeKeyListener());
 
     hyperbolicViewSupport =
-        new ViewLensSupport<String, Number>(
+        new ViewLensSupport<>(
             vv,
             new HyperbolicShapeTransformer(
                 vv, vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.VIEW)),
             new ModalLensGraphMouse());
     hyperbolicLayoutSupport =
-        new LayoutLensSupport<String, Number>(
+        new LayoutLensSupport<>(
             vv,
             new HyperbolicTransformer(
                 vv, vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT)),
             new ModalLensGraphMouse());
     magnifyViewSupport =
-        new ViewLensSupport<String, Number>(
+        new ViewLensSupport<>(
             vv,
             new MagnifyShapeTransformer(
                 vv, vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.VIEW)),
             new ModalLensGraphMouse(new LensMagnificationGraphMousePlugin(1.f, 6.f, .2f)));
     magnifyLayoutSupport =
-        new LayoutLensSupport<String, Number>(
+        new LayoutLensSupport<>(
             vv,
             new MagnifyTransformer(
                 vv, vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT)),
@@ -191,70 +172,47 @@ public class LensDemo extends JApplet {
     final ScalingControl scaler = new CrossoverScalingControl();
 
     JButton plus = new JButton("+");
-    plus.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            scaler.scale(vv, 1.1f, vv.getCenter());
-          }
-        });
+    plus.addActionListener(e -> scaler.scale(vv, 1.1f, vv.getCenter()));
+
     JButton minus = new JButton("-");
-    minus.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            scaler.scale(vv, 1 / 1.1f, vv.getCenter());
-          }
-        });
+    minus.addActionListener(e -> scaler.scale(vv, 1 / 1.1f, vv.getCenter()));
 
     ButtonGroup radio = new ButtonGroup();
     JRadioButton normal = new JRadioButton("None");
     normal.addItemListener(
-        new ItemListener() {
-          public void itemStateChanged(ItemEvent e) {
-            if (e.getStateChange() == ItemEvent.SELECTED) {
-              if (hyperbolicViewSupport != null) {
-                hyperbolicViewSupport.deactivate();
-              }
-              if (hyperbolicLayoutSupport != null) {
-                hyperbolicLayoutSupport.deactivate();
-              }
-              if (magnifyViewSupport != null) {
-                magnifyViewSupport.deactivate();
-              }
-              if (magnifyLayoutSupport != null) {
-                magnifyLayoutSupport.deactivate();
-              }
+        e -> {
+          if (e.getStateChange() == ItemEvent.SELECTED) {
+            if (hyperbolicViewSupport != null) {
+              hyperbolicViewSupport.deactivate();
+            }
+            if (hyperbolicLayoutSupport != null) {
+              hyperbolicLayoutSupport.deactivate();
+            }
+            if (magnifyViewSupport != null) {
+              magnifyViewSupport.deactivate();
+            }
+            if (magnifyLayoutSupport != null) {
+              magnifyLayoutSupport.deactivate();
             }
           }
         });
 
     final JRadioButton hyperView = new JRadioButton("Hyperbolic View");
     hyperView.addItemListener(
-        new ItemListener() {
-          public void itemStateChanged(ItemEvent e) {
-            hyperbolicViewSupport.activate(e.getStateChange() == ItemEvent.SELECTED);
-          }
-        });
+        e -> hyperbolicViewSupport.activate(e.getStateChange() == ItemEvent.SELECTED));
+
     final JRadioButton hyperModel = new JRadioButton("Hyperbolic Layout");
     hyperModel.addItemListener(
-        new ItemListener() {
-          public void itemStateChanged(ItemEvent e) {
-            hyperbolicLayoutSupport.activate(e.getStateChange() == ItemEvent.SELECTED);
-          }
-        });
+        e -> hyperbolicLayoutSupport.activate(e.getStateChange() == ItemEvent.SELECTED));
+
     final JRadioButton magnifyView = new JRadioButton("Magnified View");
     magnifyView.addItemListener(
-        new ItemListener() {
-          public void itemStateChanged(ItemEvent e) {
-            magnifyViewSupport.activate(e.getStateChange() == ItemEvent.SELECTED);
-          }
-        });
+        e -> magnifyViewSupport.activate(e.getStateChange() == ItemEvent.SELECTED));
+
     final JRadioButton magnifyModel = new JRadioButton("Magnified Layout");
     magnifyModel.addItemListener(
-        new ItemListener() {
-          public void itemStateChanged(ItemEvent e) {
-            magnifyLayoutSupport.activate(e.getStateChange() == ItemEvent.SELECTED);
-          }
-        });
+        e -> magnifyLayoutSupport.activate(e.getStateChange() == ItemEvent.SELECTED));
+
     JLabel modeLabel = new JLabel("     Mode Menu >>");
     modeLabel.setUI(new VerticalLabelUI(false));
     radio.add(normal);
@@ -273,30 +231,35 @@ public class LensDemo extends JApplet {
     JRadioButton graphButton = new JRadioButton("Graph");
     graphButton.setSelected(true);
     graphButton.addItemListener(
-        new ItemListener() {
-
-          public void itemStateChanged(ItemEvent e) {
-            if (e.getStateChange() == ItemEvent.SELECTED) {
-              visualizationModel.setGraphLayout(graphLayout);
-              vv.getRenderContext().setVertexShapeTransformer(ovals);
-              vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
-              vv.repaint();
-            }
+        e -> {
+          if (e.getStateChange() == ItemEvent.SELECTED) {
+            LayoutModel layoutModel = visualizationModel.getLayoutModel();
+            layoutModel.setInitializer(
+                new RandomLocationTransformer<String, Point2D>(
+                    domainModel, layoutModel.getWidth(), layoutModel.getHeight()));
+            visualizationModel.setNetwork(graph, false);
+            LayoutAlgorithmTransition.apply(visualizationModel, graphLayoutAlgorithm);
+            vv.getRenderContext().setVertexShapeTransformer(ovals);
+            vv.getRenderContext().setVertexLabelTransformer(Object::toString);
+            vv.repaint();
           }
         });
+
     JRadioButton gridButton = new JRadioButton("Grid");
     gridButton.addItemListener(
-        new ItemListener() {
-
-          public void itemStateChanged(ItemEvent e) {
-            if (e.getStateChange() == ItemEvent.SELECTED) {
-              visualizationModel.setGraphLayout(gridLayout);
-              vv.getRenderContext().setVertexShapeTransformer(squares);
-              vv.getRenderContext().setVertexLabelTransformer(n -> null);
-              vv.repaint();
-            }
+        e -> {
+          if (e.getStateChange() == ItemEvent.SELECTED) {
+            LayoutModel layoutModel = visualizationModel.getLayoutModel();
+            layoutModel.setInitializer(vlf);
+            // so it won't start running the old layout algorithm on the new graph
+            visualizationModel.setNetwork(grid, false);
+            LayoutAlgorithmTransition.apply(visualizationModel, gridLayoutAlgorithm);
+            vv.getRenderContext().setVertexShapeTransformer(squares);
+            vv.getRenderContext().setVertexLabelTransformer(n -> null);
+            vv.repaint();
           }
         });
+
     graphRadio.add(graphButton);
     graphRadio.add(gridButton);
 
@@ -364,7 +327,7 @@ public class LensDemo extends JApplet {
 
     public Dimension getPreferredSize(JComponent c) {
       Dimension dim = super.getPreferredSize(c);
-      return new Dimension(dim.height, dim.width);
+      return new Dimension(dim.width, dim.height);
     }
 
     private static Rectangle paintIconR = new Rectangle();
@@ -428,7 +391,7 @@ public class LensDemo extends JApplet {
 
   public static void main(String[] args) {
     JFrame f = new JFrame();
-    f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     f.getContentPane().add(new LensDemo());
     f.pack();
     f.setVisible(true);

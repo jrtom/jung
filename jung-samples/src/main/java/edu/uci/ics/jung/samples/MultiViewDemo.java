@@ -9,48 +9,27 @@
 package edu.uci.ics.jung.samples;
 
 import com.google.common.graph.Network;
-import edu.uci.ics.jung.algorithms.layout.FRLayout;
-import edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor;
+import edu.uci.ics.jung.algorithms.layout.DomainModel;
+import edu.uci.ics.jung.algorithms.layout.FRLayoutAlgorithm;
 import edu.uci.ics.jung.graph.util.TestGraphs;
-import edu.uci.ics.jung.visualization.DefaultVisualizationModel;
+import edu.uci.ics.jung.visualization.BaseVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.VisualizationModel;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
-import edu.uci.ics.jung.visualization.control.AnimatedPickingGraphMousePlugin;
-import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
-import edu.uci.ics.jung.visualization.control.LayoutScalingControl;
-import edu.uci.ics.jung.visualization.control.PickingGraphMousePlugin;
-import edu.uci.ics.jung.visualization.control.RotatingGraphMousePlugin;
-import edu.uci.ics.jung.visualization.control.ScalingGraphMousePlugin;
-import edu.uci.ics.jung.visualization.control.ShearingGraphMousePlugin;
-import edu.uci.ics.jung.visualization.control.TranslatingGraphMousePlugin;
-import edu.uci.ics.jung.visualization.control.ViewScalingControl;
+import edu.uci.ics.jung.visualization.control.*;
 import edu.uci.ics.jung.visualization.decorators.EdgeShape;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
-import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
+import edu.uci.ics.jung.visualization.layout.AWTDomainModel;
+import edu.uci.ics.jung.visualization.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.visualization.picking.MultiPickedState;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import edu.uci.ics.jung.visualization.picking.ShapePickSupport;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.*;
 import java.awt.event.InputEvent;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import javax.swing.JApplet;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
+import javax.swing.*;
 
 /**
  * Demonstrates 3 views of one graph in one model with one layout. Each view uses a different
@@ -60,6 +39,8 @@ import javax.swing.JTextArea;
  */
 @SuppressWarnings("serial")
 public class MultiViewDemo extends JApplet {
+
+  private static final DomainModel<Point2D> domainModel = new AWTDomainModel();
 
   /** the graph */
   Network<String, Number> graph;
@@ -102,24 +83,24 @@ public class MultiViewDemo extends JApplet {
     graph = TestGraphs.getOneComponentGraph();
 
     // create one layout for the graph
-    FRLayout<String> layout = new FRLayout<String>(graph.asGraph());
-    layout.setMaxIterations(1000);
+    FRLayoutAlgorithm<String, Point2D> layoutAlgorithm = new FRLayoutAlgorithm<>(domainModel);
+    layoutAlgorithm.setMaxIterations(1000);
 
     // create one model that all 3 views will share
-    VisualizationModel<String, Number> visualizationModel =
-        new DefaultVisualizationModel<String, Number>(graph, layout, preferredSize);
+    VisualizationModel<String, Number, Point2D> visualizationModel =
+        new BaseVisualizationModel<>(graph, layoutAlgorithm, preferredSize);
 
     // create 3 views that share the same model
-    vv1 = new VisualizationViewer<String, Number>(visualizationModel, preferredSize);
-    vv2 = new VisualizationViewer<String, Number>(visualizationModel, preferredSize);
-    vv3 = new VisualizationViewer<String, Number>(visualizationModel, preferredSize);
+    vv1 = new VisualizationViewer<>(visualizationModel, preferredSize);
+    vv2 = new VisualizationViewer<>(visualizationModel, preferredSize);
+    vv3 = new VisualizationViewer<>(visualizationModel, preferredSize);
 
-    vv1.getRenderContext().setEdgeShapeTransformer(EdgeShape.line(graph));
+    vv1.getRenderContext().setEdgeShapeTransformer(EdgeShape.line());
     vv2.getRenderContext().setVertexShapeTransformer(n -> new Rectangle2D.Float(-6, -6, 12, 12));
 
-    vv2.getRenderContext().setEdgeShapeTransformer(EdgeShape.quadCurve(graph));
+    vv2.getRenderContext().setEdgeShapeTransformer(EdgeShape.quadCurve());
 
-    vv3.getRenderContext().setEdgeShapeTransformer(EdgeShape.cubicCurve(graph));
+    vv3.getRenderContext().setEdgeShapeTransformer(EdgeShape.cubicCurve());
 
     //        Function = vv1.getLayoutTransformer();
     //        vv2.setLayoutTransformer(Function);
@@ -142,14 +123,14 @@ public class MultiViewDemo extends JApplet {
     vv3.setBackground(Color.white);
 
     // create one pick support for all 3 views to share
-    NetworkElementAccessor<String, Number> pickSupport = new ShapePickSupport<String, Number>(vv1);
+    NetworkElementAccessor<String, Number> pickSupport = new ShapePickSupport<>(vv1);
     vv1.setPickSupport(pickSupport);
     vv2.setPickSupport(pickSupport);
     vv3.setPickSupport(pickSupport);
 
     // create one picked state for all 3 views to share
-    PickedState<Number> pes = new MultiPickedState<Number>();
-    PickedState<String> pvs = new MultiPickedState<String>();
+    PickedState<Number> pes = new MultiPickedState<>();
+    PickedState<String> pvs = new MultiPickedState<>();
     vv1.setPickedVertexState(pvs);
     vv2.setPickedVertexState(pvs);
     vv3.setPickedVertexState(pvs);
@@ -160,27 +141,27 @@ public class MultiViewDemo extends JApplet {
     // set an edge paint function that shows picked edges
     vv1.getRenderContext()
         .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer<Number>(pes, Color.black, Color.red));
+            new PickableEdgePaintTransformer<>(pes, Color.black, Color.red));
     vv2.getRenderContext()
         .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer<Number>(pes, Color.black, Color.red));
+            new PickableEdgePaintTransformer<>(pes, Color.black, Color.red));
     vv3.getRenderContext()
         .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer<Number>(pes, Color.black, Color.red));
+            new PickableEdgePaintTransformer<>(pes, Color.black, Color.red));
     vv1.getRenderContext()
         .setVertexFillPaintTransformer(
-            new PickableVertexPaintTransformer<String>(pvs, Color.red, Color.yellow));
+            new PickableVertexPaintTransformer<>(pvs, Color.red, Color.yellow));
     vv2.getRenderContext()
         .setVertexFillPaintTransformer(
-            new PickableVertexPaintTransformer<String>(pvs, Color.blue, Color.cyan));
+            new PickableVertexPaintTransformer<>(pvs, Color.blue, Color.cyan));
     vv3.getRenderContext()
         .setVertexFillPaintTransformer(
-            new PickableVertexPaintTransformer<String>(pvs, Color.red, Color.yellow));
+            new PickableVertexPaintTransformer<>(pvs, Color.red, Color.yellow));
 
     // add default listener for ToolTips
-    vv1.setVertexToolTipTransformer(new ToStringLabeller());
-    vv2.setVertexToolTipTransformer(new ToStringLabeller());
-    vv3.setVertexToolTipTransformer(new ToStringLabeller());
+    vv1.setVertexToolTipTransformer(Object::toString);
+    vv2.setVertexToolTipTransformer(Object::toString);
+    vv3.setVertexToolTipTransformer(Object::toString);
 
     Container content = getContentPane();
     JPanel panel = new JPanel(new GridLayout(1, 0));
@@ -195,28 +176,24 @@ public class MultiViewDemo extends JApplet {
 
     JButton h1 = new JButton("?");
     h1.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            textArea.setText(messageOne);
-            JOptionPane.showMessageDialog(p1, scrollPane, "View 1", JOptionPane.PLAIN_MESSAGE);
-          }
+        e -> {
+          textArea.setText(messageOne);
+          JOptionPane.showMessageDialog(p1, scrollPane, "View 1", JOptionPane.PLAIN_MESSAGE);
         });
+
     JButton h2 = new JButton("?");
     h2.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            textArea.setText(messageTwo);
-            JOptionPane.showMessageDialog(p2, scrollPane, "View 2", JOptionPane.PLAIN_MESSAGE);
-          }
+        e -> {
+          textArea.setText(messageTwo);
+          JOptionPane.showMessageDialog(p2, scrollPane, "View 2", JOptionPane.PLAIN_MESSAGE);
         });
+
     JButton h3 = new JButton("?");
     h3.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            textArea.setText(messageThree);
-            textArea.setCaretPosition(0);
-            JOptionPane.showMessageDialog(p3, scrollPane, "View 3", JOptionPane.PLAIN_MESSAGE);
-          }
+        e -> {
+          textArea.setText(messageThree);
+          textArea.setCaretPosition(0);
+          JOptionPane.showMessageDialog(p3, scrollPane, "View 3", JOptionPane.PLAIN_MESSAGE);
         });
 
     // create a GraphMouse for each view
@@ -334,7 +311,7 @@ public class MultiViewDemo extends JApplet {
 
   public static void main(String[] args) {
     JFrame f = new JFrame();
-    f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     f.getContentPane().add(new MultiViewDemo());
     f.pack();
     f.setVisible(true);
