@@ -46,7 +46,9 @@ public class SimpleGraphSpatialTest {
     // programmatically set the log level so that the spatial grid is drawn for this demo and the SpatialGrid logging is output
     LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
     Configuration config = ctx.getConfiguration();
-    config.getLoggerConfig("edu.uci.ics.jung.visualization.BasicVisualizationServer").setLevel(Level.TRACE);
+    config
+        .getLoggerConfig("edu.uci.ics.jung.visualization.BasicVisualizationServer")
+        .setLevel(Level.TRACE);
     config.getLoggerConfig("edu.uci.ics.jung.visualization.spatial").setLevel(Level.DEBUG);
     ctx.updateLoggers();
 
