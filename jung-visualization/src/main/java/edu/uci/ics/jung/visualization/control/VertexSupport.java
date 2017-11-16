@@ -7,7 +7,7 @@ import java.awt.geom.Point2D;
  * interface to support the creation of new vertices by the EditingGraphMousePlugin.
  * SimpleVertexSupport is a sample implementation.
  *
- * @author tanelso
+ * @author Tom Nelson
  * @param <V> the vertex type
  */
 public interface VertexSupport<V, E> {

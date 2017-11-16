@@ -15,10 +15,10 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Iterables;
 import com.google.common.graph.Graph;
+import edu.uci.ics.jung.graph.util.TreeUtils;
 import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.layout.model.PointModel;
 import edu.uci.ics.jung.layout.model.PolarPoint;
-import edu.uci.ics.jung.layout.util.Tree;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -74,7 +74,7 @@ public class BalloonLayoutAlgorithm<N, P> extends TreeLayoutAlgorithm<N, P> {
 
   protected void setRootPolars(LayoutModel<N, P> layoutModel) {
     Graph<N> graph = layoutModel.getGraph();
-    Set<N> roots = Tree.roots(graph);
+    Set<N> roots = TreeUtils.roots(graph);
     int width = layoutModel.getWidth();
     if (roots.size() == 1) {
       // its a Tree

@@ -124,7 +124,6 @@ public class FRLayoutAlgorithm<N, P> extends AbstractIterativeLayoutAlgorithm<N,
    * edges and cooling the temperature.
    */
   public synchronized void step() {
-    //    log.info("step");
     if (!initialized) {
       doInit();
     }

@@ -1,6 +1,9 @@
 package edu.uci.ics.jung.layout.util;
 
-/** Created by tanelso on 11/14/17. */
+/**
+ * @author Tom Nelson
+ * @param <T>
+ */
 public class ChangeEvent<T> {
 
   private final T source;

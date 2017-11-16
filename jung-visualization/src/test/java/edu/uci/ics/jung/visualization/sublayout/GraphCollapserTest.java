@@ -13,7 +13,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** Created by tanelso on 9/26/17. */
+/** @author Tom Nelson */
 public class GraphCollapserTest {
 
   Logger log = LoggerFactory.getLogger(GraphCollapserTest.class);

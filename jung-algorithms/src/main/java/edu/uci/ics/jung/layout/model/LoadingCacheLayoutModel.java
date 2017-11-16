@@ -71,17 +71,11 @@ public class LoadingCacheLayoutModel<N, P> extends AbstractLayoutModel<N, P>
   public void setGraph(Graph<N> graph) {
     super.setGraph(graph);
     changeSupport.fireChanged();
-    //    this.locations.invalidateAll();
   }
 
   @Override
   public void set(N node, P location) {
     if (!locked) {
-      //      for (Map.Entry<N,P> entry : locations.asMap().entrySet()) {
-      //        if (locations.getUnchecked(node).equals(location)) {
-      //          log.error("while setting {}, locations already had {} for {}",node,entry.getValue(),entry.getKey());
-      //        }
-      //      }
       this.locations.put(node, location);
       changeSupport.fireChanged();
     }

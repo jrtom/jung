@@ -3,7 +3,7 @@ package edu.uci.ics.jung.layout;
 import edu.uci.ics.jung.layout.model.AbstractPointModel;
 import edu.uci.ics.jung.layout.model.PointModel;
 
-/** Created by Tom Nelson */
+/** @author Tom Nelson */
 public class TestPointModel extends AbstractPointModel<TestPointModel.Point>
     implements PointModel<TestPointModel.Point> {
 

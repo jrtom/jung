@@ -12,7 +12,7 @@ import java.util.function.Supplier;
  * EditingGraphMousePlugin. override midVertexCreate and endVertexCreate for more elaborate
  * implementations
  *
- * @author tanelso
+ * @author Tom Nelson
  * @param <N> the vertex type
  * @param <E> the edge type
  */

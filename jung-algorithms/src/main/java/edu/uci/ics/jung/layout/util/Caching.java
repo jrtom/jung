@@ -12,7 +12,7 @@ package edu.uci.ics.jung.layout.util;
 /**
  * Interface to provide external controls to an implementing class that manages a cache.
  *
- * @author Tom Nelson - tomnelson@dev.java.net
+ * @author Tom Nelson
  */
 public interface Caching {
   /** clear cache */

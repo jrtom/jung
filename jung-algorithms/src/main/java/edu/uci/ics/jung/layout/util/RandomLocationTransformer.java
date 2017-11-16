@@ -63,15 +63,6 @@ public class RandomLocationTransformer<N, P> implements Function<N, P> {
       Origin origin, PointModel<P> pointModel, double width, double height, double depth) {
     this(origin, pointModel, width, height, depth, new Date().getTime());
   }
-  //  /**
-  //   * Creates an instance with the specified layoutSize which uses the current time as the random
-  //   * seed.
-  //   *
-  //   * @param width, height the layoutSize of the layout area
-  //   */
-  //    public RandomLocationTransformer(PointModel<P> pointModel, double width, double height) {
-  //    this(pointModel, width, height, 0, new Date().getTime());
-  //  }
 
   /**
    * Creates an instance with the specified dimension and random seed.
@@ -82,12 +73,6 @@ public class RandomLocationTransformer<N, P> implements Function<N, P> {
   public RandomLocationTransformer(
       PointModel<P> pointModel, double width, double height, double depth, long seed) {
     this(NE, pointModel, width, height, depth, seed);
-    //    this.origin = origin;
-    //    this.pointModel = pointModel;
-    //    this.width = width;
-    //    this.height = height;
-    //    this.depth = depth;
-    //    this.random = new Random(seed);
   }
 
   /**
@@ -110,17 +95,6 @@ public class RandomLocationTransformer<N, P> implements Function<N, P> {
     this.depth = depth;
     this.random = new Random(seed);
   }
-
-  //  /**
-  //   * Creates an instance with the specified dimension and random seed.
-  //   *
-  //   * @param
-  //   * @param seed the seed for the internal random number generator
-  //   */
-  //  public RandomLocationTransformer(
-  //      PointModel<P> pointModel, double width, double height, long seed) {
-  //    this(pointModel, width, height, 0, seed);
-  //  }
 
   private P applyNE(N node) {
     return pointModel.newPoint(

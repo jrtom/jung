@@ -1,6 +1,9 @@
 package edu.uci.ics.jung.layout.model;
 
-/** Created by tanelso on 11/15/17. */
+/**
+ * @author Tom Nelson
+ * @param <P>
+ */
 public abstract class AbstractPointModel<P> implements PointModel<P> {
 
   /**
