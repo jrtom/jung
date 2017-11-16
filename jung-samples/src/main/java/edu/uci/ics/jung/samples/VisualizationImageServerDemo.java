@@ -11,13 +11,11 @@ package edu.uci.ics.jung.samples;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
-import edu.uci.ics.jung.algorithms.layout.DomainModel;
-import edu.uci.ics.jung.algorithms.layout.KKLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.KKLayoutAlgorithm;
+import edu.uci.ics.jung.layout.model.PointModel;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
-import edu.uci.ics.jung.visualization.layout.AWTDomainModel;
-import edu.uci.ics.jung.visualization.renderers.BasicVertexLabelRenderer.InsidePositioner;
-import edu.uci.ics.jung.visualization.renderers.GradientVertexRenderer;
-import edu.uci.ics.jung.visualization.renderers.Renderer;
+import edu.uci.ics.jung.visualization.layout.AWTPointModel;
+import edu.uci.ics.jung.visualization.renderers.*;
 import java.awt.*;
 import java.awt.geom.Point2D;
 import javax.swing.*;
@@ -29,7 +27,7 @@ import javax.swing.*;
  */
 public class VisualizationImageServerDemo {
 
-  private static final DomainModel<Point2D> domainModel = new AWTDomainModel();
+  private static final PointModel<Point2D> POINT_MODEL = new AWTPointModel();
 
   /** the graph */
   Network<Integer, Double> graph;
@@ -45,7 +43,7 @@ public class VisualizationImageServerDemo {
 
     vv =
         new VisualizationImageServer<>(
-            graph, new KKLayoutAlgorithm<>(domainModel), new Dimension(600, 600));
+            graph, new KKLayoutAlgorithm<>(POINT_MODEL), new Dimension(600, 600));
 
     vv.getRenderer()
         .setVertexRenderer(
@@ -56,8 +54,12 @@ public class VisualizationImageServerDemo {
     vv.getRenderContext().setArrowDrawPaintTransformer(e -> Color.lightGray);
 
     vv.getRenderContext().setVertexLabelTransformer(Object::toString);
-    vv.getRenderer().getVertexLabelRenderer().setPositioner(new InsidePositioner());
-    vv.getRenderer().getVertexLabelRenderer().setPosition(Renderer.VertexLabel.Position.AUTO);
+    vv.getRenderer()
+        .getVertexLabelRenderer()
+        .setPositioner(new BasicVertexLabelRenderer.InsidePositioner());
+    vv.getRenderer()
+        .getVertexLabelRenderer()
+        .setPosition(edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position.AUTO);
 
     // create a frome to hold the graph
     final JFrame frame = new JFrame();

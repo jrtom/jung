@@ -10,7 +10,7 @@
 
 package edu.uci.ics.jung.visualization.control;
 
-import edu.uci.ics.jung.visualization.VisualizationViewer.GraphMouse;
+import edu.uci.ics.jung.visualization.VisualizationViewer;
 import java.awt.event.ItemListener;
 
 /**
@@ -18,7 +18,7 @@ import java.awt.event.ItemListener;
  *
  * @author Tom Nelson
  */
-public interface ModalGraphMouse extends GraphMouse {
+public interface ModalGraphMouse extends VisualizationViewer.GraphMouse {
 
   void setMode(Mode mode);
 

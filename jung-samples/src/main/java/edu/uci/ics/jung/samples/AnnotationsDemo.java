@@ -9,9 +9,9 @@
 package edu.uci.ics.jung.samples;
 
 import com.google.common.graph.Network;
-import edu.uci.ics.jung.algorithms.layout.DomainModel;
-import edu.uci.ics.jung.algorithms.layout.FRLayoutAlgorithm;
 import edu.uci.ics.jung.graph.util.TestGraphs;
+import edu.uci.ics.jung.layout.algorithms.FRLayoutAlgorithm;
+import edu.uci.ics.jung.layout.model.PointModel;
 import edu.uci.ics.jung.samples.util.ControlHelpers;
 import edu.uci.ics.jung.visualization.BaseVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
@@ -25,8 +25,7 @@ import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
-import edu.uci.ics.jung.visualization.layout.AWTDomainModel;
-import edu.uci.ics.jung.visualization.renderers.Renderer;
+import edu.uci.ics.jung.visualization.layout.AWTPointModel;
 import java.awt.*;
 import java.awt.geom.Point2D;
 import javax.swing.*;
@@ -39,7 +38,7 @@ import javax.swing.*;
 @SuppressWarnings("serial")
 public class AnnotationsDemo extends JApplet {
 
-  private static final DomainModel<Point2D> domainModel = new AWTDomainModel();
+  private static final PointModel<Point2D> POINT_MODEL = new AWTPointModel();
 
   static final String instructions =
       "<html>"
@@ -76,7 +75,7 @@ public class AnnotationsDemo extends JApplet {
     Dimension preferredSize1 = new Dimension(600, 600);
 
     // create one layout for the graph
-    FRLayoutAlgorithm<String, Point2D> layoutAlgorithm = new FRLayoutAlgorithm<>(domainModel);
+    FRLayoutAlgorithm<String, Point2D> layoutAlgorithm = new FRLayoutAlgorithm<>(POINT_MODEL);
     layoutAlgorithm.setMaxIterations(500);
 
     VisualizationModel<String, Number, Point2D> vm =
@@ -93,7 +92,9 @@ public class AnnotationsDemo extends JApplet {
             new PickableVertexPaintTransformer<>(
                 vv.getPickedVertexState(), Color.red, Color.yellow));
     vv.getRenderContext().setVertexLabelTransformer(Object::toString);
-    vv.getRenderer().getVertexLabelRenderer().setPosition(Renderer.VertexLabel.Position.CNTR);
+    vv.getRenderer()
+        .getVertexLabelRenderer()
+        .setPosition(edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position.CNTR);
 
     // add default listener for ToolTips
     vv.setVertexToolTipTransformer(Object::toString);

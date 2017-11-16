@@ -12,15 +12,16 @@ import com.google.common.graph.EndpointPair;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
-import edu.uci.ics.jung.algorithms.layout.CircleLayoutAlgorithm;
-import edu.uci.ics.jung.algorithms.layout.DomainModel;
-import edu.uci.ics.jung.algorithms.layout.FRLayoutAlgorithm;
-import edu.uci.ics.jung.algorithms.layout.KKLayoutAlgorithm;
-import edu.uci.ics.jung.algorithms.layout.LayoutAlgorithm;
-import edu.uci.ics.jung.algorithms.layout.LayoutModel;
-import edu.uci.ics.jung.algorithms.layout.SpringLayoutAlgorithm;
-import edu.uci.ics.jung.algorithms.util.RandomLocationTransformer;
 import edu.uci.ics.jung.graph.util.TestGraphs;
+import edu.uci.ics.jung.layout.algorithms.CircleLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.FRLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.KKLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.SpringLayoutAlgorithm;
+import edu.uci.ics.jung.layout.model.LayoutModel;
+import edu.uci.ics.jung.layout.model.LoadingCacheLayoutModel;
+import edu.uci.ics.jung.layout.model.PointModel;
+import edu.uci.ics.jung.layout.util.RandomLocationTransformer;
 import edu.uci.ics.jung.samples.util.ControlHelpers;
 import edu.uci.ics.jung.visualization.BaseVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
@@ -30,9 +31,8 @@ import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
-import edu.uci.ics.jung.visualization.layout.AWTDomainModel;
+import edu.uci.ics.jung.visualization.layout.AWTPointModel;
 import edu.uci.ics.jung.visualization.layout.AggregateLayoutModel;
-import edu.uci.ics.jung.visualization.layout.LoadingCacheLayoutModel;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import java.awt.*;
 import java.awt.event.ItemEvent;
@@ -51,7 +51,7 @@ import javax.swing.*;
 @SuppressWarnings("serial")
 public class SubLayoutDemo extends JApplet {
 
-  private static final DomainModel<Point2D> domainModel = new AWTDomainModel();
+  private static final PointModel<Point2D> POINT_MODEL = new AWTPointModel();
 
   String instructions =
       "<html>"
@@ -104,11 +104,11 @@ public class SubLayoutDemo extends JApplet {
     // layout of sub-sets of vertices in circular clusters.
     Dimension preferredSize = new Dimension(600, 600);
 
-    LayoutAlgorithm<String, Point2D> layoutAlgorithm = new FRLayoutAlgorithm(domainModel);
+    LayoutAlgorithm<String, Point2D> layoutAlgorithm = new FRLayoutAlgorithm(POINT_MODEL);
     clusteringLayoutModel =
         new AggregateLayoutModel<>(
             new LoadingCacheLayoutModel<>(
-                graph.asGraph(), domainModel, preferredSize.width, preferredSize.height));
+                graph.asGraph(), POINT_MODEL, preferredSize.width, preferredSize.height));
     clusteringLayoutModel.accept(layoutAlgorithm);
 
     final VisualizationModel<String, Number, Point2D> visualizationModel =
@@ -286,8 +286,8 @@ public class SubLayoutDemo extends JApplet {
   // TODO: needs refactoring to create the layout; see VertexCollapseDemoWithLayouts
   private LayoutAlgorithm<String, Point2D> getLayoutAlgorithmFor(
       Class<CircleLayoutAlgorithm> layoutClass) throws Exception {
-    Constructor<CircleLayoutAlgorithm> constructor = layoutClass.getConstructor(DomainModel.class);
-    return constructor.newInstance(new AWTDomainModel());
+    Constructor<CircleLayoutAlgorithm> constructor = layoutClass.getConstructor(PointModel.class);
+    return constructor.newInstance(new AWTPointModel());
   }
 
   private void clusterPicked() {
@@ -337,13 +337,14 @@ public class SubLayoutDemo extends JApplet {
           //          subLayout.setSize(subLayoutSize);
           //          clusteringLayoutModel.put(subLayoutAlgorithm, center);
           LayoutModel<String, Point2D> newLayoutModel =
-              new LoadingCacheLayoutModel(
+              new LoadingCacheLayoutModel<>(
                   subGraph.asGraph(),
-                  domainModel,
+                  POINT_MODEL,
                   subLayoutSize.width,
                   subLayoutSize.height,
+                  0,
                   new RandomLocationTransformer<>(
-                      domainModel, subLayoutSize.width, subLayoutSize.height));
+                      POINT_MODEL, subLayoutSize.width, subLayoutSize.height, 0));
 
           //          VisualizationModel newModel =
           //              new BaseVisualizationModel(subGraph, subLayoutAlgorithm, subLayoutSize);

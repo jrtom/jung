@@ -14,12 +14,13 @@ import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
 import edu.uci.ics.jung.algorithms.generators.random.BarabasiAlbertGenerator;
-import edu.uci.ics.jung.algorithms.layout.DomainModel;
-import edu.uci.ics.jung.algorithms.layout.FRLayoutAlgorithm;
-import edu.uci.ics.jung.algorithms.layout.LayoutAlgorithm;
 import edu.uci.ics.jung.algorithms.scoring.VoltageScorer;
 import edu.uci.ics.jung.algorithms.scoring.util.VertexScoreTransformer;
 import edu.uci.ics.jung.graph.util.Graphs;
+import edu.uci.ics.jung.layout.algorithms.FRLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
+import edu.uci.ics.jung.layout.model.LayoutModel;
+import edu.uci.ics.jung.layout.model.PointModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
@@ -32,7 +33,8 @@ import edu.uci.ics.jung.visualization.decorators.EdgeShape;
 import edu.uci.ics.jung.visualization.decorators.GradientEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.NumberFormattingTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
-import edu.uci.ics.jung.visualization.layout.*;
+import edu.uci.ics.jung.visualization.layout.AWTPointModel;
+import edu.uci.ics.jung.visualization.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.visualization.picking.PickedInfo;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import edu.uci.ics.jung.visualization.renderers.BasicEdgeArrowRenderingSupport;
@@ -149,7 +151,7 @@ import javax.swing.*;
 @SuppressWarnings("serial")
 public class PluggableRendererDemo extends JApplet implements ActionListener {
 
-  private static final DomainModel<Point2D> domainModel = new AWTDomainModel();
+  private static final PointModel<Point2D> POINT_MODEL = new AWTPointModel();
 
   protected JCheckBox v_color;
   protected JCheckBox e_color;
@@ -225,7 +227,7 @@ public class PluggableRendererDemo extends JApplet implements ActionListener {
   public JPanel startFunction() {
     this.graph = buildGraph();
 
-    LayoutAlgorithm<Integer, Point2D> layoutAlgorithm = new FRLayoutAlgorithm<>(domainModel);
+    LayoutAlgorithm<Integer, Point2D> layoutAlgorithm = new FRLayoutAlgorithm<>(POINT_MODEL);
     vv = new VisualizationViewer<>(graph, layoutAlgorithm);
 
     //    vv.getRenderer().setVertexRenderer(new CachingVertexRenderer<Integer, Number>(vv));
@@ -907,13 +909,14 @@ public class PluggableRendererDemo extends JApplet implements ActionListener {
     protected void handlePopup(MouseEvent e) {
       final VisualizationViewer<Integer, Number> vv =
           (VisualizationViewer<Integer, Number>) e.getSource();
+      final LayoutModel<Integer, Point2D> layoutModel = vv.getModel().getLayoutModel();
       Point2D p =
           e
               .getPoint(); //vv.getRenderContext().getBasicTransformer().inverseViewTransform(e.getPoint());
 
       NetworkElementAccessor<Integer, Number> pickSupport = vv.getPickSupport();
       if (pickSupport != null) {
-        final Integer v = pickSupport.getNode(p.getX(), p.getY());
+        final Integer v = pickSupport.getNode(layoutModel, p.getX(), p.getY());
         if (v != null) {
           JPopupMenu popup = new JPopupMenu();
           popup.add(
@@ -939,7 +942,7 @@ public class PluggableRendererDemo extends JApplet implements ActionListener {
               });
           popup.show(vv, e.getX(), e.getY());
         } else {
-          final Number edge = pickSupport.getEdge(p.getX(), p.getY());
+          final Number edge = pickSupport.getEdge(layoutModel, p.getX(), p.getY());
           if (edge != null) {
             JPopupMenu popup = new JPopupMenu();
             popup.add(

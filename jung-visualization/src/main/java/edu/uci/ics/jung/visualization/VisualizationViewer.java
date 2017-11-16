@@ -10,7 +10,8 @@
 package edu.uci.ics.jung.visualization;
 
 import com.google.common.graph.Network;
-import edu.uci.ics.jung.algorithms.layout.LayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
+import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.visualization.control.GraphMouseListener;
 import edu.uci.ics.jung.visualization.control.MouseListenerTranslator;
 import java.awt.Dimension;
@@ -160,12 +161,12 @@ public class VisualizationViewer<N, E> extends BasicVisualizationServer<N, E> {
 
   /** called by the superclass to display tooltips */
   public String getToolTipText(MouseEvent event) {
-    //        Layout<V, Point2D> layout = getGraphLayout();
+    LayoutModel<N, Point2D> layoutModel = getModel().getLayoutModel();
     Point2D p = null;
     if (vertexToolTipTransformer != null) {
       p = event.getPoint();
       //renderContext.getBasicTransformer().inverseViewTransform(event.getPoint());
-      N vertex = getPickSupport().getNode(p.getX(), p.getY());
+      N vertex = getPickSupport().getNode(layoutModel, p.getX(), p.getY());
       if (vertex != null) {
         return vertexToolTipTransformer.apply(vertex);
       }
@@ -174,7 +175,7 @@ public class VisualizationViewer<N, E> extends BasicVisualizationServer<N, E> {
       if (p == null) {
         p = renderContext.getMultiLayerTransformer().inverseTransform(Layer.VIEW, event.getPoint());
       }
-      E edge = getPickSupport().getEdge(p.getX(), p.getY());
+      E edge = getPickSupport().getEdge(layoutModel, p.getX(), p.getY());
       if (edge != null) {
         return edgeToolTipTransformer.apply(edge);
       }

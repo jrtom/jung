@@ -10,16 +10,16 @@ package edu.uci.ics.jung.samples;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
-import edu.uci.ics.jung.algorithms.layout.DomainModel;
-import edu.uci.ics.jung.algorithms.layout.FRLayoutAlgorithm;
-import edu.uci.ics.jung.algorithms.layout.LayoutAlgorithm;
 import edu.uci.ics.jung.io.PajekNetReader;
+import edu.uci.ics.jung.layout.algorithms.FRLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
+import edu.uci.ics.jung.layout.model.PointModel;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
-import edu.uci.ics.jung.visualization.layout.AWTDomainModel;
+import edu.uci.ics.jung.visualization.layout.AWTPointModel;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
 import java.awt.*;
 import java.awt.geom.Point2D;
@@ -38,7 +38,7 @@ public class SimpleGraphSpatialTest {
 
   private static final Logger log = LogManager.getLogger(SimpleGraphSpatialTest.class);
 
-  private static final DomainModel<Point2D> domainModel = new AWTDomainModel();
+  private static final PointModel<Point2D> POINT_MODEL = new AWTPointModel();
 
   @SuppressWarnings({"rawtypes", "unchecked"})
   public static void main(String[] args) throws IOException {
@@ -46,9 +46,7 @@ public class SimpleGraphSpatialTest {
     // programmatically set the log level so that the spatial grid is drawn for this demo and the SpatialGrid logging is output
     LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
     Configuration config = ctx.getConfiguration();
-    config
-        .getLoggerConfig("edu.uci.ics.jung.visualization.BasicVisualizationServer")
-        .setLevel(Level.TRACE);
+    config.getLoggerConfig("edu.uci.ics.jung.visualization.BasicVisualizationServer").setLevel(Level.TRACE);
     config.getLoggerConfig("edu.uci.ics.jung.visualization.spatial").setLevel(Level.DEBUG);
     ctx.updateLoggers();
 
@@ -56,7 +54,7 @@ public class SimpleGraphSpatialTest {
     Network g = getGraph();
     Dimension viewPreferredSize = new Dimension(600, 600);
     Dimension layoutPreferredSize = new Dimension(600, 600);
-    LayoutAlgorithm layoutAlgorithm = new FRLayoutAlgorithm(domainModel); //, layoutPreferredSize);
+    LayoutAlgorithm layoutAlgorithm = new FRLayoutAlgorithm(POINT_MODEL); //, layoutPreferredSize);
 
     ScalingControl scaler = new CrossoverScalingControl();
     VisualizationViewer vv =

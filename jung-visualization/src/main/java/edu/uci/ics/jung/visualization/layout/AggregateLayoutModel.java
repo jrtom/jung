@@ -12,11 +12,10 @@ package edu.uci.ics.jung.visualization.layout;
 
 import com.google.common.collect.Maps;
 import com.google.common.graph.Graph;
-import edu.uci.ics.jung.algorithms.layout.DomainModel;
-import edu.uci.ics.jung.algorithms.layout.LayoutAlgorithm;
-import edu.uci.ics.jung.algorithms.layout.LayoutModel;
 import edu.uci.ics.jung.algorithms.util.IterativeContext;
-import edu.uci.ics.jung.algorithms.util.Relaxer;
+import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
+import edu.uci.ics.jung.layout.model.LayoutModel;
+import edu.uci.ics.jung.layout.model.PointModel;
 import java.awt.geom.AffineTransform;
 import java.util.Map;
 import java.util.function.Function;
@@ -74,18 +73,13 @@ public class AggregateLayoutModel<N, P> implements LayoutModel<N, P> {
   }
 
   @Override
-  public DomainModel<P> getDomainModel() {
-    return delegate.getDomainModel();
+  public PointModel<P> getPointModel() {
+    return delegate.getPointModel();
   }
 
   @Override
   public void setSize(int width, int height) {
     delegate.setSize(width, height);
-  }
-
-  @Override
-  public Relaxer getRelaxer() {
-    return delegate.getRelaxer();
   }
 
   @Override
@@ -96,10 +90,10 @@ public class AggregateLayoutModel<N, P> implements LayoutModel<N, P> {
     }
   }
 
-  @Override
-  public void setFireEvents(boolean fireEvents) {
-    delegate.setFireEvents(fireEvents);
-  }
+  //  @Override
+  //  public void setFireEvents(boolean fireEvents) {
+  //    delegate.setFireEvents(fireEvents);
+  //  }
 
   @Override
   public void set(N node, P location) {
@@ -112,6 +106,11 @@ public class AggregateLayoutModel<N, P> implements LayoutModel<N, P> {
   }
 
   @Override
+  public void set(N node, double x, double y, double z) {
+    delegate.set(node, x, y, z);
+  }
+
+  @Override
   public void set(N node, P location, boolean forceUpdate) {
     delegate.set(node, location, forceUpdate);
   }
@@ -119,6 +118,11 @@ public class AggregateLayoutModel<N, P> implements LayoutModel<N, P> {
   @Override
   public void set(N node, double x, double y, boolean forceUpdate) {
     delegate.set(node, x, y, forceUpdate);
+  }
+
+  @Override
+  public void set(N node, double x, double y, double z, boolean forceUpdate) {
+    delegate.set(node, x, y, z, forceUpdate);
   }
 
   @Override
@@ -158,6 +162,11 @@ public class AggregateLayoutModel<N, P> implements LayoutModel<N, P> {
   @Override
   public int getHeight() {
     return delegate.getHeight();
+  }
+
+  @Override
+  public int getDepth() {
+    return delegate.getDepth();
   }
 
   /**
@@ -212,7 +221,7 @@ public class AggregateLayoutModel<N, P> implements LayoutModel<N, P> {
    * @return the location of the node
    */
   public P apply(N node) {
-    DomainModel<P> domainModel = delegate.getDomainModel();
+    PointModel<P> pointModel = delegate.getPointModel();
     boolean wasInSublayout = false;
     for (LayoutModel<N, P> layoutModel : layouts.keySet()) {
       if (layoutModel.getGraph().nodes().contains(node)) {
@@ -224,14 +233,14 @@ public class AggregateLayoutModel<N, P> implements LayoutModel<N, P> {
         int height = layoutModel.getHeight();
         AffineTransform at =
             AffineTransform.getTranslateInstance(
-                domainModel.getX(center) - width / 2, domainModel.getY(center) - height / 2);
+                pointModel.getX(center) - width / 2, pointModel.getY(center) - height / 2);
         P nodeCenter = layoutModel.apply(node);
         log.trace("sublayout center is {}", nodeCenter);
         double[] srcPoints =
-            new double[] {domainModel.getX(nodeCenter), domainModel.getY(nodeCenter)};
+            new double[] {pointModel.getX(nodeCenter), pointModel.getY(nodeCenter)};
         double[] destPoints = new double[2];
         at.transform(srcPoints, 0, destPoints, 0, 1);
-        return domainModel.newPoint(destPoints[0], destPoints[1]);
+        return pointModel.newPoint(destPoints[0], destPoints[1]);
       }
     }
     if (wasInSublayout == false) {

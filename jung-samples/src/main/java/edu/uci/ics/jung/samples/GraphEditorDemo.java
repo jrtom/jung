@@ -10,10 +10,10 @@ package edu.uci.ics.jung.samples;
 
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.NetworkBuilder;
-import edu.uci.ics.jung.algorithms.layout.AbstractLayoutAlgorithm;
-import edu.uci.ics.jung.algorithms.layout.DomainModel;
-import edu.uci.ics.jung.algorithms.layout.StaticLayoutAlgorithm;
 import edu.uci.ics.jung.graph.util.ParallelEdgeIndexFunction;
+import edu.uci.ics.jung.layout.algorithms.AbstractLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.StaticLayoutAlgorithm;
+import edu.uci.ics.jung.layout.model.PointModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.annotations.AnnotationControls;
@@ -22,7 +22,7 @@ import edu.uci.ics.jung.visualization.control.EditingModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
-import edu.uci.ics.jung.visualization.layout.AWTDomainModel;
+import edu.uci.ics.jung.visualization.layout.AWTPointModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.geom.Point2D;
@@ -47,7 +47,7 @@ public class GraphEditorDemo extends JApplet implements Printable {
   /** */
   private static final long serialVersionUID = -2023243689258876709L;
 
-  private static DomainModel<Point2D> domainModel = new AWTDomainModel();
+  private static PointModel<Point2D> pointModel = new AWTPointModel();
 
   /** the graph */
   MutableNetwork<Number, Number> graph;
@@ -112,7 +112,7 @@ public class GraphEditorDemo extends JApplet implements Printable {
     // create a simple graph for the demo
     graph = NetworkBuilder.directed().allowsParallelEdges(true).allowsSelfLoops(true).build();
 
-    this.layoutAlgorithm = new StaticLayoutAlgorithm<>(domainModel); //, new Dimension(600, 600));
+    this.layoutAlgorithm = new StaticLayoutAlgorithm<>(pointModel); //, new Dimension(600, 600));
 
     vv = new VisualizationViewer<>(graph, layoutAlgorithm, new Dimension(600, 600));
     vv.setBackground(Color.white);

@@ -14,7 +14,7 @@ package edu.uci.ics.jung.visualization.picking;
 import com.google.common.collect.Sets;
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Network;
-import edu.uci.ics.jung.algorithms.layout.LayoutModel;
+import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationServer;
 import edu.uci.ics.jung.visualization.layout.NetworkElementAccessor;
@@ -148,7 +148,7 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
    * @return the vertex whose shape contains (x,y), and whose center is closest to the pick point
    */
   @Override
-  public V getNode(double x, double y) {
+  public V getNode(LayoutModel<V, Point2D> layoutModel, double x, double y) {
 
     V closest = null;
     double minDistance = Double.MAX_VALUE;
@@ -158,7 +158,7 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
             .inverseTransform(Layer.VIEW, new Point2D.Double(x, y));
     x = ip.getX();
     y = ip.getY();
-    LayoutModel<V, Point2D> layoutModel = vv.getModel().getLayoutModel();
+    //    LayoutModel<V, Point2D> layoutModel = vv.getModel().getLayoutModel();
 
     while (true) {
       try {
@@ -215,7 +215,7 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
    *     contained in <code>shape</code>.
    */
   @Override
-  public Collection<V> getNodes(Shape shape) {
+  public Collection<V> getNodes(LayoutModel<V, Point2D> layoutModel, Shape shape) {
     Set<V> pickedVertices = new HashSet<V>();
 
     // remove the view transform from the rectangle
@@ -223,7 +223,7 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
 
     while (true) {
       try {
-        LayoutModel<V, Point2D> layoutModel = vv.getModel().getLayoutModel();
+        //        LayoutModel<V, Point2D> layoutModel = vv.getModel().getLayoutModel();
         for (V v : getFilteredVertices()) {
           Point2D p = layoutModel.apply(v);
           if (p == null) {
@@ -250,7 +250,7 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
    * @return an edge whose shape intersects the pick area centered on the location {@code (x,y)}
    */
   @Override
-  public E getEdge(double x, double y) {
+  public E getEdge(LayoutModel<V, Point2D> layoutModel, double x, double y) {
 
     Point2D ip =
         vv.getRenderContext()

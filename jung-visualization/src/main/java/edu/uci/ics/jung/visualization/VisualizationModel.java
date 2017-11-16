@@ -10,14 +10,15 @@
 package edu.uci.ics.jung.visualization;
 
 import com.google.common.graph.Network;
-import edu.uci.ics.jung.algorithms.layout.LayoutAlgorithm;
-import edu.uci.ics.jung.algorithms.layout.LayoutModel;
+import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
+import edu.uci.ics.jung.layout.model.LayoutModel;
+import edu.uci.ics.jung.layout.model.LayoutModelAware;
 import edu.uci.ics.jung.visualization.spatial.Spatial;
 import java.awt.Dimension;
 import javax.swing.event.ChangeListener;
 
 /** */
-public interface VisualizationModel<N, E, P> { //extends LayoutModel<N,P> {
+public interface VisualizationModel<N, E, P> extends LayoutModelAware<N, E, P> {
 
   Dimension DEFAULT_SIZE = new Dimension(600, 600);
 

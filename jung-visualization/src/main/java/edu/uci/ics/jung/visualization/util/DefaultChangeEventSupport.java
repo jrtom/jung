@@ -17,7 +17,7 @@ import javax.swing.event.EventListenerList;
 /**
  * Basic implementation of ChangeEventSupport, using standard jdk classes
  *
- * @author Tom Nelson - tomnelson@dev.java.net
+ * @author Tom Nelson
  */
 public class DefaultChangeEventSupport implements ChangeEventSupport {
 

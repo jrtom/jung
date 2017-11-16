@@ -12,7 +12,12 @@ package edu.uci.ics.jung.visualization;
 
 import com.google.common.collect.Lists;
 import com.google.common.graph.Network;
-import edu.uci.ics.jung.algorithms.layout.*;
+import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
+import edu.uci.ics.jung.layout.model.LayoutModel;
+import edu.uci.ics.jung.layout.util.LayoutChangeListener;
+import edu.uci.ics.jung.layout.util.LayoutEvent;
+import edu.uci.ics.jung.layout.util.LayoutEventSupport;
+import edu.uci.ics.jung.layout.util.LayoutNetworkEvent;
 import edu.uci.ics.jung.visualization.layout.SpatialLayoutModel;
 import edu.uci.ics.jung.visualization.spatial.Spatial;
 import edu.uci.ics.jung.visualization.util.ChangeEventSupport;
@@ -35,7 +40,8 @@ public class BaseVisualizationModel<N, E>
     implements VisualizationModel<N, E, Point2D>,
         ChangeEventSupport,
         LayoutEventSupport<N, Point2D>,
-        ChangeListener {
+        ChangeListener,
+        LayoutModel.ChangeListener {
 
   private static final Logger log = LoggerFactory.getLogger(BaseVisualizationModel.class);
 
@@ -90,9 +96,9 @@ public class BaseVisualizationModel<N, E>
     this.layoutAlgorithm = layoutAlgorithm;
     this.layoutModel =
         new SpatialLayoutModel(network.asGraph(), layoutSize.width, layoutSize.height);
-    //        new LoadingCacheLayoutModel<N, E, Point2D>(network.asGraph(), new AWTDomainModel(), layoutSize.width, layoutSize.height);
-    if (this.layoutModel instanceof ChangeEventSupport) {
-      ((ChangeEventSupport) layoutModel).addChangeListener(this);
+    //        new LoadingCacheLayoutModel<N, E, Point2D>(network.asGraph(), new AWTPointModel(), layoutSize.width, layoutSize.height);
+    if (this.layoutModel instanceof LayoutModel.ChangeSupport) {
+      ((LayoutModel.ChangeSupport) layoutModel).addChangeListener(this);
     }
     this.network = network;
     if (initializer != null) {
@@ -166,7 +172,7 @@ public class BaseVisualizationModel<N, E>
     this.layoutModel.setGraph(network.asGraph());
     if (forceUpdate && this.layoutAlgorithm != null) {
       layoutModel.accept(this.layoutAlgorithm);
-      this.fireStateChanged();
+      changeSupport.fireStateChanged();
     }
   }
 
@@ -223,6 +229,12 @@ public class BaseVisualizationModel<N, E>
         listener.layoutChanged(evt);
       }
     }
+  }
+
+  /** this is the event from the LayoutModel */
+  @Override
+  public void changed() {
+    this.fireStateChanged();
   }
 
   @Override

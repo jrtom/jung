@@ -9,10 +9,10 @@
 package edu.uci.ics.jung.samples;
 
 import com.google.common.graph.Network;
-import edu.uci.ics.jung.algorithms.layout.DomainModel;
-import edu.uci.ics.jung.algorithms.layout.ISOMLayoutAlgorithm;
-import edu.uci.ics.jung.algorithms.layout.LayoutAlgorithm;
 import edu.uci.ics.jung.graph.util.TestGraphs;
+import edu.uci.ics.jung.layout.algorithms.ISOMLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
+import edu.uci.ics.jung.layout.model.PointModel;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
@@ -22,7 +22,7 @@ import edu.uci.ics.jung.visualization.control.SatelliteVisualizationViewer;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
-import edu.uci.ics.jung.visualization.layout.AWTDomainModel;
+import edu.uci.ics.jung.visualization.layout.AWTPointModel;
 import java.awt.*;
 import java.awt.geom.Point2D;
 import javax.swing.*;
@@ -34,7 +34,7 @@ import javax.swing.*;
  */
 public class InternalFrameSatelliteViewDemo {
 
-  private static final DomainModel<Point2D> domainModel = new AWTDomainModel();
+  private static final PointModel<Point2D> POINT_MODEL = new AWTPointModel();
 
   static final String instructions =
       "<html>"
@@ -79,7 +79,7 @@ public class InternalFrameSatelliteViewDemo {
     // create a simple graph for the demo
     graph = TestGraphs.getOneComponentGraph();
 
-    LayoutAlgorithm<String, Point2D> layout = new ISOMLayoutAlgorithm<>(domainModel);
+    LayoutAlgorithm<String, Point2D> layout = new ISOMLayoutAlgorithm<>(POINT_MODEL);
 
     vv = new VisualizationViewer<>(graph, layout, new Dimension(600, 600));
     vv.getRenderContext()

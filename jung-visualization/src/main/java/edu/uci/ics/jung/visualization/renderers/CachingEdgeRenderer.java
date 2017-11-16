@@ -1,7 +1,11 @@
 package edu.uci.ics.jung.visualization.renderers;
 
 import com.google.common.graph.Network;
-import edu.uci.ics.jung.algorithms.layout.*;
+import edu.uci.ics.jung.layout.model.LayoutModel;
+import edu.uci.ics.jung.layout.util.LayoutChangeListener;
+import edu.uci.ics.jung.layout.util.LayoutEvent;
+import edu.uci.ics.jung.layout.util.LayoutEventSupport;
+import edu.uci.ics.jung.layout.util.LayoutNetworkEvent;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.VisualizationModel;

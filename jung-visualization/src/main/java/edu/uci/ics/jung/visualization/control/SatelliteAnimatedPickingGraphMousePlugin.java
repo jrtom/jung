@@ -11,7 +11,7 @@
  */
 package edu.uci.ics.jung.visualization.control;
 
-import edu.uci.ics.jung.algorithms.layout.LayoutModel;
+import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import java.awt.event.InputEvent;

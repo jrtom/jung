@@ -11,9 +11,10 @@
  */
 package edu.uci.ics.jung.visualization.control;
 
+import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationModel;
-import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
+import edu.uci.ics.jung.visualization.VisualizationServer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.visualization.picking.PickedState;
@@ -64,7 +65,7 @@ public class PickingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
   protected Rectangle2D rect = new Rectangle2D.Float();
 
   /** the Paintable for the lens picking rectangle */
-  protected Paintable lensPaintable;
+  protected VisualizationServer.Paintable lensPaintable;
 
   /** color for the picking rectangle */
   protected Color lensColor = Color.cyan;
@@ -102,7 +103,7 @@ public class PickingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
    *
    * @author Tom Nelson
    */
-  class LensPaintable implements Paintable {
+  class LensPaintable implements VisualizationServer.Paintable {
 
     public void paint(Graphics g) {
       Color oldColor = g.getColor();
@@ -131,6 +132,7 @@ public class PickingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
   public void mousePressed(MouseEvent e) {
     down = e.getPoint();
     VisualizationViewer<N, E> vv = (VisualizationViewer<N, E>) e.getSource();
+    LayoutModel<N, Point2D> layoutModel = vv.getModel().getLayoutModel();
     NetworkElementAccessor<N, E> pickSupport = vv.getPickSupport();
     PickedState<N> pickedVertexState = vv.getPickedVertexState();
     PickedState<E> pickedEdgeState = vv.getPickedEdgeState();
@@ -141,7 +143,7 @@ public class PickingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
         // p is the screen point for the mouse event
         Point2D ip = e.getPoint();
 
-        vertex = pickSupport.getNode(ip.getX(), ip.getY());
+        vertex = pickSupport.getNode(layoutModel, ip.getX(), ip.getY());
         if (vertex != null) {
           if (pickedVertexState.isPicked(vertex) == false) {
             pickedVertexState.clear();
@@ -156,7 +158,7 @@ public class PickingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
 
           offsetx = (float) (gp.getX() - q.getX());
           offsety = (float) (gp.getY() - q.getY());
-        } else if ((edge = pickSupport.getEdge(ip.getX(), ip.getY())) != null) {
+        } else if ((edge = pickSupport.getEdge(layoutModel, ip.getX(), ip.getY())) != null) {
           pickedEdgeState.clear();
           pickedEdgeState.pick(edge, true);
         } else {
@@ -169,7 +171,7 @@ public class PickingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
         vv.addPostRenderPaintable(lensPaintable);
         rect.setFrameFromDiagonal(down, down);
         Point2D ip = e.getPoint();
-        vertex = pickSupport.getNode(ip.getX(), ip.getY());
+        vertex = pickSupport.getNode(layoutModel, ip.getX(), ip.getY());
         if (vertex != null) {
           boolean wasThere = pickedVertexState.pick(vertex, !pickedVertexState.isPicked(vertex));
           if (wasThere) {
@@ -186,7 +188,7 @@ public class PickingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
             offsetx = (float) (gp.getX() - q.getX());
             offsety = (float) (gp.getY() - q.getY());
           }
-        } else if ((edge = pickSupport.getEdge(ip.getX(), ip.getY())) != null) {
+        } else if ((edge = pickSupport.getEdge(layoutModel, ip.getX(), ip.getY())) != null) {
           pickedEdgeState.pick(edge, !pickedEdgeState.isPicked(edge));
         }
       }
@@ -300,8 +302,8 @@ public class PickingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
         pickedVertexState.clear();
       }
       NetworkElementAccessor<N, E> pickSupport = vv.getPickSupport();
-
-      Collection<N> picked = pickSupport.getNodes(pickRectangle);
+      LayoutModel<N, Point2D> layoutModel = vv.getModel().getLayoutModel();
+      Collection<N> picked = pickSupport.getNodes(layoutModel, pickRectangle);
       for (N v : picked) {
         pickedVertexState.pick(v, true);
       }

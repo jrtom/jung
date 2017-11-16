@@ -9,15 +9,15 @@
 package edu.uci.ics.jung.samples;
 
 import com.google.common.graph.Network;
-import edu.uci.ics.jung.algorithms.layout.DomainModel;
-import edu.uci.ics.jung.algorithms.layout.FRLayoutAlgorithm;
 import edu.uci.ics.jung.graph.util.TestGraphs;
+import edu.uci.ics.jung.layout.algorithms.FRLayoutAlgorithm;
+import edu.uci.ics.jung.layout.model.PointModel;
 import edu.uci.ics.jung.samples.util.ControlHelpers;
 import edu.uci.ics.jung.visualization.BaseVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationModel;
-import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
+import edu.uci.ics.jung.visualization.VisualizationServer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
@@ -25,9 +25,8 @@ import edu.uci.ics.jung.visualization.control.SatelliteVisualizationViewer;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
-import edu.uci.ics.jung.visualization.layout.AWTDomainModel;
-import edu.uci.ics.jung.visualization.renderers.GradientVertexRenderer;
-import edu.uci.ics.jung.visualization.renderers.Renderer;
+import edu.uci.ics.jung.visualization.layout.AWTPointModel;
+import edu.uci.ics.jung.visualization.renderers.*;
 import edu.uci.ics.jung.visualization.transform.shape.ShapeTransformer;
 import java.awt.*;
 import java.awt.event.ItemEvent;
@@ -47,7 +46,7 @@ import javax.swing.*;
 @SuppressWarnings("serial")
 public class SatelliteViewDemo extends JApplet {
 
-  private static final DomainModel<Point2D> domainModel = new AWTDomainModel();
+  private static final PointModel<Point2D> POINT_MODEL = new AWTPointModel();
 
   static final String instructions =
       "<html>"
@@ -78,7 +77,7 @@ public class SatelliteViewDemo extends JApplet {
 
   JDialog helpDialog;
 
-  Paintable viewGrid;
+  VisualizationServer.Paintable viewGrid;
 
   /** create an instance of a simple graph in two views with controls to demo the features. */
   public SatelliteViewDemo() {
@@ -91,9 +90,9 @@ public class SatelliteViewDemo extends JApplet {
     Dimension preferredSize2 = new Dimension(300, 300);
 
     // create one layout for the graph
-    FRLayoutAlgorithm<String, Point2D> layoutAlgorithm = new FRLayoutAlgorithm<>(domainModel);
+    FRLayoutAlgorithm<String, Point2D> layoutAlgorithm = new FRLayoutAlgorithm<>(POINT_MODEL);
     // not used, for testing only
-    //    CircleLayoutAlgorithm<String, Point2D> clayout = new CircleLayoutAlgorithm<>(domainModel);
+    //    CircleLayoutAlgorithm<String, Point2D> clayout = new CircleLayoutAlgorithm<>(pointModel);
     layoutAlgorithm.setMaxIterations(500);
 
     // create one model that both views will share
@@ -122,7 +121,9 @@ public class SatelliteViewDemo extends JApplet {
     vv1.getRenderer()
         .setVertexRenderer(new GradientVertexRenderer<>(vv1, Color.red, Color.white, true));
     vv1.getRenderContext().setVertexLabelTransformer(Object::toString);
-    vv1.getRenderer().getVertexLabelRenderer().setPosition(Renderer.VertexLabel.Position.CNTR);
+    vv1.getRenderer()
+        .getVertexLabelRenderer()
+        .setPosition(edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position.CNTR);
 
     ScalingControl vv2Scaler = new CrossoverScalingControl();
     vv2.scaleToLayout(vv2Scaler);
@@ -192,7 +193,7 @@ public class SatelliteViewDemo extends JApplet {
    *
    * @author Tom Nelson
    */
-  static class ViewGrid implements Paintable {
+  static class ViewGrid implements VisualizationServer.Paintable {
 
     VisualizationViewer<?, ?> master;
     VisualizationViewer<?, ?> vv;

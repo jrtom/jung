@@ -11,17 +11,21 @@ package edu.uci.ics.jung.samples;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
-import edu.uci.ics.jung.algorithms.layout.CircleLayoutAlgorithm;
-import edu.uci.ics.jung.algorithms.layout.DomainModel;
-import edu.uci.ics.jung.algorithms.layout.LayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.CircleLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
+import edu.uci.ics.jung.layout.model.PointModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
-import edu.uci.ics.jung.visualization.decorators.*;
-import edu.uci.ics.jung.visualization.layout.AWTDomainModel;
+import edu.uci.ics.jung.visualization.decorators.EdgeShape;
+import edu.uci.ics.jung.visualization.decorators.ParallelEdgeShapeTransformer;
+import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
+import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
+import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
+import edu.uci.ics.jung.visualization.layout.AWTPointModel;
 import edu.uci.ics.jung.visualization.renderers.EdgeLabelRenderer;
 import edu.uci.ics.jung.visualization.renderers.VertexLabelRenderer;
 import edu.uci.ics.jung.visualization.util.Context;
@@ -40,7 +44,7 @@ import javax.swing.*;
 public class EdgeLabelDemo extends JApplet {
   private static final long serialVersionUID = -6077157664507049647L;
 
-  private static final DomainModel<Point2D> domainModel = new AWTDomainModel();
+  private static final PointModel<Point2D> POINT_MODEL = new AWTPointModel();
 
   /** the graph */
   Network<Integer, Number> graph;
@@ -62,7 +66,7 @@ public class EdgeLabelDemo extends JApplet {
     // create a simple graph for the demo
     graph = buildGraph();
 
-    LayoutAlgorithm<Integer, Point2D> layoutAlgorithm = new CircleLayoutAlgorithm<>(domainModel);
+    LayoutAlgorithm<Integer, Point2D> layoutAlgorithm = new CircleLayoutAlgorithm<>(POINT_MODEL);
     vv = new VisualizationViewer<>(graph, layoutAlgorithm, new Dimension(600, 400));
     vv.setBackground(Color.white);
 

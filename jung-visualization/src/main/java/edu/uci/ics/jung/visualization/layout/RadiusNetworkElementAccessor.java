@@ -12,10 +12,11 @@ package edu.uci.ics.jung.visualization.layout;
 
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Network;
-import edu.uci.ics.jung.algorithms.layout.DomainModel;
-import edu.uci.ics.jung.algorithms.layout.LayoutModel;
-import edu.uci.ics.jung.algorithms.layout.RadiusNetworkNodeAccessor;
+import edu.uci.ics.jung.layout.model.LayoutModel;
+import edu.uci.ics.jung.layout.model.PointModel;
+import edu.uci.ics.jung.layout.util.RadiusNetworkNodeAccessor;
 import java.awt.*;
+import java.awt.geom.Point2D;
 import java.util.ConcurrentModificationException;
 import java.util.HashSet;
 import java.util.Set;
@@ -30,14 +31,13 @@ import java.util.Set;
  * @author Tom Nelson
  * @author Joshua O'Madadhain
  */
-public class RadiusNetworkElementAccessor<N, E, P> extends RadiusNetworkNodeAccessor<N, P>
+public class RadiusNetworkElementAccessor<N, E> extends RadiusNetworkNodeAccessor<N, Point2D>
     implements NetworkElementAccessor<N, E> {
   private final Network<N, E> network;
 
   /** Creates an instance with an effectively infinite default maximum distance. */
-  public RadiusNetworkElementAccessor(
-      Network<N, E> network, LayoutModel<N, P> layoutModel, DomainModel<P> domainModel) {
-    this(network, layoutModel, domainModel, Math.sqrt(Double.MAX_VALUE - 1000));
+  public RadiusNetworkElementAccessor(Network<N, E> network, PointModel<Point2D> pointModel) {
+    this(network, pointModel, Math.sqrt(Double.MAX_VALUE - 1000));
   }
 
   /**
@@ -48,10 +48,10 @@ public class RadiusNetworkElementAccessor<N, E, P> extends RadiusNetworkNodeAcce
    */
   public RadiusNetworkElementAccessor(
       Network<N, E> network,
-      LayoutModel<N, P> layoutModel,
-      DomainModel<P> domainModel,
+      //      LayoutModel<N, P> layoutModel,
+      PointModel<Point2D> pointModel,
       double maxDistance) {
-    super(network.asGraph(), layoutModel, domainModel, maxDistance);
+    super(network.asGraph(), pointModel, maxDistance);
     this.network = network;
   }
 
@@ -68,7 +68,7 @@ public class RadiusNetworkElementAccessor<N, E, P> extends RadiusNetworkNodeAcce
    * @return an edge which is associated with the location {@code (x,y)} as given by {@code layout}
    */
   @Override
-  public E getEdge(double x, double y) {
+  public E getEdge(LayoutModel<N, Point2D> layoutModel, double x, double y) {
     double minDistance = maxDistance * maxDistance;
     E closest = null;
     while (true) {
@@ -78,12 +78,12 @@ public class RadiusNetworkElementAccessor<N, E, P> extends RadiusNetworkNodeAcce
           N node1 = endpoints.nodeU();
           N node2 = endpoints.nodeV();
           // Get coords
-          P p1 = layoutModel.apply(node1);
-          P p2 = layoutModel.apply(node2);
-          double x1 = domainModel.getX(p1);
-          double y1 = domainModel.getY(p1);
-          double x2 = domainModel.getX(p2);
-          double y2 = domainModel.getY(p2);
+          Point2D p1 = layoutModel.apply(node1);
+          Point2D p2 = layoutModel.apply(node2);
+          double x1 = p1.getX();
+          double y1 = p1.getY();
+          double x2 = p2.getX();
+          double y2 = p2.getY();
           // Calculate location on line closest to (x,y)
           // First, check that v1 and v2 are not coincident.
           if (x1 == x2 && y1 == y2) {
@@ -116,13 +116,13 @@ public class RadiusNetworkElementAccessor<N, E, P> extends RadiusNetworkNodeAcce
     return closest;
   }
 
-  public Set<N> getNodes(Shape rectangle) {
+  public Set<N> getNodes(LayoutModel<N, Point2D> layoutModel, Shape rectangle) {
     Set<N> pickednodes = new HashSet<N>();
     while (true) {
       try {
         for (N node : graph.nodes()) {
-          P p = layoutModel.apply(node);
-          if (rectangle.contains(domainModel.getX(p), domainModel.getY(p))) {
+          Point2D p = layoutModel.apply(node);
+          if (rectangle.contains(p.getX(), p.getY())) {
             pickednodes.add(node);
           }
         }

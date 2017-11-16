@@ -12,6 +12,7 @@
 package edu.uci.ics.jung.visualization.control;
 
 import edu.uci.ics.jung.algorithms.util.MapSettableTransformer;
+import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.layout.NetworkElementAccessor;
@@ -63,6 +64,7 @@ public class LabelEditingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
   public void mouseClicked(MouseEvent e) {
     if (e.getModifiers() == modifiers && e.getClickCount() == 2) {
       VisualizationViewer<V, E> vv = (VisualizationViewer<V, E>) e.getSource();
+      LayoutModel<V, Point2D> layoutModel = vv.getModel().getLayoutModel();
       NetworkElementAccessor<V, E> pickSupport = vv.getPickSupport();
       if (pickSupport != null) {
         Function<? super V, String> vs = vv.getRenderContext().getVertexLabelTransformer();
@@ -73,7 +75,7 @@ public class LabelEditingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
           // p is the screen point for the mouse event
           Point2D p = e.getPoint();
 
-          V vertex = pickSupport.getNode(p.getX(), p.getY());
+          V vertex = pickSupport.getNode(layoutModel, p.getX(), p.getY());
           if (vertex != null) {
             String newLabel = vs.apply(vertex);
             newLabel = JOptionPane.showInputDialog("New Vertex Label for " + vertex);
@@ -94,7 +96,7 @@ public class LabelEditingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
           // take away the view transform
           Point2D ip =
               vv.getRenderContext().getMultiLayerTransformer().inverseTransform(Layer.VIEW, p);
-          E edge = pickSupport.getEdge(ip.getX(), ip.getY());
+          E edge = pickSupport.getEdge(layoutModel, ip.getX(), ip.getY());
           if (edge != null) {
             String newLabel = JOptionPane.showInputDialog("New Edge Label for " + edge);
             if (newLabel != null) {

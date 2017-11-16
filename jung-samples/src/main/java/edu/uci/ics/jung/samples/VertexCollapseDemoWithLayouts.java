@@ -9,8 +9,16 @@
 package edu.uci.ics.jung.samples;
 
 import com.google.common.graph.Network;
-import edu.uci.ics.jung.algorithms.layout.*;
 import edu.uci.ics.jung.graph.util.TestGraphs;
+import edu.uci.ics.jung.layout.algorithms.CircleLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.FRLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.ISOMLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.KKLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.SpringLayoutAlgorithm;
+import edu.uci.ics.jung.layout.model.LayoutModel;
+import edu.uci.ics.jung.layout.model.PointModel;
+import edu.uci.ics.jung.layout.util.LayoutAlgorithmTransition;
 import edu.uci.ics.jung.samples.util.ControlHelpers;
 import edu.uci.ics.jung.visualization.BaseVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
@@ -20,7 +28,7 @@ import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 import edu.uci.ics.jung.visualization.decorators.EllipseVertexShapeTransformer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
-import edu.uci.ics.jung.visualization.layout.*;
+import edu.uci.ics.jung.visualization.layout.AWTPointModel;
 import edu.uci.ics.jung.visualization.subLayout.GraphCollapser;
 import edu.uci.ics.jung.visualization.util.PredicatedParallelEdgeIndexFunction;
 import java.awt.BorderLayout;
@@ -57,7 +65,7 @@ import org.slf4j.LoggerFactory;
 public class VertexCollapseDemoWithLayouts extends JApplet {
 
   private static final Logger log = LoggerFactory.getLogger(VertexCollapseDemoWithLayouts.class);
-  private static final DomainModel<Point2D> domainModel = new AWTDomainModel();
+  private static final PointModel<Point2D> POINT_MODEL = new AWTPointModel();
 
   String instructions =
       "<html>Use the mouse to select multiple vertices"
@@ -107,7 +115,7 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
 
     collapser = new GraphCollapser(graph);
 
-    layoutAlgorithm = new FRLayoutAlgorithm(domainModel);
+    layoutAlgorithm = new FRLayoutAlgorithm(POINT_MODEL);
 
     Dimension preferredSize = new Dimension(400, 400);
     final VisualizationModel visualizationModel =
@@ -334,15 +342,15 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
   private static <N> LayoutAlgorithm<N, Point2D> createLayout(Layouts layoutType) {
     switch (layoutType) {
       case CIRCLE:
-        return new CircleLayoutAlgorithm<>(domainModel);
+        return new CircleLayoutAlgorithm<>(POINT_MODEL);
       case FRUCHTERMAN_REINGOLD:
-        return new FRLayoutAlgorithm<>(domainModel);
+        return new FRLayoutAlgorithm<>(POINT_MODEL);
       case KAMADA_KAWAI:
-        return new KKLayoutAlgorithm<>(domainModel);
+        return new KKLayoutAlgorithm<>(POINT_MODEL);
       case SELF_ORGANIZING_MAP:
-        return new ISOMLayoutAlgorithm<>(domainModel);
+        return new ISOMLayoutAlgorithm<>(POINT_MODEL);
       case SPRING:
-        return new SpringLayoutAlgorithm<>(domainModel);
+        return new SpringLayoutAlgorithm<>(POINT_MODEL);
       default:
         throw new IllegalArgumentException("Unrecognized layout type");
     }

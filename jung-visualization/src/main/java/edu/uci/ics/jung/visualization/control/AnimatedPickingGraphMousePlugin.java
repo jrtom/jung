@@ -11,7 +11,7 @@
  */
 package edu.uci.ics.jung.visualization.control;
 
-import edu.uci.ics.jung.algorithms.layout.LayoutModel;
+import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.layout.NetworkElementAccessor;
@@ -61,12 +61,13 @@ public class AnimatedPickingGraphMousePlugin<N, E> extends AbstractGraphMousePlu
   public void mousePressed(MouseEvent e) {
     if (e.getModifiers() == modifiers) {
       VisualizationViewer<N, E> vv = (VisualizationViewer<N, E>) e.getSource();
+      LayoutModel<N, Point2D> layoutModel = vv.getModel().getLayoutModel();
       NetworkElementAccessor<N, E> pickSupport = vv.getPickSupport();
       PickedState<N> pickedVertexState = vv.getPickedVertexState();
       if (pickSupport != null && pickedVertexState != null) {
         // p is the screen point for the mouse event
         Point2D p = e.getPoint();
-        vertex = pickSupport.getNode(p.getX(), p.getY());
+        vertex = pickSupport.getNode(layoutModel, p.getX(), p.getY());
         if (vertex != null) {
           if (pickedVertexState.isPicked(vertex) == false) {
             pickedVertexState.clear();

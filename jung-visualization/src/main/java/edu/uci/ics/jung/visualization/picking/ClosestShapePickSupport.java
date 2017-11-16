@@ -8,7 +8,7 @@
  */
 package edu.uci.ics.jung.visualization.picking;
 
-import edu.uci.ics.jung.algorithms.layout.LayoutModel;
+import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationModel;
 import edu.uci.ics.jung.visualization.VisualizationServer;
@@ -65,16 +65,15 @@ public class ClosestShapePickSupport<N, E> implements NetworkElementAccessor<N, 
     this.vv = vv;
   }
 
-  /** @see edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor#getEdge(double, double) */
-  public E getEdge(double x, double y) {
+  @Override
+  public E getEdge(LayoutModel<N, Point2D> layoutModel, double x, double y) {
     return null;
   }
 
-  /** @see edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor#getNode(double, double) */
   @Override
-  public N getNode(double x, double y) {
+  public N getNode(LayoutModel<N, Point2D> layoutModel, double x, double y) {
     VisualizationModel<N, E, Point2D> visualizationModel = vv.getModel();
-    LayoutModel<N, Point2D> layoutModel = visualizationModel.getLayoutModel();
+    //    LayoutModel<N, Point2D> layoutModel = visualizationModel.getLayoutModel();
     // first, find the closest vertex to (x,y)
     double minDistance = Double.MAX_VALUE;
     N closest = null;
@@ -114,9 +113,8 @@ public class ClosestShapePickSupport<N, E> implements NetworkElementAccessor<N, 
     }
   }
 
-  /** @see edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor#getNodes(java.awt.Shape) */
   @Override
-  public Collection<N> getNodes(Shape rectangle) {
+  public Collection<N> getNodes(LayoutModel<N, Point2D> layoutModel, Shape rectangle) {
     // FIXME: RadiusPickSupport and ShapePickSupport are not using the same mechanism!
     // talk to Tom and make sure I understand which should be used.
     // in particular, there are some transformations that the latter uses; the latter is also

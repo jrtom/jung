@@ -1,11 +1,12 @@
 package edu.uci.ics.jung.visualization.layout;
 
 import com.google.common.graph.Graph;
-import edu.uci.ics.jung.algorithms.layout.LayoutAlgorithm;
-import edu.uci.ics.jung.algorithms.layout.LayoutModel;
+import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
+import edu.uci.ics.jung.layout.model.LayoutModel;
+import edu.uci.ics.jung.layout.model.LoadingCacheLayoutModel;
+import edu.uci.ics.jung.layout.util.Caching;
 import edu.uci.ics.jung.visualization.spatial.Spatial;
 import edu.uci.ics.jung.visualization.spatial.SpatialGrid;
-import edu.uci.ics.jung.visualization.util.Caching;
 import java.awt.*;
 import java.awt.geom.Point2D;
 import java.util.function.Function;
@@ -27,13 +28,13 @@ public class SpatialLayoutModel<N> extends LoadingCacheLayoutModel<N, Point2D>
 
   public SpatialLayoutModel(
       Graph<N> graph, int width, int height, Function<N, Point2D> initializer) {
-    super(graph, new AWTDomainModel(), width, height, initializer);
+    super(graph, new AWTPointModel(), width, height, 0, initializer);
     log.info("CTOR");
     setupSpatialGrid(new Dimension(width, height), 10, 10);
   }
 
   public SpatialLayoutModel(Graph<N> graph, int width, int height) {
-    super(graph, new AWTDomainModel(), width, height);
+    super(graph, new AWTPointModel(), width, height, 0);
     setupSpatialGrid(new Dimension(width, height), 10, 10);
   }
 
@@ -87,7 +88,7 @@ public class SpatialLayoutModel<N> extends LoadingCacheLayoutModel<N, Point2D>
 
   @Override
   public void set(N node, double x, double y) {
-    this.set(node, domainModel.newPoint(x, y));
+    this.set(node, pointModel.newPoint(x, y));
   }
 
   public Spatial<N> getSpatial() {

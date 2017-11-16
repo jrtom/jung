@@ -9,9 +9,13 @@
 package edu.uci.ics.jung.samples;
 
 import com.google.common.graph.Network;
-import edu.uci.ics.jung.algorithms.layout.*;
 import edu.uci.ics.jung.algorithms.shortestpath.MinimumSpanningTree;
 import edu.uci.ics.jung.graph.util.TestGraphs;
+import edu.uci.ics.jung.layout.algorithms.KKLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.StaticLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.TreeLayoutAlgorithm;
+import edu.uci.ics.jung.layout.model.PointModel;
 import edu.uci.ics.jung.visualization.BaseVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.VisualizationModel;
@@ -22,7 +26,7 @@ import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.EdgeShape;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
-import edu.uci.ics.jung.visualization.layout.*;
+import edu.uci.ics.jung.visualization.layout.AWTPointModel;
 import edu.uci.ics.jung.visualization.picking.MultiPickedState;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
@@ -45,7 +49,7 @@ public class MinimumSpanningTreeDemo extends JApplet {
 
   private static final Logger log = LoggerFactory.getLogger(MinimumSpanningTreeDemo.class);
 
-  private static final DomainModel<Point2D> domainModel = new AWTDomainModel();
+  private static final PointModel<Point2D> POINT_MODEL = new AWTPointModel();
 
   /** the graph */
   Network<String, Number> graph;
@@ -70,9 +74,9 @@ public class MinimumSpanningTreeDemo extends JApplet {
 
     tree = MinimumSpanningTree.extractFrom(graph, e -> 1.0);
 
-    LayoutAlgorithm<String, Point2D> layout0 = new KKLayoutAlgorithm<>(domainModel);
-    LayoutAlgorithm<String, Point2D> layout1 = new TreeLayoutAlgorithm<>(domainModel);
-    LayoutAlgorithm<String, Point2D> layout2 = new StaticLayoutAlgorithm<>(domainModel);
+    LayoutAlgorithm<String, Point2D> layout0 = new KKLayoutAlgorithm<>(POINT_MODEL);
+    LayoutAlgorithm<String, Point2D> layout1 = new TreeLayoutAlgorithm<>(POINT_MODEL);
+    LayoutAlgorithm<String, Point2D> layout2 = new StaticLayoutAlgorithm<>(POINT_MODEL);
 
     // create the two models, each with a different layout
     VisualizationModel<String, Number, Point2D> vm0 =
@@ -108,7 +112,9 @@ public class MinimumSpanningTreeDemo extends JApplet {
     vv1.setBackground(back);
     vv2.setBackground(back);
 
-    vv0.getRenderer().getVertexLabelRenderer().setPosition(Renderer.VertexLabel.Position.CNTR);
+    vv0.getRenderer()
+        .getVertexLabelRenderer()
+        .setPosition(edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position.CNTR);
     vv0.setForeground(Color.darkGray);
     vv1.getRenderer().getVertexLabelRenderer().setPosition(Renderer.VertexLabel.Position.CNTR);
     vv1.setForeground(Color.darkGray);

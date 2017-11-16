@@ -1,9 +1,9 @@
 package edu.uci.ics.jung.visualization.renderers;
 
-import edu.uci.ics.jung.algorithms.layout.LayoutChangeListener;
-import edu.uci.ics.jung.algorithms.layout.LayoutEvent;
-import edu.uci.ics.jung.algorithms.layout.LayoutEventSupport;
-import edu.uci.ics.jung.algorithms.layout.LayoutNetworkEvent;
+import edu.uci.ics.jung.layout.util.LayoutChangeListener;
+import edu.uci.ics.jung.layout.util.LayoutEvent;
+import edu.uci.ics.jung.layout.util.LayoutEventSupport;
+import edu.uci.ics.jung.layout.util.LayoutNetworkEvent;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.VisualizationModel;

@@ -10,7 +10,7 @@
 package edu.uci.ics.jung.visualization.renderers;
 
 import com.google.common.graph.EndpointPair;
-import edu.uci.ics.jung.algorithms.layout.LayoutModel;
+import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.VisualizationModel;

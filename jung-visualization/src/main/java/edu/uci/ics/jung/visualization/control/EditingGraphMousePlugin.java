@@ -1,5 +1,6 @@
 package edu.uci.ics.jung.visualization.control;
 
+import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.layout.NetworkElementAccessor;
 import java.awt.Cursor;
@@ -74,10 +75,11 @@ public class EditingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
   public void mousePressed(MouseEvent e) {
     if (checkModifiers(e)) {
       final VisualizationViewer<V, E> vv = (VisualizationViewer<V, E>) e.getSource();
+      final LayoutModel<V, Point2D> layoutModel = vv.getModel().getLayoutModel();
       final Point2D p = e.getPoint();
       NetworkElementAccessor<V, E> pickSupport = vv.getPickSupport();
       if (pickSupport != null) {
-        final V vertex = pickSupport.getNode(p.getX(), p.getY());
+        final V vertex = pickSupport.getNode(layoutModel, p.getX(), p.getY());
         if (vertex != null) { // get ready to make an edge
           this.createMode = Creating.EDGE;
           edgeSupport.startEdgeCreate(vv, vertex, e.getPoint());
@@ -97,13 +99,14 @@ public class EditingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
   public void mouseReleased(MouseEvent e) {
     if (checkModifiers(e)) {
       final VisualizationViewer<V, E> vv = (VisualizationViewer<V, E>) e.getSource();
+      final LayoutModel<V, Point2D> layoutModel = vv.getModel().getLayoutModel();
       final Point2D p = e.getPoint();
       if (createMode == Creating.EDGE) {
         NetworkElementAccessor<V, E> pickSupport = vv.getPickSupport();
         V vertex = null;
         // TODO: how does it make any sense for pickSupport to be null in this scenario?
         if (pickSupport != null) {
-          vertex = pickSupport.getNode(p.getX(), p.getY());
+          vertex = pickSupport.getNode(layoutModel, p.getX(), p.getY());
         }
         if (vertex != null) {
           edgeSupport.endEdgeCreate(vv, vertex);

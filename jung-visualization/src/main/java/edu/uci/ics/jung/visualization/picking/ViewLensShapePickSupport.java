@@ -13,7 +13,7 @@ package edu.uci.ics.jung.visualization.picking;
 
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Network;
-import edu.uci.ics.jung.algorithms.layout.LayoutModel;
+import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationServer;
 import edu.uci.ics.jung.visualization.transform.MutableTransformerDecorator;
@@ -47,7 +47,7 @@ public class ViewLensShapePickSupport<N, E> extends ShapePickSupport<N, E> {
   }
 
   @Override
-  public N getNode(double x, double y) {
+  public N getNode(LayoutModel<N, Point2D> layoutModel, double x, double y) {
 
     N closest = null;
     double minDistance = Double.MAX_VALUE;
@@ -61,7 +61,7 @@ public class ViewLensShapePickSupport<N, E> extends ShapePickSupport<N, E> {
 
     while (true) {
       try {
-        LayoutModel<N, Point2D> layoutModel = vv.getModel().getLayoutModel();
+        //        LayoutModel<N, Point2D> layoutModel = vv.getModel().getLayoutModel();
         for (N v : getFilteredVertices()) {
           // get the shape
           Shape shape = vv.getRenderContext().getVertexShapeTransformer().apply(v);
@@ -114,7 +114,7 @@ public class ViewLensShapePickSupport<N, E> extends ShapePickSupport<N, E> {
   }
 
   @Override
-  public Collection<N> getNodes(Shape rectangle) {
+  public Collection<N> getNodes(LayoutModel<N, Point2D> layoutModel, Shape rectangle) {
     Set<N> pickedVertices = new HashSet<N>();
 
     //    	 remove the view transform from the rectangle
@@ -126,7 +126,7 @@ public class ViewLensShapePickSupport<N, E> extends ShapePickSupport<N, E> {
 
     while (true) {
       try {
-        LayoutModel<N, Point2D> layoutModel = vv.getModel().getLayoutModel();
+        //        LayoutModel<N, Point2D> layoutModel = vv.getModel().getLayoutModel();
         for (N v : getFilteredVertices()) {
           Point2D p = layoutModel.apply(v);
           if (p == null) {
@@ -154,7 +154,7 @@ public class ViewLensShapePickSupport<N, E> extends ShapePickSupport<N, E> {
   }
 
   @Override
-  public E getEdge(double x, double y) {
+  public E getEdge(LayoutModel<N, Point2D> layoutModel, double x, double y) {
     Point2D ip =
         ((MutableTransformerDecorator)
                 vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.VIEW))
@@ -173,7 +173,7 @@ public class ViewLensShapePickSupport<N, E> extends ShapePickSupport<N, E> {
     double minDistance = Double.MAX_VALUE;
     while (true) {
       try {
-        LayoutModel<N, Point2D> layoutModel = vv.getModel().getLayoutModel();
+        //        LayoutModel<N, Point2D> layoutModel = vv.getModel().getLayoutModel();
         Network<N, E> network = vv.getModel().getNetwork();
         for (E e : getFilteredEdges()) {
           EndpointPair<N> endpoints = network.incidentNodes(e);

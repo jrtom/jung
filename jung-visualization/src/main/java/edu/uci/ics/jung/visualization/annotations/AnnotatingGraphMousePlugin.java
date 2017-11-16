@@ -12,7 +12,7 @@ package edu.uci.ics.jung.visualization.annotations;
 
 import edu.uci.ics.jung.visualization.MultiLayerTransformer;
 import edu.uci.ics.jung.visualization.RenderContext;
-import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
+import edu.uci.ics.jung.visualization.VisualizationServer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.AbstractGraphMousePlugin;
 import java.awt.Color;
@@ -46,7 +46,7 @@ public class AnnotatingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
   protected RectangularShape rectangularShape = new Rectangle2D.Float();
 
   /** the Paintable for the Shape annotation */
-  protected Paintable lensPaintable;
+  protected VisualizationServer.Paintable lensPaintable;
 
   /** a Paintable to store all Annotations */
   protected AnnotationManager annotationManager;
@@ -107,7 +107,7 @@ public class AnnotatingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
   }
 
   /** the Paintable that draws a Shape annotation only while it is being created */
-  class LensPaintable implements Paintable {
+  class LensPaintable implements VisualizationServer.Paintable {
 
     public void paint(Graphics g) {
       Color oldColor = g.getColor();

@@ -23,6 +23,7 @@ import edu.uci.ics.jung.visualization.renderers.ReshapingEdgeRenderer;
 import edu.uci.ics.jung.visualization.transform.AbstractLensSupport;
 import edu.uci.ics.jung.visualization.transform.LensTransformer;
 import java.awt.Dimension;
+
 /**
  * Changes various visualization settings to activate or deactivate an examining lens for a jung
  * graph application.

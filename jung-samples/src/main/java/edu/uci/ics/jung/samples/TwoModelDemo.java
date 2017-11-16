@@ -9,11 +9,11 @@
 package edu.uci.ics.jung.samples;
 
 import com.google.common.graph.Network;
-import edu.uci.ics.jung.algorithms.layout.DomainModel;
-import edu.uci.ics.jung.algorithms.layout.FRLayoutAlgorithm;
-import edu.uci.ics.jung.algorithms.layout.ISOMLayoutAlgorithm;
-import edu.uci.ics.jung.algorithms.layout.LayoutAlgorithm;
 import edu.uci.ics.jung.graph.util.TestGraphs;
+import edu.uci.ics.jung.layout.algorithms.FRLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.ISOMLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
+import edu.uci.ics.jung.layout.model.PointModel;
 import edu.uci.ics.jung.samples.util.ControlHelpers;
 import edu.uci.ics.jung.visualization.BaseVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
@@ -22,7 +22,7 @@ import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
-import edu.uci.ics.jung.visualization.layout.*;
+import edu.uci.ics.jung.visualization.layout.AWTPointModel;
 import edu.uci.ics.jung.visualization.picking.MultiPickedState;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import java.awt.*;
@@ -38,7 +38,7 @@ import javax.swing.*;
 @SuppressWarnings("serial")
 public class TwoModelDemo extends JApplet {
 
-  private static final DomainModel<Point2D> domainModel = new AWTDomainModel();
+  private static final PointModel<Point2D> POINT_MODEL = new AWTPointModel();
 
   /** the graph */
   Network<String, Number> graph;
@@ -58,8 +58,8 @@ public class TwoModelDemo extends JApplet {
     graph = TestGraphs.getOneComponentGraph();
 
     // create two layouts for the one graph, one layout for each model
-    LayoutAlgorithm<String, Point2D> layoutAlgorithm1 = new FRLayoutAlgorithm<>(domainModel);
-    LayoutAlgorithm<String, Point2D> layoutAlgorithm2 = new ISOMLayoutAlgorithm<>(domainModel);
+    LayoutAlgorithm<String, Point2D> layoutAlgorithm1 = new FRLayoutAlgorithm<>(POINT_MODEL);
+    LayoutAlgorithm<String, Point2D> layoutAlgorithm2 = new ISOMLayoutAlgorithm<>(POINT_MODEL);
 
     // create the two models, each with a different layout
     VisualizationModel<String, Number, Point2D> vm1 =

@@ -8,10 +8,15 @@
  */
 package edu.uci.ics.jung.samples;
 
-import edu.uci.ics.jung.algorithms.layout.*;
 import edu.uci.ics.jung.graph.CTreeNetwork;
 import edu.uci.ics.jung.graph.MutableCTreeNetwork;
 import edu.uci.ics.jung.graph.TreeNetworkBuilder;
+import edu.uci.ics.jung.layout.algorithms.RadialTreeLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.immutable.TreeLayoutAlgorithm;
+import edu.uci.ics.jung.layout.model.LayoutModel;
+import edu.uci.ics.jung.layout.model.PointModel;
+import edu.uci.ics.jung.layout.model.PolarPoint;
+import edu.uci.ics.jung.layout.util.LayoutAlgorithmTransition;
 import edu.uci.ics.jung.samples.util.ControlHelpers;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.Layer;
@@ -21,7 +26,7 @@ import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 import edu.uci.ics.jung.visualization.decorators.EdgeShape;
-import edu.uci.ics.jung.visualization.layout.*;
+import edu.uci.ics.jung.visualization.layout.AWTPointModel;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
@@ -47,7 +52,7 @@ import javax.swing.*;
 @SuppressWarnings("serial")
 public class TreeLayoutDemo extends JApplet {
 
-  private static final DomainModel<Point2D> domainModel = new AWTDomainModel();
+  private static final PointModel<Point2D> POINT_MODEL = new AWTPointModel();
 
   CTreeNetwork<String, Integer> graph;
 
@@ -67,8 +72,8 @@ public class TreeLayoutDemo extends JApplet {
     // create a simple graph for the demo
     graph = createTree();
 
-    treeLayoutAlgorithm = new TreeLayoutAlgorithm<>(domainModel);
-    radialLayoutAlgorithm = new RadialTreeLayoutAlgorithm<>(domainModel);
+    treeLayoutAlgorithm = new TreeLayoutAlgorithm<>(POINT_MODEL);
+    radialLayoutAlgorithm = new RadialTreeLayoutAlgorithm<>(POINT_MODEL);
     //    radialLayout.setSize(new Dimension(600, 600));
     vv = new VisualizationViewer<>(graph, treeLayoutAlgorithm, new Dimension(600, 600));
     vv.setBackground(Color.white);

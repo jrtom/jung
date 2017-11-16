@@ -11,13 +11,14 @@ package edu.uci.ics.jung.samples;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
-import edu.uci.ics.jung.algorithms.layout.DomainModel;
-import edu.uci.ics.jung.algorithms.layout.FRLayoutAlgorithm;
-import edu.uci.ics.jung.algorithms.layout.LayoutAlgorithm;
-import edu.uci.ics.jung.algorithms.layout.LayoutModel;
-import edu.uci.ics.jung.algorithms.layout.StaticLayoutAlgorithm;
-import edu.uci.ics.jung.algorithms.util.RandomLocationTransformer;
 import edu.uci.ics.jung.graph.util.TestGraphs;
+import edu.uci.ics.jung.layout.algorithms.FRLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.StaticLayoutAlgorithm;
+import edu.uci.ics.jung.layout.model.LayoutModel;
+import edu.uci.ics.jung.layout.model.PointModel;
+import edu.uci.ics.jung.layout.util.LayoutAlgorithmTransition;
+import edu.uci.ics.jung.layout.util.RandomLocationTransformer;
 import edu.uci.ics.jung.visualization.BaseVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.Layer;
@@ -30,8 +31,7 @@ import edu.uci.ics.jung.visualization.control.ModalLensGraphMouse;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
-import edu.uci.ics.jung.visualization.layout.AWTDomainModel;
-import edu.uci.ics.jung.visualization.layout.LayoutAlgorithmTransition;
+import edu.uci.ics.jung.visualization.layout.AWTPointModel;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import edu.uci.ics.jung.visualization.transform.HyperbolicTransformer;
 import edu.uci.ics.jung.visualization.transform.LayoutLensSupport;
@@ -61,7 +61,7 @@ import javax.swing.plaf.basic.BasicLabelUI;
 @SuppressWarnings("serial")
 public class LensDemo extends JApplet {
 
-  private static final DomainModel<Point2D> domainModel = new AWTDomainModel();
+  private static final PointModel<Point2D> POINT_MODEL = new AWTPointModel();
 
   /** the graph */
   Network<String, Number> graph;
@@ -94,14 +94,14 @@ public class LensDemo extends JApplet {
     // create a simple graph for the demo
     graph = TestGraphs.getOneComponentGraph();
 
-    graphLayoutAlgorithm = new FRLayoutAlgorithm<>(domainModel);
+    graphLayoutAlgorithm = new FRLayoutAlgorithm<>(POINT_MODEL);
     graphLayoutAlgorithm.setMaxIterations(1000);
 
     Dimension preferredSize = new Dimension(600, 600);
     Map<String, Point2D> map = new HashMap<>();
     Function<String, Point2D> vlf = map::get;
     grid = this.generateVertexGrid(map, preferredSize, 25);
-    gridLayoutAlgorithm = new StaticLayoutAlgorithm<>(domainModel);
+    gridLayoutAlgorithm = new StaticLayoutAlgorithm<>(POINT_MODEL);
 
     final VisualizationModel<String, Number, Point2D> visualizationModel =
         new BaseVisualizationModel<>(graph, graphLayoutAlgorithm, preferredSize);
@@ -236,7 +236,10 @@ public class LensDemo extends JApplet {
             LayoutModel layoutModel = visualizationModel.getLayoutModel();
             layoutModel.setInitializer(
                 new RandomLocationTransformer<String, Point2D>(
-                    domainModel, layoutModel.getWidth(), layoutModel.getHeight()));
+                    POINT_MODEL,
+                    layoutModel.getWidth(),
+                    layoutModel.getHeight(),
+                    layoutModel.getDepth()));
             visualizationModel.setNetwork(graph, false);
             LayoutAlgorithmTransition.apply(visualizationModel, graphLayoutAlgorithm);
             vv.getRenderContext().setVertexShapeTransformer(ovals);

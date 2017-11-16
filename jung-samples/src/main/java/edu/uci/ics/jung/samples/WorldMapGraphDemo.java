@@ -11,18 +11,20 @@ package edu.uci.ics.jung.samples;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
-import edu.uci.ics.jung.algorithms.layout.DomainModel;
-import edu.uci.ics.jung.algorithms.layout.LayoutAlgorithm;
-import edu.uci.ics.jung.algorithms.layout.StaticLayoutAlgorithm;
-import edu.uci.ics.jung.visualization.*;
+import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.StaticLayoutAlgorithm;
+import edu.uci.ics.jung.layout.model.PointModel;
+import edu.uci.ics.jung.visualization.BaseVisualizationModel;
+import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
+import edu.uci.ics.jung.visualization.Layer;
+import edu.uci.ics.jung.visualization.VisualizationModel;
+import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.AbstractModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
-import edu.uci.ics.jung.visualization.layout.AWTDomainModel;
-import edu.uci.ics.jung.visualization.renderers.BasicVertexLabelRenderer.InsidePositioner;
-import edu.uci.ics.jung.visualization.renderers.GradientVertexRenderer;
-import edu.uci.ics.jung.visualization.renderers.Renderer;
+import edu.uci.ics.jung.visualization.layout.AWTPointModel;
+import edu.uci.ics.jung.visualization.renderers.*;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
@@ -42,7 +44,7 @@ import javax.swing.*;
 @SuppressWarnings("serial")
 public class WorldMapGraphDemo extends JApplet {
 
-  private static final DomainModel<Point2D> domainModel = new AWTDomainModel();
+  private static final PointModel<Point2D> POINT_MODEL = new AWTPointModel();
 
   /** the graph */
   Network<String, Number> graph;
@@ -72,7 +74,7 @@ public class WorldMapGraphDemo extends JApplet {
     }
     final ImageIcon icon = mapIcon;
 
-    LayoutAlgorithm<String, Point2D> layoutAlgorithm = new StaticLayoutAlgorithm<>(domainModel);
+    LayoutAlgorithm<String, Point2D> layoutAlgorithm = new StaticLayoutAlgorithm<>(POINT_MODEL);
 
     Function<String, Point2D> initializer =
         new CityTransformer(map).andThen(new LatLonPixelTransformer(new Dimension(2000, 1000)));
@@ -123,8 +125,12 @@ public class WorldMapGraphDemo extends JApplet {
     vv.setEdgeToolTipTransformer(edge -> "E" + graph.incidentNodes(edge).toString());
 
     vv.getRenderContext().setVertexLabelTransformer(n -> n);
-    vv.getRenderer().getVertexLabelRenderer().setPositioner(new InsidePositioner());
-    vv.getRenderer().getVertexLabelRenderer().setPosition(Renderer.VertexLabel.Position.AUTO);
+    vv.getRenderer()
+        .getVertexLabelRenderer()
+        .setPositioner(new BasicVertexLabelRenderer.InsidePositioner());
+    vv.getRenderer()
+        .getVertexLabelRenderer()
+        .setPosition(edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position.AUTO);
 
     final GraphZoomScrollPane panel = new GraphZoomScrollPane(vv);
     add(panel);

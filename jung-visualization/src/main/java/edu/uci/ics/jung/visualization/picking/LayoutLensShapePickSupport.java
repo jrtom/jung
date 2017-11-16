@@ -13,7 +13,7 @@ package edu.uci.ics.jung.visualization.picking;
 
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Network;
-import edu.uci.ics.jung.algorithms.layout.LayoutModel;
+import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationServer;
 import edu.uci.ics.jung.visualization.util.Context;
@@ -44,11 +44,11 @@ public class LayoutLensShapePickSupport<N, E> extends ShapePickSupport<N, E> {
   }
 
   @Override
-  public N getNode(double x, double y) {
+  public N getNode(LayoutModel<N, Point2D> layoutModel, double x, double y) {
 
     N closest = null;
     double minDistance = Double.MAX_VALUE;
-    LayoutModel<N, Point2D> layoutModel = vv.getModel().getLayoutModel();
+    //    LayoutModel<N, Point2D> layoutModel = vv.getModel().getLayoutModel();
 
     while (true) {
       try {
@@ -117,9 +117,10 @@ public class LayoutLensShapePickSupport<N, E> extends ShapePickSupport<N, E> {
     return pickedVertices;
   }
 
-  public E getEdge(double x, double y) {
+  @Override
+  public E getEdge(LayoutModel<N, Point2D> layoutModel, double x, double y) {
 
-    LayoutModel<N, Point2D> layoutModel = vv.getModel().getLayoutModel();
+    //    LayoutModel<N, Point2D> layoutModel = vv.getModel().getLayoutModel();
     Network<N, E> network = vv.getModel().getNetwork();
     Point2D ip =
         vv.getRenderContext()
