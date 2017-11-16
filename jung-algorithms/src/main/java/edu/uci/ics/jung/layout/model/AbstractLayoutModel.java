@@ -263,8 +263,8 @@ public abstract class AbstractLayoutModel<N, P>
 
   /**
    * @param node the node whose coordinates are to be offset
-   * @param xOffset the change to animate to this node's x coordinate
-   * @param yOffset the change to animate to this node's y coordinate
+   * @param xOffset the change to apply to this node's x coordinate
+   * @param yOffset the change to apply to this node's y coordinate
    */
   protected void offsetnode(N node, double xOffset, double yOffset, double zOffset) {
     if (!locked && !isLocked(node)) {

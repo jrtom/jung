@@ -17,7 +17,7 @@ import java.awt.Shape;
 
 /**
  * subclassed to pass certain operations thru the Function before the base class method is applied
- * This is useful when you want to animate non-affine transformations to the Graphics2D used to draw
+ * This is useful when you want to apply non-affine transformations to the Graphics2D used to draw
  * elements of the graph.
  *
  * @author Tom Nelson
