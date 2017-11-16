@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2003, The JUNG Authors
+ * All rights reserved.
+ *
+ * This software is open-source under the BSD license; see either "license.txt"
+ * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
+ */
 package edu.uci.ics.jung.layout.algorithms;
 
 import com.google.common.cache.CacheBuilder;
@@ -11,11 +18,12 @@ import java.util.ConcurrentModificationException;
 import java.util.function.Function;
 
 /**
- * adapted from the JUNG SpringLayoutClass. Refactored to be a visitor to a LayoutModel holding node
- * positions
+ * The SpringLayout package represents a visualization of a set of nodes. The SpringLayout, which is
+ * initialized with a Graph, assigns X/Y locations to each node. When called <code>relax()</code>,
+ * the SpringLayout moves the visualization forward one step.
  *
- * @param <N>
- * @param <P>
+ * @author Danyel Fisher
+ * @author Joshua O'Madadhain
  * @author Tom Nelson
  */
 public class SpringLayoutAlgorithm<N, P> extends AbstractIterativeLayoutAlgorithm<N, P>
@@ -155,9 +163,9 @@ public class SpringLayoutAlgorithm<N, P> extends AbstractIterativeLayoutAlgorith
           if (p == null || p2 == null) {
             continue;
           }
-          double vx = pointModel.getX(p) - pointModel.getX(p2); //p.getX() - p2.getX();
-          double vy = pointModel.getY(p) - pointModel.getY(p2); //p.getY() - p2.getY();
-          double distanceSq = pointModel.distanceSquared(p, p2); //p.distanceSq(p2);
+          double vx = pointModel.getX(p) - pointModel.getX(p2);
+          double vy = pointModel.getY(p) - pointModel.getY(p2);
+          double distanceSq = pointModel.distanceSquared(p, p2);
           if (distanceSq == 0) {
             dx += Math.random();
             dy += Math.random();

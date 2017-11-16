@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2003, The JUNG Authors
+ * All rights reserved.
+ *
+ * This software is open-source under the BSD license; see either "license.txt"
+ * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
+ */
 package edu.uci.ics.jung.layout3d.algorithms;
 
 import com.google.common.cache.CacheBuilder;
@@ -12,11 +19,12 @@ import java.util.ConcurrentModificationException;
 import java.util.function.Function;
 
 /**
- * adapted from the JUNG SpringLayout class. Refactored to be a visitor to a LayoutModel holding
- * node positions. Extended to 3 dimensions with a z coordinate and depth
+ * The SpringLayout package represents a visualization of a set of nodes. The SpringLayout, which is
+ * initialized with a Graph, assigns X/Y locations to each node. When called <code>relax()</code>,
+ * the SpringLayout moves the visualization forward one step.
  *
- * @param <N> the graph node type
- * @param <P> the point model.
+ * @author Danyel Fisher
+ * @author Joshua O'Madadhain
  * @author Tom Nelson
  */
 public class SpringLayoutAlgorithm<N, P> extends AbstractIterativeLayoutAlgorithm<N, P>

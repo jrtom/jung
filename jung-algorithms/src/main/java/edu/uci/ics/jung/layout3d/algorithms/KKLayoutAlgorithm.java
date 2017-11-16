@@ -23,6 +23,17 @@ import java.util.function.BiFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Implements the Kamada-Kawai algorithm for node layout. Does not respect filter calls, and
+ * sometimes crashes when the view changes to it.
+ *
+ * @see "Tomihisa Kamada and Satoru Kawai: An algorithm for drawing general indirect graphs.
+ *     Information Processing Letters 31(1):7-15, 1989"
+ * @see "Tomihisa Kamada: On visualization of abstract objects and relations. Ph.D. dissertation,
+ *     Dept. of Information Science, Univ. of Tokyo, Dec. 1988."
+ * @author Masanori Harada
+ * @author Tom Nelson
+ */
 public class KKLayoutAlgorithm<N, P> extends AbstractIterativeLayoutAlgorithm<N, P>
     implements IterativeContext {
 

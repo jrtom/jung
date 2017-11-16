@@ -82,7 +82,6 @@ public class DAGLayoutAlgorithm<N, P> extends SpringLayoutAlgorithm<N, P> {
   public void setRoot() {
     Graph<N> graph = layoutModel.getGraph();
     numRoots = 0;
-    //    Network<N, E> g = network;
     for (N node : graph.nodes()) {
       if (graph.successors(node).isEmpty()) {
         setRoot(node);
@@ -141,18 +140,9 @@ public class DAGLayoutAlgorithm<N, P> extends SpringLayoutAlgorithm<N, P> {
     int minY = (int) (level * height / (graphHeight * SPACEFACTOR));
     double x = Math.random() * width;
     double y = Math.random() * (height - minY) + minY;
-    //    pointModel.setLocation(coord, x, y);
     layoutModel.set(node, x, y);
   }
 
-  //  @Override
-  //  public void setSize(Dimension size) {
-  //    super.setSize(size);
-  //    for (N node : graph.nodes()) {
-  //      initializeLocation(node, animate(node), getSize());
-  //    }
-  //  }
-  //
   /** Had to override this one as well, to ensure that setRoot() is called. */
   @Override
   public void initialize() {
@@ -246,7 +236,7 @@ public class DAGLayoutAlgorithm<N, P> extends SpringLayoutAlgorithm<N, P> {
         //        layoutModel.set(node, xyd);
       }
     }
-    //System.out.println("MeanSquareAccel="+meanSquareVel);
+
     if (!stoppingIncrements && Math.abs(meanSquareVel - oldMSV) < MSV_THRESHOLD) {
       stoppingIncrements = true;
       incrementsLeft = COOL_DOWN_INCREMENTS;
@@ -278,7 +268,6 @@ public class DAGLayoutAlgorithm<N, P> extends SpringLayoutAlgorithm<N, P> {
   //  @Override
   public void setLocation(N picked, double x, double y) {
     P coord = layoutModel.apply(picked);
-    //    pointModel.setLocation(coord, x, y);
     layoutModel.set(picked, coord);
     stoppingIncrements = false;
   }

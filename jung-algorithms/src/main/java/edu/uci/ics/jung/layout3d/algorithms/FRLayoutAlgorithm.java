@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2003, The JUNG Authors
+ * All rights reserved.
+ *
+ * This software is open-source under the BSD license; see either "license.txt"
+ * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
+ */
 package edu.uci.ics.jung.layout3d.algorithms;
 
 import com.google.common.base.Preconditions;
@@ -18,7 +25,20 @@ import org.slf4j.LoggerFactory;
 /**
  * Implements the Fruchterman-Reingold force-directed algorithm for node layout.
  *
- * @author Tom Nelson adapted from Jung FRLayout and extended to 3 dimensions
+ * <p>Behavior is determined by the following settable parameters:
+ *
+ * <ul>
+ *   <li>attraction multiplier: how much edges try to keep their nodes together
+ *   <li>repulsion multiplier: how much nodes try to push each other apart
+ *   <li>maximum iterations: how many iterations this algorithm will use before stopping
+ * </ul>
+ *
+ * Each of the first two defaults to 0.75; the maximum number of iterations defaults to 700.
+ *
+ * @see "Fruchterman and Reingold, 'Graph Drawing by Force-directed Placement'"
+ * @see
+ *     "http://i11www.ilkd.uni-karlsruhe.de/teaching/SS_04/visualisierung/papers/fruchterman91graph.pdf"
+ * @author Scott White, Yan-Biao Boey, Danyel Fisher, Tom Nelson
  */
 public class FRLayoutAlgorithm<N, P> extends AbstractIterativeLayoutAlgorithm<N, P>
     implements IterativeContext {

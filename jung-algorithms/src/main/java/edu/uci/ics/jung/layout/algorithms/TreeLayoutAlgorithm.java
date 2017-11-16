@@ -147,15 +147,6 @@ public class TreeLayoutAlgorithm<N, P> extends AbstractLayoutAlgorithm<N, P> {
     int size = 0;
     for (N node : roots) {
       size += calculateDimensionX(layoutModel, node);
-      //      int childrenNum = layoutModel.getGraph().successors(node).size();
-      //
-      //      if (childrenNum != 0) {
-      //        for (N element : layoutModel.getGraph().successors(node)) {
-      //          size += calculateDimensionX(layoutModel, element) + distX;
-      //        }
-      //      }
-      //      size = Math.max(0, size - distX);
-      //      basePositions.put(node, size);
     }
 
     return size;
@@ -186,7 +177,6 @@ public class TreeLayoutAlgorithm<N, P> extends AbstractLayoutAlgorithm<N, P> {
 
     P location = layoutModel.get(node);
     pointModel.setLocation(location, m_currentPoint);
-    //    layoutModel.set(node, got, true);
     setLocation(layoutModel, node, location);
   }
 

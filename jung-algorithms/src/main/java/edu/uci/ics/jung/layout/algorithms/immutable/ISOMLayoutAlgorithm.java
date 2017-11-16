@@ -182,10 +182,6 @@ public class ISOMLayoutAlgorithm<N, P> extends AbstractIterativeLayoutAlgorithm<
       double dy = pointModel.getY(tempXYD) - pointModel.getY(currXYData);
       double factor = adaption / Math.pow(2, currData.distance);
 
-      //      pointModel.setLocation(
-      //          currXYData,
-      //          pointModel.getX(currXYData) + (factor * dx),
-      //          pointModel.getY(currXYData) + (factor * dy));
       layoutModel.set(
           current,
           pointModel.getX(currXYData) + (factor * dx),

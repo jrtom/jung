@@ -29,7 +29,6 @@ public class RadialTreeLayoutAlgorithm<N, P> extends TreeLayoutAlgorithm<N, P> {
   private static final Logger log = LoggerFactory.getLogger(RadialTreeLayoutAlgorithm.class);
 
   protected Map<N, PolarPoint> polarLocations;
-  //  protected LayoutModel<N, P> layoutModel;
 
   public RadialTreeLayoutAlgorithm(PointModel<P> pointModel) {
     this(pointModel, DEFAULT_DISTX, DEFAULT_DISTY);
@@ -47,7 +46,6 @@ public class RadialTreeLayoutAlgorithm<N, P> extends TreeLayoutAlgorithm<N, P> {
   @Override
   protected void buildTree(LayoutModel<N, P> layoutModel) {
     super.buildTree(layoutModel);
-    //    this.polarLocations = new HashMap<N, PolarPoint>();
     setRadialLocations(layoutModel);
     putRadialPointsInModel(layoutModel);
   }
@@ -56,7 +54,6 @@ public class RadialTreeLayoutAlgorithm<N, P> extends TreeLayoutAlgorithm<N, P> {
     for (Map.Entry<N, PolarPoint> entry : polarLocations.entrySet()) {
       PolarPoint polar = entry.getValue();
       layoutModel.set(entry.getKey(), getCartesian(layoutModel, entry.getKey()));
-      //              PolarPoint.polarToCartesian(pointModel, polar));
     }
   }
 
@@ -81,7 +78,6 @@ public class RadialTreeLayoutAlgorithm<N, P> extends TreeLayoutAlgorithm<N, P> {
     return polarLocations;
   }
 
-  //  @Override
   private P getCartesian(LayoutModel<N, P> layoutModel, N node) {
     PolarPoint pp = polarLocations.get(node);
     double centerX = layoutModel.getWidth() / 2;

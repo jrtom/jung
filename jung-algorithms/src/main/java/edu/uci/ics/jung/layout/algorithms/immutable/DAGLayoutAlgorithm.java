@@ -145,14 +145,6 @@ public class DAGLayoutAlgorithm<N, P> extends SpringLayoutAlgorithm<N, P> {
     layoutModel.set(node, x, y);
   }
 
-  //  @Override
-  //  public void setSize(Dimension size) {
-  //    super.setSize(size);
-  //    for (N node : graph.nodes()) {
-  //      initializeLocation(node, animate(node), getSize());
-  //    }
-  //  }
-  //
   /** Had to override this one as well, to ensure that setRoot() is called. */
   @Override
   public void initialize() {
@@ -238,12 +230,9 @@ public class DAGLayoutAlgorithm<N, P> extends SpringLayoutAlgorithm<N, P> {
         // (JY addition: if there's only one root, anchor it in the
         // middle-top of the screen)
         if (numRoots == 1 && level == 0) {
-          //          pointModel.setLocation(xyd, width / 2, pointModel.getY(xyd));
           posX = width / 2;
         }
-        //        setLocation(node, xyd);
         setLocation(node, posX, posY);
-        //        layoutModel.set(node, xyd);
       }
     }
     //System.out.println("MeanSquareAccel="+meanSquareVel);
@@ -275,10 +264,8 @@ public class DAGLayoutAlgorithm<N, P> extends SpringLayoutAlgorithm<N, P> {
    * @param x the x coordinate of the location to set
    * @param y the y coordinate of the location to set
    */
-  //  @Override
   public void setLocation(N picked, double x, double y) {
     P coord = layoutModel.apply(picked);
-    //    pointModel.setLocation(coord, x, y);
     layoutModel.set(picked, coord);
     stoppingIncrements = false;
   }
@@ -289,7 +276,6 @@ public class DAGLayoutAlgorithm<N, P> extends SpringLayoutAlgorithm<N, P> {
    * @param picked the node whose location is to be set
    * @param p the location to set
    */
-  //  @Override
   public void setLocation(N picked, P p) {
     setLocation(picked, pointModel.getX(p), pointModel.getY(p));
   }
