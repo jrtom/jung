@@ -32,9 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Abstract class for implementations of {@code Layout}. It handles some of the basic functions:
- * storing coordinates, maintaining the dimensions, initializing the locations, maintaining locked
- * nodes.
+ * @author Tom Nelson
  */
 public class BaseVisualizationModel<N, E>
     implements VisualizationModel<N, E, Point2D>,

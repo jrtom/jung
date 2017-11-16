@@ -48,7 +48,7 @@ public class TreeLayoutAlgorithm<N, P> extends AbstractLayoutAlgorithm<N, P> {
   /** The vertical node spacing. Defaults to {@code DEFAULT_YDIST}. */
   protected int distY = 50;
 
-  protected transient P m_currentPoint; // = new Point();
+  protected transient P m_currentPoint;
 
   /** Creates an instance for the specified graph with default X and Y distances. */
   public TreeLayoutAlgorithm(PointModel<P> pointModel) {
@@ -85,7 +85,7 @@ public class TreeLayoutAlgorithm<N, P> extends AbstractLayoutAlgorithm<N, P> {
 
   protected void buildTree(LayoutModel<N, P> layoutModel) {
     alreadyDone = Sets.newHashSet();
-    this.m_currentPoint = pointModel.newPoint(0, 20); //new Point(0, 20);
+    this.m_currentPoint = pointModel.newPoint(0, 20);
     Set<N> roots = TreeUtils.roots(layoutModel.getGraph());
     Preconditions.checkArgument(roots.size() > 0);
     calculateDimensionX(layoutModel, roots);
@@ -102,7 +102,7 @@ public class TreeLayoutAlgorithm<N, P> extends AbstractLayoutAlgorithm<N, P> {
     if (alreadyDone.add(node)) {
       //go one level further down
       double newY = pointModel.getY(m_currentPoint) + this.distY;
-      //      pointModel.offset(m_currentPoint, 0, this.distY);
+
       pointModel.setLocation(m_currentPoint, x, newY);
 
       this.setCurrentPositionFor(layoutModel, node);

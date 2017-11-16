@@ -21,7 +21,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
 
 /**
- * @author tom
+ * @author Tom Nelson
  * @param <N> the vertex type
  * @param <E> the edge type
  */
