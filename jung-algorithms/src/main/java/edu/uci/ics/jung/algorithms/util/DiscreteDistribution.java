@@ -170,23 +170,17 @@ public class DiscreteDistribution {
    */
   public static double[] mean(Collection<double[]> distributions) {
     checkArgument(!distributions.isEmpty(), "Distribution collection must be non-empty");
-    checkArraysAreNonEmpty(distributions);
-    checkArraysAreSameLength(distributions);
 
-    return distributions.stream().mapToDouble(Stats::meanOf).toArray();
-  }
-
-  private static void checkArraysAreNonEmpty(Collection<double[]> arrays) {
-    checkArgument(
-        arrays.stream().mapToInt(d -> d.length).allMatch(len -> len != 0),
-        "All distributions (inner arrays) must be non-empty");
-  }
-
-  private static void checkArraysAreSameLength(Collection<double[]> arrays) {
-    int lengthOfFirstArray = Iterables.get(arrays, 0).length;
-    checkArgument(
-        arrays.stream().mapToInt(array -> array.length).allMatch(len -> len == lengthOfFirstArray),
-        "All distributions (inner arrays) must be the same length");
+    int length = Iterables.get(distributions, 0).length;
+    return distributions
+        .stream()
+        .peek(d -> checkArgument(d.length != 0, "all distributions must be non-empty"))
+        .peek(
+            d ->
+                checkArgument(
+                    d.length == length, "all distributions must have the same number of elements"))
+        .mapToDouble(Stats::meanOf)
+        .toArray();
   }
 
   /**
