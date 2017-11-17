@@ -150,7 +150,7 @@ public class KKLayoutAlgorithm<N, P> extends AbstractIterativeLayoutAlgorithm<N,
       int n = graph.nodes().size();
       dm = new double[n][n];
       nodes = (N[]) graph.nodes().toArray();
-      xydata = PointModel.getArray(n);
+      xydata = (P[]) new Object[n];
 
       // assign IDs to all visible nodes
       while (true) {
@@ -190,14 +190,6 @@ public class KKLayoutAlgorithm<N, P> extends AbstractIterativeLayoutAlgorithm<N,
             dist = Math.min(d_ji.doubleValue(), dist);
           }
           dm[i][j] = dm[j][i] = dist;
-        }
-      }
-      if (log.isTraceEnabled()) {
-        for (int i = 0; i < n - 1; i++) {
-          for (int j = i + 1; j < n; j++) {
-            System.err.print(dm[i][j] + " ");
-          }
-          System.err.println();
         }
       }
     }

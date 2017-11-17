@@ -115,6 +115,7 @@ public class RadialTreeLayoutAlgorithm<N, P> extends TreeLayoutAlgorithm<N, P> {
       PolarPoint polarPoint =
           new PolarPoint(
               pointModel.getX(p) * theta, (pointModel.getY(p) - this.distY) * deltaRadius);
+      //      log.info("for {}, put {} {}",p, node, polarPoint);
       polarLocations.put(node, polarPoint);
     }
   }

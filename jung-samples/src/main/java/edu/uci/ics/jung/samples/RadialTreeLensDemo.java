@@ -100,6 +100,7 @@ public class RadialTreeLensDemo extends JApplet {
     vv.getRenderContext()
         .setVertexFillPaintTransformer(
             new PickableVertexPaintTransformer<>(ps, Color.red, Color.yellow));
+    vv.getRenderContext().setVertexLabelTransformer(Object::toString);
     vv.getRenderContext()
         .setEdgeDrawPaintTransformer(
             new PickableEdgePaintTransformer<>(pes, Color.black, Color.cyan));

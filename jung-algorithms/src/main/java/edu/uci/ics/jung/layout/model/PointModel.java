@@ -11,17 +11,6 @@ package edu.uci.ics.jung.layout.model;
 public interface PointModel<P> {
 
   /**
-   * create a new array of P
-   *
-   * @param size the size of the array
-   * @param <P>
-   * @return a new array of P
-   */
-  static <P> P[] getArray(int size) {
-    return (P[]) new Object[size];
-  }
-
-  /**
    * return the x value of the passed P
    *
    * @param p
