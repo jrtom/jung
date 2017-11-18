@@ -34,6 +34,7 @@ import java.util.function.Function;
  * <p>All edge shapes must be defined so that their endpoints are at (0,0) and (1,0). They will be
  * scaled, rotated and translated into position by the PluggableRenderer.
  *
+ * @author Joshua O'Madadhain
  * @author Tom Nelson
  * @param <E> the edge type
  */
@@ -83,14 +84,13 @@ public class EdgeShape<E> {
   /** An edge shape that renders as a straight line between the vertex endpoints. */
   public static class Line<E> extends EdgeShape<E> implements Function<Context<Network, E>, Shape> {
     public Line() {
-      //      super(graph);
-      // TODO: decide whether this check is reasonable
-      //    		Preconditions.checkArgument(!graph.allowsParallelEdges(),
-      //    				"Line does not support graphs that allow parallel edges");
     }
 
     public Shape apply(Context<Network, E> context) {
       Network graph = context.graph;
+      // TODO: decide whether this check is reasonable
+      //    		Preconditions.checkArgument(!graph.allowsParallelEdges(),
+      //    				"Line does not support graphs that allow parallel edges");
       E e = context.element;
       return isLoop(graph, e) ? ELLIPSE : LINE;
     }
