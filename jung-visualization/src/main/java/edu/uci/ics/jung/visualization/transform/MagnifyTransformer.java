@@ -8,7 +8,9 @@
  */
 package edu.uci.ics.jung.visualization.transform;
 
-import edu.uci.ics.jung.algorithms.layout.PolarPoint;
+import edu.uci.ics.jung.layout.model.PointModel;
+import edu.uci.ics.jung.layout.model.PolarPoint;
+import edu.uci.ics.jung.visualization.layout.AWTPointModel;
 import java.awt.Component;
 import java.awt.geom.Point2D;
 
@@ -23,9 +25,11 @@ import java.awt.geom.Point2D;
  * @author Tom Nelson
  */
 public class MagnifyTransformer extends LensTransformer implements MutableTransformer {
+
+  protected PointModel<Point2D> pointModel = new AWTPointModel();
   /**
-   * Create an instance, setting values from the passed component and registering to listen for size
-   * changes on the component.
+   * Create an instance, setting values from the passed component and registering to listen for
+   * layoutSize changes on the component.
    *
    * @param component the component used for rendering
    */
@@ -61,7 +65,7 @@ public class MagnifyTransformer extends LensTransformer implements MutableTransf
     dx *= ratio;
     Point2D pointFromCenter = new Point2D.Double(dx, dy);
 
-    PolarPoint polar = PolarPoint.cartesianToPolar(pointFromCenter);
+    PolarPoint polar = PolarPoint.cartesianToPolar(pointModel, pointFromCenter);
     double theta = polar.getTheta();
     double radius = polar.getRadius();
     if (radius > viewRadius) {
@@ -72,7 +76,7 @@ public class MagnifyTransformer extends LensTransformer implements MutableTransf
     radius *= mag;
 
     radius = Math.min(radius, viewRadius);
-    Point2D projectedPoint = PolarPoint.polarToCartesian(theta, radius);
+    Point2D projectedPoint = PolarPoint.polarToCartesian(pointModel, theta, radius);
     projectedPoint.setLocation(projectedPoint.getX() / ratio, projectedPoint.getY());
     Point2D translatedBack =
         new Point2D.Double(
@@ -93,7 +97,7 @@ public class MagnifyTransformer extends LensTransformer implements MutableTransf
 
     Point2D pointFromCenter = new Point2D.Double(dx, dy);
 
-    PolarPoint polar = PolarPoint.cartesianToPolar(pointFromCenter);
+    PolarPoint polar = PolarPoint.cartesianToPolar(pointModel, pointFromCenter);
 
     double radius = polar.getRadius();
     if (radius > viewRadius) {
@@ -103,7 +107,7 @@ public class MagnifyTransformer extends LensTransformer implements MutableTransf
     double mag = magnification;
     radius /= mag;
     polar.setRadius(radius);
-    Point2D projectedPoint = PolarPoint.polarToCartesian(polar);
+    Point2D projectedPoint = PolarPoint.polarToCartesian(pointModel, polar);
     projectedPoint.setLocation(projectedPoint.getX() / ratio, projectedPoint.getY());
     Point2D translatedBack =
         new Point2D.Double(
@@ -132,7 +136,7 @@ public class MagnifyTransformer extends LensTransformer implements MutableTransf
     dx *= ratio;
     Point2D pointFromCenter = new Point2D.Double(dx, dy);
 
-    PolarPoint polar = PolarPoint.cartesianToPolar(pointFromCenter);
+    PolarPoint polar = PolarPoint.cartesianToPolar(pointModel, pointFromCenter);
     double theta = polar.getTheta();
     double radius = polar.getRadius();
 
@@ -140,7 +144,7 @@ public class MagnifyTransformer extends LensTransformer implements MutableTransf
     radius *= mag;
 
     //        radius = Math.min(radius, viewRadius);
-    Point2D projectedPoint = PolarPoint.polarToCartesian(theta, radius);
+    Point2D projectedPoint = PolarPoint.polarToCartesian(pointModel, theta, radius);
     projectedPoint.setLocation(projectedPoint.getX() / ratio, projectedPoint.getY());
     Point2D translatedBack =
         new Point2D.Double(

@@ -10,7 +10,7 @@
 
 package edu.uci.ics.jung.visualization.transform;
 
-import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
+import edu.uci.ics.jung.visualization.VisualizationServer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 import java.awt.Color;
@@ -74,7 +74,7 @@ public abstract class AbstractLensSupport<V, E> implements LensSupport {
    *
    * @author Tom Nelson
    */
-  public static class Lens implements Paintable {
+  public static class Lens implements VisualizationServer.Paintable {
     LensTransformer lensTransformer;
     RectangularShape lensShape;
     Paint paint = Color.decode("0xdddddd");
@@ -110,7 +110,7 @@ public abstract class AbstractLensSupport<V, E> implements LensSupport {
    *
    * @author Tom Nelson
    */
-  public static class LensControls implements Paintable {
+  public static class LensControls implements VisualizationServer.Paintable {
     LensTransformer lensTransformer;
     RectangularShape lensShape;
     Paint paint = Color.gray;

@@ -9,11 +9,10 @@
  */
 package edu.uci.ics.jung.visualization;
 
-import edu.uci.ics.jung.algorithms.layout.Layout;
-import edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor;
+import edu.uci.ics.jung.visualization.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
-import java.awt.Graphics;
+import java.awt.*;
 import java.awt.RenderingHints.Key;
 import java.awt.geom.Point2D;
 import java.util.Map;
@@ -22,11 +21,13 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
 
 /**
- * @author tom
- * @param <V> the vertex type
+ * @author Tom Nelson
+ * @param <N> the vertex type
  * @param <E> the edge type
  */
-public interface VisualizationServer<V, E> {
+public interface VisualizationServer<N, E> {
+
+  public static final Dimension DEFAULT_SIZE = new Dimension(600, 600);
 
   /**
    * Specify whether this class uses its offscreen image or not.
@@ -42,11 +43,13 @@ public interface VisualizationServer<V, E> {
    */
   boolean isDoubleBuffered();
 
+  Shape viewOnLayout();
+
   /** @return the model. */
-  VisualizationModel<V, E> getModel();
+  VisualizationModel<N, E, Point2D> getModel();
 
   /** @param model the model for this class to use */
-  void setModel(VisualizationModel<V, E> model);
+  void setModel(VisualizationModel<N, E, Point2D> model);
 
   /**
    * In response to changes from the model, repaint the view, then fire an event to any listeners.
@@ -63,20 +66,10 @@ public interface VisualizationServer<V, E> {
    *
    * @param r the renderer to use
    */
-  void setRenderer(Renderer<V, E> r);
+  void setRenderer(Renderer<N, E> r);
 
   /** @return the renderer used by this instance. */
-  Renderer<V, E> getRenderer();
-
-  /**
-   * Replaces the current graph layout with {@code layout}.
-   *
-   * @param layout the new layout to set
-   */
-  void setGraphLayout(Layout<V> layout);
-
-  /** @return the current graph layout. */
-  Layout<V> getGraphLayout();
+  Renderer<N, E> getRenderer();
 
   /**
    * Makes the component visible if {@code aFlag} is true, or invisible if false.
@@ -135,26 +128,26 @@ public interface VisualizationServer<V, E> {
   void fireStateChanged();
 
   /** @return the vertex PickedState instance */
-  PickedState<V> getPickedVertexState();
+  PickedState<N> getPickedVertexState();
 
   /** @return the edge PickedState instance */
   PickedState<E> getPickedEdgeState();
 
-  void setPickedVertexState(PickedState<V> pickedVertexState);
+  void setPickedVertexState(PickedState<N> pickedVertexState);
 
   void setPickedEdgeState(PickedState<E> pickedEdgeState);
 
   /** @return the NetworkElementAccessor */
-  NetworkElementAccessor<V, E> getPickSupport();
+  NetworkElementAccessor<N, E> getPickSupport();
 
   /** @param pickSupport The pickSupport to set. */
-  void setPickSupport(NetworkElementAccessor<V, E> pickSupport);
+  void setPickSupport(NetworkElementAccessor<N, E> pickSupport);
 
   Point2D getCenter();
 
-  RenderContext<V, E> getRenderContext();
+  RenderContext<N, E> getRenderContext();
 
-  void setRenderContext(RenderContext<V, E> renderContext);
+  void setRenderContext(RenderContext<N, E> renderContext);
 
   void repaint();
 

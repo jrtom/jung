@@ -10,12 +10,12 @@
 
 package edu.uci.ics.jung.visualization.transform.shape;
 
-import edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalLensGraphMouse;
+import edu.uci.ics.jung.visualization.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.visualization.picking.ViewLensShapePickSupport;
 import edu.uci.ics.jung.visualization.renderers.BasicRenderer;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
@@ -23,6 +23,7 @@ import edu.uci.ics.jung.visualization.renderers.ReshapingEdgeRenderer;
 import edu.uci.ics.jung.visualization.transform.AbstractLensSupport;
 import edu.uci.ics.jung.visualization.transform.LensTransformer;
 import java.awt.Dimension;
+
 /**
  * Changes various visualization settings to activate or deactivate an examining lens for a jung
  * graph application.
@@ -57,12 +58,11 @@ public class MagnifyImageLensSupport<V, E> extends AbstractLensSupport<V, E> {
     this.renderContext = vv.getRenderContext();
     this.pickSupport = renderContext.getPickSupport();
     this.renderer = vv.getRenderer();
-    this.transformingRenderer = new BasicRenderer<V, E>(vv.getGraphLayout(), renderContext);
+    this.transformingRenderer = new BasicRenderer<V, E>();
     this.savedGraphicsDecorator = renderContext.getGraphicsContext();
     this.lensTransformer = lensTransformer;
     this.savedEdgeRenderer = vv.getRenderer().getEdgeRenderer();
-    this.reshapingEdgeRenderer =
-        new ReshapingEdgeRenderer<V, E>(vv.getGraphLayout(), renderContext);
+    this.reshapingEdgeRenderer = new ReshapingEdgeRenderer<V, E>();
     this.reshapingEdgeRenderer.setEdgeArrowRenderingSupport(
         savedEdgeRenderer.getEdgeArrowRenderingSupport());
 

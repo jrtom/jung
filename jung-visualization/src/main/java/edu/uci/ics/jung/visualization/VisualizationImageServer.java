@@ -10,7 +10,7 @@
 package edu.uci.ics.jung.visualization;
 
 import com.google.common.graph.Network;
-import edu.uci.ics.jung.algorithms.layout.Layout;
+import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -25,23 +25,23 @@ import java.util.Map;
  * visualization, then produces an image of it.
  *
  * @author tom
- * @param <V> the vertex type
+ * @param <N> the vertex type
  * @param <E> the edge type
  */
 @SuppressWarnings("serial")
-public class VisualizationImageServer<V, E> extends BasicVisualizationServer<V, E> {
+public class VisualizationImageServer<N, E> extends BasicVisualizationServer<N, E> {
 
   Map<RenderingHints.Key, Object> renderingHints = new HashMap<RenderingHints.Key, Object>();
 
   /**
-   * Creates a new instance with the specified layout and preferred size.
+   * Creates a new instance with the specified layout and preferred layoutSize.
    *
-   * @param layout the Layout instance; provides the vertex locations
-   * @param preferredSize the preferred size of the image
+   * @param layoutAlgorithm the Layout instance; provides the vertex locations
+   * @param preferredSize the preferred layoutSize of the image
    */
   public VisualizationImageServer(
-      Network<V, E> network, Layout<V> layout, Dimension preferredSize) {
-    super(network, layout, preferredSize);
+      Network<N, E> network, LayoutAlgorithm<N, Point2D> layoutAlgorithm, Dimension preferredSize) {
+    super(network, layoutAlgorithm, preferredSize);
     setSize(preferredSize);
     renderingHints.put(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
     addNotify();

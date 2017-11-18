@@ -9,9 +9,10 @@
 package edu.uci.ics.jung.samples;
 
 import com.google.common.graph.Network;
-import edu.uci.ics.jung.algorithms.layout.ISOMLayout;
-import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.graph.util.TestGraphs;
+import edu.uci.ics.jung.layout.algorithms.ISOMLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
+import edu.uci.ics.jung.layout.model.PointModel;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
@@ -21,21 +22,10 @@ import edu.uci.ics.jung.visualization.control.SatelliteVisualizationViewer;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
-import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JDesktopPane;
-import javax.swing.JFrame;
-import javax.swing.JInternalFrame;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
+import edu.uci.ics.jung.visualization.layout.AWTPointModel;
+import java.awt.*;
+import java.awt.geom.Point2D;
+import javax.swing.*;
 
 /**
  * Similar to the SatelliteViewDemo, but using JInternalFrame.
@@ -43,6 +33,8 @@ import javax.swing.JPanel;
  * @author Tom Nelson
  */
 public class InternalFrameSatelliteViewDemo {
+
+  private static final PointModel<Point2D> POINT_MODEL = new AWTPointModel();
 
   static final String instructions =
       "<html>"
@@ -87,34 +79,32 @@ public class InternalFrameSatelliteViewDemo {
     // create a simple graph for the demo
     graph = TestGraphs.getOneComponentGraph();
 
-    Layout<String> layout = new ISOMLayout<String, Number>(graph);
+    LayoutAlgorithm<String, Point2D> layout = new ISOMLayoutAlgorithm<>(POINT_MODEL);
 
-    vv = new VisualizationViewer<String, Number>(graph, layout, new Dimension(600, 600));
+    vv = new VisualizationViewer<>(graph, layout, new Dimension(600, 600));
     vv.getRenderContext()
         .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer<Number>(
-                vv.getPickedEdgeState(), Color.black, Color.cyan));
+            new PickableEdgePaintTransformer<>(vv.getPickedEdgeState(), Color.black, Color.cyan));
     vv.getRenderContext()
         .setVertexFillPaintTransformer(
-            new PickableVertexPaintTransformer<String>(
+            new PickableVertexPaintTransformer<>(
                 vv.getPickedVertexState(), Color.red, Color.yellow));
 
     // add my listener for ToolTips
-    vv.setVertexToolTipTransformer(new ToStringLabeller());
-    final DefaultModalGraphMouse<String, Number> graphMouse =
-        new DefaultModalGraphMouse<String, Number>();
+    vv.setVertexToolTipTransformer(Object::toString);
+    final DefaultModalGraphMouse<String, Number> graphMouse = new DefaultModalGraphMouse<>();
     vv.setGraphMouse(graphMouse);
 
-    satellite = new SatelliteVisualizationViewer<String, Number>(vv, new Dimension(200, 200));
+    satellite = new SatelliteVisualizationViewer<>(vv, new Dimension(200, 200));
     satellite
         .getRenderContext()
         .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer<Number>(
+            new PickableEdgePaintTransformer<>(
                 satellite.getPickedEdgeState(), Color.black, Color.cyan));
     satellite
         .getRenderContext()
         .setVertexFillPaintTransformer(
-            new PickableVertexPaintTransformer<String>(
+            new PickableVertexPaintTransformer<>(
                 satellite.getPickedVertexState(), Color.red, Color.yellow));
 
     ScalingControl satelliteScaler = new CrossoverScalingControl();
@@ -126,7 +116,7 @@ public class InternalFrameSatelliteViewDemo {
     JPanel panel = new JPanel(new BorderLayout());
     panel.add(desktop);
     content.add(panel);
-    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
     JInternalFrame vvFrame = new JInternalFrame();
     vvFrame.getContentPane().add(vv);
@@ -145,34 +135,18 @@ public class InternalFrameSatelliteViewDemo {
     final ScalingControl scaler = new CrossoverScalingControl();
 
     JButton plus = new JButton("+");
-    plus.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            scaler.scale(vv, 1.1f, vv.getCenter());
-          }
-        });
+    plus.addActionListener(e -> scaler.scale(vv, 1.1f, vv.getCenter()));
     JButton minus = new JButton("-");
-    minus.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            scaler.scale(vv, 1 / 1.1f, vv.getCenter());
-          }
-        });
+    minus.addActionListener(e -> scaler.scale(vv, 1 / 1.1f, vv.getCenter()));
+
     JButton dismiss = new JButton("Dismiss");
-    dismiss.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            dialog.setVisible(false);
-          }
-        });
+    dismiss.addActionListener(e -> dialog.setVisible(false));
+
     JButton help = new JButton("Help");
     help.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
+        e ->
             JOptionPane.showInternalMessageDialog(
-                dialog, instructions, "Instructions", JOptionPane.PLAIN_MESSAGE);
-          }
-        });
+                dialog, instructions, "Instructions", JOptionPane.PLAIN_MESSAGE));
     JPanel controls = new JPanel(new GridLayout(2, 2));
     controls.add(plus);
     controls.add(minus);
@@ -183,15 +157,13 @@ public class InternalFrameSatelliteViewDemo {
 
     JButton zoomer = new JButton("Show Satellite View");
     zoomer.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            dialog.pack();
-            dialog.setLocation(desktop.getWidth() - dialog.getWidth(), 0);
-            dialog.show();
-            try {
-              dialog.setSelected(true);
-            } catch (java.beans.PropertyVetoException ex) {
-            }
+        e -> {
+          dialog.pack();
+          dialog.setLocation(desktop.getWidth() - dialog.getWidth(), 0);
+          dialog.show();
+          try {
+            dialog.setSelected(true);
+          } catch (java.beans.PropertyVetoException ex) {
           }
         });
 

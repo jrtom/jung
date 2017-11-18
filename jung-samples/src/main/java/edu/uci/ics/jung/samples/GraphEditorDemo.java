@@ -10,8 +10,10 @@ package edu.uci.ics.jung.samples;
 
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.NetworkBuilder;
-import edu.uci.ics.jung.algorithms.layout.AbstractLayout;
-import edu.uci.ics.jung.algorithms.layout.StaticLayout;
+import edu.uci.ics.jung.graph.util.ParallelEdgeIndexFunction;
+import edu.uci.ics.jung.layout.algorithms.AbstractLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.StaticLayoutAlgorithm;
+import edu.uci.ics.jung.layout.model.PointModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.annotations.AnnotationControls;
@@ -20,14 +22,10 @@ import edu.uci.ics.jung.visualization.control.EditingModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
-import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.Graphics2D;
+import edu.uci.ics.jung.visualization.layout.AWTPointModel;
+import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.awt.print.Printable;
 import java.awt.print.PrinterJob;
@@ -35,17 +33,7 @@ import java.io.File;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import javax.imageio.ImageIO;
-import javax.swing.AbstractAction;
-import javax.swing.JApplet;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
+import javax.swing.*;
 
 /**
  * Shows how to create a graph editor with JUNG. Mouse modes and actions are explained in the help
@@ -59,10 +47,12 @@ public class GraphEditorDemo extends JApplet implements Printable {
   /** */
   private static final long serialVersionUID = -2023243689258876709L;
 
+  private static PointModel<Point2D> pointModel = new AWTPointModel();
+
   /** the graph */
   MutableNetwork<Number, Number> graph;
 
-  AbstractLayout<Number> layout;
+  AbstractLayoutAlgorithm<Number, Point2D> layoutAlgorithm;
 
   /** the visual component and renderer for the graph */
   VisualizationViewer<Number, Number> vv;
@@ -122,14 +112,15 @@ public class GraphEditorDemo extends JApplet implements Printable {
     // create a simple graph for the demo
     graph = NetworkBuilder.directed().allowsParallelEdges(true).allowsSelfLoops(true).build();
 
-    this.layout = new StaticLayout<Number>(graph.asGraph(), new Dimension(600, 600));
+    this.layoutAlgorithm = new StaticLayoutAlgorithm<>(pointModel); //, new Dimension(600, 600));
 
-    vv = new VisualizationViewer<Number, Number>(graph, layout);
+    vv = new VisualizationViewer<>(graph, layoutAlgorithm, new Dimension(600, 600));
     vv.setBackground(Color.white);
 
-    Function<Object, String> labeller = new ToStringLabeller();
+    Function<Object, String> labeller = Object::toString;
     vv.getRenderContext().setVertexLabelTransformer(labeller);
     vv.getRenderContext().setEdgeLabelTransformer(labeller);
+    vv.getRenderContext().setParallelEdgeIndexFunction(new ParallelEdgeIndexFunction<>(graph));
 
     vv.setVertexToolTipTransformer(vv.getRenderContext().getVertexLabelTransformer());
 
@@ -140,8 +131,7 @@ public class GraphEditorDemo extends JApplet implements Printable {
     Supplier<Number> edgeFactory = new EdgeFactory();
 
     final EditingModalGraphMouse<Number, Number> graphMouse =
-        new EditingModalGraphMouse<Number, Number>(
-            vv.getRenderContext(), vertexFactory, edgeFactory);
+        new EditingModalGraphMouse<>(vv.getRenderContext(), vertexFactory, edgeFactory);
 
     // the EditingGraphMouse will pass mouse event coordinates to the
     // vertexLocations function to set the locations of the vertices as
@@ -153,31 +143,16 @@ public class GraphEditorDemo extends JApplet implements Printable {
 
     final ScalingControl scaler = new CrossoverScalingControl();
     JButton plus = new JButton("+");
-    plus.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            scaler.scale(vv, 1.1f, vv.getCenter());
-          }
-        });
+    plus.addActionListener(e -> scaler.scale(vv, 1.1f, vv.getCenter()));
+
     JButton minus = new JButton("-");
-    minus.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            scaler.scale(vv, 1 / 1.1f, vv.getCenter());
-          }
-        });
+    minus.addActionListener(e -> scaler.scale(vv, 1 / 1.1f, vv.getCenter()));
 
     JButton help = new JButton("Help");
-    help.addActionListener(
-        new ActionListener() {
-
-          public void actionPerformed(ActionEvent e) {
-            JOptionPane.showMessageDialog(vv, instructions);
-          }
-        });
+    help.addActionListener(e -> JOptionPane.showMessageDialog(vv, instructions));
 
     AnnotationControls<Number, Number> annotationControls =
-        new AnnotationControls<Number, Number>(graphMouse.getAnnotatingPlugin());
+        new AnnotationControls<>(graphMouse.getAnnotatingPlugin());
     JPanel controls = new JPanel();
     controls.add(plus);
     controls.add(minus);
@@ -246,7 +221,7 @@ public class GraphEditorDemo extends JApplet implements Printable {
   @SuppressWarnings("serial")
   public static void main(String[] args) {
     JFrame frame = new JFrame();
-    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     final GraphEditorDemo demo = new GraphEditorDemo();
 
     JMenu menu = new JMenu("File");

@@ -10,9 +10,11 @@
 
 package edu.uci.ics.jung.visualization.control;
 
+import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.transform.MutableAffineTransformer;
+import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
 import edu.uci.ics.jung.visualization.transform.shape.ShapeTransformer;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -20,6 +22,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
 
 /**
  * A VisualizationViewer that can act as a satellite view for another (master) VisualizationViewer.
@@ -31,16 +34,16 @@ import java.awt.geom.AffineTransform;
  * @author Tom Nelson
  */
 @SuppressWarnings("serial")
-public class SatelliteVisualizationViewer<V, E> extends VisualizationViewer<V, E> {
+public class SatelliteVisualizationViewer<N, E> extends VisualizationViewer<N, E> {
 
   /** the master VisualizationViewer that this is a satellite view for */
-  protected VisualizationViewer<V, E> master;
+  protected VisualizationViewer<N, E> master;
 
   /**
    * @param master the master VisualizationViewer for which this is a satellite view
-   * @param preferredSize the specified size of the component
+   * @param preferredSize the specified layoutSize of the component
    */
-  public SatelliteVisualizationViewer(VisualizationViewer<V, E> master, Dimension preferredSize) {
+  public SatelliteVisualizationViewer(VisualizationViewer<N, E> master, Dimension preferredSize) {
     super(master.getModel(), preferredSize);
     this.master = master;
 
@@ -49,7 +52,7 @@ public class SatelliteVisualizationViewer<V, E> extends VisualizationViewer<V, E
     setGraphMouse(gm);
 
     // this adds the Lens to the satellite view
-    addPreRenderPaintable(new ViewLens<V, E>(this, master));
+    addPreRenderPaintable(new ViewLens<N, E>(this, master));
 
     // get a copy of the current layout transform
     // it may have been scaled to fit the graph
@@ -75,8 +78,67 @@ public class SatelliteVisualizationViewer<V, E> extends VisualizationViewer<V, E
     setPickedEdgeState(master.getPickedEdgeState());
   }
 
+  /**
+   * override to not use the spatial data structure, as this view will always show the entire graph
+   *
+   * @param g2d
+   */
+  @Override
+  protected void renderGraph(Graphics2D g2d) {
+    if (renderContext.getGraphicsContext() == null) {
+      renderContext.setGraphicsContext(new GraphicsDecorator(g2d));
+    } else {
+      renderContext.getGraphicsContext().setDelegate(g2d);
+    }
+    renderContext.setScreenDevice(this);
+    LayoutModel<N, Point2D> layoutModel = getModel().getLayoutModel();
+
+    g2d.setRenderingHints(renderingHints);
+
+    // the layoutSize of the VisualizationViewer
+    Dimension d = getSize();
+
+    // clear the offscreen image
+    g2d.setColor(getBackground());
+    g2d.fillRect(0, 0, d.width, d.height);
+
+    AffineTransform oldXform = g2d.getTransform();
+    AffineTransform newXform = new AffineTransform(oldXform);
+    newXform.concatenate(
+        renderContext.getMultiLayerTransformer().getTransformer(Layer.VIEW).getTransform());
+
+    g2d.setTransform(newXform);
+
+    // if there are  preRenderers set, paint them
+    for (Paintable paintable : preRenderers) {
+
+      if (paintable.useTransform()) {
+        paintable.paint(g2d);
+      } else {
+        g2d.setTransform(oldXform);
+        paintable.paint(g2d);
+        g2d.setTransform(newXform);
+      }
+    }
+
+    renderer.render(renderContext, model);
+
+    // if there are postRenderers set, do it
+    for (Paintable paintable : postRenderers) {
+
+      if (paintable.useTransform()) {
+        paintable.paint(g2d);
+      } else {
+        g2d.setTransform(oldXform);
+        paintable.paint(g2d);
+        g2d.setTransform(newXform);
+      }
+    }
+    g2d.setTransform(oldXform);
+  }
+
   /** @return Returns the master. */
-  public VisualizationViewer<V, E> getMaster() {
+  public VisualizationViewer<N, E> getMaster() {
     return master;
   }
 
@@ -86,12 +148,12 @@ public class SatelliteVisualizationViewer<V, E> extends VisualizationViewer<V, E
    *
    * @author Tom Nelson
    */
-  static class ViewLens<V, E> implements Paintable {
+  static class ViewLens<N, E> implements Paintable {
 
-    VisualizationViewer<V, E> master;
-    VisualizationViewer<V, E> vv;
+    VisualizationViewer<N, E> master;
+    VisualizationViewer<N, E> vv;
 
-    public ViewLens(VisualizationViewer<V, E> vv, VisualizationViewer<V, E> master) {
+    public ViewLens(VisualizationViewer<N, E> vv, VisualizationViewer<N, E> master) {
       this.vv = vv;
       this.master = master;
     }

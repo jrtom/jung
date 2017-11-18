@@ -1,8 +1,9 @@
 package edu.uci.ics.jung.visualization.control;
 
 import com.google.common.graph.MutableNetwork;
-import edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor;
+import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
+import edu.uci.ics.jung.visualization.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
@@ -31,13 +32,15 @@ public class EditingPopupGraphMousePlugin<V, E> extends AbstractPopupGraphMouseP
   @SuppressWarnings({"unchecked", "serial"})
   protected void handlePopup(MouseEvent e) {
     final VisualizationViewer<V, E> vv = (VisualizationViewer<V, E>) e.getSource();
+    final LayoutModel<V, Point2D> layoutModel = vv.getModel().getLayoutModel();
+
     final MutableNetwork<V, E> graph = (MutableNetwork<V, E>) vv.getModel().getNetwork();
     final Point2D p = e.getPoint();
     NetworkElementAccessor<V, E> pickSupport = vv.getPickSupport();
     if (pickSupport != null) {
 
-      final V vertex = pickSupport.getNode(p.getX(), p.getY());
-      final E edge = pickSupport.getEdge(p.getX(), p.getY());
+      final V vertex = pickSupport.getNode(layoutModel, p.getX(), p.getY());
+      final E edge = pickSupport.getEdge(layoutModel, p.getX(), p.getY());
       final PickedState<V> pickedVertexState = vv.getPickedVertexState();
       final PickedState<E> pickedEdgeState = vv.getPickedEdgeState();
 
@@ -81,8 +84,10 @@ public class EditingPopupGraphMousePlugin<V, E> extends AbstractPopupGraphMouseP
               public void actionPerformed(ActionEvent e) {
                 V newVertex = vertexFactory.get();
                 graph.addNode(newVertex);
-                vv.getGraphLayout()
-                    .setLocation(
+                vv.getModel()
+                    .getLayoutModel()
+                    //                    .getLayout()
+                    .set(
                         newVertex,
                         vv.getRenderContext().getMultiLayerTransformer().inverseTransform(p));
                 vv.repaint();

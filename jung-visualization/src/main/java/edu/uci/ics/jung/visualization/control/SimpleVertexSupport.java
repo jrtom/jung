@@ -2,8 +2,8 @@ package edu.uci.ics.jung.visualization.control;
 
 import com.google.common.base.Preconditions;
 import com.google.common.graph.MutableNetwork;
-import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
+import edu.uci.ics.jung.visualization.VisualizationModel;
 import java.awt.geom.Point2D;
 import java.util.function.Supplier;
 
@@ -12,43 +12,47 @@ import java.util.function.Supplier;
  * EditingGraphMousePlugin. override midVertexCreate and endVertexCreate for more elaborate
  * implementations
  *
- * @author tanelso
- * @param <V> the vertex type
+ * @author Tom Nelson
+ * @param <N> the vertex type
  * @param <E> the edge type
  */
-public class SimpleVertexSupport<V, E> implements VertexSupport<V, E> {
+public class SimpleVertexSupport<N, E> implements VertexSupport<N, E> {
 
-  protected Supplier<V> vertexFactory;
+  protected Supplier<N> vertexFactory;
 
-  public SimpleVertexSupport(Supplier<V> vertexFactory) {
+  public SimpleVertexSupport(Supplier<N> vertexFactory) {
     this.vertexFactory = vertexFactory;
   }
 
-  public void startVertexCreate(BasicVisualizationServer<V, E> vv, Point2D point) {
+  public void startVertexCreate(BasicVisualizationServer<N, E> vv, Point2D point) {
     Preconditions.checkState(
         vv.getModel().getNetwork() instanceof MutableNetwork<?, ?>, "graph must be mutable");
-    V newVertex = vertexFactory.get();
-    Layout<V> layout = vv.getGraphLayout();
-    MutableNetwork<V, E> graph = (MutableNetwork<V, E>) vv.getModel().getNetwork();
+    N newVertex = vertexFactory.get();
+    VisualizationModel<N, E, Point2D> visualizationModel = vv.getModel();
+    MutableNetwork<N, E> graph = (MutableNetwork<N, E>) visualizationModel.getNetwork();
     graph.addNode(newVertex);
-    layout.setLocation(
-        newVertex, vv.getRenderContext().getMultiLayerTransformer().inverseTransform(point));
+    visualizationModel
+        .getLayoutModel()
+        .set(
+            newVertex,
+            vv.getRenderContext().getMultiLayerTransformer().inverseTransform(point),
+            true);
     vv.repaint();
   }
 
-  public void midVertexCreate(BasicVisualizationServer<V, E> vv, Point2D point) {
+  public void midVertexCreate(BasicVisualizationServer<N, E> vv, Point2D point) {
     // noop
   }
 
-  public void endVertexCreate(BasicVisualizationServer<V, E> vv, Point2D point) {
+  public void endVertexCreate(BasicVisualizationServer<N, E> vv, Point2D point) {
     //noop
   }
 
-  public Supplier<V> getVertexFactory() {
+  public Supplier<N> getVertexFactory() {
     return vertexFactory;
   }
 
-  public void setVertexFactory(Supplier<V> vertexFactory) {
+  public void setVertexFactory(Supplier<N> vertexFactory) {
     this.vertexFactory = vertexFactory;
   }
 }

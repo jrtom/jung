@@ -12,8 +12,9 @@
  */
 package edu.uci.ics.jung.visualization.control;
 
-import edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor;
+import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
+import edu.uci.ics.jung.visualization.layout.NetworkElementAccessor;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
@@ -49,10 +50,11 @@ public class MouseListenerTranslator<V, E> extends MouseAdapter {
     Point2D p = point;
     //vv.getRenderContext().getBasicTransformer().inverseViewTransform(point);
     NetworkElementAccessor<V, E> pickSupport = vv.getPickSupport();
+    LayoutModel<V, Point2D> layoutModel = vv.getModel().getLayoutModel();
     //        Layout<V> layout = vv.getGraphLayout();
     V v = null;
     if (pickSupport != null) {
-      v = pickSupport.getNode(p.getX(), p.getY());
+      v = pickSupport.getNode(layoutModel, p.getX(), p.getY());
     }
     return v;
   }

@@ -14,10 +14,11 @@ package edu.uci.ics.jung.visualization.picking;
 import com.google.common.collect.Sets;
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Network;
-import edu.uci.ics.jung.algorithms.layout.Layout;
-import edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor;
+import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationServer;
+import edu.uci.ics.jung.visualization.layout.NetworkElementAccessor;
+import edu.uci.ics.jung.visualization.util.Context;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
@@ -77,7 +78,7 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
    * transformations, vertex/edge shapes, etc.).
    *
    * @param vv source of the current <code>Layout</code>.
-   * @param pickSize the size of the pick footprint for line edges
+   * @param pickSize the layoutSize of the pick footprint for line edges
    */
   public ShapePickSupport(VisualizationServer<V, E> vv, float pickSize) {
     this.vv = vv;
@@ -86,7 +87,7 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
 
   /**
    * Create a <code>ShapePickSupport</code> for the specified <code>VisualizationServer</code> with
-   * a default pick footprint. of size 2.
+   * a default pick footprint. of layoutSize 2.
    *
    * @param vv the visualization server used for rendering
    */
@@ -147,7 +148,7 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
    * @return the vertex whose shape contains (x,y), and whose center is closest to the pick point
    */
   @Override
-  public V getNode(double x, double y) {
+  public V getNode(LayoutModel<V, Point2D> layoutModel, double x, double y) {
 
     V closest = null;
     double minDistance = Double.MAX_VALUE;
@@ -157,7 +158,7 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
             .inverseTransform(Layer.VIEW, new Point2D.Double(x, y));
     x = ip.getX();
     y = ip.getY();
-    Layout<V> layout = vv.getGraphLayout();
+    //    LayoutModel<V, Point2D> layoutModel = vv.getModel().getLayoutModel();
 
     while (true) {
       try {
@@ -165,7 +166,7 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
 
           Shape shape = vv.getRenderContext().getVertexShapeTransformer().apply(v);
           // get the vertex location
-          Point2D p = layout.apply(v);
+          Point2D p = layoutModel.apply(v);
           if (p == null) {
             continue;
           }
@@ -214,7 +215,7 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
    *     contained in <code>shape</code>.
    */
   @Override
-  public Collection<V> getNodes(Shape shape) {
+  public Collection<V> getNodes(LayoutModel<V, Point2D> layoutModel, Shape shape) {
     Set<V> pickedVertices = new HashSet<V>();
 
     // remove the view transform from the rectangle
@@ -222,9 +223,9 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
 
     while (true) {
       try {
-        Layout<V> layout = vv.getGraphLayout();
+        //        LayoutModel<V, Point2D> layoutModel = vv.getModel().getLayoutModel();
         for (V v : getFilteredVertices()) {
-          Point2D p = layout.apply(v);
+          Point2D p = layoutModel.apply(v);
           if (p == null) {
             continue;
           }
@@ -249,7 +250,7 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
    * @return an edge whose shape intersects the pick area centered on the location {@code (x,y)}
    */
   @Override
-  public E getEdge(double x, double y) {
+  public E getEdge(LayoutModel<V, Point2D> layoutModel, double x, double y) {
 
     Point2D ip =
         vv.getRenderContext()
@@ -313,7 +314,6 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
    * Retrieves the shape template for <code>e</code> and transforms it according to the positions of
    * its endpoints in <code>layout</code>.
    *
-   * @param layout the <code>Layout</code> which specifies <code>e</code>'s endpoints' positions
    * @param e the edge whose shape is to be returned
    * @return the transformed shape
    */
@@ -322,11 +322,15 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
     V v1 = endpoints.nodeU();
     V v2 = endpoints.nodeV();
     boolean isLoop = v1.equals(v2);
-    Layout<V> layout = vv.getGraphLayout();
+    LayoutModel<V, Point2D> layoutModel = vv.getModel().getLayoutModel();
     Point2D p1 =
-        vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, layout.apply(v1));
+        vv.getRenderContext()
+            .getMultiLayerTransformer()
+            .transform(Layer.LAYOUT, layoutModel.apply(v1));
     Point2D p2 =
-        vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, layout.apply(v2));
+        vv.getRenderContext()
+            .getMultiLayerTransformer()
+            .transform(Layer.LAYOUT, layoutModel.apply(v2));
     if (p1 == null || p2 == null) {
       return null;
     }
@@ -338,9 +342,12 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
     // translate the edge to the starting vertex
     AffineTransform xform = AffineTransform.getTranslateInstance(x1, y1);
 
-    Shape edgeShape = vv.getRenderContext().getEdgeShapeTransformer().apply(e);
+    Shape edgeShape =
+        vv.getRenderContext()
+            .getEdgeShapeTransformer()
+            .apply(Context.getInstance(vv.getModel().getNetwork(), e));
     if (isLoop) {
-      // make the loops proportional to the size of the vertex
+      // make the loops proportional to the layoutSize of the vertex
       Shape s2 = vv.getRenderContext().getVertexShapeTransformer().apply(v2);
       Rectangle2D s2Bounds = s2.getBounds2D();
       xform.scale(s2Bounds.getWidth(), s2Bounds.getHeight());
@@ -403,7 +410,6 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
    * Returns <code>true</code> if this vertex in this graph is included in the collections of
    * elements to be rendered, and <code>false</code> otherwise.
    *
-   * @param context the vertex and graph to be queried
    * @return <code>true</code> if this vertex is included in the collections of elements to be
    *     rendered, <code>false</code> otherwise.
    */
@@ -416,7 +422,6 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
    * Returns <code>true</code> if this edge and its endpoints in this graph are all included in the
    * collections of elements to be rendered, and <code>false</code> otherwise.
    *
-   * @param context the edge and graph to be queried
    * @return <code>true</code> if this edge and its endpoints are all included in the collections of
    *     elements to be rendered, <code>false</code> otherwise.
    */
@@ -435,17 +440,17 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
   }
 
   /**
-   * Returns the size of the edge picking area. The picking area is square; the size is specified as
-   * the length of one side, in view coordinates.
+   * Returns the layoutSize of the edge picking area. The picking area is square; the layoutSize is
+   * specified as the length of one side, in view coordinates.
    *
-   * @return the size of the edge picking area
+   * @return the layoutSize of the edge picking area
    */
   public float getPickSize() {
     return pickSize;
   }
 
   /**
-   * Sets the size of the edge picking area.
+   * Sets the layoutSize of the edge picking area.
    *
    * @param pickSize the length of one side of the (square) picking area, in view coordinates
    */

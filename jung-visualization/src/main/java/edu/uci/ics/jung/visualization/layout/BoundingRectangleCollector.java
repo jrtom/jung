@@ -2,8 +2,10 @@ package edu.uci.ics.jung.visualization.layout;
 
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Network;
-import edu.uci.ics.jung.algorithms.layout.Layout;
+import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.visualization.RenderContext;
+import edu.uci.ics.jung.visualization.VisualizationModel;
+import edu.uci.ics.jung.visualization.util.Context;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
@@ -15,13 +17,14 @@ public class BoundingRectangleCollector<V, E> {
 
   protected RenderContext<V, E> rc;
   protected Network<V, E> graph;
-  protected Layout<V> layout;
+  protected LayoutModel<V, Point2D> layoutModel;
   protected List<Rectangle2D> rectangles = new ArrayList<Rectangle2D>();
 
-  public BoundingRectangleCollector(RenderContext<V, E> rc, Layout<V> layout) {
+  public BoundingRectangleCollector(
+      RenderContext<V, E> rc, VisualizationModel<V, E, Point2D> visualizationModel) {
     this.rc = rc;
-    this.layout = layout;
-    this.graph = rc.getNetwork();
+    this.layoutModel = visualizationModel.getLayoutModel();
+    this.graph = visualizationModel.getNetwork();
     compute();
   }
 
@@ -32,15 +35,13 @@ public class BoundingRectangleCollector<V, E> {
 
   public void compute() {
     rectangles.clear();
-    //		Graphics2D g2d = (Graphics2D)g;
-    //		g.setColor(Color.cyan);
 
     for (E e : graph.edges()) {
       EndpointPair<V> endpoints = graph.incidentNodes(e);
       V v1 = endpoints.nodeU();
       V v2 = endpoints.nodeV();
-      Point2D p1 = layout.apply(v1);
-      Point2D p2 = layout.apply(v2);
+      Point2D p1 = layoutModel.apply(v1);
+      Point2D p2 = layoutModel.apply(v2);
       float x1 = (float) p1.getX();
       float y1 = (float) p1.getY();
       float x2 = (float) p2.getX();
@@ -48,7 +49,7 @@ public class BoundingRectangleCollector<V, E> {
 
       boolean isLoop = v1.equals(v2);
       Shape s2 = rc.getVertexShapeTransformer().apply(v2);
-      Shape edgeShape = rc.getEdgeShapeTransformer().apply(e);
+      Shape edgeShape = rc.getEdgeShapeTransformer().apply(Context.getInstance(graph, e));
 
       AffineTransform xform = AffineTransform.getTranslateInstance(x1, y1);
 
@@ -65,13 +66,12 @@ public class BoundingRectangleCollector<V, E> {
         xform.scale(dist, 1.0);
       }
       edgeShape = xform.createTransformedShape(edgeShape);
-      //			edgeShape = rc.getMultiLayerTransformer().transform(Layer.LAYOUT, edgeShape);
       rectangles.add(edgeShape.getBounds2D());
     }
 
     for (V v : graph.nodes()) {
       Shape shape = rc.getVertexShapeTransformer().apply(v);
-      Point2D p = layout.apply(v);
+      Point2D p = layoutModel.apply(v);
       //			p = rc.getMultiLayerTransformer().transform(Layer.LAYOUT, p);
       float x = (float) p.getX();
       float y = (float) p.getY();

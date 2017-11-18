@@ -10,13 +10,14 @@
 
 package edu.uci.ics.jung.visualization.transform;
 
-import edu.uci.ics.jung.algorithms.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalLensGraphMouse;
+import edu.uci.ics.jung.visualization.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.visualization.picking.LayoutLensShapePickSupport;
 import java.awt.Dimension;
+
 /**
  * A class to make it easy to add an examining lens to a jung graph application. See
  * HyperbolicTransformerDemo for an example of how to use it.

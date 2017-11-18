@@ -11,7 +11,7 @@
  */
 package edu.uci.ics.jung.visualization.control;
 
-import edu.uci.ics.jung.algorithms.layout.Layout;
+import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import java.awt.event.InputEvent;
@@ -28,8 +28,8 @@ import java.awt.geom.Point2D;
  * @see AnimatedPickingGraphMousePlugin
  * @author Tom Nelson
  */
-public class SatelliteAnimatedPickingGraphMousePlugin<V, E>
-    extends AnimatedPickingGraphMousePlugin<V, E> implements MouseListener, MouseMotionListener {
+public class SatelliteAnimatedPickingGraphMousePlugin<N, E>
+    extends AnimatedPickingGraphMousePlugin<N, E> implements MouseListener, MouseMotionListener {
 
   /** create an instance */
   public SatelliteAnimatedPickingGraphMousePlugin() {
@@ -44,14 +44,14 @@ public class SatelliteAnimatedPickingGraphMousePlugin<V, E>
   @SuppressWarnings("unchecked")
   public void mouseReleased(MouseEvent e) {
     if (e.getModifiers() == modifiers) {
-      final VisualizationViewer<V, E> vv = (VisualizationViewer<V, E>) e.getSource();
+      final VisualizationViewer<N, E> vv = (VisualizationViewer<N, E>) e.getSource();
       if (vv instanceof SatelliteVisualizationViewer) {
-        final VisualizationViewer<V, E> vvMaster =
-            ((SatelliteVisualizationViewer<V, E>) vv).getMaster();
+        final VisualizationViewer<N, E> vvMaster =
+            ((SatelliteVisualizationViewer<N, E>) vv).getMaster();
 
         if (vertex != null) {
-          Layout<V> layout = vvMaster.getGraphLayout();
-          Point2D q = layout.apply(vertex);
+          LayoutModel<N, Point2D> layoutModel = vvMaster.getModel().getLayoutModel();
+          Point2D q = layoutModel.apply(vertex);
           Point2D lvc =
               vvMaster
                   .getRenderContext()

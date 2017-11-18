@@ -9,37 +9,33 @@ package edu.uci.ics.jung.samples;
  */
 
 import com.google.common.graph.Network;
-import edu.uci.ics.jung.algorithms.layout.Layout;
-import edu.uci.ics.jung.algorithms.layout.PolarPoint;
-import edu.uci.ics.jung.algorithms.layout.RadialTreeLayout;
-import edu.uci.ics.jung.algorithms.layout.TreeLayout;
 import edu.uci.ics.jung.graph.CTreeNetwork;
 import edu.uci.ics.jung.graph.MutableCTreeNetwork;
 import edu.uci.ics.jung.graph.TreeNetworkBuilder;
+import edu.uci.ics.jung.layout.algorithms.BalloonLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.RadialTreeLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.TreeLayoutAlgorithm;
+import edu.uci.ics.jung.layout.model.LayoutModel;
+import edu.uci.ics.jung.layout.model.PointModel;
+import edu.uci.ics.jung.layout.model.PolarPoint;
+import edu.uci.ics.jung.layout.util.LayoutAlgorithmTransition;
+import edu.uci.ics.jung.samples.util.ControlHelpers;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationServer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
-import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
-import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.EdgeShape;
 import edu.uci.ics.jung.visualization.decorators.EllipseVertexShapeTransformer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
+import edu.uci.ics.jung.visualization.layout.AWTPointModel;
 import edu.uci.ics.jung.visualization.subLayout.TreeCollapser;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.GridLayout;
-import java.awt.Shape;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import edu.uci.ics.jung.visualization.transform.MutableTransformer;
+import edu.uci.ics.jung.visualization.transform.MutableTransformerDecorator;
+import java.awt.*;
 import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.util.Collection;
@@ -47,13 +43,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
-import javax.swing.BorderFactory;
-import javax.swing.JApplet;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JToggleButton;
+import javax.swing.*;
 
 /**
  * Demonstrates "collapsing"/"expanding" of a tree's subtrees.
@@ -63,22 +53,29 @@ import javax.swing.JToggleButton;
 @SuppressWarnings("serial")
 public class TreeCollapseDemo extends JApplet {
 
+  private static final PointModel<Point2D> POINT_MODEL = new AWTPointModel();
+
+  enum Layouts {
+    TREE,
+    RADIAL,
+    BALLOON
+  }
+
   /** the original graph */
-  MutableCTreeNetwork<String, Integer> graph;
+  MutableCTreeNetwork<Object, Object> graph;
 
   /** the visual component and renderer for the graph */
-  VisualizationViewer<String, Integer> vv;
+  VisualizationViewer<Object, Object> vv;
 
   VisualizationServer.Paintable rings;
 
-  String root;
+  VisualizationServer.Paintable balloonRings;
 
-  TreeLayout<String> layout;
-  //	FRLayout<?> layout1;
+  TreeLayoutAlgorithm<Object, Point2D> layoutAlgorithm;
 
-  //    TreeCollapser collapser;
+  RadialTreeLayoutAlgorithm<Object, Point2D> radialLayoutAlgorithm;
 
-  RadialTreeLayout<String> radialLayout;
+  BalloonLayoutAlgorithm<Object, Point2D> balloonLayoutAlgorithm;
 
   @SuppressWarnings("unchecked")
   public TreeCollapseDemo() {
@@ -86,27 +83,26 @@ public class TreeCollapseDemo extends JApplet {
     // create a simple graph for the demo
     graph = createTree();
 
-    layout = new TreeLayout<String>(graph.asGraph());
-    //        collapser = new TreeCollapser();
+    layoutAlgorithm = new TreeLayoutAlgorithm<>(POINT_MODEL);
 
-    radialLayout = new RadialTreeLayout<String>(graph.asGraph());
-    radialLayout.setSize(new Dimension(600, 600));
-    vv = new VisualizationViewer<String, Integer>(graph, layout, new Dimension(600, 600));
+    radialLayoutAlgorithm = new RadialTreeLayoutAlgorithm<>(POINT_MODEL);
+
+    balloonLayoutAlgorithm = new BalloonLayoutAlgorithm<>(POINT_MODEL);
+
+    vv = new VisualizationViewer(graph, layoutAlgorithm, new Dimension(600, 600));
     vv.setBackground(Color.white);
-    vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.line(graph));
+    vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.line());
     vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
-    vv.getRenderContext().setVertexShapeTransformer(new ClusterVertexShapeFunction<String>());
+    vv.getRenderContext().setVertexShapeTransformer(new ClusterVertexShapeFunction<>());
     // add a listener for ToolTips
     vv.setVertexToolTipTransformer(new ToStringLabeller());
     vv.getRenderContext().setArrowFillPaintTransformer(n -> Color.lightGray);
-    rings = new Rings();
 
     Container content = getContentPane();
     final GraphZoomScrollPane panel = new GraphZoomScrollPane(vv);
     content.add(panel);
 
-    final DefaultModalGraphMouse<String, Integer> graphMouse =
-        new DefaultModalGraphMouse<String, Integer>();
+    final DefaultModalGraphMouse<String, Integer> graphMouse = new DefaultModalGraphMouse<>();
 
     vv.setGraphMouse(graphMouse);
 
@@ -114,36 +110,37 @@ public class TreeCollapseDemo extends JApplet {
     modeBox.addItemListener(graphMouse.getModeListener());
     graphMouse.setMode(ModalGraphMouse.Mode.TRANSFORMING);
 
-    final ScalingControl scaler = new CrossoverScalingControl();
+    JComboBox layoutComboBox = new JComboBox(Layouts.values());
+    layoutComboBox.addItemListener(
+        e -> {
+          if (e.getStateChange() == ItemEvent.SELECTED) {
+            if (e.getItem() == Layouts.RADIAL) {
+              LayoutAlgorithmTransition.animate(vv.getModel(), radialLayoutAlgorithm);
 
-    JButton plus = new JButton("+");
-    plus.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            scaler.scale(vv, 1.1f, vv.getCenter());
-          }
-        });
-    JButton minus = new JButton("-");
-    minus.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            scaler.scale(vv, 1 / 1.1f, vv.getCenter());
-          }
-        });
-
-    JToggleButton radial = new JToggleButton("Radial");
-    radial.addItemListener(
-        new ItemListener() {
-
-          public void itemStateChanged(ItemEvent e) {
-            if (e.getStateChange() == ItemEvent.SELECTED) {
-              vv.setGraphLayout(radialLayout);
+              vv.removePreRenderPaintable(balloonRings);
               vv.getRenderContext().getMultiLayerTransformer().setToIdentity();
+              if (rings == null) {
+                rings = new Rings(vv.getModel().getLayoutModel());
+              }
               vv.addPreRenderPaintable(rings);
-            } else {
-              vv.setGraphLayout(layout);
-              vv.getRenderContext().getMultiLayerTransformer().setToIdentity();
+
+            } else if (e.getItem() == Layouts.BALLOON) {
+              LayoutAlgorithmTransition.animate(vv.getModel(), balloonLayoutAlgorithm);
+
               vv.removePreRenderPaintable(rings);
+              vv.getRenderContext().getMultiLayerTransformer().setToIdentity();
+              if (balloonRings == null) {
+                balloonRings = new BalloonRings(balloonLayoutAlgorithm);
+              }
+
+              vv.addPreRenderPaintable(balloonRings);
+
+            } else {
+              LayoutAlgorithmTransition.animate(vv.getModel(), layoutAlgorithm);
+
+              vv.removePreRenderPaintable(rings);
+              vv.removePreRenderPaintable(balloonRings);
+              vv.getRenderContext().getMultiLayerTransformer().setToIdentity();
             }
             vv.repaint();
           }
@@ -152,68 +149,34 @@ public class TreeCollapseDemo extends JApplet {
     JButton collapse = new JButton("Collapse");
     collapse.addActionListener(
         e -> {
-          Set<String> picked = vv.getPickedVertexState().getPicked();
+          Set<Object> picked = vv.getPickedVertexState().getPicked();
           if (picked.size() == 1) {
             Object root = picked.iterator().next();
-            //                    Forest<String, Integer> inGraph = (Forest<String, Integer>)layout.getGraph();
-
-            @SuppressWarnings("rawtypes")
-            //					CTreeNetwork subTree = collapser.collapse(inGraph, root);
             CTreeNetwork subTree = TreeCollapser.collapse(graph, root);
-            @SuppressWarnings("rawtypes")
-            Layout objectLayout = (Layout) vv.getGraphLayout();
-            objectLayout.setLocation(subTree, (Point2D) objectLayout.apply(root));
-
+            LayoutModel objectLayoutModel = vv.getModel().getLayoutModel();
+            objectLayoutModel.set(subTree, objectLayoutModel.apply(root));
+            vv.getModel().setNetwork(graph);
             vv.getPickedVertexState().clear();
             vv.repaint();
           }
         });
 
-    //        collapse.addActionListener(new ActionListener() {
-    //
-    //            public void actionPerformed(ActionEvent e) {
-    //                Set<String> picked = vv.getPickedVertexState().getPicked();
-    //                if(picked.size() == 1) {
-    //                	Object root = picked.iterator().next();
-    //                    Forest<String, Integer> inGraph = (Forest<String, Integer>)layout.getGraph();
-    //
-    //					@SuppressWarnings("rawtypes")
-    //					CTreeNetwork subTree = collapser.collapse(inGraph, root);
-    //					vv.getGraphLayout().setLocation(subTree, (Point2D)layout.apply(subRoot));
-    //
-    //                    vv.getPickedVertexState().clear();
-    //                    vv.repaint();
-    //                }
-    //            }});
-
     JButton expand = new JButton("Expand");
     expand.addActionListener(
-        new ActionListener() {
-
-          @SuppressWarnings("rawtypes")
-          public void actionPerformed(ActionEvent e) {
-            //                Collection<String> picked = vv.getPickedVertexState().getPicked();
-            for (Object v : vv.getPickedVertexState().getPicked()) {
-              if (v instanceof CTreeNetwork) {
-                //                        Forest<String, Integer> inGraph
-                //                        	= (Forest<String, Integer>)layout.getGraph();
-                //            			TreeCollapser.expand(inGraph, (Forest<?, ?>)v);
-                TreeCollapser.expand(graph, (CTreeNetwork) v);
-              }
-              vv.getPickedVertexState().clear();
-              vv.repaint();
+        e -> {
+          for (Object v : vv.getPickedVertexState().getPicked()) {
+            if (v instanceof CTreeNetwork) {
+              TreeCollapser.expand(graph, (CTreeNetwork) v);
+              vv.getModel().setNetwork(graph);
             }
+            vv.getPickedVertexState().clear();
+            vv.repaint();
           }
         });
 
-    JPanel scaleGrid = new JPanel(new GridLayout(1, 0));
-    scaleGrid.setBorder(BorderFactory.createTitledBorder("Zoom"));
-
     JPanel controls = new JPanel();
-    scaleGrid.add(plus);
-    scaleGrid.add(minus);
-    controls.add(radial);
-    controls.add(scaleGrid);
+    controls.add(layoutComboBox);
+    controls.add(ControlHelpers.getZoomControls(vv, "Zoom"));
     controls.add(modeBox);
     controls.add(collapse);
     controls.add(expand);
@@ -223,15 +186,17 @@ public class TreeCollapseDemo extends JApplet {
   class Rings implements VisualizationServer.Paintable {
 
     Collection<Double> depths;
+    LayoutModel<Object, Point2D> layoutModel;
 
-    public Rings() {
+    public Rings(LayoutModel<Object, Point2D> layoutModel) {
+      this.layoutModel = layoutModel;
       depths = getDepths();
     }
 
     private Collection<Double> getDepths() {
-      Set<Double> depths = new HashSet<Double>();
-      Map<String, PolarPoint> polarLocations = radialLayout.getPolarLocations();
-      for (String v : graph.nodes()) {
+      Set<Double> depths = new HashSet<>();
+      Map<Object, PolarPoint> polarLocations = radialLayoutAlgorithm.getPolarLocations();
+      for (Object v : graph.nodes()) {
         PolarPoint pp = polarLocations.get(v);
         depths.add(pp.getRadius());
       }
@@ -242,7 +207,7 @@ public class TreeCollapseDemo extends JApplet {
       g.setColor(Color.lightGray);
 
       Graphics2D g2d = (Graphics2D) g;
-      Point2D center = radialLayout.getCenter();
+      Point2D center = radialLayoutAlgorithm.getCenter(layoutModel);
 
       Ellipse2D ellipse = new Ellipse2D.Double();
       for (double d : depths) {
@@ -262,9 +227,51 @@ public class TreeCollapseDemo extends JApplet {
     }
   }
 
+  class BalloonRings implements VisualizationServer.Paintable {
+
+    BalloonLayoutAlgorithm<?, Point2D> layoutAlgorithm;
+
+    public BalloonRings(BalloonLayoutAlgorithm<?, Point2D> layoutAlgorithm) {
+      this.layoutAlgorithm = layoutAlgorithm;
+    }
+
+    public void paint(Graphics g) {
+      g.setColor(Color.gray);
+
+      Graphics2D g2d = (Graphics2D) g;
+
+      Ellipse2D ellipse = new Ellipse2D.Double();
+      for (Object v : vv.getModel().getNetwork().nodes()) {
+        Double radius = layoutAlgorithm.getRadii().get(v);
+        if (radius == null) {
+          continue;
+        }
+        Point2D p = vv.getModel().getLayoutModel().apply(v);
+        ellipse.setFrame(-radius, -radius, 2 * radius, 2 * radius);
+        AffineTransform at = AffineTransform.getTranslateInstance(p.getX(), p.getY());
+        Shape shape = at.createTransformedShape(ellipse);
+
+        MutableTransformer viewTransformer =
+            vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.VIEW);
+
+        if (viewTransformer instanceof MutableTransformerDecorator) {
+          shape = vv.getRenderContext().getMultiLayerTransformer().transform(shape);
+        } else {
+          shape = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, shape);
+        }
+
+        g2d.draw(shape);
+      }
+    }
+
+    public boolean useTransform() {
+      return true;
+    }
+  }
+
   /** */
-  private MutableCTreeNetwork<String, Integer> createTree() {
-    MutableCTreeNetwork<String, Integer> tree =
+  private MutableCTreeNetwork<Object, Object> createTree() {
+    MutableCTreeNetwork<Object, Object> tree =
         TreeNetworkBuilder.builder().expectedNodeCount(27).build();
 
     tree.addNode("root");
@@ -312,7 +319,7 @@ public class TreeCollapseDemo extends JApplet {
   class ClusterVertexShapeFunction<V> extends EllipseVertexShapeTransformer<V> {
 
     ClusterVertexShapeFunction() {
-      setSizeTransformer(new ClusterVertexSizeFunction<V>(20));
+      setSizeTransformer(new ClusterVertexSizeFunction<>(20));
     }
 
     @Override
@@ -356,7 +363,7 @@ public class TreeCollapseDemo extends JApplet {
   public static void main(String[] args) {
     JFrame frame = new JFrame();
     Container content = frame.getContentPane();
-    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
     content.add(new TreeCollapseDemo());
     frame.pack();

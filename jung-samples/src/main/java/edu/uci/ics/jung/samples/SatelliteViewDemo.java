@@ -9,13 +9,15 @@
 package edu.uci.ics.jung.samples;
 
 import com.google.common.graph.Network;
-import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.graph.util.TestGraphs;
-import edu.uci.ics.jung.visualization.DefaultVisualizationModel;
+import edu.uci.ics.jung.layout.algorithms.FRLayoutAlgorithm;
+import edu.uci.ics.jung.layout.model.PointModel;
+import edu.uci.ics.jung.samples.util.ControlHelpers;
+import edu.uci.ics.jung.visualization.BaseVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationModel;
-import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
+import edu.uci.ics.jung.visualization.VisualizationServer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
@@ -23,34 +25,14 @@ import edu.uci.ics.jung.visualization.control.SatelliteVisualizationViewer;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
-import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
-import edu.uci.ics.jung.visualization.renderers.GradientVertexRenderer;
-import edu.uci.ics.jung.visualization.renderers.Renderer;
+import edu.uci.ics.jung.visualization.layout.AWTPointModel;
+import edu.uci.ics.jung.visualization.renderers.*;
 import edu.uci.ics.jung.visualization.transform.shape.ShapeTransformer;
-import java.awt.BasicStroke;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.GridLayout;
-import java.awt.Rectangle;
-import java.awt.Shape;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.*;
 import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.geom.GeneralPath;
-import javax.swing.JApplet;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.ToolTipManager;
+import java.awt.geom.Point2D;
+import javax.swing.*;
 
 /**
  * Demonstrates the construction of a graph visualization with a main and a satellite view. The
@@ -62,7 +44,9 @@ import javax.swing.ToolTipManager;
  * @author Tom Nelson
  */
 @SuppressWarnings("serial")
-public class SatelliteViewDemo<V, E> extends JApplet {
+public class SatelliteViewDemo extends JApplet {
+
+  private static final PointModel<Point2D> POINT_MODEL = new AWTPointModel();
 
   static final String instructions =
       "<html>"
@@ -93,7 +77,7 @@ public class SatelliteViewDemo<V, E> extends JApplet {
 
   JDialog helpDialog;
 
-  Paintable viewGrid;
+  VisualizationServer.Paintable viewGrid;
 
   /** create an instance of a simple graph in two views with controls to demo the features. */
   public SatelliteViewDemo() {
@@ -106,39 +90,40 @@ public class SatelliteViewDemo<V, E> extends JApplet {
     Dimension preferredSize2 = new Dimension(300, 300);
 
     // create one layout for the graph
-    FRLayout<String> layout = new FRLayout<String>(graph.asGraph());
-    layout.setMaxIterations(500);
+    FRLayoutAlgorithm<String, Point2D> layoutAlgorithm = new FRLayoutAlgorithm<>(POINT_MODEL);
+    // not used, for testing only
+    //    CircleLayoutAlgorithm<String, Point2D> clayout = new CircleLayoutAlgorithm<>(pointModel);
+    layoutAlgorithm.setMaxIterations(500);
 
     // create one model that both views will share
-    VisualizationModel<String, Number> vm =
-        new DefaultVisualizationModel<String, Number>(graph, layout, preferredSize1);
+    VisualizationModel<String, Number, Point2D> vm =
+        new BaseVisualizationModel<>(graph, layoutAlgorithm, preferredSize1);
 
     // create 2 views that share the same model
-    final VisualizationViewer<String, Number> vv1 =
-        new VisualizationViewer<String, Number>(vm, preferredSize1);
+    final VisualizationViewer<String, Number> vv1 = new VisualizationViewer<>(vm, preferredSize1);
     final SatelliteVisualizationViewer<String, Number> vv2 =
-        new SatelliteVisualizationViewer<String, Number>(vv1, preferredSize2);
+        new SatelliteVisualizationViewer<>(vv1, preferredSize2);
     vv1.setBackground(Color.white);
     vv1.getRenderContext()
         .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer<Number>(
-                vv1.getPickedEdgeState(), Color.black, Color.cyan));
+            new PickableEdgePaintTransformer<>(vv1.getPickedEdgeState(), Color.black, Color.cyan));
     vv1.getRenderContext()
         .setVertexFillPaintTransformer(
-            new PickableVertexPaintTransformer<String>(
+            new PickableVertexPaintTransformer<>(
                 vv1.getPickedVertexState(), Color.red, Color.yellow));
     vv2.getRenderContext()
         .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer<Number>(
-                vv2.getPickedEdgeState(), Color.black, Color.cyan));
+            new PickableEdgePaintTransformer<>(vv2.getPickedEdgeState(), Color.black, Color.cyan));
     vv2.getRenderContext()
         .setVertexFillPaintTransformer(
-            new PickableVertexPaintTransformer<String>(
+            new PickableVertexPaintTransformer<>(
                 vv2.getPickedVertexState(), Color.red, Color.yellow));
     vv1.getRenderer()
-        .setVertexRenderer(new GradientVertexRenderer<String>(vv1, Color.red, Color.white, true));
-    vv1.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
-    vv1.getRenderer().getVertexLabelRenderer().setPosition(Renderer.VertexLabel.Position.CNTR);
+        .setVertexRenderer(new GradientVertexRenderer<>(vv1, Color.red, Color.white, true));
+    vv1.getRenderContext().setVertexLabelTransformer(Object::toString);
+    vv1.getRenderer()
+        .getVertexLabelRenderer()
+        .setPosition(edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position.CNTR);
 
     ScalingControl vv2Scaler = new CrossoverScalingControl();
     vv2.scaleToLayout(vv2Scaler);
@@ -146,8 +131,8 @@ public class SatelliteViewDemo<V, E> extends JApplet {
     viewGrid = new ViewGrid(vv2, vv1);
 
     // add default listener for ToolTips
-    vv1.setVertexToolTipTransformer(new ToStringLabeller());
-    vv2.setVertexToolTipTransformer(new ToStringLabeller());
+    vv1.setVertexToolTipTransformer(Object::toString);
+    vv2.setVertexToolTipTransformer(Object::toString);
 
     vv2.getRenderContext()
         .setVertexLabelTransformer(vv1.getRenderContext().getVertexLabelTransformer());
@@ -168,49 +153,25 @@ public class SatelliteViewDemo<V, E> extends JApplet {
     helpDialog.getContentPane().add(new JLabel(instructions));
 
     // create a GraphMouse for the main view
-    final DefaultModalGraphMouse<String, Number> graphMouse =
-        new DefaultModalGraphMouse<String, Number>();
+    final DefaultModalGraphMouse<String, Number> graphMouse = new DefaultModalGraphMouse<>();
     vv1.setGraphMouse(graphMouse);
-
-    final ScalingControl scaler = new CrossoverScalingControl();
-
-    JButton plus = new JButton("+");
-    plus.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            scaler.scale(vv1, 1.1f, vv1.getCenter());
-          }
-        });
-    JButton minus = new JButton("-");
-    minus.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            scaler.scale(vv1, 1 / 1.1f, vv1.getCenter());
-          }
-        });
 
     JComboBox<?> modeBox = graphMouse.getModeComboBox();
     modeBox.addItemListener(((DefaultModalGraphMouse<?, ?>) vv2.getGraphMouse()).getModeListener());
 
     JCheckBox gridBox = new JCheckBox("Show Grid");
-    gridBox.addItemListener(
-        new ItemListener() {
-          public void itemStateChanged(ItemEvent e) {
-            showGrid(vv2, e.getStateChange() == ItemEvent.SELECTED);
-          }
-        });
+    gridBox.addItemListener(e -> showGrid(vv2, e.getStateChange() == ItemEvent.SELECTED));
+
     JButton help = new JButton("Help");
     help.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            helpDialog.pack();
-            helpDialog.setVisible(true);
-          }
+        e -> {
+          helpDialog.pack();
+          helpDialog.setVisible(true);
         });
 
     JPanel controls = new JPanel();
-    controls.add(plus);
-    controls.add(minus);
+    controls.add(ControlHelpers.getZoomControls(vv1, ""));
+    //    controls.add(minus);
     controls.add(modeBox);
     controls.add(gridBox);
     controls.add(help);
@@ -219,7 +180,7 @@ public class SatelliteViewDemo<V, E> extends JApplet {
   }
 
   protected void showGrid(VisualizationViewer<?, ?> vv, boolean state) {
-    if (state == true) {
+    if (state) {
       vv.addPreRenderPaintable(viewGrid);
     } else {
       vv.removePreRenderPaintable(viewGrid);
@@ -232,7 +193,7 @@ public class SatelliteViewDemo<V, E> extends JApplet {
    *
    * @author Tom Nelson
    */
-  static class ViewGrid implements Paintable {
+  static class ViewGrid implements VisualizationServer.Paintable {
 
     VisualizationViewer<?, ?> master;
     VisualizationViewer<?, ?> vv;
@@ -298,8 +259,8 @@ public class SatelliteViewDemo<V, E> extends JApplet {
 
   public static void main(String[] args) {
     JFrame f = new JFrame();
-    f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    f.getContentPane().add(new SatelliteViewDemo<String, Number>());
+    f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+    f.getContentPane().add(new SatelliteViewDemo());
     f.pack();
     f.setVisible(true);
   }

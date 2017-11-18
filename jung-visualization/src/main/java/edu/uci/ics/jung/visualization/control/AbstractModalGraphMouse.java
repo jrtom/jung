@@ -96,7 +96,7 @@ public abstract class AbstractModalGraphMouse extends PluggableGraphMouse
     }
   }
   /* (non-Javadoc)
-   * @see edu.uci.ics.jung.visualization.control.ModalGraphMouse#setPickingMode()
+   * @see ModalGraphMouse#setPickingMode()
    */
   protected void setPickingMode() {
     remove(translatingPlugin);
@@ -107,7 +107,7 @@ public abstract class AbstractModalGraphMouse extends PluggableGraphMouse
   }
 
   /* (non-Javadoc)
-   * @see edu.uci.ics.jung.visualization.control.ModalGraphMouse#setTransformingMode()
+   * @see ModalGraphMouse#setTransformingMode()
    */
   protected void setTransformingMode() {
     remove(pickingPlugin);
@@ -130,7 +130,7 @@ public abstract class AbstractModalGraphMouse extends PluggableGraphMouse
   }
 
   /* (non-Javadoc)
-   * @see edu.uci.ics.jung.visualization.control.ModalGraphMouse#getModeListener()
+   * @see ModalGraphMouse#getModeListener()
    */
   public ItemListener getModeListener() {
     if (modeListener == null) {

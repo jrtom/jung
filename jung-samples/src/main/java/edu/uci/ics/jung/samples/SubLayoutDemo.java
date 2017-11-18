@@ -12,61 +12,46 @@ import com.google.common.graph.EndpointPair;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
-import edu.uci.ics.jung.algorithms.layout.AggregateLayout;
-import edu.uci.ics.jung.algorithms.layout.CircleLayout;
-import edu.uci.ics.jung.algorithms.layout.FRLayout;
-import edu.uci.ics.jung.algorithms.layout.KKLayout;
-import edu.uci.ics.jung.algorithms.layout.Layout;
-import edu.uci.ics.jung.algorithms.layout.SpringLayout;
 import edu.uci.ics.jung.graph.util.TestGraphs;
-import edu.uci.ics.jung.visualization.DefaultVisualizationModel;
+import edu.uci.ics.jung.layout.algorithms.CircleLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.FRLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.KKLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.SpringLayoutAlgorithm;
+import edu.uci.ics.jung.layout.model.LayoutModel;
+import edu.uci.ics.jung.layout.model.LoadingCacheLayoutModel;
+import edu.uci.ics.jung.layout.model.PointModel;
+import edu.uci.ics.jung.layout.util.RandomLocationTransformer;
+import edu.uci.ics.jung.samples.util.ControlHelpers;
+import edu.uci.ics.jung.visualization.BaseVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.VisualizationModel;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
-import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
-import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
-import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
+import edu.uci.ics.jung.visualization.layout.AWTPointModel;
+import edu.uci.ics.jung.visualization.layout.AggregateLayoutModel;
 import edu.uci.ics.jung.visualization.picking.PickedState;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.*;
 import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.geom.Point2D;
 import java.lang.reflect.Constructor;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.DefaultListCellRenderer;
-import javax.swing.JApplet;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JList;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
+import javax.swing.*;
 
 /**
  * Demonstrates the AggregateLayout class. In this demo, vertices are visually clustered as they are
  * selected. The cluster is formed in a new Layout centered at the middle locations of the selected
- * vertices. The size and layout algorithm for each new cluster is selectable.
+ * vertices. The layoutSize and layout algorithm for each new cluster is selectable.
  *
  * @author Tom Nelson
  */
 @SuppressWarnings("serial")
 public class SubLayoutDemo extends JApplet {
+
+  private static final PointModel<Point2D> POINT_MODEL = new AWTPointModel();
 
   String instructions =
       "<html>"
@@ -79,7 +64,7 @@ public class SubLayoutDemo extends JApplet {
           + "<p>or by shift-clicking on multiple vertices."
           + "<p>After you select vertices, use the "
           + "<p>Cluster Picked button to cluster them using the "
-          + "<p>layout and size specified in the Sublayout comboboxen."
+          + "<p>layout and layoutSize specified in the Sublayout comboboxen."
           + "<p>Use the Uncluster All button to remove all"
           + "<p>clusters."
           + "<p>You can drag the cluster with the mouse."
@@ -88,22 +73,25 @@ public class SubLayoutDemo extends JApplet {
   /** the graph */
   Network<String, Number> graph;
 
-  Map<Network<String, Number>, Dimension> sizes = new HashMap<Network<String, Number>, Dimension>();
-
   @SuppressWarnings({"unchecked", "rawtypes"})
-  Class<Layout>[] layoutClasses =
-      new Class[] {CircleLayout.class, SpringLayout.class, FRLayout.class, KKLayout.class};
+  Class<LayoutAlgorithm>[] layoutClasses =
+      new Class[] {
+        CircleLayoutAlgorithm.class,
+        SpringLayoutAlgorithm.class,
+        FRLayoutAlgorithm.class,
+        KKLayoutAlgorithm.class
+      };
   /** the visual component and renderer for the graph */
   VisualizationViewer<String, Number> vv;
 
-  AggregateLayout<String> clusteringLayout;
+  AggregateLayoutModel<String, Point2D> clusteringLayoutModel;
 
   Dimension subLayoutSize;
 
   PickedState<String> ps;
 
   @SuppressWarnings("rawtypes")
-  Class<CircleLayout> subLayoutType = CircleLayout.class;
+  Class<CircleLayoutAlgorithm> subLayoutType = CircleLayoutAlgorithm.class;
 
   /** create an instance of a simple graph with controls to demo the zoomand hyperbolic features. */
   public SubLayoutDemo() {
@@ -114,30 +102,35 @@ public class SubLayoutDemo extends JApplet {
     // ClusteringLayout is a decorator class that delegates
     // to another layout, but can also separately manage the
     // layout of sub-sets of vertices in circular clusters.
-    clusteringLayout = new AggregateLayout<String>(new FRLayout<String>(graph.asGraph()));
-    //new SubLayoutDecorator<String,Number>(new FRLayout<String>(graph.asGraph()));
-
     Dimension preferredSize = new Dimension(600, 600);
-    final VisualizationModel<String, Number> visualizationModel =
-        new DefaultVisualizationModel<String, Number>(graph, clusteringLayout, preferredSize);
-    vv = new VisualizationViewer<String, Number>(visualizationModel, preferredSize);
+
+    LayoutAlgorithm<String, Point2D> layoutAlgorithm = new FRLayoutAlgorithm(POINT_MODEL);
+    clusteringLayoutModel =
+        new AggregateLayoutModel<>(
+            new LoadingCacheLayoutModel<>(
+                graph.asGraph(), POINT_MODEL, preferredSize.width, preferredSize.height));
+    clusteringLayoutModel.accept(layoutAlgorithm);
+
+    final VisualizationModel<String, Number, Point2D> visualizationModel =
+        new BaseVisualizationModel<>(graph, clusteringLayoutModel, layoutAlgorithm);
+
+    vv = new VisualizationViewer<>(visualizationModel, preferredSize);
 
     ps = vv.getPickedVertexState();
     vv.getRenderContext()
         .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer<Number>(
-                vv.getPickedEdgeState(), Color.black, Color.red));
+            new PickableEdgePaintTransformer<>(vv.getPickedEdgeState(), Color.black, Color.red));
     vv.getRenderContext()
         .setVertexFillPaintTransformer(
-            new PickableVertexPaintTransformer<String>(
+            new PickableVertexPaintTransformer<>(
                 vv.getPickedVertexState(), Color.red, Color.yellow));
     vv.setBackground(Color.white);
 
     // add a listener for ToolTips
-    vv.setVertexToolTipTransformer(new ToStringLabeller());
+    vv.setVertexToolTipTransformer(Object::toString);
 
     /** the regular graph mouse for the normal view */
-    final DefaultModalGraphMouse<?, ?> graphMouse = new DefaultModalGraphMouse<Object, Object>();
+    final DefaultModalGraphMouse<?, ?> graphMouse = new DefaultModalGraphMouse<>();
 
     vv.setGraphMouse(graphMouse);
 
@@ -149,38 +142,11 @@ public class SubLayoutDemo extends JApplet {
     modeBox.addItemListener(graphMouse.getModeListener());
     graphMouse.setMode(ModalGraphMouse.Mode.PICKING);
 
-    final ScalingControl scaler = new CrossoverScalingControl();
-
-    JButton plus = new JButton("+");
-    plus.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            scaler.scale(vv, 1.1f, vv.getCenter());
-          }
-        });
-    JButton minus = new JButton("-");
-    minus.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            scaler.scale(vv, 1 / 1.1f, vv.getCenter());
-          }
-        });
-
     JButton cluster = new JButton("Cluster Picked");
-    cluster.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            clusterPicked();
-          }
-        });
+    cluster.addActionListener(e -> clusterPicked());
 
     JButton uncluster = new JButton("UnCluster All");
-    uncluster.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            uncluster();
-          }
-        });
+    uncluster.addActionListener(e -> uncluster());
 
     JComboBox<?> layoutTypeComboBox = new JComboBox<Object>(layoutClasses);
     layoutTypeComboBox.setRenderer(
@@ -193,22 +159,16 @@ public class SubLayoutDemo extends JApplet {
                 list, valueString, index, isSelected, cellHasFocus);
           }
         });
-    layoutTypeComboBox.setSelectedItem(FRLayout.class);
+    layoutTypeComboBox.setSelectedItem(FRLayoutAlgorithm.class);
     layoutTypeComboBox.addItemListener(
-        new ItemListener() {
-
-          public void itemStateChanged(ItemEvent e) {
-            if (e.getStateChange() == ItemEvent.SELECTED) {
-              @SuppressWarnings({"unchecked", "rawtypes"})
-              Class<CircleLayout> clazz = (Class<CircleLayout>) e.getItem();
-              try {
-                Layout<String> layout = getLayoutFor(clazz, graph);
-                layout.setInitializer(vv.getGraphLayout());
-                clusteringLayout.setDelegate(layout);
-                vv.setGraphLayout(clusteringLayout);
-              } catch (Exception ex) {
-                ex.printStackTrace();
-              }
+        e -> {
+          if (e.getStateChange() == ItemEvent.SELECTED) {
+            @SuppressWarnings({"unchecked", "rawtypes"})
+            Class<CircleLayoutAlgorithm> clazz = (Class<CircleLayoutAlgorithm>) e.getItem();
+            try {
+              vv.getModel().getLayoutModel().accept(getLayoutAlgorithmFor(clazz));
+            } catch (Exception ex) {
+              ex.printStackTrace();
             }
           }
         });
@@ -226,13 +186,11 @@ public class SubLayoutDemo extends JApplet {
           }
         });
     subLayoutTypeComboBox.addItemListener(
-        new ItemListener() {
-
-          @SuppressWarnings({"unchecked", "rawtypes"})
-          public void itemStateChanged(ItemEvent e) {
-            if (e.getStateChange() == ItemEvent.SELECTED) {
-              subLayoutType = (Class<CircleLayout>) e.getItem();
-            }
+        e -> {
+          if (e.getStateChange() == ItemEvent.SELECTED) {
+            subLayoutType = (Class<CircleLayoutAlgorithm>) e.getItem();
+            uncluster();
+            clusterPicked();
           }
         });
 
@@ -259,32 +217,27 @@ public class SubLayoutDemo extends JApplet {
           }
         });
     subLayoutDimensionComboBox.addItemListener(
-        new ItemListener() {
-
-          public void itemStateChanged(ItemEvent e) {
-            if (e.getStateChange() == ItemEvent.SELECTED) {
-              subLayoutSize = (Dimension) e.getItem();
-            }
+        e -> {
+          if (e.getStateChange() == ItemEvent.SELECTED) {
+            subLayoutSize = (Dimension) e.getItem();
+            uncluster();
+            clusterPicked();
           }
         });
+
     subLayoutDimensionComboBox.setSelectedIndex(1);
 
     JButton help = new JButton("Help");
     help.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
+        e ->
             JOptionPane.showMessageDialog(
-                (JComponent) e.getSource(), instructions, "Help", JOptionPane.PLAIN_MESSAGE);
-          }
-        });
+                (JComponent) e.getSource(), instructions, "Help", JOptionPane.PLAIN_MESSAGE));
+
     Dimension space = new Dimension(20, 20);
     Box controls = Box.createVerticalBox();
     controls.add(Box.createRigidArea(space));
 
-    JPanel zoomControls = new JPanel(new GridLayout(1, 2));
-    zoomControls.setBorder(BorderFactory.createTitledBorder("Zoom"));
-    zoomControls.add(plus);
-    zoomControls.add(minus);
+    JComponent zoomControls = ControlHelpers.getZoomControls(vv, "Zoom");
     heightConstrain(zoomControls);
     controls.add(zoomControls);
     controls.add(Box.createRigidArea(space));
@@ -331,11 +284,10 @@ public class SubLayoutDemo extends JApplet {
 
   @SuppressWarnings({"rawtypes", "unchecked"})
   // TODO: needs refactoring to create the layout; see VertexCollapseDemoWithLayouts
-  private Layout<String> getLayoutFor(
-      Class<CircleLayout> layoutClass, Network<String, Number> graph) throws Exception {
-    Object[] args = new Object[] {graph};
-    Constructor<CircleLayout> constructor = layoutClass.getConstructor(new Class[] {Network.class});
-    return constructor.newInstance(args);
+  private LayoutAlgorithm<String, Point2D> getLayoutAlgorithmFor(
+      Class<CircleLayoutAlgorithm> layoutClass) throws Exception {
+    Constructor<CircleLayoutAlgorithm> constructor = layoutClass.getConstructor(PointModel.class);
+    return constructor.newInstance(new AWTPointModel());
   }
 
   private void clusterPicked() {
@@ -347,7 +299,7 @@ public class SubLayoutDemo extends JApplet {
   }
 
   private void cluster(boolean state) {
-    if (state == true) {
+    if (state) {
       // put the picked vertices into a new sublayout
       Collection<String> picked = ps.getPicked();
       if (picked.size() > 1) {
@@ -355,7 +307,7 @@ public class SubLayoutDemo extends JApplet {
         double x = 0;
         double y = 0;
         for (String vertex : picked) {
-          Point2D p = clusteringLayout.apply(vertex);
+          Point2D p = clusteringLayoutModel.apply(vertex);
           x += p.getX();
           y += p.getY();
         }
@@ -379,11 +331,28 @@ public class SubLayoutDemo extends JApplet {
             }
           }
 
-          Layout<String> subLayout = getLayoutFor(subLayoutType, subGraph);
-          subLayout.setInitializer(vv.getGraphLayout());
-          subLayout.setSize(subLayoutSize);
-          clusteringLayout.put(subLayout, center);
-          vv.setGraphLayout(clusteringLayout);
+          LayoutAlgorithm<String, Point2D> subLayoutAlgorithm =
+              getLayoutAlgorithmFor(subLayoutType);
+          //          subLayoutAlgorithm.setInitializer(new RandomLocationTransformer<String>(subLayoutSize));
+          //          subLayout.setSize(subLayoutSize);
+          //          clusteringLayoutModel.put(subLayoutAlgorithm, center);
+          LayoutModel<String, Point2D> newLayoutModel =
+              new LoadingCacheLayoutModel<>(
+                  subGraph.asGraph(),
+                  POINT_MODEL,
+                  subLayoutSize.width,
+                  subLayoutSize.height,
+                  0,
+                  new RandomLocationTransformer<>(
+                      POINT_MODEL, subLayoutSize.width, subLayoutSize.height, 0));
+
+          //          VisualizationModel newModel =
+          //              new BaseVisualizationModel(subGraph, subLayoutAlgorithm, subLayoutSize);
+          //          newModel.getLayout().setInitializer(new RandomLocationTransformer<String,Point2D>(subLayoutSize));
+          clusteringLayoutModel.put(newLayoutModel, center);
+          //          vv.setModel(clusteringLayoutModel);
+          newLayoutModel.accept(subLayoutAlgorithm);
+          vv.repaint();
 
         } catch (Exception e) {
           e.printStackTrace();
@@ -391,14 +360,15 @@ public class SubLayoutDemo extends JApplet {
       }
     } else {
       // remove all sublayouts
-      this.clusteringLayout.removeAll();
-      vv.setGraphLayout(clusteringLayout);
+      this.clusteringLayoutModel.removeAll();
+      vv.repaint();
+      //      vv.setModel(clusteringLayoutModel);
     }
   }
 
   public static void main(String[] args) {
     JFrame f = new JFrame();
-    f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     f.getContentPane().add(new SubLayoutDemo());
     f.pack();
     f.setVisible(true);

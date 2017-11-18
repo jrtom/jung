@@ -1,73 +1,48 @@
 /*
- * Copyright (c) 2005, The JUNG Authors
+ * Copyright (c) 2003, The JUNG Authors
+ *
  * All rights reserved.
  *
- * This software is open-source under the BSD license; see either "license.txt"
- * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
- *
- * Created on May 4, 2005
+ * This software is open-source under the BSD license; see either
+ * "license.txt" or
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  */
-
 package edu.uci.ics.jung.visualization;
 
 import com.google.common.graph.Network;
-import edu.uci.ics.jung.algorithms.layout.Layout;
-import edu.uci.ics.jung.algorithms.layout.util.Relaxer;
-import edu.uci.ics.jung.visualization.util.ChangeEventSupport;
+import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
+import edu.uci.ics.jung.layout.model.LayoutModel;
+import edu.uci.ics.jung.layout.model.LayoutModelAware;
+import edu.uci.ics.jung.visualization.spatial.Spatial;
 import java.awt.Dimension;
 import javax.swing.event.ChangeListener;
 
-/**
- * Interface for the state holding model of the VisualizationViewer. Refactored and extracted from
- * the 1.6.0 version of VisualizationViewer
- *
- * @author Tom Nelson
- */
-public interface VisualizationModel<V, E> extends ChangeEventSupport {
+/** */
+public interface VisualizationModel<N, E, P> extends LayoutModelAware<N, E, P> {
 
-  Relaxer getRelaxer();
+  Dimension DEFAULT_SIZE = new Dimension(600, 600);
 
-  /**
-   * set the graph Layout
-   *
-   * @param layout the layout to use
-   */
-  void setGraphLayout(Layout<V> layout);
+  /** @param d the space to use to lay out this graph */
+  void setLayoutSize(Dimension d);
 
-  /**
-   * Sets the graph Layout and initialize the Layout size to the passed dimensions. The passed
-   * Dimension will often be the size of the View that will display the graph.
-   *
-   * @param layout the layout to use
-   * @param d the dimensions to use
-   */
-  void setGraphLayout(Layout<V> layout, Dimension d);
+  /** @return the current layoutSize of the visualization's space */
+  Dimension getLayoutSize();
 
-  /** @return the current graph layout */
-  Layout<V> getGraphLayout();
+  void setLayoutAlgorithm(LayoutAlgorithm<N, P> layoutAlgorithm);
 
-  Network<V, E> getNetwork();
+  LayoutAlgorithm<N, P> getLayoutAlgorithm();
 
-  /**
-   * Register <code>l</code> as a listeners to changes in the model. The View registers in order to
-   * repaint itself when the model changes.
-   *
-   * @param l the listener to add
-   */
-  void addChangeListener(ChangeListener l);
+  LayoutModel<N, P> getLayoutModel();
 
-  /**
-   * Removes a ChangeListener.
-   *
-   * @param l the listener to be removed
-   */
-  void removeChangeListener(ChangeListener l);
+  void setLayoutModel(LayoutModel<N, P> layoutModel);
 
-  /**
-   * Returns an array of all the <code>ChangeListener</code>s added with addChangeListener().
-   *
-   * @return all of the <code>ChangeListener</code>s added or an empty array if no listeners have
-   *     been added
-   */
-  ChangeListener[] getChangeListeners();
+  Network<N, E> getNetwork();
+
+  void setNetwork(Network<N, E> network);
+
+  void setNetwork(Network<N, E> network, boolean forceUpdate);
+
+  Spatial<N> getSpatial();
+
+  void addChangeListener(ChangeListener changeListener);
 }

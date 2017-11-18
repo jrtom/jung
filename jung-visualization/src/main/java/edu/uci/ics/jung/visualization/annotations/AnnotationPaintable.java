@@ -11,7 +11,7 @@ package edu.uci.ics.jung.visualization.annotations;
 
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.RenderContext;
-import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
+import edu.uci.ics.jung.visualization.VisualizationServer;
 import edu.uci.ics.jung.visualization.transform.AffineTransformer;
 import edu.uci.ics.jung.visualization.transform.LensTransformer;
 import edu.uci.ics.jung.visualization.transform.MutableTransformer;
@@ -34,7 +34,7 @@ import javax.swing.JComponent;
  *
  * @author Tom Nelson - tomnelson@dev.java.net
  */
-public class AnnotationPaintable implements Paintable {
+public class AnnotationPaintable implements VisualizationServer.Paintable {
 
   @SuppressWarnings("rawtypes")
   protected Set<Annotation> annotations = new HashSet<Annotation>();
