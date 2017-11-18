@@ -1,62 +1,66 @@
 package edu.uci.ics.jung.algorithms.filters.impl;
 
-/**
- * @author Tom Nelson
- */
-
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import edu.uci.ics.jung.algorithms.filters.Filter;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.graph.Graph;
+import com.google.common.graph.GraphBuilder;
+import com.google.common.graph.ImmutableGraph;
+import com.google.common.graph.MutableGraph;
 import edu.uci.ics.jung.algorithms.filters.KNeighborhoodFilter;
-import edu.uci.ics.jung.algorithms.filters.KNeighborhoodFilter.EdgeType;
-import edu.uci.ics.jung.graph.DirectedGraph;
-import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
-import edu.uci.ics.jung.graph.Graph;
-
+import junit.framework.TestCase;
 
 public class TestKNeighborhoodFilter extends TestCase {
-	
-	DirectedGraph<Number,Number> graph;
-	
-	public static Test suite() {
-		return new TestSuite(TestKNeighborhoodFilter.class);
-	}
 
-	@Override
-	protected void setUp() {
-		graph = new DirectedSparseMultigraph<Number,Number>();
-		for(int i=0; i<7; i++) {
-			graph.addVertex(i);
-		}
-		int j=0;
-		graph.addEdge(j++, 0, 1);
-		graph.addEdge(j++, 0, 2);
-		graph.addEdge(j++, 2, 3);
-		graph.addEdge(j++, 2, 4);
-		graph.addEdge(j++, 3, 5);
-		graph.addEdge(j++, 5, 6);
-		graph.addEdge(j++, 5, 0);
-		graph.addEdge(j++, 3, 0);
-		graph.addEdge(j++, 6, 7);
-	}
+  MutableGraph<Number> graph;
 
-	public void testIn() {
-		Filter<Number,Number> filter = new KNeighborhoodFilter<Number,Number>(0, 2, EdgeType.IN);
-		Graph<Number,Number> result = filter.apply(graph);
-		assertEquals(result.getVertexCount(), 4);
-		assertEquals(result.getEdgeCount(), 5);
-	}
-	public void testOut() {
-		Filter<Number,Number> filter = new KNeighborhoodFilter<Number,Number>(0, 2, EdgeType.OUT);
-		Graph<Number,Number> result = filter.apply(graph);
-		assertEquals(result.getVertexCount(), 5);
-		assertEquals(result.getEdgeCount(), 5);
-	}
-	public void testInOut() {
-		Filter<Number,Number> filter = new KNeighborhoodFilter<Number,Number>(0, 2, EdgeType.IN_OUT);
-		Graph<Number,Number> result = filter.apply(graph);
-		assertEquals(result.getVertexCount(), 7);
-		assertEquals(result.getEdgeCount(), 8);
-	}
+  // TODO: test multiple root nodes
+  public void testDirected() {
+    graph = GraphBuilder.directed().allowsSelfLoops(true).build();
+    populateGraph(graph);
+    MutableGraph<Number> expected = GraphBuilder.directed().allowsSelfLoops(true).build();
+    expected.putEdge(0, 1);
+    expected.putEdge(0, 2);
+    expected.putEdge(2, 3);
+    expected.putEdge(2, 4);
+    expected.putEdge(3, 0);
+    expected.putEdge(3, 3);
+
+    Graph<Number> filtered =
+        KNeighborhoodFilter.filterGraph(ImmutableGraph.copyOf(graph), ImmutableSet.of(0), 2);
+
+    assertEquals(expected, filtered);
+  }
+
+  public void testUndirected() {
+    graph = GraphBuilder.undirected().allowsSelfLoops(true).build();
+    populateGraph(graph);
+    MutableGraph<Number> expected = GraphBuilder.undirected().allowsSelfLoops(true).build();
+    expected.putEdge(0, 1);
+    expected.putEdge(0, 2);
+    expected.putEdge(2, 3);
+    expected.putEdge(2, 4);
+    expected.putEdge(0, 3);
+    expected.putEdge(3, 5);
+    expected.putEdge(5, 0);
+    expected.putEdge(5, 6);
+    expected.putEdge(3, 3);
+
+    Graph<Number> filtered =
+        KNeighborhoodFilter.filterGraph(ImmutableGraph.copyOf(graph), ImmutableSet.of(0), 2);
+
+    assertEquals(expected, filtered);
+  }
+
+  private void populateGraph(MutableGraph<Number> graph) {
+    graph.putEdge(0, 1);
+    graph.putEdge(0, 2);
+    graph.putEdge(2, 3);
+    graph.putEdge(2, 4);
+    graph.putEdge(3, 5);
+    graph.putEdge(5, 6);
+    graph.putEdge(5, 0);
+    graph.putEdge(3, 0);
+    graph.putEdge(6, 7);
+    graph.putEdge(3, 3);
+    graph.addNode(8);
+  }
 }

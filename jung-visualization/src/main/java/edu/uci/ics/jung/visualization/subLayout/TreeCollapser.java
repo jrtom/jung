@@ -9,45 +9,46 @@
  */
 package edu.uci.ics.jung.visualization.subLayout;
 
-import java.awt.geom.Point2D;
-
-import edu.uci.ics.jung.algorithms.layout.Layout;
-import edu.uci.ics.jung.graph.Forest;
+import edu.uci.ics.jung.graph.CTreeNetwork;
+import edu.uci.ics.jung.graph.MutableCTreeNetwork;
 import edu.uci.ics.jung.graph.util.TreeUtils;
+import java.util.Optional;
 
-public class TreeCollapser  {
-    
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-	public void collapse(Layout layout, Forest tree, Object subRoot) throws InstantiationException, IllegalAccessException {
-        
-    	// get a sub tree from subRoot
-    	Forest subTree = TreeUtils.getSubTree(tree, subRoot);
-    	Object parent = null;
-    	Object edge = null;
-    	if(tree.getPredecessorCount(subRoot) > 0) {
-    		parent = tree.getPredecessors(subRoot).iterator().next();
-    		edge = tree.getInEdges(subRoot).iterator().next();
-    	}	
-    	tree.removeVertex(subRoot);
-    	if(parent != null) {
-    		tree.addEdge(edge, parent, subTree);
-    	} else {
-    		tree.addVertex(subTree);
-    	}
-    	
-    	layout.setLocation(subTree, (Point2D)layout.apply(subRoot));
-    }
-    
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-	public void expand(Forest tree, Forest subTree) {
+public class TreeCollapser {
 
-    	Object parent = null;
-    	Object edge = null;
-    	if(tree.getPredecessorCount(subTree) > 0) {
-    		parent = tree.getPredecessors(subTree).iterator().next();
-    		edge = tree.getInEdges(subTree).iterator().next();
-    	}
-    	tree.removeVertex(subTree);
-    	TreeUtils.addSubTree(tree, subTree, parent, edge);
+  /**
+   * Replaces the subtree of {@code tree} rooted at {@code subRoot} with a node representing that
+   * subtree.
+   *
+   * @param tree the tree whose subtree is to be collapsed
+   * @param subRoot the root of the subtree to be collapsed
+   */
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  public static MutableCTreeNetwork collapse(MutableCTreeNetwork tree, Object subRoot) {
+    // get the subtree rooted at subRoot
+    MutableCTreeNetwork subTree = TreeUtils.getSubTree(tree, subRoot);
+    Optional parent = tree.predecessor(subRoot);
+    if (parent.isPresent()) {
+      // subRoot has a parent, so attach its parent to subTree in its place
+      Object parentEdge = tree.inEdges(subRoot).iterator().next(); // THERE CAN BE ONLY ONE
+      tree.removeNode(subRoot);
+      tree.addEdge(parent.get(), subTree, parentEdge);
+    } else {
+      // subRoot is the root of tree
+      tree.removeNode(subRoot);
+      tree.addNode(subTree);
     }
+    return subTree;
+  }
+
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  public static void expand(MutableCTreeNetwork tree, CTreeNetwork subTree) {
+    Optional parent = tree.predecessor(subTree);
+    Object parentEdge =
+        parent.isPresent()
+            ? tree.inEdges(subTree).iterator().next() // THERE CAN BE ONLY ONE
+            : null;
+    tree.removeNode(subTree);
+    TreeUtils.addSubTree(tree, subTree, parent.orElse(null), parentEdge);
+  }
 }

@@ -1,86 +1,81 @@
 package edu.uci.ics.jung.visualization.control;
 
-import java.awt.geom.Point2D;
-
-import com.google.common.base.Supplier;
-
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.util.EdgeType;
+import com.google.common.base.Preconditions;
+import com.google.common.graph.MutableNetwork;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
+import java.awt.geom.Point2D;
+import java.util.function.Supplier;
 
-public class SimpleEdgeSupport<V,E> implements EdgeSupport<V,E> {
+public class SimpleEdgeSupport<V, E> implements EdgeSupport<V, E> {
 
-	protected Point2D down;
-	protected EdgeEffects<V,E> edgeEffects;
-	protected EdgeType edgeType;
-	protected Supplier<E> edgeFactory;
-	protected V startVertex;
-	
-	public SimpleEdgeSupport(Supplier<E> edgeFactory) {
-		this.edgeFactory = edgeFactory;
-		this.edgeEffects = new CubicCurveEdgeEffects<V,E>();
-	}
-	
-//	@Override
-	public void startEdgeCreate(BasicVisualizationServer<V, E> vv,
-			V startVertex, Point2D startPoint, EdgeType edgeType) {
-		this.startVertex = startVertex;
-		this.down = startPoint;
-		this.edgeType = edgeType;
-		this.edgeEffects.startEdgeEffects(vv, startPoint, startPoint);
-		if(edgeType == EdgeType.DIRECTED) {
-			this.edgeEffects.startArrowEffects(vv, startPoint, startPoint);
-		}
-		vv.repaint();
-	}
+  protected Point2D down;
+  protected EdgeEffects<V, E> edgeEffects;
+  protected Supplier<E> edgeFactory;
+  protected V startVertex;
 
-//	@Override
-	public void midEdgeCreate(BasicVisualizationServer<V, E> vv,
-			Point2D midPoint) {
-		if(startVertex != null) {
-			this.edgeEffects.midEdgeEffects(vv, down, midPoint);
-			if(this.edgeType == EdgeType.DIRECTED) {
-				this.edgeEffects.midArrowEffects(vv, down, midPoint);
-			}
-			vv.repaint();
-		}
-	}
+  public SimpleEdgeSupport(Supplier<E> edgeFactory) {
+    this.edgeFactory = edgeFactory;
+    this.edgeEffects = new CubicCurveEdgeEffects<V, E>();
+  }
 
-//	@Override
-	public void endEdgeCreate(BasicVisualizationServer<V, E> vv, V endVertex) {
-		if(startVertex != null) {
-			Graph<V,E> graph = vv.getGraphLayout().getGraph();
-			graph.addEdge(edgeFactory.get(), startVertex, endVertex, edgeType);
-			vv.repaint();
-		}
-		startVertex = null;
-		edgeType = EdgeType.UNDIRECTED;
-		edgeEffects.endEdgeEffects(vv);
-		edgeEffects.endArrowEffects(vv);
-	}
+  @Override
+  public void startEdgeCreate(
+      BasicVisualizationServer<V, E> vv, V startVertex, Point2D startPoint) {
+    this.startVertex = startVertex;
+    this.down = startPoint;
+    this.edgeEffects.startEdgeEffects(vv, startPoint, startPoint);
+    if (vv.getModel().getNetwork().isDirected()) {
+      this.edgeEffects.startArrowEffects(vv, startPoint, startPoint);
+    }
+    vv.repaint();
+  }
 
-	public EdgeEffects<V, E> getEdgeEffects() {
-		return edgeEffects;
-	}
+  @Override
+  public void midEdgeCreate(BasicVisualizationServer<V, E> vv, Point2D midPoint) {
+    if (startVertex != null) {
+      this.edgeEffects.midEdgeEffects(vv, down, midPoint);
+      if (vv.getModel().getNetwork().isDirected()) {
+        this.edgeEffects.midArrowEffects(vv, down, midPoint);
+      }
+      vv.repaint();
+    }
+  }
 
-	public void setEdgeEffects(EdgeEffects<V, E> edgeEffects) {
-		this.edgeEffects = edgeEffects;
-	}
+  @Override
+  public void endEdgeCreate(BasicVisualizationServer<V, E> vv, V endVertex) {
+    Preconditions.checkState(
+        vv.getModel().getNetwork() instanceof MutableNetwork<?, ?>, "graph must be mutable");
+    if (startVertex != null) {
+      MutableNetwork<V, E> graph = (MutableNetwork<V, E>) vv.getModel().getNetwork();
+      graph.addEdge(startVertex, endVertex, edgeFactory.get());
+      vv.repaint();
+    }
+    startVertex = null;
+    edgeEffects.endEdgeEffects(vv);
+    edgeEffects.endArrowEffects(vv);
+  }
 
-	public EdgeType getEdgeType() {
-		return edgeType;
-	}
+  @Override
+  public void abort(BasicVisualizationServer<V, E> vv) {
+    startVertex = null;
+    edgeEffects.endEdgeEffects(vv);
+    edgeEffects.endArrowEffects(vv);
+    vv.repaint();
+  }
 
-	public void setEdgeType(EdgeType edgeType) {
-		this.edgeType = edgeType;
-	}
+  public EdgeEffects<V, E> getEdgeEffects() {
+    return edgeEffects;
+  }
 
-	public Supplier<E> getEdgeFactory() {
-		return edgeFactory;
-	}
+  public void setEdgeEffects(EdgeEffects<V, E> edgeEffects) {
+    this.edgeEffects = edgeEffects;
+  }
 
-	public void setEdgeFactory(Supplier<E> edgeFactory) {
-		this.edgeFactory = edgeFactory;
-	}
+  public Supplier<E> getEdgeFactory() {
+    return edgeFactory;
+  }
 
+  public void setEdgeFactory(Supplier<E> edgeFactory) {
+    this.edgeFactory = edgeFactory;
+  }
 }

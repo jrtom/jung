@@ -1,7 +1,7 @@
 /*
  * Created on Feb 16, 2009
  *
- * Copyright (c) 2009, The JUNG Authors 
+ * Copyright (c) 2009, The JUNG Authors
  *
  * All rights reserved.
  *
@@ -12,31 +12,24 @@
 package edu.uci.ics.jung.visualization.decorators;
 
 import java.text.NumberFormat;
-
-import com.google.common.base.Function;
+import java.util.function.Function;
 
 /**
- * Transforms inputs to String representations by chaining an input 
- * {@code Number}-generating {@code Function} with an internal 
- * {@code NumberFormat} instance.
+ * Transforms inputs to String representations by chaining an input {@code Number}-generating {@code
+ * Function} with an internal {@code NumberFormat} instance.
+ *
  * @author Joshua O'Madadhain
  */
-public class NumberFormattingTransformer<T> implements Function<T, String>
-{
-    private Function<T, ? extends Number> values;
-    private NumberFormat formatter = NumberFormat.getInstance();
-    
-    public NumberFormattingTransformer(Function<T, ? extends Number> values)
-    {
-        this.values = values;
-    }
+public class NumberFormattingTransformer<T> implements Function<T, String> {
+  private Function<T, ? extends Number> values;
+  private NumberFormat formatter = NumberFormat.getInstance();
 
-    /**
-     * Returns a formatted string for the input.
-     */
-    public String apply(T input)
-    {
-        return formatter.format(values.apply(input));
-    }
+  public NumberFormattingTransformer(Function<T, ? extends Number> values) {
+    this.values = values;
+  }
 
+  /** Returns a formatted string for the input. */
+  public String apply(T input) {
+    return formatter.format(values.apply(input));
+  }
 }

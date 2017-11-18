@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2003, The JUNG Authors 
+ * Copyright (c) 2003, The JUNG Authors
  *
  * All rights reserved.
  *
@@ -12,24 +12,18 @@
  */
 package edu.uci.ics.jung.visualization.decorators;
 
-import com.google.common.base.Function;
-
-
+import java.util.function.Function;
 
 /**
- * Labels vertices by their toString. This class functions as a drop-in
- * replacement for the default StringLabeller method. This class does not
- * guarantee unique labels; or even consistent ones.
- * 
+ * Labels vertices by their toString. This class functions as a drop-in replacement for the default
+ * StringLabeller method. This class does not guarantee unique labels; or even consistent ones.
+ *
  * @author danyelf
  */
-public class ToStringLabeller implements Function<Object, String> {
+public class ToStringLabeller<V> implements Function<V, String> {
 
-    /**
-     * @return o.toString()
-     */
-    public String apply(Object o) {
-        return o.toString();
-    }
-
- }
+  /** @return o.toString() */
+  public String apply(V o) {
+    return o.toString();
+  }
+}

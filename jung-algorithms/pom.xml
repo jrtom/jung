@@ -4,13 +4,20 @@
   <parent>
     <groupId>net.sf.jung</groupId>
     <artifactId>jung-parent</artifactId>
-    <version>2.2-SNAPSHOT</version>
+    <version>3.0-SNAPSHOT</version>
   </parent>
   <artifactId>jung-algorithms</artifactId>
   <name>JUNG - Algorithms</name>
   <description>Algorithms for the JUNG project</description>
-
+  <properties>
+    <version.slf4j>1.7.9</version.slf4j>
+  </properties>
   <dependencies>
+  <dependency>
+    <groupId>org.slf4j</groupId>
+    <artifactId>slf4j-api</artifactId>
+    <version>${version.slf4j}</version>
+  </dependency>
     <dependency>
       <groupId>net.sf.jung</groupId>
       <artifactId>jung-api</artifactId>
@@ -28,5 +35,4 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-
 </project>

@@ -1,7 +1,7 @@
 /*
  * Created on Jul 18, 2004
  *
- * Copyright (c) 2004, The JUNG Authors 
+ * Copyright (c) 2004, The JUNG Authors
  *
  * All rights reserved.
  *
@@ -12,18 +12,11 @@
 package edu.uci.ics.jung.visualization.decorators;
 
 import java.awt.Shape;
+import java.util.function.Function;
 
-import com.google.common.base.Function;
+/** @author Joshua O'Madadhain */
+public interface SettableVertexShapeTransformer<V> extends Function<V, Shape> {
+  public abstract void setSizeTransformer(Function<V, Integer> vsf);
 
-
-
-/**
- * 
- * @author Joshua O'Madadhain
- */
-public interface SettableVertexShapeTransformer<V> extends Function<V,Shape>
-{
-    public abstract void setSizeTransformer(Function<V,Integer> vsf);
-
-    public abstract void setAspectRatioTransformer(Function<V,Float> varf);
+  public abstract void setAspectRatioTransformer(Function<V, Float> varf);
 }

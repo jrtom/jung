@@ -10,25 +10,24 @@
 
 package edu.uci.ics.jung.visualization.transform.shape;
 
+import edu.uci.ics.jung.visualization.transform.BidirectionalTransformer;
 import java.awt.Shape;
 
-import edu.uci.ics.jung.visualization.transform.BidirectionalTransformer;
-
 /**
- * Provides methods to map points from one coordinate system to
- * another: graph to screen and screen to graph.
- * 
- * @author Tom Nelson 
+ * Provides methods to map points from one coordinate system to another: graph to screen and screen
+ * to graph.
+ *
+ * @author Tom Nelson
  */
 public interface ShapeTransformer extends BidirectionalTransformer {
-    
-    /**
-     * map a shape from graph coordinate system to the
-     * screen coordinate system
-     * @param shape the Shape to transform
-     * @return a GeneralPath (Shape) representing the screen points of the shape
-     */
-    Shape transform(Shape shape);
-    
-    Shape inverseTransform(Shape shape);
+
+  /**
+   * map a shape from graph coordinate system to the screen coordinate system
+   *
+   * @param shape the Shape to transform
+   * @return a GeneralPath (Shape) representing the screen points of the shape
+   */
+  Shape transform(Shape shape);
+
+  Shape inverseTransform(Shape shape);
 }

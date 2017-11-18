@@ -9,7 +9,6 @@ dist: trusty
 jdk:
   - oraclejdk8
   - openjdk8
-  - openjdk7
 
 install:
   - mvn -v

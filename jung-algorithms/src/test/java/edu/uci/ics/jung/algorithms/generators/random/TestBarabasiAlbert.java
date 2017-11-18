@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, the JUNG Project and the Regents of the University 
+ * Copyright (c) 2016, the JUNG Project and the Regents of the University
  * of California.  All rights reserved.
  *
  * This software is open-source under the BSD license; see
@@ -7,22 +7,11 @@
  */
 package edu.uci.ics.jung.algorithms.generators.random;
 
-import java.util.HashSet;
-
-import com.google.common.base.Supplier;
-
-import edu.uci.ics.jung.graph.DirectedSparseGraph;
-import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.SparseGraph;
-import edu.uci.ics.jung.graph.SparseMultigraph;
-import edu.uci.ics.jung.graph.UndirectedSparseGraph;
-import edu.uci.ics.jung.graph.UndirectedSparseMultigraph;
-import edu.uci.ics.jung.graph.util.EdgeType;
-import edu.uci.ics.jung.graph.util.Pair;
-import junit.framework.Test;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.graph.Network;
+import com.google.common.graph.NetworkBuilder;
+import java.util.function.Supplier;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 /**
  * @author W. Giordano
@@ -30,225 +19,138 @@ import junit.framework.TestSuite;
  * @author James Marchant
  */
 public class TestBarabasiAlbert extends TestCase {
-	protected Supplier<Graph<Integer, Number>> graphFactory;
-	protected Supplier<Integer> vertexFactory;
-	protected Supplier<Number> edgeFactory;
+  protected Supplier<Integer> vertexFactory;
+  protected Supplier<Number> edgeFactory;
 
-	protected int init_vertices = 1;
-	protected int edges_to_add_per_timestep = 1;
-	protected int random_seed = 0;
-	protected int num_timesteps = 10;
-	protected int num_tests = 10;
+  protected int init_vertices = 1;
+  protected int edges_to_add_per_timestep = 1;
+  protected int random_seed = 0;
+  protected int num_timesteps = 10;
+  protected int num_tests = 10;
 
-	public static Test suite() {
-		return new TestSuite(TestBarabasiAlbert.class);
-	}
+  @Override
+  protected void setUp() {
+    vertexFactory =
+        new Supplier<Integer>() {
+          int count;
 
-	@Override
-	protected void setUp() {
-		graphFactory = new Supplier<Graph<Integer, Number>>() {
-			public Graph<Integer, Number> get() {
-				return new SparseMultigraph<Integer, Number>();
-			}
-		};
-		vertexFactory = new Supplier<Integer>() {
-			int count;
+          public Integer get() {
+            return count++;
+          }
+        };
+    edgeFactory =
+        new Supplier<Number>() {
+          int count;
 
-			public Integer get() {
-				return count++;
-			}
-		};
-		edgeFactory = new Supplier<Number>() {
-			int count;
+          public Number get() {
+            return count++;
+          }
+        };
+  }
 
-			public Number get() {
-				return count++;
-			}
-		};
-	}
+  // TODO(jrtom): add tests for
+  // * parallel edges
+  // * undirected edges
+  // * ...
+  public void testDirected() {
+    int init_vertices = 1;
+    int edges_to_add_per_timestep = 1;
+    int random_seed = 0;
+    int num_tests = 10;
+    int num_timesteps = 10;
 
-	private Graph<Integer, Number> generateAndTestSizeOfBarabasiAlbertGraph(
-			Supplier<Graph<Integer, Number>> graphFactory, Supplier<Integer> vertexFactory,
-			Supplier<Number> edgeFactory, int init_vertices, int edges_to_add_per_timestep, int random_seed,
-			int num_tests) {
-		BarabasiAlbertGenerator<Integer, Number> generator = new BarabasiAlbertGenerator<Integer, Number>(graphFactory,
-				vertexFactory, edgeFactory, init_vertices, edges_to_add_per_timestep, random_seed,
-				new HashSet<Integer>());
+    Supplier<Integer> vertexFactory =
+        new Supplier<Integer>() {
+          int count;
 
-		Graph<Integer, Number> graph = null;
-		// test the graph size over {@code num_tests} intervals of {@code
-		// num_timesteps} timesteps
-		for (int i = 1; i <= num_tests; i++) {
-			generator.evolveGraph(num_timesteps);
-			graph = generator.get();
-			assertEquals(graph.getVertexCount(), (i * num_timesteps) + init_vertices);
-			assertEquals(graph.getEdgeCount(), edges_to_add_per_timestep * (i * num_timesteps));
-		}
+          public Integer get() {
+            return count++;
+          }
+        };
+    Supplier<Number> edgeFactory =
+        new Supplier<Number>() {
+          int count;
 
-		return graph;
-	}
+          public Number get() {
+            return count++;
+          }
+        };
 
-	public void testMultigraphCreation() {
-		generateAndTestSizeOfBarabasiAlbertGraph(graphFactory, vertexFactory, edgeFactory, init_vertices,
-				edges_to_add_per_timestep, random_seed, num_tests);
-	}
+    BarabasiAlbertGenerator<Integer, Number> generator =
+        new BarabasiAlbertGenerator<>(
+            NetworkBuilder.directed(),
+            vertexFactory,
+            edgeFactory,
+            init_vertices,
+            edges_to_add_per_timestep,
+            random_seed);
+    for (int i = 1; i <= num_tests; i++) {
+      generator.evolveGraph(num_timesteps);
+      Network<Integer, Number> graph = generator.get();
+      assertEquals(graph.nodes().size(), (i * num_timesteps) + init_vertices);
+      assertEquals(graph.edges().size(), edges_to_add_per_timestep * (i * num_timesteps));
+      ImmutableSet<Integer> seedNodes = generator.seedNodes();
 
-	public void testDirectedMultigraphCreation() {
-		graphFactory = new Supplier<Graph<Integer, Number>>() {
-			public Graph<Integer, Number> get() {
-				return new DirectedSparseMultigraph<Integer, Number>();
-			}
-		};
+      for (Integer v : graph.nodes()) {
+        if (!seedNodes.contains(v)) {
+          // Every non-seed node should have an out-degree AT LEAST equal to the number of
+          // edges added per timestep (possibly more if the graph is undirected).
+          assertTrue(graph.outDegree(v) >= edges_to_add_per_timestep);
+        }
 
-		generateAndTestSizeOfBarabasiAlbertGraph(graphFactory, vertexFactory, edgeFactory, init_vertices,
-				edges_to_add_per_timestep, random_seed, num_tests);
-	}
+        // Check that not every edge goes to one node; the in-degree of any node
+        // should be strictly less than the number of edges.
+        assertTrue(graph.inDegree(v) < graph.edges().size());
+      }
+    }
+  }
 
-	public void testUndirectedMultigraphCreation() {
-		graphFactory = new Supplier<Graph<Integer, Number>>() {
-			public Graph<Integer, Number> get() {
-				return new UndirectedSparseMultigraph<Integer, Number>();
-			}
-		};
+  @SuppressWarnings("unused")
+  public void testPreconditions() {
+    try {
+      BarabasiAlbertGenerator<Integer, Number> generator =
+          new BarabasiAlbertGenerator<>(
+              NetworkBuilder.directed(),
+              vertexFactory,
+              edgeFactory,
+              0, // init_vertices
+              edges_to_add_per_timestep,
+              random_seed);
+      fail("failed to reject init_vertices of <= 0");
+    } catch (IllegalArgumentException e) {
+      // TODO: assert that the exception message contains "seed"
+    }
 
-		generateAndTestSizeOfBarabasiAlbertGraph(graphFactory, vertexFactory, edgeFactory, init_vertices,
-				edges_to_add_per_timestep, random_seed, num_tests);
-	}
+    // test edges_to_add_per_timestep = 0
+    try {
+      BarabasiAlbertGenerator<Integer, Number> generator =
+          new BarabasiAlbertGenerator<>(
+              NetworkBuilder.directed(),
+              vertexFactory,
+              edgeFactory,
+              init_vertices,
+              0, // edges_to_add_per_timestep
+              random_seed);
+      fail("failed to reject edges_to_add_per_timestamp of <= 0");
+    } catch (IllegalArgumentException e) {
+      // TODO: assert that the exception message is approx:
+      // "Number of edges to attach at each time step must be positive"
+    }
 
-	public void testGraphCreation() {
-		graphFactory = new Supplier<Graph<Integer, Number>>() {
-			public Graph<Integer, Number> get() {
-				return new SparseGraph<Integer, Number>();
-			}
-		};
-
-		generateAndTestSizeOfBarabasiAlbertGraph(graphFactory, vertexFactory, edgeFactory, init_vertices,
-				edges_to_add_per_timestep, random_seed, num_tests);
-	}
-
-	public void testDirectedGraphCreation() {
-		graphFactory = new Supplier<Graph<Integer, Number>>() {
-			public Graph<Integer, Number> get() {
-				return new DirectedSparseGraph<Integer, Number>();
-			}
-		};
-
-		generateAndTestSizeOfBarabasiAlbertGraph(graphFactory, vertexFactory, edgeFactory, init_vertices,
-				edges_to_add_per_timestep, random_seed, num_tests);
-	}
-
-	public void testUndirectedGraphCreation() {
-		graphFactory = new Supplier<Graph<Integer, Number>>() {
-			public Graph<Integer, Number> get() {
-				return new UndirectedSparseGraph<Integer, Number>();
-			}
-		};
-
-		generateAndTestSizeOfBarabasiAlbertGraph(graphFactory, vertexFactory, edgeFactory, init_vertices,
-				edges_to_add_per_timestep, random_seed, num_tests);
-	}
-
-	/**
-	 * Due to the way the Barabasi-Albert algorithm works there should be no
-	 * opportunities for the generation of self-loops within the graph.
-	 */
-	public void testNoSelfLoops() {
-		graphFactory = new Supplier<Graph<Integer, Number>>() {
-			public Graph<Integer, Number> get() {
-				return new UndirectedSparseGraph<Integer, Number>() {
-					private static final long serialVersionUID = 1L;
-
-					/**
-					 * This anonymous class works as an UndirectedSparseGraph
-					 * but will not accept edges that connect a vertex to
-					 * itself.
-					 */
-					@Override
-					public boolean addEdge(Number edge, Pair<? extends Integer> endpoints, EdgeType edgeType) {
-						if (endpoints == null)
-							throw new IllegalArgumentException("endpoints may not be null");
-
-						Integer v1 = endpoints.getFirst();
-						Integer v2 = endpoints.getSecond();
-
-						if (v1.equals(v2))
-							throw new IllegalArgumentException("No self-loops");
-						else
-							return super.addEdge(edge, endpoints, edgeType);
-					}
-				};
-			}
-		};
-
-		generateAndTestSizeOfBarabasiAlbertGraph(graphFactory, vertexFactory, edgeFactory, init_vertices,
-				edges_to_add_per_timestep, random_seed, num_tests);
-	}
-
-	public void testPreconditions() {
-		// test init_vertices = 0
-		try {
-			generateAndTestSizeOfBarabasiAlbertGraph(graphFactory, vertexFactory, edgeFactory, 0,
-					edges_to_add_per_timestep, random_seed, num_tests);
-			fail();
-		} catch (IllegalArgumentException e) {
-		}
-
-		// test negative init_vertices
-		try {
-			generateAndTestSizeOfBarabasiAlbertGraph(graphFactory, vertexFactory, edgeFactory, -1,
-					edges_to_add_per_timestep, random_seed, num_tests);
-			fail();
-		} catch (IllegalArgumentException e) {
-		}
-
-		// test edges_to_add_per_timestep = 0
-		try {
-			generateAndTestSizeOfBarabasiAlbertGraph(graphFactory, vertexFactory, edgeFactory, init_vertices, 0,
-					random_seed, num_tests);
-			fail();
-		} catch (IllegalArgumentException e) {
-		}
-
-		// test negative edges_to_add_per_timestep
-		try {
-			generateAndTestSizeOfBarabasiAlbertGraph(graphFactory, vertexFactory, edgeFactory, init_vertices, -1,
-					random_seed, num_tests);
-			fail();
-		} catch (IllegalArgumentException e) {
-		}
-
-		// test edges_to_add_per_timestep > init_vertices
-		try {
-			generateAndTestSizeOfBarabasiAlbertGraph(graphFactory, vertexFactory, edgeFactory, 2, 3, random_seed,
-					num_tests);
-			fail();
-		} catch (IllegalArgumentException e) {
-		}
-	}
-
-	/**
-	 * Every node should have an out-degree AT LEAST equal to the number of
-	 * edges added per timestep (dependent on if it is directed or undirected).
-	 */
-	public void testEveryNodeHasCorrectMinimumNumberOfEdges() {
-		Graph<Integer, Number> graph = generateAndTestSizeOfBarabasiAlbertGraph(graphFactory, vertexFactory,
-				edgeFactory, init_vertices, edges_to_add_per_timestep, random_seed, num_tests);
-
-		for (Integer v : graph.getVertices()) {
-			assertTrue(graph.outDegree(v) >= edges_to_add_per_timestep);
-		}
-	}
-
-	/**
-	 * Check that not every edge goes to one node; the in-degree of any node
-	 * should be strictly less than the number of edges.
-	 */
-	public void testNotEveryEdgeToOneNode() {
-		Graph<Integer, Number> graph = generateAndTestSizeOfBarabasiAlbertGraph(graphFactory, vertexFactory,
-				edgeFactory, init_vertices, edges_to_add_per_timestep, random_seed, num_tests);
-
-		for (Integer v : graph.getVertices()) {
-			assertTrue(graph.inDegree(v) < graph.getEdgeCount());
-		}
-	}
+    // test edges_to_add_per_timestep > init_vertices
+    try {
+      int nodesToAdd = 5;
+      BarabasiAlbertGenerator<Integer, Number> generator =
+          new BarabasiAlbertGenerator<>(
+              NetworkBuilder.directed(),
+              vertexFactory,
+              edgeFactory,
+              nodesToAdd, // init_vertices
+              nodesToAdd + 1, // edges_to_add_per_timestep
+              random_seed);
+      fail("failed to reject edges_to_add_per_timestamp of > init_vertices");
+    } catch (IllegalArgumentException e) {
+      // TODO: assert that the exception message is appropriate (see above)
+    }
+  }
 }

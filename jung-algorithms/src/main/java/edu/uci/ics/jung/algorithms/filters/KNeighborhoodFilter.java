@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2003, The JUNG Authors 
+ * Copyright (c) 2003, The JUNG Authors
  *
  * All rights reserved.
  *
@@ -12,131 +12,68 @@
  *
  */
 package edu.uci.ics.jung.algorithms.filters;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import com.google.common.graph.Graph;
+import com.google.common.graph.GraphBuilder;
+import com.google.common.graph.MutableGraph;
+import java.util.ArrayDeque;
+import java.util.Queue;
 import java.util.Set;
 
-import edu.uci.ics.jung.algorithms.filters.Filter;
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.util.Pair;
-
 /**
- * A filter used to extract the k-neighborhood around one or more root node(s).
- * The k-neighborhood is defined as the subgraph induced by the set of 
- * vertices that are k or fewer hops (unweighted shortest-path distance)
- * away from the root node.
- * 
+ * A filter used to extract the k-neighborhood around a set of root nodes. The k-neighborhood is
+ * defined as the subgraph induced by the set of nodes that are k or fewer hops away from the root
+ * node.
+ *
  * @author Danyel Fisher
+ * @author Joshua O'Madadhain
  */
-public class KNeighborhoodFilter<V,E> implements Filter<V,E> {
+public class KNeighborhoodFilter {
 
-	/**
-	 * The type of edge to follow for defining the neighborhood.
-	 */
-	public static enum EdgeType { IN_OUT, IN, OUT }
-	private Set<V> rootNodes;
-	private int radiusK;
-	private EdgeType edgeType;
-	
-	/**
-	 * Constructs a new instance of the filter.
-	 * @param rootNodes the set of root nodes
-	 * @param radiusK the neighborhood radius around the root set
-	 * @param edgeType 0 for in/out edges, 1 for in-edges, 2  for out-edges
-	 */
-	public KNeighborhoodFilter(Set<V> rootNodes, int radiusK, EdgeType edgeType) {
-		this.rootNodes = rootNodes;
-		this.radiusK = radiusK;
-		this.edgeType = edgeType;
-	}
-	
-	/**
-	 * Constructs a new instance of the filter.
-	 * @param rootNode the root node
-	 * @param radiusK the neighborhood radius around the root set
-	 * @param edgeType 0 for in/out edges, 1 for in-edges, 2  for out-edges
-	 */
-	public KNeighborhoodFilter(V rootNode, int radiusK, EdgeType edgeType) {
-		this.rootNodes = new HashSet<V>();
-		this.rootNodes.add(rootNode);
-		this.radiusK = radiusK;
-		this.edgeType = edgeType;
-	}
-	
-	/**
-	 * Constructs an unassembled graph containing the k-neighborhood around the root node(s).
-	 */
-	@SuppressWarnings("unchecked")
-	public Graph<V,E> apply(Graph<V,E> graph) {
-		// generate a Set of Vertices we want
-		// add all to the UG
-		int currentDepth = 0;
-		List<V> currentVertices = new ArrayList<V>();
-		Set<V> visitedVertices = new HashSet<V>();
-		Set<E> visitedEdges = new HashSet<E>();
-		Set<V> acceptedVertices = new HashSet<V>();
-		//Copy, mark, and add all the root nodes to the new subgraph
-		for (V currentRoot : rootNodes) {
+  // TODO: create ValueGraph/Network versions
+  public static <N> MutableGraph<N> filterGraph(Graph<N> graph, Set<N> rootNodes, int radius) {
+    checkNotNull(graph);
+    checkNotNull(rootNodes);
+    checkArgument(graph.nodes().containsAll(rootNodes), "graph must contain all of rootNodes");
+    checkArgument(radius > 0, "radius must be > 0");
 
-			visitedVertices.add(currentRoot);
-			acceptedVertices.add(currentRoot);
-			currentVertices.add(currentRoot);
-		}
-		ArrayList<V> newVertices = null;
-		//Use BFS to locate the neighborhood around the root nodes within distance k
-		while (currentDepth < radiusK) {
-			newVertices = new ArrayList<V>();
-			for (V currentVertex : currentVertices) {
+    MutableGraph<N> filtered = GraphBuilder.from(graph).build();
+    for (N root : rootNodes) {
+      filtered.addNode(root);
+    }
+    Queue<N> currentNodes = new ArrayDeque<>(rootNodes);
+    Queue<N> nextNodes = new ArrayDeque<>();
 
-				Collection<E> edges = null;
-				switch (edgeType) {
-					case IN_OUT :
-						edges = graph.getIncidentEdges(currentVertex);
-						break;
-					case IN :
-						edges = graph.getInEdges(currentVertex);
-						break;
-					case OUT :
-						edges = graph.getOutEdges(currentVertex);
-						break;
-				}
-				for (E currentEdge : edges) {
-
-					V currentNeighbor =
-						graph.getOpposite(currentVertex, currentEdge);
-					if (!visitedEdges.contains(currentEdge)) {
-						visitedEdges.add(currentEdge);
-						if (!visitedVertices.contains(currentNeighbor)) {
-							visitedVertices.add(currentNeighbor);
-							acceptedVertices.add(currentNeighbor);
-							newVertices.add(currentNeighbor);
-						}
-					}
-				}
-			}
-			currentVertices = newVertices;
-			currentDepth++;
-		}
-		Graph<V,E> ug = null;
-		try {
-			ug = graph.getClass().newInstance();
-			for(E edge : graph.getEdges()) {
-				Pair<V> endpoints = graph.getEndpoints(edge);
-				if(acceptedVertices.containsAll(endpoints)) {
-					ug.addEdge(edge, endpoints.getFirst(), endpoints.getSecond());
-				}
-			}
-		} 
-        catch (InstantiationException e)
-        {
-            throw new RuntimeException("Unable to create copy of existing graph: ", e);
+    for (int depth = 1; depth <= radius && !currentNodes.isEmpty(); depth++) {
+      while (!currentNodes.isEmpty()) {
+        N currentNode = currentNodes.remove();
+        for (N nextNode : graph.successors(currentNode)) {
+          // the addNode needs to happen before putEdge() because we need to know whether
+          // the node was present in the graph
+          // (and putEdge() will always add the node if not present)
+          if (filtered.addNode(nextNode)) {
+            nextNodes.add(nextNode);
+          }
+          filtered.putEdge(currentNode, nextNode);
         }
-        catch (IllegalAccessException e)
-        {
-            throw new RuntimeException("Unable to create copy of existing graph: ", e);
+      }
+      Queue<N> emptyQueue = currentNodes;
+      currentNodes = nextNodes;
+      nextNodes = emptyQueue;
+    }
+
+    // put in in-edges from nodes in the filtered graph
+    for (N node : filtered.nodes()) {
+      for (N predecessor : graph.predecessors(node)) {
+        if (filtered.nodes().contains(predecessor)) {
+          filtered.putEdge(predecessor, node);
         }
-		return ug;
-	}
+      }
+    }
+
+    return filtered;
+  }
 }

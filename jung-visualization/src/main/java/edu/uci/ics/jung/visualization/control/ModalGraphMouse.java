@@ -10,27 +10,26 @@
 
 package edu.uci.ics.jung.visualization.control;
 
+import edu.uci.ics.jung.visualization.VisualizationViewer;
 import java.awt.event.ItemListener;
-
-import edu.uci.ics.jung.visualization.VisualizationViewer.GraphMouse;
 
 /**
  * Interface for a GraphMouse that supports modality.
- * 
- * @author Tom Nelson 
  *
+ * @author Tom Nelson
  */
-public interface ModalGraphMouse extends GraphMouse {
-    
-    void setMode(Mode mode);
-    
-    /**
-     * @return Returns the modeListener.
-     */
-    ItemListener getModeListener();
-    
-    /**
-     */
-    enum Mode { TRANSFORMING, PICKING, ANNOTATING, EDITING }
-    
+public interface ModalGraphMouse extends VisualizationViewer.GraphMouse {
+
+  void setMode(Mode mode);
+
+  /** @return Returns the modeListener. */
+  ItemListener getModeListener();
+
+  /** */
+  enum Mode {
+    TRANSFORMING,
+    PICKING,
+    ANNOTATING,
+    EDITING
+  }
 }

@@ -1,79 +1,69 @@
 /**
- * Copyright (c) 2008, The JUNG Authors 
+ * Copyright (c) 2008, The JUNG Authors
  *
- * All rights reserved.
+ * <p>All rights reserved.
  *
- * This software is open-source under the BSD license; see either
- * "license.txt" or
- * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
- * Created on Jul 14, 2008
- * 
+ * <p>This software is open-source under the BSD license; see either "license.txt" or
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description. Created on Jul 14, 2008
  */
 package edu.uci.ics.jung.algorithms.scoring;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
+import com.google.common.graph.MutableNetwork;
+import com.google.common.graph.NetworkBuilder;
 import junit.framework.TestCase;
 
-import com.google.common.base.Functions;
+/** @author jrtom */
+public class TestVoltageScore extends TestCase {
+  protected MutableNetwork<Number, Number> g;
 
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.UndirectedSparseMultigraph;
+  // TODO:
+  // * test multiple sources/targets
+  // * test weighted edges
+  // * test exceptional cases
 
-/**
- * @author jrtom
- *
- */
-public class TestVoltageScore extends TestCase 
-{
-    protected Graph<Number,Number> g;
-    
-    @Override
-    public void setUp() {
-        g = new UndirectedSparseMultigraph<Number,Number>();
-        for (int i = 0; i < 7; i++) {
-        	g.addVertex(i);
-        }
+  public final void testDirectedVoltagesSourceTarget() {
+    g = NetworkBuilder.directed().build();
 
-        int j = 0;
-        g.addEdge(j++,0,1);
-        g.addEdge(j++,0,2);
-        g.addEdge(j++,1,3);
-        g.addEdge(j++,2,3);
-        g.addEdge(j++,3,4);
-        g.addEdge(j++,3,5);
-        g.addEdge(j++,4,6);
-        g.addEdge(j++,5,6);
+    int j = 0;
+    g.addEdge(0, 1, j++);
+    g.addEdge(1, 2, j++);
+    g.addEdge(2, 3, j++);
+    g.addEdge(2, 4, j++);
+    g.addEdge(3, 4, j++);
+    g.addEdge(4, 1, j++);
+    g.addEdge(4, 0, j++);
+
+    VoltageScorer<Number, Number> vr = new VoltageScorer<>(g, n -> 1, 0, 3);
+    double[] voltages = {1.0, 2.0 / 3, 2.0 / 3, 0, 1.0 / 3};
+
+    vr.evaluate();
+    checkVoltages(vr, voltages);
+  }
+
+  public final void testUndirectedSourceTarget() {
+    g = NetworkBuilder.undirected().build();
+    int j = 0;
+    g.addEdge(0, 1, j++);
+    g.addEdge(0, 2, j++);
+    g.addEdge(1, 3, j++);
+    g.addEdge(2, 3, j++);
+    g.addEdge(3, 4, j++);
+    g.addEdge(3, 5, j++);
+    g.addEdge(4, 6, j++);
+    g.addEdge(5, 6, j++);
+    VoltageScorer<Number, Number> vr = new VoltageScorer<>(g, n -> 1, 0, 6);
+    double[] voltages = {1.0, 0.75, 0.75, 0.5, 0.25, 0.25, 0};
+
+    vr.evaluate();
+    checkVoltages(vr, voltages);
+  }
+
+  private static final void checkVoltages(VoltageScorer<Number, Number> vr, double[] voltages) {
+    assertEquals(vr.vertexScores().size(), voltages.length);
+    System.out.println("scores: " + vr.vertexScores());
+    System.out.println("voltages: " + voltages.toString());
+    for (int i = 0; i < voltages.length; i++) {
+      assertEquals(vr.getVertexScore(i), voltages[i], 0.01);
     }
-    
-    public final void testCalculateVoltagesSourceTarget() {
-        VoltageScorer<Number,Number> vr = new VoltageScorer<Number,Number>(g, Functions.<Number>constant(1), 0, 6);
-        double[] voltages = {1.0, 0.75, 0.75, 0.5, 0.25, 0.25, 0};
-        
-        vr.evaluate();
-        for (int i = 0; i < 7; i++) {
-            assertEquals(vr.getVertexScore(i), voltages[i], 0.01);
-        }
-    }
-    
-    public final void testCalculateVoltagesSourcesTargets()
-    {
-        Map<Number,Number> sources = new HashMap<Number,Number>();
-        sources.put(0, new Double(1.0));
-        sources.put(1, new Double(0.5));
-        Set<Number> sinks = new HashSet<Number>();
-        sinks.add(6);
-        sinks.add(5);
-        VoltageScorer<Number,Number> vr = 
-        	new VoltageScorer<Number,Number>(g, Functions.constant(1), sources, sinks);
-        double[] voltages = {1.0, 0.5, 0.66, 0.33, 0.16, 0, 0};
-        
-        vr.evaluate();
-        for (int i = 0; i < 7; i++) {
-            assertEquals(vr.getVertexScore(i), voltages[i], 0.01);
-        }
-    }
+  }
 }

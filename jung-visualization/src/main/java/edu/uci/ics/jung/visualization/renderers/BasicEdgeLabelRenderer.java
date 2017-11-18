@@ -9,105 +9,127 @@
  */
 package edu.uci.ics.jung.visualization.renderers;
 
+import com.google.common.graph.EndpointPair;
+import edu.uci.ics.jung.layout.model.LayoutModel;
+import edu.uci.ics.jung.visualization.Layer;
+import edu.uci.ics.jung.visualization.RenderContext;
+import edu.uci.ics.jung.visualization.VisualizationModel;
+import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
+import edu.uci.ics.jung.visualization.util.Context;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
+import java.util.function.Predicate;
 
-import edu.uci.ics.jung.algorithms.layout.Layout;
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.util.Context;
-import edu.uci.ics.jung.graph.util.Pair;
-import edu.uci.ics.jung.visualization.Layer;
-import edu.uci.ics.jung.visualization.RenderContext;
-import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
+public class BasicEdgeLabelRenderer<V, E> implements Renderer.EdgeLabel<V, E> {
 
-public class BasicEdgeLabelRenderer<V,E> implements Renderer.EdgeLabel<V,E> {
-	
-	public Component prepareRenderer(RenderContext<V,E> rc, EdgeLabelRenderer graphLabelRenderer, Object value, 
-			boolean isSelected, E edge) {
-		return rc.getEdgeLabelRenderer().<E>getEdgeLabelRendererComponent(rc.getScreenDevice(), value, 
-				rc.getEdgeFontTransformer().apply(edge), isSelected, edge);
-	}
-    
-    public void labelEdge(RenderContext<V,E> rc, Layout<V,E> layout, E e, String label) {
-    	if(label == null || label.length() == 0) return;
-    	
-    	Graph<V,E> graph = layout.getGraph();
-        // don't draw edge if either incident vertex is not drawn
-        Pair<V> endpoints = graph.getEndpoints(e);
-        V v1 = endpoints.getFirst();
-        V v2 = endpoints.getSecond();
-        if (!rc.getEdgeIncludePredicate().apply(Context.<Graph<V,E>,E>getInstance(graph,e)))
-            return;
+  public Component prepareRenderer(
+      RenderContext<V, E> renderContext,
+      LayoutModel<V, Point2D> layoutModel,
+      EdgeLabelRenderer graphLabelRenderer,
+      Object value,
+      boolean isSelected,
+      E edge) {
+    return renderContext
+        .getEdgeLabelRenderer()
+        .<E>getEdgeLabelRendererComponent(
+            renderContext.getScreenDevice(),
+            value,
+            renderContext.getEdgeFontTransformer().apply(edge),
+            isSelected,
+            edge);
+  }
 
-        if (!rc.getVertexIncludePredicate().apply(Context.<Graph<V,E>,V>getInstance(graph,v1)) || 
-            !rc.getVertexIncludePredicate().apply(Context.<Graph<V,E>,V>getInstance(graph,v2)))
-            return;
-
-        Point2D p1 = layout.apply(v1);
-        Point2D p2 = layout.apply(v2);
-        p1 = rc.getMultiLayerTransformer().transform(Layer.LAYOUT, p1);
-        p2 = rc.getMultiLayerTransformer().transform(Layer.LAYOUT, p2);
-        float x1 = (float) p1.getX();
-        float y1 = (float) p1.getY();
-        float x2 = (float) p2.getX();
-        float y2 = (float) p2.getY();
-
-        GraphicsDecorator g = rc.getGraphicsContext();
-        float distX = x2 - x1;
-        float distY = y2 - y1;
-        double totalLength = Math.sqrt(distX * distX + distY * distY);
-
-        double closeness = rc.getEdgeLabelClosenessTransformer().apply(Context.<Graph<V,E>,E>getInstance(graph, e)).doubleValue();
-
-        int posX = (int) (x1 + (closeness) * distX);
-        int posY = (int) (y1 + (closeness) * distY);
-
-        int xDisplacement = (int) (rc.getLabelOffset() * (distY / totalLength));
-        int yDisplacement = (int) (rc.getLabelOffset() * (-distX / totalLength));
-        
-        Component component = prepareRenderer(rc, rc.getEdgeLabelRenderer(), label, 
-                rc.getPickedEdgeState().isPicked(e), e);
-        
-        Dimension d = component.getPreferredSize();
-
-        Shape edgeShape = rc.getEdgeShapeTransformer().apply(e);
-        
-        double parallelOffset = 1;
-
-        parallelOffset += rc.getParallelEdgeIndexFunction().getIndex(graph, e);
-
-        parallelOffset *= d.height;
-        if(edgeShape instanceof Ellipse2D) {
-            parallelOffset += edgeShape.getBounds().getHeight();
-            parallelOffset = -parallelOffset;
-        }
-        
-        
-        AffineTransform old = g.getTransform();
-        AffineTransform xform = new AffineTransform(old);
-        xform.translate(posX+xDisplacement, posY+yDisplacement);
-        double dx = x2 - x1;
-        double dy = y2 - y1;
-        if(rc.getEdgeLabelRenderer().isRotateEdgeLabels()) {
-            double theta = Math.atan2(dy, dx);
-            if(dx < 0) {
-                theta += Math.PI;
-            }
-            xform.rotate(theta);
-        }
-        if(dx < 0) {
-            parallelOffset = -parallelOffset;
-        }
-        
-        xform.translate(-d.width/2, -(d.height/2-parallelOffset));
-        g.setTransform(xform);
-        g.draw(component, rc.getRendererPane(), 0, 0, d.width, d.height, true);
-
-        g.setTransform(old);
+  @Override
+  public void labelEdge(
+      RenderContext<V, E> renderContext,
+      VisualizationModel<V, E, Point2D> visualizationModel,
+      E e,
+      String label) {
+    if (label == null || label.length() == 0) {
+      return;
     }
 
+    // don't draw edge if either incident vertex is not drawn
+    EndpointPair<V> endpoints = visualizationModel.getNetwork().incidentNodes(e);
+    V v1 = endpoints.nodeU();
+    V v2 = endpoints.nodeV();
+    Predicate<V> nodeIncludePredicate = renderContext.getVertexIncludePredicate();
+    if (!nodeIncludePredicate.test(v1) || !nodeIncludePredicate.test(v2)) {
+      return;
+    }
+
+    Point2D p1 = visualizationModel.getLayoutModel().apply(v1);
+    Point2D p2 = visualizationModel.getLayoutModel().apply(v2);
+    p1 = renderContext.getMultiLayerTransformer().transform(Layer.LAYOUT, p1);
+    p2 = renderContext.getMultiLayerTransformer().transform(Layer.LAYOUT, p2);
+    float x1 = (float) p1.getX();
+    float y1 = (float) p1.getY();
+    float x2 = (float) p2.getX();
+    float y2 = (float) p2.getY();
+
+    GraphicsDecorator g = renderContext.getGraphicsContext();
+    float distX = x2 - x1;
+    float distY = y2 - y1;
+    double totalLength = Math.sqrt(distX * distX + distY * distY);
+
+    float closeness = renderContext.getEdgeLabelCloseness();
+
+    int posX = (int) (x1 + (closeness) * distX);
+    int posY = (int) (y1 + (closeness) * distY);
+
+    int xDisplacement = (int) (renderContext.getLabelOffset() * (distY / totalLength));
+    int yDisplacement = (int) (renderContext.getLabelOffset() * (-distX / totalLength));
+
+    Component component =
+        prepareRenderer(
+            renderContext,
+            visualizationModel.getLayoutModel(),
+            renderContext.getEdgeLabelRenderer(),
+            label,
+            renderContext.getPickedEdgeState().isPicked(e),
+            e);
+
+    Dimension d = component.getPreferredSize();
+
+    Shape edgeShape =
+        renderContext
+            .getEdgeShapeTransformer()
+            .apply(Context.getInstance(visualizationModel.getNetwork(), e));
+
+    double parallelOffset = 1;
+
+    parallelOffset += renderContext.getParallelEdgeIndexFunction().getIndex(e);
+
+    parallelOffset *= d.height;
+    if (edgeShape instanceof Ellipse2D) {
+      parallelOffset += edgeShape.getBounds().getHeight();
+      parallelOffset = -parallelOffset;
+    }
+
+    AffineTransform old = g.getTransform();
+    AffineTransform xform = new AffineTransform(old);
+    xform.translate(posX + xDisplacement, posY + yDisplacement);
+    double dx = x2 - x1;
+    double dy = y2 - y1;
+    if (renderContext.getEdgeLabelRenderer().isRotateEdgeLabels()) {
+      double theta = Math.atan2(dy, dx);
+      if (dx < 0) {
+        theta += Math.PI;
+      }
+      xform.rotate(theta);
+    }
+    if (dx < 0) {
+      parallelOffset = -parallelOffset;
+    }
+
+    xform.translate(-d.width / 2, -(d.height / 2 - parallelOffset));
+    g.setTransform(xform);
+    g.draw(component, renderContext.getRendererPane(), 0, 0, d.width, d.height, true);
+
+    g.setTransform(old);
+  }
 }

@@ -5,78 +5,67 @@
  * This software is open-source under the BSD license; see either "license.txt"
  * or https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  *
- * 
+ *
  */
 package edu.uci.ics.jung.visualization.util;
 
 import edu.uci.ics.jung.algorithms.util.IterativeContext;
 
-/**
- * 
- * 
- * @author Tom Nelson - tomnelson@dev.java.net
- *
- */
+/** @author Tom Nelson - tomnelson@dev.java.net */
 public class Animator implements Runnable {
-	
-	protected IterativeContext process;
-	protected boolean stop;
-	protected Thread thread;
-	
-	/**
-	 * how long the relaxer thread pauses between iteration loops.
-	 */
-	protected long sleepTime = 10L;
 
-	
-	public Animator(IterativeContext process) {
-		this(process, 10L);
-	}
+  protected IterativeContext process;
+  protected boolean stop;
+  protected Thread thread;
 
-	public Animator(IterativeContext process, long sleepTime) {
-		this.process = process;
-		this.sleepTime = sleepTime;
-	}
+  /** how long the relaxer thread pauses between iteration loops. */
+  protected long sleepTime = 10L;
 
-	/**
-	 * @return the relaxer thread sleep time
-	 */
-	public long getSleepTime() {
-		return sleepTime;
-	}
+  public Animator(IterativeContext process) {
+    this(process, 10L);
+  }
 
-	/**
-	 * @param sleepTime the relaxer thread sleep time to set
-	 */
-	public void setSleepTime(long sleepTime) {
-		this.sleepTime = sleepTime;
-	}
-	
-	public void start() {
-		// in case its running
-		stop();
-		stop = false;
-		thread = new Thread(this);
-		thread.setPriority(Thread.MIN_PRIORITY);
-		thread.start();
-	}
-	
-	public synchronized void stop() {
-		stop = true;
-	}
+  public Animator(IterativeContext process, long sleepTime) {
+    this.process = process;
+    this.sleepTime = sleepTime;
+  }
 
-	public void run() {
-		while (!process.done() && !stop) {
+  /** @return the relaxer thread sleep time */
+  public long getSleepTime() {
+    return sleepTime;
+  }
 
-			process.step();
+  /** @param sleepTime the relaxer thread sleep time to set */
+  public void setSleepTime(long sleepTime) {
+    this.sleepTime = sleepTime;
+  }
 
-			if (stop)
-				return;
+  public void start() {
+    // in case its running
+    stop();
+    stop = false;
+    thread = new Thread(this);
+    thread.setPriority(Thread.MIN_PRIORITY);
+    thread.start();
+  }
 
-			try {
-				Thread.sleep(sleepTime);
-			} catch (InterruptedException ie) {
-			}
-		}
-	}
+  public synchronized void stop() {
+    stop = true;
+  }
+
+  public void run() {
+    while (!process.done() && !stop) {
+
+      process.step();
+
+      if (stop) {
+        return;
+      }
+
+      try {
+        Thread.sleep(sleepTime);
+      } catch (InterruptedException ie) {
+      }
+    }
+  }
 }

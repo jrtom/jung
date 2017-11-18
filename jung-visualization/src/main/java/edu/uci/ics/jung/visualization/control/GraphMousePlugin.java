@@ -14,25 +14,22 @@ import java.awt.event.MouseEvent;
 
 /**
  * the interface for all plugins to the PluggableGraphMouse
- * @author Tom Nelson 
  *
+ * @author Tom Nelson
  */
 public interface GraphMousePlugin {
 
-	/**
-	 * @return the mouse event modifiers that will activate this plugin
-	 */
-    int getModifiers();
+  /** @return the mouse event modifiers that will activate this plugin */
+  int getModifiers();
 
-    /**
-     * @param modifiers the mouse event modifiers that will activate this plugin
-     */
-    void setModifiers(int modifiers);
-    
-    /**
-     * compare the set modifiers against those of the supplied event
-     * @param e an event to compare to
-     * @return whether the member modifiers match the event modifiers
-     */
-    boolean checkModifiers(MouseEvent e);
+  /** @param modifiers the mouse event modifiers that will activate this plugin */
+  void setModifiers(int modifiers);
+
+  /**
+   * compare the set modifiers against those of the supplied event
+   *
+   * @param e an event to compare to
+   * @return whether the member modifiers match the event modifiers
+   */
+  boolean checkModifiers(MouseEvent e);
 }

@@ -10,36 +10,30 @@
 
 package edu.uci.ics.jung.io;
 
-import edu.uci.ics.jung.graph.Hypergraph;
+import com.google.common.graph.MutableNetwork;
 
 /**
  * Interface for a reader of graph objects
  *
  * @author Nathan Mittler - nathan.mittler@gmail.com
- * 
- * @param <G>
- *            the graph type
- * @param <V> the vertex type
- *            the vertex type
- * @param <V> the edge type
- *            the edge type
+ * @param <G> the graph type
+ * @param <V> the vertex type the vertex type
+ * @param <V> the edge type the edge type
  */
-public interface GraphReader<G extends Hypergraph<V, E>, V, E> {
+public interface GraphReader<G extends MutableNetwork<V, E>, V, E> {
 
-    /**
-     * Reads a single graph object, if one is available.
-     * 
-     * @return the next graph object, or null if none exists.
-     * @throws GraphIOException
-     *             thrown if an error occurred.
-     */
-    G readGraph() throws GraphIOException;
+  /**
+   * Reads a single graph object, if one is available.
+   *
+   * @return the next graph object, or null if none exists.
+   * @throws GraphIOException thrown if an error occurred.
+   */
+  G readGraph() throws GraphIOException;
 
-    /**
-     * Closes this resource and frees any resources.
-     * 
-     * @throws GraphIOException
-     *             thrown if an error occurred.
-     */
-    void close() throws GraphIOException;
+  /**
+   * Closes this resource and frees any resources.
+   *
+   * @throws GraphIOException thrown if an error occurred.
+   */
+  void close() throws GraphIOException;
 }
