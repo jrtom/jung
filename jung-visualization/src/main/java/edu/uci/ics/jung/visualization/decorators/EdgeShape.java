@@ -83,8 +83,7 @@ public class EdgeShape<E> {
 
   /** An edge shape that renders as a straight line between the vertex endpoints. */
   public static class Line<E> extends EdgeShape<E> implements Function<Context<Network, E>, Shape> {
-    public Line() {
-    }
+    public Line() {}
 
     public Shape apply(Context<Network, E> context) {
       Network graph = context.graph;
