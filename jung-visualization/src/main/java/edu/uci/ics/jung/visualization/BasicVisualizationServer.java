@@ -9,6 +9,7 @@
 */
 package edu.uci.ics.jung.visualization;
 
+import com.google.common.collect.Lists;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
 import edu.uci.ics.jung.layout.util.Caching;
@@ -26,6 +27,7 @@ import edu.uci.ics.jung.visualization.renderers.BasicRenderer;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
 import edu.uci.ics.jung.visualization.spatial.Spatial;
 import edu.uci.ics.jung.visualization.spatial.SpatialGrid;
+import edu.uci.ics.jung.visualization.spatial.SpatialQuadTree;
 import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
 import edu.uci.ics.jung.visualization.util.ChangeEventSupport;
 import edu.uci.ics.jung.visualization.util.DefaultChangeEventSupport;
@@ -299,34 +301,10 @@ public class BasicVisualizationServer<N, E> extends JPanel
     Spatial spatial = model.getSpatial();
 
     AnnotationPaintable lowerAnnotationPaintable = null;
-    // when logging is set to trace, the grid will be drawn on the graph visualization
-    if (log.isTraceEnabled()) {
-      AnnotationRenderer annotationRenderer = new AnnotationRenderer();
-      lowerAnnotationPaintable = new AnnotationPaintable(renderContext, annotationRenderer);
-      if (spatial != null) {
-        List<Rectangle2D> grid = ((SpatialGrid) spatial).getGrid();
-        int num = 0;
-        for (Rectangle2D r : grid) {
-          Point2D p =
-              this.getRenderContext()
-                  .getMultiLayerTransformer()
-                  .inverseTransform(new Point2D.Double(r.getX(), r.getY()));
-          Annotation<Shape> annotation =
-              new Annotation<Shape>(r, Annotation.Layer.LOWER, Color.BLACK, false, p);
-          lowerAnnotationPaintable.add(annotation);
-          String label = num + ":" + spatial.getMap().get(num);
-          int stringWidth = g2d.getFontMetrics().stringWidth(label);
-          Point2D center =
-              new Point2D.Double(
-                  r.getX() + (r.getWidth() - stringWidth) / 2, r.getY() + r.getHeight() / 2);
 
-          Annotation<String> annotation2 =
-              new Annotation<String>(label, Annotation.Layer.LOWER, Color.BLACK, false, center);
-          lowerAnnotationPaintable.add(annotation2);
-          num++;
-        }
-        this.addPreRenderPaintable(lowerAnnotationPaintable);
-      }
+    if (log.isTraceEnabled()) {
+      // when logging is set to trace, the grid will be drawn on the graph visualization
+      lowerAnnotationPaintable = addSpatialAnnotations(spatial, g2d);
     }
 
     // if there are  preRenderers set, paint them
@@ -508,5 +486,65 @@ public class BasicVisualizationServer<N, E> extends JPanel
 
   public void setRenderContext(RenderContext<N, E> renderContext) {
     this.renderContext = renderContext;
+  }
+
+  private AnnotationPaintable addSpatialAnnotations(Spatial spatial, Graphics2D g2d) {
+    AnnotationRenderer annotationRenderer = new AnnotationRenderer();
+    AnnotationPaintable lowerAnnotationPaintable =
+        new AnnotationPaintable(renderContext, annotationRenderer);
+    if (spatial != null) {
+
+      if (spatial instanceof SpatialGrid) {
+        List<Rectangle2D> grid = Lists.newArrayList();
+        grid = SpatialGrid.getGrid(grid, (SpatialGrid) spatial);
+        int num = 0;
+        for (Rectangle2D r : grid) {
+          Point2D p =
+              this.getRenderContext()
+                  .getMultiLayerTransformer()
+                  .inverseTransform(new Point2D.Double(r.getX(), r.getY()));
+          Annotation<Shape> annotation =
+              new Annotation<>(r, Annotation.Layer.LOWER, Color.BLACK, false, p);
+          lowerAnnotationPaintable.add(annotation);
+          String label = num + ":" + ((SpatialGrid) spatial).getMap().get(num);
+          int stringWidth = g2d.getFontMetrics().stringWidth(label);
+          Point2D center =
+              new Point2D.Double(
+                  r.getX() + (r.getWidth() - stringWidth) / 2, r.getY() + r.getHeight() / 2);
+
+          Annotation<String> annotation2 =
+              new Annotation<>(label, Annotation.Layer.LOWER, Color.BLACK, false, center);
+          lowerAnnotationPaintable.add(annotation2);
+          num++;
+        }
+      } else if (spatial instanceof SpatialQuadTree) {
+        List<SpatialQuadTree> grid = Lists.newArrayList();
+        grid = SpatialQuadTree.getNodes(grid, (SpatialQuadTree) spatial);
+        for (SpatialQuadTree r : grid) {
+          Rectangle2D area = r.getLayoutArea();
+          Point2D p =
+              this.getRenderContext()
+                  .getMultiLayerTransformer()
+                  .inverseTransform(new Point2D.Double(area.getX(), area.getY()));
+          Annotation<Shape> annotation =
+              new Annotation<>(area, Annotation.Layer.LOWER, Color.BLACK, false, p);
+          lowerAnnotationPaintable.add(annotation);
+          if (r.getNodes().size() > 0) {
+            String label = r.getNodes().toString();
+            int stringWidth = g2d.getFontMetrics().stringWidth(label);
+            Point2D center =
+                new Point2D.Double(
+                    r.getLayoutArea().getX() + (area.getWidth() - stringWidth) / 2,
+                    area.getY() + area.getHeight() / 2);
+
+            Annotation<String> annotation2 =
+                new Annotation<>(label, Annotation.Layer.LOWER, Color.BLACK, false, center);
+            lowerAnnotationPaintable.add(annotation2);
+          }
+        }
+      }
+      this.addPreRenderPaintable(lowerAnnotationPaintable);
+    }
+    return lowerAnnotationPaintable;
   }
 }

@@ -14,26 +14,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A LayoutModel that includes a Spatial data structure. This class uses java.awt.geom.Point2D and
- * java2d in order to intersect shapes and determine the content of the spatial grid.
+ * A LayoutModel that includes a SpatialGrid data structure. This class uses java.awt.geom.Point2D
+ * and java2d in order to intersect shapes and determine the content of the spatial grid.
  *
  * @param <N>
  */
-public class SpatialLayoutModel<N> extends LoadingCacheLayoutModel<N, Point2D>
+public class SpatialGridLayoutModel<N> extends LoadingCacheLayoutModel<N, Point2D>
     implements LayoutModel<N, Point2D>, Caching {
 
-  Logger log = LoggerFactory.getLogger(SpatialLayoutModel.class);
+  private static final Logger log = LoggerFactory.getLogger(SpatialGridLayoutModel.class);
 
   protected Spatial<N> spatial;
 
-  public SpatialLayoutModel(
+  public SpatialGridLayoutModel(
       Graph<N> graph, int width, int height, Function<N, Point2D> initializer) {
     super(graph, new AWTPointModel(), width, height, 0, initializer);
-    log.info("CTOR");
     setupSpatialGrid(new Dimension(width, height), 10, 10);
   }
 
-  public SpatialLayoutModel(Graph<N> graph, int width, int height) {
+  public SpatialGridLayoutModel(Graph<N> graph, int width, int height) {
     super(graph, new AWTPointModel(), width, height, 0);
     setupSpatialGrid(new Dimension(width, height), 10, 10);
   }
@@ -41,7 +40,7 @@ public class SpatialLayoutModel<N> extends LoadingCacheLayoutModel<N, Point2D>
   @Override
   public void accept(LayoutAlgorithm<N, Point2D> layoutAlgorithm) {
     super.accept(layoutAlgorithm);
-    spatial.recalculate(this, graph.nodes());
+    spatial.recalculate(graph.nodes());
   }
 
   public void setSpatial(Spatial<N> spatial) {
@@ -57,13 +56,14 @@ public class SpatialLayoutModel<N> extends LoadingCacheLayoutModel<N, Point2D>
         || spatial.getLayoutArea().getHeight() < height) {
       setupSpatialGrid(new Dimension(width, height), 10, 10);
     } else {
-      spatial.recalculate(this, this.graph.nodes());
+      spatial.recalculate(this.graph.nodes());
     }
   }
 
   protected void setupSpatialGrid(Dimension delegateSize, int horizontalCount, int verticalCount) {
     this.spatial =
         new SpatialGrid(
+            this,
             new Rectangle(0, 0, delegateSize.width, delegateSize.height),
             horizontalCount,
             verticalCount);
@@ -74,15 +74,7 @@ public class SpatialLayoutModel<N> extends LoadingCacheLayoutModel<N, Point2D>
     super.set(node, location);
     if (forceUpdate) {
       log.trace("put " + node + " in " + location);
-      // if the node has moved outside of the layout area, recreate the spatial grid to include it
-      if (!spatial.getLayoutArea().contains(location)) {
-        log.info(location + " outside of spatial " + spatial.getLayoutArea());
-        spatial.setBounds(spatial.getUnion(spatial.getLayoutArea(), location));
-        spatial.recalculate(this, getGraph().nodes());
-      } else {
-        // just make sure the node is in the right box
-        spatial.update(node, location);
-      }
+      spatial.update(node);
     }
   }
 

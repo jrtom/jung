@@ -18,7 +18,8 @@ import edu.uci.ics.jung.layout.util.LayoutChangeListener;
 import edu.uci.ics.jung.layout.util.LayoutEvent;
 import edu.uci.ics.jung.layout.util.LayoutEventSupport;
 import edu.uci.ics.jung.layout.util.LayoutNetworkEvent;
-import edu.uci.ics.jung.visualization.layout.SpatialLayoutModel;
+import edu.uci.ics.jung.visualization.layout.SpatialGridLayoutModel;
+import edu.uci.ics.jung.visualization.layout.SpatialQuadTreeLayoutModel;
 import edu.uci.ics.jung.visualization.spatial.Spatial;
 import edu.uci.ics.jung.visualization.util.ChangeEventSupport;
 import edu.uci.ics.jung.visualization.util.DefaultChangeEventSupport;
@@ -91,7 +92,11 @@ public class BaseVisualizationModel<N, E>
     //    Preconditions.checkNotNull(layoutSize);
     this.layoutAlgorithm = layoutAlgorithm;
     this.layoutModel =
-        new SpatialLayoutModel(network.asGraph(), layoutSize.width, layoutSize.height);
+        // spatialGrid
+        //                    new SpatialGridLayoutModel<>(network.asGraph(), layoutSize.width, layoutSize.height);
+        //spatial quadtree
+        new SpatialQuadTreeLayoutModel(network.asGraph(), layoutSize.width, layoutSize.height);
+    // no spatial layout features
     //        new LoadingCacheLayoutModel<N, E, Point2D>(network.asGraph(), new AWTPointModel(), layoutSize.width, layoutSize.height);
     if (this.layoutModel instanceof LayoutModel.ChangeSupport) {
       ((LayoutModel.ChangeSupport) layoutModel).addChangeListener(this);
@@ -174,8 +179,11 @@ public class BaseVisualizationModel<N, E>
 
   @Override
   public Spatial<N> getSpatial() {
-    if (layoutModel instanceof SpatialLayoutModel) {
-      return ((SpatialLayoutModel) layoutModel).getSpatial();
+    if (layoutModel instanceof SpatialGridLayoutModel) {
+      return ((SpatialGridLayoutModel) layoutModel).getSpatial();
+    }
+    if (layoutModel instanceof SpatialQuadTreeLayoutModel) {
+      return ((SpatialQuadTreeLayoutModel) layoutModel).getSpatial();
     }
     return null;
   }
