@@ -391,7 +391,7 @@ public class SpatialQuadTree<N> extends AbstractSpatial<N> implements Spatial<N>
       log.warn("got null for leaf containing {}", node);
     }
     if (!locationContainingLeaf.equals(nodeContainingLeaf)) {
-      log.info("time to recalculate");
+      log.trace("time to recalculate");
       this.recalculate(layoutModel.getGraph().nodes());
     }
     this.insert(node);
