@@ -518,8 +518,8 @@ public class BasicVisualizationServer<N, E> extends JPanel
           num++;
         }
       } else if (spatial instanceof SpatialQuadTree) {
-        List<SpatialQuadTree> grid = Lists.newArrayList();
-        grid = SpatialQuadTree.getNodes(grid, (SpatialQuadTree) spatial);
+        List<SpatialQuadTree<N>> grid = Lists.newArrayList();
+        grid = SpatialQuadTree.getNodes(grid, (SpatialQuadTree<N>) spatial);
         for (SpatialQuadTree r : grid) {
           Rectangle2D area = r.getLayoutArea();
           Point2D p =

@@ -69,7 +69,6 @@ public class SpatialGrid<N> extends AbstractSpatial<N> implements Spatial<N> {
       int horizontalCount,
       int verticalCount) {
     super(layoutModel);
-    this.layoutModel = layoutModel;
     this.horizontalCount = horizontalCount;
     this.verticalCount = verticalCount;
     this.setBounds(bounds);
@@ -79,7 +78,7 @@ public class SpatialGrid<N> extends AbstractSpatial<N> implements Spatial<N> {
    * Set the layoutSize of the spatial grid and recompute the box widths and heights. null out the
    * obsolete grid cache
    *
-   * @param bounds
+   * @param bounds recalculate the size of the spatial area
    */
   public void setBounds(Rectangle2D bounds) {
     this.size = bounds.getBounds().getSize();
@@ -98,7 +97,7 @@ public class SpatialGrid<N> extends AbstractSpatial<N> implements Spatial<N> {
    * Lazily compute the gridCache if needed. The gridCache is a list of rectangles overlaying the
    * layout area. They are numbered from 0 to horizontalCount*verticalCount-1
    *
-   * @return the
+   * @return the boxes in the grid
    */
   protected List<Rectangle2D> getGrid() {
     if (gridCache == null) {
@@ -120,7 +119,7 @@ public class SpatialGrid<N> extends AbstractSpatial<N> implements Spatial<N> {
   /**
    * A Multimap of box number to Lists of nodes in that box
    *
-   * @return
+   * @return the map of box numbers to contained nodes
    */
   public Multimap<Integer, N> getMap() {
     return map;
@@ -130,9 +129,9 @@ public class SpatialGrid<N> extends AbstractSpatial<N> implements Spatial<N> {
    * given the box x,y coordinates (not the coordinate system) return the box number (0,0) has box 0
    * (horizontalCount,horizontalCount) has box horizontalCount*verticalCount - 1
    *
-   * @param boxX
-   * @param boxY
-   * @return
+   * @param boxX the x value in the box grid
+   * @param boxY the y value in the box grid
+   * @return the box number for boxX,boxY
    */
   protected int getBoxNumber(int boxX, int boxY) {
     if (log.isTraceEnabled()) {
@@ -153,6 +152,10 @@ public class SpatialGrid<N> extends AbstractSpatial<N> implements Spatial<N> {
     return boxY * this.horizontalCount + boxX;
   }
 
+  /**
+   * @param boxXY the (x,y) in the grid coordinate system
+   * @return the box number for that (x,y)
+   */
   protected int getBoxNumber(int[] boxXY) {
     return getBoxNumber(boxXY[0], boxXY[1]);
   }
@@ -160,8 +163,8 @@ public class SpatialGrid<N> extends AbstractSpatial<N> implements Spatial<N> {
   /**
    * give a Point in the coordinate system, return the box number that contains it
    *
-   * @param p
-   * @return
+   * @param p a location in the coordinate system
+   * @return the box number that contains the passed location
    */
   protected int getBoxNumberFromLocation(Point2D p) {
     int count = 0;
@@ -179,9 +182,9 @@ public class SpatialGrid<N> extends AbstractSpatial<N> implements Spatial<N> {
   /**
    * given (x,y) in the coordinate system, get the boxX,boxY for the box that it is in
    *
-   * @param x
-   * @param y
-   * @return
+   * @param x a location in the coordinate system
+   * @param y a location in the coordinate system
+   * @return a 2 dimensional array of int containing the box x and y coordinates
    */
   protected int[] getBoxIndex(double x, double y) {
 
@@ -209,7 +212,7 @@ public class SpatialGrid<N> extends AbstractSpatial<N> implements Spatial<N> {
   /**
    * Recalculate the contents of the Map of box number to contained Nodes
    *
-   * @param nodes
+   * @param nodes the collection of nodes to update in the structure
    */
   @Override
   public void recalculate(Collection<N> nodes) {
@@ -229,7 +232,7 @@ public class SpatialGrid<N> extends AbstractSpatial<N> implements Spatial<N> {
   /**
    * update the location of a node in the map of box number to node lists
    *
-   * @param node // * @param p the location of the node in the layout
+   * @param node the node to update in the structure
    */
   @Override
   public void update(N node) {
@@ -267,8 +270,8 @@ public class SpatialGrid<N> extends AbstractSpatial<N> implements Spatial<N> {
   /**
    * given a rectangular area and an offset, return the tile numbers that are contained in it
    *
-   * @param visibleArea
-   * @return
+   * @param visibleArea the (possibly) non-rectangular area of interest
+   * @return the tile numbers that intersect with the visibleArea
    */
   protected Collection<Integer> getVisibleTiles(Shape visibleArea) {
     Set<Integer> visibleTiles = Sets.newHashSet();
