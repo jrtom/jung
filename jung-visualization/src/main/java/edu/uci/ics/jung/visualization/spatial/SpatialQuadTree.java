@@ -7,6 +7,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import edu.uci.ics.jung.layout.model.LayoutModel;
 import java.awt.*;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.*;
@@ -277,6 +278,10 @@ public class SpatialQuadTree<N> extends AbstractSpatial<N> implements Spatial<N>
     return list;
   }
 
+  /**
+   * @param shape the possibly non-rectangular area of interest
+   * @return the nodes that are in the quadtree cells that intersect with the passed shape
+   */
   @Override
   public Collection<N> getVisibleNodes(Shape shape) {
     Set<N> list = Sets.newHashSet();
@@ -288,6 +293,24 @@ public class SpatialQuadTree<N> extends AbstractSpatial<N> implements Spatial<N>
     return visibleNodes;
   }
 
+  /**
+   * @param r
+   * @return the nodes that are in the quadtree cells that intersect with the passed rectangle
+   */
+  public Collection<N> getVisibleNodes(Rectangle2D r) {
+    Set<N> list = Sets.newHashSet();
+    Collection<N> visibleNodes = this.retrieve(list, r);
+    if (log.isDebugEnabled()) {
+      log.debug("visibleNodes:{}", visibleNodes);
+    }
+    return visibleNodes;
+  }
+
+  /**
+   * tha layout area that this tree cell operates over
+   *
+   * @return
+   */
   @Override
   public Rectangle2D getLayoutArea() {
     return area;
@@ -309,10 +332,16 @@ public class SpatialQuadTree<N> extends AbstractSpatial<N> implements Spatial<N>
     }
   }
 
-  protected SpatialQuadTree<N> getContainingQuadTreeLeaf(N node) {
+  /**
+   * @param node the node to search for
+   * @return the quadtree leaf that contains the passed node
+   */
+  public SpatialQuadTree<N> getContainingQuadTreeLeaf(N node) {
     // find where it is now, not where the layoutModel will put it
     if (this.nodes.contains(node)) {
-      log.trace("nodes {} in {} does contain {}", nodes, this, node);
+      if (log.isTraceEnabled()) {
+        log.trace("nodes {} in {} does contain {}", nodes, this, node);
+      }
       return this;
     }
     if (children != null) {
@@ -333,7 +362,7 @@ public class SpatialQuadTree<N> extends AbstractSpatial<N> implements Spatial<N>
    * @param p the point of interest
    * @return the cell that would contain p
    */
-  protected SpatialQuadTree<N> getContainingQuadTreeLeaf(Point2D p) {
+  public SpatialQuadTree<N> getContainingQuadTreeLeaf(Point2D p) {
     return getContainingQuadTreeLeaf(p.getX(), p.getY());
   }
 
@@ -342,7 +371,7 @@ public class SpatialQuadTree<N> extends AbstractSpatial<N> implements Spatial<N>
    * @param y location of interest
    * @return the cell that would contain (x, y)
    */
-  protected SpatialQuadTree<N> getContainingQuadTreeLeaf(double x, double y) {
+  public SpatialQuadTree<N> getContainingQuadTreeLeaf(double x, double y) {
     if (this.area.contains(x, y)) {
       if (this.children != null) {
         for (Map.Entry<Quadrant, SpatialQuadTree<N>> entry : this.children.entrySet()) {
@@ -356,6 +385,66 @@ public class SpatialQuadTree<N> extends AbstractSpatial<N> implements Spatial<N>
       }
     }
     return null;
+  }
+
+  /**
+   * get the node that is closest to the passed (x,y)
+   *
+   * @param x
+   * @param y
+   * @return the node closest to x,y
+   */
+  public N getClosestNode(double x, double y) {
+    double maxRadius =
+        Math.sqrt(
+            layoutModel.getWidth() * layoutModel.getWidth()
+                + layoutModel.getHeight() * layoutModel.getHeight());
+    SpatialQuadTree<N> leaf = getContainingQuadTreeLeaf(x, y);
+    Rectangle2D area = leaf.area;
+    double radius = area.getWidth();
+    N closest = null;
+    while (radius <= maxRadius) {
+      double diameter = radius * 2;
+
+      Ellipse2D searchArea = new Ellipse2D.Double(x - radius, y - radius, diameter, diameter);
+
+      Collection<N> nodes = getVisibleNodes(searchArea);
+      //      log.trace("visible nodes in {} are {}", area, nodes);
+      closest = getClosest(nodes, x, y, radius);
+      if (closest != null) {
+        //        log.trace("closest found is {} when radius was {}", closest, radius);
+        break;
+      }
+      radius *= 2;
+    }
+    return closest;
+  }
+
+  private N getClosest(Collection<N> nodes, double x, double y, double radius) {
+
+    // since I am comparing with distance squared, i need to square the radius
+    double radiusSq = radius * radius;
+    if (nodes.size() > 0) {
+      double closestSoFar = Double.MAX_VALUE;
+      N winner = null;
+      double winningDistance = -1;
+      for (N node : nodes) {
+        Point2D loc = layoutModel.apply(node);
+        double dist = loc.distanceSq(x, y);
+
+        if (dist < radiusSq && dist < closestSoFar) {
+          closestSoFar = dist;
+          winner = node;
+          winningDistance = dist;
+        }
+      }
+      if (log.isTraceEnabled()) {
+        log.trace("closest winner is {} at distance {}", winner, winningDistance);
+      }
+      return winner;
+    } else {
+      return null;
+    }
   }
 
   /**
