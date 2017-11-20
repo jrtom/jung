@@ -9,6 +9,8 @@ import edu.uci.ics.jung.visualization.layout.AWTPointModel;
 import java.awt.geom.Point2D;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * test to make sure that a search for a node returns the same leaf that you get when you search for
@@ -17,6 +19,8 @@ import org.junit.Test;
  * @author Tom Nelson
  */
 public class SpatialQuadTreeTest {
+
+  private static final Logger log = LoggerFactory.getLogger(SpatialQuadTreeTest.class);
 
   int width = 600;
   int height = 600;
@@ -48,6 +52,10 @@ public class SpatialQuadTreeTest {
       SpatialQuadTree pointQuadTree = tree.getContainingQuadTreeLeaf(location);
       SpatialQuadTree nodeQuadTree = tree.getContainingQuadTreeLeaf(node);
       Assert.assertEquals(pointQuadTree, nodeQuadTree);
+      log.info(
+          "pointQuadTree level {} nodeQuadTree level {}",
+          pointQuadTree.getLevel(),
+          nodeQuadTree.getLevel());
     }
   }
 }
