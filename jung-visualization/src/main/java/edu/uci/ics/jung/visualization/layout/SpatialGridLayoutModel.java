@@ -69,18 +69,26 @@ public class SpatialGridLayoutModel<N> extends LoadingCacheLayoutModel<N, Point2
             verticalCount);
   }
 
+  /**
+   * override to default forceUpdate to true to update the spatial data structure
+   *
+   * @param node the node whose location is to be specified
+   * @param location the coordinates of the specified location
+   */
   @Override
-  public void set(N node, Point2D location, boolean forceUpdate) {
+  public void set(N node, Point2D location) {
     super.set(node, location);
-    if (forceUpdate) {
-      log.trace("put " + node + " in " + location);
+    if (isFireEvents()) {
       spatial.update(node);
     }
   }
 
   @Override
   public void set(N node, double x, double y) {
-    this.set(node, pointModel.newPoint(x, y));
+    super.set(node, x, y);
+    if (isFireEvents()) {
+      spatial.update(node);
+    }
   }
 
   public Spatial<N> getSpatial() {

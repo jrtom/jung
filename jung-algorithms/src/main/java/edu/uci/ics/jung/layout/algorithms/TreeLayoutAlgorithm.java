@@ -188,7 +188,7 @@ public class TreeLayoutAlgorithm<N, P> extends AbstractLayoutAlgorithm<N, P> {
    * @param location
    */
   protected void setLocation(LayoutModel<N, P> layoutModel, N node, P location) {
-    layoutModel.set(node, location, true);
+    layoutModel.set(node, location);
   }
 
   public boolean isLocked(N node) {

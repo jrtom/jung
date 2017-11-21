@@ -226,7 +226,7 @@ public class SpringLayoutAlgorithm<N, P> extends AbstractIterativeLayoutAlgorith
           }
           // after the bounds have been honored above, really set the location
           // in the layout model
-          layoutModel.set(node, xyd, true);
+          layoutModel.set(node, xyd);
         }
       } catch (ConcurrentModificationException cme) {
         moveNodes();

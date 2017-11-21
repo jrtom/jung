@@ -257,8 +257,17 @@ public abstract class AbstractLayoutModel<N, P>
   }
 
   @Override
-  public void set(N node, double x, double y, boolean forceUpdate) {
-    this.set(node, x, y, 0, forceUpdate);
+  public void set(N node, P location) {
+    if (isFireEvents()) {
+      fireChanged();
+    }
+  }
+
+  @Override
+  public void set(N node, double x, double y, double z) {
+    if (isFireEvents()) {
+      fireChanged();
+    }
   }
 
   /**

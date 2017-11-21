@@ -76,8 +76,8 @@ public class LoadingCacheLayoutModel<N, P> extends AbstractLayoutModel<N, P>
   @Override
   public void set(N node, P location) {
     if (!locked) {
+      super.set(node, location);
       this.locations.put(node, location);
-      changeSupport.fireChanged();
     }
   }
 
@@ -89,38 +89,6 @@ public class LoadingCacheLayoutModel<N, P> extends AbstractLayoutModel<N, P>
   @Override
   public void set(N node, double x, double y) {
     this.set(node, pointModel.newPoint(x, y));
-  }
-
-  /**
-   * @param node
-   * @param location
-   * @param forceUpdate ignored
-   */
-  @Override
-  public void set(N node, P location, boolean forceUpdate) {
-    this.set(node, location);
-  }
-
-  /**
-   * @param node
-   * @param x
-   * @param y
-   * @param forceUpdate ignored
-   */
-  @Override
-  public void set(N node, double x, double y, boolean forceUpdate) {
-    this.set(node, x, y);
-  }
-
-  /**
-   * @param node
-   * @param x
-   * @param y
-   * @param forceUpdate ignored
-   */
-  @Override
-  public void set(N node, double x, double y, double z, boolean forceUpdate) {
-    this.set(node, x, y, z);
   }
 
   @Override

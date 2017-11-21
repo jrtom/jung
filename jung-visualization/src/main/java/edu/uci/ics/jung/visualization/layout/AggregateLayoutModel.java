@@ -110,20 +110,20 @@ public class AggregateLayoutModel<N, P> implements LayoutModel<N, P> {
     delegate.set(node, x, y, z);
   }
 
-  @Override
-  public void set(N node, P location, boolean forceUpdate) {
-    delegate.set(node, location, forceUpdate);
-  }
-
-  @Override
-  public void set(N node, double x, double y, boolean forceUpdate) {
-    delegate.set(node, x, y, forceUpdate);
-  }
-
-  @Override
-  public void set(N node, double x, double y, double z, boolean forceUpdate) {
-    delegate.set(node, x, y, z, forceUpdate);
-  }
+  //  @Override
+  //  public void set(N node, P location, boolean forceUpdate) {
+  //    delegate.set(node, location, forceUpdate);
+  //  }
+  //
+  //  @Override
+  //  public void set(N node, double x, double y, boolean forceUpdate) {
+  //    delegate.set(node, x, y, forceUpdate);
+  //  }
+  //
+  //  @Override
+  //  public void set(N node, double x, double y, double z, boolean forceUpdate) {
+  //    delegate.set(node, x, y, z, forceUpdate);
+  //  }
 
   @Override
   public P get(N node) {
