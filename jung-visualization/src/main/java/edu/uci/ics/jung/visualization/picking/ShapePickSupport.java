@@ -220,13 +220,34 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
 
   protected V getClosest(
       SpatialQuadTree<V> spatial, LayoutModel<V, Point2D> layoutModel, double x, double y) {
-    SpatialQuadTree<V> leaf = spatial.getContainingQuadTreeLeaf(x, y);
+
+    // move the x,y to layout coordinates
+    Point2D pickPointInView = new Point2D.Double(x, y);
+    Point2D pickPointInLayout =
+        vv.getRenderContext()
+            .getMultiLayerTransformer()
+            .inverseTransform(Layer.LAYOUT, pickPointInView);
+    if (log.isTraceEnabled()) {
+      log.trace("pickPoint in view {} layout {}", pickPointInView, pickPointInLayout);
+    }
+
+    double lx = pickPointInLayout.getX();
+    double ly = pickPointInLayout.getY();
+
+    SpatialQuadTree<V> leaf = spatial.getContainingQuadTreeLeaf(lx, ly);
+    if (log.isTraceEnabled()) {
+      log.trace("leaf for {},{} is {}", lx, ly, leaf);
+    }
+    if (leaf == null) return null;
     double diameter = leaf.getLayoutArea().getWidth();
     double radius = diameter / 2;
     double minDistance = Double.MAX_VALUE;
 
     V closest = null;
-    Ellipse2D target = new Ellipse2D.Double(x - radius, y - radius, diameter, diameter);
+    Ellipse2D target = new Ellipse2D.Double(lx - radius, ly - radius, diameter, diameter);
+    if (log.isTraceEnabled()) {
+      log.trace("target is {}", target);
+    }
     Collection<V> nodes = spatial.getVisibleNodes(target);
     if (log.isTraceEnabled()) {
       log.trace("instead of checking all nodes: {}", getFilteredVertices());
@@ -316,7 +337,12 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
 
   protected Collection<V> getContained(
       SpatialQuadTree<V> spatial, LayoutModel<V, Point2D> layoutModel, Shape shape) {
-    Collection<V> visible = spatial.getVisibleNodes(shape);
+
+    // translate the shape to layout coordinates
+    Shape layoutShape =
+        vv.getRenderContext().getMultiLayerTransformer().inverseTransform(Layer.LAYOUT, shape);
+
+    Collection<V> visible = spatial.getVisibleNodes(layoutShape);
     if (log.isTraceEnabled()) {
       log.trace("your shape intersects tree cells with these nodes: {}", visible);
     }

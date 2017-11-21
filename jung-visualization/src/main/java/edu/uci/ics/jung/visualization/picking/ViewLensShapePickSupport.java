@@ -61,7 +61,7 @@ public class ViewLensShapePickSupport<N, E> extends ShapePickSupport<N, E> {
 
     while (true) {
       try {
-        //        LayoutModel<N, Point2D> layoutModel = vv.getModel().getLayoutModel();
+
         for (N v : getFilteredVertices()) {
           // get the shape
           Shape shape = vv.getRenderContext().getVertexShapeTransformer().apply(v);
@@ -126,7 +126,6 @@ public class ViewLensShapePickSupport<N, E> extends ShapePickSupport<N, E> {
 
     while (true) {
       try {
-        //        LayoutModel<N, Point2D> layoutModel = vv.getModel().getLayoutModel();
         for (N v : getFilteredVertices()) {
           Point2D p = layoutModel.apply(v);
           if (p == null) {
