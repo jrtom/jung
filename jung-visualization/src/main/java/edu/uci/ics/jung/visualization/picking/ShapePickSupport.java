@@ -18,9 +18,12 @@ import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationServer;
 import edu.uci.ics.jung.visualization.layout.NetworkElementAccessor;
+import edu.uci.ics.jung.visualization.layout.SpatialQuadTreeLayoutModel;
+import edu.uci.ics.jung.visualization.spatial.SpatialQuadTree;
 import edu.uci.ics.jung.visualization.util.Context;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
@@ -28,8 +31,11 @@ import java.awt.geom.Rectangle2D;
 import java.util.Collection;
 import java.util.ConcurrentModificationException;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.function.Predicate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A <code>NetworkElementAccessor</code> that returns elements whose <code>Shape</code> contains the
@@ -39,6 +45,7 @@ import java.util.function.Predicate;
  */
 public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
 
+  private static final Logger log = LoggerFactory.getLogger(ShapePickSupport.class);
   /**
    * The available picking heuristics:
    *
@@ -159,6 +166,11 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
     x = ip.getX();
     y = ip.getY();
     //    LayoutModel<V, Point2D> layoutModel = vv.getModel().getLayoutModel();
+    if (layoutModel instanceof SpatialQuadTreeLayoutModel) {
+      SpatialQuadTree<V> tree =
+          (SpatialQuadTree<V>) ((SpatialQuadTreeLayoutModel) layoutModel).getSpatial();
+      return getClosest(tree, layoutModel, x, y);
+    }
 
     while (true) {
       try {
@@ -206,6 +218,61 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
     return closest;
   }
 
+  protected V getClosest(
+      SpatialQuadTree<V> spatial, LayoutModel<V, Point2D> layoutModel, double x, double y) {
+    SpatialQuadTree<V> leaf = spatial.getContainingQuadTreeLeaf(x, y);
+    double diameter = leaf.getLayoutArea().getWidth();
+    double radius = diameter / 2;
+    double minDistance = Double.MAX_VALUE;
+
+    V closest = null;
+    Ellipse2D target = new Ellipse2D.Double(x - radius, y - radius, diameter, diameter);
+    Collection<V> nodes = spatial.getVisibleNodes(target);
+    if (log.isTraceEnabled()) {
+      log.trace("instead of checking all nodes: {}", getFilteredVertices());
+      log.trace("out of these candidates: {}...", nodes);
+    }
+    for (V node : nodes) {
+      Shape shape = vv.getRenderContext().getVertexShapeTransformer().apply(node);
+      // get the vertex location
+      Point2D p = layoutModel.apply(node);
+      if (p == null) {
+        continue;
+      }
+      // transform the vertex location to screen coords
+      p = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, p);
+
+      double ox = x - p.getX();
+      double oy = y - p.getY();
+
+      if (shape.contains(ox, oy)) {
+
+        if (style == Style.LOWEST) {
+          // return the first match
+          return node;
+        } else if (style == Style.HIGHEST) {
+          // will return the last match
+          closest = node;
+        } else {
+
+          // return the vertex closest to the
+          // center of a vertex shape
+          Rectangle2D bounds = shape.getBounds2D();
+          double dx = bounds.getCenterX() - ox;
+          double dy = bounds.getCenterY() - oy;
+          double dist = dx * dx + dy * dy;
+          if (dist < minDistance) {
+            minDistance = dist;
+            closest = node;
+          }
+        }
+      }
+    }
+    if (log.isTraceEnabled()) {
+      log.trace("picked {} with spatial quadtree", closest);
+    }
+    return closest;
+  }
   /**
    * Returns the vertices whose layout coordinates are contained in <code>Shape</code>. The shape is
    * in screen coordinates, and the graph vertices are transformed to screen coordinates before they
@@ -221,9 +288,14 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
     // remove the view transform from the rectangle
     shape = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(Layer.VIEW, shape);
 
+    if (layoutModel instanceof SpatialQuadTreeLayoutModel) {
+      SpatialQuadTree<V> spatial =
+          (SpatialQuadTree) ((SpatialQuadTreeLayoutModel) layoutModel).getSpatial();
+      return getContained(spatial, layoutModel, shape);
+    }
+
     while (true) {
       try {
-        //        LayoutModel<V, Point2D> layoutModel = vv.getModel().getLayoutModel();
         for (V v : getFilteredVertices()) {
           Point2D p = layoutModel.apply(v);
           if (p == null) {
@@ -240,6 +312,30 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
       }
     }
     return pickedVertices;
+  }
+
+  protected Collection<V> getContained(
+      SpatialQuadTree<V> spatial, LayoutModel<V, Point2D> layoutModel, Shape shape) {
+    Collection<V> visible = spatial.getVisibleNodes(shape);
+    if (log.isTraceEnabled()) {
+      log.trace("your shape intersects tree cells with these nodes: {}", visible);
+    }
+
+    for (Iterator<V> iterator = visible.iterator(); iterator.hasNext(); ) {
+      V node = iterator.next();
+      Point2D p = layoutModel.apply(node);
+      if (p == null) {
+        continue;
+      }
+      p = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, p);
+      if (!shape.contains(p)) {
+        iterator.remove();
+      }
+    }
+    if (log.isTraceEnabled()) {
+      log.trace("these were actually picked: {}", visible);
+    }
+    return visible;
   }
 
   /**

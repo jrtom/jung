@@ -78,6 +78,7 @@ public class SimpleGraphSpatialTest extends JPanel {
     LoggerContext ctx = (LoggerContext) LoggerFactory.getILoggerFactory();
     ctx.getLogger("edu.uci.ics.jung.visualization.spatial").setLevel(Level.DEBUG);
     ctx.getLogger("edu.uci.ics.jung.visualization.BasicVisualizationServer").setLevel(Level.TRACE);
+    ctx.getLogger("edu.uci.ics.jung.visualization.picking").setLevel(Level.TRACE);
 
     JFrame jf = new JFrame();
 

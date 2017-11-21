@@ -118,6 +118,33 @@ public class LayoutLensShapePickSupport<N, E> extends ShapePickSupport<N, E> {
   }
 
   @Override
+  public Collection<N> getNodes(LayoutModel<N, Point2D> layoutModel, Shape shape) {
+    Set<N> pickedVertices = new HashSet<N>();
+
+    // remove the view transform from the rectangle
+    shape = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(Layer.VIEW, shape);
+
+    while (true) {
+      try {
+        for (N v : getFilteredVertices()) {
+          Point2D p = layoutModel.apply(v);
+          if (p == null) {
+            continue;
+          }
+
+          p = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, p);
+          if (shape.contains(p)) {
+            pickedVertices.add(v);
+          }
+        }
+        break;
+      } catch (ConcurrentModificationException cme) {
+      }
+    }
+    return pickedVertices;
+  }
+
+  @Override
   public E getEdge(LayoutModel<N, Point2D> layoutModel, double x, double y) {
 
     //    LayoutModel<N, Point2D> layoutModel = vv.getModel().getLayoutModel();
