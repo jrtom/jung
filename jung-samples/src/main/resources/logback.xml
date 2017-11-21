@@ -7,13 +7,13 @@
     </encoder>
   </appender>
 
-  <Logger name="edu.uci.ics.jung.visualization.renderers" additivity="false" level="info" />
+  <Logger name="edu.uci.ics.jung.visualization.renderers" level="info" />
 
-  <Logger name="edu.uci.ics.jung.visualization.spatial" additivity="false" level="info"/>
+  <Logger name="edu.uci.ics.jung.visualization.spatial" level="info"/>
 
-  <Logger name="edu.uci.ics.jung.visualization.BasicVisualizationServer" additivity="false" level="info"/>
+  <Logger name="edu.uci.ics.jung.visualization.BasicVisualizationServer" level="info"/>
 
-  <Logger name="ch.qos.logback" additivity="false" level="WARN" />
+  <Logger name="ch.qos.logback" level="WARN" />
 
 
   <root level="DEBUG">
