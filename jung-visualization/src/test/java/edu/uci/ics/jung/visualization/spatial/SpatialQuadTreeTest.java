@@ -130,7 +130,7 @@ public class SpatialQuadTreeTest {
    */
   @Test
   public void comparePerformance() {
-    final int COUNT = 10000;
+    final int COUNT = 100000;
     NetworkNodeAccessor<String, Point2D> slowWay =
         new RadiusNetworkNodeAccessor<String, Point2D>(
             graph, new AWTPointModel(), Double.MAX_VALUE);

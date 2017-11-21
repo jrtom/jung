@@ -75,7 +75,7 @@ public class SpatialQuadTreeLayoutModel<N> extends LoadingCacheLayoutModel<N, Po
   @Override
   public void set(N node, Point2D location, boolean forceUpdate) {
     super.set(node, location);
-    if (forceUpdate) {
+    if (forceUpdate && this.isFireEvents()) {
       log.trace("put " + node + " in " + location);
       spatial.update(node);
     }

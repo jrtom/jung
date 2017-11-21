@@ -37,31 +37,28 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
 
-/** A class that shows the minimal work necessary to load and visualize a graph. */
-public class SimpleGraphSpatialSearchTest {
+/**
+ * A test that puts a lot of nodes on the screen with a visible quadtree. When the button is pushed,
+ * 1000 random points are generated in order to find the closest node for each point. The search is
+ * done both with the SpatialQuadTree and with the RadiusNetworkElementAccessor. If they don't find
+ * the same node, the testing halts after highlighting the problem nodes along with the search
+ * point.
+ *
+ * @author Tom Nelson
+ */
+public class SimpleGraphSpatialSearchTest extends JPanel {
 
   private static final Logger log = LogManager.getLogger(SimpleGraphSpatialSearchTest.class);
 
   private static final PointModel<Point2D> POINT_MODEL = new AWTPointModel();
 
-  @SuppressWarnings({"rawtypes", "unchecked"})
-  public static void main(String[] args) throws IOException {
+  public SimpleGraphSpatialSearchTest() {
+    setLayout(new BorderLayout());
 
-    // programmatically set the log level so that the spatial grid is drawn for this demo and the SpatialGrid logging is output
-    LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
-    Configuration config = ctx.getConfiguration();
-    config
-        .getLoggerConfig("edu.uci.ics.jung.visualization.BasicVisualizationServer")
-        .setLevel(Level.TRACE);
-    config.getLoggerConfig("edu.uci.ics.jung.visualization.spatial").setLevel(Level.DEBUG);
-    ctx.updateLoggers();
-
-    JFrame jf = new JFrame();
     MutableNetwork<String, Number> g = (MutableNetwork) TestGraphs.createChainPlusIsolates(0, 100);
     Dimension viewPreferredSize = new Dimension(600, 600);
     Dimension layoutPreferredSize = new Dimension(600, 600);
-    LayoutAlgorithm layoutAlgorithm =
-        new StaticLayoutAlgorithm(POINT_MODEL); //, layoutPreferredSize);
+    LayoutAlgorithm layoutAlgorithm = new StaticLayoutAlgorithm(POINT_MODEL);
 
     ScalingControl scaler = new CrossoverScalingControl();
     VisualizationModel model =
@@ -77,40 +74,34 @@ public class SimpleGraphSpatialSearchTest {
     vv.getRenderer().getVertexLabelRenderer().setPosition(Renderer.VertexLabel.Position.CNTR);
     vv.addKeyListener(graphMouse.getModeKeyListener());
     vv.setToolTipText("<html><center>Type 'p' for Pick mode<p>Type 't' for Transform mode");
-    //    vv.getRenderContext().setVertexShapeTransformer(n -> new Ellipse2D.Double(-4, -4, 8, 8));;
 
     vv.scaleToLayout(scaler);
-    jf.getContentPane().add(vv);
+    this.add(vv);
     JPanel buttons = new JPanel();
     JButton search = new JButton("search");
     buttons.add(search);
     search.addActionListener(
-        e -> {
-          testClosestNodes(
-              vv,
-              g,
-              model.getLayoutModel(),
-              (SpatialQuadTree<String>)
-                  ((SpatialQuadTreeLayoutModel) model.getLayoutModel()).getSpatial());
-        });
+        e ->
+            testClosestNodes(
+                vv,
+                g,
+                model.getLayoutModel(),
+                (SpatialQuadTree<String>)
+                    ((SpatialQuadTreeLayoutModel) model.getLayoutModel()).getSpatial()));
 
-    jf.getContentPane().add(buttons, BorderLayout.SOUTH);
-    jf.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-    jf.pack();
-    jf.setVisible(true);
+    this.add(buttons, BorderLayout.SOUTH);
   }
 
-  public static void testClosestNodes(
+  public void testClosestNodes(
       VisualizationViewer<String, String> vv,
       MutableNetwork<String, Number> graph,
       LayoutModel<String, Point2D> layoutModel,
       SpatialQuadTree<String> tree) {
     vv.getPickedVertexState().clear();
     NetworkNodeAccessor<String, Point2D> slowWay =
-        new RadiusNetworkNodeAccessor<String, Point2D>(
-            graph.asGraph(), new AWTPointModel(), Double.MAX_VALUE);
+        new RadiusNetworkNodeAccessor<>(graph.asGraph(), new AWTPointModel(), Double.MAX_VALUE);
 
-    // look for nodes closest to 100 random locations
+    // look for nodes closest to 1000 random locations
     for (int i = 0; i < 1000; i++) {
       double x = Math.random() * layoutModel.getWidth();
       double y = Math.random() * layoutModel.getHeight();
@@ -155,12 +146,27 @@ public class SimpleGraphSpatialSearchTest {
         graph.addNode("P");
         layoutModel.set("P", x, y);
         vv.getRenderContext().getPickedVertexState().pick("P", true);
-        //        Color saved = vv.getGraphics().getColor();
-        //        vv.getGraphics().setColor(Color.GREEN);
-        //        vv.getGraphics().drawRect((int)x, (int)y, 5, 5);
-        //        vv.getGraphics().setColor(saved);
         break;
       }
     }
+  }
+
+  public static void main(String[] args) throws IOException {
+
+    // programmatically set the log level so that the spatial grid is drawn for this demo and the SpatialGrid logging is output
+    LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+    Configuration config = ctx.getConfiguration();
+    config
+        .getLoggerConfig("edu.uci.ics.jung.visualization.BasicVisualizationServer")
+        .setLevel(Level.TRACE);
+    config.getLoggerConfig("edu.uci.ics.jung.visualization.spatial").setLevel(Level.DEBUG);
+    ctx.updateLoggers();
+
+    JFrame jf = new JFrame();
+
+    jf.getContentPane().add(new SimpleGraphSpatialSearchTest());
+    jf.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+    jf.pack();
+    jf.setVisible(true);
   }
 }
