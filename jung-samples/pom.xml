@@ -13,25 +13,20 @@
     Please study the source code for these examples prior to asking how to do something.
   </description>
   <properties>
-    <version.slf4j>1.7.9</version.slf4j>
-    <version.log4j>2.9.1</version.log4j>
+    <version.slf4j>1.7.25</version.slf4j>
+    <version.logback>1.2.3</version.logback>
   </properties>
   <dependencies>
     <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-slf4j-impl</artifactId>
-      <version>${version.log4j}</version>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>${version.logback}</version>
     </dependency>
     <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-api</artifactId>
-      <version>${version.log4j}</version>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-core</artifactId>
+      <version>${version.logback}</version>
     </dependency>
-  <dependency>
-    <groupId>org.apache.logging.log4j</groupId>
-    <artifactId>log4j-core</artifactId>
-    <version>${version.log4j}</version>
-  </dependency>
     <dependency>
       <groupId>net.sf.jung</groupId>
       <artifactId>jung-api</artifactId>

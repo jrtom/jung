@@ -7,6 +7,8 @@
  */
 package edu.uci.ics.jung.samples;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.LoggerContext;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.graph.util.TestGraphs;
 import edu.uci.ics.jung.layout.algorithms.FRLayoutAlgorithm;
@@ -26,11 +28,8 @@ import java.awt.*;
 import java.awt.geom.Point2D;
 import java.io.IOException;
 import javax.swing.*;
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.LoggerContext;
-import org.apache.logging.log4j.core.config.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A test program to show the SpatialLayout structure and allow users to manipulate the graph ('p'
@@ -40,7 +39,7 @@ import org.apache.logging.log4j.core.config.Configuration;
  */
 public class SimpleGraphSpatialTest extends JPanel {
 
-  private static final Logger log = LogManager.getLogger(SimpleGraphSpatialTest.class);
+  private static final Logger log = LoggerFactory.getLogger(SimpleGraphSpatialTest.class);
 
   private static final PointModel<Point2D> POINT_MODEL = new AWTPointModel();
 
@@ -75,13 +74,10 @@ public class SimpleGraphSpatialTest extends JPanel {
   public static void main(String[] args) throws IOException {
 
     // programmatically set the log level so that the spatial grid is drawn for this demo and the SpatialGrid logging is output
-    LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
-    Configuration config = ctx.getConfiguration();
-    config
-        .getLoggerConfig("edu.uci.ics.jung.visualization.BasicVisualizationServer")
-        .setLevel(Level.TRACE);
-    config.getLoggerConfig("edu.uci.ics.jung.visualization.spatial").setLevel(Level.DEBUG);
-    ctx.updateLoggers();
+    ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) log;
+    LoggerContext ctx = (LoggerContext) LoggerFactory.getILoggerFactory();
+    ctx.getLogger("edu.uci.ics.jung.visualization.spatial").setLevel(Level.DEBUG);
+    ctx.getLogger("edu.uci.ics.jung.visualization.BasicVisualizationServer").setLevel(Level.TRACE);
 
     JFrame jf = new JFrame();
 

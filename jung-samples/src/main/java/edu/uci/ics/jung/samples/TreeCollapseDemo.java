@@ -155,7 +155,7 @@ public class TreeCollapseDemo extends JApplet {
             CTreeNetwork subTree = TreeCollapser.collapse(graph, root);
             LayoutModel objectLayoutModel = vv.getModel().getLayoutModel();
             objectLayoutModel.set(subTree, objectLayoutModel.apply(root));
-            vv.getModel().setNetwork(graph);
+            vv.getModel().setNetwork(graph, false);
             vv.getPickedVertexState().clear();
             vv.repaint();
           }

@@ -2,8 +2,8 @@ package edu.uci.ics.jung.visualization.spatial;
 
 import static edu.uci.ics.jung.visualization.spatial.SpatialQuadTree.Quadrant.*;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import edu.uci.ics.jung.layout.model.LayoutModel;
 import java.awt.*;
@@ -76,7 +76,7 @@ public class SpatialQuadTree<N> extends AbstractSpatial<N> implements Spatial<N>
   public SpatialQuadTree(LayoutModel<N, Point2D> layoutModel, int pLevel, Rectangle2D area) {
     super(layoutModel);
     level = pLevel;
-    nodes = Sets.newHashSet();
+    nodes = Collections.synchronizedSet(Sets.newHashSet());
     this.area = area;
   }
 
@@ -105,7 +105,7 @@ public class SpatialQuadTree<N> extends AbstractSpatial<N> implements Spatial<N>
 
   /** @return the nodes in this cell, assuming it is a leaf */
   public Set<N> getNodes() {
-    return Collections.unmodifiableSet(nodes);
+    return nodes;
   }
 
   /*
@@ -113,7 +113,7 @@ public class SpatialQuadTree<N> extends AbstractSpatial<N> implements Spatial<N>
    */
   public void clear() {
     nodes.clear();
-    if (children != null) children.clear();
+    children = null;
   }
 
   /*
@@ -134,13 +134,13 @@ public class SpatialQuadTree<N> extends AbstractSpatial<N> implements Spatial<N>
         new SpatialQuadTree<>(layoutModel, childLevel, x, y + height, width, height);
     SpatialQuadTree<N> se =
         new SpatialQuadTree<>(layoutModel, childLevel, x + width, y + height, width, height);
-    if (children == null) {
-      children = Maps.newHashMap();
-    }
-    children.put(NE, ne);
-    children.put(NW, nw);
-    children.put(SW, sw);
-    children.put(SE, se);
+    children =
+        new ImmutableMap.Builder<Quadrant, SpatialQuadTree<N>>()
+            .put(NE, ne)
+            .put(NW, nw)
+            .put(SW, sw)
+            .put(SE, se)
+            .build();
   }
 
   /**

@@ -7,6 +7,8 @@
  */
 package edu.uci.ics.jung.samples;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.LoggerContext;
 import com.google.common.graph.MutableNetwork;
 import edu.uci.ics.jung.graph.util.TestGraphs;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
@@ -31,11 +33,8 @@ import java.awt.*;
 import java.awt.geom.Point2D;
 import java.io.IOException;
 import javax.swing.*;
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.LoggerContext;
-import org.apache.logging.log4j.core.config.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A test that puts a lot of nodes on the screen with a visible quadtree. When the button is pushed,
@@ -48,7 +47,7 @@ import org.apache.logging.log4j.core.config.Configuration;
  */
 public class SimpleGraphSpatialSearchTest extends JPanel {
 
-  private static final Logger log = LogManager.getLogger(SimpleGraphSpatialSearchTest.class);
+  private static final Logger log = LoggerFactory.getLogger(SimpleGraphSpatialSearchTest.class);
 
   private static final PointModel<Point2D> POINT_MODEL = new AWTPointModel();
 
@@ -154,13 +153,11 @@ public class SimpleGraphSpatialSearchTest extends JPanel {
   public static void main(String[] args) throws IOException {
 
     // programmatically set the log level so that the spatial grid is drawn for this demo and the SpatialGrid logging is output
-    LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
-    Configuration config = ctx.getConfiguration();
-    config
-        .getLoggerConfig("edu.uci.ics.jung.visualization.BasicVisualizationServer")
-        .setLevel(Level.TRACE);
-    config.getLoggerConfig("edu.uci.ics.jung.visualization.spatial").setLevel(Level.DEBUG);
-    ctx.updateLoggers();
+    // programmatically set the log level so that the spatial grid is drawn for this demo and the SpatialGrid logging is output
+    ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) log;
+    LoggerContext ctx = (LoggerContext) LoggerFactory.getILoggerFactory();
+    ctx.getLogger("edu.uci.ics.jung.visualization.spatial").setLevel(Level.DEBUG);
+    ctx.getLogger("edu.uci.ics.jung.visualization.BasicVisualizationServer").setLevel(Level.TRACE);
 
     JFrame jf = new JFrame();
 
