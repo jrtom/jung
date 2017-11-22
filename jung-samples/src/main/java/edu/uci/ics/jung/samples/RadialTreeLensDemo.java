@@ -8,39 +8,27 @@
  */
 package edu.uci.ics.jung.samples;
 
+import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
+
 import edu.uci.ics.jung.graph.CTreeNetwork;
 import edu.uci.ics.jung.graph.MutableCTreeNetwork;
 import edu.uci.ics.jung.graph.TreeNetworkBuilder;
 import edu.uci.ics.jung.layout.algorithms.RadialTreeLayoutAlgorithm;
 import edu.uci.ics.jung.layout.model.LayoutModel;
-import edu.uci.ics.jung.layout.model.PointModel;
 import edu.uci.ics.jung.layout.model.PolarPoint;
 import edu.uci.ics.jung.samples.util.ControlHelpers;
-import edu.uci.ics.jung.visualization.BaseVisualizationModel;
-import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
-import edu.uci.ics.jung.visualization.Layer;
-import edu.uci.ics.jung.visualization.VisualizationModel;
-import edu.uci.ics.jung.visualization.VisualizationServer;
-import edu.uci.ics.jung.visualization.VisualizationViewer;
+import edu.uci.ics.jung.visualization.*;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalLensGraphMouse;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.EdgeShape;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
-import edu.uci.ics.jung.visualization.layout.AWTPointModel;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import edu.uci.ics.jung.visualization.transform.LensSupport;
 import edu.uci.ics.jung.visualization.transform.shape.HyperbolicShapeTransformer;
 import edu.uci.ics.jung.visualization.transform.shape.ViewLensSupport;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.GridLayout;
-import java.awt.Shape;
+import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
@@ -58,8 +46,6 @@ import javax.swing.*;
  */
 @SuppressWarnings("serial")
 public class RadialTreeLensDemo extends JApplet {
-
-  private static final PointModel<Point2D> POINT_MODEL = new AWTPointModel();
 
   CTreeNetwork<String, Integer> graph;
 
@@ -85,9 +71,7 @@ public class RadialTreeLensDemo extends JApplet {
     // create a simple graph for the demo
     graph = createTree();
 
-    //    layoutAlgorithm = new TreeLayoutAlgorithm<>(pointModel);
     radialLayoutAlgorithm = new RadialTreeLayoutAlgorithm<>(POINT_MODEL);
-    //    radialLayoutAlgorithm.setSize(new Dimension(600, 600));
 
     Dimension preferredSize = new Dimension(600, 600);
 

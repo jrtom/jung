@@ -1,5 +1,7 @@
 package edu.uci.ics.jung.visualization.layout;
 
+import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
+
 import com.google.common.graph.Graph;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
 import edu.uci.ics.jung.layout.model.LayoutModel;
@@ -7,7 +9,7 @@ import edu.uci.ics.jung.layout.model.LoadingCacheLayoutModel;
 import edu.uci.ics.jung.layout.util.Caching;
 import edu.uci.ics.jung.visualization.spatial.Spatial;
 import edu.uci.ics.jung.visualization.spatial.SpatialQuadTree;
-import java.awt.Dimension;
+import java.awt.*;
 import java.awt.geom.Point2D;
 import java.util.function.Function;
 import org.slf4j.Logger;
@@ -31,12 +33,12 @@ public class SpatialQuadTreeLayoutModel<N> extends LoadingCacheLayoutModel<N, Po
 
   public SpatialQuadTreeLayoutModel(
       Graph<N> graph, int width, int height, Function<N, Point2D> initializer) {
-    super(graph, new AWTPointModel(), width, height, 0, initializer);
+    super(graph, POINT_MODEL, width, height, 0, initializer);
     setupSpatial(new Dimension(width, height));
   }
 
   public SpatialQuadTreeLayoutModel(Graph<N> graph, int width, int height) {
-    super(graph, new AWTPointModel(), width, height, 0);
+    super(graph, POINT_MODEL, width, height, 0);
     setupSpatial(new Dimension(width, height));
   }
 

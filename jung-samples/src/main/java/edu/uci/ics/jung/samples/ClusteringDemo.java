@@ -9,6 +9,8 @@
  */
 package edu.uci.ics.jung.samples;
 
+import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
+
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -22,13 +24,11 @@ import edu.uci.ics.jung.layout.algorithms.FRLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
 import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.layout.model.LoadingCacheLayoutModel;
-import edu.uci.ics.jung.layout.model.PointModel;
 import edu.uci.ics.jung.visualization.BaseVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.VisualizationModel;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
-import edu.uci.ics.jung.visualization.layout.AWTPointModel;
 import edu.uci.ics.jung.visualization.layout.AggregateLayoutModel;
 import java.awt.*;
 import java.awt.event.ItemEvent;
@@ -56,7 +56,6 @@ import javax.swing.border.TitledBorder;
 public class ClusteringDemo extends JApplet {
 
   VisualizationViewer<Number, Number> vv;
-  PointModel<Point2D> pointModel = new AWTPointModel();
 
   LoadingCache<Number, Paint> vertexPaints =
       CacheBuilder.newBuilder().build(CacheLoader.from(() -> Color.white));
@@ -132,9 +131,9 @@ public class ClusteringDemo extends JApplet {
 
     //Create a simple layout frame
     //specify the Fruchterman-Rheingold layout algorithm
-    LayoutAlgorithm<Number, Point2D> algorithm = new FRLayoutAlgorithm<>(pointModel);
+    LayoutAlgorithm<Number, Point2D> algorithm = new FRLayoutAlgorithm<>(POINT_MODEL);
     LayoutModel<Number, Point2D> delegateModel =
-        new LoadingCacheLayoutModel<>(graph.asGraph(), pointModel, 600, 600);
+        new LoadingCacheLayoutModel<>(graph.asGraph(), POINT_MODEL, 600, 600);
 
     final AggregateLayoutModel<Number, Point2D> layoutModel =
         new AggregateLayoutModel<>(delegateModel);
@@ -284,10 +283,11 @@ public class ClusteringDemo extends JApplet {
       for (Number v : vertices) {
         subGraph.addNode(v);
       }
-      LayoutAlgorithm<Number, Point2D> subLayoutAlgorithm = new CircleLayoutAlgorithm<>(pointModel);
+      LayoutAlgorithm<Number, Point2D> subLayoutAlgorithm =
+          new CircleLayoutAlgorithm<>(POINT_MODEL);
 
       LayoutModel<Number, Point2D> subModel =
-          new LoadingCacheLayoutModel(subGraph.asGraph(), pointModel, 40, 40);
+          new LoadingCacheLayoutModel(subGraph.asGraph(), POINT_MODEL, 40, 40);
       layoutModel.put(subModel, center);
       subModel.accept(subLayoutAlgorithm);
       vv.repaint();

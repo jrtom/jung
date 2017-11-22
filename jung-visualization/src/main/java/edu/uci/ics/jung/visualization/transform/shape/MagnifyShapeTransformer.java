@@ -8,6 +8,8 @@
  */
 package edu.uci.ics.jung.visualization.transform.shape;
 
+import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
+
 import edu.uci.ics.jung.layout.model.PolarPoint;
 import edu.uci.ics.jung.visualization.transform.MagnifyTransformer;
 import edu.uci.ics.jung.visualization.transform.MutableTransformer;
@@ -169,7 +171,7 @@ public class MagnifyShapeTransformer extends MagnifyTransformer
     dx *= ratio;
     Point2D pointFromCenter = new Point2D.Double(dx, dy);
 
-    PolarPoint polar = PolarPoint.cartesianToPolar(pointModel, pointFromCenter);
+    PolarPoint polar = PolarPoint.cartesianToPolar(POINT_MODEL, pointFromCenter);
     double theta = polar.getTheta();
     double radius = polar.getRadius();
     if (radius > viewRadius) {
@@ -180,7 +182,7 @@ public class MagnifyShapeTransformer extends MagnifyTransformer
     radius *= mag;
 
     radius = Math.min(radius, viewRadius);
-    Point2D projectedPoint = PolarPoint.polarToCartesian(pointModel, theta, radius);
+    Point2D projectedPoint = PolarPoint.polarToCartesian(POINT_MODEL, theta, radius);
     projectedPoint.setLocation(projectedPoint.getX() / ratio, projectedPoint.getY());
     Point2D translatedBack =
         new Point2D.Double(
@@ -202,7 +204,7 @@ public class MagnifyShapeTransformer extends MagnifyTransformer
 
     Point2D pointFromCenter = new Point2D.Double(dx, dy);
 
-    PolarPoint polar = PolarPoint.cartesianToPolar(pointModel, pointFromCenter);
+    PolarPoint polar = PolarPoint.cartesianToPolar(POINT_MODEL, pointFromCenter);
 
     double radius = polar.getRadius();
     if (radius > viewRadius) {
@@ -212,7 +214,7 @@ public class MagnifyShapeTransformer extends MagnifyTransformer
     double mag = magnification;
     radius /= mag;
     polar.setRadius(radius);
-    Point2D projectedPoint = PolarPoint.polarToCartesian(pointModel, polar);
+    Point2D projectedPoint = PolarPoint.polarToCartesian(POINT_MODEL, polar);
     projectedPoint.setLocation(projectedPoint.getX() / ratio, projectedPoint.getY());
     Point2D translatedBack =
         new Point2D.Double(

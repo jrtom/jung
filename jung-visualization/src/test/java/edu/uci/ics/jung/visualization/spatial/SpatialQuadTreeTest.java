@@ -1,5 +1,7 @@
 package edu.uci.ics.jung.visualization.spatial;
 
+import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
+
 import com.google.common.graph.Graph;
 import edu.uci.ics.jung.graph.util.TestGraphs;
 import edu.uci.ics.jung.layout.model.LayoutModel;
@@ -7,7 +9,6 @@ import edu.uci.ics.jung.layout.model.LoadingCacheLayoutModel;
 import edu.uci.ics.jung.layout.util.NetworkNodeAccessor;
 import edu.uci.ics.jung.layout.util.RadiusNetworkNodeAccessor;
 import edu.uci.ics.jung.layout.util.RandomLocationTransformer;
-import edu.uci.ics.jung.visualization.layout.AWTPointModel;
 import java.awt.geom.Point2D;
 import org.junit.Assert;
 import org.junit.Before;
@@ -38,11 +39,11 @@ public class SpatialQuadTreeTest {
     layoutModel =
         new LoadingCacheLayoutModel(
             graph,
-            new AWTPointModel(),
+            POINT_MODEL,
             width,
             height,
             new RandomLocationTransformer(
-                new AWTPointModel(), width, height, 0, System.currentTimeMillis()));
+                POINT_MODEL, width, height, 0, System.currentTimeMillis()));
 
     tree = new SpatialQuadTree(layoutModel, width, height);
     for (String node : graph.nodes()) {
@@ -76,8 +77,7 @@ public class SpatialQuadTreeTest {
   public void testClosestNodes() {
     final int COUNT = 10000;
     NetworkNodeAccessor<String, Point2D> slowWay =
-        new RadiusNetworkNodeAccessor<String, Point2D>(
-            graph, new AWTPointModel(), Double.MAX_VALUE);
+        new RadiusNetworkNodeAccessor<String, Point2D>(graph, POINT_MODEL, Double.MAX_VALUE);
 
     // look for nodes closest to COUNT random locations
     for (int i = 0; i < COUNT; i++) {
@@ -132,8 +132,7 @@ public class SpatialQuadTreeTest {
   public void comparePerformance() {
     final int COUNT = 100000;
     NetworkNodeAccessor<String, Point2D> slowWay =
-        new RadiusNetworkNodeAccessor<String, Point2D>(
-            graph, new AWTPointModel(), Double.MAX_VALUE);
+        new RadiusNetworkNodeAccessor<String, Point2D>(graph, POINT_MODEL, Double.MAX_VALUE);
 
     // generate the points first so both tests use the same points
     double[] xs = new double[COUNT];

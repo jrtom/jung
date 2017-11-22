@@ -7,6 +7,8 @@
  */
 package edu.uci.ics.jung.samples;
 
+import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
+
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
@@ -14,7 +16,6 @@ import edu.uci.ics.jung.io.PajekNetReader;
 import edu.uci.ics.jung.layout.algorithms.FRLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
-import edu.uci.ics.jung.visualization.layout.AWTPointModel;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -27,7 +28,7 @@ public class SimpleGraphDraw {
   public static void main(String[] args) throws IOException {
     JFrame jf = new JFrame();
     Network g = getGraph();
-    LayoutAlgorithm layoutAlgorithm = new FRLayoutAlgorithm(new AWTPointModel());
+    LayoutAlgorithm layoutAlgorithm = new FRLayoutAlgorithm(POINT_MODEL);
     VisualizationViewer vv = new VisualizationViewer(g, layoutAlgorithm);
     jf.getContentPane().add(vv);
     jf.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);

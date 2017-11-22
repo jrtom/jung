@@ -7,6 +7,8 @@
  */
 package edu.uci.ics.jung.samples;
 
+import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
+
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 import com.google.common.graph.MutableNetwork;
@@ -14,7 +16,6 @@ import edu.uci.ics.jung.graph.util.TestGraphs;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.StaticLayoutAlgorithm;
 import edu.uci.ics.jung.layout.model.LayoutModel;
-import edu.uci.ics.jung.layout.model.PointModel;
 import edu.uci.ics.jung.layout.util.NetworkNodeAccessor;
 import edu.uci.ics.jung.layout.util.RadiusNetworkNodeAccessor;
 import edu.uci.ics.jung.layout.util.RandomLocationTransformer;
@@ -25,7 +26,6 @@ import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
-import edu.uci.ics.jung.visualization.layout.AWTPointModel;
 import edu.uci.ics.jung.visualization.layout.SpatialQuadTreeLayoutModel;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
 import edu.uci.ics.jung.visualization.spatial.SpatialQuadTree;
@@ -48,8 +48,6 @@ import org.slf4j.LoggerFactory;
 public class SimpleGraphSpatialSearchTest extends JPanel {
 
   private static final Logger log = LoggerFactory.getLogger(SimpleGraphSpatialSearchTest.class);
-
-  private static final PointModel<Point2D> POINT_MODEL = new AWTPointModel();
 
   public SimpleGraphSpatialSearchTest() {
     setLayout(new BorderLayout());
@@ -98,7 +96,7 @@ public class SimpleGraphSpatialSearchTest extends JPanel {
       SpatialQuadTree<String> tree) {
     vv.getPickedVertexState().clear();
     NetworkNodeAccessor<String, Point2D> slowWay =
-        new RadiusNetworkNodeAccessor<>(graph.asGraph(), new AWTPointModel(), Double.MAX_VALUE);
+        new RadiusNetworkNodeAccessor<>(graph.asGraph(), POINT_MODEL, Double.MAX_VALUE);
 
     // look for nodes closest to 1000 random locations
     for (int i = 0; i < 1000; i++) {

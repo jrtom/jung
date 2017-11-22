@@ -9,20 +9,16 @@
 
 package edu.uci.ics.jung.samples;
 
+import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
+
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.NetworkBuilder;
 import edu.uci.ics.jung.graph.ObservableNetwork;
 import edu.uci.ics.jung.graph.util.Graphs;
-import edu.uci.ics.jung.layout.algorithms.AbstractLayoutAlgorithm;
-import edu.uci.ics.jung.layout.algorithms.FRLayoutAlgorithm;
-import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
-import edu.uci.ics.jung.layout.algorithms.SpringLayoutAlgorithm;
-import edu.uci.ics.jung.layout.algorithms.StaticLayoutAlgorithm;
-import edu.uci.ics.jung.layout.model.PointModel;
+import edu.uci.ics.jung.layout.algorithms.*;
 import edu.uci.ics.jung.layout.util.LayoutAlgorithmTransition;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
-import edu.uci.ics.jung.visualization.layout.AWTPointModel;
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
@@ -41,8 +37,6 @@ import org.slf4j.LoggerFactory;
 public class AddNodeDemo extends JPanel {
 
   private static final Logger log = LoggerFactory.getLogger(AddNodeDemo.class);
-
-  private static final PointModel<Point2D> POINT_MODEL = new AWTPointModel();
 
   private static final long serialVersionUID = -5345319851341875800L;
 

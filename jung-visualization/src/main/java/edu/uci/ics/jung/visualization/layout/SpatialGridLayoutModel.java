@@ -1,5 +1,7 @@
 package edu.uci.ics.jung.visualization.layout;
 
+import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
+
 import com.google.common.graph.Graph;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
 import edu.uci.ics.jung.layout.model.LayoutModel;
@@ -28,12 +30,12 @@ public class SpatialGridLayoutModel<N> extends LoadingCacheLayoutModel<N, Point2
 
   public SpatialGridLayoutModel(
       Graph<N> graph, int width, int height, Function<N, Point2D> initializer) {
-    super(graph, new AWTPointModel(), width, height, 0, initializer);
+    super(graph, POINT_MODEL, width, height, 0, initializer);
     setupSpatialGrid(new Dimension(width, height), 10, 10);
   }
 
   public SpatialGridLayoutModel(Graph<N> graph, int width, int height) {
-    super(graph, new AWTPointModel(), width, height, 0);
+    super(graph, POINT_MODEL, width, height, 0);
     setupSpatialGrid(new Dimension(width, height), 10, 10);
   }
 

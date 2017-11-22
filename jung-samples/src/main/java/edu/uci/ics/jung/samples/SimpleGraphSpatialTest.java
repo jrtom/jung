@@ -7,13 +7,14 @@
  */
 package edu.uci.ics.jung.samples;
 
+import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
+
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.graph.util.TestGraphs;
 import edu.uci.ics.jung.layout.algorithms.FRLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
-import edu.uci.ics.jung.layout.model.PointModel;
 import edu.uci.ics.jung.layout.util.RandomLocationTransformer;
 import edu.uci.ics.jung.visualization.BaseVisualizationModel;
 import edu.uci.ics.jung.visualization.VisualizationModel;
@@ -22,10 +23,8 @@ import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
-import edu.uci.ics.jung.visualization.layout.AWTPointModel;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
 import java.awt.*;
-import java.awt.geom.Point2D;
 import java.io.IOException;
 import javax.swing.*;
 import org.slf4j.Logger;
@@ -40,8 +39,6 @@ import org.slf4j.LoggerFactory;
 public class SimpleGraphSpatialTest extends JPanel {
 
   private static final Logger log = LoggerFactory.getLogger(SimpleGraphSpatialTest.class);
-
-  private static final PointModel<Point2D> POINT_MODEL = new AWTPointModel();
 
   public SimpleGraphSpatialTest() {
     setLayout(new BorderLayout());

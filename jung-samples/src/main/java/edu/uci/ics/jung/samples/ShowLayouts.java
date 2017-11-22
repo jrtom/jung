@@ -7,6 +7,8 @@
  */
 package edu.uci.ics.jung.samples;
 
+import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
+
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
 import edu.uci.ics.jung.algorithms.generators.random.BarabasiAlbertGenerator;
@@ -17,7 +19,6 @@ import edu.uci.ics.jung.layout.algorithms.immutable.FRLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.immutable.ISOMLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.immutable.KKLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.immutable.SpringLayoutAlgorithm;
-import edu.uci.ics.jung.layout.model.PointModel;
 import edu.uci.ics.jung.layout.util.LayoutAlgorithmTransition;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
@@ -25,12 +26,10 @@ import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
-import edu.uci.ics.jung.visualization.layout.AWTPointModel;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.geom.Point2D;
 import java.util.function.Supplier;
 import javax.swing.*;
 
@@ -43,7 +42,7 @@ import javax.swing.*;
  */
 @SuppressWarnings("serial")
 public class ShowLayouts extends JApplet {
-  private static final PointModel<Point2D> POINT_MODEL = new AWTPointModel();
+
   protected static Network[] g_array;
   protected static int graph_index;
   protected static String[] graph_names = {

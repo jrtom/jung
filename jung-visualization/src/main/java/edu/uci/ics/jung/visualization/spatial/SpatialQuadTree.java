@@ -238,6 +238,7 @@ public class SpatialQuadTree<N> extends AbstractSpatial<N> implements Spatial<N>
 
       for (Map.Entry<Quadrant, SpatialQuadTree<N>> entry : children.entrySet()) {
         if (shape.intersects(entry.getValue().area)) {
+          // TODO: can throw a NPE when concurrently modified
           children.get(entry.getKey()).retrieve(returnObjects, shape);
         }
       }
