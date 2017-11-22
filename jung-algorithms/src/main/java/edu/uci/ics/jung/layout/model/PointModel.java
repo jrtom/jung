@@ -62,15 +62,6 @@ public interface PointModel<P> {
   void setLocation(P p, P from);
 
   /**
-   * returns the distance squared between p and q
-   *
-   * @param p
-   * @param q
-   * @return
-   */
-  double distanceSquared(P p, P q);
-
-  /**
    * create a new point at the origin
    *
    * @return
@@ -97,14 +88,6 @@ public interface PointModel<P> {
   P newPoint(double x, double y, double z);
 
   /**
-   * returns the distance between p and the origin
-   *
-   * @param p
-   * @return
-   */
-  double distance(P p);
-
-  /**
    * offset the (x,y) coordinates of p by the passed values
    *
    * @param p
@@ -122,4 +105,39 @@ public interface PointModel<P> {
    * @param z
    */
   void offset(P p, double x, double y, double z);
+
+  /**
+   * compute and return the square of the distance between 2 points
+   *
+   * @param from
+   * @param to
+   * @return squared distance between points
+   */
+  default double distanceSquared(P from, P to) {
+    double deltaX = getX(to) - getX(from);
+    double deltaY = getY(to) - getY(from);
+    double deltaZ = getZ(to) - getZ(from);
+    return deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ;
+  }
+
+  /**
+   * compute and return the distance between 2 points
+   *
+   * @param from
+   * @param to
+   * @return distance between points
+   */
+  default double distance(P from, P to) {
+    return Math.sqrt(distanceSquared(from, to));
+  }
+
+  /**
+   * computes the distance between p and the origin
+   *
+   * @param p the point to consider
+   * @return the distance to the origin
+   */
+  default double distance(P p) {
+    return distance(p, newPoint());
+  }
 }
