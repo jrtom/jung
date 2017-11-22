@@ -1,8 +1,5 @@
 package edu.uci.ics.jung.visualization.layout;
 
-import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
-
-import com.google.common.graph.Graph;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
 import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.layout.model.LoadingCacheLayoutModel;
@@ -11,7 +8,6 @@ import edu.uci.ics.jung.visualization.spatial.Spatial;
 import edu.uci.ics.jung.visualization.spatial.SpatialQuadTree;
 import java.awt.*;
 import java.awt.geom.Point2D;
-import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,14 +27,19 @@ public class SpatialQuadTreeLayoutModel<N> extends LoadingCacheLayoutModel<N, Po
   /** the spatial structure to use */
   protected Spatial<N> spatial;
 
-  public SpatialQuadTreeLayoutModel(
-      Graph<N> graph, int width, int height, Function<N, Point2D> initializer) {
-    super(graph, POINT_MODEL, width, height, 0, initializer);
-    setupSpatial(new Dimension(width, height));
+  public static class Builder<N> extends LoadingCacheLayoutModel.Builder<N, Point2D> {
+
+    public SpatialQuadTreeLayoutModel<N> build() {
+      return new SpatialQuadTreeLayoutModel<N>(this);
+    }
+    /** Returns a {@link LoadingCacheLayoutModel} instance. */
+    public static <N> SpatialQuadTreeLayoutModel.Builder<N> builder() {
+      return new SpatialQuadTreeLayoutModel.Builder<>();
+    }
   }
 
-  public SpatialQuadTreeLayoutModel(Graph<N> graph, int width, int height) {
-    super(graph, POINT_MODEL, width, height, 0);
+  SpatialQuadTreeLayoutModel(SpatialQuadTreeLayoutModel.Builder<N> builder) {
+    super(builder);
     setupSpatial(new Dimension(width, height));
   }
 

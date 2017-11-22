@@ -25,6 +25,8 @@ public class SpatialQuadTree<N> extends AbstractSpatial<N> implements Spatial<N>
 
   private static final Logger log = LoggerFactory.getLogger(SpatialQuadTree.class);
 
+  private final Object lock = new Object();
+
   /** the four quadrant keys for the child cells */
   enum Quadrant {
     NE,
@@ -113,7 +115,9 @@ public class SpatialQuadTree<N> extends AbstractSpatial<N> implements Spatial<N>
    */
   public void clear() {
     nodes.clear();
-    children = null;
+    synchronized (lock) {
+      children = null;
+    }
   }
 
   /*
@@ -134,13 +138,15 @@ public class SpatialQuadTree<N> extends AbstractSpatial<N> implements Spatial<N>
         new SpatialQuadTree<>(layoutModel, childLevel, x, y + height, width, height);
     SpatialQuadTree<N> se =
         new SpatialQuadTree<>(layoutModel, childLevel, x + width, y + height, width, height);
-    children =
-        new ImmutableMap.Builder<Quadrant, SpatialQuadTree<N>>()
-            .put(NE, ne)
-            .put(NW, nw)
-            .put(SW, sw)
-            .put(SE, se)
-            .build();
+    synchronized (lock) {
+      children =
+          new ImmutableMap.Builder<Quadrant, SpatialQuadTree<N>>()
+              .put(NE, ne)
+              .put(NW, nw)
+              .put(SW, sw)
+              .put(SE, se)
+              .build();
+    }
   }
 
   /**
@@ -236,10 +242,11 @@ public class SpatialQuadTree<N> extends AbstractSpatial<N> implements Spatial<N>
       returnObjects.addAll(nodes);
     } else {
 
-      for (Map.Entry<Quadrant, SpatialQuadTree<N>> entry : children.entrySet()) {
-        if (shape.intersects(entry.getValue().area)) {
-          // TODO: can throw a NPE when concurrently modified
-          children.get(entry.getKey()).retrieve(returnObjects, shape);
+      synchronized (lock) {
+        for (Map.Entry<Quadrant, SpatialQuadTree<N>> entry : children.entrySet()) {
+          if (shape.intersects(entry.getValue().area)) {
+            children.get(entry.getKey()).retrieve(returnObjects, shape);
+          }
         }
       }
     }

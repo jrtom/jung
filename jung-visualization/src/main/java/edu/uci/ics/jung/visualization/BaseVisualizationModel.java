@@ -10,6 +10,8 @@
  */
 package edu.uci.ics.jung.visualization;
 
+import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
+
 import com.google.common.collect.Lists;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
@@ -95,7 +97,13 @@ public class BaseVisualizationModel<N, E>
         // spatialGrid
         //                    new SpatialGridLayoutModel<>(network.asGraph(), layoutSize.width, layoutSize.height);
         //spatial quadtree
-        new SpatialQuadTreeLayoutModel(network.asGraph(), layoutSize.width, layoutSize.height);
+        SpatialQuadTreeLayoutModel.Builder.<N>builder()
+            .setGraph(network.asGraph())
+            .setPointModel(POINT_MODEL)
+            .setSize(layoutSize.width, layoutSize.height)
+            .build();
+
+    //            new SpatialQuadTreeLayoutModel(network.asGraph(), layoutSize.width, layoutSize.height);
     // no spatial layout features
     //            new LoadingCacheLayoutModel<N, Point2D>(network.asGraph(), POINT_MODEL, layoutSize.width, layoutSize.height);
     if (this.layoutModel instanceof LayoutModel.ChangeSupport) {

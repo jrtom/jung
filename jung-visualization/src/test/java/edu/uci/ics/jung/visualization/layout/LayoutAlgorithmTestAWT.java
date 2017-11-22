@@ -33,7 +33,12 @@ public class LayoutAlgorithmTestAWT {
   @Test
   public void testLayoutAlgorithms() {
     graph = TestGraphs.getDemoGraph().asGraph();
-    layoutModel = new LoadingCacheLayoutModel<>(graph, POINT_MODEL, 500, 500, 0);
+    layoutModel =
+        new LoadingCacheLayoutModel.Builder<String, Point2D>()
+            .setGraph(graph)
+            .setPointModel(POINT_MODEL)
+            .setSize(500, 500)
+            .build();
     testLayoutAlgorithm(new SpringLayoutAlgorithm<>(POINT_MODEL));
     testLayoutAlgorithm(new KKLayoutAlgorithm<>(POINT_MODEL));
     testLayoutAlgorithm(new CircleLayoutAlgorithm<>(POINT_MODEL));
@@ -42,7 +47,12 @@ public class LayoutAlgorithmTestAWT {
   @Test
   public void testTreeLayoutAlgorithms() {
     graph = createTree().asGraph();
-    layoutModel = new LoadingCacheLayoutModel<>(graph, POINT_MODEL, 500, 500, 0);
+    layoutModel =
+        new LoadingCacheLayoutModel.Builder<String, Point2D>()
+            .setGraph(graph)
+            .setPointModel(POINT_MODEL)
+            .setSize(500, 500)
+            .build();
     testLayoutAlgorithm(new TreeLayoutAlgorithm<>(POINT_MODEL));
   }
 

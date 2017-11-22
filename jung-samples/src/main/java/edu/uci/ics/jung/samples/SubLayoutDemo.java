@@ -88,7 +88,6 @@ public class SubLayoutDemo extends JApplet {
   @SuppressWarnings("rawtypes")
   Class<CircleLayoutAlgorithm> subLayoutType = CircleLayoutAlgorithm.class;
 
-  /** create an instance of a simple graph with controls to demo the zoomand hyperbolic features. */
   public SubLayoutDemo() {
 
     // create a simple graph for the demo
@@ -102,8 +101,12 @@ public class SubLayoutDemo extends JApplet {
     LayoutAlgorithm<String, Point2D> layoutAlgorithm = new FRLayoutAlgorithm(POINT_MODEL);
     clusteringLayoutModel =
         new AggregateLayoutModel<>(
-            new LoadingCacheLayoutModel<>(
-                graph.asGraph(), POINT_MODEL, preferredSize.width, preferredSize.height));
+            new LoadingCacheLayoutModel.Builder<String, Point2D>()
+                .setGraph(graph.asGraph())
+                .setPointModel(POINT_MODEL)
+                .setSize(preferredSize.width, preferredSize.height)
+                .build());
+
     clusteringLayoutModel.accept(layoutAlgorithm);
 
     final VisualizationModel<String, Number, Point2D> visualizationModel =
@@ -277,8 +280,6 @@ public class SubLayoutDemo extends JApplet {
     component.setMaximumSize(d);
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked"})
-  // TODO: needs refactoring to create the layout; see VertexCollapseDemoWithLayouts
   private LayoutAlgorithm<String, Point2D> getLayoutAlgorithmFor(
       Class<CircleLayoutAlgorithm> layoutClass) throws Exception {
     Constructor<CircleLayoutAlgorithm> constructor = layoutClass.getConstructor(PointModel.class);
@@ -328,24 +329,18 @@ public class SubLayoutDemo extends JApplet {
 
           LayoutAlgorithm<String, Point2D> subLayoutAlgorithm =
               getLayoutAlgorithmFor(subLayoutType);
-          //          subLayoutAlgorithm.setInitializer(new RandomLocationTransformer<String>(subLayoutSize));
-          //          subLayout.setSize(subLayoutSize);
-          //          clusteringLayoutModel.put(subLayoutAlgorithm, center);
-          LayoutModel<String, Point2D> newLayoutModel =
-              new LoadingCacheLayoutModel<>(
-                  subGraph.asGraph(),
-                  POINT_MODEL,
-                  subLayoutSize.width,
-                  subLayoutSize.height,
-                  0,
-                  new RandomLocationTransformer<>(
-                      POINT_MODEL, subLayoutSize.width, subLayoutSize.height, 0));
 
-          //          VisualizationModel newModel =
-          //              new BaseVisualizationModel(subGraph, subLayoutAlgorithm, subLayoutSize);
-          //          newModel.getLayout().setInitializer(new RandomLocationTransformer<String,Point2D>(subLayoutSize));
+          LayoutModel<String, Point2D> newLayoutModel =
+              new LoadingCacheLayoutModel.Builder<String, Point2D>()
+                  .setGraph(subGraph.asGraph())
+                  .setPointModel(POINT_MODEL)
+                  .setSize(subLayoutSize.width, subLayoutSize.height)
+                  .setInitializer(
+                      new RandomLocationTransformer<>(
+                          POINT_MODEL, subLayoutSize.width, subLayoutSize.height, 0))
+                  .build();
+
           clusteringLayoutModel.put(newLayoutModel, center);
-          //          vv.setModel(clusteringLayoutModel);
           newLayoutModel.accept(subLayoutAlgorithm);
           vv.repaint();
 
@@ -357,7 +352,6 @@ public class SubLayoutDemo extends JApplet {
       // remove all sublayouts
       this.clusteringLayoutModel.removeAll();
       vv.repaint();
-      //      vv.setModel(clusteringLayoutModel);
     }
   }
 

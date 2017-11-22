@@ -37,13 +37,14 @@ public class SpatialQuadTreeTest {
     // generate 100 random nodes in a graph at random locations in the layoutModel
     graph = TestGraphs.createChainPlusIsolates(0, 100).asGraph();
     layoutModel =
-        new LoadingCacheLayoutModel(
-            graph,
-            POINT_MODEL,
-            width,
-            height,
-            new RandomLocationTransformer(
-                POINT_MODEL, width, height, 0, System.currentTimeMillis()));
+        new LoadingCacheLayoutModel.Builder<String, Point2D>()
+            .setGraph(graph)
+            .setPointModel(POINT_MODEL)
+            .setSize(width, height)
+            .setInitializer(
+                new RandomLocationTransformer(
+                    POINT_MODEL, width, height, 0, System.currentTimeMillis()))
+            .build();
 
     tree = new SpatialQuadTree(layoutModel, width, height);
     for (String node : graph.nodes()) {

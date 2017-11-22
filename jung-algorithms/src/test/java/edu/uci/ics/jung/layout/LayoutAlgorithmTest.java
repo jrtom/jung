@@ -32,7 +32,12 @@ public class LayoutAlgorithmTest {
   @Test
   public void testLayoutAlgorithms() {
     graph = TestGraphs.getDemoGraph().asGraph();
-    layoutModel = new LoadingCacheLayoutModel<>(graph, pointModel, 500, 500);
+    layoutModel =
+        new LoadingCacheLayoutModel.Builder<String, TestPointModel.Point>()
+            .setGraph(graph)
+            .setPointModel(pointModel)
+            .setSize(500, 500)
+            .build();
     testLayoutAlgorithm(new SpringLayoutAlgorithm<>(pointModel));
     testLayoutAlgorithm(new KKLayoutAlgorithm<>(pointModel));
     // ISOM seems to put some nodes in the same location, so the test will fail
@@ -43,7 +48,12 @@ public class LayoutAlgorithmTest {
   @Test
   public void testTreeLayoutAlgorithms() {
     graph = createTree().asGraph();
-    layoutModel = new LoadingCacheLayoutModel<>(graph, pointModel, 500, 500);
+    layoutModel =
+        new LoadingCacheLayoutModel.Builder<String, TestPointModel.Point>()
+            .setGraph(graph)
+            .setPointModel(pointModel)
+            .setSize(500, 500)
+            .build();
     testLayoutAlgorithm(new TreeLayoutAlgorithm<>(pointModel));
   }
 

@@ -18,10 +18,13 @@ public class LayoutAlgorithmTransitionTest {
     MutableGraph<String> graph = GraphBuilder.undirected().build();
     graph.addNode("A");
     LayoutModel<String, Point2D> model =
-        new LoadingCacheLayoutModel(graph, POINT_MODEL, 100, 100, 100);
+        new LoadingCacheLayoutModel.Builder<String, Point2D>()
+            .setGraph(graph)
+            .setPointModel(POINT_MODEL)
+            .setSize(100, 100)
+            .build();
+
     model.set("A", 0, 0);
     LayoutAlgorithm newLayoutAlgorithm = new StaticLayoutAlgorithm(POINT_MODEL);
-
-    //        LayoutAlgorithmTransition transition = new LayoutAlgorithmTransition();
   }
 }
