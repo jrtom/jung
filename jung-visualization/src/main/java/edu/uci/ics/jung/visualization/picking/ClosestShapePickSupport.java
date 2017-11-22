@@ -101,7 +101,10 @@ public class ClosestShapePickSupport<N, E> implements NetworkElementAccessor<N, 
     // get the vertex location
     Point2D p = layoutModel.apply(closest);
     // transform the vertex location to screen coords
-    p = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, p);
+    p =
+        vv.getRenderContext()
+            .getMultiLayerTransformer()
+            .transform(Layer.LAYOUT, (Point2D) p.clone());
 
     double ox = x - p.getX();
     double oy = y - p.getY();

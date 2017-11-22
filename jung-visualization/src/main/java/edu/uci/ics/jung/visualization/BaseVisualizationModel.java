@@ -97,7 +97,7 @@ public class BaseVisualizationModel<N, E>
         //spatial quadtree
         new SpatialQuadTreeLayoutModel(network.asGraph(), layoutSize.width, layoutSize.height);
     // no spatial layout features
-    //        new LoadingCacheLayoutModel<N, E, Point2D>(network.asGraph(), new AWTPointModel(), layoutSize.width, layoutSize.height);
+    //            new LoadingCacheLayoutModel<N, Point2D>(network.asGraph(), new AWTPointModel(), layoutSize.width, layoutSize.height);
     if (this.layoutModel instanceof LayoutModel.ChangeSupport) {
       ((LayoutModel.ChangeSupport) layoutModel).addChangeListener(this);
     }

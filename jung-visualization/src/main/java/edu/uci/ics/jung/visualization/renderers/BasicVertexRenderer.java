@@ -52,7 +52,7 @@ public class BasicVertexRenderer<V, E> implements Renderer.Vertex<V, E> {
     Shape shape = renderContext.getVertexShapeTransformer().apply(v);
     Point2D p = visualizationModel.getLayoutModel().apply(v);
     log.trace("prepared a shape for " + v + " to go at " + p);
-    p = renderContext.getMultiLayerTransformer().transform(Layer.LAYOUT, p);
+    p = renderContext.getMultiLayerTransformer().transform(Layer.LAYOUT, (Point2D) p.clone());
     float x = (float) p.getX();
     float y = (float) p.getY();
     coords[0] = (int) x;

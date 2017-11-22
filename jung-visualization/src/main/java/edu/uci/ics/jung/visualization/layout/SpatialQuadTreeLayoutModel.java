@@ -93,4 +93,8 @@ public class SpatialQuadTreeLayoutModel<N> extends LoadingCacheLayoutModel<N, Po
   public Spatial<N> getSpatial() {
     return this.spatial;
   }
+
+  public void showLocations(String what) {
+    log.info("{} locations {}", what, locations.asMap());
+  }
 }

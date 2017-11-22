@@ -183,7 +183,10 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
             continue;
           }
           // transform the vertex location to screen coords
-          p = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, p);
+          p =
+              vv.getRenderContext()
+                  .getMultiLayerTransformer()
+                  .transform(Layer.LAYOUT, (Point2D) p.clone());
 
           double ox = x - p.getX();
           double oy = y - p.getY();
@@ -261,7 +264,10 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
         continue;
       }
       // transform the vertex location to screen coords
-      p = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, p);
+      p =
+          vv.getRenderContext()
+              .getMultiLayerTransformer()
+              .transform(Layer.LAYOUT, (Point2D) p.clone());
 
       double ox = x - p.getX();
       double oy = y - p.getY();
@@ -318,12 +324,15 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
     while (true) {
       try {
         for (V v : getFilteredVertices()) {
-          Point2D p = layoutModel.apply(v);
+          Point2D p = (Point2D) layoutModel.apply(v);
           if (p == null) {
             continue;
           }
 
-          p = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, p);
+          p =
+              vv.getRenderContext()
+                  .getMultiLayerTransformer()
+                  .transform(Layer.LAYOUT, (Point2D) p.clone());
           if (shape.contains(p)) {
             pickedVertices.add(v);
           }
@@ -353,7 +362,10 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
       if (p == null) {
         continue;
       }
-      p = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, p);
+      p =
+          vv.getRenderContext()
+              .getMultiLayerTransformer()
+              .transform(Layer.LAYOUT, (Point2D) p.clone());
       if (!shape.contains(p)) {
         iterator.remove();
       }

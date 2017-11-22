@@ -79,8 +79,6 @@ public class FRLayoutAlgorithm<N, P> extends AbstractIterativeLayoutAlgorithm<N,
 
   @Override
   public void visit(LayoutModel<N, P> layoutModel) {
-    log.trace("visiting " + layoutModel);
-
     super.visit(layoutModel);
     max_dimension = Math.max(layoutModel.getWidth(), layoutModel.getHeight());
     initialize();

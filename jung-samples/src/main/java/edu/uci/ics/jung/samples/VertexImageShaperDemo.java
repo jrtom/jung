@@ -461,7 +461,7 @@ public class VertexImageShaperDemo extends JApplet {
         RenderContext<V, E> renderContext, VisualizationModel<V, E, Point2D> model, V v) {
 
       Point2D p = model.getLayoutModel().apply(v);
-      p = renderContext.getMultiLayerTransformer().transform(Layer.LAYOUT, p);
+      p = renderContext.getMultiLayerTransformer().transform(Layer.LAYOUT, (Point2D) p.clone());
       float x = (float) p.getX();
       float y = (float) p.getY();
 

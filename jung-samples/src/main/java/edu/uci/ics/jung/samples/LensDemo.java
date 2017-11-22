@@ -330,7 +330,7 @@ public class LensDemo extends JApplet {
 
     public Dimension getPreferredSize(JComponent c) {
       Dimension dim = super.getPreferredSize(c);
-      return new Dimension(dim.width, dim.height);
+      return new Dimension(dim.height, dim.width);
     }
 
     private static Rectangle paintIconR = new Rectangle();

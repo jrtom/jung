@@ -75,7 +75,10 @@ public class ViewLensShapePickSupport<N, E> extends ShapePickSupport<N, E> {
 
           // use the LAYOUT transform to move the shape center without
           // modifying the actual shape
-          Point2D lp = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, p);
+          Point2D lp =
+              vv.getRenderContext()
+                  .getMultiLayerTransformer()
+                  .transform(Layer.LAYOUT, (Point2D) p.clone());
           AffineTransform xlate =
               AffineTransform.getTranslateInstance(lp.getX() - p.getX(), lp.getY() - p.getY());
           shape = xlate.createTransformedShape(shape);
@@ -131,6 +134,7 @@ public class ViewLensShapePickSupport<N, E> extends ShapePickSupport<N, E> {
           if (p == null) {
             continue;
           }
+          p = (Point2D) p.clone();
           // get the shape
           Shape shape = vv.getRenderContext().getVertexShapeTransformer().apply(v);
 

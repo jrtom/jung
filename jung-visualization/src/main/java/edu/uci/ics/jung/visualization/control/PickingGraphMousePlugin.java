@@ -50,10 +50,10 @@ public class PickingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
   protected E edge;
 
   /** the x distance from the picked vertex center to the mouse point */
-  protected double offsetx;
+  //  protected double offsetx;
 
   /** the y distance from the picked vertex center to the mouse point */
-  protected double offsety;
+  //  protected double offsety;
 
   /** controls whether the Vertices may be moved with the mouse */
   protected boolean locked;
@@ -156,8 +156,8 @@ public class PickingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
           Point2D gp =
               vv.getRenderContext().getMultiLayerTransformer().inverseTransform(Layer.LAYOUT, ip);
 
-          offsetx = (float) (gp.getX() - q.getX());
-          offsety = (float) (gp.getY() - q.getY());
+          //          offsetx = (float) (gp.getX() - q.getX());
+          //          offsety = (float) (gp.getY() - q.getY());
         } else if ((edge = pickSupport.getEdge(layoutModel, ip.getX(), ip.getY())) != null) {
           pickedEdgeState.clear();
           pickedEdgeState.pick(edge, true);
@@ -185,8 +185,8 @@ public class PickingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
             Point2D gp =
                 vv.getRenderContext().getMultiLayerTransformer().inverseTransform(Layer.LAYOUT, ip);
 
-            offsetx = (float) (gp.getX() - q.getX());
-            offsety = (float) (gp.getY() - q.getY());
+            //            offsetx = (float) (gp.getX() - q.getX());
+            //            offsety = (float) (gp.getY() - q.getY());
           }
         } else if ((edge = pickSupport.getEdge(layoutModel, ip.getX(), ip.getY())) != null) {
           pickedEdgeState.pick(edge, !pickedEdgeState.isPicked(edge));
@@ -206,6 +206,8 @@ public class PickingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
   @SuppressWarnings("unchecked")
   public void mouseReleased(MouseEvent e) {
     VisualizationViewer<N, E> vv = (VisualizationViewer<N, E>) e.getSource();
+    LayoutModel<N, Point2D> layoutModel = vv.getModel().getLayoutModel();
+
     if (e.getModifiers() == modifiers) {
       if (down != null) {
         Point2D out = e.getPoint();

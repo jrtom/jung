@@ -61,7 +61,7 @@ public class LayoutLensShapePickSupport<N, E> extends ShapePickSupport<N, E> {
             continue;
           }
           // transform the vertex location to screen coords
-          p = vv.getRenderContext().getMultiLayerTransformer().transform(p);
+          p = vv.getRenderContext().getMultiLayerTransformer().transform((Point2D) p.clone());
           AffineTransform xform = AffineTransform.getTranslateInstance(p.getX(), p.getY());
           shape = xform.createTransformedShape(shape);
 
@@ -105,7 +105,7 @@ public class LayoutLensShapePickSupport<N, E> extends ShapePickSupport<N, E> {
             continue;
           }
 
-          p = vv.getRenderContext().getMultiLayerTransformer().transform(p);
+          p = vv.getRenderContext().getMultiLayerTransformer().transform((Point2D) p.clone());
           if (rectangle.contains(p)) {
             pickedVertices.add(v);
           }
@@ -132,7 +132,10 @@ public class LayoutLensShapePickSupport<N, E> extends ShapePickSupport<N, E> {
             continue;
           }
 
-          p = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, p);
+          p =
+              vv.getRenderContext()
+                  .getMultiLayerTransformer()
+                  .transform(Layer.LAYOUT, (Point2D) p.clone());
           if (shape.contains(p)) {
             pickedVertices.add(v);
           }
