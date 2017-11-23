@@ -17,6 +17,8 @@ import java.awt.*;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * HyperbolicShapeTransformer extends HyperbolicTransformer and adds implementations for methods in
@@ -27,7 +29,7 @@ import java.awt.geom.Point2D;
  */
 public class HyperbolicShapeTransformer extends HyperbolicTransformer
     implements ShapeFlatnessTransformer {
-
+  private static final Logger log = LoggerFactory.getLogger(HyperbolicShapeTransformer.class);
   /**
    * Create an instance, setting values from the passed component and registering to listen for
    * layoutSize changes on the component.
@@ -61,6 +63,9 @@ public class HyperbolicShapeTransformer extends HyperbolicTransformer
   }
 
   public Shape transform(Shape shape, float flatness) {
+    if (log.isTraceEnabled()) {
+      log.trace("transforming {}", shape);
+    }
     GeneralPath newPath = new GeneralPath();
     float[] coords = new float[6];
     PathIterator iterator = null;

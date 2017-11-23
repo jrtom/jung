@@ -10,6 +10,8 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A basic implementation of the MultiLayerTransformer interface that provides two Layers: VIEW and
@@ -19,6 +21,8 @@ import javax.swing.event.ChangeListener;
  */
 public class BasicTransformer
     implements MultiLayerTransformer, ShapeTransformer, ChangeListener, ChangeEventSupport {
+
+  private static final Logger log = LoggerFactory.getLogger(BasicTransformer.class);
 
   protected ChangeEventSupport changeSupport = new DefaultChangeEventSupport(this);
 
@@ -171,6 +175,7 @@ public class BasicTransformer
   }
 
   public Shape transform(Layer layer, Shape shape) {
+    log.info("transform {} {}", layer, shape);
     if (layer == Layer.LAYOUT) {
       return layoutTransform(shape);
     }
@@ -181,6 +186,7 @@ public class BasicTransformer
   }
 
   public Shape inverseTransform(Layer layer, Shape shape) {
+    log.info("inverseTransform {} {}", layer, shape);
     if (layer == Layer.LAYOUT) {
       return inverseLayoutTransform(shape);
     }

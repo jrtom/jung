@@ -11,9 +11,12 @@
 
   <Logger name="edu.uci.ics.jung.visualization.spatial" level="info"/>
 
-  <Logger name="edu.uci.ics.jung.visualization.BasicVisualizationServer" level="info"/>
+  <Logger name="edu.uci.ics.jung.visualization.BasicVisualizationServer" level="trace"/>
 
   <Logger name="edu.uci.ics.jung.visualization.picking" level="info"/>
+
+  <Logger name="edu.uci.ics.jung.visualization.picking" level="trace" />
+"
 
   <Logger name="ch.qos.logback" level="WARN" />
 

@@ -18,6 +18,8 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RectangularShape;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * LensTransformer wraps a MutableAffineTransformer and modifies the transform and inverseTransform
@@ -31,6 +33,7 @@ import java.awt.geom.RectangularShape;
 public abstract class LensTransformer extends MutableTransformerDecorator
     implements MutableTransformer {
 
+  private static final Logger log = LoggerFactory.getLogger(LensTransformer.class);
   /** the area affected by the transform */
   protected RectangularShape lensShape = new Ellipse2D.Float();
 
@@ -137,6 +140,9 @@ public abstract class LensTransformer extends MutableTransformerDecorator
    * its center
    */
   public Shape transform(Shape shape) {
+    if (log.isTraceEnabled()) {
+      log.trace("transform {}", shape);
+    }
     Rectangle2D bounds = shape.getBounds2D();
     Point2D center = new Point2D.Double(bounds.getCenterX(), bounds.getCenterY());
     Point2D newCenter = transform(center);
@@ -151,6 +157,9 @@ public abstract class LensTransformer extends MutableTransformerDecorator
    * inverseTransform on its center.
    */
   public Shape inverseTransform(Shape shape) {
+    if (log.isTraceEnabled()) {
+      log.trace("inverseTransform {}", shape);
+    }
     Rectangle2D bounds = shape.getBounds2D();
     Point2D center = new Point2D.Double(bounds.getCenterX(), bounds.getCenterY());
     Point2D newCenter = inverseTransform(center);

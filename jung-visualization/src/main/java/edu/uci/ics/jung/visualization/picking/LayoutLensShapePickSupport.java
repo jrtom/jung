@@ -17,7 +17,7 @@ import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationServer;
 import edu.uci.ics.jung.visualization.util.Context;
-import java.awt.Shape;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.PathIterator;
@@ -48,26 +48,32 @@ public class LayoutLensShapePickSupport<N, E> extends ShapePickSupport<N, E> {
 
     N closest = null;
     double minDistance = Double.MAX_VALUE;
-    //    LayoutModel<N, Point2D> layoutModel = vv.getModel().getLayoutModel();
+
+    // the pick point in screen coordinates
+    Point2D pickPoint = new Point2D.Double(x, y);
+    // now the pick point is is layout coorinates
+    pickPoint = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(pickPoint);
 
     while (true) {
       try {
         for (N v : getFilteredVertices()) {
 
+          // the shape for the node in layout coordinates
           Shape shape = vv.getRenderContext().getVertexShapeTransformer().apply(v);
-          // get the vertex location
+          // get the vertex location in layout coordinates
           Point2D p = layoutModel.apply(v);
           if (p == null) {
             continue;
           }
+
           // transform the vertex location to screen coords
-          p = vv.getRenderContext().getMultiLayerTransformer().transform((Point2D) p.clone());
+          //          p = vv.getRenderContext().getMultiLayerTransformer().transform((Point2D) p.clone());
           AffineTransform xform = AffineTransform.getTranslateInstance(p.getX(), p.getY());
           shape = xform.createTransformedShape(shape);
 
           // see if this vertex center is closest to the pick point
           // among any other containing vertices
-          if (shape.contains(x, y)) {
+          if (shape.contains(pickPoint.getX(), pickPoint.getY())) {
 
             if (style == Style.LOWEST) {
               // return the first match
@@ -94,35 +100,54 @@ public class LayoutLensShapePickSupport<N, E> extends ShapePickSupport<N, E> {
     return closest;
   }
 
-  public Collection<N> nodes(LayoutModel<N, Point2D> layoutModel, Shape rectangle) {
-    Set<N> pickedVertices = new HashSet<N>();
-
-    while (true) {
-      try {
-        for (N v : getFilteredVertices()) {
-          Point2D p = layoutModel.apply(v);
-          if (p == null) {
-            continue;
-          }
-
-          p = vv.getRenderContext().getMultiLayerTransformer().transform((Point2D) p.clone());
-          if (rectangle.contains(p)) {
-            pickedVertices.add(v);
-          }
-        }
-        break;
-      } catch (ConcurrentModificationException cme) {
-      }
-    }
-    return pickedVertices;
-  }
+  //  public Collection<N> nodes(LayoutModel<N, Point2D> layoutModel, Shape rectangle) {
+  //    Set<N> pickedVertices = new HashSet<N>();
+  //
+  //    while (true) {
+  //      try {
+  //        for (N v : getFilteredVertices()) {
+  //          Point2D p = layoutModel.apply(v);
+  //          if (p == null) {
+  //            continue;
+  //          }
+  //
+  //          p = vv.getRenderContext().getMultiLayerTransformer().transform((Point2D) p.clone());
+  //          if (rectangle.contains(p)) {
+  //            pickedVertices.add(v);
+  //          }
+  //        }
+  //        break;
+  //      } catch (ConcurrentModificationException cme) {
+  //      }
+  //    }
+  //    return pickedVertices;
+  //  }
 
   @Override
   public Collection<N> getNodes(LayoutModel<N, Point2D> layoutModel, Shape shape) {
     Set<N> pickedVertices = new HashSet<N>();
 
-    // remove the view transform from the rectangle
-    shape = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(Layer.VIEW, shape);
+    // the pick rectangle is in view coordinates.
+    // inverse transform the rectangle to a shape in layout coordinates
+    shape = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(shape);
+    final Shape paintableShape = shape;
+    vv.addPostRenderPaintable(
+        new VisualizationServer.Paintable() {
+          @Override
+          public void paint(Graphics g) {
+            Shape viewShape =
+                vv.getRenderContext().getMultiLayerTransformer().transform(paintableShape);
+
+            g.setColor(Color.BLACK);
+            ((Graphics2D) g).draw(viewShape);
+          }
+
+          @Override
+          public boolean useTransform() {
+            return false;
+          }
+        });
+    // now the 'rectangle' is in the layout coordinate system
 
     while (true) {
       try {
@@ -132,10 +157,10 @@ public class LayoutLensShapePickSupport<N, E> extends ShapePickSupport<N, E> {
             continue;
           }
 
-          p =
-              vv.getRenderContext()
-                  .getMultiLayerTransformer()
-                  .transform(Layer.LAYOUT, (Point2D) p.clone());
+          //          shape = vv.getRenderContext().getMultiLayerTransformer().transform(shape);
+          //          Rectangle2D bounds = shape.getBounds2D();
+          //          p.setLocation(bounds.getCenterX(), bounds.getCenterY());
+          //
           if (shape.contains(p)) {
             pickedVertices.add(v);
           }

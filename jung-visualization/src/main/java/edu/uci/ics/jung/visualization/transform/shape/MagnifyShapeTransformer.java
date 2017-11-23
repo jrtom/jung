@@ -18,6 +18,8 @@ import java.awt.Shape;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * MagnifyShapeTransformer extends MagnifyTransformer and adds implementations for methods in
@@ -29,6 +31,7 @@ import java.awt.geom.Point2D;
 public class MagnifyShapeTransformer extends MagnifyTransformer
     implements ShapeFlatnessTransformer {
 
+  private static final Logger log = LoggerFactory.getLogger(MagnifyShapeTransformer.class);
   /**
    * Create an instance, setting values from the passed component and registering to listen for
    * layoutSize changes on the component.
@@ -62,6 +65,7 @@ public class MagnifyShapeTransformer extends MagnifyTransformer
   }
 
   public Shape transform(Shape shape, float flatness) {
+    log.info("transform {}", shape);
     GeneralPath newPath = new GeneralPath();
     float[] coords = new float[6];
     PathIterator iterator = null;
@@ -111,6 +115,7 @@ public class MagnifyShapeTransformer extends MagnifyTransformer
   }
 
   public Shape inverseTransform(Shape shape) {
+    log.info("inverseTransform {}", shape);
     GeneralPath newPath = new GeneralPath();
     float[] coords = new float[6];
     for (PathIterator iterator = shape.getPathIterator(null);

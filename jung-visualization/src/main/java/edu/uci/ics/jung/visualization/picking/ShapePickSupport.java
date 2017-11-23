@@ -21,7 +21,7 @@ import edu.uci.ics.jung.visualization.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.visualization.layout.SpatialQuadTreeLayoutModel;
 import edu.uci.ics.jung.visualization.spatial.SpatialQuadTree;
 import edu.uci.ics.jung.visualization.util.Context;
-import java.awt.Shape;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
@@ -159,39 +159,35 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
 
     V closest = null;
     double minDistance = Double.MAX_VALUE;
-    Point2D ip =
-        vv.getRenderContext()
-            .getMultiLayerTransformer()
-            .inverseTransform(Layer.VIEW, new Point2D.Double(x, y));
-    x = ip.getX();
-    y = ip.getY();
-    //    LayoutModel<V, Point2D> layoutModel = vv.getModel().getLayoutModel();
+    // x,y is in view coordinate system. transform to layout coordinate system
+    Point2D pickPoint = new Point2D.Double(x, y);
+    pickPoint = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(pickPoint);
+    // now pickPoint is in the layout coordinate system
+
+    // see if we can use the spatial quad tree to find it
     if (layoutModel instanceof SpatialQuadTreeLayoutModel) {
       SpatialQuadTree<V> tree =
           (SpatialQuadTree<V>) ((SpatialQuadTreeLayoutModel) layoutModel).getSpatial();
-      return getClosest(tree, layoutModel, x, y);
+      return getClosest(tree, layoutModel, pickPoint.getX(), pickPoint.getY());
     }
 
+    // fall back on checking every node
     while (true) {
       try {
         for (V v : getFilteredVertices()) {
 
+          // get the shape for the vertex (it is at the origin)
           Shape shape = vv.getRenderContext().getVertexShapeTransformer().apply(v);
           // get the vertex location
           Point2D p = layoutModel.apply(v);
           if (p == null) {
             continue;
           }
-          // transform the vertex location to screen coords
-          p =
-              vv.getRenderContext()
-                  .getMultiLayerTransformer()
-                  .transform(Layer.LAYOUT, (Point2D) p.clone());
+          // translate the shape to the vertex location in layout coordinates
+          AffineTransform xform = AffineTransform.getTranslateInstance(p.getX(), p.getY());
+          shape = xform.createTransformedShape(shape);
 
-          double ox = x - p.getX();
-          double oy = y - p.getY();
-
-          if (shape.contains(ox, oy)) {
+          if (shape.contains(pickPoint.getX(), pickPoint.getY())) {
 
             if (style == Style.LOWEST) {
               // return the first match
@@ -204,8 +200,8 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
               // return the vertex closest to the
               // center of a vertex shape
               Rectangle2D bounds = shape.getBounds2D();
-              double dx = bounds.getCenterX() - ox;
-              double dy = bounds.getCenterY() - oy;
+              double dx = bounds.getCenterX() - pickPoint.getY();
+              double dy = bounds.getCenterY() - pickPoint.getY();
               double dist = dx * dx + dy * dy;
               if (dist < minDistance) {
                 minDistance = dist;
@@ -221,58 +217,57 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
     return closest;
   }
 
+  /**
+   * uses the spatialQuadTree to find the closest node to the points
+   *
+   * @param spatial
+   * @param layoutModel
+   * @param x in the layout coordinate system
+   * @param y in the layout coordinate system
+   * @return the picked node
+   */
   protected V getClosest(
       SpatialQuadTree<V> spatial, LayoutModel<V, Point2D> layoutModel, double x, double y) {
 
-    // move the x,y to layout coordinates
-    Point2D pickPointInView = new Point2D.Double(x, y);
-    Point2D pickPointInLayout =
-        vv.getRenderContext()
-            .getMultiLayerTransformer()
-            .inverseTransform(Layer.LAYOUT, pickPointInView);
+    // find the leaf node that would contain a point at x,y
+    SpatialQuadTree<V> leaf = spatial.getContainingQuadTreeLeaf(x, y);
     if (log.isTraceEnabled()) {
-      log.trace("pickPoint in view {} layout {}", pickPointInView, pickPointInLayout);
-    }
-
-    double lx = pickPointInLayout.getX();
-    double ly = pickPointInLayout.getY();
-
-    SpatialQuadTree<V> leaf = spatial.getContainingQuadTreeLeaf(lx, ly);
-    if (log.isTraceEnabled()) {
-      log.trace("leaf for {},{} is {}", lx, ly, leaf);
+      log.trace("leaf for {},{} is {}", x, y, leaf);
     }
     if (leaf == null) return null;
+    // make a target circle the same size as the leaf node
+    // leaf nodes are small when nodes are close and large when they are sparse
     double diameter = leaf.getLayoutArea().getWidth();
     double radius = diameter / 2;
-    double minDistance = Double.MAX_VALUE;
-
-    V closest = null;
-    Ellipse2D target = new Ellipse2D.Double(lx - radius, ly - radius, diameter, diameter);
+    Ellipse2D target = new Ellipse2D.Double(x - radius, y - radius, diameter, diameter);
     if (log.isTraceEnabled()) {
       log.trace("target is {}", target);
     }
+
+    double minDistance = Double.MAX_VALUE;
+
+    // will be the picked node
+    V closest = null;
+
+    // get the all nodes from any leafs that intersect the target
     Collection<V> nodes = spatial.getVisibleNodes(target);
     if (log.isTraceEnabled()) {
-      log.trace("instead of checking all nodes: {}", getFilteredVertices());
-      log.trace("out of these candidates: {}...", nodes);
+      log.info("instead of checking all nodes: {}", getFilteredVertices());
+      log.info("out of these candidates: {}...", nodes);
     }
     for (V node : nodes) {
+      // get the shape for the node (centered at the origin)
       Shape shape = vv.getRenderContext().getVertexShapeTransformer().apply(node);
       // get the vertex location
       Point2D p = layoutModel.apply(node);
       if (p == null) {
         continue;
       }
-      // transform the vertex location to screen coords
-      p =
-          vv.getRenderContext()
-              .getMultiLayerTransformer()
-              .transform(Layer.LAYOUT, (Point2D) p.clone());
+      // translate the shape to the node location in layout coordinates
+      AffineTransform xform = AffineTransform.getTranslateInstance(p.getX(), p.getY());
+      shape = xform.createTransformedShape(shape);
 
-      double ox = x - p.getX();
-      double oy = y - p.getY();
-
-      if (shape.contains(ox, oy)) {
+      if (shape.contains(x, y)) {
 
         if (style == Style.LOWEST) {
           // return the first match
@@ -285,8 +280,8 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
           // return the vertex closest to the
           // center of a vertex shape
           Rectangle2D bounds = shape.getBounds2D();
-          double dx = bounds.getCenterX() - ox;
-          double dy = bounds.getCenterY() - oy;
+          double dx = bounds.getCenterX() - x;
+          double dy = bounds.getCenterY() - y;
           double dist = dx * dx + dy * dy;
           if (dist < minDistance) {
             minDistance = dist;
@@ -312,15 +307,19 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
   public Collection<V> getNodes(LayoutModel<V, Point2D> layoutModel, Shape shape) {
     Set<V> pickedVertices = new HashSet<V>();
 
-    // remove the view transform from the rectangle
-    shape = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(Layer.VIEW, shape);
+    // the pick target shape is in view coordinates.
+    // inverse transform the shape to a shape in layout coordinates
+    shape = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(shape);
+    // now the target shape is in the layout coordinate system
 
+    // try using the spatial quad tree
     if (layoutModel instanceof SpatialQuadTreeLayoutModel) {
       SpatialQuadTree<V> spatial =
           (SpatialQuadTree) ((SpatialQuadTreeLayoutModel) layoutModel).getSpatial();
       return getContained(spatial, layoutModel, shape);
     }
 
+    // fall back on checking every node
     while (true) {
       try {
         for (V v : getFilteredVertices()) {
@@ -328,11 +327,6 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
           if (p == null) {
             continue;
           }
-
-          p =
-              vv.getRenderContext()
-                  .getMultiLayerTransformer()
-                  .transform(Layer.LAYOUT, (Point2D) p.clone());
           if (shape.contains(p)) {
             pickedVertices.add(v);
           }
@@ -344,14 +338,18 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
     return pickedVertices;
   }
 
+  /**
+   * use the spatial quad tree to find nodes inside the passed shape
+   *
+   * @param spatial
+   * @param layoutModel
+   * @param shape a target shape in layout coordinates
+   * @return the nodes contained in the target shape
+   */
   protected Collection<V> getContained(
       SpatialQuadTree<V> spatial, LayoutModel<V, Point2D> layoutModel, Shape shape) {
 
-    // translate the shape to layout coordinates
-    Shape layoutShape =
-        vv.getRenderContext().getMultiLayerTransformer().inverseTransform(Layer.LAYOUT, shape);
-
-    Collection<V> visible = spatial.getVisibleNodes(layoutShape);
+    Collection<V> visible = spatial.getVisibleNodes(shape);
     if (log.isTraceEnabled()) {
       log.trace("your shape intersects tree cells with these nodes: {}", visible);
     }
@@ -362,10 +360,6 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
       if (p == null) {
         continue;
       }
-      p =
-          vv.getRenderContext()
-              .getMultiLayerTransformer()
-              .transform(Layer.LAYOUT, (Point2D) p.clone());
       if (!shape.contains(p)) {
         iterator.remove();
       }

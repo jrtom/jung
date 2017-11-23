@@ -72,10 +72,6 @@ public abstract class AbstractLayoutModel<N, P>
     return this;
   }
 
-  //  protected AbstractLayoutModel(Graph<N> graph, PointModel<P> pointModel, int width, int height) {
-  //    this(graph, pointModel, width, height, 0);
-  //  }
-
   protected AbstractLayoutModel(
       Graph<N> graph, PointModel<P> pointModel, int width, int height, int depth) {
     this.graph = graph;

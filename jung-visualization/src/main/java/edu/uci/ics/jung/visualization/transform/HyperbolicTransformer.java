@@ -13,6 +13,8 @@ import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
 import edu.uci.ics.jung.layout.model.PolarPoint;
 import java.awt.*;
 import java.awt.geom.Point2D;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * HyperbolicTransformer wraps a MutableAffineTransformer and modifies the transform and
@@ -27,6 +29,8 @@ import java.awt.geom.Point2D;
  * @author Tom Nelson
  */
 public class HyperbolicTransformer extends LensTransformer implements MutableTransformer {
+
+  private static final Logger log = LoggerFactory.getLogger(HyperbolicTransformer.class);
 
   /**
    * create an instance, setting values from the passed component and registering to listen for
@@ -90,7 +94,6 @@ public class HyperbolicTransformer extends LensTransformer implements MutableTra
 
   /** override base class to un-project the fisheye effect */
   public Point2D inverseTransform(Point2D viewPoint) {
-
     Point2D viewCenter = getViewCenter();
     double viewRadius = getViewRadius();
     double ratio = getRatio();
