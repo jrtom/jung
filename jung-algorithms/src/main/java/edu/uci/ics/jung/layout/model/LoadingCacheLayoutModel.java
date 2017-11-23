@@ -17,32 +17,48 @@ public class LoadingCacheLayoutModel<N, P> extends AbstractLayoutModel<N, P>
   protected LoadingCache<N, P> locations =
       CacheBuilder.newBuilder().build(CacheLoader.from(() -> pointModel.newPoint(0, 0, 0)));
 
-  public static class Builder<N, P> extends AbstractLayoutModel.Builder<N, P> {
+  public abstract static class Builder<N, P, T extends LoadingCacheLayoutModel<N, P>> {
+    protected Graph<N> graph;
+    protected PointModel<P> pointModel;
+    protected int width;
+    protected int height;
+    protected int depth;
+
     protected LoadingCache<N, P> locations =
         CacheBuilder.newBuilder().build(CacheLoader.from(() -> pointModel.newPoint(0, 0, 0)));
 
-    public LoadingCacheLayoutModel.Builder<N, P> setGraph(Graph<N> graph) {
-      super.setGraph(graph);
+    public LoadingCacheLayoutModel.Builder<N, P, T> setGraph(Graph<N> graph) {
+      this.graph = graph;
       return this;
     }
 
-    public LoadingCacheLayoutModel.Builder<N, P> setPointModel(PointModel<P> pointModel) {
-      super.setPointModel(pointModel);
+    public LoadingCacheLayoutModel.Builder<N, P, T> setLayoutModel(LayoutModel<N, P> layoutModel) {
+      this.pointModel = layoutModel.getPointModel();
+      this.width = layoutModel.getWidth();
+      this.height = layoutModel.getHeight();
+      this.depth = layoutModel.getDepth();
       return this;
     }
 
-    public LoadingCacheLayoutModel.Builder<N, P> setSize(int width, int height, int depth) {
-      super.setSize(width, height, depth);
+    public LoadingCacheLayoutModel.Builder<N, P, T> setPointModel(PointModel<P> pointModel) {
+      this.pointModel = pointModel;
       return this;
     }
 
-    public LoadingCacheLayoutModel.Builder<N, P> setSize(int width, int height) {
-      super.setSize(width, height, 0);
+    public LoadingCacheLayoutModel.Builder<N, P, T> setSize(int width, int height, int depth) {
+      this.width = width;
+      this.height = height;
+      this.depth = depth;
       return this;
     }
 
-    public LoadingCacheLayoutModel.Builder<N, P> setInitializer(Function<N, P> initializer) {
+    public LoadingCacheLayoutModel.Builder<N, P, T> setSize(int width, int height) {
+      this.width = width;
+      this.height = height;
+      return this;
+    }
 
+    public LoadingCacheLayoutModel.Builder<N, P, T> setInitializer(Function<N, P> initializer) {
       Function<N, P> chain =
           initializer.andThen(
               p -> pointModel.newPoint(pointModel.getX(p), pointModel.getY(p), pointModel.getZ(p)));
@@ -50,21 +66,28 @@ public class LoadingCacheLayoutModel<N, P> extends AbstractLayoutModel<N, P>
       return this;
     }
 
-    public LoadingCacheLayoutModel<N, P> build() {
-      return new LoadingCacheLayoutModel<>(this);
-    }
-
-    public LoadingCacheLayoutModel<N, P> from(LoadingCacheLayoutModel<N, P> other) {
-      return new LoadingCacheLayoutModel<N, P>(other);
-    }
+    public abstract T build();
   }
 
-  protected LoadingCacheLayoutModel(LoadingCacheLayoutModel.Builder<N, P> builder) {
+  public static <N, P> Builder<N, P, ?> builder() {
+    return new Builder<N, P, LoadingCacheLayoutModel<N, P>>() {
+      @Override
+      public LoadingCacheLayoutModel<N, P> build() {
+        return new LoadingCacheLayoutModel<>(this);
+      }
+    };
+  }
+
+  public static <N, P> LoadingCacheLayoutModel<N, P> from(LoadingCacheLayoutModel<N, P> other) {
+    return new LoadingCacheLayoutModel<>(other);
+  }
+
+  protected LoadingCacheLayoutModel(LoadingCacheLayoutModel.Builder<N, P, ?> builder) {
     super(builder.graph, builder.pointModel, builder.width, builder.height, builder.depth);
     this.locations = builder.locations;
   }
 
-  LoadingCacheLayoutModel(LoadingCacheLayoutModel<N, P> other) {
+  private LoadingCacheLayoutModel(LoadingCacheLayoutModel<N, P> other) {
     super(other.graph, other.pointModel, other.width, other.height, other.depth);
   }
 

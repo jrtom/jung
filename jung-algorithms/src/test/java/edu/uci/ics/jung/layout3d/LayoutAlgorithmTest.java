@@ -33,7 +33,7 @@ public class LayoutAlgorithmTest {
   public void testLayoutAlgorithms() {
     graph = TestGraphs.getDemoGraph().asGraph();
     layoutModel =
-        new LoadingCacheLayoutModel.Builder<String, TestPointModel.Point>()
+        LoadingCacheLayoutModel.<String, TestPointModel.Point>builder()
             .setGraph(graph)
             .setPointModel(pointModel)
             .setSize(500, 500)
@@ -49,7 +49,7 @@ public class LayoutAlgorithmTest {
   public void testBalloonLayoutAlgorithms() {
     graph = createTree().asGraph();
     layoutModel =
-        new LoadingCacheLayoutModel.Builder<String, TestPointModel.Point>()
+        LoadingCacheLayoutModel.<String, TestPointModel.Point>builder()
             .setGraph(graph)
             .setPointModel(pointModel)
             .setSize(500, 500)

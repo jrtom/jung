@@ -7,7 +7,6 @@ import edu.uci.ics.jung.layout.util.Caching;
 import edu.uci.ics.jung.visualization.spatial.Spatial;
 import edu.uci.ics.jung.visualization.spatial.SpatialQuadTree;
 import java.awt.*;
-import java.awt.geom.Point2D;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,26 +18,24 @@ import org.slf4j.LoggerFactory;
  * @author Tom Nelson
  * @param <N> the node type
  */
-public class SpatialQuadTreeLayoutModel<N> extends LoadingCacheLayoutModel<N, Point2D>
-    implements LayoutModel<N, Point2D>, Caching {
+public class SpatialQuadTreeLayoutModel<N, P> extends LoadingCacheLayoutModel<N, P>
+    implements LayoutModel<N, P>, Caching {
 
   private static final Logger log = LoggerFactory.getLogger(SpatialQuadTreeLayoutModel.class);
 
   /** the spatial structure to use */
   protected Spatial<N> spatial;
 
-  public static class Builder<N> extends LoadingCacheLayoutModel.Builder<N, Point2D> {
-
-    public SpatialQuadTreeLayoutModel<N> build() {
-      return new SpatialQuadTreeLayoutModel<N>(this);
-    }
-    /** Returns a {@link LoadingCacheLayoutModel} instance. */
-    public static <N> SpatialQuadTreeLayoutModel.Builder<N> builder() {
-      return new SpatialQuadTreeLayoutModel.Builder<>();
-    }
+  public static <N, P> Builder<N, P, ?> builder() {
+    return new Builder<N, P, SpatialQuadTreeLayoutModel<N, P>>() {
+      @Override
+      public SpatialQuadTreeLayoutModel<N, P> build() {
+        return new SpatialQuadTreeLayoutModel<>(this);
+      }
+    };
   }
 
-  SpatialQuadTreeLayoutModel(SpatialQuadTreeLayoutModel.Builder<N> builder) {
+  protected SpatialQuadTreeLayoutModel(SpatialQuadTreeLayoutModel.Builder<N, P, ?> builder) {
     super(builder);
     setupSpatial(new Dimension(width, height));
   }
@@ -49,7 +46,7 @@ public class SpatialQuadTreeLayoutModel<N> extends LoadingCacheLayoutModel<N, Po
    * @param layoutAlgorithm the layoutAlgorithm visitor
    */
   @Override
-  public void accept(LayoutAlgorithm<N, Point2D> layoutAlgorithm) {
+  public void accept(LayoutAlgorithm<N, P> layoutAlgorithm) {
     super.accept(layoutAlgorithm);
     spatial.recalculate(graph.nodes());
   }
@@ -76,7 +73,7 @@ public class SpatialQuadTreeLayoutModel<N> extends LoadingCacheLayoutModel<N, Po
   }
 
   @Override
-  public void set(N node, Point2D location) {
+  public void set(N node, P location) {
     super.set(node, location);
     if (this.isFireEvents()) {
       log.trace("put {} in {}", node, location);

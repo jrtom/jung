@@ -7,7 +7,6 @@ import edu.uci.ics.jung.layout.util.Caching;
 import edu.uci.ics.jung.visualization.spatial.Spatial;
 import edu.uci.ics.jung.visualization.spatial.SpatialGrid;
 import java.awt.*;
-import java.awt.geom.Point2D;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,31 +16,30 @@ import org.slf4j.LoggerFactory;
  *
  * @param <N>
  */
-public class SpatialGridLayoutModel<N> extends LoadingCacheLayoutModel<N, Point2D>
-    implements LayoutModel<N, Point2D>, Caching {
+public class SpatialGridLayoutModel<N, P> extends LoadingCacheLayoutModel<N, P>
+    implements LayoutModel<N, P>, Caching {
 
   private static final Logger log = LoggerFactory.getLogger(SpatialGridLayoutModel.class);
 
   protected Spatial<N> spatial;
 
-  public static class Builder<N> extends LoadingCacheLayoutModel.Builder<N, Point2D> {
+  public static <N, P> Builder<N, P, ?> builder() {
 
-    public SpatialGridLayoutModel<N> build() {
-      return new SpatialGridLayoutModel<N>(this);
-    }
-    /** Returns a {@link LoadingCacheLayoutModel} instance. */
-    public static <N> SpatialQuadTreeLayoutModel.Builder<N> builder() {
-      return new SpatialQuadTreeLayoutModel.Builder<>();
-    }
+    return new Builder<N, P, SpatialGridLayoutModel<N, P>>() {
+      @Override
+      public SpatialGridLayoutModel<N, P> build() {
+        return new SpatialGridLayoutModel<>(this);
+      }
+    };
   }
 
-  SpatialGridLayoutModel(SpatialGridLayoutModel.Builder<N> builder) {
+  private SpatialGridLayoutModel(SpatialGridLayoutModel.Builder<N, P, ?> builder) {
     super(builder);
     setupSpatialGrid(new Dimension(width, height), 10, 10);
   }
 
   @Override
-  public void accept(LayoutAlgorithm<N, Point2D> layoutAlgorithm) {
+  public void accept(LayoutAlgorithm<N, P> layoutAlgorithm) {
     super.accept(layoutAlgorithm);
     spatial.recalculate(graph.nodes());
   }
@@ -79,7 +77,7 @@ public class SpatialGridLayoutModel<N> extends LoadingCacheLayoutModel<N, Point2
    * @param location the coordinates of the specified location
    */
   @Override
-  public void set(N node, Point2D location) {
+  public void set(N node, P location) {
     super.set(node, location);
     if (isFireEvents()) {
       spatial.update(node);

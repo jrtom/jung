@@ -65,7 +65,9 @@ public class MagnifyShapeTransformer extends MagnifyTransformer
   }
 
   public Shape transform(Shape shape, float flatness) {
-    log.info("transform {}", shape);
+    if (log.isTraceEnabled()) {
+      log.trace("transform {}", shape);
+    }
     GeneralPath newPath = new GeneralPath();
     float[] coords = new float[6];
     PathIterator iterator = null;
@@ -115,7 +117,9 @@ public class MagnifyShapeTransformer extends MagnifyTransformer
   }
 
   public Shape inverseTransform(Shape shape) {
-    log.info("inverseTransform {}", shape);
+    if (log.isTraceEnabled()) {
+      log.trace("inverseTransform {}", shape);
+    }
     GeneralPath newPath = new GeneralPath();
     float[] coords = new float[6];
     for (PathIterator iterator = shape.getPathIterator(null);

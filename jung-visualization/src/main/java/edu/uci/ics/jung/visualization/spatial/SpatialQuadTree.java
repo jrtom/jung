@@ -139,13 +139,7 @@ public class SpatialQuadTree<N> extends AbstractSpatial<N> implements Spatial<N>
     SpatialQuadTree<N> se =
         new SpatialQuadTree<>(layoutModel, childLevel, x + width, y + height, width, height);
     synchronized (lock) {
-      children =
-          new ImmutableMap.Builder<Quadrant, SpatialQuadTree<N>>()
-              .put(NE, ne)
-              .put(NW, nw)
-              .put(SW, sw)
-              .put(SE, se)
-              .build();
+      children = ImmutableMap.of(NE, ne, NW, nw, SW, sw, SE, se);
     }
   }
 

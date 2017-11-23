@@ -55,20 +55,13 @@ public class LayoutAlgorithmTransition<N, E, P> implements IterativeContext {
     LayoutAlgorithm<N, P> transitionLayoutAlgorithm = new StaticLayoutAlgorithm(pointModel);
     visualizationModel.setLayoutAlgorithm(transitionLayoutAlgorithm);
 
-    // the layout model still has locations from its previous algor
+    // the layout model still has locations from its previous algorithm
     this.transitionLayoutModel =
-        new LoadingCacheLayoutModel.Builder()
+        LoadingCacheLayoutModel.<N, P>builder()
             .setGraph(visualizationModel.getNetwork().asGraph())
-            .setPointModel(layoutModel.getPointModel())
-            .setSize(layoutModel.getWidth(), layoutModel.getHeight(), layoutModel.getDepth())
+            .setLayoutModel(layoutModel)
             .build();
-    //        new LoadingCacheLayoutModel<>(
-    //            visualizationModel.getNetwork().asGraph(),
-    //            layoutModel.getPointModel(),
-    //            layoutModel.getWidth(),
-    //            layoutModel.getHeight(),
-    //            layoutModel.getDepth());
-    //
+
     transitionLayoutModel.accept(endLayoutAlgorithm);
     this.endLayoutAlgorithm = endLayoutAlgorithm;
     if (animator != null) {

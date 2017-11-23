@@ -101,7 +101,7 @@ public class SubLayoutDemo extends JApplet {
     LayoutAlgorithm<String, Point2D> layoutAlgorithm = new FRLayoutAlgorithm(POINT_MODEL);
     clusteringLayoutModel =
         new AggregateLayoutModel<>(
-            new LoadingCacheLayoutModel.Builder<String, Point2D>()
+            LoadingCacheLayoutModel.<String, Point2D>builder()
                 .setGraph(graph.asGraph())
                 .setPointModel(POINT_MODEL)
                 .setSize(preferredSize.width, preferredSize.height)
@@ -331,7 +331,7 @@ public class SubLayoutDemo extends JApplet {
               getLayoutAlgorithmFor(subLayoutType);
 
           LayoutModel<String, Point2D> newLayoutModel =
-              new LoadingCacheLayoutModel.Builder<String, Point2D>()
+              LoadingCacheLayoutModel.<String, Point2D>builder()
                   .setGraph(subGraph.asGraph())
                   .setPointModel(POINT_MODEL)
                   .setSize(subLayoutSize.width, subLayoutSize.height)

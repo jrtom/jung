@@ -35,43 +35,6 @@ public abstract class AbstractLayoutModel<N, P>
   protected CompletableFuture theFuture;
   protected LayoutModel.ChangeSupport changeSupport = new DefaultLayoutModelChangeSupport();
 
-  public static class Builder<N, P> {
-    protected Graph<N> graph;
-    protected PointModel<P> pointModel;
-    protected int width;
-    protected int height;
-    protected int depth;
-
-    public AbstractLayoutModel.Builder<N, P> setGraph(Graph<N> graph) {
-      this.graph = graph;
-      return this;
-    }
-
-    public AbstractLayoutModel.Builder<N, P> setPointModel(PointModel<P> pointModel) {
-      this.pointModel = pointModel;
-      return this;
-    }
-
-    public AbstractLayoutModel.Builder<N, P> setSize(int width, int height, int depth) {
-      this.width = width;
-      this.height = height;
-      this.depth = depth;
-      return this;
-    }
-
-    public AbstractLayoutModel.Builder<N, P> setSize(int width, int height) {
-      setSize(width, height, 0);
-      return this;
-    }
-  }
-
-  AbstractLayoutModel<N, P> AbstractLayoutModel(AbstractLayoutModel.Builder<N, P> builder) {
-    this.graph = builder.graph;
-    this.pointModel = builder.pointModel;
-    setSize(builder.width, builder.height, builder.depth);
-    return this;
-  }
-
   protected AbstractLayoutModel(
       Graph<N> graph, PointModel<P> pointModel, int width, int height, int depth) {
     this.graph = graph;

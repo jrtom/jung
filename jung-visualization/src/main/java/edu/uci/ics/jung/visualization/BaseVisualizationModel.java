@@ -94,18 +94,29 @@ public class BaseVisualizationModel<N, E>
     //    Preconditions.checkNotNull(layoutSize);
     this.layoutAlgorithm = layoutAlgorithm;
     this.layoutModel =
+
+        // TODO: maybe make these choosable with a property
         // spatialGrid
-        //                    new SpatialGridLayoutModel<>(network.asGraph(), layoutSize.width, layoutSize.height);
+        //            SpatialGridLayoutModel.<N, Point2D>builder()
+        //                    .setGraph(network.asGraph())
+        //                    .setPointModel(POINT_MODEL)
+        //                    .setSize(layoutSize.width, layoutSize.height)
+        //                    .build();
+
         //spatial quadtree
-        SpatialQuadTreeLayoutModel.Builder.<N>builder()
+        SpatialQuadTreeLayoutModel.<N, Point2D>builder()
             .setGraph(network.asGraph())
             .setPointModel(POINT_MODEL)
             .setSize(layoutSize.width, layoutSize.height)
             .build();
 
-    //            new SpatialQuadTreeLayoutModel(network.asGraph(), layoutSize.width, layoutSize.height);
     // no spatial layout features
-    //            new LoadingCacheLayoutModel<N, Point2D>(network.asGraph(), POINT_MODEL, layoutSize.width, layoutSize.height);
+    //    LoadingCacheLayoutModel.<N, Point2D>builder()
+    //            .setGraph(network.asGraph())
+    //            .setPointModel(POINT_MODEL)
+    //            .setSize(layoutSize.width, layoutSize.height)
+    //            .build();
+
     if (this.layoutModel instanceof LayoutModel.ChangeSupport) {
       ((LayoutModel.ChangeSupport) layoutModel).addChangeListener(this);
     }

@@ -252,8 +252,8 @@ public class ShapePickSupport<V, E> implements NetworkElementAccessor<V, E> {
     // get the all nodes from any leafs that intersect the target
     Collection<V> nodes = spatial.getVisibleNodes(target);
     if (log.isTraceEnabled()) {
-      log.info("instead of checking all nodes: {}", getFilteredVertices());
-      log.info("out of these candidates: {}...", nodes);
+      log.trace("instead of checking all nodes: {}", getFilteredVertices());
+      log.trace("out of these candidates: {}...", nodes);
     }
     for (V node : nodes) {
       // get the shape for the node (centered at the origin)

@@ -34,7 +34,7 @@ public class LayoutAlgorithmTestAWT {
   public void testLayoutAlgorithms() {
     graph = TestGraphs.getDemoGraph().asGraph();
     layoutModel =
-        new LoadingCacheLayoutModel.Builder<String, Point2D>()
+        LoadingCacheLayoutModel.<String, Point2D>builder()
             .setGraph(graph)
             .setPointModel(POINT_MODEL)
             .setSize(500, 500)
@@ -48,7 +48,7 @@ public class LayoutAlgorithmTestAWT {
   public void testTreeLayoutAlgorithms() {
     graph = createTree().asGraph();
     layoutModel =
-        new LoadingCacheLayoutModel.Builder<String, Point2D>()
+        LoadingCacheLayoutModel.<String, Point2D>builder()
             .setGraph(graph)
             .setPointModel(POINT_MODEL)
             .setSize(500, 500)

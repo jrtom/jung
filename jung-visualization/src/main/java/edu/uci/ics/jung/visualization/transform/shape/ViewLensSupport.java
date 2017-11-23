@@ -13,6 +13,7 @@ import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 import edu.uci.ics.jung.visualization.layout.NetworkElementAccessor;
+import edu.uci.ics.jung.visualization.picking.ViewLensShapePickSupport;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
 import edu.uci.ics.jung.visualization.renderers.ReshapingEdgeRenderer;
 import edu.uci.ics.jung.visualization.transform.AbstractLensSupport;
@@ -61,7 +62,7 @@ public class ViewLensSupport<V, E> extends AbstractLensSupport<V, E> implements 
     if (lensControls == null) {
       lensControls = new LensControls(lensTransformer);
     }
-    //    renderContext.setPickSupport(new ViewLensShapePickSupport<V, E>(vv));
+    renderContext.setPickSupport(new ViewLensShapePickSupport<V, E>(vv));
     lensTransformer.setDelegate(
         vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.VIEW));
     vv.getRenderContext().getMultiLayerTransformer().setTransformer(Layer.VIEW, lensTransformer);

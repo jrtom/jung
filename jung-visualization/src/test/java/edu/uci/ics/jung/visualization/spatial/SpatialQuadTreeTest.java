@@ -37,7 +37,7 @@ public class SpatialQuadTreeTest {
     // generate 100 random nodes in a graph at random locations in the layoutModel
     graph = TestGraphs.createChainPlusIsolates(0, 100).asGraph();
     layoutModel =
-        new LoadingCacheLayoutModel.Builder<String, Point2D>()
+        LoadingCacheLayoutModel.<String, Point2D>builder()
             .setGraph(graph)
             .setPointModel(POINT_MODEL)
             .setSize(width, height)

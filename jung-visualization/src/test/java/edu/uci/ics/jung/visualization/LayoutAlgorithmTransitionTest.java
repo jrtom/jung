@@ -18,7 +18,7 @@ public class LayoutAlgorithmTransitionTest {
     MutableGraph<String> graph = GraphBuilder.undirected().build();
     graph.addNode("A");
     LayoutModel<String, Point2D> model =
-        new LoadingCacheLayoutModel.Builder<String, Point2D>()
+        LoadingCacheLayoutModel.<String, Point2D>builder()
             .setGraph(graph)
             .setPointModel(POINT_MODEL)
             .setSize(100, 100)

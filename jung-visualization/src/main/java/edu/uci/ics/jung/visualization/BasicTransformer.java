@@ -175,7 +175,9 @@ public class BasicTransformer
   }
 
   public Shape transform(Layer layer, Shape shape) {
-    log.info("transform {} {}", layer, shape);
+    if (log.isTraceEnabled()) {
+      log.trace("transform {} {}", layer, shape);
+    }
     if (layer == Layer.LAYOUT) {
       return layoutTransform(shape);
     }
@@ -186,7 +188,9 @@ public class BasicTransformer
   }
 
   public Shape inverseTransform(Layer layer, Shape shape) {
-    log.info("inverseTransform {} {}", layer, shape);
+    if (log.isTraceEnabled()) {
+      log.trace("inverseTransform {} {}", layer, shape);
+    }
     if (layer == Layer.LAYOUT) {
       return inverseLayoutTransform(shape);
     }
