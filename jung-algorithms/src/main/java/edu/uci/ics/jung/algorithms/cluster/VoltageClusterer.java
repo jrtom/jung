@@ -13,7 +13,7 @@ package edu.uci.ics.jung.algorithms.cluster;
 
 import com.google.common.base.Preconditions;
 import com.google.common.graph.Network;
-import edu.uci.ics.jung.algorithms.internal.MathUtils;
+import com.google.common.math.Stats;
 import edu.uci.ics.jung.algorithms.scoring.VoltageScorer;
 import edu.uci.ics.jung.algorithms.util.KMeansClusterer;
 import edu.uci.ics.jung.algorithms.util.KMeansClusterer.NotEnoughClustersException;
@@ -193,8 +193,8 @@ public class VoltageClusterer<V, E> {
         Iterator<Map<V, double[]>> h_iter = high_low.iterator();
         Map<V, double[]> cluster1 = h_iter.next();
         Map<V, double[]> cluster2 = h_iter.next();
-        double[] centroid1 = MathUtils.mean(cluster1.values());
-        double[] centroid2 = MathUtils.mean(cluster2.values());
+        double[] centroid1 = meansOf(cluster1.values());
+        double[] centroid2 = centroid2 = meansOf(cluster2.values());
         Set<V> new_cluster;
         if (centroid1[0] >= centroid2[0]) {
           new_cluster = cluster1.keySet();
@@ -220,6 +220,15 @@ public class VoltageClusterer<V, E> {
     }
 
     return clusters;
+  }
+
+  private static double[] meansOf(Collection<double[]> collectionOfDoubleArrays) {
+    double[] result = new double[collectionOfDoubleArrays.size()];
+    int index = 0;
+    for (double[] array : collectionOfDoubleArrays) {
+      result[index++] = Stats.meanOf(array);
+    }
+    return result;
   }
 
   /**
