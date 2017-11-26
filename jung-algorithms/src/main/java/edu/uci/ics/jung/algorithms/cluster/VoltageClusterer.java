@@ -194,7 +194,7 @@ public class VoltageClusterer<V, E> {
         Map<V, double[]> cluster1 = h_iter.next();
         Map<V, double[]> cluster2 = h_iter.next();
         double[] centroid1 = meansOf(cluster1.values());
-        double[] centroid2 = centroid2 = meansOf(cluster2.values());
+        double[] centroid2 = meansOf(cluster2.values());
         Set<V> new_cluster;
         if (centroid1[0] >= centroid2[0]) {
           new_cluster = cluster1.keySet();

@@ -148,9 +148,13 @@ public class KMeansClusterer<T> {
         Map<T, double[]> elements = entry.getValue();
         ArrayList<double[]> locations = new ArrayList<double[]>(elements.values());
 
-        double[] mean = meansOf(locations);
-        max_movement = Math.max(max_movement, Math.sqrt(squaredError(centroid, mean)));
-        new_centroids.add(mean);
+        double[] means = new double[locations.size()];
+        int index = 0;
+        for (double[] location : locations) {
+          means[index++] = Stats.meanOf(location);
+        }
+        max_movement = Math.max(max_movement, Math.sqrt(squaredError(centroid, means)));
+        new_centroids.add(means);
       }
 
       // TODO: check membership of clusters: have they changed?
@@ -159,15 +163,6 @@ public class KMeansClusterer<T> {
       clusterMap = assignToClusters(object_locations, new_centroids);
     }
     return clusterMap.values();
-  }
-
-  private static double[] meansOf(Collection<double[]> collectionOfDoubleArrays) {
-    double[] result = new double[collectionOfDoubleArrays.size()];
-    int index = 0;
-    for (double[] array : collectionOfDoubleArrays) {
-      result[index++] = Stats.meanOf(array);
-    }
-    return result;
   }
 
   /**
