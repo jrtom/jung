@@ -11,7 +11,6 @@ import com.google.common.graph.NetworkBuilder;
 import edu.uci.ics.jung.algorithms.util.Indexer;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
@@ -479,35 +478,35 @@ public class TestShortestPath extends TestCase {
 
   @Override
   protected void setUp() {
-    edgeWeights = new HashMap<Integer, Number>();
+    edgeWeights = new HashMap<>();
     nev = edgeWeights::get;
     dg = NetworkBuilder.directed().allowsParallelEdges(true).allowsSelfLoops(true).build();
     for (int i = 0; i < dg_distances.length; i++) {
       dg.addNode(vertexFactoryDG.get());
     }
-    did = Indexer.<String>create(dg.nodes(), 1);
-    Integer[] dg_array = new Integer[edges.length];
-    addEdges(dg, did, dg_array);
+    did = Indexer.create(dg.nodes(), 1);
+    Integer[] dgArray = new Integer[edges.length];
+    addEdges(dg, did, dgArray);
 
     ug = NetworkBuilder.undirected().allowsParallelEdges(true).allowsSelfLoops(true).build();
     for (int i = 0; i < ug_distances.length; i++) {
       ug.addNode(vertexFactoryUG.get());
     }
-    uid = Indexer.<String>create(ug.nodes(), 1);
-    Integer[] ug_array = new Integer[edges.length];
-    addEdges(ug, uid, ug_array);
+    uid = Indexer.create(ug.nodes(), 1);
+    Integer[] ugArray = new Integer[edges.length];
+    addEdges(ug, uid, ugArray);
 
-    edgeArrays = new HashMap<Network<String, Integer>, Integer[]>();
-    edgeArrays.put(dg, dg_array);
-    edgeArrays.put(ug, ug_array);
+    edgeArrays = new HashMap<>();
+    edgeArrays.put(dg, dgArray);
+    edgeArrays.put(ug, ugArray);
   }
 
   @Override
   protected void tearDown() throws Exception {}
 
-  public void exceptionTest(
+  private void exceptionTest(
       MutableNetwork<String, Integer> g, BiMap<String, Integer> indexer, int index) {
-    DijkstraShortestPath<String, Integer> dsp = new DijkstraShortestPath<String, Integer>(g, nev);
+    DijkstraShortestPath<String, Integer> dsp = new DijkstraShortestPath<>(g, nev);
     String start = indexer.inverse().get(index);
     Integer e = null;
 
@@ -611,9 +610,9 @@ public class TestShortestPath extends TestCase {
   }
 
   private void getPathTest(Network<String, Integer> g, BiMap<String, Integer> indexer, int index) {
-    DijkstraShortestPath<String, Integer> dsp = new DijkstraShortestPath<String, Integer>(g, nev);
+    DijkstraShortestPath<String, Integer> dsp = new DijkstraShortestPath<>(g, nev);
     String start = indexer.inverse().get(index);
-    Integer[] edge_array = edgeArrays.get(g);
+    Integer[] edgeArray = edgeArrays.get(g);
     Integer[] incomingEdges1 =
         g.isDirected() ? dg_incomingEdges[index - 1] : ug_incomingEdges[index - 1];
     assertEquals(incomingEdges1.length, g.nodes().size());
@@ -627,7 +626,7 @@ public class TestShortestPath extends TestCase {
         int j = iter.nextIndex();
         Integer e = iter.next();
         if (e != null) {
-          assertEquals(edge_array[indices[j].intValue()], e);
+          assertEquals(edgeArray[indices[j]], e);
         } else {
           assertNull(indices[j]);
         }
@@ -649,9 +648,8 @@ public class TestShortestPath extends TestCase {
     }
     assertEquals(distances1.length, g.nodes().size());
     assertEquals(incomingEdges1.length, g.nodes().size());
-    DijkstraShortestPath<String, Integer> dsp =
-        new DijkstraShortestPath<String, Integer>(g, nev, cached);
-    Integer[] edge_array = edgeArrays.get(g);
+    DijkstraShortestPath<String, Integer> dsp = new DijkstraShortestPath<>(g, nev, cached);
+    Integer[] edgeArray = edgeArrays.get(g);
 
     // test getDistance(start, v)
     for (int i = 1; i <= distances1.length; i++) {
@@ -674,7 +672,7 @@ public class TestShortestPath extends TestCase {
       String v = indexer.inverse().get(i);
       Integer e = dsp.getIncomingEdge(start, v);
       if (e != null) {
-        assertEquals(edge_array[incomingEdges1[i - 1].intValue()], e);
+        assertEquals(edgeArray[incomingEdges1[i - 1]], e);
       } else {
         assertNull(incomingEdges1[i - 1]);
       }
@@ -684,21 +682,19 @@ public class TestShortestPath extends TestCase {
     dsp.reset();
     Map<String, Number> distances = dsp.getDistanceMap(start);
     assertTrue(distances.size() <= g.nodes().size());
-    double d_prev = 0; // smallest possible distance
-    Set<String> reachable = new HashSet<String>();
-    for (Iterator<String> d_iter = distances.keySet().iterator(); d_iter.hasNext(); ) {
-      String cur = d_iter.next();
-      double d_cur = ((Double) distances.get(cur)).doubleValue();
-      assertTrue(d_cur >= d_prev);
+    double dPrev = 0; // smallest possible distance
+    Set<String> reachable = new HashSet<>();
+    for (String cur : distances.keySet()) {
+      double dCur = distances.get(cur).doubleValue();
+      assertTrue(dCur >= dPrev);
 
-      d_prev = d_cur;
+      dPrev = dCur;
       int i = indexer.get(cur);
-      assertEquals(distances1[i - 1], d_cur, .001);
+      assertEquals(distances1[i - 1], dCur, .001);
       reachable.add(cur);
     }
     // make sure that non-reachable vertices have no entries
-    for (Iterator<String> v_iter = g.nodes().iterator(); v_iter.hasNext(); ) {
-      String v = v_iter.next();
+    for (String v : g.nodes()) {
       assertEquals(reachable.contains(v), distances.keySet().contains(v));
     }
 
@@ -706,12 +702,11 @@ public class TestShortestPath extends TestCase {
     dsp.reset();
     Map<String, Integer> incomingEdgeMap = dsp.getIncomingEdgeMap(start);
     assertTrue(incomingEdgeMap.size() <= g.nodes().size());
-    for (Iterator<String> e_iter = incomingEdgeMap.keySet().iterator(); e_iter.hasNext(); ) {
-      String v = e_iter.next();
+    for (String v : incomingEdgeMap.keySet()) {
       Integer e = incomingEdgeMap.get(v);
       int i = indexer.get(v);
       if (e != null) {
-        assertEquals(edge_array[incomingEdges1[i - 1].intValue()], e);
+        assertEquals(edgeArray[incomingEdges1[i - 1]], e);
       } else {
         assertNull(incomingEdges1[i - 1]);
       }
@@ -722,17 +717,17 @@ public class TestShortestPath extends TestCase {
     for (int i = 1; i <= distances1.length; i++) {
       distances = dsp.getDistanceMap(start, i);
       assertTrue(distances.size() <= i);
-      d_prev = 0; // smallest possible distance
+      dPrev = 0; // smallest possible distance
 
       reachable.clear();
       for (String cur : distances.keySet()) {
-        double d_cur = ((Double) distances.get(cur)).doubleValue();
-        assertTrue(d_cur >= d_prev);
+        double dCur = distances.get(cur).doubleValue();
+        assertTrue(dCur >= dPrev);
 
-        d_prev = d_cur;
+        dPrev = dCur;
         int j = indexer.get(cur);
 
-        assertEquals(distances1[j - 1], d_cur, .001);
+        assertEquals(distances1[j - 1], dCur, .001);
         reachable.add(cur);
       }
       for (String node : g.nodes()) {
@@ -745,12 +740,11 @@ public class TestShortestPath extends TestCase {
     for (int i = 1; i <= incomingEdges1.length; i++) {
       incomingEdgeMap = dsp.getIncomingEdgeMap(start, i);
       assertTrue(incomingEdgeMap.size() <= i);
-      for (Iterator<String> e_iter = incomingEdgeMap.keySet().iterator(); e_iter.hasNext(); ) {
-        String v = e_iter.next();
+      for (String v : incomingEdgeMap.keySet()) {
         Integer e = incomingEdgeMap.get(v);
         int j = indexer.get(v);
         if (e != null) {
-          assertEquals(edge_array[incomingEdges1[j - 1].intValue()], e);
+          assertEquals(edgeArray[incomingEdges1[j - 1]], e);
         } else {
           assertNull(incomingEdges1[j - 1]);
         }
@@ -758,13 +752,13 @@ public class TestShortestPath extends TestCase {
     }
   }
 
-  public void addEdges(
-      MutableNetwork<String, Integer> g, BiMap<String, Integer> indexer, Integer[] edge_array) {
+  private void addEdges(
+      MutableNetwork<String, Integer> g, BiMap<String, Integer> indexer, Integer[] edgeArray) {
     for (int i = 0; i < edges.length; i++) {
       int[] edge = edges[i];
       Integer e = i;
       g.addEdge(indexer.inverse().get(edge[0]), indexer.inverse().get(edge[1]), i);
-      edge_array[i] = e;
+      edgeArray[i] = e;
       if (edge.length > 2) {
         edgeWeights.put(e, edge[2]);
       }
