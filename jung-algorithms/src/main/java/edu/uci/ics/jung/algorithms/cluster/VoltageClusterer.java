@@ -13,8 +13,8 @@ package edu.uci.ics.jung.algorithms.cluster;
 
 import com.google.common.base.Preconditions;
 import com.google.common.graph.Network;
+import edu.uci.ics.jung.algorithms.internal.MathUtils;
 import edu.uci.ics.jung.algorithms.scoring.VoltageScorer;
-import edu.uci.ics.jung.algorithms.util.DiscreteDistribution;
 import edu.uci.ics.jung.algorithms.util.KMeansClusterer;
 import edu.uci.ics.jung.algorithms.util.KMeansClusterer.NotEnoughClustersException;
 import java.util.ArrayList;
@@ -193,8 +193,8 @@ public class VoltageClusterer<V, E> {
         Iterator<Map<V, double[]>> h_iter = high_low.iterator();
         Map<V, double[]> cluster1 = h_iter.next();
         Map<V, double[]> cluster2 = h_iter.next();
-        double[] centroid1 = DiscreteDistribution.mean(cluster1.values());
-        double[] centroid2 = DiscreteDistribution.mean(cluster2.values());
+        double[] centroid1 = MathUtils.mean(cluster1.values());
+        double[] centroid2 = MathUtils.mean(cluster2.values());
         Set<V> new_cluster;
         if (centroid1[0] >= centroid2[0]) {
           new_cluster = cluster1.keySet();

@@ -14,6 +14,7 @@
 package edu.uci.ics.jung.algorithms.util;
 
 import com.google.common.base.Preconditions;
+import edu.uci.ics.jung.algorithms.internal.MathUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -147,9 +148,8 @@ public class KMeansClusterer<T> {
         Map<T, double[]> elements = entry.getValue();
         ArrayList<double[]> locations = new ArrayList<double[]>(elements.values());
 
-        double[] mean = DiscreteDistribution.mean(locations);
-        max_movement =
-            Math.max(max_movement, Math.sqrt(DiscreteDistribution.squaredError(centroid, mean)));
+        double[] mean = MathUtils.mean(locations);
+        max_movement = Math.max(max_movement, Math.sqrt(MathUtils.squaredError(centroid, mean)));
         new_centroids.add(mean);
       }
 
@@ -182,11 +182,11 @@ public class KMeansClusterer<T> {
       // find the cluster with the closest centroid
       Iterator<double[]> c_iter = centroids.iterator();
       double[] closest = c_iter.next();
-      double distance = DiscreteDistribution.squaredError(location, closest);
+      double distance = MathUtils.squaredError(location, closest);
 
       while (c_iter.hasNext()) {
         double[] centroid = c_iter.next();
-        double dist_cur = DiscreteDistribution.squaredError(location, centroid);
+        double dist_cur = MathUtils.squaredError(location, centroid);
         if (dist_cur < distance) {
           distance = dist_cur;
           closest = centroid;
