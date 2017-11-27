@@ -20,16 +20,19 @@ import edu.uci.ics.jung.layout.util.NetworkNodeAccessor;
 import edu.uci.ics.jung.layout.util.RadiusNetworkNodeAccessor;
 import edu.uci.ics.jung.layout.util.RandomLocationTransformer;
 import edu.uci.ics.jung.visualization.BaseVisualizationModel;
+import edu.uci.ics.jung.visualization.MultiLayerTransformer;
 import edu.uci.ics.jung.visualization.VisualizationModel;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
-import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.layout.SpatialQuadTreeLayoutModel;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
 import edu.uci.ics.jung.visualization.spatial.SpatialQuadTree;
 import java.awt.*;
+import java.awt.event.ItemEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.io.IOException;
 import javax.swing.*;
@@ -42,6 +45,11 @@ import org.slf4j.LoggerFactory;
  * done both with the SpatialQuadTree and with the RadiusNetworkElementAccessor. If they don't find
  * the same node, the testing halts after highlighting the problem nodes along with the search
  * point.
+ *
+ * <p>A mouse click at a location will highlight the closest node to the pick point.
+ *
+ * <p>A toggle button will turn on/off the display of the spatialquadtree features, including the
+ * expansion of the search target (red circle) in order to find the closest node.
  *
  * @author Tom Nelson
  */
@@ -65,18 +73,66 @@ public class SimpleGraphSpatialSearchTest extends JPanel {
             new RandomLocationTransformer(POINT_MODEL, 600, 600, 0, System.currentTimeMillis()),
             layoutPreferredSize);
     VisualizationViewer vv = new VisualizationViewer(model, viewPreferredSize);
-    final DefaultModalGraphMouse graphMouse = new DefaultModalGraphMouse();
-    vv.setGraphMouse(graphMouse);
+
     vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
     vv.getRenderer().getVertexLabelRenderer().setPosition(Renderer.VertexLabel.Position.CNTR);
-    vv.addKeyListener(graphMouse.getModeKeyListener());
-    vv.setToolTipText("<html><center>Type 'p' for Pick mode<p>Type 't' for Transform mode");
+
+    vv.addMouseListener(
+        new MouseAdapter() {
+          @Override
+          public void mouseClicked(MouseEvent e) {
+            LayoutModel layoutModel = model.getLayoutModel();
+            if (layoutModel instanceof SpatialQuadTreeLayoutModel) {
+              SpatialQuadTreeLayoutModel sqtlm = (SpatialQuadTreeLayoutModel) layoutModel;
+              SpatialQuadTree tree = (SpatialQuadTree) sqtlm.getSpatial();
+              MultiLayerTransformer multiLayerTransformer =
+                  vv.getRenderContext().getMultiLayerTransformer();
+              Point2D layoutPoint =
+                  multiLayerTransformer.inverseTransform(new Point2D.Double(e.getX(), e.getY()));
+              Object node = tree.getClosestNode(layoutPoint.getX(), layoutPoint.getY());
+              if (node != null) {
+                vv.getPickedVertexState().clear();
+                vv.getPickedVertexState().pick(node, true);
+              }
+            }
+          }
+        });
+
+    JRadioButton showSpatialEffects = new JRadioButton("Spatial Structure");
+    showSpatialEffects.addItemListener(
+        e -> {
+          if (e.getStateChange() == ItemEvent.SELECTED) {
+            System.err.println("TURNED ON LOGGING");
+            // turn on the logging
+            // programmatically set the log level so that the spatial grid is drawn for this demo and the SpatialGrid logging is output
+            ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) log;
+            LoggerContext ctx = (LoggerContext) LoggerFactory.getILoggerFactory();
+            ctx.getLogger("edu.uci.ics.jung.visualization.spatial").setLevel(Level.DEBUG);
+            ctx.getLogger("edu.uci.ics.jung.visualization.BasicVisualizationServer")
+                .setLevel(Level.TRACE);
+            ctx.getLogger("edu.uci.ics.jung.visualization.picking").setLevel(Level.TRACE);
+            repaint();
+
+          } else if (e.getStateChange() == ItemEvent.DESELECTED) {
+            System.err.println("TURNED OFF LOGGING");
+            // turn off the logging
+            // programmatically set the log level so that the spatial grid is drawn for this demo and the SpatialGrid logging is output
+            ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) log;
+            LoggerContext ctx = (LoggerContext) LoggerFactory.getILoggerFactory();
+            ctx.getLogger("edu.uci.ics.jung.visualization.spatial").setLevel(Level.INFO);
+            ctx.getLogger("edu.uci.ics.jung.visualization.BasicVisualizationServer")
+                .setLevel(Level.INFO);
+            ctx.getLogger("edu.uci.ics.jung.visualization.picking").setLevel(Level.INFO);
+            repaint();
+          }
+        });
 
     vv.scaleToLayout(scaler);
     this.add(vv);
     JPanel buttons = new JPanel();
     JButton search = new JButton("search");
     buttons.add(search);
+    buttons.add(showSpatialEffects);
     search.addActionListener(
         e ->
             testClosestNodes(
@@ -149,13 +205,6 @@ public class SimpleGraphSpatialSearchTest extends JPanel {
   }
 
   public static void main(String[] args) throws IOException {
-
-    // programmatically set the log level so that the spatial grid is drawn for this demo and the SpatialGrid logging is output
-    // programmatically set the log level so that the spatial grid is drawn for this demo and the SpatialGrid logging is output
-    ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) log;
-    LoggerContext ctx = (LoggerContext) LoggerFactory.getILoggerFactory();
-    ctx.getLogger("edu.uci.ics.jung.visualization.spatial").setLevel(Level.DEBUG);
-    ctx.getLogger("edu.uci.ics.jung.visualization.BasicVisualizationServer").setLevel(Level.TRACE);
 
     JFrame jf = new JFrame();
 
