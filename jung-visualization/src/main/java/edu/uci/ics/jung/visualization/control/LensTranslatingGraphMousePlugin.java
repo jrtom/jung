@@ -12,10 +12,12 @@
 package edu.uci.ics.jung.visualization.control;
 
 import edu.uci.ics.jung.visualization.Layer;
+import edu.uci.ics.jung.visualization.MultiLayerTransformer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
+import edu.uci.ics.jung.visualization.transform.Lens;
 import edu.uci.ics.jung.visualization.transform.LensTransformer;
 import edu.uci.ics.jung.visualization.transform.MutableTransformer;
-import java.awt.Cursor;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -56,69 +58,116 @@ public class LensTranslatingGraphMousePlugin extends TranslatingGraphMousePlugin
    */
   public void mousePressed(MouseEvent e) {
     VisualizationViewer<?, ?> vv = (VisualizationViewer<?, ?>) e.getSource();
-    MutableTransformer vt =
-        vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.VIEW);
-    if (vt instanceof LensTransformer) {
-      vt = ((LensTransformer) vt).getDelegate();
+    MultiLayerTransformer multiLayerTransformer = vv.getRenderContext().getMultiLayerTransformer();
+    MutableTransformer viewTransformer = multiLayerTransformer.getTransformer(Layer.VIEW);
+    MutableTransformer layoutTransformer = multiLayerTransformer.getTransformer(Layer.LAYOUT);
+    Point2D p = e.getPoint();
+    if (viewTransformer instanceof LensTransformer) {
+      //        viewTransformer = ((LensTransformer) viewTransformer).getDelegate();
+      p = ((LensTransformer) viewTransformer).getDelegate().inverseTransform(p);
+    } else {
+      p = viewTransformer.inverseTransform(p);
     }
-    Point2D p = vt.inverseTransform(e.getPoint());
     boolean accepted = checkModifiers(e);
     if (accepted) {
       vv.setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
-      testViewCenter(
-          vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT), p);
-      testViewCenter(
-          vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.VIEW), p);
+      if (layoutTransformer instanceof LensTransformer) {
+        Lens lens = ((LensTransformer) layoutTransformer).getLens();
+        testViewCenter(lens, p);
+      }
+      if (viewTransformer instanceof LensTransformer) {
+        Lens lens = ((LensTransformer) viewTransformer).getLens();
+        testViewCenter(lens, p);
+      }
       vv.repaint();
     }
     super.mousePressed(e);
   }
 
+  //  /**
+  //   * called to change the location of the lens
+  //   *
+  //   * @param transformer
+  //   * @param point
+  //   */
+  //  private void setViewCenter(MutableTransformer transformer, Point2D point) {
+  //    if (transformer instanceof LensTransformer) {
+  //      LensTransformer ht = (LensTransformer) transformer;
+  //      ht.getLens().setViewCenter(point);
+  //    }
+  //  }
+  //
+  //  /**
+  //   * called to change the radius of the lens
+  //   *
+  //   * @param transformer
+  //   * @param point
+  //   */
+  //  private void setViewRadius(MutableTransformer transformer, Point2D point) {
+  //    if (transformer instanceof LensTransformer) {
+  //      LensTransformer ht = (LensTransformer) transformer;
+  //      double distanceFromCenter = ht.getDistanceFromCenter(point);
+  //      ht.setViewRadius(distanceFromCenter + edgeOffset);
+  //    }
+  //  }
+  //
+  //  /**
+  //   * called to set up translating the lens center or changing the layoutSize
+  //   *
+  //   * @param Function
+  //   * @param point
+  //   */
+  //  private void testViewCenter(MutableTransformer transformer, Point2D point) {
+  //    if (transformer instanceof LensTransformer) {
+  //      LensTransformer ht = (LensTransformer) transformer;
+  //      double distanceFromCenter = ht.getDistanceFromCenter(point);
+  //      if (distanceFromCenter < 10) {
+  //        ht.setViewCenter(point);
+  //        dragOnLens = true;
+  //      } else if (Math.abs(distanceFromCenter - ht.getViewRadius()) < 10) {
+  //        edgeOffset = ht.getViewRadius() - distanceFromCenter;
+  //        ht.setViewRadius(distanceFromCenter + edgeOffset);
+  //        dragOnEdge = true;
+  //      }
+  //    }
+  //  }
+
   /**
    * called to change the location of the lens
    *
-   * @param Function
+   * @param lens
    * @param point
    */
-  private void setViewCenter(MutableTransformer transformer, Point2D point) {
-    if (transformer instanceof LensTransformer) {
-      LensTransformer ht = (LensTransformer) transformer;
-      ht.setViewCenter(point);
-    }
+  private void setViewCenter(Lens lens, Point2D point) {
+    lens.setViewCenter(point);
   }
 
   /**
    * called to change the radius of the lens
    *
-   * @param Function
+   * @param lens
    * @param point
    */
-  private void setViewRadius(MutableTransformer transformer, Point2D point) {
-    if (transformer instanceof LensTransformer) {
-      LensTransformer ht = (LensTransformer) transformer;
-      double distanceFromCenter = ht.getDistanceFromCenter(point);
-      ht.setViewRadius(distanceFromCenter + edgeOffset);
-    }
+  private void setViewRadius(Lens lens, Point2D point) {
+    double distanceFromCenter = lens.getDistanceFromCenter(point);
+    lens.setViewRadius(distanceFromCenter + edgeOffset);
   }
 
   /**
    * called to set up translating the lens center or changing the layoutSize
    *
-   * @param Function
+   * @param lens
    * @param point
    */
-  private void testViewCenter(MutableTransformer transformer, Point2D point) {
-    if (transformer instanceof LensTransformer) {
-      LensTransformer ht = (LensTransformer) transformer;
-      double distanceFromCenter = ht.getDistanceFromCenter(point);
-      if (distanceFromCenter < 10) {
-        ht.setViewCenter(point);
-        dragOnLens = true;
-      } else if (Math.abs(distanceFromCenter - ht.getViewRadius()) < 10) {
-        edgeOffset = ht.getViewRadius() - distanceFromCenter;
-        ht.setViewRadius(distanceFromCenter + edgeOffset);
-        dragOnEdge = true;
-      }
+  private void testViewCenter(Lens lens, Point2D point) {
+    double distanceFromCenter = lens.getDistanceFromCenter(point);
+    if (distanceFromCenter < 10) {
+      lens.setViewCenter(point);
+      dragOnLens = true;
+    } else if (Math.abs(distanceFromCenter - lens.getViewRadius()) < 10) {
+      edgeOffset = lens.getViewRadius() - distanceFromCenter;
+      lens.setViewRadius(distanceFromCenter + edgeOffset);
+      dragOnEdge = true;
     }
   }
 
@@ -137,48 +186,56 @@ public class LensTranslatingGraphMousePlugin extends TranslatingGraphMousePlugin
    * @param e the event
    */
   public void mouseDragged(MouseEvent e) {
-    VisualizationViewer<?, ?> vv = (VisualizationViewer<?, ?>) e.getSource();
-    MutableTransformer vt =
-        vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.VIEW);
-    if (vt instanceof LensTransformer) {
-      vt = ((LensTransformer) vt).getDelegate();
-    }
-    Point2D p = vt.inverseTransform(e.getPoint());
     boolean accepted = checkModifiers(e);
-
     if (accepted) {
-      MutableTransformer modelTransformer =
-          vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT);
-      vv.setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
-      if (dragOnLens) {
-        setViewCenter(modelTransformer, p);
-        setViewCenter(
-            vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.VIEW), p);
-        e.consume();
-        vv.repaint();
 
-      } else if (dragOnEdge) {
+      VisualizationViewer<?, ?> vv = (VisualizationViewer<?, ?>) e.getSource();
+      MultiLayerTransformer multiLayerTransformer =
+          vv.getRenderContext().getMultiLayerTransformer();
+      MutableTransformer layoutTransformer = multiLayerTransformer.getTransformer(Layer.LAYOUT);
 
-        setViewRadius(modelTransformer, p);
-        setViewRadius(
-            vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.VIEW), p);
-        e.consume();
-        vv.repaint();
+      MutableTransformer viewTransformer = multiLayerTransformer.getTransformer(Layer.VIEW);
+      Lens lens =
+          (layoutTransformer instanceof LensTransformer)
+              ? ((LensTransformer) layoutTransformer).getLens()
+              : (viewTransformer instanceof LensTransformer)
+                  ? ((LensTransformer) viewTransformer).getLens()
+                  : null;
+      if (lens != null) {
+        Point2D p = e.getPoint();
+        if (viewTransformer instanceof LensTransformer) {
+          p = ((LensTransformer) viewTransformer).getDelegate().inverseTransform(p);
+        } else {
+          p = viewTransformer.inverseTransform(p);
+        }
 
-      } else {
+        vv.setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
+        if (dragOnLens) {
+          setViewCenter(lens, p);
+          e.consume();
+          vv.repaint();
 
-        MutableTransformer mt =
-            vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT);
-        Point2D iq = vt.inverseTransform(down);
-        iq = mt.inverseTransform(iq);
-        Point2D ip = vt.inverseTransform(e.getPoint());
-        ip = mt.inverseTransform(ip);
-        float dx = (float) (ip.getX() - iq.getX());
-        float dy = (float) (ip.getY() - iq.getY());
+        } else if (dragOnEdge) {
+          setViewRadius(lens, p);
+          e.consume();
+          vv.repaint();
 
-        modelTransformer.translate(dx, dy);
-        down.x = e.getX();
-        down.y = e.getY();
+        } else {
+
+          super.mouseDragged(e);
+          //              MutableTransformer mt =
+          //                      vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT);
+          //              Point2D iq = vt.inverseTransform(down);
+          //              iq = mt.inverseTransform(iq);
+          //              Point2D ip = vt.inverseTransform(e.getPoint());
+          //              ip = mt.inverseTransform(ip);
+          //              float dx = (float) (ip.getX() - iq.getX());
+          //              float dy = (float) (ip.getY() - iq.getY());
+          //
+          //              modelTransformer.translate(dx, dy);
+          //              down.x = e.getX();
+          //              down.y = e.getY();
+        }
       }
     }
   }

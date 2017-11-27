@@ -8,8 +8,6 @@
  */
 package edu.uci.ics.jung.samples;
 
-import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
-
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.graph.util.TestGraphs;
 import edu.uci.ics.jung.layout.algorithms.FRLayoutAlgorithm;
@@ -53,7 +51,7 @@ public class VertexLabelAsShapeDemo extends JApplet {
     // create a simple graph for the demo
     graph = TestGraphs.getOneComponentGraph();
 
-    layoutAlgorithm = new FRLayoutAlgorithm<>(POINT_MODEL);
+    layoutAlgorithm = new FRLayoutAlgorithm<>();
 
     Dimension preferredSize = new Dimension(400, 400);
     final VisualizationModel<String, Number, Point2D> visualizationModel =

@@ -49,6 +49,7 @@ public class SpatialQuadTree<N> extends AbstractSpatial<N> implements Spatial<N>
   /** a collection of child nodes, assuming this is not a leaf */
   private Map<Quadrant, SpatialQuadTree<N>> children;
 
+  //  private Collection<Shape> pickShapes = EvictingQueue.create(4);
   /**
    * @param layoutModel
    * @param width
@@ -286,6 +287,7 @@ public class SpatialQuadTree<N> extends AbstractSpatial<N> implements Spatial<N>
    */
   @Override
   public Collection<N> getVisibleNodes(Shape shape) {
+    pickShapes.add(shape);
     Set<N> list = Sets.newHashSet();
     Collection<N> visibleNodes = this.retrieve(list, shape);
     if (log.isDebugEnabled()) {

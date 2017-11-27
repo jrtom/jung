@@ -8,8 +8,6 @@
  */
 package edu.uci.ics.jung.samples;
 
-import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
-
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.graph.util.TestGraphs;
 import edu.uci.ics.jung.layout.algorithms.FRLayoutAlgorithm;
@@ -83,7 +81,7 @@ public class SatelliteViewDemo extends JApplet {
     Dimension preferredSize2 = new Dimension(300, 300);
 
     // create one layout for the graph
-    FRLayoutAlgorithm<String, Point2D> layoutAlgorithm = new FRLayoutAlgorithm<>(POINT_MODEL);
+    FRLayoutAlgorithm<String, Point2D> layoutAlgorithm = new FRLayoutAlgorithm<>();
     // not used, for testing only
     //    CircleLayoutAlgorithm<String, Point2D> clayout = new CircleLayoutAlgorithm<>(pointModel);
     layoutAlgorithm.setMaxIterations(500);

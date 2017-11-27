@@ -8,24 +8,29 @@
  */
 package edu.uci.ics.jung.samples;
 
-import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
-
 import edu.uci.ics.jung.graph.CTreeNetwork;
 import edu.uci.ics.jung.graph.MutableCTreeNetwork;
 import edu.uci.ics.jung.graph.TreeNetworkBuilder;
 import edu.uci.ics.jung.layout.algorithms.RadialTreeLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.TreeLayoutAlgorithm;
 import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.layout.model.PolarPoint;
+import edu.uci.ics.jung.layout.util.LayoutAlgorithmTransition;
 import edu.uci.ics.jung.samples.util.ControlHelpers;
 import edu.uci.ics.jung.visualization.*;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalLensGraphMouse;
-import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.EdgeShape;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
 import edu.uci.ics.jung.visualization.picking.PickedState;
+import edu.uci.ics.jung.visualization.transform.HyperbolicTransformer;
+import edu.uci.ics.jung.visualization.transform.LayoutLensSupport;
+import edu.uci.ics.jung.visualization.transform.Lens;
 import edu.uci.ics.jung.visualization.transform.LensSupport;
+import edu.uci.ics.jung.visualization.transform.LensTransformer;
+import edu.uci.ics.jung.visualization.transform.MutableTransformer;
+import edu.uci.ics.jung.visualization.transform.MutableTransformerDecorator;
 import edu.uci.ics.jung.visualization.transform.shape.HyperbolicShapeTransformer;
 import edu.uci.ics.jung.visualization.transform.shape.ViewLensSupport;
 import java.awt.*;
@@ -51,9 +56,7 @@ public class RadialTreeLensDemo extends JApplet {
 
   VisualizationServer.Paintable rings;
 
-  String root;
-
-  //  TreeLayoutAlgorithm<String, Point2D> layoutAlgorithm;
+  TreeLayoutAlgorithm<String, Point2D> treeLayoutAlgorithm;
 
   RadialTreeLayoutAlgorithm<String, Point2D> radialLayoutAlgorithm;
 
@@ -63,7 +66,7 @@ public class RadialTreeLensDemo extends JApplet {
   /** provides a Hyperbolic lens for the view */
   LensSupport hyperbolicViewSupport;
 
-  ScalingControl scaler;
+  LensSupport hyperbolicLayoutSupport;
 
   /** create an instance of a simple graph with controls to demo the zoomand hyperbolic features. */
   public RadialTreeLensDemo() {
@@ -71,7 +74,8 @@ public class RadialTreeLensDemo extends JApplet {
     // create a simple graph for the demo
     graph = createTree();
 
-    radialLayoutAlgorithm = new RadialTreeLayoutAlgorithm<>(POINT_MODEL);
+    radialLayoutAlgorithm = new RadialTreeLayoutAlgorithm<>();
+    treeLayoutAlgorithm = new TreeLayoutAlgorithm<>();
 
     Dimension preferredSize = new Dimension(600, 600);
 
@@ -107,18 +111,72 @@ public class RadialTreeLensDemo extends JApplet {
     rings = new Rings(vv.getModel().getLayoutModel());
     vv.addPreRenderPaintable(rings);
 
+    JToggleButton radial = new JToggleButton("Tree");
+    final JRadioButton animateTransition = new JRadioButton("Animate Transition");
+
+    radial.addItemListener(
+        e -> {
+          if (e.getStateChange() == ItemEvent.SELECTED) {
+            ((JToggleButton) e.getSource()).setText("Radial");
+            if (animateTransition.isSelected()) {
+              LayoutAlgorithmTransition.animate(vv.getModel(), treeLayoutAlgorithm);
+            } else {
+              LayoutAlgorithmTransition.apply(vv.getModel(), treeLayoutAlgorithm);
+            }
+
+            vv.getRenderContext()
+                .getMultiLayerTransformer()
+                .getTransformer(Layer.LAYOUT)
+                .setToIdentity();
+            vv.removePreRenderPaintable(rings);
+
+          } else {
+            ((JToggleButton) e.getSource()).setText("Tree");
+            if (animateTransition.isSelected()) {
+              LayoutAlgorithmTransition.animate(vv.getModel(), radialLayoutAlgorithm);
+            } else {
+              LayoutAlgorithmTransition.apply(vv.getModel(), radialLayoutAlgorithm);
+            }
+
+            vv.getRenderContext()
+                .getMultiLayerTransformer()
+                .getTransformer(Layer.LAYOUT)
+                .setToIdentity();
+            vv.addPreRenderPaintable(rings);
+          }
+          vv.repaint();
+        });
+
+    Lens lens = new Lens(vv);
     hyperbolicViewSupport =
         new ViewLensSupport<>(
             vv,
             new HyperbolicShapeTransformer(
-                vv, vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.VIEW)),
+                lens, vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.VIEW)),
+            new ModalLensGraphMouse());
+    hyperbolicLayoutSupport =
+        new LayoutLensSupport<>(
+            vv,
+            new HyperbolicTransformer(
+                lens,
+                vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT)),
             new ModalLensGraphMouse());
 
     final JRadioButton hyperView = new JRadioButton("Hyperbolic View");
     hyperView.addItemListener(
         e -> hyperbolicViewSupport.activate(e.getStateChange() == ItemEvent.SELECTED));
+    final JRadioButton hyperLayout = new JRadioButton("Hyperbolic Layout");
+    hyperLayout.addItemListener(
+        e -> hyperbolicLayoutSupport.activate(e.getStateChange() == ItemEvent.SELECTED));
+    final JRadioButton noLens = new JRadioButton("No Lens");
+
+    ButtonGroup radio = new ButtonGroup();
+    radio.add(hyperView);
+    radio.add(hyperLayout);
+    radio.add(noLens);
 
     graphMouse.addItemListener(hyperbolicViewSupport.getGraphMouse().getModeListener());
+    graphMouse.addItemListener(hyperbolicLayoutSupport.getGraphMouse().getModeListener());
 
     JMenuBar menubar = new JMenuBar();
     menubar.add(graphMouse.getModeMenu());
@@ -131,10 +189,14 @@ public class RadialTreeLensDemo extends JApplet {
     modeControls.setBorder(BorderFactory.createTitledBorder("Mouse Mode"));
     modeControls.add(graphMouse.getModeComboBox());
     hyperControls.add(hyperView);
+    hyperControls.add(hyperLayout);
+    hyperControls.add(noLens);
 
     controls.add(ControlHelpers.getZoomControls(vv, "Zoom"));
     controls.add(hyperControls);
     controls.add(modeControls);
+    controls.add(radial);
+    controls.add(animateTransition);
     content.add(controls, BorderLayout.SOUTH);
   }
 
@@ -205,13 +267,34 @@ public class RadialTreeLensDemo extends JApplet {
       for (double d : depths) {
         ellipse.setFrameFromDiagonal(
             center.getX() - d, center.getY() - d, center.getX() + d, center.getY() + d);
-        Shape shape = vv.getRenderContext().getMultiLayerTransformer().transform(ellipse);
+        Shape shape = ellipse;
+
+        MultiLayerTransformer multiLayerTransformer =
+            vv.getRenderContext().getMultiLayerTransformer();
+
+        MutableTransformer viewTransformer = multiLayerTransformer.getTransformer(Layer.VIEW);
+        MutableTransformer layoutTransformer = multiLayerTransformer.getTransformer(Layer.LAYOUT);
+
+        if (viewTransformer instanceof MutableTransformerDecorator) {
+          shape = multiLayerTransformer.transform(shape);
+        } else if (layoutTransformer instanceof LensTransformer) {
+          HyperbolicShapeTransformer shapeChanger =
+              new HyperbolicShapeTransformer(vv, viewTransformer);
+          LensTransformer lensTransformer = (LensTransformer) layoutTransformer;
+          shapeChanger.getLens().setLensShape(lensTransformer.getLens().getLensShape());
+          MutableTransformer layoutDelegate =
+              ((MutableTransformerDecorator) layoutTransformer).getDelegate();
+          shape = shapeChanger.transform(layoutDelegate.transform(shape));
+        } else {
+          shape = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, shape);
+        }
+
         g2d.draw(shape);
       }
     }
 
     public boolean useTransform() {
-      return false;
+      return true;
     }
   }
 

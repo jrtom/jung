@@ -16,7 +16,6 @@ import com.google.common.graph.Graph;
 import edu.uci.ics.jung.graph.util.TreeUtils;
 import edu.uci.ics.jung.layout.algorithms.AbstractLayoutAlgorithm;
 import edu.uci.ics.jung.layout.model.LayoutModel;
-import edu.uci.ics.jung.layout.model.PointModel;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -43,17 +42,10 @@ public class BalloonLayoutAlgorithm<N, P> extends AbstractLayoutAlgorithm<N, P>
   int depth = 200;
 
   private Graph<N> tree;
-  /**
-   * Creates an instance based on the input Network.
-   *
-   * @param
-   */
-  public BalloonLayoutAlgorithm(PointModel<P> pointModel) {
-    super(pointModel);
-  }
 
   @Override
   public void visit(LayoutModel<N, P> layoutModel) {
+    super.visit(layoutModel);
     this.layoutModel = layoutModel;
     if (log.isTraceEnabled()) {
       log.trace("visit {}", layoutModel);

@@ -19,6 +19,14 @@ import edu.uci.ics.jung.layout.model.LayoutModel;
  * @author Joshua O'Madadhain
  */
 public interface NetworkNodeAccessor<N, P> {
+
+  /**
+   * @param layoutModel
+   * @param p the pick point
+   * @return the node associated with the pick point
+   */
+  N getNode(LayoutModel<N, P> layoutModel, P p);
+
   /**
    * Returns the node, if any, associated with (x, y).
    *

@@ -38,11 +38,11 @@ public class LayoutAlgorithmTest {
             .setPointModel(pointModel)
             .setSize(500, 500)
             .build();
-    testLayoutAlgorithm(new SpringLayoutAlgorithm<>(pointModel));
-    testLayoutAlgorithm(new KKLayoutAlgorithm<>(pointModel));
+    testLayoutAlgorithm(new SpringLayoutAlgorithm<>());
+    testLayoutAlgorithm(new KKLayoutAlgorithm<>());
     // ISOM seems to put some nodes in the same location, so the test will fail
     //        testLayoutAlgorithm(new ISOMLayoutAlgorithm<String, TestPointModel.Point>(pointModel));
-    testLayoutAlgorithm(new SphereLayoutAlgorithm<>(pointModel));
+    testLayoutAlgorithm(new SphereLayoutAlgorithm<>());
   }
 
   @Test
@@ -54,7 +54,7 @@ public class LayoutAlgorithmTest {
             .setPointModel(pointModel)
             .setSize(500, 500)
             .build();
-    testLayoutAlgorithm(new BalloonLayoutAlgorithm<>(pointModel));
+    testLayoutAlgorithm(new BalloonLayoutAlgorithm<>());
   }
 
   private void testLayoutAlgorithm(LayoutAlgorithm<String, TestPointModel.Point> layoutAlgorithm) {

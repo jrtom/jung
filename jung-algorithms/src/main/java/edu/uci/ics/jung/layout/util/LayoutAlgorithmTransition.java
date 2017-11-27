@@ -52,7 +52,7 @@ public class LayoutAlgorithmTransition<N, E, P> implements IterativeContext {
     // stop any relaxing that is going on now
     layoutModel.stopRelaxer();
     this.pointModel = layoutModel.getPointModel();
-    LayoutAlgorithm<N, P> transitionLayoutAlgorithm = new StaticLayoutAlgorithm(pointModel);
+    LayoutAlgorithm<N, P> transitionLayoutAlgorithm = new StaticLayoutAlgorithm();
     visualizationModel.setLayoutAlgorithm(transitionLayoutAlgorithm);
 
     // the layout model still has locations from its previous algorithm

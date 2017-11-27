@@ -8,8 +8,6 @@
  */
 package edu.uci.ics.jung.samples;
 
-import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
-
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.graph.util.TestGraphs;
 import edu.uci.ics.jung.layout.algorithms.ISOMLayoutAlgorithm;
@@ -73,7 +71,7 @@ public class InternalFrameSatelliteViewDemo {
     // create a simple graph for the demo
     graph = TestGraphs.getOneComponentGraph();
 
-    LayoutAlgorithm<String, Point2D> layout = new ISOMLayoutAlgorithm<>(POINT_MODEL);
+    LayoutAlgorithm<String, Point2D> layout = new ISOMLayoutAlgorithm<>();
 
     vv = new VisualizationViewer<>(graph, layout, new Dimension(600, 600));
     vv.getRenderContext()

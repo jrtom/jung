@@ -15,7 +15,6 @@ import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalLensGraphMouse;
 import edu.uci.ics.jung.visualization.layout.NetworkElementAccessor;
-import edu.uci.ics.jung.visualization.picking.LayoutLensShapePickSupport;
 import java.awt.Dimension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +57,7 @@ public class LayoutLensSupport<V, E> extends AbstractLensSupport<V, E> implement
     if (d.width <= 0 || d.height <= 0) {
       d = vv.getPreferredSize();
     }
-    lensTransformer.setViewRadius(d.width / 5);
+    lensTransformer.getLens().setViewRadius(d.width / 5);
   }
 
   public void activate() {
@@ -68,7 +67,6 @@ public class LayoutLensSupport<V, E> extends AbstractLensSupport<V, E> implement
     if (lensControls == null) {
       lensControls = new LensControls(lensTransformer);
     }
-    vv.getRenderContext().setPickSupport(new LayoutLensShapePickSupport<>(vv));
     vv.getRenderContext().getMultiLayerTransformer().setTransformer(Layer.LAYOUT, lensTransformer);
     vv.prependPreRenderPaintable(lens);
     vv.addPostRenderPaintable(lensControls);
@@ -85,7 +83,6 @@ public class LayoutLensSupport<V, E> extends AbstractLensSupport<V, E> implement
           .getMultiLayerTransformer()
           .setTransformer(Layer.LAYOUT, lensTransformer.getDelegate());
     }
-    vv.getRenderContext().setPickSupport(pickSupport);
     vv.setToolTipText(defaultToolTipText);
     vv.setGraphMouse(graphMouse);
     vv.repaint();

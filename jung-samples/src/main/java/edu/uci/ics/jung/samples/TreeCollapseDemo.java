@@ -8,8 +8,6 @@ package edu.uci.ics.jung.samples;
  *
  */
 
-import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
-
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.graph.CTreeNetwork;
 import edu.uci.ics.jung.graph.MutableCTreeNetwork;
@@ -81,11 +79,11 @@ public class TreeCollapseDemo extends JApplet {
     // create a simple graph for the demo
     graph = createTree();
 
-    layoutAlgorithm = new TreeLayoutAlgorithm<>(POINT_MODEL);
+    layoutAlgorithm = new TreeLayoutAlgorithm<>();
 
-    radialLayoutAlgorithm = new RadialTreeLayoutAlgorithm<>(POINT_MODEL);
+    radialLayoutAlgorithm = new RadialTreeLayoutAlgorithm<>();
 
-    balloonLayoutAlgorithm = new BalloonLayoutAlgorithm<>(POINT_MODEL);
+    balloonLayoutAlgorithm = new BalloonLayoutAlgorithm<>();
 
     vv = new VisualizationViewer(graph, layoutAlgorithm, new Dimension(600, 600));
     vv.setBackground(Color.white);

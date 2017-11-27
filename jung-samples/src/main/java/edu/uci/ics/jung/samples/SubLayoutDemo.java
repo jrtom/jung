@@ -98,7 +98,7 @@ public class SubLayoutDemo extends JApplet {
     // layout of sub-sets of vertices in circular clusters.
     Dimension preferredSize = new Dimension(600, 600);
 
-    LayoutAlgorithm<String, Point2D> layoutAlgorithm = new FRLayoutAlgorithm(POINT_MODEL);
+    LayoutAlgorithm<String, Point2D> layoutAlgorithm = new FRLayoutAlgorithm();
     clusteringLayoutModel =
         new AggregateLayoutModel<>(
             LoadingCacheLayoutModel.<String, Point2D>builder()

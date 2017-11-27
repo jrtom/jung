@@ -1,7 +1,5 @@
 package edu.uci.ics.jung.visualization;
 
-import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
-
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
 import edu.uci.ics.jung.layout.algorithms.CircleLayoutAlgorithm;
@@ -16,7 +14,7 @@ public class BasicVisualizationServerTest extends TestCase {
    */
   public void testRenderContextNotOverridden() {
     Network<Object, Object> graph = NetworkBuilder.directed().build();
-    CircleLayoutAlgorithm algorithm = new CircleLayoutAlgorithm(POINT_MODEL);
+    CircleLayoutAlgorithm algorithm = new CircleLayoutAlgorithm();
 
     BasicVisualizationServer server =
         new BasicVisualizationServer<Object, Object>(graph, algorithm);

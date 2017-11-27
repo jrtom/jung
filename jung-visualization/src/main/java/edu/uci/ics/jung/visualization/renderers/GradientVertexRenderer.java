@@ -76,7 +76,7 @@ public class GradientVertexRenderer<N, E> implements Renderer.Vertex<N, E> {
       Shape shape = renderContext.getVertexShapeTransformer().apply(v);
       LayoutModel<N, Point2D> layoutModel = visualizationModel.getLayoutModel();
       Point2D p = layoutModel.apply(v);
-      p = renderContext.getMultiLayerTransformer().transform(Layer.LAYOUT, (Point2D) p.clone());
+      p = renderContext.getMultiLayerTransformer().transform(Layer.LAYOUT, p);
 
       float x = (float) p.getX();
       float y = (float) p.getY();

@@ -97,11 +97,11 @@ public class BaseVisualizationModel<N, E>
 
         // TODO: maybe make these choosable with a property
         // spatialGrid
-        //            SpatialGridLayoutModel.<N, Point2D>builder()
-        //                    .setGraph(network.asGraph())
-        //                    .setPointModel(POINT_MODEL)
-        //                    .setSize(layoutSize.width, layoutSize.height)
-        //                    .build();
+        //                    SpatialGridLayoutModel.<N, Point2D>builder()
+        //                            .setGraph(network.asGraph())
+        //                            .setPointModel(POINT_MODEL)
+        //                            .setSize(layoutSize.width, layoutSize.height)
+        //                            .build();
 
         //spatial quadtree
         SpatialQuadTreeLayoutModel.<N, Point2D>builder()

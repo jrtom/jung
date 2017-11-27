@@ -11,6 +11,7 @@ package edu.uci.ics.jung.visualization.transform.shape;
 import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
 
 import edu.uci.ics.jung.layout.model.PolarPoint;
+import edu.uci.ics.jung.visualization.transform.Lens;
 import edu.uci.ics.jung.visualization.transform.MagnifyTransformer;
 import edu.uci.ics.jung.visualization.transform.MutableTransformer;
 import java.awt.Component;
@@ -51,6 +52,10 @@ public class MagnifyShapeTransformer extends MagnifyTransformer
    */
   public MagnifyShapeTransformer(Component component, MutableTransformer delegate) {
     super(component, delegate);
+  }
+
+  public MagnifyShapeTransformer(Lens lens, MutableTransformer delegate) {
+    super(lens, delegate);
   }
 
   /**
@@ -168,9 +173,9 @@ public class MagnifyShapeTransformer extends MagnifyTransformer
     if (graphPoint == null) {
       return null;
     }
-    Point2D viewCenter = getViewCenter();
-    double viewRadius = getViewRadius();
-    double ratio = getRatio();
+    Point2D viewCenter = lens.getViewCenter();
+    double viewRadius = lens.getViewRadius();
+    double ratio = lens.getRatio();
     // transform the point from the graph to the view
     Point2D viewPoint = graphPoint;
     // calculate point from center
@@ -187,7 +192,7 @@ public class MagnifyShapeTransformer extends MagnifyTransformer
       return viewPoint;
     }
 
-    double mag = magnification;
+    double mag = lens.getMagnification();
     radius *= mag;
 
     radius = Math.min(radius, viewRadius);
@@ -203,9 +208,9 @@ public class MagnifyShapeTransformer extends MagnifyTransformer
   private Point2D _inverseTransform(Point2D viewPoint) {
 
     viewPoint = delegate.inverseTransform(viewPoint);
-    Point2D viewCenter = getViewCenter();
-    double viewRadius = getViewRadius();
-    double ratio = getRatio();
+    Point2D viewCenter = lens.getViewCenter();
+    double viewRadius = lens.getViewRadius();
+    double ratio = lens.getRatio();
     double dx = viewPoint.getX() - viewCenter.getX();
     double dy = viewPoint.getY() - viewCenter.getY();
     // factor out ellipse
@@ -220,7 +225,7 @@ public class MagnifyShapeTransformer extends MagnifyTransformer
       return viewPoint;
     }
 
-    double mag = magnification;
+    double mag = lens.getMagnification();
     radius /= mag;
     polar.setRadius(radius);
     Point2D projectedPoint = PolarPoint.polarToCartesian(POINT_MODEL, polar);

@@ -12,6 +12,7 @@ import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
 
 import edu.uci.ics.jung.layout.model.PolarPoint;
 import edu.uci.ics.jung.visualization.transform.HyperbolicTransformer;
+import edu.uci.ics.jung.visualization.transform.Lens;
 import edu.uci.ics.jung.visualization.transform.MutableTransformer;
 import java.awt.*;
 import java.awt.geom.GeneralPath;
@@ -30,14 +31,16 @@ import org.slf4j.LoggerFactory;
 public class HyperbolicShapeTransformer extends HyperbolicTransformer
     implements ShapeFlatnessTransformer {
   private static final Logger log = LoggerFactory.getLogger(HyperbolicShapeTransformer.class);
+
   /**
    * Create an instance, setting values from the passed component and registering to listen for
    * layoutSize changes on the component.
    *
-   * @param component the component in which rendering takes place
+   * @param lens
+   * @param delegate
    */
-  public HyperbolicShapeTransformer(Component component) {
-    this(component, null);
+  public HyperbolicShapeTransformer(Lens lens, MutableTransformer delegate) {
+    super(lens, delegate);
   }
 
   /**
@@ -163,9 +166,9 @@ public class HyperbolicShapeTransformer extends HyperbolicTransformer
     if (graphPoint == null) {
       return null;
     }
-    Point2D viewCenter = getViewCenter();
-    double viewRadius = getViewRadius();
-    double ratio = getRatio();
+    Point2D viewCenter = lens.getViewCenter();
+    double viewRadius = lens.getViewRadius();
+    double ratio = lens.getRatio();
     // transform the point from the graph to the view
     Point2D viewPoint = graphPoint; //delegate.transform(graphPoint);
     // calculate point from center
@@ -182,7 +185,7 @@ public class HyperbolicShapeTransformer extends HyperbolicTransformer
       return viewPoint;
     }
 
-    double mag = Math.tan(Math.PI / 2 * magnification);
+    double mag = Math.tan(Math.PI / 2 * lens.getMagnification());
     radius *= mag;
 
     radius = Math.min(radius, viewRadius);
@@ -202,9 +205,9 @@ public class HyperbolicShapeTransformer extends HyperbolicTransformer
   private Point2D _inverseTransform(Point2D viewPoint) {
 
     viewPoint = delegate.inverseTransform(viewPoint);
-    Point2D viewCenter = getViewCenter();
-    double viewRadius = getViewRadius();
-    double ratio = getRatio();
+    Point2D viewCenter = lens.getViewCenter();
+    double viewRadius = lens.getViewRadius();
+    double ratio = lens.getRatio();
     double dx = viewPoint.getX() - viewCenter.getX();
     double dy = viewPoint.getY() - viewCenter.getY();
     // factor out ellipse
@@ -223,7 +226,7 @@ public class HyperbolicShapeTransformer extends HyperbolicTransformer
     radius = Math.abs(Math.tan(radius));
     radius /= Math.PI / 2;
     radius *= viewRadius;
-    double mag = Math.tan(Math.PI / 2 * magnification);
+    double mag = Math.tan(Math.PI / 2 * lens.getMagnification());
     radius /= mag;
     polar.setRadius(radius);
     Point2D projectedPoint = PolarPoint.polarToCartesian(POINT_MODEL, polar);

@@ -8,8 +8,6 @@
  */
 package edu.uci.ics.jung.samples;
 
-import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
-
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
@@ -40,9 +38,7 @@ public class VisualizationImageServerDemo {
     // create a simple graph for the demo
     graph = createGraph();
 
-    vv =
-        new VisualizationImageServer<>(
-            graph, new KKLayoutAlgorithm<>(POINT_MODEL), new Dimension(600, 600));
+    vv = new VisualizationImageServer<>(graph, new KKLayoutAlgorithm<>(), new Dimension(600, 600));
 
     vv.getRenderer()
         .setVertexRenderer(

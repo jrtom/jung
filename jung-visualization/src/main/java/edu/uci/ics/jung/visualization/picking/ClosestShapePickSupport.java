@@ -70,6 +70,26 @@ public class ClosestShapePickSupport<N, E> implements NetworkElementAccessor<N, 
     return null;
   }
 
+  /**
+   * @param layoutModel
+   * @param p the pick location
+   * @return an edge associated with the pick location
+   */
+  @Override
+  public E getEdge(LayoutModel<N, Point2D> layoutModel, Point2D p) {
+    return getEdge(layoutModel, p.getX(), p.getY());
+  }
+
+  /**
+   * @param layoutModel
+   * @param p the pick point
+   * @return the node associated with the pick point
+   */
+  @Override
+  public N getNode(LayoutModel<N, Point2D> layoutModel, Point2D p) {
+    return getNode(layoutModel, p.getX(), p.getY());
+  }
+
   @Override
   public N getNode(LayoutModel<N, Point2D> layoutModel, double x, double y) {
     VisualizationModel<N, E, Point2D> visualizationModel = vv.getModel();
@@ -101,10 +121,7 @@ public class ClosestShapePickSupport<N, E> implements NetworkElementAccessor<N, 
     // get the vertex location
     Point2D p = layoutModel.apply(closest);
     // transform the vertex location to screen coords
-    p =
-        vv.getRenderContext()
-            .getMultiLayerTransformer()
-            .transform(Layer.LAYOUT, (Point2D) p.clone());
+    p = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, p);
 
     double ox = x - p.getX();
     double oy = y - p.getY();
@@ -114,6 +131,20 @@ public class ClosestShapePickSupport<N, E> implements NetworkElementAccessor<N, 
     } else {
       return null;
     }
+  }
+
+  /**
+   * Returns the node, if any, associated with (x, y).
+   *
+   * @param layoutModel
+   * @param x the x coordinate of the pick point
+   * @param y the y coordinate of the pick point
+   * @param z the z coordinate of the pick point - ignored
+   * @return the node associated with (x, y)
+   */
+  @Override
+  public N getNode(LayoutModel<N, Point2D> layoutModel, double x, double y, double z) {
+    return getNode(layoutModel, x, y);
   }
 
   @Override

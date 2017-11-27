@@ -8,20 +8,24 @@
  */
 package edu.uci.ics.jung.samples;
 
-import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
-
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.LoggerContext;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
 import edu.uci.ics.jung.graph.util.TestGraphs;
-import edu.uci.ics.jung.layout.algorithms.FRLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.KKLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
-import edu.uci.ics.jung.layout.algorithms.StaticLayoutAlgorithm;
-import edu.uci.ics.jung.layout.model.LayoutModel;
-import edu.uci.ics.jung.layout.util.LayoutAlgorithmTransition;
-import edu.uci.ics.jung.layout.util.RandomLocationTransformer;
-import edu.uci.ics.jung.visualization.*;
-import edu.uci.ics.jung.visualization.control.*;
+import edu.uci.ics.jung.visualization.BaseVisualizationModel;
+import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
+import edu.uci.ics.jung.visualization.Layer;
+import edu.uci.ics.jung.visualization.VisualizationModel;
+import edu.uci.ics.jung.visualization.VisualizationViewer;
+import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
+import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
+import edu.uci.ics.jung.visualization.control.LensMagnificationGraphMousePlugin;
+import edu.uci.ics.jung.visualization.control.ModalLensGraphMouse;
+import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
 import edu.uci.ics.jung.visualization.picking.PickedState;
@@ -43,6 +47,8 @@ import java.util.Map;
 import java.util.function.Function;
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicLabelUI;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Demonstrates the use of <code>HyperbolicTransform</code> and <code>MagnifyTransform</code>
@@ -52,17 +58,13 @@ import javax.swing.plaf.basic.BasicLabelUI;
  * @author Tom Nelson
  */
 @SuppressWarnings("serial")
-public class LensDemo extends JApplet {
+public class SpatialLensDemo extends JApplet {
 
+  private static final Logger log = LoggerFactory.getLogger(SpatialLensDemo.class);
   /** the graph */
   Network<String, Number> graph;
 
-  FRLayoutAlgorithm<String, Point2D> graphLayoutAlgorithm;
-
-  /** a grid shaped graph */
-  Network<String, Number> grid;
-
-  LayoutAlgorithm<String, Point2D> gridLayoutAlgorithm;
+  LayoutAlgorithm<String, Point2D> graphLayoutAlgorithm;
 
   /** the visual component and renderer for the graph */
   VisualizationViewer<String, Number> vv;
@@ -80,19 +82,17 @@ public class LensDemo extends JApplet {
   ScalingControl scaler;
 
   /** create an instance of a simple graph with controls to demo the zoomand hyperbolic features. */
-  public LensDemo() {
+  public SpatialLensDemo() {
 
-    // create a simple graph for the demo
-    graph = TestGraphs.getOneComponentGraph();
+    graph = //buildOneNode();
+        TestGraphs.createTestGraph(false);
 
-    graphLayoutAlgorithm = new FRLayoutAlgorithm<>();
-    graphLayoutAlgorithm.setMaxIterations(1000);
+    graphLayoutAlgorithm = new KKLayoutAlgorithm<>();
+    //    graphLayoutAlgorithm.setMaxIterations(1000);
 
     Dimension preferredSize = new Dimension(600, 600);
     Map<String, Point2D> map = new HashMap<>();
     Function<String, Point2D> vlf = map::get;
-    grid = this.generateVertexGrid(map, preferredSize, 25);
-    gridLayoutAlgorithm = new StaticLayoutAlgorithm<>();
 
     final VisualizationModel<String, Number, Point2D> visualizationModel =
         new BaseVisualizationModel<>(graph, graphLayoutAlgorithm, preferredSize);
@@ -114,7 +114,7 @@ public class LensDemo extends JApplet {
     final Function<? super String, Shape> squares = n -> new Rectangle2D.Float(-10, -10, 20, 20);
 
     // add a listener for ToolTips
-    vv.setVertexToolTipTransformer(Object::toString);
+    //    vv.setVertexToolTipTransformer(Object::toString);
 
     Container content = getContentPane();
     GraphZoomScrollPane gzsp = new GraphZoomScrollPane(vv);
@@ -230,61 +230,56 @@ public class LensDemo extends JApplet {
     graphMouse.addItemListener(magnifyLayoutSupport.getGraphMouse().getModeListener());
     graphMouse.addItemListener(magnifyViewSupport.getGraphMouse().getModeListener());
 
-    ButtonGroup graphRadio = new ButtonGroup();
-    JRadioButton graphButton = new JRadioButton("Graph");
-    graphButton.setSelected(true);
-    graphButton.addItemListener(
-        e -> {
-          if (e.getStateChange() == ItemEvent.SELECTED) {
-            LayoutModel layoutModel = visualizationModel.getLayoutModel();
-            layoutModel.setInitializer(
-                new RandomLocationTransformer<String, Point2D>(
-                    POINT_MODEL,
-                    layoutModel.getWidth(),
-                    layoutModel.getHeight(),
-                    layoutModel.getDepth()));
-            visualizationModel.setNetwork(graph, false);
-            LayoutAlgorithmTransition.apply(visualizationModel, graphLayoutAlgorithm);
-            vv.getRenderContext().setVertexShapeTransformer(ovals);
-            vv.getRenderContext().setVertexLabelTransformer(Object::toString);
-            vv.repaint();
-          }
-        });
-
-    JRadioButton gridButton = new JRadioButton("Grid");
-    gridButton.addItemListener(
-        e -> {
-          if (e.getStateChange() == ItemEvent.SELECTED) {
-            LayoutModel layoutModel = visualizationModel.getLayoutModel();
-            layoutModel.setInitializer(vlf);
-            // so it won't start running the old layout algorithm on the new graph
-            visualizationModel.setNetwork(grid, false);
-            LayoutAlgorithmTransition.apply(visualizationModel, gridLayoutAlgorithm);
-            vv.getRenderContext().setVertexShapeTransformer(squares);
-            vv.getRenderContext().setVertexLabelTransformer(n -> null);
-            vv.repaint();
-          }
-        });
-
-    graphRadio.add(graphButton);
-    graphRadio.add(gridButton);
-
-    JPanel modePanel = new JPanel(new GridLayout(3, 1));
-    modePanel.setBorder(BorderFactory.createTitledBorder("Display"));
-    modePanel.add(graphButton);
-    modePanel.add(gridButton);
-
     JMenuBar menubar = new JMenuBar();
     menubar.add(graphMouse.getModeMenu());
     gzsp.setCorner(menubar);
 
+    JComboBox modeBox = graphMouse.getModeComboBox();
+    modeBox.addItemListener(
+        ((DefaultModalGraphMouse<Integer, Number>) vv.getGraphMouse()).getModeListener());
+
+    JRadioButton showSpatialEffects = new JRadioButton("Spatial Structure");
+    showSpatialEffects.addItemListener(
+        e -> {
+          if (e.getStateChange() == ItemEvent.SELECTED) {
+            System.err.println("TURNED ON LOGGING");
+            // turn on the logging
+            // programmatically set the log level so that the spatial grid is drawn for this demo and the SpatialGrid logging is output
+            ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) log;
+            LoggerContext ctx = (LoggerContext) LoggerFactory.getILoggerFactory();
+            ctx.getLogger("edu.uci.ics.jung.visualization.spatial").setLevel(Level.DEBUG);
+            ctx.getLogger("edu.uci.ics.jung.visualization.BasicVisualizationServer")
+                .setLevel(Level.TRACE);
+            ctx.getLogger("edu.uci.ics.jung.visualization.picking").setLevel(Level.TRACE);
+            repaint();
+
+          } else if (e.getStateChange() == ItemEvent.DESELECTED) {
+            System.err.println("TURNED OFF LOGGING");
+            // turn off the logging
+            // programmatically set the log level so that the spatial grid is drawn for this demo and the SpatialGrid logging is output
+            ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) log;
+            LoggerContext ctx = (LoggerContext) LoggerFactory.getILoggerFactory();
+            ctx.getLogger("edu.uci.ics.jung.visualization.spatial").setLevel(Level.INFO);
+            ctx.getLogger("edu.uci.ics.jung.visualization.BasicVisualizationServer")
+                .setLevel(Level.INFO);
+            ctx.getLogger("edu.uci.ics.jung.visualization.picking").setLevel(Level.INFO);
+            repaint();
+          }
+        });
+
     Box controls = Box.createHorizontalBox();
     JPanel zoomControls = new JPanel(new GridLayout(2, 1));
-    zoomControls.setBorder(BorderFactory.createTitledBorder("Zoom"));
+    JPanel modeControls = new JPanel(new GridLayout(2, 1));
+    JPanel leftControls = new JPanel(new BorderLayout());
+    //    zoomControls.setBorder(BorderFactory.createTitledBorder("Zoom"));
     JPanel hyperControls = new JPanel(new GridLayout(3, 2));
     hyperControls.setBorder(BorderFactory.createTitledBorder("Examiner Lens"));
     zoomControls.add(plus);
     zoomControls.add(minus);
+    modeControls.add(showSpatialEffects);
+    modeControls.add(modeBox);
+    leftControls.add(zoomControls, BorderLayout.WEST);
+    leftControls.add(modeControls);
 
     hyperControls.add(normal);
     hyperControls.add(new JLabel());
@@ -295,28 +290,12 @@ public class LensDemo extends JApplet {
     hyperControls.add(hyperView);
     hyperControls.add(magnifyView);
 
-    controls.add(zoomControls);
+    controls.add(leftControls);
     controls.add(hyperControls);
-    controls.add(modePanel);
     controls.add(modeLabel);
+    //    controls.add(modeBox);
+    //    controls.add(showSpatialEffects);
     content.add(controls, BorderLayout.SOUTH);
-  }
-
-  private Network<String, Number> generateVertexGrid(
-      Map<String, Point2D> vlf, Dimension d, int interval) {
-    int count = d.width / interval * d.height / interval;
-    MutableNetwork<String, Number> graph = NetworkBuilder.directed().build();
-    for (int i = 0; i < count; i++) {
-      int x = interval * i;
-      int y = x / d.width * interval;
-      x %= d.width;
-
-      Point2D location = new Point2D.Float(x, y);
-      String vertex = "v" + i;
-      vlf.put(vertex, location);
-      graph.addNode(vertex);
-    }
-    return graph;
   }
 
   static class VerticalLabelUI extends BasicLabelUI {
@@ -395,10 +374,17 @@ public class LensDemo extends JApplet {
     }
   }
 
+  Network<String, Number> buildOneNode() {
+    MutableNetwork<String, Number> graph =
+        NetworkBuilder.directed().allowsParallelEdges(true).build();
+    graph.addNode("A");
+    return graph;
+  }
+
   public static void main(String[] args) {
     JFrame f = new JFrame();
     f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-    f.getContentPane().add(new LensDemo());
+    f.getContentPane().add(new SpatialLensDemo());
     f.pack();
     f.setVisible(true);
   }

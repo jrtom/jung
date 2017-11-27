@@ -39,9 +39,9 @@ public class LayoutAlgorithmTestAWT {
             .setPointModel(POINT_MODEL)
             .setSize(500, 500)
             .build();
-    testLayoutAlgorithm(new SpringLayoutAlgorithm<>(POINT_MODEL));
-    testLayoutAlgorithm(new KKLayoutAlgorithm<>(POINT_MODEL));
-    testLayoutAlgorithm(new CircleLayoutAlgorithm<>(POINT_MODEL));
+    testLayoutAlgorithm(new SpringLayoutAlgorithm<>());
+    testLayoutAlgorithm(new KKLayoutAlgorithm<>());
+    testLayoutAlgorithm(new CircleLayoutAlgorithm<>());
   }
 
   @Test
@@ -53,7 +53,7 @@ public class LayoutAlgorithmTestAWT {
             .setPointModel(POINT_MODEL)
             .setSize(500, 500)
             .build();
-    testLayoutAlgorithm(new TreeLayoutAlgorithm<>(POINT_MODEL));
+    testLayoutAlgorithm(new TreeLayoutAlgorithm<>());
   }
 
   private void testLayoutAlgorithm(LayoutAlgorithm<String, Point2D> layoutAlgorithm) {

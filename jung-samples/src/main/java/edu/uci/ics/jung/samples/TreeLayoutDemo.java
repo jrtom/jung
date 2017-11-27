@@ -8,8 +8,6 @@
  */
 package edu.uci.ics.jung.samples;
 
-import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
-
 import edu.uci.ics.jung.graph.CTreeNetwork;
 import edu.uci.ics.jung.graph.MutableCTreeNetwork;
 import edu.uci.ics.jung.graph.TreeNetworkBuilder;
@@ -63,8 +61,8 @@ public class TreeLayoutDemo extends JApplet {
     // create a simple graph for the demo
     graph = createTree();
 
-    treeLayoutAlgorithm = new TreeLayoutAlgorithm<>(POINT_MODEL);
-    radialLayoutAlgorithm = new RadialTreeLayoutAlgorithm<>(POINT_MODEL);
+    treeLayoutAlgorithm = new TreeLayoutAlgorithm<>();
+    radialLayoutAlgorithm = new RadialTreeLayoutAlgorithm<>();
     //    radialLayout.setSize(new Dimension(600, 600));
     vv = new VisualizationViewer<>(graph, treeLayoutAlgorithm, new Dimension(600, 600));
     vv.setBackground(Color.white);

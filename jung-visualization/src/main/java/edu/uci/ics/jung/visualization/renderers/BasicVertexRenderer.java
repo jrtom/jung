@@ -36,7 +36,7 @@ public class BasicVertexRenderer<V, E> implements Renderer.Vertex<V, E> {
   }
 
   /**
-   * Returns the vertex shape in view coordinates.
+   * Returns the vertex shape in layout coordinates.
    *
    * @param v the vertex whose shape is to be returned
    * @param coords the x and y view coordinates
@@ -51,8 +51,11 @@ public class BasicVertexRenderer<V, E> implements Renderer.Vertex<V, E> {
     // get the shape to be rendered
     Shape shape = renderContext.getVertexShapeTransformer().apply(v);
     Point2D p = visualizationModel.getLayoutModel().apply(v);
+    // p is the node location in layout coordinates
     log.trace("prepared a shape for " + v + " to go at " + p);
-    p = renderContext.getMultiLayerTransformer().transform(Layer.LAYOUT, (Point2D) p.clone());
+    p = renderContext.getMultiLayerTransformer().transform(Layer.LAYOUT, (Point2D) p);
+    // now p is in view coordinates, ready to be further transformed by any transform in the
+    // graphics context
     float x = (float) p.getX();
     float y = (float) p.getY();
     coords[0] = (int) x;

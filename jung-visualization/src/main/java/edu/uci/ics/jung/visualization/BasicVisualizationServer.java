@@ -13,9 +13,7 @@ import com.google.common.collect.Lists;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
 import edu.uci.ics.jung.layout.util.Caching;
-import edu.uci.ics.jung.visualization.annotations.Annotation;
 import edu.uci.ics.jung.visualization.annotations.AnnotationPaintable;
-import edu.uci.ics.jung.visualization.annotations.AnnotationRenderer;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
@@ -28,7 +26,11 @@ import edu.uci.ics.jung.visualization.renderers.Renderer;
 import edu.uci.ics.jung.visualization.spatial.Spatial;
 import edu.uci.ics.jung.visualization.spatial.SpatialGrid;
 import edu.uci.ics.jung.visualization.spatial.SpatialQuadTree;
+import edu.uci.ics.jung.visualization.transform.LensTransformer;
+import edu.uci.ics.jung.visualization.transform.MutableTransformer;
+import edu.uci.ics.jung.visualization.transform.MutableTransformerDecorator;
 import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
+import edu.uci.ics.jung.visualization.transform.shape.HyperbolicShapeTransformer;
 import edu.uci.ics.jung.visualization.util.ChangeEventSupport;
 import edu.uci.ics.jung.visualization.util.DefaultChangeEventSupport;
 import java.awt.*;
@@ -45,7 +47,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.swing.JPanel;
+import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.slf4j.Logger;
@@ -304,7 +306,9 @@ public class BasicVisualizationServer<N, E> extends JPanel
 
     if (log.isTraceEnabled()) {
       // when logging is set to trace, the grid will be drawn on the graph visualization
-      lowerAnnotationPaintable = addSpatialAnnotations(spatial, g2d);
+      addSpatialAnnotations(spatial);
+    } else {
+      preRenderers.clear();
     }
 
     // if there are  preRenderers set, paint them
@@ -456,13 +460,7 @@ public class BasicVisualizationServer<N, E> extends JPanel
     this.pickedEdgeState = pickedEdgeState;
     this.renderContext.setPickedEdgeState(pickedEdgeState);
     if (pickEventListener == null) {
-      pickEventListener =
-          new ItemListener() {
-
-            public void itemStateChanged(ItemEvent e) {
-              repaint();
-            }
-          };
+      pickEventListener = e -> repaint();
     }
     pickedEdgeState.addItemListener(pickEventListener);
   }
@@ -488,63 +486,164 @@ public class BasicVisualizationServer<N, E> extends JPanel
     this.renderContext = renderContext;
   }
 
-  private AnnotationPaintable addSpatialAnnotations(Spatial spatial, Graphics2D g2d) {
-    AnnotationRenderer annotationRenderer = new AnnotationRenderer();
-    AnnotationPaintable lowerAnnotationPaintable =
-        new AnnotationPaintable(renderContext, annotationRenderer);
+  private void addSpatialAnnotations(Spatial spatial) {
     if (spatial != null) {
+      if (spatial instanceof SpatialQuadTree) {
+        addPreRenderPaintable(new QuadTreeGridPaintable((SpatialQuadTree) spatial));
+      } else if (spatial instanceof SpatialGrid) {
+        addPreRenderPaintable(new SpatialGridPaintable((SpatialGrid) spatial));
+      }
+    }
+  }
 
-      if (spatial instanceof SpatialGrid) {
-        List<Rectangle2D> grid = Lists.newArrayList();
-        grid = SpatialGrid.getGrid(grid, (SpatialGrid) spatial);
-        int num = 0;
-        for (Rectangle2D r : grid) {
-          Point2D p =
-              this.getRenderContext()
-                  .getMultiLayerTransformer()
-                  .inverseTransform(new Point2D.Double(r.getX(), r.getY()));
-          Annotation<Shape> annotation =
-              new Annotation<>(r, Annotation.Layer.LOWER, Color.BLACK, false, p);
-          lowerAnnotationPaintable.add(annotation);
-          String label = num + ":" + ((SpatialGrid) spatial).getMap().get(num);
-          int stringWidth = g2d.getFontMetrics().stringWidth(label);
-          Point2D center =
-              new Point2D.Double(
-                  r.getX() + (r.getWidth() - stringWidth) / 2, r.getY() + r.getHeight() / 2);
+  class SpatialGridPaintable implements VisualizationServer.Paintable {
+    SpatialGrid<N> spatialGrid;
 
-          Annotation<String> annotation2 =
-              new Annotation<>(label, Annotation.Layer.LOWER, Color.BLACK, false, center);
-          lowerAnnotationPaintable.add(annotation2);
-          num++;
+    public SpatialGridPaintable(SpatialGrid<N> spatialGrid) {
+      this.spatialGrid = spatialGrid;
+    }
+
+    public boolean useTransform() {
+      return true;
+    }
+
+    public void paint(Graphics g) {
+      Graphics2D g2d = (Graphics2D) g;
+      Color oldColor = g2d.getColor();
+
+      List<Rectangle2D> grid = Lists.newArrayList();
+      grid = SpatialGrid.getGrid(grid, (SpatialGrid) spatialGrid);
+      MultiLayerTransformer multiLayerTransformer = getRenderContext().getMultiLayerTransformer();
+
+      MutableTransformer viewTransformer = multiLayerTransformer.getTransformer(Layer.VIEW);
+      MutableTransformer layoutTransformer = multiLayerTransformer.getTransformer(Layer.LAYOUT);
+
+      int num = 0;
+      g2d.setColor(Color.blue);
+
+      for (Rectangle2D r : grid) {
+        Point2D p =
+            getRenderContext()
+                .getMultiLayerTransformer()
+                .inverseTransform(new Point2D.Double(r.getX(), r.getY()));
+        String label = num + ":" + ((SpatialGrid) spatialGrid).getMap().get(num);
+        int stringWidth = g2d.getFontMetrics().stringWidth(label);
+        Shape shape = r;
+        if (viewTransformer instanceof LensTransformer) {
+          shape = multiLayerTransformer.transform(shape);
+        } else if (layoutTransformer instanceof LensTransformer) {
+          HyperbolicShapeTransformer shapeChanger =
+              new HyperbolicShapeTransformer(BasicVisualizationServer.this, viewTransformer);
+          LensTransformer lensTransformer = (LensTransformer) layoutTransformer;
+          shapeChanger.getLens().setLensShape(lensTransformer.getLens().getLensShape());
+          MutableTransformer layoutDelegate =
+              ((MutableTransformerDecorator) layoutTransformer).getDelegate();
+          shape = shapeChanger.transform(layoutDelegate.transform(shape));
+        } else {
+          shape = getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, shape);
         }
-      } else if (spatial instanceof SpatialQuadTree) {
-        List<SpatialQuadTree<N>> grid = Lists.newArrayList();
-        grid = SpatialQuadTree.getNodes(grid, (SpatialQuadTree<N>) spatial);
-        for (SpatialQuadTree r : grid) {
-          Rectangle2D area = r.getLayoutArea();
-          Point2D p =
-              this.getRenderContext()
-                  .getMultiLayerTransformer()
-                  .inverseTransform(new Point2D.Double(area.getX(), area.getY()));
-          Annotation<Shape> annotation =
-              new Annotation<>(area, Annotation.Layer.LOWER, Color.BLACK, false, p);
-          lowerAnnotationPaintable.add(annotation);
-          if (r.getNodes().size() > 0) {
-            String label = r.getNodes().toString();
-            int stringWidth = g2d.getFontMetrics().stringWidth(label);
-            Point2D center =
-                new Point2D.Double(
-                    r.getLayoutArea().getX() + (area.getWidth() - stringWidth) / 2,
-                    area.getY() + area.getHeight() / 2);
+        g2d.draw(shape);
+        Rectangle bounds = shape.getBounds();
+        Point2D center =
+            new Point2D.Double(
+                bounds.getX() + (bounds.getWidth() - stringWidth) / 2,
+                bounds.getY() + bounds.getHeight() / 2);
 
-            Annotation<String> annotation2 =
-                new Annotation<>(label, Annotation.Layer.LOWER, Color.BLACK, false, center);
-            lowerAnnotationPaintable.add(annotation2);
+        g2d.drawString(label, (int) center.getX(), (int) center.getY());
+        num++;
+      }
+
+      g2d.setColor(Color.red);
+      for (Shape pickShape : spatialGrid.getPickShapes()) {
+        Shape shape = pickShape;
+
+        if (viewTransformer instanceof LensTransformer) {
+          shape = multiLayerTransformer.transform(shape);
+        } else if (layoutTransformer instanceof LensTransformer) {
+          HyperbolicShapeTransformer shapeChanger =
+              new HyperbolicShapeTransformer(BasicVisualizationServer.this, viewTransformer);
+          LensTransformer lensTransformer = (LensTransformer) layoutTransformer;
+          shapeChanger.getLens().setLensShape(lensTransformer.getLens().getLensShape());
+          MutableTransformer layoutDelegate =
+              ((MutableTransformerDecorator) layoutTransformer).getDelegate();
+          shape = shapeChanger.transform(layoutDelegate.transform(shape));
+        } else {
+          shape = getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, shape);
+        }
+        g2d.draw(shape);
+      }
+      g2d.setColor(oldColor);
+    }
+  }
+
+  class QuadTreeGridPaintable implements VisualizationServer.Paintable {
+
+    SpatialQuadTree<N> quadTree;
+
+    public QuadTreeGridPaintable(SpatialQuadTree<N> quadTree) {
+      this.quadTree = quadTree;
+    }
+
+    public boolean useTransform() {
+      return true;
+    }
+
+    public void paint(Graphics g) {
+      Graphics2D g2d = (Graphics2D) g;
+      Color oldColor = g2d.getColor();
+      //gather all the grid shapes
+      List<SpatialQuadTree<N>> grid = Lists.newArrayList();
+      grid = SpatialQuadTree.getNodes(grid, quadTree);
+      MultiLayerTransformer multiLayerTransformer = getRenderContext().getMultiLayerTransformer();
+
+      MutableTransformer viewTransformer = multiLayerTransformer.getTransformer(Layer.VIEW);
+      MutableTransformer layoutTransformer = multiLayerTransformer.getTransformer(Layer.LAYOUT);
+
+      g2d.setColor(Color.blue);
+      for (SpatialQuadTree r : grid) {
+        Shape area = r.getLayoutArea();
+
+        Shape shape = area;
+
+        if (viewTransformer instanceof LensTransformer) {
+          shape = multiLayerTransformer.transform(shape);
+        } else if (layoutTransformer instanceof LensTransformer) {
+          HyperbolicShapeTransformer shapeChanger =
+              new HyperbolicShapeTransformer(BasicVisualizationServer.this, viewTransformer);
+          LensTransformer lensTransformer = (LensTransformer) layoutTransformer;
+          shapeChanger.getLens().setLensShape(lensTransformer.getLens().getLensShape());
+          MutableTransformer layoutDelegate =
+              ((MutableTransformerDecorator) layoutTransformer).getDelegate();
+          shape = shapeChanger.transform(layoutDelegate.transform(shape));
+        } else {
+          shape = getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, shape);
+        }
+
+        g2d.draw(shape);
+      }
+      g2d.setColor(Color.red);
+
+      for (Shape pickShape : quadTree.getPickShapes()) {
+        if (pickShape != null) {
+          Shape shape = pickShape;
+
+          if (viewTransformer instanceof LensTransformer) {
+            shape = multiLayerTransformer.transform(shape);
+          } else if (layoutTransformer instanceof LensTransformer) {
+            HyperbolicShapeTransformer shapeChanger =
+                new HyperbolicShapeTransformer(BasicVisualizationServer.this, viewTransformer);
+            LensTransformer lensTransformer = (LensTransformer) layoutTransformer;
+            shapeChanger.getLens().setLensShape(lensTransformer.getLens().getLensShape());
+            MutableTransformer layoutDelegate =
+                ((MutableTransformerDecorator) layoutTransformer).getDelegate();
+            shape = shapeChanger.transform(layoutDelegate.transform(shape));
+          } else {
+            shape = getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, shape);
           }
+          g2d.draw(shape);
         }
       }
-      this.addPreRenderPaintable(lowerAnnotationPaintable);
+      g2d.setColor(oldColor);
     }
-    return lowerAnnotationPaintable;
   }
 }

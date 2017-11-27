@@ -47,7 +47,7 @@ public class SimpleGraphSpatialTest extends JPanel {
 
     Dimension viewPreferredSize = new Dimension(600, 600);
     Dimension layoutPreferredSize = new Dimension(600, 600);
-    LayoutAlgorithm layoutAlgorithm = new FRLayoutAlgorithm(POINT_MODEL);
+    LayoutAlgorithm layoutAlgorithm = new FRLayoutAlgorithm();
 
     ScalingControl scaler = new CrossoverScalingControl();
     VisualizationModel model =

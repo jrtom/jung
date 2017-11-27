@@ -7,8 +7,6 @@
  */
 package edu.uci.ics.jung.samples;
 
-import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
-
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
 import edu.uci.ics.jung.algorithms.generators.random.BarabasiAlbertGenerator;
@@ -209,15 +207,15 @@ public class ShowLayouts extends JApplet {
   private static LayoutAlgorithm createLayout(Layouts layoutType) {
     switch (layoutType) {
       case CIRCLE:
-        return new CircleLayoutAlgorithm(POINT_MODEL);
+        return new CircleLayoutAlgorithm();
       case FRUCHTERMAN_REINGOLD:
-        return new FRLayoutAlgorithm(POINT_MODEL);
+        return new FRLayoutAlgorithm();
       case KAMADA_KAWAI:
-        return new KKLayoutAlgorithm(POINT_MODEL);
+        return new KKLayoutAlgorithm();
       case SELF_ORGANIZING_MAP:
-        return new ISOMLayoutAlgorithm(POINT_MODEL);
+        return new ISOMLayoutAlgorithm();
       case SPRING:
-        return new SpringLayoutAlgorithm(POINT_MODEL);
+        return new SpringLayoutAlgorithm();
       default:
         throw new IllegalArgumentException("Unrecognized layout type");
     }

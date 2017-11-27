@@ -8,8 +8,6 @@
  */
 package edu.uci.ics.jung.samples;
 
-import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
-
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.graph.util.TestGraphs;
 import edu.uci.ics.jung.layout.algorithms.FRLayoutAlgorithm;
@@ -56,8 +54,8 @@ public class TwoModelDemo extends JApplet {
     graph = TestGraphs.getOneComponentGraph();
 
     // create two layouts for the one graph, one layout for each model
-    LayoutAlgorithm<String, Point2D> layoutAlgorithm1 = new FRLayoutAlgorithm<>(POINT_MODEL);
-    LayoutAlgorithm<String, Point2D> layoutAlgorithm2 = new ISOMLayoutAlgorithm<>(POINT_MODEL);
+    LayoutAlgorithm<String, Point2D> layoutAlgorithm1 = new FRLayoutAlgorithm<>();
+    LayoutAlgorithm<String, Point2D> layoutAlgorithm2 = new ISOMLayoutAlgorithm<>();
 
     // create the two models, each with a different layout
     VisualizationModel<String, Number, Point2D> vm1 =

@@ -55,7 +55,7 @@ public class SimpleGraphSpatialSearchTest extends JPanel {
     MutableNetwork<String, Number> g = (MutableNetwork) TestGraphs.createChainPlusIsolates(0, 100);
     Dimension viewPreferredSize = new Dimension(600, 600);
     Dimension layoutPreferredSize = new Dimension(600, 600);
-    LayoutAlgorithm layoutAlgorithm = new StaticLayoutAlgorithm(POINT_MODEL);
+    LayoutAlgorithm layoutAlgorithm = new StaticLayoutAlgorithm();
 
     ScalingControl scaler = new CrossoverScalingControl();
     VisualizationModel model =

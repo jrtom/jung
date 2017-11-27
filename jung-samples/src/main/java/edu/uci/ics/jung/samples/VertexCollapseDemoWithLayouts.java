@@ -8,8 +8,6 @@
  */
 package edu.uci.ics.jung.samples;
 
-import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
-
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.graph.util.TestGraphs;
 import edu.uci.ics.jung.layout.algorithms.*;
@@ -104,7 +102,7 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
 
     collapser = new GraphCollapser(graph);
 
-    layoutAlgorithm = new FRLayoutAlgorithm(POINT_MODEL);
+    layoutAlgorithm = new FRLayoutAlgorithm();
 
     Dimension preferredSize = new Dimension(400, 400);
     final VisualizationModel visualizationModel =
@@ -331,15 +329,15 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
   private static <N> LayoutAlgorithm<N, Point2D> createLayout(Layouts layoutType) {
     switch (layoutType) {
       case CIRCLE:
-        return new CircleLayoutAlgorithm<>(POINT_MODEL);
+        return new CircleLayoutAlgorithm<>();
       case FRUCHTERMAN_REINGOLD:
-        return new FRLayoutAlgorithm<>(POINT_MODEL);
+        return new FRLayoutAlgorithm<>();
       case KAMADA_KAWAI:
-        return new KKLayoutAlgorithm<>(POINT_MODEL);
+        return new KKLayoutAlgorithm<>();
       case SELF_ORGANIZING_MAP:
-        return new ISOMLayoutAlgorithm<>(POINT_MODEL);
+        return new ISOMLayoutAlgorithm<>();
       case SPRING:
-        return new SpringLayoutAlgorithm<>(POINT_MODEL);
+        return new SpringLayoutAlgorithm<>();
       default:
         throw new IllegalArgumentException("Unrecognized layout type");
     }

@@ -131,7 +131,7 @@ public class ClusteringDemo extends JApplet {
 
     //Create a simple layout frame
     //specify the Fruchterman-Rheingold layout algorithm
-    LayoutAlgorithm<Number, Point2D> algorithm = new FRLayoutAlgorithm<>(POINT_MODEL);
+    LayoutAlgorithm<Number, Point2D> algorithm = new FRLayoutAlgorithm<>();
     LayoutModel<Number, Point2D> delegateModel =
         LoadingCacheLayoutModel.<Number, Point2D>builder()
             .setGraph(graph.asGraph())
@@ -287,8 +287,7 @@ public class ClusteringDemo extends JApplet {
       for (Number v : vertices) {
         subGraph.addNode(v);
       }
-      LayoutAlgorithm<Number, Point2D> subLayoutAlgorithm =
-          new CircleLayoutAlgorithm<>(POINT_MODEL);
+      LayoutAlgorithm<Number, Point2D> subLayoutAlgorithm = new CircleLayoutAlgorithm<>();
 
       LayoutModel<Number, Point2D> subModel =
           LoadingCacheLayoutModel.<Number, Point2D>builder()

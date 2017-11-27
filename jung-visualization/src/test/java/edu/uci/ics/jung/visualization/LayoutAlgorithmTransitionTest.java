@@ -25,6 +25,6 @@ public class LayoutAlgorithmTransitionTest {
             .build();
 
     model.set("A", 0, 0);
-    LayoutAlgorithm newLayoutAlgorithm = new StaticLayoutAlgorithm(POINT_MODEL);
+    LayoutAlgorithm newLayoutAlgorithm = new StaticLayoutAlgorithm();
   }
 }

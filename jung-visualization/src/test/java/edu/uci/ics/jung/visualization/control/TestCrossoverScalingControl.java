@@ -1,7 +1,5 @@
 package edu.uci.ics.jung.visualization.control;
 
-import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
-
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.graph.util.TestGraphs;
 import edu.uci.ics.jung.layout.algorithms.FRLayoutAlgorithm;
@@ -23,7 +21,7 @@ public class TestCrossoverScalingControl extends TestCase {
   public void setUp() {
     sc = new CrossoverScalingControl();
     Network<?, ?> network = TestGraphs.getDemoGraph();
-    vv = new BasicVisualizationServer(network, new FRLayoutAlgorithm(POINT_MODEL));
+    vv = new BasicVisualizationServer(network, new FRLayoutAlgorithm());
   }
 
   public void testCrossover() {

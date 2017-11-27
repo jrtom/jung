@@ -9,8 +9,6 @@
 
 package edu.uci.ics.jung.samples;
 
-import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
-
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.NetworkBuilder;
 import edu.uci.ics.jung.graph.ObservableNetwork;
@@ -66,10 +64,9 @@ public class AddNodeDemo extends JPanel {
 
     this.g = og;
 
-    layoutAlgorithm = new FRLayoutAlgorithm<>(POINT_MODEL);
+    layoutAlgorithm = new FRLayoutAlgorithm<>();
 
-    LayoutAlgorithm<Number, Point2D> staticLayoutAlgorithm =
-        new StaticLayoutAlgorithm<>(POINT_MODEL);
+    LayoutAlgorithm<Number, Point2D> staticLayoutAlgorithm = new StaticLayoutAlgorithm<>();
 
     vv = new VisualizationViewer<>(ig, staticLayoutAlgorithm, new Dimension(600, 600));
 
@@ -106,10 +103,10 @@ public class AddNodeDemo extends JPanel {
         ae -> {
           if (switchLayout.getText().indexOf("Spring") > 0) {
             switchLayout.setText("Switch to FRLayout");
-            layoutAlgorithm = new SpringLayoutAlgorithm<>(POINT_MODEL, e -> EDGE_LENGTH);
+            layoutAlgorithm = new SpringLayoutAlgorithm<>(e -> EDGE_LENGTH);
           } else {
             switchLayout.setText("Switch to SpringLayout");
-            layoutAlgorithm = new FRLayoutAlgorithm<>(POINT_MODEL);
+            layoutAlgorithm = new FRLayoutAlgorithm<>();
           }
           if (animateChange.isSelected()) {
             LayoutAlgorithmTransition.animate(vv.getModel(), layoutAlgorithm);

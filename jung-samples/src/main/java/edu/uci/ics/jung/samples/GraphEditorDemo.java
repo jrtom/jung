@@ -8,8 +8,6 @@
  */
 package edu.uci.ics.jung.samples;
 
-import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
-
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.NetworkBuilder;
 import edu.uci.ics.jung.graph.util.ParallelEdgeIndexFunction;
@@ -110,7 +108,7 @@ public class GraphEditorDemo extends JApplet implements Printable {
     // create a simple graph for the demo
     graph = NetworkBuilder.directed().allowsParallelEdges(true).allowsSelfLoops(true).build();
 
-    this.layoutAlgorithm = new StaticLayoutAlgorithm<>(POINT_MODEL); //, new Dimension(600, 600));
+    this.layoutAlgorithm = new StaticLayoutAlgorithm<>(); //, new Dimension(600, 600));
 
     vv = new VisualizationViewer<>(graph, layoutAlgorithm, new Dimension(600, 600));
     vv.setBackground(Color.white);

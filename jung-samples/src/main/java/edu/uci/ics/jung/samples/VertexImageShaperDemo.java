@@ -102,9 +102,9 @@ public class VertexImageShaperDemo extends JApplet {
       }
     }
 
-    FRLayoutAlgorithm<Number, Point2D> layoutAlgorithm = new FRLayoutAlgorithm<>(POINT_MODEL);
+    FRLayoutAlgorithm<Number, Point2D> layoutAlgorithm = new FRLayoutAlgorithm<>();
     layoutAlgorithm.setMaxIterations(100);
-    //    layoutAlgorithm.setInitializer(new RandomLocationTransformer<>(new Dimension(400, 400), 0));
+    //    treeLayoutAlgorithm.setInitializer(new RandomLocationTransformer<>(new Dimension(400, 400), 0));
 
     vv =
         new VisualizationViewer<>(
@@ -453,7 +453,7 @@ public class VertexImageShaperDemo extends JApplet {
         RenderContext<V, E> renderContext, VisualizationModel<V, E, Point2D> model, V v) {
 
       Point2D p = model.getLayoutModel().apply(v);
-      p = renderContext.getMultiLayerTransformer().transform(Layer.LAYOUT, (Point2D) p.clone());
+      p = renderContext.getMultiLayerTransformer().transform(Layer.LAYOUT, p);
       float x = (float) p.getX();
       float y = (float) p.getY();
 

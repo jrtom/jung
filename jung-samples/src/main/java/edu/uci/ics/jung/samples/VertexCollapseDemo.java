@@ -8,8 +8,6 @@
  */
 package edu.uci.ics.jung.samples;
 
-import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
-
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
@@ -93,7 +91,7 @@ public class VertexCollapseDemo extends JApplet {
 
     collapser = new GraphCollapser(graph);
 
-    layoutAlgorithm = new FRLayoutAlgorithm(POINT_MODEL);
+    layoutAlgorithm = new FRLayoutAlgorithm();
 
     Dimension preferredSize = new Dimension(400, 400);
 

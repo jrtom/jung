@@ -296,6 +296,7 @@ public class SpatialGrid<N> extends AbstractSpatial<N> implements Spatial<N> {
    */
   @Override
   public Collection<N> getVisibleNodes(Shape visibleArea) {
+    pickShapes.add(visibleArea);
     Area area = new Area(visibleArea);
     area.intersect(new Area(this.layoutArea));
     if (log.isTraceEnabled()) {

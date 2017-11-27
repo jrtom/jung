@@ -3,8 +3,6 @@
  */
 package edu.uci.ics.jung.samples;
 
-import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
-
 import com.google.common.graph.*;
 import edu.uci.ics.jung.algorithms.generators.random.EppsteinPowerLawGenerator;
 import edu.uci.ics.jung.algorithms.shortestpath.BFSDistanceLabeler;
@@ -47,7 +45,7 @@ public class ShortestPathDemo extends JPanel {
     this.mGraph = getGraph();
     setBackground(Color.WHITE);
     // show graph
-    final LayoutAlgorithm<String, Point2D> layoutAlgorithm = new FRLayoutAlgorithm<>(POINT_MODEL);
+    final LayoutAlgorithm<String, Point2D> layoutAlgorithm = new FRLayoutAlgorithm<>();
     final VisualizationViewer<String, Number> vv =
         new VisualizationViewer<>(mGraph, layoutAlgorithm);
     vv.setBackground(Color.WHITE);

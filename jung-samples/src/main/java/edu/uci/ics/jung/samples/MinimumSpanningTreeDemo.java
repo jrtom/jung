@@ -8,8 +8,6 @@
  */
 package edu.uci.ics.jung.samples;
 
-import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
-
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.algorithms.shortestpath.MinimumSpanningTree;
 import edu.uci.ics.jung.graph.util.TestGraphs;
@@ -72,9 +70,9 @@ public class MinimumSpanningTreeDemo extends JApplet {
 
     tree = MinimumSpanningTree.extractFrom(graph, e -> 1.0);
 
-    LayoutAlgorithm<String, Point2D> layout0 = new KKLayoutAlgorithm<>(POINT_MODEL);
-    LayoutAlgorithm<String, Point2D> layout1 = new TreeLayoutAlgorithm<>(POINT_MODEL);
-    LayoutAlgorithm<String, Point2D> layout2 = new StaticLayoutAlgorithm<>(POINT_MODEL);
+    LayoutAlgorithm<String, Point2D> layout0 = new KKLayoutAlgorithm<>();
+    LayoutAlgorithm<String, Point2D> layout1 = new TreeLayoutAlgorithm<>();
+    LayoutAlgorithm<String, Point2D> layout2 = new StaticLayoutAlgorithm<>();
 
     // create the two models, each with a different layout
     VisualizationModel<String, Number, Point2D> vm0 =

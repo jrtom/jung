@@ -12,17 +12,13 @@
 package edu.uci.ics.jung.visualization.control;
 
 import edu.uci.ics.jung.layout.model.LayoutModel;
-import edu.uci.ics.jung.visualization.Layer;
+import edu.uci.ics.jung.visualization.MultiLayerTransformer;
 import edu.uci.ics.jung.visualization.VisualizationModel;
 import edu.uci.ics.jung.visualization.VisualizationServer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.visualization.picking.PickedState;
-import java.awt.Color;
-import java.awt.Cursor;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Point;
+import java.awt.*;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -30,7 +26,9 @@ import java.awt.event.MouseMotionListener;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.Collection;
-import javax.swing.JComponent;
+import javax.swing.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * PickingGraphMousePlugin supports the picking of graph elements with the mouse. MouseButtonOne
@@ -43,6 +41,7 @@ import javax.swing.JComponent;
 public class PickingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
     implements MouseListener, MouseMotionListener {
 
+  private static final Logger log = LoggerFactory.getLogger(PickingGraphMousePlugin.class);
   /** the picked Vertex, if any */
   protected N vertex;
 
@@ -56,7 +55,9 @@ public class PickingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
   protected int addToSelectionModifiers;
 
   /** used to draw a rectangle to contain picked vertices */
-  protected Rectangle2D rect = new Rectangle2D.Float();
+  protected Rectangle2D viewRectangle = new Rectangle2D.Float();
+  // viewRectangle projected onto the layout coordinate system
+  protected Shape layoutTargetShape = viewRectangle;
 
   /** the Paintable for the lens picking rectangle */
   protected VisualizationServer.Paintable lensPaintable;
@@ -102,7 +103,7 @@ public class PickingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
     public void paint(Graphics g) {
       Color oldColor = g.getColor();
       g.setColor(lensColor);
-      ((Graphics2D) g).draw(rect);
+      ((Graphics2D) g).draw(viewRectangle);
       g.setColor(oldColor);
     }
 
@@ -131,29 +132,33 @@ public class PickingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
     PickedState<N> pickedVertexState = vv.getPickedVertexState();
     PickedState<E> pickedEdgeState = vv.getPickedEdgeState();
     if (pickSupport != null && pickedVertexState != null) {
-      VisualizationModel<N, E, Point2D> visualizationModel = vv.getModel();
-      if (e.getModifiers() == modifiers) {
-        rect.setFrameFromDiagonal(down, down);
-        // p is the screen point for the mouse event
-        Point2D ip = e.getPoint();
+      MultiLayerTransformer multiLayerTransformer =
+          vv.getRenderContext().getMultiLayerTransformer();
 
-        vertex = pickSupport.getNode(layoutModel, ip.getX(), ip.getY());
+      // subclass can override to account for view distortion effects
+      updatePickingTargets(vv, multiLayerTransformer, down, down);
+
+      // layoutPoint is the mouse event point projected on the layout coordinate system
+
+      // subclass can override to account for view distortion effects
+      Point2D layoutPoint = inverseTransform(vv, down);
+
+      if (e.getModifiers() == modifiers) {
+
+        vertex = pickSupport.getNode(layoutModel, layoutPoint);
         if (vertex != null) {
+          // picked a vertex
           if (pickedVertexState.isPicked(vertex) == false) {
             pickedVertexState.clear();
             pickedVertexState.pick(vertex, true);
           }
-          // layout.getLocation applies the layout Function so
-          // q is transformed by the layout Function only
-          Point2D q = visualizationModel.getLayoutModel().apply(vertex);
-          // transform the mouse point to graph coordinate system
-          Point2D gp =
-              vv.getRenderContext().getMultiLayerTransformer().inverseTransform(Layer.LAYOUT, ip);
 
-        } else if ((edge = pickSupport.getEdge(layoutModel, ip.getX(), ip.getY())) != null) {
+        } else if ((edge = pickSupport.getEdge(layoutModel, layoutPoint)) != null) {
+          // picked an edge
           pickedEdgeState.clear();
           pickedEdgeState.pick(edge, true);
         } else {
+          // prepare to draw a pick area and clear previous picks
           vv.addPostRenderPaintable(lensPaintable);
           pickedEdgeState.clear();
           pickedVertexState.clear();
@@ -161,23 +166,14 @@ public class PickingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
 
       } else if (e.getModifiers() == addToSelectionModifiers) {
         vv.addPostRenderPaintable(lensPaintable);
-        rect.setFrameFromDiagonal(down, down);
-        Point2D ip = e.getPoint();
-        vertex = pickSupport.getNode(layoutModel, ip.getX(), ip.getY());
+
+        vertex = pickSupport.getNode(layoutModel, layoutPoint);
         if (vertex != null) {
           boolean wasThere = pickedVertexState.pick(vertex, !pickedVertexState.isPicked(vertex));
           if (wasThere) {
             vertex = null;
-          } else {
-
-            // layout.getLocation applies the layout Function so
-            // q is transformed by the layout Function only
-            Point2D q = visualizationModel.getLayoutModel().apply(vertex);
-            // translate mouse point to graph coord system
-            Point2D gp =
-                vv.getRenderContext().getMultiLayerTransformer().inverseTransform(Layer.LAYOUT, ip);
           }
-        } else if ((edge = pickSupport.getEdge(layoutModel, ip.getX(), ip.getY())) != null) {
+        } else if ((edge = pickSupport.getEdge(layoutModel, layoutPoint)) != null) {
           pickedEdgeState.pick(edge, !pickedEdgeState.isPicked(edge));
         }
       }
@@ -195,13 +191,14 @@ public class PickingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
   @SuppressWarnings("unchecked")
   public void mouseReleased(MouseEvent e) {
     VisualizationViewer<N, E> vv = (VisualizationViewer<N, E>) e.getSource();
+    MultiLayerTransformer multiLayerTransformer = vv.getRenderContext().getMultiLayerTransformer();
 
     if (e.getModifiers() == modifiers) {
       if (down != null) {
         Point2D out = e.getPoint();
 
         if (vertex == null && heyThatsTooClose(down, out, 5) == false) {
-          pickContainedVertices(vv, down, out, true);
+          pickContainedVertices(vv, layoutTargetShape, true);
         }
       }
     } else if (e.getModifiers() == this.addToSelectionModifiers) {
@@ -209,14 +206,15 @@ public class PickingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
         Point2D out = e.getPoint();
 
         if (vertex == null && heyThatsTooClose(down, out, 5) == false) {
-          pickContainedVertices(vv, down, out, false);
+          pickContainedVertices(vv, layoutTargetShape, false);
         }
       }
     }
     down = null;
     vertex = null;
     edge = null;
-    rect.setFrame(0, 0, 0, 0);
+    viewRectangle.setFrame(0, 0, 0, 0);
+    layoutTargetShape = multiLayerTransformer.inverseTransform(viewRectangle);
     vv.removePostRenderPaintable(lensPaintable);
     vv.repaint();
   }
@@ -229,26 +227,31 @@ public class PickingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
   public void mouseDragged(MouseEvent e) {
     if (locked == false) {
       VisualizationViewer<N, E> vv = (VisualizationViewer<N, E>) e.getSource();
+      MultiLayerTransformer multiLayerTransformer =
+          vv.getRenderContext().getMultiLayerTransformer();
+
       if (vertex != null) {
+        // dragging points and changing their layout locations
         Point p = e.getPoint();
-        Point2D graphPoint = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(p);
-        Point2D graphDown = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(down);
+        Point2D graphPoint = multiLayerTransformer.inverseTransform(p);
+        Point2D graphDown = multiLayerTransformer.inverseTransform(down);
         VisualizationModel<N, E, Point2D> visualizationModel = vv.getModel();
+        LayoutModel<N, Point2D> layoutModel = visualizationModel.getLayoutModel();
         double dx = graphPoint.getX() - graphDown.getX();
         double dy = graphPoint.getY() - graphDown.getY();
         PickedState<N> ps = vv.getPickedVertexState();
 
         for (N v : ps.getPicked()) {
-          Point2D vp = visualizationModel.getLayoutModel().apply(v);
+          Point2D vp = layoutModel.apply(v);
           vp.setLocation(vp.getX() + dx, vp.getY() + dy);
-          visualizationModel.getLayoutModel().set(v, vp);
+          layoutModel.set(v, vp);
         }
         down = p;
 
       } else {
         Point2D out = e.getPoint();
         if (e.getModifiers() == this.addToSelectionModifiers || e.getModifiers() == modifiers) {
-          rect.setFrameFromDiagonal(down, out);
+          updatePickingTargets(vv, multiLayerTransformer, down, out);
         }
       }
       if (vertex != null) {
@@ -272,20 +275,63 @@ public class PickingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
   }
 
   /**
+   * override to consider Lens effects
+   *
+   * @param vv
+   * @param p
+   * @return
+   */
+  protected Point2D inverseTransform(VisualizationViewer<N, E> vv, Point2D p) {
+    MultiLayerTransformer multiLayerTransformer = vv.getRenderContext().getMultiLayerTransformer();
+    return multiLayerTransformer.inverseTransform(p);
+  }
+
+  /**
+   * override to consider Lens effects
+   *
+   * @param vv
+   * @param shape
+   * @return
+   */
+  protected Shape transform(VisualizationViewer<N, E> vv, Shape shape) {
+    MultiLayerTransformer multiLayerTransformer = vv.getRenderContext().getMultiLayerTransformer();
+    return multiLayerTransformer.inverseTransform(shape);
+  }
+
+  /**
+   * override to consider Lens effects
+   *
+   * @param vv
+   * @param multiLayerTransformer
+   * @param down
+   * @param out
+   */
+  protected void updatePickingTargets(
+      VisualizationViewer vv,
+      MultiLayerTransformer multiLayerTransformer,
+      Point2D down,
+      Point2D out) {
+    viewRectangle.setFrameFromDiagonal(down, out);
+
+    layoutTargetShape = multiLayerTransformer.inverseTransform(viewRectangle);
+
+    if (log.isTraceEnabled()) {
+      log.trace("viewRectangle {}", viewRectangle);
+      log.trace("layoutTargetShape bounds {}", layoutTargetShape.getBounds());
+    }
+  }
+
+  /**
    * pick the vertices inside the rectangle created from points 'down' and 'out' (two diagonally
    * opposed corners of the rectangle)
    *
    * @param vv the viewer containing the layout and picked state
-   * @param down one corner of the rectangle
-   * @param out the other corner of the rectangle
+   * @param pickTarget - the shape to pick vertices in (layout coordinate system)
    * @param clear whether to reset existing picked state
    */
   protected void pickContainedVertices(
-      VisualizationViewer<N, E> vv, Point2D down, Point2D out, boolean clear) {
+      VisualizationViewer<N, E> vv, Shape pickTarget, boolean clear) {
     PickedState<N> pickedVertexState = vv.getPickedVertexState();
-
-    Rectangle2D pickRectangle = new Rectangle2D.Double();
-    pickRectangle.setFrameFromDiagonal(down, out);
 
     if (pickedVertexState != null) {
       if (clear) {
@@ -293,7 +339,7 @@ public class PickingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
       }
       NetworkElementAccessor<N, E> pickSupport = vv.getPickSupport();
       LayoutModel<N, Point2D> layoutModel = vv.getModel().getLayoutModel();
-      Collection<N> picked = pickSupport.getNodes(layoutModel, pickRectangle);
+      Collection<N> picked = pickSupport.getNodes(layoutModel, pickTarget);
       for (N v : picked) {
         pickedVertexState.pick(v, true);
       }

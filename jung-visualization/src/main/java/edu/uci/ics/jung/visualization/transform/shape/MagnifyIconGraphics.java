@@ -41,7 +41,7 @@ public class MagnifyIconGraphics extends TransformingFlatnessGraphics {
       int w = icon.getIconWidth();
       int h = icon.getIconHeight();
       Rectangle2D r = new Rectangle2D.Double(x - w / 2, y - h / 2, w, h);
-      Shape lens = mst.getLensShape();
+      Shape lens = mst.getLens().getLensShape();
       if (lens.intersects(r)) {
         // magnify the whole icon
         Rectangle2D s = mst.magnify(r).getBounds2D();

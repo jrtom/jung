@@ -8,8 +8,6 @@
  */
 package edu.uci.ics.jung.samples;
 
-import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
-
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
@@ -109,7 +107,7 @@ public class DemoLensVertexImageShaperDemo extends JApplet {
       }
     }
 
-    FRLayoutAlgorithm<Integer, Point2D> layout = new FRLayoutAlgorithm<>(POINT_MODEL);
+    FRLayoutAlgorithm<Integer, Point2D> layout = new FRLayoutAlgorithm<>();
     layout.setMaxIterations(100);
     vv = new VisualizationViewer<>(graph, layout, new Dimension(600, 600));
 

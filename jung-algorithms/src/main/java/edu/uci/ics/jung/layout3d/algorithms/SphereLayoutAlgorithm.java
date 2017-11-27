@@ -15,7 +15,6 @@ package edu.uci.ics.jung.layout3d.algorithms;
 import com.google.common.collect.Maps;
 import edu.uci.ics.jung.layout.algorithms.AbstractLayoutAlgorithm;
 import edu.uci.ics.jung.layout.model.LayoutModel;
-import edu.uci.ics.jung.layout.model.PointModel;
 import java.util.Collection;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -34,15 +33,9 @@ public class SphereLayoutAlgorithm<N, P> extends AbstractLayoutAlgorithm<N, P>
 
   private Map<P, Integer> sphereLocations = Maps.newHashMap();
 
-  //  private List<N> node_ordered_list;
-
-  public SphereLayoutAlgorithm(PointModel<P> pointModel) {
-    super(pointModel);
-  }
-
   @Override
   public void visit(LayoutModel<N, P> layoutModel) {
-
+    super.visit(layoutModel);
     float width = layoutModel.getWidth();
     float height = layoutModel.getHeight();
     float depth = layoutModel.getDepth();

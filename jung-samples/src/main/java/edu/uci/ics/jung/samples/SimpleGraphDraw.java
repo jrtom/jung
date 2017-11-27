@@ -7,8 +7,6 @@
  */
 package edu.uci.ics.jung.samples;
 
-import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
-
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
@@ -28,7 +26,7 @@ public class SimpleGraphDraw {
   public static void main(String[] args) throws IOException {
     JFrame jf = new JFrame();
     Network g = getGraph();
-    LayoutAlgorithm layoutAlgorithm = new FRLayoutAlgorithm(POINT_MODEL);
+    LayoutAlgorithm layoutAlgorithm = new FRLayoutAlgorithm();
     VisualizationViewer vv = new VisualizationViewer(g, layoutAlgorithm);
     jf.getContentPane().add(vv);
     jf.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
