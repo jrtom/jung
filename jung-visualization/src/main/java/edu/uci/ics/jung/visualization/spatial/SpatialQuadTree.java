@@ -399,26 +399,26 @@ public class SpatialQuadTree<N> extends AbstractSpatial<N> implements Spatial<N>
    * @return the node closest to x,y
    */
   public N getClosestNode(double x, double y) {
-    double maxRadius =
-        Math.sqrt(
-            layoutModel.getWidth() * layoutModel.getWidth()
-                + layoutModel.getHeight() * layoutModel.getHeight());
     SpatialQuadTree<N> leaf = getContainingQuadTreeLeaf(x, y);
     Rectangle2D area = leaf.area;
     double radius = area.getWidth();
     N closest = null;
-    while (radius <= maxRadius) {
+    while (closest == null) {
+
       double diameter = radius * 2;
 
       Ellipse2D searchArea = new Ellipse2D.Double(x - radius, y - radius, diameter, diameter);
 
       Collection<N> nodes = getVisibleNodes(searchArea);
-      //      log.trace("visible nodes in {} are {}", area, nodes);
       closest = getClosest(nodes, x, y, radius);
-      if (closest != null) {
-        //        log.trace("closest found is {} when radius was {}", closest, radius);
+
+      // if I have already considered all of the nodes in the graph
+      // (in the spatialquadtree) there is no reason to enlarge the
+      // area and try again
+      if (nodes.size() >= layoutModel.getGraph().nodes().size()) {
         break;
       }
+      // double the search area size and try again
       radius *= 2;
     }
     return closest;
@@ -436,6 +436,8 @@ public class SpatialQuadTree<N> extends AbstractSpatial<N> implements Spatial<N>
         Point2D loc = layoutModel.apply(node);
         double dist = loc.distanceSq(x, y);
 
+        // consider only nodes that are inside the search radius
+        // and are closer than previously found nodes
         if (dist < radiusSq && dist < closestSoFar) {
           closestSoFar = dist;
           winner = node;
