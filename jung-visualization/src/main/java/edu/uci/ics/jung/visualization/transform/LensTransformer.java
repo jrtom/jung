@@ -74,38 +74,4 @@ public abstract class LensTransformer extends MutableTransformerDecorator
 
   /** override base class to un-project the fisheye effect */
   public abstract Point2D inverseTransform(Point2D viewPoint);
-
-  //  /**
-  //   * return the supplied shape, translated to the coordinates that result from calling transform on
-  //   * its center
-  //   */
-  //  public Shape transform(Shape shape) {
-  //    if (log.isTraceEnabled()) {
-  //      log.trace("transform {}", shape);
-  //    }
-  //    Rectangle2D bounds = shape.getBounds2D();
-  //    Point2D center = new Point2D.Double(bounds.getCenterX(), bounds.getCenterY());
-  //    Point2D newCenter = transform(center);
-  //    double dx = newCenter.getX() - center.getX();
-  //    double dy = newCenter.getY() - center.getY();
-  //    AffineTransform at = AffineTransform.getTranslateInstance(dx, dy);
-  //    return at.createTransformedShape(shape);
-  //  }
-  //
-  //  /**
-  //   * Returns the supplied shape, translated to the coordinates that result from calling
-  //   * inverseTransform on its center.
-  //   */
-  //  public Shape inverseTransform(Shape shape) {
-  //    if (log.isTraceEnabled()) {
-  //      log.trace("inverseTransform {}", shape);
-  //    }
-  //    Rectangle2D bounds = shape.getBounds2D();
-  //    Point2D center = new Point2D.Double(bounds.getCenterX(), bounds.getCenterY());
-  //    Point2D newCenter = inverseTransform(center);
-  //    double dx = newCenter.getX() - center.getX();
-  //    double dy = newCenter.getY() - center.getY();
-  //    AffineTransform at = AffineTransform.getTranslateInstance(dx, dy);
-  //    return at.createTransformedShape(shape);
-  //  }
 }
