@@ -58,7 +58,7 @@ import org.slf4j.LoggerFactory;
  * @author Tom Nelson
  */
 @SuppressWarnings("serial")
-public class SpatialLensDemo extends JApplet {
+public class SpatialLensDemo extends JPanel {
 
   private static final Logger log = LoggerFactory.getLogger(SpatialLensDemo.class);
   /** the graph */
@@ -83,7 +83,7 @@ public class SpatialLensDemo extends JApplet {
 
   /** create an instance of a simple graph with controls to demo the zoomand hyperbolic features. */
   public SpatialLensDemo() {
-
+    setLayout(new BorderLayout());
     graph = //buildOneNode();
         TestGraphs.createTestGraph(false);
 
@@ -116,9 +116,8 @@ public class SpatialLensDemo extends JApplet {
     // add a listener for ToolTips
     //    vv.setVertexToolTipTransformer(Object::toString);
 
-    Container content = getContentPane();
     GraphZoomScrollPane gzsp = new GraphZoomScrollPane(vv);
-    content.add(gzsp);
+    add(gzsp);
 
     // the regular graph mouse for the normal view
     final DefaultModalGraphMouse<String, Number> graphMouse = new DefaultModalGraphMouse<>();
@@ -270,15 +269,14 @@ public class SpatialLensDemo extends JApplet {
     Box controls = Box.createHorizontalBox();
     JPanel zoomControls = new JPanel(new GridLayout(2, 1));
     JPanel modeControls = new JPanel(new GridLayout(2, 1));
-    JPanel leftControls = new JPanel(new BorderLayout());
-    //    zoomControls.setBorder(BorderFactory.createTitledBorder("Zoom"));
+    JPanel leftControls = new JPanel();
     JPanel hyperControls = new JPanel(new GridLayout(3, 2));
     hyperControls.setBorder(BorderFactory.createTitledBorder("Examiner Lens"));
     zoomControls.add(plus);
     zoomControls.add(minus);
     modeControls.add(showSpatialEffects);
     modeControls.add(modeBox);
-    leftControls.add(zoomControls, BorderLayout.WEST);
+    leftControls.add(zoomControls);
     leftControls.add(modeControls);
 
     hyperControls.add(normal);
@@ -293,9 +291,7 @@ public class SpatialLensDemo extends JApplet {
     controls.add(leftControls);
     controls.add(hyperControls);
     controls.add(modeLabel);
-    //    controls.add(modeBox);
-    //    controls.add(showSpatialEffects);
-    content.add(controls, BorderLayout.SOUTH);
+    add(controls, BorderLayout.SOUTH);
   }
 
   static class VerticalLabelUI extends BasicLabelUI {
