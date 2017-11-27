@@ -84,54 +84,6 @@ public class LensTranslatingGraphMousePlugin extends TranslatingGraphMousePlugin
     super.mousePressed(e);
   }
 
-  //  /**
-  //   * called to change the location of the lens
-  //   *
-  //   * @param transformer
-  //   * @param point
-  //   */
-  //  private void setViewCenter(MutableTransformer transformer, Point2D point) {
-  //    if (transformer instanceof LensTransformer) {
-  //      LensTransformer ht = (LensTransformer) transformer;
-  //      ht.getLens().setViewCenter(point);
-  //    }
-  //  }
-  //
-  //  /**
-  //   * called to change the radius of the lens
-  //   *
-  //   * @param transformer
-  //   * @param point
-  //   */
-  //  private void setViewRadius(MutableTransformer transformer, Point2D point) {
-  //    if (transformer instanceof LensTransformer) {
-  //      LensTransformer ht = (LensTransformer) transformer;
-  //      double distanceFromCenter = ht.getDistanceFromCenter(point);
-  //      ht.setViewRadius(distanceFromCenter + edgeOffset);
-  //    }
-  //  }
-  //
-  //  /**
-  //   * called to set up translating the lens center or changing the layoutSize
-  //   *
-  //   * @param Function
-  //   * @param point
-  //   */
-  //  private void testViewCenter(MutableTransformer transformer, Point2D point) {
-  //    if (transformer instanceof LensTransformer) {
-  //      LensTransformer ht = (LensTransformer) transformer;
-  //      double distanceFromCenter = ht.getDistanceFromCenter(point);
-  //      if (distanceFromCenter < 10) {
-  //        ht.setViewCenter(point);
-  //        dragOnLens = true;
-  //      } else if (Math.abs(distanceFromCenter - ht.getViewRadius()) < 10) {
-  //        edgeOffset = ht.getViewRadius() - distanceFromCenter;
-  //        ht.setViewRadius(distanceFromCenter + edgeOffset);
-  //        dragOnEdge = true;
-  //      }
-  //    }
-  //  }
-
   /**
    * called to change the location of the lens
    *
@@ -223,18 +175,6 @@ public class LensTranslatingGraphMousePlugin extends TranslatingGraphMousePlugin
         } else {
 
           super.mouseDragged(e);
-          //              MutableTransformer mt =
-          //                      vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT);
-          //              Point2D iq = vt.inverseTransform(down);
-          //              iq = mt.inverseTransform(iq);
-          //              Point2D ip = vt.inverseTransform(e.getPoint());
-          //              ip = mt.inverseTransform(ip);
-          //              float dx = (float) (ip.getX() - iq.getX());
-          //              float dy = (float) (ip.getY() - iq.getY());
-          //
-          //              modelTransformer.translate(dx, dy);
-          //              down.x = e.getX();
-          //              down.y = e.getY();
         }
       }
     }
