@@ -8,6 +8,7 @@
  */
 package edu.uci.ics.jung.visualization.transform;
 
+import edu.uci.ics.jung.visualization.VisualizationServer;
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
@@ -41,7 +42,7 @@ public class Lens {
   public void setSize(Dimension d) {
 
     if (d.width <= 0 || d.height <= 0) {
-      d = new Dimension(600, 600);
+      d = VisualizationServer.DEFAULT_SIZE;
     }
     float ewidth = d.width / 1.5f;
     float eheight = d.height / 1.5f;

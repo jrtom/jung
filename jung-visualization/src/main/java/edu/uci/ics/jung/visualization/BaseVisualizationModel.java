@@ -68,7 +68,7 @@ public class BaseVisualizationModel<N, E>
    */
   public BaseVisualizationModel(
       Network<N, E> network, LayoutAlgorithm<N, Point2D> layoutAlgorithm) {
-    this(network, layoutAlgorithm, null, DEFAULT_SIZE);
+    this(network, layoutAlgorithm, null, VisualizationServer.DEFAULT_SIZE);
   }
 
   public BaseVisualizationModel(
@@ -162,9 +162,6 @@ public class BaseVisualizationModel<N, E>
   public void setLayoutAlgorithm(LayoutAlgorithm<N, Point2D> layoutAlgorithm) {
     this.layoutAlgorithm = layoutAlgorithm;
     log.trace("setLayoutAlgorithm to " + layoutAlgorithm);
-    //    if (layoutModel instanceof Caching) {
-    //      ((Caching) layoutModel).clear();
-    //    }
     layoutModel.accept(layoutAlgorithm);
   }
 
