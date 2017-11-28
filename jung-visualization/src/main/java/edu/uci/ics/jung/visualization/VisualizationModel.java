@@ -20,8 +20,6 @@ import javax.swing.event.ChangeListener;
 /** */
 public interface VisualizationModel<N, E, P> extends LayoutModelAware<N, E, P> {
 
-  Dimension DEFAULT_SIZE = new Dimension(600, 600);
-
   /** @return the current layoutSize of the visualization's space */
   Dimension getLayoutSize();
 
