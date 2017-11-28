@@ -33,10 +33,7 @@ public class SimpleVertexSupport<N, E> implements VertexSupport<N, E> {
     graph.addNode(newVertex);
     visualizationModel
         .getLayoutModel()
-        .set(
-            newVertex,
-            vv.getRenderContext().getMultiLayerTransformer().inverseTransform(point),
-            true);
+        .set(newVertex, vv.getRenderContext().getMultiLayerTransformer().inverseTransform(point));
     vv.repaint();
   }
 

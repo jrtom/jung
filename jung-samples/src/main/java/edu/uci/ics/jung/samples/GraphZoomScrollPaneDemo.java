@@ -12,20 +12,14 @@ import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
 import edu.uci.ics.jung.layout.algorithms.KKLayoutAlgorithm;
-import edu.uci.ics.jung.layout.model.PointModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
-import edu.uci.ics.jung.visualization.control.AbstractModalGraphMouse;
-import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
-import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
-import edu.uci.ics.jung.visualization.control.GraphMouseListener;
-import edu.uci.ics.jung.visualization.control.ScalingControl;
-import edu.uci.ics.jung.visualization.layout.AWTPointModel;
-import edu.uci.ics.jung.visualization.renderers.*;
+import edu.uci.ics.jung.visualization.control.*;
+import edu.uci.ics.jung.visualization.renderers.BasicVertexLabelRenderer;
+import edu.uci.ics.jung.visualization.renderers.GradientVertexRenderer;
 import java.awt.*;
 import java.awt.event.MouseEvent;
-import java.awt.geom.Point2D;
 import javax.swing.*;
 
 /**
@@ -39,8 +33,6 @@ import javax.swing.*;
  * @author Tom Nelson
  */
 public class GraphZoomScrollPaneDemo {
-
-  private static final PointModel<Point2D> POINT_MODEL = new AWTPointModel();
 
   /** the graph */
   Network<Integer, Number> graph;
@@ -62,7 +54,7 @@ public class GraphZoomScrollPaneDemo {
       System.err.println("Can't load \"" + imageLocation + "\"");
     }
     final ImageIcon icon = sandstoneIcon;
-    vv = new VisualizationViewer<>(graph, new KKLayoutAlgorithm<>(POINT_MODEL));
+    vv = new VisualizationViewer<>(graph, new KKLayoutAlgorithm<>());
 
     if (icon != null) {
       vv.addPreRenderPaintable(

@@ -1,5 +1,7 @@
 package edu.uci.ics.jung.visualization.layout;
 
+import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
+
 import com.google.common.collect.Sets;
 import com.google.common.graph.Graph;
 import edu.uci.ics.jung.graph.CTreeNetwork;
@@ -12,7 +14,6 @@ import edu.uci.ics.jung.layout.algorithms.SpringLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.immutable.KKLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.immutable.TreeLayoutAlgorithm;
 import edu.uci.ics.jung.layout.model.LoadingCacheLayoutModel;
-import edu.uci.ics.jung.layout.model.PointModel;
 import java.awt.geom.Point2D;
 import java.util.Collection;
 import java.util.Set;
@@ -28,23 +29,31 @@ public class LayoutAlgorithmTestAWT {
 
   Graph<String> graph;
   LoadingCacheLayoutModel<String, Point2D> layoutModel;
-  PointModel<Point2D> pointModel = new AWTPointModel();
 
   @Test
   public void testLayoutAlgorithms() {
     graph = TestGraphs.getDemoGraph().asGraph();
-    layoutModel = new LoadingCacheLayoutModel<>(graph, pointModel, 500, 500, 0);
-    testLayoutAlgorithm(new SpringLayoutAlgorithm<String, Point2D>(pointModel));
-    testLayoutAlgorithm(new KKLayoutAlgorithm<String, Point2D>(pointModel));
-    //            testLayoutAlgorithm(new ISOMLayoutAlgorithm<String, Point2D>(pointModel));
-    testLayoutAlgorithm(new CircleLayoutAlgorithm<String, Point2D>(pointModel));
+    layoutModel =
+        LoadingCacheLayoutModel.<String, Point2D>builder()
+            .setGraph(graph)
+            .setPointModel(POINT_MODEL)
+            .setSize(500, 500)
+            .build();
+    testLayoutAlgorithm(new SpringLayoutAlgorithm<>());
+    testLayoutAlgorithm(new KKLayoutAlgorithm<>());
+    testLayoutAlgorithm(new CircleLayoutAlgorithm<>());
   }
 
   @Test
   public void testTreeLayoutAlgorithms() {
     graph = createTree().asGraph();
-    layoutModel = new LoadingCacheLayoutModel<>(graph, pointModel, 500, 500, 0);
-    testLayoutAlgorithm(new TreeLayoutAlgorithm<String, Point2D>(pointModel));
+    layoutModel =
+        LoadingCacheLayoutModel.<String, Point2D>builder()
+            .setGraph(graph)
+            .setPointModel(POINT_MODEL)
+            .setSize(500, 500)
+            .build();
+    testLayoutAlgorithm(new TreeLayoutAlgorithm<>());
   }
 
   private void testLayoutAlgorithm(LayoutAlgorithm<String, Point2D> layoutAlgorithm) {

@@ -20,7 +20,6 @@ import edu.uci.ics.jung.graph.util.Graphs;
 import edu.uci.ics.jung.layout.algorithms.FRLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
 import edu.uci.ics.jung.layout.model.LayoutModel;
-import edu.uci.ics.jung.layout.model.PointModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
@@ -28,12 +27,7 @@ import edu.uci.ics.jung.visualization.control.AbstractPopupGraphMousePlugin;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
-import edu.uci.ics.jung.visualization.decorators.AbstractVertexShapeTransformer;
-import edu.uci.ics.jung.visualization.decorators.EdgeShape;
-import edu.uci.ics.jung.visualization.decorators.GradientEdgePaintTransformer;
-import edu.uci.ics.jung.visualization.decorators.NumberFormattingTransformer;
-import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
-import edu.uci.ics.jung.visualization.layout.AWTPointModel;
+import edu.uci.ics.jung.visualization.decorators.*;
 import edu.uci.ics.jung.visualization.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.visualization.picking.PickedInfo;
 import edu.uci.ics.jung.visualization.picking.PickedState;
@@ -41,27 +35,13 @@ import edu.uci.ics.jung.visualization.renderers.BasicEdgeArrowRenderingSupport;
 import edu.uci.ics.jung.visualization.renderers.CenterEdgeArrowRenderingSupport;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
 import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
-import java.awt.BasicStroke;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.GradientPaint;
-import java.awt.GridLayout;
-import java.awt.Paint;
-import java.awt.Shape;
-import java.awt.Stroke;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.Point2D;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -151,8 +131,6 @@ import javax.swing.*;
 @SuppressWarnings("serial")
 public class PluggableRendererDemo extends JApplet implements ActionListener {
 
-  private static final PointModel<Point2D> POINT_MODEL = new AWTPointModel();
-
   protected JCheckBox v_color;
   protected JCheckBox e_color;
   protected JCheckBox v_stroke;
@@ -227,7 +205,7 @@ public class PluggableRendererDemo extends JApplet implements ActionListener {
   public JPanel startFunction() {
     this.graph = buildGraph();
 
-    LayoutAlgorithm<Integer, Point2D> layoutAlgorithm = new FRLayoutAlgorithm<>(POINT_MODEL);
+    LayoutAlgorithm<Integer, Point2D> layoutAlgorithm = new FRLayoutAlgorithm<>();
     vv = new VisualizationViewer<>(graph, layoutAlgorithm);
 
     //    vv.getRenderer().setVertexRenderer(new CachingVertexRenderer<Integer, Number>(vv));

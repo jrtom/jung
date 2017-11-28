@@ -14,7 +14,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 import edu.uci.ics.jung.graph.util.TreeUtils;
 import edu.uci.ics.jung.layout.model.LayoutModel;
-import edu.uci.ics.jung.layout.model.PointModel;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -51,8 +50,8 @@ public class TreeLayoutAlgorithm<N, P> extends AbstractLayoutAlgorithm<N, P> {
   protected transient P m_currentPoint;
 
   /** Creates an instance for the specified graph with default X and Y distances. */
-  public TreeLayoutAlgorithm(PointModel<P> pointModel) {
-    this(pointModel, DEFAULT_DISTX, DEFAULT_DISTY);
+  public TreeLayoutAlgorithm() {
+    this(DEFAULT_DISTX, DEFAULT_DISTY);
   }
 
   /**
@@ -60,8 +59,8 @@ public class TreeLayoutAlgorithm<N, P> extends AbstractLayoutAlgorithm<N, P> {
    *
    * @param distx the horizontal spacing between adjacent siblings
    */
-  public TreeLayoutAlgorithm(PointModel<P> pointModel, int distx) {
-    this(pointModel, distx, DEFAULT_DISTY);
+  public TreeLayoutAlgorithm(int distx) {
+    this(distx, DEFAULT_DISTY);
   }
 
   /**
@@ -70,8 +69,7 @@ public class TreeLayoutAlgorithm<N, P> extends AbstractLayoutAlgorithm<N, P> {
    * @param distx the horizontal spacing between adjacent siblings
    * @param disty the vertical spacing between adjacent siblings
    */
-  public TreeLayoutAlgorithm(PointModel<P> pointModel, int distx, int disty) {
-    super(pointModel);
+  public TreeLayoutAlgorithm(int distx, int disty) {
     Preconditions.checkArgument(distx >= 1, "X distance must be positive");
     Preconditions.checkArgument(disty >= 1, "Y distance must be positive");
     this.distX = distx;
@@ -80,6 +78,7 @@ public class TreeLayoutAlgorithm<N, P> extends AbstractLayoutAlgorithm<N, P> {
   }
 
   public void visit(LayoutModel<N, P> layoutModel) {
+    super.visit(layoutModel);
     buildTree(layoutModel);
   }
 
@@ -188,7 +187,7 @@ public class TreeLayoutAlgorithm<N, P> extends AbstractLayoutAlgorithm<N, P> {
    * @param location
    */
   protected void setLocation(LayoutModel<N, P> layoutModel, N node, P location) {
-    layoutModel.set(node, location, true);
+    layoutModel.set(node, location);
   }
 
   public boolean isLocked(N node) {

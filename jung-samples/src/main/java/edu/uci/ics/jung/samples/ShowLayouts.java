@@ -17,7 +17,6 @@ import edu.uci.ics.jung.layout.algorithms.immutable.FRLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.immutable.ISOMLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.immutable.KKLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.immutable.SpringLayoutAlgorithm;
-import edu.uci.ics.jung.layout.model.PointModel;
 import edu.uci.ics.jung.layout.util.LayoutAlgorithmTransition;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
@@ -25,12 +24,10 @@ import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
-import edu.uci.ics.jung.visualization.layout.AWTPointModel;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.geom.Point2D;
 import java.util.function.Supplier;
 import javax.swing.*;
 
@@ -43,7 +40,7 @@ import javax.swing.*;
  */
 @SuppressWarnings("serial")
 public class ShowLayouts extends JApplet {
-  private static final PointModel<Point2D> POINT_MODEL = new AWTPointModel();
+
   protected static Network[] g_array;
   protected static int graph_index;
   protected static String[] graph_names = {
@@ -210,15 +207,15 @@ public class ShowLayouts extends JApplet {
   private static LayoutAlgorithm createLayout(Layouts layoutType) {
     switch (layoutType) {
       case CIRCLE:
-        return new CircleLayoutAlgorithm(POINT_MODEL);
+        return new CircleLayoutAlgorithm();
       case FRUCHTERMAN_REINGOLD:
-        return new FRLayoutAlgorithm(POINT_MODEL);
+        return new FRLayoutAlgorithm();
       case KAMADA_KAWAI:
-        return new KKLayoutAlgorithm(POINT_MODEL);
+        return new KKLayoutAlgorithm();
       case SELF_ORGANIZING_MAP:
-        return new ISOMLayoutAlgorithm(POINT_MODEL);
+        return new ISOMLayoutAlgorithm();
       case SPRING:
-        return new SpringLayoutAlgorithm(POINT_MODEL);
+        return new SpringLayoutAlgorithm();
       default:
         throw new IllegalArgumentException("Unrecognized layout type");
     }

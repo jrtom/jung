@@ -8,6 +8,8 @@
  */
 package edu.uci.ics.jung.samples;
 
+import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
+
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
@@ -16,25 +18,16 @@ import edu.uci.ics.jung.layout.algorithms.FRLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.StaticLayoutAlgorithm;
 import edu.uci.ics.jung.layout.model.LayoutModel;
-import edu.uci.ics.jung.layout.model.PointModel;
 import edu.uci.ics.jung.layout.util.LayoutAlgorithmTransition;
 import edu.uci.ics.jung.layout.util.RandomLocationTransformer;
-import edu.uci.ics.jung.visualization.BaseVisualizationModel;
-import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
-import edu.uci.ics.jung.visualization.Layer;
-import edu.uci.ics.jung.visualization.VisualizationModel;
-import edu.uci.ics.jung.visualization.VisualizationViewer;
-import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
-import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
-import edu.uci.ics.jung.visualization.control.LensMagnificationGraphMousePlugin;
-import edu.uci.ics.jung.visualization.control.ModalLensGraphMouse;
-import edu.uci.ics.jung.visualization.control.ScalingControl;
+import edu.uci.ics.jung.visualization.*;
+import edu.uci.ics.jung.visualization.control.*;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
-import edu.uci.ics.jung.visualization.layout.AWTPointModel;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import edu.uci.ics.jung.visualization.transform.HyperbolicTransformer;
 import edu.uci.ics.jung.visualization.transform.LayoutLensSupport;
+import edu.uci.ics.jung.visualization.transform.Lens;
 import edu.uci.ics.jung.visualization.transform.LensSupport;
 import edu.uci.ics.jung.visualization.transform.MagnifyTransformer;
 import edu.uci.ics.jung.visualization.transform.shape.HyperbolicShapeTransformer;
@@ -60,8 +53,6 @@ import javax.swing.plaf.basic.BasicLabelUI;
  */
 @SuppressWarnings("serial")
 public class LensDemo extends JApplet {
-
-  private static final PointModel<Point2D> POINT_MODEL = new AWTPointModel();
 
   /** the graph */
   Network<String, Number> graph;
@@ -94,14 +85,14 @@ public class LensDemo extends JApplet {
     // create a simple graph for the demo
     graph = TestGraphs.getOneComponentGraph();
 
-    graphLayoutAlgorithm = new FRLayoutAlgorithm<>(POINT_MODEL);
+    graphLayoutAlgorithm = new FRLayoutAlgorithm<>();
     graphLayoutAlgorithm.setMaxIterations(1000);
 
     Dimension preferredSize = new Dimension(600, 600);
     Map<String, Point2D> map = new HashMap<>();
     Function<String, Point2D> vlf = map::get;
     grid = this.generateVertexGrid(map, preferredSize, 25);
-    gridLayoutAlgorithm = new StaticLayoutAlgorithm<>(POINT_MODEL);
+    gridLayoutAlgorithm = new StaticLayoutAlgorithm<>();
 
     final VisualizationModel<String, Number, Point2D> visualizationModel =
         new BaseVisualizationModel<>(graph, graphLayoutAlgorithm, preferredSize);
@@ -135,39 +126,51 @@ public class LensDemo extends JApplet {
     vv.setGraphMouse(graphMouse);
     vv.addKeyListener(graphMouse.getModeKeyListener());
 
+    // create a lens to share between the two hyperbolic transformers
+    Lens lens = new Lens(vv);
     hyperbolicViewSupport =
         new ViewLensSupport<>(
             vv,
             new HyperbolicShapeTransformer(
-                vv, vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.VIEW)),
+                lens, vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.VIEW)),
             new ModalLensGraphMouse());
     hyperbolicLayoutSupport =
         new LayoutLensSupport<>(
             vv,
             new HyperbolicTransformer(
-                vv, vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT)),
+                lens,
+                vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT)),
             new ModalLensGraphMouse());
+
+    // the magnification lens uses a different magnification than the hyperbolic lens
+    // create a new one to share between the two magnigy transformers
+    lens = new Lens(vv);
+    lens.setMagnification(3.f);
     magnifyViewSupport =
         new ViewLensSupport<>(
             vv,
             new MagnifyShapeTransformer(
-                vv, vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.VIEW)),
+                lens, vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.VIEW)),
             new ModalLensGraphMouse(new LensMagnificationGraphMousePlugin(1.f, 6.f, .2f)));
     magnifyLayoutSupport =
         new LayoutLensSupport<>(
             vv,
             new MagnifyTransformer(
-                vv, vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT)),
+                lens,
+                vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT)),
             new ModalLensGraphMouse(new LensMagnificationGraphMousePlugin(1.f, 6.f, .2f)));
     hyperbolicLayoutSupport
         .getLensTransformer()
-        .setLensShape(hyperbolicViewSupport.getLensTransformer().getLensShape());
+        .getLens()
+        .setLensShape(hyperbolicViewSupport.getLensTransformer().getLens().getLensShape());
     magnifyViewSupport
         .getLensTransformer()
-        .setLensShape(hyperbolicLayoutSupport.getLensTransformer().getLensShape());
+        .getLens()
+        .setLensShape(hyperbolicLayoutSupport.getLensTransformer().getLens().getLensShape());
     magnifyLayoutSupport
         .getLensTransformer()
-        .setLensShape(magnifyViewSupport.getLensTransformer().getLensShape());
+        .getLens()
+        .setLensShape(magnifyViewSupport.getLensTransformer().getLens().getLensShape());
 
     final ScalingControl scaler = new CrossoverScalingControl();
 
@@ -330,7 +333,7 @@ public class LensDemo extends JApplet {
 
     public Dimension getPreferredSize(JComponent c) {
       Dimension dim = super.getPreferredSize(c);
-      return new Dimension(dim.width, dim.height);
+      return new Dimension(dim.height, dim.width);
     }
 
     private static Rectangle paintIconR = new Rectangle();

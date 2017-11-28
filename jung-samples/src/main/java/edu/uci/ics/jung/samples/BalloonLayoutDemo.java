@@ -13,20 +13,19 @@ import edu.uci.ics.jung.graph.MutableCTreeNetwork;
 import edu.uci.ics.jung.graph.TreeNetworkBuilder;
 import edu.uci.ics.jung.layout.algorithms.BalloonLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.TreeLayoutAlgorithm;
-import edu.uci.ics.jung.layout.model.PointModel;
 import edu.uci.ics.jung.layout.util.LayoutAlgorithmTransition;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.Layer;
+import edu.uci.ics.jung.visualization.MultiLayerTransformer;
 import edu.uci.ics.jung.visualization.VisualizationServer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
-import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
-import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
-import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
-import edu.uci.ics.jung.visualization.control.ModalLensGraphMouse;
-import edu.uci.ics.jung.visualization.control.ScalingControl;
+import edu.uci.ics.jung.visualization.control.*;
 import edu.uci.ics.jung.visualization.decorators.EdgeShape;
-import edu.uci.ics.jung.visualization.layout.AWTPointModel;
+import edu.uci.ics.jung.visualization.transform.HyperbolicTransformer;
+import edu.uci.ics.jung.visualization.transform.LayoutLensSupport;
+import edu.uci.ics.jung.visualization.transform.Lens;
 import edu.uci.ics.jung.visualization.transform.LensSupport;
+import edu.uci.ics.jung.visualization.transform.LensTransformer;
 import edu.uci.ics.jung.visualization.transform.MutableTransformer;
 import edu.uci.ics.jung.visualization.transform.MutableTransformerDecorator;
 import edu.uci.ics.jung.visualization.transform.shape.HyperbolicShapeTransformer;
@@ -47,33 +46,33 @@ import javax.swing.*;
 @SuppressWarnings("serial")
 public class BalloonLayoutDemo extends JApplet {
 
-  private static final PointModel<Point2D> POINT_MODEL = new AWTPointModel();
-
-  /** the graph */
   CTreeNetwork<String, Integer> graph;
+
+  VisualizationServer.Paintable rings;
+
+  TreeLayoutAlgorithm<String, Point2D> treeLayoutAlgorithm;
+
+  BalloonLayoutAlgorithm<String, Point2D> radialLayoutAlgorithm;
 
   /** the visual component and renderer for the graph */
   VisualizationViewer<String, Integer> vv;
 
-  VisualizationServer.Paintable rings;
-
-  TreeLayoutAlgorithm<String, Point2D> layoutAlgorithm;
-
-  BalloonLayoutAlgorithm<String, Point2D> radialLayoutAlgorithm;
   /** provides a Hyperbolic lens for the view */
   LensSupport hyperbolicViewSupport;
+
+  LensSupport hyperbolicSupport;
 
   public BalloonLayoutDemo() {
 
     // create a simple graph for the demo
     graph = createTree();
 
-    layoutAlgorithm = new TreeLayoutAlgorithm<>(POINT_MODEL);
-    radialLayoutAlgorithm = new BalloonLayoutAlgorithm<>(POINT_MODEL);
+    treeLayoutAlgorithm = new TreeLayoutAlgorithm<>();
+    radialLayoutAlgorithm = new BalloonLayoutAlgorithm<>();
 
     vv =
         new VisualizationViewer<>(
-            graph, layoutAlgorithm, new Dimension(900, 900), new Dimension(600, 600));
+            graph, treeLayoutAlgorithm, new Dimension(900, 900), new Dimension(600, 600));
     vv.setBackground(Color.white);
     vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.line());
     vv.getRenderContext().setVertexLabelTransformer(Object::toString);
@@ -91,14 +90,23 @@ public class BalloonLayoutDemo extends JApplet {
     vv.setGraphMouse(graphMouse);
     vv.addKeyListener(graphMouse.getModeKeyListener());
 
+    Lens lens = new Lens(vv);
     hyperbolicViewSupport =
         new ViewLensSupport<>(
             vv,
             new HyperbolicShapeTransformer(
-                vv, vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.VIEW)),
+                lens, vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.VIEW)),
+            new ModalLensGraphMouse());
+    hyperbolicSupport =
+        new LayoutLensSupport<>(
+            vv,
+            new HyperbolicTransformer(
+                lens,
+                vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT)),
             new ModalLensGraphMouse());
 
     graphMouse.addItemListener(hyperbolicViewSupport.getGraphMouse().getModeListener());
+    graphMouse.addItemListener(hyperbolicSupport.getGraphMouse().getModeListener());
 
     JComboBox<?> modeBox = graphMouse.getModeComboBox();
     modeBox.addItemListener(graphMouse.getModeListener());
@@ -136,9 +144,9 @@ public class BalloonLayoutDemo extends JApplet {
           } else {
             ((JToggleButton) e.getSource()).setText("Balloon");
             if (animateTransition.isSelected()) {
-              LayoutAlgorithmTransition.animate(vv.getModel(), layoutAlgorithm);
+              LayoutAlgorithmTransition.animate(vv.getModel(), treeLayoutAlgorithm);
             } else {
-              LayoutAlgorithmTransition.apply(vv.getModel(), layoutAlgorithm);
+              LayoutAlgorithmTransition.apply(vv.getModel(), treeLayoutAlgorithm);
             }
 
             vv.getRenderContext()
@@ -153,11 +161,20 @@ public class BalloonLayoutDemo extends JApplet {
     final JRadioButton hyperView = new JRadioButton("Hyperbolic View");
     hyperView.addItemListener(
         e -> hyperbolicViewSupport.activate(e.getStateChange() == ItemEvent.SELECTED));
+    final JRadioButton hyperLayout = new JRadioButton("Hyperbolic Layout");
+    hyperLayout.addItemListener(
+        e -> hyperbolicSupport.activate(e.getStateChange() == ItemEvent.SELECTED));
+    final JRadioButton noLens = new JRadioButton("No Lens");
+
+    ButtonGroup radio = new ButtonGroup();
+    radio.add(hyperView);
+    radio.add(hyperLayout);
+    radio.add(noLens);
 
     JPanel scaleGrid = new JPanel(new GridLayout(1, 0));
     scaleGrid.setBorder(BorderFactory.createTitledBorder("Zoom"));
     JPanel viewControls = new JPanel();
-    viewControls.setLayout(new GridLayout(2, 1));
+    viewControls.setLayout(new GridLayout(0, 1));
 
     JPanel controls = new JPanel();
     scaleGrid.add(plus);
@@ -166,6 +183,8 @@ public class BalloonLayoutDemo extends JApplet {
     controls.add(scaleGrid);
     controls.add(modeBox);
     viewControls.add(hyperView);
+    viewControls.add(hyperLayout);
+    viewControls.add(noLens);
     viewControls.add(animateTransition);
     controls.add(viewControls);
     content.add(controls, BorderLayout.SOUTH);
@@ -195,14 +214,33 @@ public class BalloonLayoutDemo extends JApplet {
         AffineTransform at = AffineTransform.getTranslateInstance(p.getX(), p.getY());
         Shape shape = at.createTransformedShape(ellipse);
 
-        MutableTransformer viewTransformer =
-            vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.VIEW);
+        //        MutableTransformer viewTransformer =
+        //            vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.VIEW);
+        MultiLayerTransformer multiLayerTransformer =
+            vv.getRenderContext().getMultiLayerTransformer();
 
-        if (viewTransformer instanceof MutableTransformerDecorator) {
-          shape = vv.getRenderContext().getMultiLayerTransformer().transform(shape);
+        MutableTransformer viewTransformer = multiLayerTransformer.getTransformer(Layer.VIEW);
+        MutableTransformer layoutTransformer = multiLayerTransformer.getTransformer(Layer.LAYOUT);
+
+        if (viewTransformer instanceof LensTransformer) {
+          shape = multiLayerTransformer.transform(shape);
+        } else if (layoutTransformer instanceof LensTransformer) {
+          HyperbolicShapeTransformer shapeChanger =
+              new HyperbolicShapeTransformer(vv, viewTransformer);
+          LensTransformer lensTransformer = (LensTransformer) layoutTransformer;
+          shapeChanger.getLens().setLensShape(lensTransformer.getLens().getLensShape());
+          MutableTransformer layoutDelegate =
+              ((MutableTransformerDecorator) layoutTransformer).getDelegate();
+          shape = shapeChanger.transform(layoutDelegate.transform(shape));
         } else {
           shape = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, shape);
         }
+
+        //        if (viewTransformer instanceof MutableTransformerDecorator) {
+        //          shape = vv.getRenderContext().getMultiLayerTransformer().transform(shape);
+        //        } else {
+        //          shape = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, shape);
+        //        }
 
         g2d.draw(shape);
       }

@@ -16,7 +16,6 @@ import com.google.common.graph.Graph;
 import edu.uci.ics.jung.algorithms.util.IterativeContext;
 import edu.uci.ics.jung.layout.algorithms.AbstractIterativeLayoutAlgorithm;
 import edu.uci.ics.jung.layout.model.LayoutModel;
-import edu.uci.ics.jung.layout.model.PointModel;
 import edu.uci.ics.jung.layout.util.NetworkNodeAccessor;
 import edu.uci.ics.jung.layout.util.RadiusNetworkNodeAccessor;
 import edu.uci.ics.jung.layout.util.RandomLocationTransformer;
@@ -82,12 +81,9 @@ public class ISOMLayoutAlgorithm<N, P> extends AbstractIterativeLayoutAlgorithm<
     return status;
   }
 
-  public ISOMLayoutAlgorithm(PointModel<P> pointModel) {
-    super(pointModel);
-  }
-
   @Override
   public void visit(LayoutModel<N, P> layoutModel) {
+    super.visit(layoutModel);
     log.trace("visiting " + layoutModel);
     layoutModel.setInitializer(
         new RandomLocationTransformer<N, P>(
@@ -97,15 +93,12 @@ public class ISOMLayoutAlgorithm<N, P> extends AbstractIterativeLayoutAlgorithm<
     this.height = layoutModel.getHeight();
     this.depth = layoutModel.getDepth();
     this.diameter = Math.max(width, Math.max(height, depth));
-    //    this.radius = diameter / 2;
-    //    log.info("diam:{}, radius:{}", diameter, radius);
     this.xMax = width / 2;
     this.xMin = -this.xMax;
     this.yMax = height / 2;
     this.yMin = -this.yMax;
     this.zMax = depth / 2;
     this.zMin = -this.zMax;
-    //    this.border = Math.max(width, Math.max(height, depth)) / 50;
 
     super.visit(layoutModel);
     elementAccessor = new RadiusNetworkNodeAccessor<N, P>(layoutModel.getGraph(), pointModel);

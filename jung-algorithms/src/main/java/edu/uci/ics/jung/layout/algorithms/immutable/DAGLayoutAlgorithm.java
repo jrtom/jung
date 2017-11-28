@@ -14,7 +14,6 @@ package edu.uci.ics.jung.layout.algorithms.immutable;
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Graph;
 import edu.uci.ics.jung.layout.model.LayoutModel;
-import edu.uci.ics.jung.layout.model.PointModel;
 import java.util.HashMap;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -64,10 +63,6 @@ public class DAGLayoutAlgorithm<N, P> extends SpringLayoutAlgorithm<N, P> {
   boolean stoppingIncrements = false;
   int incrementsLeft;
   final int COOL_DOWN_INCREMENTS = 200;
-
-  public DAGLayoutAlgorithm(PointModel<P> pointModel) {
-    super(pointModel);
-  }
 
   @Override
   public void visit(LayoutModel<N, P> layoutModel) {

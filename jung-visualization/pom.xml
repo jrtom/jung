@@ -10,13 +10,26 @@
   <name>JUNG - Visualization Support</name>
   <description>Core visualization support for the JUNG project</description>
   <properties>
-    <version.slf4j>1.7.9</version.slf4j>
+    <version.slf4j>1.7.25</version.slf4j>
+    <version.logback>1.2.3</version.logback>
   </properties>
   <dependencies>
      <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
       <version>${version.slf4j}</version>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>${version.logback}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-core</artifactId>
+      <version>${version.logback}</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>net.sf.jung</groupId>

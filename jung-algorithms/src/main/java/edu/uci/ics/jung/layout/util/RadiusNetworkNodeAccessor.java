@@ -50,9 +50,25 @@ public class RadiusNetworkNodeAccessor<N, P> implements NetworkNodeAccessor<N, P
     this.maxDistance = maxDistance;
   }
 
+  /**
+   * @param layoutModel
+   * @param x the x coordinate of the pick point
+   * @param y the y coordinate of the pick point
+   * @return the node associated with (x, y)
+   */
   @Override
   public N getNode(LayoutModel<N, P> layoutModel, double x, double y) {
     return getNode(layoutModel, x, y, 0);
+  }
+
+  /**
+   * @param layoutModel
+   * @param p the pick point
+   * @return the node associated with location p
+   */
+  @Override
+  public N getNode(LayoutModel<N, P> layoutModel, P p) {
+    return getNode(layoutModel, pointModel.getX(p), pointModel.getY(p), pointModel.getZ(p));
   }
 
   /**

@@ -48,12 +48,6 @@ public interface LayoutModel<N, P> extends Function<N, P> {
 
   void set(N node, double x, double y, double z);
 
-  void set(N node, P location, boolean forceUpdate);
-
-  void set(N node, double x, double y, boolean forceUpdate);
-
-  void set(N node, double x, double y, double z, boolean forceUpdate);
-
   P get(N node);
 
   Graph<N> getGraph();

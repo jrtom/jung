@@ -15,7 +15,6 @@ import edu.uci.ics.jung.layout.algorithms.KKLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.StaticLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.TreeLayoutAlgorithm;
-import edu.uci.ics.jung.layout.model.PointModel;
 import edu.uci.ics.jung.visualization.BaseVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.VisualizationModel;
@@ -26,7 +25,6 @@ import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.EdgeShape;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
-import edu.uci.ics.jung.visualization.layout.AWTPointModel;
 import edu.uci.ics.jung.visualization.picking.MultiPickedState;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
@@ -48,8 +46,6 @@ import org.slf4j.LoggerFactory;
 public class MinimumSpanningTreeDemo extends JApplet {
 
   private static final Logger log = LoggerFactory.getLogger(MinimumSpanningTreeDemo.class);
-
-  private static final PointModel<Point2D> POINT_MODEL = new AWTPointModel();
 
   /** the graph */
   Network<String, Number> graph;
@@ -74,9 +70,9 @@ public class MinimumSpanningTreeDemo extends JApplet {
 
     tree = MinimumSpanningTree.extractFrom(graph, e -> 1.0);
 
-    LayoutAlgorithm<String, Point2D> layout0 = new KKLayoutAlgorithm<>(POINT_MODEL);
-    LayoutAlgorithm<String, Point2D> layout1 = new TreeLayoutAlgorithm<>(POINT_MODEL);
-    LayoutAlgorithm<String, Point2D> layout2 = new StaticLayoutAlgorithm<>(POINT_MODEL);
+    LayoutAlgorithm<String, Point2D> layout0 = new KKLayoutAlgorithm<>();
+    LayoutAlgorithm<String, Point2D> layout1 = new TreeLayoutAlgorithm<>();
+    LayoutAlgorithm<String, Point2D> layout2 = new StaticLayoutAlgorithm<>();
 
     // create the two models, each with a different layout
     VisualizationModel<String, Number, Point2D> vm0 =

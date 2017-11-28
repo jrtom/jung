@@ -16,7 +16,6 @@ import com.google.common.graph.Graph;
 import edu.uci.ics.jung.algorithms.util.IterativeContext;
 import edu.uci.ics.jung.layout.algorithms.AbstractIterativeLayoutAlgorithm;
 import edu.uci.ics.jung.layout.model.LayoutModel;
-import edu.uci.ics.jung.layout.model.PointModel;
 import java.util.ConcurrentModificationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,8 +65,7 @@ public class FRLayoutAlgorithm<N, P> extends AbstractIterativeLayoutAlgorithm<N,
 
   private boolean initialized = false;
 
-  public FRLayoutAlgorithm(PointModel<P> pointModel) {
-    super(pointModel);
+  public FRLayoutAlgorithm() {
     this.frNodeData =
         CacheBuilder.newBuilder()
             .build(

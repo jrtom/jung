@@ -75,13 +75,13 @@ public abstract class AbstractLensSupport<V, E> implements LensSupport {
    * @author Tom Nelson
    */
   public static class Lens implements VisualizationServer.Paintable {
-    LensTransformer lensTransformer;
+    //    LensTransformer lensTransformer;
     RectangularShape lensShape;
     Paint paint = Color.decode("0xdddddd");
 
     public Lens(LensTransformer lensTransformer) {
-      this.lensTransformer = lensTransformer;
-      this.lensShape = lensTransformer.getLensShape();
+      //      this.lensTransformer = lensTransformer;
+      this.lensShape = lensTransformer.getLens().getLensShape();
     }
 
     /** @return the paint */
@@ -111,13 +111,13 @@ public abstract class AbstractLensSupport<V, E> implements LensSupport {
    * @author Tom Nelson
    */
   public static class LensControls implements VisualizationServer.Paintable {
-    LensTransformer lensTransformer;
+    //    LensTransformer lensTransformer;
     RectangularShape lensShape;
     Paint paint = Color.gray;
 
     public LensControls(LensTransformer lensTransformer) {
-      this.lensTransformer = lensTransformer;
-      this.lensShape = lensTransformer.getLensShape();
+      //      this.lensTransformer = lensTransformer;
+      this.lensShape = lensTransformer.getLens().getLensShape();
     }
 
     /** @return the paint */

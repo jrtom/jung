@@ -32,19 +32,29 @@ public class LayoutAlgorithmTest {
   @Test
   public void testLayoutAlgorithms() {
     graph = TestGraphs.getDemoGraph().asGraph();
-    layoutModel = new LoadingCacheLayoutModel<>(graph, pointModel, 500, 500);
-    testLayoutAlgorithm(new SpringLayoutAlgorithm<>(pointModel));
-    testLayoutAlgorithm(new KKLayoutAlgorithm<>(pointModel));
+    layoutModel =
+        LoadingCacheLayoutModel.<String, TestPointModel.Point>builder()
+            .setGraph(graph)
+            .setPointModel(pointModel)
+            .setSize(500, 500)
+            .build();
+    testLayoutAlgorithm(new SpringLayoutAlgorithm<>());
+    testLayoutAlgorithm(new KKLayoutAlgorithm<>());
     // ISOM seems to put some nodes in the same location, so the test will fail
     //        testLayoutAlgorithm(new ISOMLayoutAlgorithm<String, TestPointModel.Point>(pointModel));
-    testLayoutAlgorithm(new SphereLayoutAlgorithm<>(pointModel));
+    testLayoutAlgorithm(new SphereLayoutAlgorithm<>());
   }
 
   @Test
   public void testBalloonLayoutAlgorithms() {
     graph = createTree().asGraph();
-    layoutModel = new LoadingCacheLayoutModel<>(graph, pointModel, 500, 500);
-    testLayoutAlgorithm(new BalloonLayoutAlgorithm<>(pointModel));
+    layoutModel =
+        LoadingCacheLayoutModel.<String, TestPointModel.Point>builder()
+            .setGraph(graph)
+            .setPointModel(pointModel)
+            .setSize(500, 500)
+            .build();
+    testLayoutAlgorithm(new BalloonLayoutAlgorithm<>());
   }
 
   private void testLayoutAlgorithm(LayoutAlgorithm<String, TestPointModel.Point> layoutAlgorithm) {

@@ -2,7 +2,6 @@ package edu.uci.ics.jung.layout.algorithms;
 
 import edu.uci.ics.jung.algorithms.util.IterativeContext;
 import edu.uci.ics.jung.layout.model.LayoutModel;
-import edu.uci.ics.jung.layout.model.PointModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,19 +23,11 @@ public abstract class AbstractIterativeLayoutAlgorithm<N, P> extends AbstractLay
   protected LayoutModel<N, P> layoutModel;
 
   /**
-   * create an instance with the passed pointModel
-   *
-   * @param pointModel
-   */
-  protected AbstractIterativeLayoutAlgorithm(PointModel<P> pointModel) {
-    super(pointModel);
-  }
-
-  /**
    * because the IterativeLayoutAlgorithms use multithreading to continuously update node positions,
    * the layoutModel state is saved (during the visit method) so that it can be used continuously
    */
   public void visit(LayoutModel<N, P> layoutModel) {
+    super.visit(layoutModel);
     log.trace("visiting " + layoutModel);
     this.layoutModel = layoutModel;
   }

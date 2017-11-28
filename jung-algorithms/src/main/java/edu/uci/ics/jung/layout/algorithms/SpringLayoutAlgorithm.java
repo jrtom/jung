@@ -13,7 +13,6 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Graph;
 import edu.uci.ics.jung.algorithms.util.IterativeContext;
-import edu.uci.ics.jung.layout.model.PointModel;
 import java.util.ConcurrentModificationException;
 import java.util.function.Function;
 
@@ -37,13 +36,11 @@ public class SpringLayoutAlgorithm<N, P> extends AbstractIterativeLayoutAlgorith
   protected LoadingCache<N, SpringNodeData> springNodeData =
       CacheBuilder.newBuilder().build(CacheLoader.from(() -> new SpringNodeData()));
 
-  public SpringLayoutAlgorithm(PointModel<P> pointModel) {
-    this(pointModel, n -> 30);
+  public SpringLayoutAlgorithm() {
+    this(n -> 30);
   }
 
-  public SpringLayoutAlgorithm(
-      PointModel<P> pointModel, Function<? super EndpointPair<N>, Integer> length_function) {
-    super(pointModel);
+  public SpringLayoutAlgorithm(Function<? super EndpointPair<N>, Integer> length_function) {
     this.lengthFunction = length_function;
   }
 
