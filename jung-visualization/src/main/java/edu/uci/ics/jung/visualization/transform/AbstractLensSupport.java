@@ -141,7 +141,7 @@ public abstract class AbstractLensSupport<V, E> implements LensSupport {
     }
   }
 
-  /** @return the lens */
+  /** @return the lensPaintable */
   public LensPaintable getLensPaintable() {
     return lensPaintable;
   }

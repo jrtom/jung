@@ -168,11 +168,6 @@ public class BaseVisualizationModel<N, E>
     layoutModel.accept(layoutAlgorithm);
   }
 
-  @Override
-  public void setLayoutSize(Dimension size) {
-    this.layoutModel.setSize(size.width, size.height);
-  }
-
   /**
    * Returns the current layoutSize of the visualization space, accoring to the last call to
    * resize().
