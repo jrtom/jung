@@ -18,7 +18,6 @@ import edu.uci.ics.jung.graph.util.TestGraphs;
 import edu.uci.ics.jung.layout.algorithms.*;
 import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.layout.model.LoadingCacheLayoutModel;
-import edu.uci.ics.jung.layout.model.PointModel;
 import edu.uci.ics.jung.layout.util.RandomLocationTransformer;
 import edu.uci.ics.jung.samples.util.ControlHelpers;
 import edu.uci.ics.jung.visualization.BaseVisualizationModel;
@@ -282,8 +281,8 @@ public class SubLayoutDemo extends JApplet {
 
   private LayoutAlgorithm<String, Point2D> getLayoutAlgorithmFor(
       Class<CircleLayoutAlgorithm> layoutClass) throws Exception {
-    Constructor<CircleLayoutAlgorithm> constructor = layoutClass.getConstructor(PointModel.class);
-    return constructor.newInstance(POINT_MODEL);
+    Constructor<CircleLayoutAlgorithm> constructor = layoutClass.getConstructor();
+    return constructor.newInstance();
   }
 
   private void clusterPicked() {
