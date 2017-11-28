@@ -78,7 +78,6 @@ public class TreeLayoutAlgorithm<N, P> extends AbstractLayoutAlgorithm<N, P> {
 
   public void visit(LayoutModel<N, P> layoutModel) {
     super.visit(layoutModel);
-    this.m_currentPoint = pointModel.newPoint(0, 0);
     buildTree(layoutModel);
   }
 
