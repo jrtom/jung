@@ -8,11 +8,14 @@
  */
 package edu.uci.ics.jung.visualization.transform;
 
-import edu.uci.ics.jung.layout.model.PointModel;
+import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
+
 import edu.uci.ics.jung.layout.model.PolarPoint;
-import edu.uci.ics.jung.visualization.layout.AWTPointModel;
-import java.awt.Component;
+import java.awt.*;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * HyperbolicTransformer wraps a MutableAffineTransformer and modifies the transform and
@@ -28,10 +31,11 @@ import java.awt.geom.Point2D;
  */
 public class HyperbolicTransformer extends LensTransformer implements MutableTransformer {
 
-  PointModel<Point2D> pointModel = new AWTPointModel();
+  private static final Logger log = LoggerFactory.getLogger(HyperbolicTransformer.class);
+
   /**
-   * create an instance, setting values from the passed component and registering to listen for
-   * layoutSize changes on the component
+   * Create an instance, setting values from the passed component and registering to listen for
+   * layoutSize changes on the component.
    *
    * @param component the component used for rendering
    */
@@ -40,13 +44,22 @@ public class HyperbolicTransformer extends LensTransformer implements MutableTra
   }
 
   /**
-   * Create an instance with a possibly shared transform.
+   * create an instance, setting values from the passed component and registering to listen for
+   * layoutSize changes on the component
    *
    * @param component the component used for rendering
-   * @param delegate the transformer to use
    */
   public HyperbolicTransformer(Component component, MutableTransformer delegate) {
     super(component, delegate);
+  }
+
+  /**
+   * Create an instance with a possibly shared transform.
+   *
+   * @param lens a lens created elsewhere, but on the same component
+   */
+  public HyperbolicTransformer(Lens lens, MutableTransformer delegate) {
+    super(lens, delegate);
   }
 
   /** override base class transform to project the fisheye effect */
@@ -54,11 +67,23 @@ public class HyperbolicTransformer extends LensTransformer implements MutableTra
     if (graphPoint == null) {
       return null;
     }
-    Point2D viewCenter = getViewCenter();
-    double viewRadius = getViewRadius();
-    double ratio = getRatio();
+    Ellipse2D lensEllipse = (Ellipse2D) lens.getLensShape();
+    if (lensEllipse.contains(graphPoint)) {
+      log.trace("lens {} contains graphPoint{}", lensEllipse, graphPoint);
+    } else {
+      log.trace("lens {} does not contain graphPoint {}", lensEllipse, graphPoint);
+    }
+    Point2D viewCenter = lens.getViewCenter();
+    double viewRadius = lens.getViewRadius();
+    double ratio = lens.getRatio();
     // transform the point from the graph to the view
     Point2D viewPoint = delegate.transform(graphPoint);
+    if (lensEllipse.contains(viewPoint)) {
+      log.trace("lens {} contains viewPoint {}", lensEllipse, viewPoint);
+    } else {
+      log.trace("lens {} does not contain viewPoint {}", lensEllipse, viewPoint);
+    }
+
     // calculate point from center
     double dx = viewPoint.getX() - viewCenter.getX();
     double dy = viewPoint.getY() - viewCenter.getY();
@@ -66,14 +91,17 @@ public class HyperbolicTransformer extends LensTransformer implements MutableTra
     dx *= ratio;
     Point2D pointFromCenter = new Point2D.Double(dx, dy);
 
-    PolarPoint polar = PolarPoint.cartesianToPolar(pointModel, pointFromCenter);
+    PolarPoint polar = PolarPoint.cartesianToPolar(POINT_MODEL, pointFromCenter);
     double theta = polar.getTheta();
     double radius = polar.getRadius();
     if (radius > viewRadius) {
+      log.trace("outside point radius {} > viewRadius {}", radius, viewRadius);
       return viewPoint;
+    } else {
+      log.trace("inside point radius {} >= viewRadius {}", radius, viewRadius);
     }
 
-    double mag = Math.tan(Math.PI / 2 * magnification);
+    double mag = Math.tan(Math.PI / 2 * lens.getMagnification());
     radius *= mag;
 
     radius = Math.min(radius, viewRadius);
@@ -81,7 +109,7 @@ public class HyperbolicTransformer extends LensTransformer implements MutableTra
     radius *= Math.PI / 2;
     radius = Math.abs(Math.atan(radius));
     radius *= viewRadius;
-    Point2D projectedPoint = PolarPoint.polarToCartesian(pointModel, theta, radius);
+    Point2D projectedPoint = PolarPoint.polarToCartesian(POINT_MODEL, theta, radius);
     projectedPoint.setLocation(projectedPoint.getX() / ratio, projectedPoint.getY());
     Point2D translatedBack =
         new Point2D.Double(
@@ -92,9 +120,16 @@ public class HyperbolicTransformer extends LensTransformer implements MutableTra
   /** override base class to un-project the fisheye effect */
   public Point2D inverseTransform(Point2D viewPoint) {
 
-    Point2D viewCenter = getViewCenter();
-    double viewRadius = getViewRadius();
-    double ratio = getRatio();
+    Ellipse2D lensEllipse = (Ellipse2D) lens.getLensShape();
+    if (lensEllipse.contains(viewPoint)) {
+      log.trace("lens {} contains viewPoint{}", lensEllipse, viewPoint);
+    } else {
+      log.trace("lens {} does not contain viewPoint {}", lensEllipse, viewPoint);
+    }
+
+    Point2D viewCenter = lens.getViewCenter();
+    double viewRadius = lens.getViewRadius();
+    double ratio = lens.getRatio();
     double dx = viewPoint.getX() - viewCenter.getX();
     double dy = viewPoint.getY() - viewCenter.getY();
     // factor out ellipse
@@ -102,9 +137,15 @@ public class HyperbolicTransformer extends LensTransformer implements MutableTra
 
     Point2D pointFromCenter = new Point2D.Double(dx, dy);
 
-    PolarPoint polar = PolarPoint.cartesianToPolar(pointModel, pointFromCenter);
+    PolarPoint polar = PolarPoint.cartesianToPolar(POINT_MODEL, pointFromCenter);
 
     double radius = polar.getRadius();
+    if (radius > viewRadius) {
+      log.trace("outside point radius {} > viewRadius {}", radius, viewRadius);
+    } else {
+      log.trace("inside point radius {} <= viewRadius {}", radius, viewRadius);
+    }
+
     if (radius > viewRadius) {
       return delegate.inverseTransform(viewPoint);
     }
@@ -113,10 +154,10 @@ public class HyperbolicTransformer extends LensTransformer implements MutableTra
     radius = Math.abs(Math.tan(radius));
     radius /= Math.PI / 2;
     radius *= viewRadius;
-    double mag = Math.tan(Math.PI / 2 * magnification);
+    double mag = Math.tan(Math.PI / 2 * lens.getMagnification());
     radius /= mag;
     polar.setRadius(radius);
-    Point2D projectedPoint = PolarPoint.polarToCartesian(pointModel, polar);
+    Point2D projectedPoint = PolarPoint.polarToCartesian(POINT_MODEL, polar);
     projectedPoint.setLocation(projectedPoint.getX() / ratio, projectedPoint.getY());
     Point2D translatedBack =
         new Point2D.Double(

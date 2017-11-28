@@ -17,47 +17,78 @@ public class LoadingCacheLayoutModel<N, P> extends AbstractLayoutModel<N, P>
   protected LoadingCache<N, P> locations =
       CacheBuilder.newBuilder().build(CacheLoader.from(() -> pointModel.newPoint(0, 0, 0)));
 
-  public LoadingCacheLayoutModel(LoadingCacheLayoutModel<N, P> other) {
+  public abstract static class Builder<N, P, T extends LoadingCacheLayoutModel<N, P>> {
+    protected Graph<N> graph;
+    protected PointModel<P> pointModel;
+    protected int width;
+    protected int height;
+    protected int depth;
+
+    protected LoadingCache<N, P> locations =
+        CacheBuilder.newBuilder().build(CacheLoader.from(() -> pointModel.newPoint(0, 0, 0)));
+
+    public LoadingCacheLayoutModel.Builder<N, P, T> setGraph(Graph<N> graph) {
+      this.graph = graph;
+      return this;
+    }
+
+    public LoadingCacheLayoutModel.Builder<N, P, T> setLayoutModel(LayoutModel<N, P> layoutModel) {
+      this.pointModel = layoutModel.getPointModel();
+      this.width = layoutModel.getWidth();
+      this.height = layoutModel.getHeight();
+      this.depth = layoutModel.getDepth();
+      return this;
+    }
+
+    public LoadingCacheLayoutModel.Builder<N, P, T> setPointModel(PointModel<P> pointModel) {
+      this.pointModel = pointModel;
+      return this;
+    }
+
+    public LoadingCacheLayoutModel.Builder<N, P, T> setSize(int width, int height, int depth) {
+      this.width = width;
+      this.height = height;
+      this.depth = depth;
+      return this;
+    }
+
+    public LoadingCacheLayoutModel.Builder<N, P, T> setSize(int width, int height) {
+      this.width = width;
+      this.height = height;
+      return this;
+    }
+
+    public LoadingCacheLayoutModel.Builder<N, P, T> setInitializer(Function<N, P> initializer) {
+      Function<N, P> chain =
+          initializer.andThen(
+              p -> pointModel.newPoint(pointModel.getX(p), pointModel.getY(p), pointModel.getZ(p)));
+      this.locations = CacheBuilder.newBuilder().build(CacheLoader.from(chain::apply));
+      return this;
+    }
+
+    public abstract T build();
+  }
+
+  public static <N, P> Builder<N, P, ?> builder() {
+    return new Builder<N, P, LoadingCacheLayoutModel<N, P>>() {
+      @Override
+      public LoadingCacheLayoutModel<N, P> build() {
+        return new LoadingCacheLayoutModel<>(this);
+      }
+    };
+  }
+
+  public static <N, P> LoadingCacheLayoutModel<N, P> from(LoadingCacheLayoutModel<N, P> other) {
+    return new LoadingCacheLayoutModel<>(other);
+  }
+
+  protected LoadingCacheLayoutModel(LoadingCacheLayoutModel.Builder<N, P, ?> builder) {
+    super(builder.graph, builder.pointModel, builder.width, builder.height, builder.depth);
+    this.locations = builder.locations;
+  }
+
+  private LoadingCacheLayoutModel(LoadingCacheLayoutModel<N, P> other) {
     super(other.graph, other.pointModel, other.width, other.height, other.depth);
-  }
-
-  public LoadingCacheLayoutModel(LoadingCacheLayoutModel<N, P> other, int width, int height) {
-    this(other, width, height, 0);
-  }
-
-  public LoadingCacheLayoutModel(
-      LoadingCacheLayoutModel<N, P> other, int width, int height, int depth) {
-    super(other.graph, other.pointModel, width, height, depth);
-  }
-
-  public LoadingCacheLayoutModel(
-      Graph<N> graph, PointModel<P> pointModel, int width, int height, Function<N, P> initializer) {
-    this(graph, pointModel, width, height, 0, initializer);
-  }
-
-  public LoadingCacheLayoutModel(
-      Graph<N> graph,
-      PointModel<P> pointModel,
-      int width,
-      int height,
-      int depth,
-      Function<N, P> initializer) {
-    super(graph, pointModel, width, height, depth);
-    Function<N, P> chain =
-        initializer.andThen(
-            p -> pointModel.newPoint(pointModel.getX(p), pointModel.getY(p), pointModel.getZ(p)));
-    this.locations = CacheBuilder.newBuilder().build(CacheLoader.from(chain::apply));
-  }
-
-  public LoadingCacheLayoutModel(Graph<N> graph, PointModel<P> pointModel, int width, int height) {
-    this(graph, pointModel, width, height, 0);
-  }
-
-  public LoadingCacheLayoutModel(
-      Graph<N> graph, PointModel<P> pointModel, int width, int height, int depth) {
-    super(graph, pointModel, width, height, depth);
-    this.locations =
-        CacheBuilder.newBuilder().build(CacheLoader.from(() -> pointModel.newPoint(0, 0)));
   }
 
   public void setInitializer(Function<N, P> initializer) {
@@ -76,8 +107,8 @@ public class LoadingCacheLayoutModel<N, P> extends AbstractLayoutModel<N, P>
   @Override
   public void set(N node, P location) {
     if (!locked) {
+      super.set(node, location);
       this.locations.put(node, location);
-      changeSupport.fireChanged();
     }
   }
 
@@ -89,38 +120,6 @@ public class LoadingCacheLayoutModel<N, P> extends AbstractLayoutModel<N, P>
   @Override
   public void set(N node, double x, double y) {
     this.set(node, pointModel.newPoint(x, y));
-  }
-
-  /**
-   * @param node
-   * @param location
-   * @param forceUpdate ignored
-   */
-  @Override
-  public void set(N node, P location, boolean forceUpdate) {
-    this.set(node, location);
-  }
-
-  /**
-   * @param node
-   * @param x
-   * @param y
-   * @param forceUpdate ignored
-   */
-  @Override
-  public void set(N node, double x, double y, boolean forceUpdate) {
-    this.set(node, x, y);
-  }
-
-  /**
-   * @param node
-   * @param x
-   * @param y
-   * @param forceUpdate ignored
-   */
-  @Override
-  public void set(N node, double x, double y, double z, boolean forceUpdate) {
-    this.set(node, x, y, z);
   }
 
   @Override

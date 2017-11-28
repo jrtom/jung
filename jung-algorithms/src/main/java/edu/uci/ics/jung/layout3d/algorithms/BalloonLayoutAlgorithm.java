@@ -16,7 +16,6 @@ import com.google.common.graph.Graph;
 import edu.uci.ics.jung.graph.util.TreeUtils;
 import edu.uci.ics.jung.layout.algorithms.AbstractLayoutAlgorithm;
 import edu.uci.ics.jung.layout.model.LayoutModel;
-import edu.uci.ics.jung.layout.model.PointModel;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -43,24 +42,15 @@ public class BalloonLayoutAlgorithm<N, P> extends AbstractLayoutAlgorithm<N, P>
   int depth = 200;
 
   private Graph<N> tree;
-  /**
-   * Creates an instance based on the input Network.
-   *
-   * @param
-   */
-  public BalloonLayoutAlgorithm(PointModel<P> pointModel) {
-    super(pointModel);
-  }
 
   @Override
   public void visit(LayoutModel<N, P> layoutModel) {
+    super.visit(layoutModel);
     this.layoutModel = layoutModel;
     if (log.isTraceEnabled()) {
       log.trace("visit {}", layoutModel);
     }
-    //    super.visit(layoutModel);
     Graph graph = layoutModel.getGraph();
-    //    if (graph instanceof CTreeNetwork) {
     this.tree = graph;
     Set<N> roots = TreeUtils.roots(layoutModel.getGraph());
 
@@ -68,11 +58,6 @@ public class BalloonLayoutAlgorithm<N, P> extends AbstractLayoutAlgorithm<N, P>
       layoutModel.set(roots.iterator().next(), pointModel.newPoint(0, 0, 0));
     }
     buildTrees(roots);
-    //    for (N root : roots) {
-    //      buildTree(root);
-    //    }
-    //      breadth(root);
-    //    }
   }
 
   public Map<P, Integer> getSphereLocations() {
@@ -101,13 +86,11 @@ public class BalloonLayoutAlgorithm<N, P> extends AbstractLayoutAlgorithm<N, P>
       depth++;
       kid = tree.predecessors(kid).iterator().next();
     }
-    //    log.info("depth {} {}", node, depth);
     return depth;
   }
 
   protected void buildTree(N root) {
 
-    //    layoutModel.set(root, pointModel.newPoint(0,0,0));
     Collection<N> kids = tree.successors(root);
     if (kids.size() > 0) {
       P center = layoutModel.get(root);
@@ -118,19 +101,14 @@ public class BalloonLayoutAlgorithm<N, P> extends AbstractLayoutAlgorithm<N, P>
   }
 
   protected void buildTrees(Collection<N> roots) {
-    //    this.depth *= .7;
 
     for (N node : roots) {
       buildTree(node);
-      //      buildTrees(tree.successors(node));
     }
   }
 
   protected void arrangeInSphere(Collection<N> nodes, P center, double radius) {
-    //    log.info("radius {}", radius);
-    //    Collection<N> nodes = layoutModel.getGraph().nodes();
-    //    if (nodes.size() > 0)
-    //    log.info("arrangeInSphere {} {}", center, radius);
+
     sphereLocations.put(center, (int) radius);
 
     int i = 0;

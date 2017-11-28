@@ -10,7 +10,7 @@
   <name>JUNG - Algorithms</name>
   <description>Algorithms for the JUNG project</description>
   <properties>
-    <version.slf4j>1.7.9</version.slf4j>
+    <version.slf4j>1.7.25</version.slf4j>
   </properties>
   <dependencies>
   <dependency>

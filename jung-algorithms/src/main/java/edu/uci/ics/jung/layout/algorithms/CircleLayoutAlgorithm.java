@@ -14,7 +14,6 @@ package edu.uci.ics.jung.layout.algorithms;
 
 import com.google.common.base.Preconditions;
 import edu.uci.ics.jung.layout.model.LayoutModel;
-import edu.uci.ics.jung.layout.model.PointModel;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -34,9 +33,6 @@ public class CircleLayoutAlgorithm<N, P> extends AbstractLayoutAlgorithm<N, P> {
   private double radius;
   private List<N> node_ordered_list;
 
-  public CircleLayoutAlgorithm(PointModel<P> pointModel) {
-    super(pointModel);
-  }
   /** @return the radius of the circle. */
   public double getRadius() {
     return radius;
@@ -79,7 +75,7 @@ public class CircleLayoutAlgorithm<N, P> extends AbstractLayoutAlgorithm<N, P> {
   public void reset() {}
 
   public void visit(LayoutModel<N, P> layoutModel) {
-
+    super.visit(layoutModel);
     log.trace("visiting " + layoutModel);
     if (layoutModel != null) {
       setNodeOrder(layoutModel, new ArrayList<N>(layoutModel.getGraph().nodes()));

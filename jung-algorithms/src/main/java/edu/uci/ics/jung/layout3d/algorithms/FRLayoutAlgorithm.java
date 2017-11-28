@@ -16,7 +16,6 @@ import com.google.common.graph.Graph;
 import edu.uci.ics.jung.algorithms.util.IterativeContext;
 import edu.uci.ics.jung.layout.algorithms.AbstractIterativeLayoutAlgorithm;
 import edu.uci.ics.jung.layout.model.LayoutModel;
-import edu.uci.ics.jung.layout.model.PointModel;
 import edu.uci.ics.jung.layout.util.RandomLocationTransformer;
 import java.util.ConcurrentModificationException;
 import org.slf4j.Logger;
@@ -76,8 +75,7 @@ public class FRLayoutAlgorithm<N, P> extends AbstractIterativeLayoutAlgorithm<N,
   private float zMin;
   private float border;
 
-  public FRLayoutAlgorithm(PointModel<P> pointModel) {
-    super(pointModel);
+  public FRLayoutAlgorithm() {
     this.frNodeData =
         CacheBuilder.newBuilder()
             .build(
@@ -90,6 +88,7 @@ public class FRLayoutAlgorithm<N, P> extends AbstractIterativeLayoutAlgorithm<N,
 
   @Override
   public void visit(LayoutModel<N, P> layoutModel) {
+    super.visit(layoutModel);
     log.trace("visiting " + layoutModel);
     layoutModel.setInitializer(
         new RandomLocationTransformer<N, P>(

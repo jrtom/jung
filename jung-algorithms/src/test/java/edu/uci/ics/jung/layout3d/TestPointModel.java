@@ -1,11 +1,9 @@
 package edu.uci.ics.jung.layout3d;
 
-import edu.uci.ics.jung.layout.model.AbstractPointModel;
 import edu.uci.ics.jung.layout.model.PointModel;
 
 /** @author Tom Nelson */
-public class TestPointModel extends AbstractPointModel<TestPointModel.Point>
-    implements PointModel<TestPointModel.Point> {
+public class TestPointModel implements PointModel<TestPointModel.Point> {
 
   @Override
   public double getX(Point p) {

@@ -10,6 +10,8 @@
  */
 package edu.uci.ics.jung.visualization;
 
+import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
+
 import com.google.common.collect.Lists;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
@@ -18,7 +20,8 @@ import edu.uci.ics.jung.layout.util.LayoutChangeListener;
 import edu.uci.ics.jung.layout.util.LayoutEvent;
 import edu.uci.ics.jung.layout.util.LayoutEventSupport;
 import edu.uci.ics.jung.layout.util.LayoutNetworkEvent;
-import edu.uci.ics.jung.visualization.layout.SpatialLayoutModel;
+import edu.uci.ics.jung.visualization.layout.SpatialGridLayoutModel;
+import edu.uci.ics.jung.visualization.layout.SpatialQuadTreeLayoutModel;
 import edu.uci.ics.jung.visualization.spatial.Spatial;
 import edu.uci.ics.jung.visualization.util.ChangeEventSupport;
 import edu.uci.ics.jung.visualization.util.DefaultChangeEventSupport;
@@ -91,8 +94,29 @@ public class BaseVisualizationModel<N, E>
     //    Preconditions.checkNotNull(layoutSize);
     this.layoutAlgorithm = layoutAlgorithm;
     this.layoutModel =
-        new SpatialLayoutModel(network.asGraph(), layoutSize.width, layoutSize.height);
-    //        new LoadingCacheLayoutModel<N, E, Point2D>(network.asGraph(), new AWTPointModel(), layoutSize.width, layoutSize.height);
+
+        // TODO: maybe make these choosable with a property
+        // spatialGrid
+        //                    SpatialGridLayoutModel.<N, Point2D>builder()
+        //                            .setGraph(network.asGraph())
+        //                            .setPointModel(POINT_MODEL)
+        //                            .setSize(layoutSize.width, layoutSize.height)
+        //                            .build();
+
+        //spatial quadtree
+        SpatialQuadTreeLayoutModel.<N, Point2D>builder()
+            .setGraph(network.asGraph())
+            .setPointModel(POINT_MODEL)
+            .setSize(layoutSize.width, layoutSize.height)
+            .build();
+
+    // no spatial layout features
+    //    LoadingCacheLayoutModel.<N, Point2D>builder()
+    //            .setGraph(network.asGraph())
+    //            .setPointModel(POINT_MODEL)
+    //            .setSize(layoutSize.width, layoutSize.height)
+    //            .build();
+
     if (this.layoutModel instanceof LayoutModel.ChangeSupport) {
       ((LayoutModel.ChangeSupport) layoutModel).addChangeListener(this);
     }
@@ -174,8 +198,11 @@ public class BaseVisualizationModel<N, E>
 
   @Override
   public Spatial<N> getSpatial() {
-    if (layoutModel instanceof SpatialLayoutModel) {
-      return ((SpatialLayoutModel) layoutModel).getSpatial();
+    if (layoutModel instanceof SpatialGridLayoutModel) {
+      return ((SpatialGridLayoutModel) layoutModel).getSpatial();
+    }
+    if (layoutModel instanceof SpatialQuadTreeLayoutModel) {
+      return ((SpatialQuadTreeLayoutModel) layoutModel).getSpatial();
     }
     return null;
   }

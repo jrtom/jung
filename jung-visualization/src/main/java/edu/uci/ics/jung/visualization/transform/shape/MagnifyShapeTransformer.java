@@ -8,7 +8,10 @@
  */
 package edu.uci.ics.jung.visualization.transform.shape;
 
+import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
+
 import edu.uci.ics.jung.layout.model.PolarPoint;
+import edu.uci.ics.jung.visualization.transform.Lens;
 import edu.uci.ics.jung.visualization.transform.MagnifyTransformer;
 import edu.uci.ics.jung.visualization.transform.MutableTransformer;
 import java.awt.Component;
@@ -16,6 +19,8 @@ import java.awt.Shape;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * MagnifyShapeTransformer extends MagnifyTransformer and adds implementations for methods in
@@ -27,6 +32,7 @@ import java.awt.geom.Point2D;
 public class MagnifyShapeTransformer extends MagnifyTransformer
     implements ShapeFlatnessTransformer {
 
+  private static final Logger log = LoggerFactory.getLogger(MagnifyShapeTransformer.class);
   /**
    * Create an instance, setting values from the passed component and registering to listen for
    * layoutSize changes on the component.
@@ -48,6 +54,10 @@ public class MagnifyShapeTransformer extends MagnifyTransformer
     super(component, delegate);
   }
 
+  public MagnifyShapeTransformer(Lens lens, MutableTransformer delegate) {
+    super(lens, delegate);
+  }
+
   /**
    * Transform the supplied shape with the overridden transform method so that the shape is
    * distorted by the magnify transform.
@@ -60,6 +70,9 @@ public class MagnifyShapeTransformer extends MagnifyTransformer
   }
 
   public Shape transform(Shape shape, float flatness) {
+    if (log.isTraceEnabled()) {
+      log.trace("transform {}", shape);
+    }
     GeneralPath newPath = new GeneralPath();
     float[] coords = new float[6];
     PathIterator iterator = null;
@@ -109,6 +122,9 @@ public class MagnifyShapeTransformer extends MagnifyTransformer
   }
 
   public Shape inverseTransform(Shape shape) {
+    if (log.isTraceEnabled()) {
+      log.trace("inverseTransform {}", shape);
+    }
     GeneralPath newPath = new GeneralPath();
     float[] coords = new float[6];
     for (PathIterator iterator = shape.getPathIterator(null);
@@ -157,9 +173,9 @@ public class MagnifyShapeTransformer extends MagnifyTransformer
     if (graphPoint == null) {
       return null;
     }
-    Point2D viewCenter = getViewCenter();
-    double viewRadius = getViewRadius();
-    double ratio = getRatio();
+    Point2D viewCenter = lens.getViewCenter();
+    double viewRadius = lens.getViewRadius();
+    double ratio = lens.getRatio();
     // transform the point from the graph to the view
     Point2D viewPoint = graphPoint;
     // calculate point from center
@@ -169,18 +185,18 @@ public class MagnifyShapeTransformer extends MagnifyTransformer
     dx *= ratio;
     Point2D pointFromCenter = new Point2D.Double(dx, dy);
 
-    PolarPoint polar = PolarPoint.cartesianToPolar(pointModel, pointFromCenter);
+    PolarPoint polar = PolarPoint.cartesianToPolar(POINT_MODEL, pointFromCenter);
     double theta = polar.getTheta();
     double radius = polar.getRadius();
     if (radius > viewRadius) {
       return viewPoint;
     }
 
-    double mag = magnification;
+    double mag = lens.getMagnification();
     radius *= mag;
 
     radius = Math.min(radius, viewRadius);
-    Point2D projectedPoint = PolarPoint.polarToCartesian(pointModel, theta, radius);
+    Point2D projectedPoint = PolarPoint.polarToCartesian(POINT_MODEL, theta, radius);
     projectedPoint.setLocation(projectedPoint.getX() / ratio, projectedPoint.getY());
     Point2D translatedBack =
         new Point2D.Double(
@@ -192,9 +208,9 @@ public class MagnifyShapeTransformer extends MagnifyTransformer
   private Point2D _inverseTransform(Point2D viewPoint) {
 
     viewPoint = delegate.inverseTransform(viewPoint);
-    Point2D viewCenter = getViewCenter();
-    double viewRadius = getViewRadius();
-    double ratio = getRatio();
+    Point2D viewCenter = lens.getViewCenter();
+    double viewRadius = lens.getViewRadius();
+    double ratio = lens.getRatio();
     double dx = viewPoint.getX() - viewCenter.getX();
     double dy = viewPoint.getY() - viewCenter.getY();
     // factor out ellipse
@@ -202,17 +218,17 @@ public class MagnifyShapeTransformer extends MagnifyTransformer
 
     Point2D pointFromCenter = new Point2D.Double(dx, dy);
 
-    PolarPoint polar = PolarPoint.cartesianToPolar(pointModel, pointFromCenter);
+    PolarPoint polar = PolarPoint.cartesianToPolar(POINT_MODEL, pointFromCenter);
 
     double radius = polar.getRadius();
     if (radius > viewRadius) {
       return viewPoint;
     }
 
-    double mag = magnification;
+    double mag = lens.getMagnification();
     radius /= mag;
     polar.setRadius(radius);
-    Point2D projectedPoint = PolarPoint.polarToCartesian(pointModel, polar);
+    Point2D projectedPoint = PolarPoint.polarToCartesian(POINT_MODEL, polar);
     projectedPoint.setLocation(projectedPoint.getX() / ratio, projectedPoint.getY());
     Point2D translatedBack =
         new Point2D.Double(

@@ -15,7 +15,6 @@ import edu.uci.ics.jung.algorithms.shortestpath.DistanceStatistics;
 import edu.uci.ics.jung.algorithms.shortestpath.UnweightedShortestPath;
 import edu.uci.ics.jung.algorithms.util.IterativeContext;
 import edu.uci.ics.jung.layout.model.LayoutModel;
-import edu.uci.ics.jung.layout.model.PointModel;
 import edu.uci.ics.jung.layout.util.RandomLocationTransformer;
 import java.util.ConcurrentModificationException;
 import java.util.function.BiFunction;
@@ -72,12 +71,9 @@ public class KKLayoutAlgorithm<N, P> extends AbstractIterativeLayoutAlgorithm<N,
    */
   private double disconnected_multiplier = 0.5;
 
-  public KKLayoutAlgorithm(PointModel<P> pointModel) {
-    super(pointModel);
-  }
+  public KKLayoutAlgorithm() {}
 
-  public KKLayoutAlgorithm(PointModel<P> pointModel, Distance<N> distance) {
-    super(pointModel);
+  public KKLayoutAlgorithm(Distance<N> distance) {
     this.distance = (x, y) -> distance.getDistance(x, y);
   }
 

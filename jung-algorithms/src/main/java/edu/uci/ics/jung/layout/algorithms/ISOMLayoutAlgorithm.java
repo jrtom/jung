@@ -15,7 +15,6 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.graph.Graph;
 import edu.uci.ics.jung.algorithms.util.IterativeContext;
 import edu.uci.ics.jung.layout.model.LayoutModel;
-import edu.uci.ics.jung.layout.model.PointModel;
 import edu.uci.ics.jung.layout.util.NetworkNodeAccessor;
 import edu.uci.ics.jung.layout.util.RadiusNetworkNodeAccessor;
 import edu.uci.ics.jung.layout.util.RandomLocationTransformer;
@@ -67,10 +66,6 @@ public class ISOMLayoutAlgorithm<N, P> extends AbstractIterativeLayoutAlgorithm<
   /** @return the current number of epochs and execution status, as a string. */
   public String getStatus() {
     return status;
-  }
-
-  public ISOMLayoutAlgorithm(PointModel<P> pointModel) {
-    super(pointModel);
   }
 
   @Override

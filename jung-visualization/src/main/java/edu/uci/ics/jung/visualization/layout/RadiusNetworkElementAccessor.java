@@ -56,6 +56,20 @@ public class RadiusNetworkElementAccessor<N, E> extends RadiusNetworkNodeAccesso
   }
 
   /**
+   * Gets the edge nearest to the point location selected, whose endpoints are &lt; {@code
+   * maxDistance}. Iterates through all visible edges and checks their distance from the location.
+   * Override this method to provide a more efficient implementation.
+   *
+   * @param layoutModel
+   * @param p the pick location
+   * @return
+   */
+  @Override
+  public E getEdge(LayoutModel<N, Point2D> layoutModel, Point2D p) {
+    return getEdge(layoutModel, p.getX(), p.getY());
+  }
+
+  /**
    * Gets the edge nearest to the location of the (x,y) location selected, whose endpoints are &lt;
    * {@code maxDistance}. Iterates through all visible nodes and checks their distance from the
    * location. Override this method to provide a more efficient implementation.

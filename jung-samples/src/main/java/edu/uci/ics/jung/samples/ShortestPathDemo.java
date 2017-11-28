@@ -3,22 +3,15 @@
  */
 package edu.uci.ics.jung.samples;
 
-import com.google.common.graph.ElementOrder;
-import com.google.common.graph.EndpointPair;
-import com.google.common.graph.Graph;
-import com.google.common.graph.MutableNetwork;
-import com.google.common.graph.Network;
-import com.google.common.graph.NetworkBuilder;
+import com.google.common.graph.*;
 import edu.uci.ics.jung.algorithms.generators.random.EppsteinPowerLawGenerator;
 import edu.uci.ics.jung.algorithms.shortestpath.BFSDistanceLabeler;
 import edu.uci.ics.jung.layout.algorithms.FRLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
 import edu.uci.ics.jung.layout.model.LayoutModel;
-import edu.uci.ics.jung.layout.model.PointModel;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
-import edu.uci.ics.jung.visualization.layout.AWTPointModel;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
 import java.awt.*;
 import java.awt.geom.Point2D;
@@ -38,8 +31,6 @@ public class ShortestPathDemo extends JPanel {
   /** */
   private static final long serialVersionUID = 7526217664458188502L;
 
-  private static final PointModel<Point2D> POINT_MODEL = new AWTPointModel();
-
   /** Starting vertex */
   private String mFrom;
 
@@ -54,7 +45,7 @@ public class ShortestPathDemo extends JPanel {
     this.mGraph = getGraph();
     setBackground(Color.WHITE);
     // show graph
-    final LayoutAlgorithm<String, Point2D> layoutAlgorithm = new FRLayoutAlgorithm<>(POINT_MODEL);
+    final LayoutAlgorithm<String, Point2D> layoutAlgorithm = new FRLayoutAlgorithm<>();
     final VisualizationViewer<String, Number> vv =
         new VisualizationViewer<>(mGraph, layoutAlgorithm);
     vv.setBackground(Color.WHITE);

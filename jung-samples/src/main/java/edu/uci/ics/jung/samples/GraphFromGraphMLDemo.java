@@ -13,16 +13,11 @@ import com.google.common.graph.NetworkBuilder;
 import edu.uci.ics.jung.io.GraphMLReader;
 import edu.uci.ics.jung.layout.algorithms.FRLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
-import edu.uci.ics.jung.layout.model.PointModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
-import edu.uci.ics.jung.visualization.control.AbstractModalGraphMouse;
-import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
-import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
-import edu.uci.ics.jung.visualization.control.GraphMouseListener;
-import edu.uci.ics.jung.visualization.control.ScalingControl;
-import edu.uci.ics.jung.visualization.layout.AWTPointModel;
-import edu.uci.ics.jung.visualization.renderers.*;
+import edu.uci.ics.jung.visualization.control.*;
+import edu.uci.ics.jung.visualization.renderers.BasicVertexLabelRenderer;
+import edu.uci.ics.jung.visualization.renderers.GradientVertexRenderer;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
@@ -39,8 +34,6 @@ import org.xml.sax.SAXException;
  * @author Tom Nelson
  */
 public class GraphFromGraphMLDemo {
-
-  private static final PointModel<Point2D> POINT_MODEL = new AWTPointModel();
 
   /** the visual component and renderer for the graph */
   VisualizationViewer<Number, Number> vv;
@@ -80,7 +73,7 @@ public class GraphFromGraphMLDemo {
     gmlr.load(new InputStreamReader(this.getClass().getResourceAsStream(filename)), graph);
 
     // create a simple graph for the demo
-    LayoutAlgorithm<Number, Point2D> layoutAlgorithm = new FRLayoutAlgorithm<>(POINT_MODEL);
+    LayoutAlgorithm<Number, Point2D> layoutAlgorithm = new FRLayoutAlgorithm<>();
     vv = new VisualizationViewer<>(graph, layoutAlgorithm);
 
     vv.addGraphMouseListener(new TestGraphMouseListener<>());

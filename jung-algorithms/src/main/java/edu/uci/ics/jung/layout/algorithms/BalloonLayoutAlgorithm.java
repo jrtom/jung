@@ -17,7 +17,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.graph.Graph;
 import edu.uci.ics.jung.graph.util.TreeUtils;
 import edu.uci.ics.jung.layout.model.LayoutModel;
-import edu.uci.ics.jung.layout.model.PointModel;
 import edu.uci.ics.jung.layout.model.PolarPoint;
 import java.util.HashMap;
 import java.util.Map;
@@ -47,17 +46,9 @@ public class BalloonLayoutAlgorithm<N, P> extends TreeLayoutAlgorithm<N, P> {
 
   protected Map<N, Double> radii = new HashMap<N, Double>();
 
-  /**
-   * Creates an instance based on the input Network.
-   *
-   * @param
-   */
-  public BalloonLayoutAlgorithm(PointModel<P> pointModel) {
-    super(pointModel);
-  }
-
   @Override
   public void visit(LayoutModel<N, P> layoutModel) {
+    super.visit(layoutModel);
     if (log.isTraceEnabled()) {
       log.trace("visit {}", layoutModel);
     }

@@ -35,11 +35,7 @@ public abstract class AbstractLayoutModel<N, P>
   protected CompletableFuture theFuture;
   protected LayoutModel.ChangeSupport changeSupport = new DefaultLayoutModelChangeSupport();
 
-  public AbstractLayoutModel(Graph<N> graph, PointModel<P> pointModel, int width, int height) {
-    this(graph, pointModel, width, height, 0);
-  }
-
-  public AbstractLayoutModel(
+  protected AbstractLayoutModel(
       Graph<N> graph, PointModel<P> pointModel, int width, int height, int depth) {
     this.graph = graph;
     this.pointModel = pointModel;
@@ -257,8 +253,17 @@ public abstract class AbstractLayoutModel<N, P>
   }
 
   @Override
-  public void set(N node, double x, double y, boolean forceUpdate) {
-    this.set(node, x, y, 0, forceUpdate);
+  public void set(N node, P location) {
+    if (isFireEvents()) {
+      fireChanged();
+    }
+  }
+
+  @Override
+  public void set(N node, double x, double y, double z) {
+    if (isFireEvents()) {
+      fireChanged();
+    }
   }
 
   /**

@@ -12,10 +12,9 @@ import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
 import edu.uci.ics.jung.layout.algorithms.KKLayoutAlgorithm;
-import edu.uci.ics.jung.layout.model.PointModel;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
-import edu.uci.ics.jung.visualization.layout.AWTPointModel;
-import edu.uci.ics.jung.visualization.renderers.*;
+import edu.uci.ics.jung.visualization.renderers.BasicVertexLabelRenderer;
+import edu.uci.ics.jung.visualization.renderers.GradientVertexRenderer;
 import java.awt.*;
 import java.awt.geom.Point2D;
 import javax.swing.*;
@@ -26,8 +25,6 @@ import javax.swing.*;
  * @author Tom Nelson
  */
 public class VisualizationImageServerDemo {
-
-  private static final PointModel<Point2D> POINT_MODEL = new AWTPointModel();
 
   /** the graph */
   Network<Integer, Double> graph;
@@ -41,9 +38,7 @@ public class VisualizationImageServerDemo {
     // create a simple graph for the demo
     graph = createGraph();
 
-    vv =
-        new VisualizationImageServer<>(
-            graph, new KKLayoutAlgorithm<>(POINT_MODEL), new Dimension(600, 600));
+    vv = new VisualizationImageServer<>(graph, new KKLayoutAlgorithm<>(), new Dimension(600, 600));
 
     vv.getRenderer()
         .setVertexRenderer(

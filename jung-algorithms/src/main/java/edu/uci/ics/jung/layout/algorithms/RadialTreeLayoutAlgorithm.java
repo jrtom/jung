@@ -11,7 +11,6 @@
 package edu.uci.ics.jung.layout.algorithms;
 
 import edu.uci.ics.jung.layout.model.LayoutModel;
-import edu.uci.ics.jung.layout.model.PointModel;
 import edu.uci.ics.jung.layout.model.PolarPoint;
 import java.util.Collection;
 import java.util.HashMap;
@@ -30,16 +29,16 @@ public class RadialTreeLayoutAlgorithm<N, P> extends TreeLayoutAlgorithm<N, P> {
 
   protected Map<N, PolarPoint> polarLocations;
 
-  public RadialTreeLayoutAlgorithm(PointModel<P> pointModel) {
-    this(pointModel, DEFAULT_DISTX, DEFAULT_DISTY);
+  public RadialTreeLayoutAlgorithm() {
+    this(DEFAULT_DISTX, DEFAULT_DISTY);
   }
 
-  public RadialTreeLayoutAlgorithm(PointModel<P> pointModel, int distx) {
-    this(pointModel, distx, DEFAULT_DISTY);
+  public RadialTreeLayoutAlgorithm(int distx) {
+    this(distx, DEFAULT_DISTY);
   }
 
-  public RadialTreeLayoutAlgorithm(PointModel<P> pointModel, int distx, int disty) {
-    super(pointModel, distx, disty);
+  public RadialTreeLayoutAlgorithm(int distx, int disty) {
+    super(distx, disty);
     this.polarLocations = new HashMap<N, PolarPoint>();
   }
 
@@ -115,7 +114,6 @@ public class RadialTreeLayoutAlgorithm<N, P> extends TreeLayoutAlgorithm<N, P> {
       PolarPoint polarPoint =
           new PolarPoint(
               pointModel.getX(p) * theta, (pointModel.getY(p) - this.distY) * deltaRadius);
-      //      log.info("for {}, put {} {}",p, node, polarPoint);
       polarLocations.put(node, polarPoint);
     }
   }

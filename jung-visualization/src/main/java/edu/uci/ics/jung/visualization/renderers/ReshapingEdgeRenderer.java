@@ -67,7 +67,7 @@ public class ReshapingEdgeRenderer<V, E> extends BasicEdgeRenderer<V, E>
         renderContext.getMultiLayerTransformer().getTransformer(Layer.VIEW);
     if (transformer instanceof LensTransformer) {
       LensTransformer ht = (LensTransformer) transformer;
-      RectangularShape lensShape = ht.getLensShape();
+      RectangularShape lensShape = ht.getLens().getLensShape();
       if (lensShape.contains(x1, y1) || lensShape.contains(x2, y2)) {
         flatness = .05f;
       }

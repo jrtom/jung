@@ -90,11 +90,6 @@ public class AggregateLayoutModel<N, P> implements LayoutModel<N, P> {
     }
   }
 
-  //  @Override
-  //  public void setFireEvents(boolean fireEvents) {
-  //    delegate.setFireEvents(fireEvents);
-  //  }
-
   @Override
   public void set(N node, P location) {
     delegate.set(node, location);
@@ -108,21 +103,6 @@ public class AggregateLayoutModel<N, P> implements LayoutModel<N, P> {
   @Override
   public void set(N node, double x, double y, double z) {
     delegate.set(node, x, y, z);
-  }
-
-  @Override
-  public void set(N node, P location, boolean forceUpdate) {
-    delegate.set(node, location, forceUpdate);
-  }
-
-  @Override
-  public void set(N node, double x, double y, boolean forceUpdate) {
-    delegate.set(node, x, y, forceUpdate);
-  }
-
-  @Override
-  public void set(N node, double x, double y, double z, boolean forceUpdate) {
-    delegate.set(node, x, y, z, forceUpdate);
   }
 
   @Override
@@ -222,10 +202,8 @@ public class AggregateLayoutModel<N, P> implements LayoutModel<N, P> {
    */
   public P apply(N node) {
     PointModel<P> pointModel = delegate.getPointModel();
-    boolean wasInSublayout = false;
     for (LayoutModel<N, P> layoutModel : layouts.keySet()) {
       if (layoutModel.getGraph().nodes().contains(node)) {
-        wasInSublayout = true;
         P center = layouts.get(layoutModel);
         // transform by the layout itself, but offset to the
         // center of the sublayout
@@ -243,10 +221,7 @@ public class AggregateLayoutModel<N, P> implements LayoutModel<N, P> {
         return pointModel.newPoint(destPoints[0], destPoints[1]);
       }
     }
-    if (wasInSublayout == false) {
-      return delegate.apply(node);
-    }
-    return null;
+    return delegate.apply(node);
   }
 
   /** @return {@code true} iff the delegate layout and all sublayouts are done */

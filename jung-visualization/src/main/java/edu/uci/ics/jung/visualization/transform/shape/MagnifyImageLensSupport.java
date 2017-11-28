@@ -16,13 +16,12 @@ import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalLensGraphMouse;
 import edu.uci.ics.jung.visualization.layout.NetworkElementAccessor;
-import edu.uci.ics.jung.visualization.picking.ViewLensShapePickSupport;
 import edu.uci.ics.jung.visualization.renderers.BasicRenderer;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
 import edu.uci.ics.jung.visualization.renderers.ReshapingEdgeRenderer;
 import edu.uci.ics.jung.visualization.transform.AbstractLensSupport;
 import edu.uci.ics.jung.visualization.transform.LensTransformer;
-import java.awt.Dimension;
+import java.awt.*;
 
 /**
  * Changes various visualization settings to activate or deactivate an examining lens for a jung
@@ -70,7 +69,7 @@ public class MagnifyImageLensSupport<V, E> extends AbstractLensSupport<V, E> {
     if (d.width == 0 || d.height == 0) {
       d = vv.getPreferredSize();
     }
-    lensTransformer.setViewRadius(d.width / 5);
+    lensTransformer.getLens().setViewRadius(d.width / 5);
     this.lensGraphicsDecorator = new MagnifyIconGraphics(lensTransformer);
   }
 
@@ -83,12 +82,11 @@ public class MagnifyImageLensSupport<V, E> extends AbstractLensSupport<V, E> {
     if (lensControls == null) {
       lensControls = new LensControls(lensTransformer);
     }
-    renderContext.setPickSupport(new ViewLensShapePickSupport<V, E>(vv));
     lensTransformer.setDelegate(
         vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.VIEW));
     vv.getRenderContext().getMultiLayerTransformer().setTransformer(Layer.VIEW, lensTransformer);
     this.renderContext.setGraphicsContext(lensGraphicsDecorator);
-    vv.getRenderer().setEdgeRenderer(reshapingEdgeRenderer);
+    //    vv.getRenderer().setEdgeRenderer(reshapingEdgeRenderer);
     vv.addPreRenderPaintable(lens);
     vv.addPostRenderPaintable(lensControls);
     vv.setGraphMouse(lensGraphMouse);
@@ -104,7 +102,7 @@ public class MagnifyImageLensSupport<V, E> extends AbstractLensSupport<V, E> {
     vv.removePreRenderPaintable(lens);
     vv.removePostRenderPaintable(lensControls);
     this.renderContext.setGraphicsContext(savedGraphicsDecorator);
-    vv.getRenderer().setEdgeRenderer(savedEdgeRenderer);
+    //    vv.getRenderer().setEdgeRenderer(savedEdgeRenderer);
     vv.setToolTipText(defaultToolTipText);
     vv.setGraphMouse(graphMouse);
     vv.repaint();

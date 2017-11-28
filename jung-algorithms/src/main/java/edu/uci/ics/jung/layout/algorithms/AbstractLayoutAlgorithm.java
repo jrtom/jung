@@ -1,5 +1,6 @@
 package edu.uci.ics.jung.layout.algorithms;
 
+import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.layout.model.PointModel;
 
 /**
@@ -10,15 +11,10 @@ import edu.uci.ics.jung.layout.model.PointModel;
 public abstract class AbstractLayoutAlgorithm<N, P> implements LayoutAlgorithm<N, P> {
 
   /** the model to abstract the point system being used (AWT, FX, etc) */
-  protected final PointModel<P> pointModel;
+  protected PointModel<P> pointModel;
 
-  /**
-   * create an instance using the passed pointModel
-   *
-   * @param pointModel
-   */
-  protected AbstractLayoutAlgorithm(PointModel<P> pointModel) {
-    this.pointModel = pointModel;
+  public void visit(LayoutModel<N, P> layoutModel) {
+    this.pointModel = layoutModel.getPointModel();
   }
 
   public void reset() {}
