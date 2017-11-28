@@ -14,6 +14,7 @@
 package edu.uci.ics.jung.algorithms.util;
 
 import com.google.common.base.Preconditions;
+import com.google.common.math.Stats;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -147,10 +148,13 @@ public class KMeansClusterer<T> {
         Map<T, double[]> elements = entry.getValue();
         ArrayList<double[]> locations = new ArrayList<double[]>(elements.values());
 
-        double[] mean = DiscreteDistribution.mean(locations);
-        max_movement =
-            Math.max(max_movement, Math.sqrt(DiscreteDistribution.squaredError(centroid, mean)));
-        new_centroids.add(mean);
+        double[] means = new double[locations.size()];
+        int index = 0;
+        for (double[] location : locations) {
+          means[index++] = Stats.meanOf(location);
+        }
+        max_movement = Math.max(max_movement, Math.sqrt(squaredError(centroid, means)));
+        new_centroids.add(means);
       }
 
       // TODO: check membership of clusters: have they changed?
@@ -182,11 +186,11 @@ public class KMeansClusterer<T> {
       // find the cluster with the closest centroid
       Iterator<double[]> c_iter = centroids.iterator();
       double[] closest = c_iter.next();
-      double distance = DiscreteDistribution.squaredError(location, closest);
+      double distance = squaredError(location, closest);
 
       while (c_iter.hasNext()) {
         double[] centroid = c_iter.next();
-        double dist_cur = DiscreteDistribution.squaredError(location, centroid);
+        double dist_cur = squaredError(location, centroid);
         if (dist_cur < distance) {
           distance = dist_cur;
           closest = centroid;
@@ -196,6 +200,28 @@ public class KMeansClusterer<T> {
     }
 
     return clusterMap;
+  }
+
+  /**
+   * Returns the squared difference between the two specified distributions, which must have the
+   * same number of elements. This is defined as the sum over all <code>i</code> of the square of
+   * <code>(dist[i] - reference[i])</code>.
+   *
+   * @param dist the distribution whose distance from {@code reference} is being measured
+   * @param reference the reference distribution
+   * @return sum_i {@code (dist[i] - reference[i])^2}
+   */
+  private static double squaredError(double[] dist, double[] reference) {
+    double error = 0;
+
+    Preconditions.checkArgument(
+        dist.length == reference.length, "input arrays must be of the same length");
+
+    for (int i = 0; i < dist.length; i++) {
+      double difference = dist[i] - reference[i];
+      error += difference * difference;
+    }
+    return error;
   }
 
   /**
