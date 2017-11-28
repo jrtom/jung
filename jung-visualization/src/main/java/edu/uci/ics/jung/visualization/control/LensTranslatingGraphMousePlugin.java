@@ -91,7 +91,7 @@ public class LensTranslatingGraphMousePlugin extends TranslatingGraphMousePlugin
    * @param point
    */
   private void setViewCenter(Lens lens, Point2D point) {
-    lens.setViewCenter(point);
+    lens.setCenter(point);
   }
 
   /**
@@ -102,7 +102,7 @@ public class LensTranslatingGraphMousePlugin extends TranslatingGraphMousePlugin
    */
   private void setViewRadius(Lens lens, Point2D point) {
     double distanceFromCenter = lens.getDistanceFromCenter(point);
-    lens.setViewRadius(distanceFromCenter + edgeOffset);
+    lens.setRadius(distanceFromCenter + edgeOffset);
   }
 
   /**
@@ -114,11 +114,11 @@ public class LensTranslatingGraphMousePlugin extends TranslatingGraphMousePlugin
   private void testViewCenter(Lens lens, Point2D point) {
     double distanceFromCenter = lens.getDistanceFromCenter(point);
     if (distanceFromCenter < 10) {
-      lens.setViewCenter(point);
+      lens.setCenter(point);
       dragOnLens = true;
-    } else if (Math.abs(distanceFromCenter - lens.getViewRadius()) < 10) {
-      edgeOffset = lens.getViewRadius() - distanceFromCenter;
-      lens.setViewRadius(distanceFromCenter + edgeOffset);
+    } else if (Math.abs(distanceFromCenter - lens.getRadius()) < 10) {
+      edgeOffset = lens.getRadius() - distanceFromCenter;
+      lens.setRadius(distanceFromCenter + edgeOffset);
       dragOnEdge = true;
     }
   }

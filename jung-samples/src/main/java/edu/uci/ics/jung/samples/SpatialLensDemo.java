@@ -16,6 +16,7 @@ import com.google.common.graph.NetworkBuilder;
 import edu.uci.ics.jung.graph.util.TestGraphs;
 import edu.uci.ics.jung.layout.algorithms.KKLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
+import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.visualization.BaseVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.Layer;
@@ -88,7 +89,6 @@ public class SpatialLensDemo extends JPanel {
         TestGraphs.createTestGraph(false);
 
     graphLayoutAlgorithm = new KKLayoutAlgorithm<>();
-    //    graphLayoutAlgorithm.setMaxIterations(1000);
 
     Dimension preferredSize = new Dimension(600, 600);
     Map<String, Point2D> map = new HashMap<>();
@@ -126,7 +126,9 @@ public class SpatialLensDemo extends JPanel {
     vv.addKeyListener(graphMouse.getModeKeyListener());
 
     // create a lens to share between the two hyperbolic transformers
-    Lens lens = new Lens(vv);
+    LayoutModel<String, Point2D> layoutModel = vv.getModel().getLayoutModel();
+    Dimension d = new Dimension(layoutModel.getWidth(), layoutModel.getHeight());
+    Lens lens = new Lens(d);
     hyperbolicViewSupport =
         new ViewLensSupport<>(
             vv,
@@ -143,7 +145,7 @@ public class SpatialLensDemo extends JPanel {
 
     // the magnification lens uses a different magnification than the hyperbolic lens
     // create a new one to share between the two magnigy transformers
-    lens = new Lens(vv);
+    lens = new Lens(d);
     lens.setMagnification(3.f);
     magnifyViewSupport =
         new ViewLensSupport<>(

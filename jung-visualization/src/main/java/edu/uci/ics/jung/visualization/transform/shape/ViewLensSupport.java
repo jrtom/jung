@@ -8,13 +8,13 @@
  */
 package edu.uci.ics.jung.visualization.transform.shape;
 
+import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 import edu.uci.ics.jung.visualization.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
-import edu.uci.ics.jung.visualization.renderers.ReshapingEdgeRenderer;
 import edu.uci.ics.jung.visualization.transform.AbstractLensSupport;
 import edu.uci.ics.jung.visualization.transform.LensSupport;
 import edu.uci.ics.jung.visualization.transform.LensTransformer;
@@ -43,28 +43,26 @@ public class ViewLensSupport<V, E> extends AbstractLensSupport<V, E> implements 
     this.pickSupport = renderContext.getPickSupport();
     this.savedGraphicsDecorator = renderContext.getGraphicsContext();
     this.lensTransformer = lensTransformer;
-    Dimension d = vv.getSize();
-    lensTransformer.getLens().setViewRadius(d.width / 5);
+    LayoutModel layoutModel = vv.getModel().getLayoutModel();
+    Dimension d = new Dimension(layoutModel.getWidth(), layoutModel.getHeight());
+    lensTransformer.getLens().setSize(d);
+
     this.lensGraphicsDecorator = new TransformingFlatnessGraphics(lensTransformer);
     this.savedEdgeRenderer = vv.getRenderer().getEdgeRenderer();
-    this.reshapingEdgeRenderer = new ReshapingEdgeRenderer<V, E>();
-    this.reshapingEdgeRenderer.setEdgeArrowRenderingSupport(
-        savedEdgeRenderer.getEdgeArrowRenderingSupport());
   }
 
   public void activate() {
     lensTransformer.setDelegate(
         vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.VIEW));
-    if (lens == null) {
-      lens = new Lens(lensTransformer);
+    if (lensPaintable == null) {
+      lensPaintable = new LensPaintable(lensTransformer);
     }
     if (lensControls == null) {
       lensControls = new LensControls(lensTransformer);
     }
     vv.getRenderContext().getMultiLayerTransformer().setTransformer(Layer.VIEW, lensTransformer);
     this.renderContext.setGraphicsContext(lensGraphicsDecorator);
-    //    vv.getRenderer().setEdgeRenderer(reshapingEdgeRenderer);
-    vv.prependPreRenderPaintable(lens);
+    vv.prependPreRenderPaintable(lensPaintable);
     vv.addPostRenderPaintable(lensControls);
     vv.setGraphMouse(lensGraphMouse);
     vv.setToolTipText(instructions);
@@ -75,13 +73,12 @@ public class ViewLensSupport<V, E> extends AbstractLensSupport<V, E> implements 
     vv.getRenderContext()
         .getMultiLayerTransformer()
         .setTransformer(Layer.VIEW, lensTransformer.getDelegate());
-    vv.removePreRenderPaintable(lens);
+    vv.removePreRenderPaintable(lensPaintable);
     vv.removePostRenderPaintable(lensControls);
     this.renderContext.setGraphicsContext(savedGraphicsDecorator);
     vv.setRenderContext(renderContext);
     vv.setToolTipText(defaultToolTipText);
     vv.setGraphMouse(graphMouse);
-    //    vv.getRenderer().setEdgeRenderer(savedEdgeRenderer);
     vv.repaint();
   }
 }

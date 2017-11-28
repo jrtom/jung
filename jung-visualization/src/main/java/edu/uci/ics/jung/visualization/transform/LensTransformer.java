@@ -8,7 +8,7 @@
  */
 package edu.uci.ics.jung.visualization.transform;
 
-import java.awt.Component;
+import java.awt.*;
 import java.awt.geom.Point2D;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,9 +29,9 @@ public abstract class LensTransformer extends MutableTransformerDecorator
 
   protected Lens lens;
 
-  /** @param component the component used for rendering */
-  public LensTransformer(Component component) {
-    this(new Lens(component));
+  /** @param d the size used for the lens */
+  public LensTransformer(Dimension d) {
+    this(new Lens(d));
   }
 
   /**
@@ -45,11 +45,11 @@ public abstract class LensTransformer extends MutableTransformerDecorator
   }
 
   /**
-   * @param component the component used for rendering
+   * @param d the size used for the lens
    * @param delegate the transformer to use
    */
-  public LensTransformer(Component component, MutableTransformer delegate) {
-    this(new Lens(component), delegate);
+  public LensTransformer(Dimension d, MutableTransformer delegate) {
+    this(new Lens(d), delegate);
   }
 
   /**

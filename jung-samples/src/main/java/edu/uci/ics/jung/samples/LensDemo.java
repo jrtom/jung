@@ -127,7 +127,10 @@ public class LensDemo extends JApplet {
     vv.addKeyListener(graphMouse.getModeKeyListener());
 
     // create a lens to share between the two hyperbolic transformers
-    Lens lens = new Lens(vv);
+    LayoutModel<String, Point2D> layoutModel = vv.getModel().getLayoutModel();
+    Dimension d = new Dimension(layoutModel.getWidth(), layoutModel.getHeight());
+
+    Lens lens = new Lens(d);
     hyperbolicViewSupport =
         new ViewLensSupport<>(
             vv,
@@ -144,7 +147,7 @@ public class LensDemo extends JApplet {
 
     // the magnification lens uses a different magnification than the hyperbolic lens
     // create a new one to share between the two magnigy transformers
-    lens = new Lens(vv);
+    lens = new Lens(d);
     lens.setMagnification(3.f);
     magnifyViewSupport =
         new ViewLensSupport<>(
@@ -236,7 +239,6 @@ public class LensDemo extends JApplet {
     graphButton.addItemListener(
         e -> {
           if (e.getStateChange() == ItemEvent.SELECTED) {
-            LayoutModel layoutModel = visualizationModel.getLayoutModel();
             layoutModel.setInitializer(
                 new RandomLocationTransformer<String, Point2D>(
                     POINT_MODEL,
@@ -255,7 +257,6 @@ public class LensDemo extends JApplet {
     gridButton.addItemListener(
         e -> {
           if (e.getStateChange() == ItemEvent.SELECTED) {
-            LayoutModel layoutModel = visualizationModel.getLayoutModel();
             layoutModel.setInitializer(vlf);
             // so it won't start running the old layout algorithm on the new graph
             visualizationModel.setNetwork(grid, false);

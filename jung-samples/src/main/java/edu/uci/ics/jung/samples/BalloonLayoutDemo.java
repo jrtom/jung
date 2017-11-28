@@ -13,6 +13,7 @@ import edu.uci.ics.jung.graph.MutableCTreeNetwork;
 import edu.uci.ics.jung.graph.TreeNetworkBuilder;
 import edu.uci.ics.jung.layout.algorithms.BalloonLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.TreeLayoutAlgorithm;
+import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.layout.util.LayoutAlgorithmTransition;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.Layer;
@@ -89,8 +90,9 @@ public class BalloonLayoutDemo extends JApplet {
 
     vv.setGraphMouse(graphMouse);
     vv.addKeyListener(graphMouse.getModeKeyListener());
-
-    Lens lens = new Lens(vv);
+    LayoutModel layoutModel = vv.getModel().getLayoutModel();
+    Dimension d = new Dimension(layoutModel.getWidth(), layoutModel.getHeight());
+    Lens lens = new Lens(d);
     hyperbolicViewSupport =
         new ViewLensSupport<>(
             vv,
@@ -214,8 +216,6 @@ public class BalloonLayoutDemo extends JApplet {
         AffineTransform at = AffineTransform.getTranslateInstance(p.getX(), p.getY());
         Shape shape = at.createTransformedShape(ellipse);
 
-        //        MutableTransformer viewTransformer =
-        //            vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.VIEW);
         MultiLayerTransformer multiLayerTransformer =
             vv.getRenderContext().getMultiLayerTransformer();
 
@@ -225,8 +225,11 @@ public class BalloonLayoutDemo extends JApplet {
         if (viewTransformer instanceof LensTransformer) {
           shape = multiLayerTransformer.transform(shape);
         } else if (layoutTransformer instanceof LensTransformer) {
+          LayoutModel<String, Point2D> layoutModel = vv.getModel().getLayoutModel();
+          Dimension d = new Dimension(layoutModel.getWidth(), layoutModel.getHeight());
+
           HyperbolicShapeTransformer shapeChanger =
-              new HyperbolicShapeTransformer(vv, viewTransformer);
+              new HyperbolicShapeTransformer(d, viewTransformer);
           LensTransformer lensTransformer = (LensTransformer) layoutTransformer;
           shapeChanger.getLens().setLensShape(lensTransformer.getLens().getLensShape());
           MutableTransformer layoutDelegate =
@@ -235,12 +238,6 @@ public class BalloonLayoutDemo extends JApplet {
         } else {
           shape = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, shape);
         }
-
-        //        if (viewTransformer instanceof MutableTransformerDecorator) {
-        //          shape = vv.getRenderContext().getMultiLayerTransformer().transform(shape);
-        //        } else {
-        //          shape = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, shape);
-        //        }
 
         g2d.draw(shape);
       }

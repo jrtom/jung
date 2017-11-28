@@ -34,20 +34,24 @@ public class MagnifyTransformer extends LensTransformer implements MutableTransf
    * Create an instance, setting values from the passed component and registering to listen for
    * layoutSize changes on the component.
    *
-   * @param component the component used for rendering
+   * @param d the size used for the lens
    */
-  public MagnifyTransformer(Component component) {
-    this(component, new MutableAffineTransformer());
+  public MagnifyTransformer(Dimension d) {
+    this(d, new MutableAffineTransformer());
+  }
+
+  public MagnifyTransformer(Lens lens) {
+    this(lens, new MutableAffineTransformer());
   }
 
   /**
    * Create an instance with a possibly shared transform.
    *
-   * @param component the component used for rendering
+   * @param d the size used for the lens
    * @param delegate the transformer to use
    */
-  public MagnifyTransformer(Component component, MutableTransformer delegate) {
-    super(component, delegate);
+  public MagnifyTransformer(Dimension d, MutableTransformer delegate) {
+    super(d, delegate);
   }
 
   public MagnifyTransformer(Lens lens, MutableTransformer delegate) {
@@ -59,8 +63,8 @@ public class MagnifyTransformer extends LensTransformer implements MutableTransf
     if (graphPoint == null) {
       return null;
     }
-    Point2D viewCenter = lens.getViewCenter();
-    double viewRadius = lens.getViewRadius();
+    Point2D viewCenter = lens.getCenter();
+    double viewRadius = lens.getRadius();
     double ratio = lens.getRatio();
     // transform the point from the graph to the view
     Point2D viewPoint = delegate.transform(graphPoint);
@@ -93,8 +97,8 @@ public class MagnifyTransformer extends LensTransformer implements MutableTransf
   /** override base class to un-project the fisheye effect */
   public Point2D inverseTransform(Point2D viewPoint) {
 
-    Point2D viewCenter = lens.getViewCenter();
-    double viewRadius = lens.getViewRadius();
+    Point2D viewCenter = lens.getCenter();
+    double viewRadius = lens.getRadius();
     double ratio = lens.getRatio();
     double dx = viewPoint.getX() - viewCenter.getX();
     double dy = viewPoint.getY() - viewCenter.getY();
@@ -131,7 +135,7 @@ public class MagnifyTransformer extends LensTransformer implements MutableTransf
     if (graphPoint == null) {
       return null;
     }
-    Point2D viewCenter = lens.getViewCenter();
+    Point2D viewCenter = lens.getCenter();
     double ratio = lens.getRatio();
     // transform the point from the graph to the view
     Point2D viewPoint = graphPoint;
