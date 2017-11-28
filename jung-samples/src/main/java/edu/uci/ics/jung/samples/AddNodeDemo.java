@@ -18,8 +18,6 @@ import edu.uci.ics.jung.layout.util.LayoutAlgorithmTransition;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import java.awt.*;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.awt.geom.Point2D;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -81,20 +79,6 @@ public class AddNodeDemo extends JPanel {
         .setPosition(edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position.CNTR);
     vv.getRenderContext().setVertexLabelTransformer(Object::toString);
     vv.setForeground(Color.white);
-
-    vv.addComponentListener(
-        new ComponentAdapter() {
-
-          /**
-           * @see java.awt.event.ComponentAdapter#componentResized(java.awt.event.ComponentEvent)
-           */
-          @Override
-          public void componentResized(ComponentEvent arg0) {
-            super.componentResized(arg0);
-            log.debug("resized");
-            vv.getModel().setLayoutSize(arg0.getComponent().getSize());
-          }
-        });
 
     this.add(vv);
     final JRadioButton animateChange = new JRadioButton("Animate Layout Change");
