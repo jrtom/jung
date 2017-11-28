@@ -15,7 +15,7 @@ import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalLensGraphMouse;
 import edu.uci.ics.jung.visualization.layout.NetworkElementAccessor;
-import java.awt.Dimension;
+import java.awt.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,11 +30,19 @@ public class LayoutLensSupport<V, E> extends AbstractLensSupport<V, E> implement
   private static final Logger log = LoggerFactory.getLogger(LayoutLensSupport.class);
   protected NetworkElementAccessor<V, E> pickSupport;
 
-  public LayoutLensSupport(VisualizationViewer<V, E> vv) {
+  public LayoutLensSupport(VisualizationViewer<V, E> vv, Dimension d) {
     this(
         vv,
         new HyperbolicTransformer(
-            vv, vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT)),
+            d, vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT)),
+        new ModalLensGraphMouse());
+  }
+
+  public LayoutLensSupport(VisualizationViewer<V, E> vv, Lens lens) {
+    this(
+        vv,
+        new HyperbolicTransformer(
+            lens, vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT)),
         new ModalLensGraphMouse());
   }
 
@@ -52,23 +60,17 @@ public class LayoutLensSupport<V, E> extends AbstractLensSupport<V, E> implement
     super(vv, lensGraphMouse);
     this.lensTransformer = lensTransformer;
     this.pickSupport = vv.getPickSupport();
-
-    Dimension d = vv.getSize();
-    if (d.width <= 0 || d.height <= 0) {
-      d = vv.getPreferredSize();
-    }
-    lensTransformer.getLens().setViewRadius(d.width / 5);
   }
 
   public void activate() {
-    if (lens == null) {
-      lens = new Lens(lensTransformer);
+    if (lensPaintable == null) {
+      lensPaintable = new LensPaintable(lensTransformer);
     }
     if (lensControls == null) {
       lensControls = new LensControls(lensTransformer);
     }
     vv.getRenderContext().getMultiLayerTransformer().setTransformer(Layer.LAYOUT, lensTransformer);
-    vv.prependPreRenderPaintable(lens);
+    vv.prependPreRenderPaintable(lensPaintable);
     vv.addPostRenderPaintable(lensControls);
     vv.setGraphMouse(lensGraphMouse);
     vv.setToolTipText(instructions);
@@ -77,7 +79,7 @@ public class LayoutLensSupport<V, E> extends AbstractLensSupport<V, E> implement
 
   public void deactivate() {
     if (lensTransformer != null) {
-      vv.removePreRenderPaintable(lens);
+      vv.removePreRenderPaintable(lensPaintable);
       vv.removePostRenderPaintable(lensControls);
       vv.getRenderContext()
           .getMultiLayerTransformer()

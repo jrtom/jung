@@ -98,7 +98,7 @@ public class SimpleGraphSpatialSearchTest extends JPanel {
           }
         });
 
-    JRadioButton showSpatialEffects = new JRadioButton("Spatial Structure");
+    JRadioButton showSpatialEffects = new JRadioButton("Show Spatial Structure");
     showSpatialEffects.addItemListener(
         e -> {
           if (e.getStateChange() == ItemEvent.SELECTED) {
@@ -130,7 +130,7 @@ public class SimpleGraphSpatialSearchTest extends JPanel {
     vv.scaleToLayout(scaler);
     this.add(vv);
     JPanel buttons = new JPanel();
-    JButton search = new JButton("search");
+    JButton search = new JButton("Test 1000 Searches");
     buttons.add(search);
     buttons.add(showSpatialEffects);
     search.addActionListener(

@@ -12,6 +12,7 @@ import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
 import edu.uci.ics.jung.layout.algorithms.FRLayoutAlgorithm;
+import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.LayeredIcon;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
@@ -25,11 +26,10 @@ import edu.uci.ics.jung.visualization.renderers.Checkmark;
 import edu.uci.ics.jung.visualization.renderers.DefaultEdgeLabelRenderer;
 import edu.uci.ics.jung.visualization.renderers.DefaultVertexLabelRenderer;
 import edu.uci.ics.jung.visualization.transform.LayoutLensSupport;
+import edu.uci.ics.jung.visualization.transform.Lens;
 import edu.uci.ics.jung.visualization.transform.LensSupport;
 import edu.uci.ics.jung.visualization.transform.shape.MagnifyImageLensSupport;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.geom.Point2D;
@@ -90,8 +90,8 @@ public class LensVertexImageShaperDemo extends JApplet {
     graph = createGraph();
 
     // Maps for the labels and icons
-    Map<Number, String> map = new HashMap<Number, String>();
-    Map<Number, Icon> iconMap = new HashMap<Number, Icon>();
+    Map<Number, String> map = new HashMap<>();
+    Map<Number, Icon> iconMap = new HashMap<>();
     for (Number node : graph.nodes()) {
       int i = node.intValue();
       map.put(node, iconNames[i % iconNames.length]);
@@ -112,13 +112,11 @@ public class LensVertexImageShaperDemo extends JApplet {
     vv = new VisualizationViewer<>(graph, layoutAlgorithm, new Dimension(600, 600));
 
     Function<Number, Paint> vpf =
-        new PickableVertexPaintTransformer<Number>(
-            vv.getPickedVertexState(), Color.white, Color.yellow);
+        new PickableVertexPaintTransformer<>(vv.getPickedVertexState(), Color.white, Color.yellow);
     vv.getRenderContext().setVertexFillPaintTransformer(vpf);
     vv.getRenderContext()
         .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer<Number>(
-                vv.getPickedEdgeState(), Color.black, Color.cyan));
+            new PickableEdgePaintTransformer<>(vv.getPickedEdgeState(), Color.black, Color.cyan));
 
     vv.setBackground(Color.white);
 
@@ -182,26 +180,16 @@ public class LensVertexImageShaperDemo extends JApplet {
     final GraphZoomScrollPane panel = new GraphZoomScrollPane(vv);
     content.add(panel);
 
-    final DefaultModalGraphMouse<Number, Number> graphMouse =
-        new DefaultModalGraphMouse<Number, Number>();
+    final DefaultModalGraphMouse<Number, Number> graphMouse = new DefaultModalGraphMouse<>();
     vv.setGraphMouse(graphMouse);
 
     final ScalingControl scaler = new CrossoverScalingControl();
 
     JButton plus = new JButton("+");
-    plus.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            scaler.scale(vv, 1.1f, vv.getCenter());
-          }
-        });
+    plus.addActionListener(e -> scaler.scale(vv, 1.1f, vv.getCenter()));
+
     JButton minus = new JButton("-");
-    minus.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            scaler.scale(vv, 1 / 1.1f, vv.getCenter());
-          }
-        });
+    minus.addActionListener(e -> scaler.scale(vv, 1 / 1.1f, vv.getCenter()));
 
     JComboBox<Mode> modeBox = graphMouse.getModeComboBox();
     JPanel modePanel = new JPanel();
@@ -218,12 +206,13 @@ public class LensVertexImageShaperDemo extends JApplet {
     controls.add(modePanel);
     content.add(controls, BorderLayout.SOUTH);
 
-    this.viewSupport = new MagnifyImageLensSupport<Number, Number>(vv);
-    //        	new ViewLensSupport<Number,Number>(vv, new HyperbolicShapeTransformer(vv,
-    //        		vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.VIEW)),
-    //                new ModalLensGraphMouse());
+    LayoutModel<Number, Point2D> layoutModel = vv.getModel().getLayoutModel();
+    Dimension d = new Dimension(layoutModel.getWidth(), layoutModel.getHeight());
+    Lens lens = new Lens(d);
+    lens.setMagnification(2.0f);
+    this.viewSupport = new MagnifyImageLensSupport<>(vv, lens);
 
-    this.modelSupport = new LayoutLensSupport<Number, Number>(vv);
+    this.modelSupport = new LayoutLensSupport<>(vv, lens);
 
     graphMouse.addItemListener(modelSupport.getGraphMouse().getModeListener());
     graphMouse.addItemListener(viewSupport.getGraphMouse().getModeListener());
@@ -231,33 +220,23 @@ public class LensVertexImageShaperDemo extends JApplet {
     ButtonGroup radio = new ButtonGroup();
     JRadioButton none = new JRadioButton("None");
     none.addItemListener(
-        new ItemListener() {
-          public void itemStateChanged(ItemEvent e) {
-            if (viewSupport != null) {
-              viewSupport.deactivate();
-            }
-            if (modelSupport != null) {
-              modelSupport.deactivate();
-            }
+        e -> {
+          if (viewSupport != null) {
+            viewSupport.deactivate();
+          }
+          if (modelSupport != null) {
+            modelSupport.deactivate();
           }
         });
     none.setSelected(true);
 
     JRadioButton hyperView = new JRadioButton("View");
-    hyperView.addItemListener(
-        new ItemListener() {
-          public void itemStateChanged(ItemEvent e) {
-            viewSupport.activate(e.getStateChange() == ItemEvent.SELECTED);
-          }
-        });
+    hyperView.addItemListener(e -> viewSupport.activate(e.getStateChange() == ItemEvent.SELECTED));
 
     JRadioButton hyperModel = new JRadioButton("Layout");
     hyperModel.addItemListener(
-        new ItemListener() {
-          public void itemStateChanged(ItemEvent e) {
-            modelSupport.activate(e.getStateChange() == ItemEvent.SELECTED);
-          }
-        });
+        e -> modelSupport.activate(e.getStateChange() == ItemEvent.SELECTED));
+
     radio.add(none);
     radio.add(hyperView);
     radio.add(hyperModel);
