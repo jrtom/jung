@@ -10,6 +10,7 @@
 
 package edu.uci.ics.jung.visualization.transform.shape;
 
+import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
@@ -22,6 +23,7 @@ import edu.uci.ics.jung.visualization.transform.AbstractLensSupport;
 import edu.uci.ics.jung.visualization.transform.Lens;
 import edu.uci.ics.jung.visualization.transform.LensTransformer;
 import java.awt.*;
+import java.awt.geom.Point2D;
 
 /**
  * Changes various visualization settings to activate or deactivate an examining lens for a jung
@@ -45,8 +47,14 @@ public class MagnifyImageLensSupport<V, E> extends AbstractLensSupport<V, E> {
           + "Mouse-Drag the Lens edge to resize it<p>"
           + "Ctrl+MouseWheel to change magnification</center></html>";
 
-  public MagnifyImageLensSupport(VisualizationViewer<V, E> vv, Dimension d) {
-    this(vv, new MagnifyShapeTransformer(d), new ModalLensGraphMouse());
+  public MagnifyImageLensSupport(VisualizationViewer<V, E> vv) {
+    super(vv, new ModalLensGraphMouse());
+    LayoutModel<V, Point2D> layoutModel = vv.getModel().getLayoutModel();
+    Dimension layoutModelSize = new Dimension(layoutModel.getWidth(), layoutModel.getHeight());
+    Lens lens = new Lens(layoutModelSize);
+    this.lensTransformer =
+        new MagnifyShapeTransformer(
+            lens, vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT));
   }
 
   public MagnifyImageLensSupport(VisualizationViewer<V, E> vv, Lens lens) {

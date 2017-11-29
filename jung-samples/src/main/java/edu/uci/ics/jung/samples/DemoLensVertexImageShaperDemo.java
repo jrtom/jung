@@ -199,9 +199,9 @@ public class DemoLensVertexImageShaperDemo extends JApplet {
     LayoutModel layoutModel = vv.getModel().getLayoutModel();
     Dimension d = new Dimension(layoutModel.getWidth(), layoutModel.getHeight());
 
-    this.viewSupport = new MagnifyImageLensSupport<>(vv, d);
+    this.viewSupport = new MagnifyImageLensSupport<>(vv);
 
-    this.modelSupport = new LayoutLensSupport<>(vv, d);
+    this.modelSupport = new LayoutLensSupport<>(vv);
 
     graphMouse.addItemListener(modelSupport.getGraphMouse().getModeListener());
     graphMouse.addItemListener(viewSupport.getGraphMouse().getModeListener());
