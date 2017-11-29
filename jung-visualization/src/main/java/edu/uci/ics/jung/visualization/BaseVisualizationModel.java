@@ -89,6 +89,8 @@ public class BaseVisualizationModel<N, E>
     Preconditions.checkNotNull(network);
     Preconditions.checkNotNull(layoutAlgorithm);
     Preconditions.checkNotNull(layoutSize);
+    Preconditions.checkArgument(layoutSize.width > 0, "width must be > 0");
+    Preconditions.checkArgument(layoutSize.height > 0, "height must be > 0");
     this.layoutAlgorithm = layoutAlgorithm;
     this.layoutModel = createLayoutModel(network, layoutSize);
 
@@ -106,30 +108,36 @@ public class BaseVisualizationModel<N, E>
   }
 
   private LayoutModel<N, Point2D> createLayoutModel(Network<N, E> network, Dimension layoutSize) {
-    String modelStructure = System.getProperty("layout.model");
-    if (modelStructure == null) {
-      modelStructure = ModelStructure.QUAD_TREE.toString();
+    // the default
+    SpatialSupport spatialSupport = SpatialSupport.QUAD_TREE;
+    String spatialSupportProperty = System.getProperty("layout.model");
+    if (spatialSupportProperty != null) {
+      try {
+        spatialSupport = SpatialSupport.valueOf(spatialSupportProperty);
+      } catch (IllegalArgumentException ex) {
+        // the user set an unknown name
+        log.warn("Unknown ModelStructure type {} ignored.", spatialSupportProperty);
+      }
     }
-    if (ModelStructure.GRID.toString().equals(modelStructure)) {
-      return SpatialGridLayoutModel.<N, Point2D>builder()
-          .setGraph(network.asGraph())
-          .setPointModel(POINT_MODEL)
-          .setSize(layoutSize.width, layoutSize.height)
-          .build();
-
-    } else if (ModelStructure.QUAD_TREE.toString().equals(modelStructure)) {
-      return SpatialQuadTreeLayoutModel.<N, Point2D>builder()
-          .setGraph(network.asGraph())
-          .setPointModel(POINT_MODEL)
-          .setSize(layoutSize.width, layoutSize.height)
-          .build();
-
-    } else {
-      return LoadingCacheLayoutModel.<N, Point2D>builder()
-          .setGraph(network.asGraph())
-          .setPointModel(POINT_MODEL)
-          .setSize(layoutSize.width, layoutSize.height)
-          .build();
+    switch (spatialSupport) {
+      case GRID:
+        return SpatialGridLayoutModel.<N, Point2D>builder()
+            .setGraph(network.asGraph())
+            .setPointModel(POINT_MODEL)
+            .setSize(layoutSize.width, layoutSize.height)
+            .build();
+      case QUAD_TREE:
+        return SpatialQuadTreeLayoutModel.<N, Point2D>builder()
+            .setGraph(network.asGraph())
+            .setPointModel(POINT_MODEL)
+            .setSize(layoutSize.width, layoutSize.height)
+            .build();
+      default:
+        return LoadingCacheLayoutModel.<N, Point2D>builder()
+            .setGraph(network.asGraph())
+            .setPointModel(POINT_MODEL)
+            .setSize(layoutSize.width, layoutSize.height)
+            .build();
     }
   }
 

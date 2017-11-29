@@ -83,7 +83,7 @@ public class VisualizationViewer<N, E> extends BasicVisualizationServer<N, E> {
   /**
    * @param network the network to render
    * @param layoutAlgorithm the algorithm to apply
-   * @param preferredSize the size to hse for both the layout and the screen display
+   * @param preferredSize the size to use for both the layout and the screen display
    */
   public VisualizationViewer(
       Network<N, E> network, LayoutAlgorithm<N, Point2D> layoutAlgorithm, Dimension preferredSize) {

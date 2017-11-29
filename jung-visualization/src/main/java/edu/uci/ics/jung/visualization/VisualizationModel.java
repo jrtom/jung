@@ -20,7 +20,7 @@ import javax.swing.event.ChangeListener;
 /** */
 public interface VisualizationModel<N, E, P> extends LayoutModelAware<N, E, P> {
 
-  enum ModelStructure {
+  enum SpatialSupport {
     QUAD_TREE,
     GRID,
     NONE
