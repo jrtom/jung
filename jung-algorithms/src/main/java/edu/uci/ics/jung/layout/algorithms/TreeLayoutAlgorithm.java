@@ -74,7 +74,6 @@ public class TreeLayoutAlgorithm<N, P> extends AbstractLayoutAlgorithm<N, P> {
     Preconditions.checkArgument(disty >= 1, "Y distance must be positive");
     this.distX = distx;
     this.distY = disty;
-    this.m_currentPoint = pointModel.newPoint(0, 0);
   }
 
   public void visit(LayoutModel<N, P> layoutModel) {
