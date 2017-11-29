@@ -12,6 +12,7 @@ package edu.uci.ics.jung.visualization;
 import com.google.common.collect.Lists;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
+import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.layout.util.Caching;
 import edu.uci.ics.jung.visualization.annotations.AnnotationPaintable;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
@@ -45,6 +46,7 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.swing.*;
@@ -308,7 +310,7 @@ public class BasicVisualizationServer<N, E> extends JPanel
       // when logging is set to trace, the grid will be drawn on the graph visualization
       addSpatialAnnotations(spatial);
     } else {
-      preRenderers.clear();
+      removeSpatialAnnotations();
     }
 
     // if there are  preRenderers set, paint them
@@ -496,6 +498,18 @@ public class BasicVisualizationServer<N, E> extends JPanel
     }
   }
 
+  private void removeSpatialAnnotations() {
+    for (Iterator<Paintable> iterator = preRenderers.iterator(); iterator.hasNext(); ) {
+      Paintable paintable = iterator.next();
+      if (paintable instanceof BasicVisualizationServer.QuadTreeGridPaintable) {
+        iterator.remove();
+      }
+      if (paintable instanceof BasicVisualizationServer.SpatialGridPaintable) {
+        iterator.remove();
+      }
+    }
+  }
+
   class SpatialGridPaintable implements VisualizationServer.Paintable {
     SpatialGrid<N> spatialGrid;
 
@@ -532,8 +546,11 @@ public class BasicVisualizationServer<N, E> extends JPanel
         if (viewTransformer instanceof LensTransformer) {
           shape = multiLayerTransformer.transform(shape);
         } else if (layoutTransformer instanceof LensTransformer) {
+          LayoutModel<N, Point2D> layoutModel = model.getLayoutModel();
+          Dimension d = new Dimension(layoutModel.getWidth(), layoutModel.getHeight());
+
           HyperbolicShapeTransformer shapeChanger =
-              new HyperbolicShapeTransformer(BasicVisualizationServer.this, viewTransformer);
+              new HyperbolicShapeTransformer(d, viewTransformer);
           LensTransformer lensTransformer = (LensTransformer) layoutTransformer;
           shapeChanger.getLens().setLensShape(lensTransformer.getLens().getLensShape());
           MutableTransformer layoutDelegate =
@@ -560,8 +577,10 @@ public class BasicVisualizationServer<N, E> extends JPanel
         if (viewTransformer instanceof LensTransformer) {
           shape = multiLayerTransformer.transform(shape);
         } else if (layoutTransformer instanceof LensTransformer) {
+          LayoutModel<N, Point2D> layoutModel = model.getLayoutModel();
+          Dimension d = new Dimension(layoutModel.getWidth(), layoutModel.getHeight());
           HyperbolicShapeTransformer shapeChanger =
-              new HyperbolicShapeTransformer(BasicVisualizationServer.this, viewTransformer);
+              new HyperbolicShapeTransformer(d, viewTransformer);
           LensTransformer lensTransformer = (LensTransformer) layoutTransformer;
           shapeChanger.getLens().setLensShape(lensTransformer.getLens().getLensShape());
           MutableTransformer layoutDelegate =
@@ -608,8 +627,10 @@ public class BasicVisualizationServer<N, E> extends JPanel
         if (viewTransformer instanceof LensTransformer) {
           shape = multiLayerTransformer.transform(shape);
         } else if (layoutTransformer instanceof LensTransformer) {
+          LayoutModel<N, Point2D> layoutModel = model.getLayoutModel();
+          Dimension d = new Dimension(layoutModel.getWidth(), layoutModel.getHeight());
           HyperbolicShapeTransformer shapeChanger =
-              new HyperbolicShapeTransformer(BasicVisualizationServer.this, viewTransformer);
+              new HyperbolicShapeTransformer(d, viewTransformer);
           LensTransformer lensTransformer = (LensTransformer) layoutTransformer;
           shapeChanger.getLens().setLensShape(lensTransformer.getLens().getLensShape());
           MutableTransformer layoutDelegate =
@@ -630,8 +651,10 @@ public class BasicVisualizationServer<N, E> extends JPanel
           if (viewTransformer instanceof LensTransformer) {
             shape = multiLayerTransformer.transform(shape);
           } else if (layoutTransformer instanceof LensTransformer) {
+            LayoutModel<N, Point2D> layoutModel = model.getLayoutModel();
+            Dimension d = new Dimension(layoutModel.getWidth(), layoutModel.getHeight());
             HyperbolicShapeTransformer shapeChanger =
-                new HyperbolicShapeTransformer(BasicVisualizationServer.this, viewTransformer);
+                new HyperbolicShapeTransformer(d, viewTransformer);
             LensTransformer lensTransformer = (LensTransformer) layoutTransformer;
             shapeChanger.getLens().setLensShape(lensTransformer.getLens().getLensShape());
             MutableTransformer layoutDelegate =

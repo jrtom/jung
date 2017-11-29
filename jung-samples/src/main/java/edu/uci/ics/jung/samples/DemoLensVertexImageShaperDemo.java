@@ -12,6 +12,7 @@ import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
 import edu.uci.ics.jung.layout.algorithms.FRLayoutAlgorithm;
+import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.samples.util.ControlHelpers;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.LayeredIcon;
@@ -194,6 +195,9 @@ public class DemoLensVertexImageShaperDemo extends JApplet {
 
     controls.add(modePanel);
     content.add(controls, BorderLayout.SOUTH);
+
+    LayoutModel layoutModel = vv.getModel().getLayoutModel();
+    Dimension d = new Dimension(layoutModel.getWidth(), layoutModel.getHeight());
 
     this.viewSupport = new MagnifyImageLensSupport<>(vv);
 

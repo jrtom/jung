@@ -1,5 +1,6 @@
 package edu.uci.ics.jung.visualization.control;
 
+import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.MultiLayerTransformer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
@@ -82,8 +83,9 @@ public class LensPickingGraphMousePlugin<N, E> extends PickingGraphMousePlugin<N
     if (viewTransformer instanceof LensTransformer) {
       shape = multiLayerTransformer.inverseTransform(shape);
     } else if (layoutTransformer instanceof LensTransformer) {
-
-      HyperbolicShapeTransformer shapeChanger = new HyperbolicShapeTransformer(vv, viewTransformer);
+      LayoutModel<N, Point2D> layoutModel = vv.getModel().getLayoutModel();
+      Dimension d = new Dimension(layoutModel.getWidth(), layoutModel.getHeight());
+      HyperbolicShapeTransformer shapeChanger = new HyperbolicShapeTransformer(d, viewTransformer);
       LensTransformer lensTransformer = (LensTransformer) layoutTransformer;
       shapeChanger.getLens().setLensShape(lensTransformer.getLens().getLensShape());
       MutableTransformer layoutDelegate =
@@ -121,8 +123,9 @@ public class LensPickingGraphMousePlugin<N, E> extends PickingGraphMousePlugin<N
     if (viewTransformer instanceof LensTransformer) {
       layoutTargetShape = multiLayerTransformer.inverseTransform(shape);
     } else if (layoutTransformer instanceof LensTransformer) {
-
-      HyperbolicShapeTransformer shapeChanger = new HyperbolicShapeTransformer(vv, viewTransformer);
+      LayoutModel<N, Point2D> layoutModel = vv.getModel().getLayoutModel();
+      Dimension d = new Dimension(layoutModel.getWidth(), layoutModel.getHeight());
+      HyperbolicShapeTransformer shapeChanger = new HyperbolicShapeTransformer(d, viewTransformer);
       LensTransformer lensTransformer = (LensTransformer) layoutTransformer;
       shapeChanger.getLens().setLensShape(lensTransformer.getLens().getLensShape());
       MutableTransformer layoutDelegate =

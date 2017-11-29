@@ -14,7 +14,9 @@ import com.google.common.graph.NetworkBuilder;
 import edu.uci.ics.jung.graph.ObservableNetwork;
 import edu.uci.ics.jung.graph.util.Graphs;
 import edu.uci.ics.jung.layout.algorithms.*;
+import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.layout.util.LayoutAlgorithmTransition;
+import edu.uci.ics.jung.visualization.VisualizationModel;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import java.awt.*;
@@ -82,21 +84,28 @@ public class AddNodeDemo extends JPanel {
     vv.getRenderContext().setVertexLabelTransformer(Object::toString);
     vv.setForeground(Color.white);
 
+    this.add(vv);
+
+    // add listener to change layout size and restart layoutalgorithm when
+    // the view is resized
     vv.addComponentListener(
         new ComponentAdapter() {
-
           /**
-           * @see java.awt.event.ComponentAdapter#componentResized(java.awt.event.ComponentEvent)
+           * Invoked when the component's size changes.
+           *
+           * @param e
            */
           @Override
-          public void componentResized(ComponentEvent arg0) {
-            super.componentResized(arg0);
-            log.debug("resized");
-            vv.getModel().setLayoutSize(arg0.getComponent().getSize());
+          public void componentResized(ComponentEvent e) {
+            super.componentResized(e);
+            VisualizationViewer vv = (VisualizationViewer) e.getComponent();
+            VisualizationModel model = vv.getModel();
+            LayoutModel layoutModel = model.getLayoutModel();
+            layoutModel.setSize(vv.getWidth(), vv.getHeight());
+            layoutModel.accept(model.getLayoutAlgorithm());
           }
         });
 
-    this.add(vv);
     final JRadioButton animateChange = new JRadioButton("Animate Layout Change");
     switchLayout = new JButton("Switch to SpringLayout");
     switchLayout.addActionListener(

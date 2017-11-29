@@ -18,8 +18,8 @@ import edu.uci.ics.jung.visualization.control.ModalLensGraphMouse;
 import edu.uci.ics.jung.visualization.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.visualization.renderers.BasicRenderer;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
-import edu.uci.ics.jung.visualization.renderers.ReshapingEdgeRenderer;
 import edu.uci.ics.jung.visualization.transform.AbstractLensSupport;
+import edu.uci.ics.jung.visualization.transform.Lens;
 import edu.uci.ics.jung.visualization.transform.LensTransformer;
 import java.awt.*;
 
@@ -37,8 +37,6 @@ public class MagnifyImageLensSupport<V, E> extends AbstractLensSupport<V, E> {
   protected Renderer<V, E> renderer;
   protected Renderer<V, E> transformingRenderer;
   protected NetworkElementAccessor<V, E> pickSupport;
-  protected Renderer.Edge<V, E> savedEdgeRenderer;
-  protected Renderer.Edge<V, E> reshapingEdgeRenderer;
 
   static final String instructions =
       "<html><center>Mouse-Drag the Lens center to move it<p>"
@@ -46,7 +44,16 @@ public class MagnifyImageLensSupport<V, E> extends AbstractLensSupport<V, E> {
           + "Ctrl+MouseWheel to change magnification</center></html>";
 
   public MagnifyImageLensSupport(VisualizationViewer<V, E> vv) {
-    this(vv, new MagnifyShapeTransformer(vv), new ModalLensGraphMouse());
+    this(
+        vv,
+        new MagnifyShapeTransformer(
+            new Lens(vv.getModel().getLayoutSize()),
+            vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT)),
+        new ModalLensGraphMouse());
+  }
+
+  public MagnifyImageLensSupport(VisualizationViewer<V, E> vv, Lens lens) {
+    this(vv, new MagnifyShapeTransformer(lens), new ModalLensGraphMouse());
   }
 
   public MagnifyImageLensSupport(
@@ -60,24 +67,19 @@ public class MagnifyImageLensSupport<V, E> extends AbstractLensSupport<V, E> {
     this.transformingRenderer = new BasicRenderer<V, E>();
     this.savedGraphicsDecorator = renderContext.getGraphicsContext();
     this.lensTransformer = lensTransformer;
-    this.savedEdgeRenderer = vv.getRenderer().getEdgeRenderer();
-    this.reshapingEdgeRenderer = new ReshapingEdgeRenderer<V, E>();
-    this.reshapingEdgeRenderer.setEdgeArrowRenderingSupport(
-        savedEdgeRenderer.getEdgeArrowRenderingSupport());
 
     Dimension d = vv.getSize();
     if (d.width == 0 || d.height == 0) {
       d = vv.getPreferredSize();
     }
-    lensTransformer.getLens().setViewRadius(d.width / 5);
     this.lensGraphicsDecorator = new MagnifyIconGraphics(lensTransformer);
   }
 
   public void activate() {
     lensTransformer.setDelegate(
         vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.VIEW));
-    if (lens == null) {
-      lens = new Lens(lensTransformer);
+    if (lensPaintable == null) {
+      lensPaintable = new LensPaintable(lensTransformer);
     }
     if (lensControls == null) {
       lensControls = new LensControls(lensTransformer);
@@ -86,8 +88,7 @@ public class MagnifyImageLensSupport<V, E> extends AbstractLensSupport<V, E> {
         vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.VIEW));
     vv.getRenderContext().getMultiLayerTransformer().setTransformer(Layer.VIEW, lensTransformer);
     this.renderContext.setGraphicsContext(lensGraphicsDecorator);
-    //    vv.getRenderer().setEdgeRenderer(reshapingEdgeRenderer);
-    vv.addPreRenderPaintable(lens);
+    vv.addPreRenderPaintable(lensPaintable);
     vv.addPostRenderPaintable(lensControls);
     vv.setGraphMouse(lensGraphMouse);
     vv.setToolTipText(instructions);
@@ -99,10 +100,9 @@ public class MagnifyImageLensSupport<V, E> extends AbstractLensSupport<V, E> {
     vv.getRenderContext()
         .getMultiLayerTransformer()
         .setTransformer(Layer.VIEW, lensTransformer.getDelegate());
-    vv.removePreRenderPaintable(lens);
+    vv.removePreRenderPaintable(lensPaintable);
     vv.removePostRenderPaintable(lensControls);
     this.renderContext.setGraphicsContext(savedGraphicsDecorator);
-    //    vv.getRenderer().setEdgeRenderer(savedEdgeRenderer);
     vv.setToolTipText(defaultToolTipText);
     vv.setGraphMouse(graphMouse);
     vv.repaint();

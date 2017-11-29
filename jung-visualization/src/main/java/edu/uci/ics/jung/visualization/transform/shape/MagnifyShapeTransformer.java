@@ -14,8 +14,7 @@ import edu.uci.ics.jung.layout.model.PolarPoint;
 import edu.uci.ics.jung.visualization.transform.Lens;
 import edu.uci.ics.jung.visualization.transform.MagnifyTransformer;
 import edu.uci.ics.jung.visualization.transform.MutableTransformer;
-import java.awt.Component;
-import java.awt.Shape;
+import java.awt.*;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
@@ -33,25 +32,21 @@ public class MagnifyShapeTransformer extends MagnifyTransformer
     implements ShapeFlatnessTransformer {
 
   private static final Logger log = LoggerFactory.getLogger(MagnifyShapeTransformer.class);
-  /**
-   * Create an instance, setting values from the passed component and registering to listen for
-   * layoutSize changes on the component.
-   *
-   * @param component the component used for rendering
-   */
-  public MagnifyShapeTransformer(Component component) {
-    this(component, null);
+  /** @param d the size used for the lens */
+  public MagnifyShapeTransformer(Dimension d) {
+    super(d);
+  }
+
+  public MagnifyShapeTransformer(Lens lens) {
+    super(lens);
   }
 
   /**
-   * Create an instance, setting values from the passed component and registering to listen for
-   * layoutSize changes on the component, with a possibly shared transform <code>delegate</code>.
-   *
-   * @param component the component used for rendering
+   * @param d the size used for the lens
    * @param delegate the transformer to use
    */
-  public MagnifyShapeTransformer(Component component, MutableTransformer delegate) {
-    super(component, delegate);
+  public MagnifyShapeTransformer(Dimension d, MutableTransformer delegate) {
+    super(d, delegate);
   }
 
   public MagnifyShapeTransformer(Lens lens, MutableTransformer delegate) {
@@ -173,8 +168,8 @@ public class MagnifyShapeTransformer extends MagnifyTransformer
     if (graphPoint == null) {
       return null;
     }
-    Point2D viewCenter = lens.getViewCenter();
-    double viewRadius = lens.getViewRadius();
+    Point2D viewCenter = lens.getCenter();
+    double viewRadius = lens.getRadius();
     double ratio = lens.getRatio();
     // transform the point from the graph to the view
     Point2D viewPoint = graphPoint;
@@ -208,8 +203,8 @@ public class MagnifyShapeTransformer extends MagnifyTransformer
   private Point2D _inverseTransform(Point2D viewPoint) {
 
     viewPoint = delegate.inverseTransform(viewPoint);
-    Point2D viewCenter = lens.getViewCenter();
-    double viewRadius = lens.getViewRadius();
+    Point2D viewCenter = lens.getCenter();
+    double viewRadius = lens.getRadius();
     double ratio = lens.getRatio();
     double dx = viewPoint.getX() - viewCenter.getX();
     double dy = viewPoint.getY() - viewCenter.getY();

@@ -37,20 +37,20 @@ public class HyperbolicTransformer extends LensTransformer implements MutableTra
    * Create an instance, setting values from the passed component and registering to listen for
    * layoutSize changes on the component.
    *
-   * @param component the component used for rendering
+   * @param d the size used for the lens
    */
-  public HyperbolicTransformer(Component component) {
-    this(component, new MutableAffineTransformer());
+  public HyperbolicTransformer(Dimension d) {
+    this(d, new MutableAffineTransformer());
   }
 
   /**
    * create an instance, setting values from the passed component and registering to listen for
    * layoutSize changes on the component
    *
-   * @param component the component used for rendering
+   * @param d the size used for the lens
    */
-  public HyperbolicTransformer(Component component, MutableTransformer delegate) {
-    super(component, delegate);
+  public HyperbolicTransformer(Dimension d, MutableTransformer delegate) {
+    super(d, delegate);
   }
 
   /**
@@ -73,8 +73,8 @@ public class HyperbolicTransformer extends LensTransformer implements MutableTra
     } else {
       log.trace("lens {} does not contain graphPoint {}", lensEllipse, graphPoint);
     }
-    Point2D viewCenter = lens.getViewCenter();
-    double viewRadius = lens.getViewRadius();
+    Point2D viewCenter = lens.getCenter();
+    double viewRadius = lens.getRadius();
     double ratio = lens.getRatio();
     // transform the point from the graph to the view
     Point2D viewPoint = delegate.transform(graphPoint);
@@ -127,8 +127,8 @@ public class HyperbolicTransformer extends LensTransformer implements MutableTra
       log.trace("lens {} does not contain viewPoint {}", lensEllipse, viewPoint);
     }
 
-    Point2D viewCenter = lens.getViewCenter();
-    double viewRadius = lens.getViewRadius();
+    Point2D viewCenter = lens.getCenter();
+    double viewRadius = lens.getRadius();
     double ratio = lens.getRatio();
     double dx = viewPoint.getX() - viewCenter.getX();
     double dy = viewPoint.getY() - viewCenter.getY();

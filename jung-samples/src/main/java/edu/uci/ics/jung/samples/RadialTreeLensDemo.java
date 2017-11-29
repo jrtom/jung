@@ -146,8 +146,10 @@ public class RadialTreeLensDemo extends JApplet {
           }
           vv.repaint();
         });
+    LayoutModel<String, Point2D> layoutModel = vv.getModel().getLayoutModel();
+    Dimension d = new Dimension(layoutModel.getWidth(), layoutModel.getHeight());
 
-    Lens lens = new Lens(vv);
+    Lens lens = new Lens(d);
     hyperbolicViewSupport =
         new ViewLensSupport<>(
             vv,
@@ -278,8 +280,11 @@ public class RadialTreeLensDemo extends JApplet {
         if (viewTransformer instanceof MutableTransformerDecorator) {
           shape = multiLayerTransformer.transform(shape);
         } else if (layoutTransformer instanceof LensTransformer) {
+          LayoutModel<String, Point2D> layoutModel = vv.getModel().getLayoutModel();
+          Dimension dimension = new Dimension(layoutModel.getWidth(), layoutModel.getHeight());
+
           HyperbolicShapeTransformer shapeChanger =
-              new HyperbolicShapeTransformer(vv, viewTransformer);
+              new HyperbolicShapeTransformer(dimension, viewTransformer);
           LensTransformer lensTransformer = (LensTransformer) layoutTransformer;
           shapeChanger.getLens().setLensShape(lensTransformer.getLens().getLensShape());
           MutableTransformer layoutDelegate =

@@ -8,9 +8,8 @@
  */
 package edu.uci.ics.jung.visualization.transform;
 
+import com.google.common.base.Preconditions;
 import java.awt.*;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.RectangularShape;
@@ -34,29 +33,19 @@ public class Lens {
 
   protected float magnification = 0.7f;
 
-  /**
-   * Create an instance with a possibly shared transform.
-   *
-   * @param component the component used for rendering
-   */
-  public Lens(Component component) {
-    setComponent(component);
-    component.addComponentListener(new ComponentListenerImpl());
+  /** @param d the size used for the lens */
+  public Lens(Dimension d) {
+    setSize(d);
   }
 
-  /**
-   * Set values from the passed component.
-   *
-   * @param component the component used for rendering
-   */
-  private void setComponent(Component component) {
-    Dimension d = component.getSize();
-    if (d.width <= 0 || d.height <= 0) {
-      d = component.getPreferredSize();
-    }
-    float ewidth = d.width / 1.5f;
-    float eheight = d.height / 1.5f;
-    lensShape.setFrame(d.width / 2 - ewidth / 2, d.height / 2 - eheight / 2, ewidth, eheight);
+  /** @param d the size used for the lens */
+  public void setSize(Dimension d) {
+    Preconditions.checkNotNull(d);
+    Preconditions.checkArgument(d.width > 0, "width must be > 0");
+    Preconditions.checkArgument(d.height > 0, "height must be > 0");
+    float width = d.width / 1.5f;
+    float height = d.height / 1.5f;
+    lensShape.setFrame((d.width - width) / 2, (d.height - height) / 2, width, height);
   }
 
   public float getMagnification() {
@@ -68,22 +57,23 @@ public class Lens {
     this.magnification = magnification;
   }
 
-  public Point2D getViewCenter() {
+  public Point2D getCenter() {
+
     return new Point2D.Double(lensShape.getCenterX(), lensShape.getCenterY());
   }
 
-  public void setViewCenter(Point2D viewCenter) {
+  public void setCenter(Point2D viewCenter) {
     double width = lensShape.getWidth();
     double height = lensShape.getHeight();
     lensShape.setFrame(
         viewCenter.getX() - width / 2, viewCenter.getY() - height / 2, width, height);
   }
 
-  public double getViewRadius() {
+  public double getRadius() {
     return lensShape.getHeight() / 2;
   }
 
-  public void setViewRadius(double viewRadius) {
+  public void setRadius(double viewRadius) {
     double x = lensShape.getCenterX();
     double y = lensShape.getCenterY();
     double viewRatio = getRatio();
@@ -102,13 +92,6 @@ public class Lens {
 
   public RectangularShape getLensShape() {
     return lensShape;
-  }
-
-  /** react to layoutSize changes on a component */
-  protected class ComponentListenerImpl extends ComponentAdapter {
-    public void componentResized(ComponentEvent e) {
-      setComponent(e.getComponent());
-    }
   }
 
   public double getDistanceFromCenter(Point2D p) {
