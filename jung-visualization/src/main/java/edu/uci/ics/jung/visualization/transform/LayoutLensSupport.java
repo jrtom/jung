@@ -15,7 +15,6 @@ import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalLensGraphMouse;
 import edu.uci.ics.jung.visualization.layout.NetworkElementAccessor;
-import java.awt.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
