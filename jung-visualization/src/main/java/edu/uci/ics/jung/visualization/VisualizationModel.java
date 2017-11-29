@@ -20,6 +20,11 @@ import javax.swing.event.ChangeListener;
 /** */
 public interface VisualizationModel<N, E, P> extends LayoutModelAware<N, E, P> {
 
+  enum ModelStructure {
+    QUAD_TREE,
+    GRID,
+    NONE
+  }
   /** @return the current layoutSize of the visualization's space */
   Dimension getLayoutSize();
 

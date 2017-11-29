@@ -116,33 +116,13 @@ public class BasicVisualizationServer<N, E> extends JPanel
   protected RenderContext<N, E> renderContext;
 
   /**
-   * Create an instance with the specified Layout.
-   *
-   * @param
-   */
-  public BasicVisualizationServer(
-      Network<N, E> network, LayoutAlgorithm<N, Point2D> layoutAlgorithm) {
-    this(new BaseVisualizationModel<N, E>(network, layoutAlgorithm), DEFAULT_SIZE);
-  }
-
-  /**
-   * Create an instance with the specified Layout and view dimension.
-   *
-   * @param
-   * @param preferredSize the preferred layoutSize of this View
+   * @param network the network to render
+   * @param layoutAlgorithm the algorithm to apply
+   * @param preferredSize the size of the graph area
    */
   public BasicVisualizationServer(
       Network<N, E> network, LayoutAlgorithm<N, Point2D> layoutAlgorithm, Dimension preferredSize) {
     this(new BaseVisualizationModel<N, E>(network, layoutAlgorithm, preferredSize), preferredSize);
-  }
-
-  /**
-   * Create an instance with the specified model and a default dimension (600x600).
-   *
-   * @param model the model to use
-   */
-  public BasicVisualizationServer(VisualizationModel<N, E, Point2D> model) {
-    this(model, DEFAULT_SIZE);
   }
 
   /**

@@ -14,6 +14,7 @@ import edu.uci.ics.jung.io.PajekNetReader;
 import edu.uci.ics.jung.layout.algorithms.FRLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
+import java.awt.*;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -27,7 +28,7 @@ public class SimpleGraphDraw {
     JFrame jf = new JFrame();
     Network g = getGraph();
     LayoutAlgorithm layoutAlgorithm = new FRLayoutAlgorithm();
-    VisualizationViewer vv = new VisualizationViewer(g, layoutAlgorithm);
+    VisualizationViewer vv = new VisualizationViewer(g, layoutAlgorithm, new Dimension(900, 900));
     jf.getContentPane().add(vv);
     jf.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     jf.pack();

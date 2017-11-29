@@ -47,7 +47,7 @@ public class ShortestPathDemo extends JPanel {
     // show graph
     final LayoutAlgorithm<String, Point2D> layoutAlgorithm = new FRLayoutAlgorithm<>();
     final VisualizationViewer<String, Number> vv =
-        new VisualizationViewer<>(mGraph, layoutAlgorithm);
+        new VisualizationViewer<>(mGraph, layoutAlgorithm, new Dimension(1000, 1000));
     vv.setBackground(Color.WHITE);
 
     vv.getRenderContext().setVertexDrawPaintTransformer(new MyVertexDrawPaintFunction<>());

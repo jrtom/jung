@@ -206,7 +206,7 @@ public class PluggableRendererDemo extends JApplet implements ActionListener {
     this.graph = buildGraph();
 
     LayoutAlgorithm<Integer, Point2D> layoutAlgorithm = new FRLayoutAlgorithm<>();
-    vv = new VisualizationViewer<>(graph, layoutAlgorithm);
+    vv = new VisualizationViewer<>(graph, layoutAlgorithm, new Dimension(800, 800));
 
     //    vv.getRenderer().setVertexRenderer(new CachingVertexRenderer<Integer, Number>(vv));
     //    vv.getRenderer().setEdgeRenderer(new CachingEdgeRenderer<Integer, Number>(vv));

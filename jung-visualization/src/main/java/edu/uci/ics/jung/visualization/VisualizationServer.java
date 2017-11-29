@@ -27,8 +27,6 @@ import javax.swing.event.EventListenerList;
  */
 public interface VisualizationServer<N, E> {
 
-  Dimension DEFAULT_SIZE = new Dimension(600, 600);
-
   /**
    * Specify whether this class uses its offscreen image or not.
    *

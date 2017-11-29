@@ -74,7 +74,7 @@ public class GraphFromGraphMLDemo {
 
     // create a simple graph for the demo
     LayoutAlgorithm<Number, Point2D> layoutAlgorithm = new FRLayoutAlgorithm<>();
-    vv = new VisualizationViewer<>(graph, layoutAlgorithm);
+    vv = new VisualizationViewer<>(graph, layoutAlgorithm, new Dimension(800, 800));
 
     vv.addGraphMouseListener(new TestGraphMouseListener<>());
     vv.getRenderer()

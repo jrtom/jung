@@ -49,14 +49,29 @@ public class VisualizationViewer<N, E> extends BasicVisualizationServer<N, E> {
         }
       };
 
-  public VisualizationViewer(Network<N, E> network) {
-    this(network, null);
+  /**
+   * @param network the network to render
+   * @param size the size for the layout and for the view
+   */
+  public VisualizationViewer(Network<N, E> network, Dimension size) {
+    this(network, size, size);
   }
 
+  /**
+   * @param network the network to visualize
+   * @param layoutSize the size of the layout area
+   * @param viewSize the size of the view area
+   */
   public VisualizationViewer(Network<N, E> network, Dimension layoutSize, Dimension viewSize) {
     this(network, null, layoutSize, viewSize);
   }
 
+  /**
+   * @param network the network to visualize
+   * @param layoutAlgorithm the algorithm to apply
+   * @param layoutSize the size for the layout area
+   * @param viewSize the size of the window to display the network
+   */
   public VisualizationViewer(
       Network<N, E> network,
       LayoutAlgorithm<N, Point2D> layoutAlgorithm,
@@ -65,19 +80,20 @@ public class VisualizationViewer<N, E> extends BasicVisualizationServer<N, E> {
     this(new BaseVisualizationModel<N, E>(network, layoutAlgorithm, layoutSize), viewSize);
   }
 
-  public VisualizationViewer(Network<N, E> network, LayoutAlgorithm<N, Point2D> layoutAlgorithm) {
-    this(new BaseVisualizationModel<N, E>(network, layoutAlgorithm), DEFAULT_SIZE);
-  }
-
+  /**
+   * @param network the network to render
+   * @param layoutAlgorithm the algorithm to apply
+   * @param preferredSize the size to hse for both the layout and the screen display
+   */
   public VisualizationViewer(
       Network<N, E> network, LayoutAlgorithm<N, Point2D> layoutAlgorithm, Dimension preferredSize) {
-    this(new BaseVisualizationModel<N, E>(network, layoutAlgorithm), preferredSize);
+    this(new BaseVisualizationModel<N, E>(network, layoutAlgorithm, preferredSize), preferredSize);
   }
 
-  public VisualizationViewer(VisualizationModel<N, E, Point2D> model) {
-    this(model, new Dimension(600, 600));
-  }
-
+  /**
+   * @param model the model for the view
+   * @param preferredSize the initial size of the window to display the network
+   */
   public VisualizationViewer(VisualizationModel<N, E, Point2D> model, Dimension preferredSize) {
     super(model, preferredSize);
     setFocusable(true);

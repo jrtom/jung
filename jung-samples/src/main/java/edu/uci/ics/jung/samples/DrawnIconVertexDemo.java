@@ -41,7 +41,7 @@ public class DrawnIconVertexDemo {
     // create a simple graph for the demo
     graph = createGraph();
 
-    vv = new VisualizationViewer<>(graph, new FRLayoutAlgorithm<>());
+    vv = new VisualizationViewer<>(graph, new FRLayoutAlgorithm<>(), new Dimension(700, 700));
     vv.getRenderContext().setVertexLabelTransformer(v -> "Vertex " + v);
 
     vv.getRenderContext().setVertexLabelRenderer(new DefaultVertexLabelRenderer(Color.cyan));

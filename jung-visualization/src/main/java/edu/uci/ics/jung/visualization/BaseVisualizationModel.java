@@ -12,10 +12,12 @@ package edu.uci.ics.jung.visualization;
 
 import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
 import edu.uci.ics.jung.layout.model.LayoutModel;
+import edu.uci.ics.jung.layout.model.LoadingCacheLayoutModel;
 import edu.uci.ics.jung.layout.util.LayoutChangeListener;
 import edu.uci.ics.jung.layout.util.LayoutEvent;
 import edu.uci.ics.jung.layout.util.LayoutEventSupport;
@@ -62,15 +64,10 @@ public class BaseVisualizationModel<N, E>
   }
 
   /**
-   * Creates an instance for {@code graph} which does not initialize the node locations.
-   *
-   * @param network the graph on which the layout algorithm is to operate
+   * @param network the network to visualize
+   * @param layoutAlgorithm the algorithm to apply
+   * @param layoutSize the size of the layout area
    */
-  public BaseVisualizationModel(
-      Network<N, E> network, LayoutAlgorithm<N, Point2D> layoutAlgorithm) {
-    this(network, layoutAlgorithm, null, VisualizationServer.DEFAULT_SIZE);
-  }
-
   public BaseVisualizationModel(
       Network<N, E> network, LayoutAlgorithm<N, Point2D> layoutAlgorithm, Dimension layoutSize) {
     this(network, layoutAlgorithm, null, layoutSize);
@@ -89,33 +86,11 @@ public class BaseVisualizationModel<N, E>
       LayoutAlgorithm<N, Point2D> layoutAlgorithm,
       Function<N, Point2D> initializer,
       Dimension layoutSize) {
-    //    Preconditions.checkNotNull(network);
-    //    Preconditions.checkNotNull(layoutAlgorithm);
-    //    Preconditions.checkNotNull(layoutSize);
+    Preconditions.checkNotNull(network);
+    Preconditions.checkNotNull(layoutAlgorithm);
+    Preconditions.checkNotNull(layoutSize);
     this.layoutAlgorithm = layoutAlgorithm;
-    this.layoutModel =
-
-        // TODO: maybe make these choosable with a property
-        // spatialGrid
-        //                    SpatialGridLayoutModel.<N, Point2D>builder()
-        //                            .setGraph(network.asGraph())
-        //                            .setPointModel(POINT_MODEL)
-        //                            .setSize(layoutSize.width, layoutSize.height)
-        //                            .build();
-
-        //spatial quadtree
-        SpatialQuadTreeLayoutModel.<N, Point2D>builder()
-            .setGraph(network.asGraph())
-            .setPointModel(POINT_MODEL)
-            .setSize(layoutSize.width, layoutSize.height)
-            .build();
-
-    // no spatial layout features
-    //    LoadingCacheLayoutModel.<N, Point2D>builder()
-    //            .setGraph(network.asGraph())
-    //            .setPointModel(POINT_MODEL)
-    //            .setSize(layoutSize.width, layoutSize.height)
-    //            .build();
+    this.layoutModel = createLayoutModel(network, layoutSize);
 
     if (this.layoutModel instanceof LayoutModel.ChangeSupport) {
       ((LayoutModel.ChangeSupport) layoutModel).addChangeListener(this);
@@ -130,6 +105,34 @@ public class BaseVisualizationModel<N, E>
     }
   }
 
+  private LayoutModel<N, Point2D> createLayoutModel(Network<N, E> network, Dimension layoutSize) {
+    String modelStructure = System.getProperty("layout.model");
+    if (modelStructure == null) {
+      modelStructure = ModelStructure.QUAD_TREE.toString();
+    }
+    if (ModelStructure.GRID.toString().equals(modelStructure)) {
+      return SpatialGridLayoutModel.<N, Point2D>builder()
+          .setGraph(network.asGraph())
+          .setPointModel(POINT_MODEL)
+          .setSize(layoutSize.width, layoutSize.height)
+          .build();
+
+    } else if (ModelStructure.QUAD_TREE.toString().equals(modelStructure)) {
+      return SpatialQuadTreeLayoutModel.<N, Point2D>builder()
+          .setGraph(network.asGraph())
+          .setPointModel(POINT_MODEL)
+          .setSize(layoutSize.width, layoutSize.height)
+          .build();
+
+    } else {
+      return LoadingCacheLayoutModel.<N, Point2D>builder()
+          .setGraph(network.asGraph())
+          .setPointModel(POINT_MODEL)
+          .setSize(layoutSize.width, layoutSize.height)
+          .build();
+    }
+  }
+
   public BaseVisualizationModel(
       Network<N, E> network,
       LayoutModel<N, Point2D> layoutModel,
@@ -139,9 +142,6 @@ public class BaseVisualizationModel<N, E>
       ((ChangeEventSupport) layoutModel).addChangeListener(this);
     }
     this.network = network;
-    //    if (initializer != null) {
-    //      this.layoutModel.setInitializer(initializer);
-    //    }
     this.layoutModel.accept(layoutAlgorithm);
     this.layoutAlgorithm = layoutAlgorithm;
   }
