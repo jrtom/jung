@@ -10,14 +10,12 @@
 
 package edu.uci.ics.jung.visualization.transform;
 
-import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalLensGraphMouse;
 import edu.uci.ics.jung.visualization.layout.NetworkElementAccessor;
 import java.awt.*;
-import java.awt.geom.Point2D;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,13 +31,12 @@ public class LayoutLensSupport<V, E> extends AbstractLensSupport<V, E> implement
   protected NetworkElementAccessor<V, E> pickSupport;
 
   public LayoutLensSupport(VisualizationViewer<V, E> vv) {
-    super(vv, new ModalLensGraphMouse());
-    LayoutModel<V, Point2D> layoutModel = vv.getModel().getLayoutModel();
-    Dimension layoutModelSize = new Dimension(layoutModel.getWidth(), layoutModel.getHeight());
-    Lens lens = new Lens(layoutModelSize);
-    this.lensTransformer =
+    this(
+        vv,
         new HyperbolicTransformer(
-            lens, vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT));
+            new Lens(vv.getModel().getLayoutSize()),
+            vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT)),
+        new ModalLensGraphMouse());
   }
 
   public LayoutLensSupport(VisualizationViewer<V, E> vv, Lens lens) {

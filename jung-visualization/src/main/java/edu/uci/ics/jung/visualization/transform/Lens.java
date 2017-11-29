@@ -8,6 +8,7 @@
  */
 package edu.uci.ics.jung.visualization.transform;
 
+import com.google.common.base.Preconditions;
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
@@ -39,6 +40,9 @@ public class Lens {
 
   /** @param d the size used for the lens */
   public void setSize(Dimension d) {
+    Preconditions.checkNotNull(d);
+    Preconditions.checkArgument(d.width > 0, "width must be > 0");
+    Preconditions.checkArgument(d.height > 0, "height must be > 0");
     float width = d.width / 1.5f;
     float height = d.height / 1.5f;
     lensShape.setFrame((d.width - width) / 2, (d.height - height) / 2, width, height);
