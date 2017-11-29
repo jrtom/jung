@@ -107,19 +107,21 @@ public class BaseVisualizationModel<N, E>
     }
   }
 
-  private LayoutModel<N, Point2D> createLayoutModel(Network<N, E> network, Dimension layoutSize) {
-    // the default
-    SpatialSupport spatialSupport = SpatialSupport.QUAD_TREE;
-    String spatialSupportProperty = System.getProperty("layout.model");
+  private SpatialSupport getSpatialSupportPreference() {
+    String spatialSupportProperty = System.getProperty("spatial.support");
     if (spatialSupportProperty != null) {
       try {
-        spatialSupport = SpatialSupport.valueOf(spatialSupportProperty);
+        return SpatialSupport.valueOf(spatialSupportProperty);
       } catch (IllegalArgumentException ex) {
         // the user set an unknown name
         log.warn("Unknown ModelStructure type {} ignored.", spatialSupportProperty);
       }
     }
-    switch (spatialSupport) {
+    return SpatialSupport.QUAD_TREE;
+  }
+
+  private LayoutModel<N, Point2D> createLayoutModel(Network<N, E> network, Dimension layoutSize) {
+    switch (getSpatialSupportPreference()) {
       case GRID:
         return SpatialGridLayoutModel.<N, Point2D>builder()
             .setGraph(network.asGraph())
@@ -132,6 +134,7 @@ public class BaseVisualizationModel<N, E>
             .setPointModel(POINT_MODEL)
             .setSize(layoutSize.width, layoutSize.height)
             .build();
+      case NONE:
       default:
         return LoadingCacheLayoutModel.<N, Point2D>builder()
             .setGraph(network.asGraph())
