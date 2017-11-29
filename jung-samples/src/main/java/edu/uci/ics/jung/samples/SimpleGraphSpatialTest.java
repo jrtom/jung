@@ -63,7 +63,7 @@ public class SimpleGraphSpatialTest extends JPanel {
     vv.getRenderer().getVertexLabelRenderer().setPosition(Renderer.VertexLabel.Position.CNTR);
     vv.addKeyListener(graphMouse.getModeKeyListener());
     vv.setToolTipText("<html><center>Type 'p' for Pick mode<p>Type 't' for Transform mode");
-
+    vv.setForeground(Color.white);
     vv.scaleToLayout(scaler);
     this.add(vv);
   }
