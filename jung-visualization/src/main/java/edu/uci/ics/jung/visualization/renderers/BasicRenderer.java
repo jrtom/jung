@@ -57,20 +57,20 @@ public class BasicRenderer<V, E> implements Renderer<V, E> {
       return;
     }
 
-    Network<V, E> network = visualizationModel.getNetwork();
-    Set<E> visibleEdges = Sets.newHashSet(network.edges());
-    for (E edge : network.edges()) {
-      EndpointPair<V> endpoints = network.incidentNodes(edge);
-      boolean keep = false;
-      for (V v : endpoints) {
-        keep |= visibleNodes.contains(v);
-      }
-      if (!keep) {
-        visibleEdges.remove(edge);
-      }
-    }
-    // paint all the edges
     try {
+      Network<V, E> network = visualizationModel.getNetwork();
+      Set<E> visibleEdges = Sets.newHashSet(network.edges());
+      for (E edge : network.edges()) {
+        EndpointPair<V> endpoints = network.incidentNodes(edge);
+        boolean keep = false;
+        for (V v : endpoints) {
+          keep |= visibleNodes.contains(v);
+        }
+        if (!keep) {
+          visibleEdges.remove(edge);
+        }
+      }
+      // paint all the edges
       for (E e : visibleEdges) {
         renderEdge(renderContext, visualizationModel, e);
         renderEdgeLabel(renderContext, visualizationModel, e);
