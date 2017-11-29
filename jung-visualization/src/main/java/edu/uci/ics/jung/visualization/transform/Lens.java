@@ -8,7 +8,6 @@
  */
 package edu.uci.ics.jung.visualization.transform;
 
-import edu.uci.ics.jung.visualization.VisualizationServer;
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
@@ -40,13 +39,9 @@ public class Lens {
 
   /** @param d the size used for the lens */
   public void setSize(Dimension d) {
-
-    if (d.width <= 0 || d.height <= 0) {
-      d = VisualizationServer.DEFAULT_SIZE;
-    }
-    float ewidth = d.width / 1.5f;
-    float eheight = d.height / 1.5f;
-    lensShape.setFrame(d.width / 2 - ewidth / 2, d.height / 2 - eheight / 2, ewidth, eheight);
+    float width = d.width / 1.5f;
+    float height = d.height / 1.5f;
+    lensShape.setFrame((d.width - width) / 2, (d.height - height) / 2, width, height);
   }
 
   public float getMagnification() {
