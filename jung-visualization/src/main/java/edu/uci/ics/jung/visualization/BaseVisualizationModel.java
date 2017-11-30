@@ -17,7 +17,6 @@ import com.google.common.collect.Lists;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
 import edu.uci.ics.jung.layout.model.LayoutModel;
-import edu.uci.ics.jung.layout.model.LoadingCacheLayoutModel;
 import edu.uci.ics.jung.layout.util.LayoutChangeListener;
 import edu.uci.ics.jung.layout.util.LayoutEvent;
 import edu.uci.ics.jung.layout.util.LayoutEventSupport;
@@ -27,7 +26,7 @@ import edu.uci.ics.jung.visualization.layout.SpatialQuadTreeLayoutModel;
 import edu.uci.ics.jung.visualization.spatial.Spatial;
 import edu.uci.ics.jung.visualization.util.ChangeEventSupport;
 import edu.uci.ics.jung.visualization.util.DefaultChangeEventSupport;
-import java.awt.Dimension;
+import java.awt.*;
 import java.awt.geom.Point2D;
 import java.util.List;
 import java.util.function.Function;
@@ -92,7 +91,12 @@ public class BaseVisualizationModel<N, E>
     Preconditions.checkArgument(layoutSize.width > 0, "width must be > 0");
     Preconditions.checkArgument(layoutSize.height > 0, "height must be > 0");
     this.layoutAlgorithm = layoutAlgorithm;
-    this.layoutModel = createLayoutModel(network, layoutSize);
+    this.layoutModel =
+        SpatialQuadTreeLayoutModel.<N, Point2D>builder()
+            .setGraph(network.asGraph())
+            .setPointModel(POINT_MODEL)
+            .setSize(layoutSize.width, layoutSize.height)
+            .build();
 
     if (this.layoutModel instanceof LayoutModel.ChangeSupport) {
       ((LayoutModel.ChangeSupport) layoutModel).addChangeListener(this);
@@ -101,53 +105,16 @@ public class BaseVisualizationModel<N, E>
     if (initializer != null) {
       this.layoutModel.setInitializer(initializer);
     }
-
-    if (layoutAlgorithm != null) {
-      this.layoutModel.accept(layoutAlgorithm);
-    }
-  }
-
-  private SpatialSupport getSpatialSupportPreference() {
-    String spatialSupportProperty = System.getProperty("spatial.support");
-    if (spatialSupportProperty != null) {
-      try {
-        return SpatialSupport.valueOf(spatialSupportProperty);
-      } catch (IllegalArgumentException ex) {
-        // the user set an unknown name
-        log.warn("Unknown ModelStructure type {} ignored.", spatialSupportProperty);
-      }
-    }
-    return SpatialSupport.QUAD_TREE;
-  }
-
-  private LayoutModel<N, Point2D> createLayoutModel(Network<N, E> network, Dimension layoutSize) {
-    switch (getSpatialSupportPreference()) {
-      case GRID:
-        return SpatialGridLayoutModel.<N, Point2D>builder()
-            .setGraph(network.asGraph())
-            .setPointModel(POINT_MODEL)
-            .setSize(layoutSize.width, layoutSize.height)
-            .build();
-      case QUAD_TREE:
-        return SpatialQuadTreeLayoutModel.<N, Point2D>builder()
-            .setGraph(network.asGraph())
-            .setPointModel(POINT_MODEL)
-            .setSize(layoutSize.width, layoutSize.height)
-            .build();
-      case NONE:
-      default:
-        return LoadingCacheLayoutModel.<N, Point2D>builder()
-            .setGraph(network.asGraph())
-            .setPointModel(POINT_MODEL)
-            .setSize(layoutSize.width, layoutSize.height)
-            .build();
-    }
+    this.layoutModel.accept(layoutAlgorithm);
   }
 
   public BaseVisualizationModel(
       Network<N, E> network,
       LayoutModel<N, Point2D> layoutModel,
       LayoutAlgorithm<N, Point2D> layoutAlgorithm) {
+    Preconditions.checkNotNull(network);
+    Preconditions.checkNotNull(layoutAlgorithm);
+    Preconditions.checkNotNull(layoutModel);
     this.layoutModel = layoutModel;
     if (this.layoutModel instanceof ChangeEventSupport) {
       ((ChangeEventSupport) layoutModel).addChangeListener(this);
