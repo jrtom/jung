@@ -12,26 +12,24 @@ package edu.uci.ics.jung.visualization;
 import com.google.common.collect.Lists;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
-import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.layout.util.Caching;
 import edu.uci.ics.jung.visualization.annotations.AnnotationPaintable;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
+import edu.uci.ics.jung.visualization.control.TransformSupport;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
 import edu.uci.ics.jung.visualization.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.visualization.picking.MultiPickedState;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import edu.uci.ics.jung.visualization.picking.ShapePickSupport;
+import edu.uci.ics.jung.visualization.properties.VisualizationViewerUI;
 import edu.uci.ics.jung.visualization.renderers.BasicRenderer;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
 import edu.uci.ics.jung.visualization.spatial.Spatial;
 import edu.uci.ics.jung.visualization.spatial.SpatialGrid;
 import edu.uci.ics.jung.visualization.spatial.SpatialQuadTree;
-import edu.uci.ics.jung.visualization.transform.LensTransformer;
 import edu.uci.ics.jung.visualization.transform.MutableTransformer;
-import edu.uci.ics.jung.visualization.transform.MutableTransformerDecorator;
 import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
-import edu.uci.ics.jung.visualization.transform.shape.HyperbolicShapeTransformer;
 import edu.uci.ics.jung.visualization.util.ChangeEventSupport;
 import edu.uci.ics.jung.visualization.util.DefaultChangeEventSupport;
 import java.awt.*;
@@ -44,6 +42,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -115,6 +114,8 @@ public class BasicVisualizationServer<N, E> extends JPanel
 
   protected RenderContext<N, E> renderContext;
 
+  protected TransformSupport<N, E> transformSupport = new TransformSupport();
+
   /**
    * @param network the network to render
    * @param layoutAlgorithm the algorithm to apply
@@ -153,6 +154,11 @@ public class BasicVisualizationServer<N, E> extends JPanel
     renderingHints.put(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
     renderContext.getMultiLayerTransformer().addChangeListener(this);
+    try {
+      VisualizationViewerUI.getInstance(this).parse();
+    } catch (IOException e) {
+      log.debug("Unable to read property files. Using defaults.");
+    }
   }
 
   @Override
@@ -490,6 +496,14 @@ public class BasicVisualizationServer<N, E> extends JPanel
     }
   }
 
+  public TransformSupport<N, E> getTransformSupport() {
+    return transformSupport;
+  }
+
+  public void setTransformSupport(TransformSupport<N, E> transformSupport) {
+    this.transformSupport = transformSupport;
+  }
+
   class SpatialGridPaintable implements VisualizationServer.Paintable {
     SpatialGrid<N> spatialGrid;
 
@@ -522,23 +536,9 @@ public class BasicVisualizationServer<N, E> extends JPanel
                 .inverseTransform(new Point2D.Double(r.getX(), r.getY()));
         String label = num + ":" + ((SpatialGrid) spatialGrid).getMap().get(num);
         int stringWidth = g2d.getFontMetrics().stringWidth(label);
-        Shape shape = r;
-        if (viewTransformer instanceof LensTransformer) {
-          shape = multiLayerTransformer.transform(shape);
-        } else if (layoutTransformer instanceof LensTransformer) {
-          LayoutModel<N, Point2D> layoutModel = model.getLayoutModel();
-          Dimension d = new Dimension(layoutModel.getWidth(), layoutModel.getHeight());
 
-          HyperbolicShapeTransformer shapeChanger =
-              new HyperbolicShapeTransformer(d, viewTransformer);
-          LensTransformer lensTransformer = (LensTransformer) layoutTransformer;
-          shapeChanger.getLens().setLensShape(lensTransformer.getLens().getLensShape());
-          MutableTransformer layoutDelegate =
-              ((MutableTransformerDecorator) layoutTransformer).getDelegate();
-          shape = shapeChanger.transform(layoutDelegate.transform(shape));
-        } else {
-          shape = getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, shape);
-        }
+        Shape shape = transformSupport.transform(BasicVisualizationServer.this, r);
+
         g2d.draw(shape);
         Rectangle bounds = shape.getBounds();
         Point2D center =
@@ -552,23 +552,9 @@ public class BasicVisualizationServer<N, E> extends JPanel
 
       g2d.setColor(Color.red);
       for (Shape pickShape : spatialGrid.getPickShapes()) {
-        Shape shape = pickShape;
 
-        if (viewTransformer instanceof LensTransformer) {
-          shape = multiLayerTransformer.transform(shape);
-        } else if (layoutTransformer instanceof LensTransformer) {
-          LayoutModel<N, Point2D> layoutModel = model.getLayoutModel();
-          Dimension d = new Dimension(layoutModel.getWidth(), layoutModel.getHeight());
-          HyperbolicShapeTransformer shapeChanger =
-              new HyperbolicShapeTransformer(d, viewTransformer);
-          LensTransformer lensTransformer = (LensTransformer) layoutTransformer;
-          shapeChanger.getLens().setLensShape(lensTransformer.getLens().getLensShape());
-          MutableTransformer layoutDelegate =
-              ((MutableTransformerDecorator) layoutTransformer).getDelegate();
-          shape = shapeChanger.transform(layoutDelegate.transform(shape));
-        } else {
-          shape = getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, shape);
-        }
+        Shape shape = transformSupport.transform(BasicVisualizationServer.this, pickShape);
+
         g2d.draw(shape);
       }
       g2d.setColor(oldColor);
@@ -602,23 +588,7 @@ public class BasicVisualizationServer<N, E> extends JPanel
       for (SpatialQuadTree r : grid) {
         Shape area = r.getLayoutArea();
 
-        Shape shape = area;
-
-        if (viewTransformer instanceof LensTransformer) {
-          shape = multiLayerTransformer.transform(shape);
-        } else if (layoutTransformer instanceof LensTransformer) {
-          LayoutModel<N, Point2D> layoutModel = model.getLayoutModel();
-          Dimension d = new Dimension(layoutModel.getWidth(), layoutModel.getHeight());
-          HyperbolicShapeTransformer shapeChanger =
-              new HyperbolicShapeTransformer(d, viewTransformer);
-          LensTransformer lensTransformer = (LensTransformer) layoutTransformer;
-          shapeChanger.getLens().setLensShape(lensTransformer.getLens().getLensShape());
-          MutableTransformer layoutDelegate =
-              ((MutableTransformerDecorator) layoutTransformer).getDelegate();
-          shape = shapeChanger.transform(layoutDelegate.transform(shape));
-        } else {
-          shape = getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, shape);
-        }
+        Shape shape = transformSupport.transform(BasicVisualizationServer.this, area);
 
         g2d.draw(shape);
       }
@@ -626,23 +596,9 @@ public class BasicVisualizationServer<N, E> extends JPanel
 
       for (Shape pickShape : quadTree.getPickShapes()) {
         if (pickShape != null) {
-          Shape shape = pickShape;
 
-          if (viewTransformer instanceof LensTransformer) {
-            shape = multiLayerTransformer.transform(shape);
-          } else if (layoutTransformer instanceof LensTransformer) {
-            LayoutModel<N, Point2D> layoutModel = model.getLayoutModel();
-            Dimension d = new Dimension(layoutModel.getWidth(), layoutModel.getHeight());
-            HyperbolicShapeTransformer shapeChanger =
-                new HyperbolicShapeTransformer(d, viewTransformer);
-            LensTransformer lensTransformer = (LensTransformer) layoutTransformer;
-            shapeChanger.getLens().setLensShape(lensTransformer.getLens().getLensShape());
-            MutableTransformer layoutDelegate =
-                ((MutableTransformerDecorator) layoutTransformer).getDelegate();
-            shape = shapeChanger.transform(layoutDelegate.transform(shape));
-          } else {
-            shape = getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, shape);
-          }
+          Shape shape = transformSupport.transform(BasicVisualizationServer.this, pickShape);
+
           g2d.draw(shape);
         }
       }

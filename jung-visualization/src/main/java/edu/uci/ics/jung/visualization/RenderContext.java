@@ -160,6 +160,11 @@ public interface RenderContext<N, E> {
 
   void setVertexLabelTransformer(Function<? super N, String> vertexStringer);
 
+  Function<? super N, Paint> getVertexLabelDrawPaintTransformer();
+
+  void setVertexLabelDrawPaintTransformer(
+      Function<? super N, Paint> vertexLabelDrawPaintTransformer);
+
   Function<? super N, Stroke> getVertexStrokeTransformer();
 
   void setVertexStrokeTransformer(Function<? super N, Stroke> vertexStrokeTransformer);

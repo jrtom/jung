@@ -13,6 +13,7 @@ package edu.uci.ics.jung.visualization.transform.shape;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
+import edu.uci.ics.jung.visualization.control.LensTransformSupport;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalLensGraphMouse;
 import edu.uci.ics.jung.visualization.layout.NetworkElementAccessor;
@@ -92,6 +93,7 @@ public class MagnifyImageLensSupport<V, E> extends AbstractLensSupport<V, E> {
     vv.addPostRenderPaintable(lensControls);
     vv.setGraphMouse(lensGraphMouse);
     vv.setToolTipText(instructions);
+    vv.setTransformSupport(new LensTransformSupport<>());
     vv.repaint();
   }
 

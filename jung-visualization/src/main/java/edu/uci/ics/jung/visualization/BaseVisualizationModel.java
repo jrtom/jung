@@ -135,6 +135,9 @@ public class BaseVisualizationModel<N, E>
       this.layoutModel.stopRelaxer();
     }
     this.layoutModel = layoutModel;
+    if (layoutAlgorithm != null) {
+      layoutModel.accept(layoutAlgorithm);
+    }
   }
 
   public void setLayoutAlgorithm(LayoutAlgorithm<N, Point2D> layoutAlgorithm) {

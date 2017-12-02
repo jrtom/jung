@@ -50,6 +50,7 @@ public class PluggableRenderContext<N, E> implements RenderContext<N, E> {
 
   protected Function<? super N, Paint> vertexDrawPaintTransformer = n -> Color.BLACK;
   protected Function<? super N, Paint> vertexFillPaintTransformer = n -> Color.RED;
+  protected Function<? super N, Paint> vertexLabelDrawPaintTransformer = n -> Color.BLACK;
 
   protected Function<? super E, String> edgeLabelTransformer = e -> null;
   protected Function<? super E, Stroke> edgeStrokeTransformer = e -> new BasicStroke(1.0f);
@@ -373,6 +374,15 @@ public class PluggableRenderContext<N, E> implements RenderContext<N, E> {
 
   public void setVertexLabelTransformer(Function<? super N, String> vertexLabelTransformer) {
     this.vertexLabelTransformer = vertexLabelTransformer;
+  }
+
+  public void setVertexLabelDrawPaintTransformer(
+      Function<? super N, Paint> vertexLabelDrawPaintTransformer) {
+    this.vertexLabelDrawPaintTransformer = vertexLabelDrawPaintTransformer;
+  }
+
+  public Function<? super N, Paint> getVertexLabelDrawPaintTransformer() {
+    return vertexLabelDrawPaintTransformer;
   }
 
   public NetworkElementAccessor<N, E> getPickSupport() {

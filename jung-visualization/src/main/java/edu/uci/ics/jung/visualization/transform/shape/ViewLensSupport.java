@@ -12,7 +12,9 @@ import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
+import edu.uci.ics.jung.visualization.control.LensTransformSupport;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
+import edu.uci.ics.jung.visualization.control.TransformSupport;
 import edu.uci.ics.jung.visualization.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
 import edu.uci.ics.jung.visualization.transform.AbstractLensSupport;
@@ -66,6 +68,7 @@ public class ViewLensSupport<V, E> extends AbstractLensSupport<V, E> implements 
     vv.addPostRenderPaintable(lensControls);
     vv.setGraphMouse(lensGraphMouse);
     vv.setToolTipText(instructions);
+    vv.setTransformSupport(new LensTransformSupport());
     vv.repaint();
   }
 
@@ -79,6 +82,7 @@ public class ViewLensSupport<V, E> extends AbstractLensSupport<V, E> implements 
     vv.setRenderContext(renderContext);
     vv.setToolTipText(defaultToolTipText);
     vv.setGraphMouse(graphMouse);
+    vv.setTransformSupport(new TransformSupport());
     vv.repaint();
   }
 }

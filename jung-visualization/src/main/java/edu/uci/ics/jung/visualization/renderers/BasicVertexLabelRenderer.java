@@ -17,10 +17,7 @@ import edu.uci.ics.jung.visualization.transform.BidirectionalTransformer;
 import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
 import edu.uci.ics.jung.visualization.transform.shape.ShapeTransformer;
 import edu.uci.ics.jung.visualization.transform.shape.TransformingGraphics;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Point;
-import java.awt.Shape;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -112,7 +109,16 @@ public class BasicVertexLabelRenderer<N, E> implements Renderer.VertexLabel<N, E
     } else {
       p = getAnchorPoint(bounds, d, position);
     }
-    g.draw(component, renderContext.getRendererPane(), p.x, p.y, d.width, d.height, true);
+
+    Paint oldPaint = component.getForeground();
+    Paint fillPaint = renderContext.getVertexLabelDrawPaintTransformer().apply(v);
+    if (fillPaint != null) {
+      component.setForeground((Color) fillPaint);
+      g.draw(component, renderContext.getRendererPane(), p.x, p.y, d.width, d.height, true);
+      component.setForeground((Color) oldPaint);
+    } else {
+      g.draw(component, renderContext.getRendererPane(), p.x, p.y, d.width, d.height, true);
+    }
   }
 
   protected Point getAnchorPoint(Rectangle2D vertexBounds, Dimension labelSize, Position position) {
