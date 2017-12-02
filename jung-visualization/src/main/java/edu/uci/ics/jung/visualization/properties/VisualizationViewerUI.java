@@ -3,6 +3,7 @@ package edu.uci.ics.jung.visualization.properties;
 import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
 
 import com.google.common.graph.Network;
+import edu.uci.ics.jung.layout.model.AbstractLayoutModel;
 import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.layout.model.LoadingCacheLayoutModel;
 import edu.uci.ics.jung.visualization.RenderContext;
@@ -109,9 +110,19 @@ public class VisualizationViewerUI<N, E> {
       vv.getRenderContext()
           .setVertexShapeTransformer(
               n -> getNodeShape(System.getProperty(NODE_SHAPE, "CIRCLE"), size));
-      vv.getModel()
-          .setLayoutModel(
-              createLayoutModel(vv.getModel().getNetwork(), vv.getModel().getLayoutSize()));
+      // change the default LayoutModel only if the user has set the property requesting it
+      if (System.getProperty(SPATIAL_SUPPORT) != null) {
+        LayoutModel layoutModel =
+            createLayoutModel(vv.getModel().getNetwork(), vv.getModel().getLayoutSize());
+        // be sure to connect the listener to the new LayoutModel so that animations are propogated to
+        // the new LayoutModel
+        if (layoutModel instanceof AbstractLayoutModel
+            && vv.getModel() instanceof LayoutModel.ChangeListener) {
+          ((AbstractLayoutModel) layoutModel)
+              .addChangeListener((LayoutModel.ChangeListener) vv.getModel());
+        }
+        vv.getModel().setLayoutModel(layoutModel);
+      }
 
       vv.getRenderer()
           .getVertexLabelRenderer()
