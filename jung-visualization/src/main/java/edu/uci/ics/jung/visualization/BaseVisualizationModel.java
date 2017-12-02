@@ -86,7 +86,7 @@ public class BaseVisualizationModel<N, E>
       Function<N, Point2D> initializer,
       Dimension layoutSize) {
     Preconditions.checkNotNull(network);
-    Preconditions.checkNotNull(layoutAlgorithm);
+    //    Preconditions.checkNotNull(layoutAlgorithm);
     Preconditions.checkNotNull(layoutSize);
     Preconditions.checkArgument(layoutSize.width > 0, "width must be > 0");
     Preconditions.checkArgument(layoutSize.height > 0, "height must be > 0");
@@ -113,7 +113,7 @@ public class BaseVisualizationModel<N, E>
       LayoutModel<N, Point2D> layoutModel,
       LayoutAlgorithm<N, Point2D> layoutAlgorithm) {
     Preconditions.checkNotNull(network);
-    Preconditions.checkNotNull(layoutAlgorithm);
+    //    Preconditions.checkNotNull(layoutAlgorithm);
     Preconditions.checkNotNull(layoutModel);
     this.layoutModel = layoutModel;
     if (this.layoutModel instanceof ChangeEventSupport) {
@@ -136,6 +136,9 @@ public class BaseVisualizationModel<N, E>
     }
     this.layoutModel = layoutModel;
     if (layoutAlgorithm != null) {
+      if (layoutAlgorithm == null) {
+        log.error("foo");
+      }
       layoutModel.accept(layoutAlgorithm);
     }
   }

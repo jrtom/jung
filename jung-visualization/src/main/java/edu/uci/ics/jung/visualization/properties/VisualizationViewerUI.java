@@ -88,7 +88,7 @@ public class VisualizationViewerUI<N, E> {
 
       RenderContext rc = vv.getRenderContext();
 
-      setEdgeShape(System.getProperty(EDGE_SHAPE, "QUAD_CURVE"));
+      //      setEdgeShape(System.getProperty(EDGE_SHAPE, "QUAD_CURVE"));
 
       rc.setVertexFillPaintTransformer(
           new PickableVertexPaintTransformer(
