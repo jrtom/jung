@@ -35,7 +35,7 @@ public class LensTransformSupport<N, E> extends TransformSupport<N, E> {
     MutableTransformer viewTransformer = multiLayerTransformer.getTransformer(Layer.VIEW);
     MutableTransformer layoutTransformer = multiLayerTransformer.getTransformer(Layer.LAYOUT);
 
-    if (viewTransformer instanceof LensTransformSupport) {
+    if (viewTransformer instanceof LensTransformer) {
       LensTransformer lensTransformer = (LensTransformer) viewTransformer;
       MutableTransformer delegateTransformer = lensTransformer.getDelegate();
 
@@ -47,12 +47,11 @@ public class LensTransformSupport<N, E> extends TransformSupport<N, E> {
       } else if (viewTransformer instanceof HyperbolicShapeTransformer) {
         HyperbolicTransformer ht =
             new HyperbolicTransformer(lensTransformer.getLens(), layoutTransformer);
-        log.info("made with magnification {}", lensTransformer.getLens().getMagnification());
         p = delegateTransformer.inverseTransform(p);
         p = ht.inverseTransform(p);
       }
 
-    } else if (layoutTransformer instanceof LensTransformSupport) {
+    } else if (layoutTransformer instanceof LensTransformer) {
 
       p = multiLayerTransformer.inverseTransform(p);
 
@@ -98,9 +97,9 @@ public class LensTransformSupport<N, E> extends TransformSupport<N, E> {
     MutableTransformer viewTransformer = multiLayerTransformer.getTransformer(Layer.VIEW);
     MutableTransformer layoutTransformer = multiLayerTransformer.getTransformer(Layer.LAYOUT);
 
-    if (viewTransformer instanceof LensTransformSupport) {
+    if (viewTransformer instanceof LensTransformer) {
       shape = multiLayerTransformer.inverseTransform(shape);
-    } else if (layoutTransformer instanceof LensTransformSupport) {
+    } else if (layoutTransformer instanceof LensTransformer) {
       LayoutModel<N, Point2D> layoutModel = vv.getModel().getLayoutModel();
       Dimension d = new Dimension(layoutModel.getWidth(), layoutModel.getHeight());
       HyperbolicShapeTransformer shapeChanger = new HyperbolicShapeTransformer(d, viewTransformer);
@@ -109,8 +108,6 @@ public class LensTransformSupport<N, E> extends TransformSupport<N, E> {
       MutableTransformer layoutDelegate =
           ((MutableTransformerDecorator) layoutTransformer).getDelegate();
       shape = layoutDelegate.inverseTransform(shapeChanger.inverseTransform(shape));
-      log.info("made with magnification {}", lensTransformer.getLens().getMagnification());
-
     } else {
       shape = multiLayerTransformer.inverseTransform(shape);
     }
