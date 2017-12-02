@@ -2,7 +2,6 @@ package edu.uci.ics.jung.visualization.properties;
 
 import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
 
-import com.google.common.collect.Maps;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.layout.model.LoadingCacheLayoutModel;
@@ -15,15 +14,12 @@ import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
 import edu.uci.ics.jung.visualization.layout.SpatialGridLayoutModel;
 import edu.uci.ics.jung.visualization.layout.SpatialQuadTreeLayoutModel;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
-import edu.uci.ics.jung.visualization.util.Context;
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
-import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,10 +43,6 @@ public class VisualizationViewerUI<N, E> {
   private static final String NODE_LABEL_COLOR = PREFIX + "nodeLabelColor";
 
   VisualizationServer<N, E> vv;
-
-  Map<String, Color> colorMap = Maps.newHashMap();
-  Map<String, Shape> shapeMap = Maps.newHashMap();
-  Function<Context<Network, E>, Shape> edgeShapeFunction;
 
   public static VisualizationViewerUI getInstance(VisualizationServer vv) {
     return new VisualizationViewerUI(vv);
@@ -178,29 +170,14 @@ public class VisualizationViewerUI<N, E> {
     }
   }
 
-  private Function<Context<Network, E>, Shape> getEdgeShapeFunction(String edgeShape) {
-    RenderContext rc = vv.getRenderContext();
-    switch (edgeShape) {
-      case "LINE":
-        return EdgeShape.line();
-      case "CUBIC_CURVE":
-        return EdgeShape.cubicCurve();
-      case "ORTHOGONAL":
-        return EdgeShape.orthogonal();
-      case "WEDGE":
-        return EdgeShape.wedge(10);
-      case "QUAD_CURVE":
-      default:
-        return EdgeShape.quadCurve();
-    }
-  }
-
   private VisualizationModel.SpatialSupport getSpatialSupportPreference() {
     String spatialSupportProperty = System.getProperty(SPATIAL_SUPPORT, "QUAD_TREE");
     try {
       return VisualizationModel.SpatialSupport.valueOf(spatialSupportProperty);
     } catch (IllegalArgumentException ex) {
       // the user set an unknown name
+      // issue a warning because unlike colors and shapes, it is not immediately obvious what spatial
+      // support is being used
       log.warn("Unknown ModelStructure type {} ignored.", spatialSupportProperty);
     }
     return VisualizationModel.SpatialSupport.QUAD_TREE;
