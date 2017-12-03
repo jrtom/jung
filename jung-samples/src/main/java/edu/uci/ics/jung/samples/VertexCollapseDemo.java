@@ -103,7 +103,7 @@ public class VertexCollapseDemo extends JApplet {
 
     final Set exclusions = new HashSet();
     final PredicatedParallelEdgeIndexFunction eif =
-        new PredicatedParallelEdgeIndexFunction(graph, exclusions::contains);
+        new PredicatedParallelEdgeIndexFunction(exclusions::contains);
 
     vv.getRenderContext().setParallelEdgeIndexFunction(eif);
 

@@ -156,7 +156,7 @@ public class EdgeLabelDemo extends JApplet {
     edgeOffsetSlider.addChangeListener(
         e -> {
           JSlider s = (JSlider) e.getSource();
-          Function<Context<Network, Number>, Shape> edgeShapeFunction =
+          Function<Context<Network<Integer, Number>, Number>, Shape> edgeShapeFunction =
               vv.getRenderContext().getEdgeShapeTransformer();
           if (edgeShapeFunction instanceof ParallelEdgeShapeTransformer) {
             ((ParallelEdgeShapeTransformer) edgeShapeFunction)

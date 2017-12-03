@@ -102,7 +102,10 @@ public class BasicEdgeLabelRenderer<V, E> implements Renderer.EdgeLabel<V, E> {
 
     double parallelOffset = 1;
 
-    parallelOffset += renderContext.getParallelEdgeIndexFunction().getIndex(e);
+    parallelOffset +=
+        renderContext
+            .getParallelEdgeIndexFunction()
+            .getIndex(Context.getInstance(visualizationModel.getNetwork(), e));
 
     parallelOffset *= d.height;
     if (edgeShape instanceof Ellipse2D) {

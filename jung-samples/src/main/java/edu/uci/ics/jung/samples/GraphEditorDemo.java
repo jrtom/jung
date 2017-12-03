@@ -10,7 +10,6 @@ package edu.uci.ics.jung.samples;
 
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.NetworkBuilder;
-import edu.uci.ics.jung.graph.util.ParallelEdgeIndexFunction;
 import edu.uci.ics.jung.layout.algorithms.AbstractLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.StaticLayoutAlgorithm;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
@@ -21,6 +20,7 @@ import edu.uci.ics.jung.visualization.control.EditingModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
+import edu.uci.ics.jung.visualization.util.ParallelEdgeIndexFunction;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.geom.Point2D;
@@ -116,7 +116,7 @@ public class GraphEditorDemo extends JApplet implements Printable {
     Function<Object, String> labeller = Object::toString;
     vv.getRenderContext().setVertexLabelTransformer(labeller);
     vv.getRenderContext().setEdgeLabelTransformer(labeller);
-    vv.getRenderContext().setParallelEdgeIndexFunction(new ParallelEdgeIndexFunction<>(graph));
+    vv.getRenderContext().setParallelEdgeIndexFunction(new ParallelEdgeIndexFunction<>());
 
     vv.setVertexToolTipTransformer(vv.getRenderContext().getVertexLabelTransformer());
 

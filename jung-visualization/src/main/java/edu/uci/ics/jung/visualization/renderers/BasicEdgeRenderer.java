@@ -11,7 +11,6 @@ package edu.uci.ics.jung.visualization.renderers;
 
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Network;
-import edu.uci.ics.jung.graph.util.EdgeIndexFunction;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.VisualizationModel;
@@ -19,9 +18,8 @@ import edu.uci.ics.jung.visualization.decorators.EdgeShape;
 import edu.uci.ics.jung.visualization.decorators.ParallelEdgeShapeTransformer;
 import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
 import edu.uci.ics.jung.visualization.util.Context;
-import java.awt.Paint;
-import java.awt.Shape;
-import java.awt.Stroke;
+import edu.uci.ics.jung.visualization.util.EdgeIndexFunction;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
@@ -111,10 +109,10 @@ public class BasicEdgeRenderer<V, E> implements Renderer.Edge<V, E> {
       int index = 0;
       if (renderContext.getEdgeShapeTransformer() instanceof ParallelEdgeShapeTransformer) {
         @SuppressWarnings("unchecked")
-        EdgeIndexFunction<E> peif =
-            ((ParallelEdgeShapeTransformer<E>) renderContext.getEdgeShapeTransformer())
+        EdgeIndexFunction<V, E> peif =
+            ((ParallelEdgeShapeTransformer<V, E>) renderContext.getEdgeShapeTransformer())
                 .getEdgeIndexFunction();
-        index = peif.getIndex(e);
+        index = peif.getIndex(Context.getInstance(visualizationModel.getNetwork(), e));
         index *= 20;
       }
       GeneralPath gp = new GeneralPath();
