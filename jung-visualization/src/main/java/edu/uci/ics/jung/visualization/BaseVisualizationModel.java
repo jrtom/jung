@@ -134,9 +134,6 @@ public class BaseVisualizationModel<N, E>
     }
     this.layoutModel = layoutModel;
     if (layoutAlgorithm != null) {
-      if (layoutAlgorithm == null) {
-        log.error("foo");
-      }
       layoutModel.accept(layoutAlgorithm);
     }
   }
