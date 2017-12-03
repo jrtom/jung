@@ -295,7 +295,7 @@ public class PickingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
    */
   protected Shape transform(VisualizationViewer<N, E> vv, Shape shape) {
     MultiLayerTransformer multiLayerTransformer = vv.getRenderContext().getMultiLayerTransformer();
-    return multiLayerTransformer.inverseTransform(shape);
+    return multiLayerTransformer.transform(shape);
   }
 
   /**

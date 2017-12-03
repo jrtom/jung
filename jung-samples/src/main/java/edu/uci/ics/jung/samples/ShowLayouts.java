@@ -132,7 +132,7 @@ public class ShowLayouts extends JApplet {
 
     Network g = g_array[3]; // initial graph
 
-    final VisualizationViewer vv = new VisualizationViewer<>(g);
+    final VisualizationViewer vv = new VisualizationViewer<>(g, new Dimension(600, 600));
 
     vv.getRenderContext()
         .setVertexFillPaintTransformer(

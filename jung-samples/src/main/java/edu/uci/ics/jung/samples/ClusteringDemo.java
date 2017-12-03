@@ -144,7 +144,7 @@ public class ClusteringDemo extends JApplet {
     VisualizationModel visualizationModel =
         new BaseVisualizationModel(graph, layoutModel, algorithm);
 
-    vv = new VisualizationViewer<>(visualizationModel);
+    vv = new VisualizationViewer<>(visualizationModel, new Dimension(800, 800));
     vv.setBackground(Color.white);
     //Tell the renderer to use our own customized color rendering
     vv.getRenderContext().setVertexFillPaintTransformer(vertexPaints);

@@ -54,7 +54,7 @@ public class GraphZoomScrollPaneDemo {
       System.err.println("Can't load \"" + imageLocation + "\"");
     }
     final ImageIcon icon = sandstoneIcon;
-    vv = new VisualizationViewer<>(graph, new KKLayoutAlgorithm<>());
+    vv = new VisualizationViewer<>(graph, new KKLayoutAlgorithm<>(), new Dimension(700, 700));
 
     if (icon != null) {
       vv.addPreRenderPaintable(

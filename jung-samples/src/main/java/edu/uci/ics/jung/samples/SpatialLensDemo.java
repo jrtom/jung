@@ -27,9 +27,6 @@ import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.LensMagnificationGraphMousePlugin;
 import edu.uci.ics.jung.visualization.control.ModalLensGraphMouse;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
-import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
-import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
-import edu.uci.ics.jung.visualization.picking.PickedState;
 import edu.uci.ics.jung.visualization.transform.HyperbolicTransformer;
 import edu.uci.ics.jung.visualization.transform.LayoutLensSupport;
 import edu.uci.ics.jung.visualization.transform.Lens;
@@ -42,7 +39,6 @@ import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -97,24 +93,10 @@ public class SpatialLensDemo extends JPanel {
     final VisualizationModel<String, Number, Point2D> visualizationModel =
         new BaseVisualizationModel<>(graph, graphLayoutAlgorithm, preferredSize);
     vv = new VisualizationViewer<>(visualizationModel, preferredSize);
-
-    PickedState<String> ps = vv.getPickedVertexState();
-    PickedState<Number> pes = vv.getPickedEdgeState();
-    vv.getRenderContext()
-        .setVertexFillPaintTransformer(
-            new PickableVertexPaintTransformer<>(ps, Color.red, Color.yellow));
-    vv.getRenderContext()
-        .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer<>(pes, Color.black, Color.cyan));
+    vv.getRenderContext().setVertexLabelTransformer(Object::toString);
     vv.setBackground(Color.white);
 
     vv.getRenderContext().setVertexLabelTransformer(Object::toString);
-
-    final Function<? super String, Shape> ovals = vv.getRenderContext().getVertexShapeTransformer();
-    final Function<? super String, Shape> squares = n -> new Rectangle2D.Float(-10, -10, 20, 20);
-
-    // add a listener for ToolTips
-    //    vv.setVertexToolTipTransformer(Object::toString);
 
     GraphZoomScrollPane gzsp = new GraphZoomScrollPane(vv);
     add(gzsp);

@@ -81,7 +81,6 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
     FRUCHTERMAN_REINGOLD,
     CIRCLE,
     SPRING,
-    SPRING2,
     SELF_ORGANIZING_MAP
   };
 
@@ -113,7 +112,7 @@ public class VertexCollapseDemoWithLayouts extends JApplet {
 
     final Set exclusions = new HashSet();
     final PredicatedParallelEdgeIndexFunction eif =
-        new PredicatedParallelEdgeIndexFunction(graph, e -> exclusions.contains(e));
+        new PredicatedParallelEdgeIndexFunction(exclusions::contains);
     vv.getRenderContext().setParallelEdgeIndexFunction(eif);
 
     vv.setBackground(Color.white);

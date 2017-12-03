@@ -1,13 +1,13 @@
 package edu.uci.ics.jung.visualization;
 
 import com.google.common.graph.Network;
-import edu.uci.ics.jung.graph.util.EdgeIndexFunction;
 import edu.uci.ics.jung.visualization.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import edu.uci.ics.jung.visualization.renderers.EdgeLabelRenderer;
 import edu.uci.ics.jung.visualization.renderers.VertexLabelRenderer;
 import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
 import edu.uci.ics.jung.visualization.util.Context;
+import edu.uci.ics.jung.visualization.util.EdgeIndexFunction;
 import java.awt.BasicStroke;
 import java.awt.Font;
 import java.awt.Paint;
@@ -88,9 +88,9 @@ public interface RenderContext<N, E> {
 
   void setArrowFillPaintTransformer(Function<? super E, Paint> arrowFillPaintTransformer);
 
-  Function<Context<Network, E>, Shape> getEdgeShapeTransformer();
+  Function<Context<Network<N, E>, E>, Shape> getEdgeShapeTransformer();
 
-  void setEdgeShapeTransformer(Function<Context<Network, E>, Shape> edgeShapeTransformer);
+  void setEdgeShapeTransformer(Function<Context<Network<N, E>, E>, Shape> edgeShapeTransformer);
 
   Function<? super E, String> getEdgeLabelTransformer();
 
@@ -108,9 +108,9 @@ public interface RenderContext<N, E> {
 
   void setGraphicsContext(GraphicsDecorator graphicsContext);
 
-  EdgeIndexFunction<E> getParallelEdgeIndexFunction();
+  EdgeIndexFunction<N, E> getParallelEdgeIndexFunction();
 
-  void setParallelEdgeIndexFunction(EdgeIndexFunction<E> parallelEdgeIndexFunction);
+  void setParallelEdgeIndexFunction(EdgeIndexFunction<N, E> parallelEdgeIndexFunction);
 
   PickedState<E> getPickedEdgeState();
 
@@ -159,6 +159,11 @@ public interface RenderContext<N, E> {
   Function<? super N, String> getVertexLabelTransformer();
 
   void setVertexLabelTransformer(Function<? super N, String> vertexStringer);
+
+  Function<? super N, Paint> getVertexLabelDrawPaintTransformer();
+
+  void setVertexLabelDrawPaintTransformer(
+      Function<? super N, Paint> vertexLabelDrawPaintTransformer);
 
   Function<? super N, Stroke> getVertexStrokeTransformer();
 

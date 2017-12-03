@@ -8,8 +8,6 @@
 package edu.uci.ics.jung.visualization;
 
 import com.google.common.graph.Network;
-import edu.uci.ics.jung.graph.util.EdgeIndexFunction;
-import edu.uci.ics.jung.graph.util.ParallelEdgeIndexFunction;
 import edu.uci.ics.jung.visualization.decorators.EdgeShape;
 import edu.uci.ics.jung.visualization.decorators.ParallelEdgeShapeTransformer;
 import edu.uci.ics.jung.visualization.layout.NetworkElementAccessor;
@@ -21,6 +19,8 @@ import edu.uci.ics.jung.visualization.renderers.VertexLabelRenderer;
 import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
 import edu.uci.ics.jung.visualization.util.ArrowFactory;
 import edu.uci.ics.jung.visualization.util.Context;
+import edu.uci.ics.jung.visualization.util.EdgeIndexFunction;
+import edu.uci.ics.jung.visualization.util.ParallelEdgeIndexFunction;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
@@ -50,6 +50,7 @@ public class PluggableRenderContext<N, E> implements RenderContext<N, E> {
 
   protected Function<? super N, Paint> vertexDrawPaintTransformer = n -> Color.BLACK;
   protected Function<? super N, Paint> vertexFillPaintTransformer = n -> Color.RED;
+  protected Function<? super N, Paint> vertexLabelDrawPaintTransformer = n -> Color.BLACK;
 
   protected Function<? super E, String> edgeLabelTransformer = e -> null;
   protected Function<? super E, Stroke> edgeStrokeTransformer = e -> new BasicStroke(1.0f);
@@ -69,13 +70,13 @@ public class PluggableRenderContext<N, E> implements RenderContext<N, E> {
   private static final float UNDIRECTED_EDGE_LABEL_CLOSENESS = 0.65f;
   protected float edgeLabelCloseness;
 
-  protected Function<Context<Network, E>, Shape> edgeShapeTransformer;
+  protected Function<Context<Network<N, E>, E>, Shape> edgeShapeTransformer;
   protected Function<? super E, Paint> edgeFillPaintTransformer = n -> null;
   protected Function<? super E, Paint> edgeDrawPaintTransformer = n -> Color.black;
   protected Function<? super E, Paint> arrowFillPaintTransformer = n -> Color.black;
   protected Function<? super E, Paint> arrowDrawPaintTransformer = n -> Color.black;
 
-  protected EdgeIndexFunction<E> parallelEdgeIndexFunction;
+  protected EdgeIndexFunction<N, E> parallelEdgeIndexFunction;
 
   protected MultiLayerTransformer multiLayerTransformer = new BasicTransformer();
 
@@ -106,8 +107,8 @@ public class PluggableRenderContext<N, E> implements RenderContext<N, E> {
   private EdgeShape<E> edgeShape;
 
   PluggableRenderContext(Network<N, E> graph) {
-    this.edgeShapeTransformer = new EdgeShape.QuadCurve<E>();
-    this.parallelEdgeIndexFunction = new ParallelEdgeIndexFunction<N, E>(graph);
+    this.edgeShapeTransformer = new EdgeShape.QuadCurve<N, E>();
+    this.parallelEdgeIndexFunction = new ParallelEdgeIndexFunction<>();
     if (graph.isDirected()) {
       this.edgeArrow =
           ArrowFactory.getNotchedArrow(EDGE_ARROW_WIDTH, EDGE_ARROW_LENGTH, EDGE_ARROW_NOTCH_DEPTH);
@@ -220,16 +221,17 @@ public class PluggableRenderContext<N, E> implements RenderContext<N, E> {
     this.edgeFillPaintTransformer = edgeFillPaintTransformer;
   }
 
-  public Function<Context<Network, E>, Shape> getEdgeShapeTransformer() {
+  public Function<Context<Network<N, E>, E>, Shape> getEdgeShapeTransformer() {
     return edgeShapeTransformer;
   }
 
-  public void setEdgeShapeTransformer(Function<Context<Network, E>, Shape> edgeShapeTransformer) {
+  public void setEdgeShapeTransformer(
+      Function<Context<Network<N, E>, E>, Shape> edgeShapeTransformer) {
     this.edgeShapeTransformer = edgeShapeTransformer;
     if (edgeShapeTransformer instanceof ParallelEdgeShapeTransformer) {
       @SuppressWarnings("unchecked")
-      ParallelEdgeShapeTransformer<E> transformer =
-          (ParallelEdgeShapeTransformer<E>) edgeShapeTransformer;
+      ParallelEdgeShapeTransformer<N, E> transformer =
+          (ParallelEdgeShapeTransformer<N, E>) edgeShapeTransformer;
       transformer.setEdgeIndexFunction(this.parallelEdgeIndexFunction);
     }
   }
@@ -275,11 +277,11 @@ public class PluggableRenderContext<N, E> implements RenderContext<N, E> {
     this.labelOffset = labelOffset;
   }
 
-  public EdgeIndexFunction<E> getParallelEdgeIndexFunction() {
+  public EdgeIndexFunction<N, E> getParallelEdgeIndexFunction() {
     return parallelEdgeIndexFunction;
   }
 
-  public void setParallelEdgeIndexFunction(EdgeIndexFunction<E> parallelEdgeIndexFunction) {
+  public void setParallelEdgeIndexFunction(EdgeIndexFunction<N, E> parallelEdgeIndexFunction) {
     this.parallelEdgeIndexFunction = parallelEdgeIndexFunction;
     // reset the edge shape Function, as the parallel edge index function
     // is used by it
@@ -373,6 +375,15 @@ public class PluggableRenderContext<N, E> implements RenderContext<N, E> {
 
   public void setVertexLabelTransformer(Function<? super N, String> vertexLabelTransformer) {
     this.vertexLabelTransformer = vertexLabelTransformer;
+  }
+
+  public void setVertexLabelDrawPaintTransformer(
+      Function<? super N, Paint> vertexLabelDrawPaintTransformer) {
+    this.vertexLabelDrawPaintTransformer = vertexLabelDrawPaintTransformer;
+  }
+
+  public Function<? super N, Paint> getVertexLabelDrawPaintTransformer() {
+    return vertexLabelDrawPaintTransformer;
   }
 
   public NetworkElementAccessor<N, E> getPickSupport() {
