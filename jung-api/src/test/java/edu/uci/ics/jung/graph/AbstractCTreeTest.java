@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.Set;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 // TODO: Test CTree#root, CTree#depth and CTree#height
@@ -426,6 +427,14 @@ public abstract class AbstractCTreeTest {
   public void addEdge_existingEdgeBetweenSameNodes() {
     putEdge(N1, N2);
     assertThat(putEdge(N1, N2)).isFalse();
+  }
+
+  @Ignore("Enable if https://github.com/jrtom/jung/issues/169 is accepted, otherwise remove")
+  @Test
+  public void addEdge_rootChangedIndirectly() {
+    putEdge(N1, N2); // N1 is set as the root initially
+    putEdge(N3, N1); // But now N3 should be the new root
+    Truth8.assertThat(tree.root()).hasValue(N3);
   }
 
   @Test
