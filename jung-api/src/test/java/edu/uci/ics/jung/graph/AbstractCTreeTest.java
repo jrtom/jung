@@ -24,12 +24,14 @@ import static org.junit.Assert.fail;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.graph.EndpointPair;
+import com.google.common.truth.Truth8;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+// TODO: Test CTree#root, CTree#depth and CTree#height
 public abstract class AbstractCTreeTest {
   MutableCTree<Integer> tree;
   static final Integer N1 = 1;
@@ -91,7 +93,7 @@ public abstract class AbstractCTreeTest {
 
     String treeString = tree.toString();
     assertThat(treeString).contains("isDirected: true");
-    assertThat(treeString).contains("allowsSelfLoops: true");
+    assertThat(treeString).contains("allowsSelfLoops: false");
 
     int nodeStart = treeString.indexOf("nodes:");
     int edgeStart = treeString.indexOf("edges:");
