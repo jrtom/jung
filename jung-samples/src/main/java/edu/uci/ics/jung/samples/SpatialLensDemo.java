@@ -14,12 +14,12 @@ import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
 import edu.uci.ics.jung.graph.util.TestGraphs;
-import edu.uci.ics.jung.layout.algorithms.KKLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.FRLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
 import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.visualization.BaseVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
-import edu.uci.ics.jung.visualization.Layer;
+import edu.uci.ics.jung.visualization.MultiLayerTransformer.Layer;
 import edu.uci.ics.jung.visualization.VisualizationModel;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
@@ -27,9 +27,6 @@ import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.LensMagnificationGraphMousePlugin;
 import edu.uci.ics.jung.visualization.control.ModalLensGraphMouse;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
-import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
-import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
-import edu.uci.ics.jung.visualization.picking.PickedState;
 import edu.uci.ics.jung.visualization.transform.HyperbolicTransformer;
 import edu.uci.ics.jung.visualization.transform.LayoutLensSupport;
 import edu.uci.ics.jung.visualization.transform.Lens;
@@ -38,15 +35,33 @@ import edu.uci.ics.jung.visualization.transform.MagnifyTransformer;
 import edu.uci.ics.jung.visualization.transform.shape.HyperbolicShapeTransformer;
 import edu.uci.ics.jung.visualization.transform.shape.MagnifyShapeTransformer;
 import edu.uci.ics.jung.visualization.transform.shape.ViewLensSupport;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GridLayout;
+import java.awt.Insets;
+import java.awt.Rectangle;
 import java.awt.event.ItemEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.ButtonGroup;
+import javax.swing.Icon;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenuBar;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.WindowConstants;
 import javax.swing.plaf.basic.BasicLabelUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,35 +101,20 @@ public class SpatialLensDemo extends JPanel {
   public SpatialLensDemo() {
     setLayout(new BorderLayout());
     graph = //buildOneNode();
-        TestGraphs.createTestGraph(false);
+        TestGraphs.getOneComponentGraph();
 
-    graphLayoutAlgorithm = new KKLayoutAlgorithm<>();
+    graphLayoutAlgorithm = new FRLayoutAlgorithm<>();
 
     Dimension preferredSize = new Dimension(600, 600);
     Map<String, Point2D> map = new HashMap<>();
-    Function<String, Point2D> vlf = map::get;
 
     final VisualizationModel<String, Number, Point2D> visualizationModel =
         new BaseVisualizationModel<>(graph, graphLayoutAlgorithm, preferredSize);
     vv = new VisualizationViewer<>(visualizationModel, preferredSize);
-
-    PickedState<String> ps = vv.getPickedVertexState();
-    PickedState<Number> pes = vv.getPickedEdgeState();
-    vv.getRenderContext()
-        .setVertexFillPaintTransformer(
-            new PickableVertexPaintTransformer<>(ps, Color.red, Color.yellow));
-    vv.getRenderContext()
-        .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer<>(pes, Color.black, Color.cyan));
+    vv.getRenderContext().setNodeLabelFunction(Object::toString);
     vv.setBackground(Color.white);
 
-    vv.getRenderContext().setVertexLabelTransformer(Object::toString);
-
-    final Function<? super String, Shape> ovals = vv.getRenderContext().getVertexShapeTransformer();
-    final Function<? super String, Shape> squares = n -> new Rectangle2D.Float(-10, -10, 20, 20);
-
-    // add a listener for ToolTips
-    //    vv.setVertexToolTipTransformer(Object::toString);
+    vv.getRenderContext().setNodeLabelFunction(Object::toString);
 
     GraphZoomScrollPane gzsp = new GraphZoomScrollPane(vv);
     add(gzsp);

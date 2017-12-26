@@ -61,7 +61,7 @@ public class SpatialQuadTreeTest {
     for (String node : graph.nodes()) {
       Point2D location = layoutModel.apply(node);
       SpatialQuadTree pointQuadTree = tree.getContainingQuadTreeLeaf(location);
-      SpatialQuadTree nodeQuadTree = tree.getContainingQuadTreeLeaf(node);
+      SpatialQuadTree nodeQuadTree = (SpatialQuadTree) tree.getContainingQuadTreeLeaf(node);
       Assert.assertEquals(pointQuadTree, nodeQuadTree);
       log.debug(
           "pointQuadTree level {} nodeQuadTree level {}",
@@ -78,7 +78,7 @@ public class SpatialQuadTreeTest {
   public void testClosestNodes() {
     final int COUNT = 10000;
     NetworkNodeAccessor<String, Point2D> slowWay =
-        new RadiusNetworkNodeAccessor<String, Point2D>(graph, POINT_MODEL, Double.MAX_VALUE);
+        new RadiusNetworkNodeAccessor<>(graph, POINT_MODEL, Double.MAX_VALUE);
 
     // look for nodes closest to COUNT random locations
     for (int i = 0; i < COUNT; i++) {
@@ -87,7 +87,7 @@ public class SpatialQuadTreeTest {
       // use the slowWay
       String winnerOne = slowWay.getNode(layoutModel, x, y, 0);
       // use the quadtree
-      String winnerTwo = tree.getClosestNode(x, y);
+      String winnerTwo = tree.getClosestElement(x, y);
 
       log.debug("{} and {} should be the same...", winnerOne, winnerTwo);
 
@@ -133,7 +133,7 @@ public class SpatialQuadTreeTest {
   public void comparePerformance() {
     final int COUNT = 100000;
     NetworkNodeAccessor<String, Point2D> slowWay =
-        new RadiusNetworkNodeAccessor<String, Point2D>(graph, POINT_MODEL, Double.MAX_VALUE);
+        new RadiusNetworkNodeAccessor<>(graph, POINT_MODEL, Double.MAX_VALUE);
 
     // generate the points first so both tests use the same points
     double[] xs = new double[COUNT];
@@ -153,7 +153,7 @@ public class SpatialQuadTreeTest {
     start = System.currentTimeMillis();
     for (int i = 0; i < COUNT; i++) {
       // use the quadtree
-      String winnerTwo = tree.getClosestNode(xs[i], ys[i]);
+      String winnerTwo = tree.getClosestElement(xs[i], ys[i]);
     }
     end = System.currentTimeMillis();
     log.info("spatial way took {}", end - start);

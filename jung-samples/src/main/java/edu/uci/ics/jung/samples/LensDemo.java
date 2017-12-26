@@ -18,12 +18,20 @@ import edu.uci.ics.jung.layout.algorithms.FRLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.StaticLayoutAlgorithm;
 import edu.uci.ics.jung.layout.model.LayoutModel;
-import edu.uci.ics.jung.layout.util.LayoutAlgorithmTransition;
 import edu.uci.ics.jung.layout.util.RandomLocationTransformer;
-import edu.uci.ics.jung.visualization.*;
-import edu.uci.ics.jung.visualization.control.*;
-import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
-import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
+import edu.uci.ics.jung.visualization.BaseVisualizationModel;
+import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
+import edu.uci.ics.jung.visualization.MultiLayerTransformer.Layer;
+import edu.uci.ics.jung.visualization.VisualizationModel;
+import edu.uci.ics.jung.visualization.VisualizationViewer;
+import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
+import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
+import edu.uci.ics.jung.visualization.control.LensMagnificationGraphMousePlugin;
+import edu.uci.ics.jung.visualization.control.ModalLensGraphMouse;
+import edu.uci.ics.jung.visualization.control.ScalingControl;
+import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintFunction;
+import edu.uci.ics.jung.visualization.decorators.PickableNodePaintFunction;
+import edu.uci.ics.jung.visualization.layout.LayoutAlgorithmTransition;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import edu.uci.ics.jung.visualization.transform.HyperbolicTransformer;
 import edu.uci.ics.jung.visualization.transform.LayoutLensSupport;
@@ -52,7 +60,7 @@ import javax.swing.plaf.basic.BasicLabelUI;
  * @author Tom Nelson
  */
 @SuppressWarnings("serial")
-public class LensDemo extends JApplet {
+public class LensDemo extends JPanel {
 
   /** the graph */
   Network<String, Number> graph;
@@ -82,6 +90,7 @@ public class LensDemo extends JApplet {
   /** create an instance of a simple graph with controls to demo the zoomand hyperbolic features. */
   public LensDemo() {
 
+    setLayout(new BorderLayout());
     // create a simple graph for the demo
     graph = TestGraphs.getOneComponentGraph();
 
@@ -98,27 +107,24 @@ public class LensDemo extends JApplet {
         new BaseVisualizationModel<>(graph, graphLayoutAlgorithm, preferredSize);
     vv = new VisualizationViewer<>(visualizationModel, preferredSize);
 
-    PickedState<String> ps = vv.getPickedVertexState();
+    PickedState<String> ps = vv.getPickedNodeState();
     PickedState<Number> pes = vv.getPickedEdgeState();
     vv.getRenderContext()
-        .setVertexFillPaintTransformer(
-            new PickableVertexPaintTransformer<>(ps, Color.red, Color.yellow));
+        .setNodeFillPaintFunction(new PickableNodePaintFunction<>(ps, Color.red, Color.yellow));
     vv.getRenderContext()
-        .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer<>(pes, Color.black, Color.cyan));
+        .setEdgeDrawPaintFunction(new PickableEdgePaintFunction<>(pes, Color.black, Color.cyan));
     vv.setBackground(Color.white);
 
-    vv.getRenderContext().setVertexLabelTransformer(Object::toString);
+    vv.getRenderContext().setNodeLabelFunction(Object::toString);
 
-    final Function<? super String, Shape> ovals = vv.getRenderContext().getVertexShapeTransformer();
+    final Function<? super String, Shape> ovals = vv.getRenderContext().getNodeShapeFunction();
     final Function<? super String, Shape> squares = n -> new Rectangle2D.Float(-10, -10, 20, 20);
 
     // add a listener for ToolTips
-    vv.setVertexToolTipTransformer(Object::toString);
+    vv.setNodeToolTipFunction(n -> n); //Object::toString);
 
-    Container content = getContentPane();
     GraphZoomScrollPane gzsp = new GraphZoomScrollPane(vv);
-    content.add(gzsp);
+    add(gzsp);
 
     // the regular graph mouse for the normal view
     final DefaultModalGraphMouse<String, Number> graphMouse = new DefaultModalGraphMouse<>();
@@ -246,9 +252,9 @@ public class LensDemo extends JApplet {
                     layoutModel.getHeight(),
                     layoutModel.getDepth()));
             visualizationModel.setNetwork(graph, false);
-            LayoutAlgorithmTransition.apply(visualizationModel, graphLayoutAlgorithm);
-            vv.getRenderContext().setVertexShapeTransformer(ovals);
-            vv.getRenderContext().setVertexLabelTransformer(Object::toString);
+            LayoutAlgorithmTransition.apply(vv, graphLayoutAlgorithm);
+            vv.getRenderContext().setNodeShapeFunction(ovals);
+            vv.getRenderContext().setNodeLabelFunction(Object::toString);
             vv.repaint();
           }
         });
@@ -260,9 +266,9 @@ public class LensDemo extends JApplet {
             layoutModel.setInitializer(vlf);
             // so it won't start running the old layout algorithm on the new graph
             visualizationModel.setNetwork(grid, false);
-            LayoutAlgorithmTransition.apply(visualizationModel, gridLayoutAlgorithm);
-            vv.getRenderContext().setVertexShapeTransformer(squares);
-            vv.getRenderContext().setVertexLabelTransformer(n -> null);
+            LayoutAlgorithmTransition.apply(vv, gridLayoutAlgorithm);
+            vv.getRenderContext().setNodeShapeFunction(squares);
+            vv.getRenderContext().setNodeLabelFunction(n -> null);
             vv.repaint();
           }
         });
@@ -300,7 +306,7 @@ public class LensDemo extends JApplet {
     controls.add(hyperControls);
     controls.add(modePanel);
     controls.add(modeLabel);
-    content.add(controls, BorderLayout.SOUTH);
+    add(controls, BorderLayout.SOUTH);
   }
 
   private Network<String, Number> generateVertexGrid(

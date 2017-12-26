@@ -18,9 +18,9 @@ import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
-import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
+import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintFunction;
 import edu.uci.ics.jung.visualization.renderers.DefaultEdgeLabelRenderer;
-import edu.uci.ics.jung.visualization.renderers.DefaultVertexLabelRenderer;
+import edu.uci.ics.jung.visualization.renderers.DefaultNodeLabelRenderer;
 import java.awt.*;
 import java.awt.geom.Point2D;
 import java.net.URL;
@@ -32,7 +32,7 @@ import javax.swing.*;
  *
  * @author Tom Nelson
  */
-public class ImageEdgeLabelDemo extends JApplet {
+public class ImageEdgeLabelDemo extends JPanel {
 
   /** */
   private static final long serialVersionUID = -4332663871914930864L;
@@ -47,6 +47,7 @@ public class ImageEdgeLabelDemo extends JApplet {
 
   public ImageEdgeLabelDemo() {
 
+    setLayout(new BorderLayout());
     // create a simple graph for the demo
     graph = createGraph(VERTEX_COUNT);
 
@@ -55,15 +56,15 @@ public class ImageEdgeLabelDemo extends JApplet {
     vv = new VisualizationViewer<>(graph, layoutAlgorithm, new Dimension(400, 400));
 
     vv.getRenderContext()
-        .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer<>(vv.getPickedEdgeState(), Color.black, Color.cyan));
+        .setEdgeDrawPaintFunction(
+            new PickableEdgePaintFunction<>(vv.getPickedEdgeState(), Color.black, Color.cyan));
 
     vv.setBackground(Color.white);
 
-    vv.getRenderContext().setVertexLabelRenderer(new DefaultVertexLabelRenderer(Color.cyan));
+    vv.getRenderContext().setNodeLabelRenderer(new DefaultNodeLabelRenderer(Color.cyan));
     vv.getRenderContext().setEdgeLabelRenderer(new DefaultEdgeLabelRenderer(Color.cyan));
     vv.getRenderContext()
-        .setEdgeLabelTransformer(
+        .setEdgeLabelFunction(
             new Function<Number, String>() {
               URL url = getClass().getResource("/images/lightning-s.gif");
 
@@ -73,11 +74,10 @@ public class ImageEdgeLabelDemo extends JApplet {
             });
 
     // add a listener for ToolTips
-    vv.setVertexToolTipTransformer(Object::toString);
-    vv.setEdgeToolTipTransformer(Object::toString);
-    Container content = getContentPane();
+    vv.setNodeToolTipFunction(Object::toString);
+    vv.setEdgeToolTipFunction(Object::toString);
     final GraphZoomScrollPane panel = new GraphZoomScrollPane(vv);
-    content.add(panel);
+    add(panel);
 
     final DefaultModalGraphMouse<Number, Number> graphMouse = new DefaultModalGraphMouse<>();
     vv.setGraphMouse(graphMouse);
@@ -101,7 +101,7 @@ public class ImageEdgeLabelDemo extends JApplet {
     scaleGrid.add(minus);
     controls.add(scaleGrid);
     controls.add(modePanel);
-    content.add(controls, BorderLayout.SOUTH);
+    add(controls, BorderLayout.SOUTH);
   }
 
   /**

@@ -91,6 +91,16 @@ public class AggregateLayoutModel<N, P> implements LayoutModel<N, P> {
   }
 
   @Override
+  public void setRelaxing(boolean relaxing) {
+    delegate.setRelaxing(relaxing);
+  }
+
+  @Override
+  public boolean isRelaxing() {
+    return delegate.isRelaxing();
+  }
+
+  @Override
   public void set(N node, P location) {
     delegate.set(node, location);
   }
@@ -192,6 +202,11 @@ public class AggregateLayoutModel<N, P> implements LayoutModel<N, P> {
 
   public void setInitializer(Function<N, P> initializer) {
     delegate.setInitializer(initializer);
+  }
+
+  @Override
+  public LayoutStateChangeSupport getLayoutStateChangeSupport() {
+    return delegate.getLayoutStateChangeSupport();
   }
 
   /**

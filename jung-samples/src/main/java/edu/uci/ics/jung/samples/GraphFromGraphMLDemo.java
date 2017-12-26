@@ -16,8 +16,9 @@ import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.*;
-import edu.uci.ics.jung.visualization.renderers.BasicVertexLabelRenderer;
-import edu.uci.ics.jung.visualization.renderers.GradientVertexRenderer;
+import edu.uci.ics.jung.visualization.renderers.BasicNodeLabelRenderer;
+import edu.uci.ics.jung.visualization.renderers.GradientNodeRenderer;
+import edu.uci.ics.jung.visualization.renderers.Renderer;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
@@ -49,7 +50,7 @@ public class GraphFromGraphMLDemo {
   public GraphFromGraphMLDemo(String filename)
       throws ParserConfigurationException, SAXException, IOException {
 
-    Supplier<Number> vertexFactory =
+    Supplier<Number> nodeFactory =
         new Supplier<Number>() {
           int n = 0;
 
@@ -67,32 +68,29 @@ public class GraphFromGraphMLDemo {
         };
 
     GraphMLReader<MutableNetwork<Number, Number>, Number, Number> gmlr =
-        new GraphMLReader<>(vertexFactory, edgeFactory);
+        new GraphMLReader<>(nodeFactory, edgeFactory);
     final MutableNetwork<Number, Number> graph =
         NetworkBuilder.directed().allowsSelfLoops(true).build();
     gmlr.load(new InputStreamReader(this.getClass().getResourceAsStream(filename)), graph);
 
     // create a simple graph for the demo
     LayoutAlgorithm<Number, Point2D> layoutAlgorithm = new FRLayoutAlgorithm<>();
-    vv = new VisualizationViewer<>(graph, layoutAlgorithm);
+    vv = new VisualizationViewer<>(graph, layoutAlgorithm, new Dimension(800, 800));
 
     vv.addGraphMouseListener(new TestGraphMouseListener<>());
     vv.getRenderer()
-        .setVertexRenderer(
-            new GradientVertexRenderer<>(
-                vv, Color.white, Color.red, Color.white, Color.blue, false));
+        .setNodeRenderer(
+            new GradientNodeRenderer<>(vv, Color.white, Color.red, Color.white, Color.blue, false));
 
     // add my listeners for ToolTips
-    vv.setVertexToolTipTransformer(Object::toString);
-    vv.setEdgeToolTipTransformer(edge -> "E" + graph.incidentNodes(edge).toString());
+    vv.setNodeToolTipFunction(Object::toString);
+    vv.setEdgeToolTipFunction(edge -> "E" + graph.incidentNodes(edge).toString());
 
-    vv.getRenderContext().setVertexLabelTransformer(Object::toString);
+    vv.getRenderContext().setNodeLabelFunction(Object::toString);
     vv.getRenderer()
-        .getVertexLabelRenderer()
-        .setPositioner(new BasicVertexLabelRenderer.InsidePositioner());
-    vv.getRenderer()
-        .getVertexLabelRenderer()
-        .setPosition(edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position.AUTO);
+        .getNodeLabelRenderer()
+        .setPositioner(new BasicNodeLabelRenderer.InsidePositioner());
+    vv.getRenderer().getNodeLabelRenderer().setPosition(Renderer.NodeLabel.Position.AUTO);
 
     // create a frome to hold the graph
     final JFrame frame = new JFrame();

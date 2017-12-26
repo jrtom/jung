@@ -15,7 +15,11 @@ import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
 import edu.uci.ics.jung.graph.util.TestGraphs;
-import edu.uci.ics.jung.layout.algorithms.*;
+import edu.uci.ics.jung.layout.algorithms.CircleLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.FRLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.KKLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.SpringLayoutAlgorithm;
 import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.layout.model.LoadingCacheLayoutModel;
 import edu.uci.ics.jung.layout.util.RandomLocationTransformer;
@@ -26,8 +30,8 @@ import edu.uci.ics.jung.visualization.VisualizationModel;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
-import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
-import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
+import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintFunction;
+import edu.uci.ics.jung.visualization.decorators.PickableNodePaintFunction;
 import edu.uci.ics.jung.visualization.layout.AggregateLayoutModel;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import java.awt.*;
@@ -45,7 +49,7 @@ import javax.swing.*;
  * @author Tom Nelson
  */
 @SuppressWarnings("serial")
-public class SubLayoutDemo extends JApplet {
+public class SubLayoutDemo extends JPanel {
 
   String instructions =
       "<html>"
@@ -89,6 +93,7 @@ public class SubLayoutDemo extends JApplet {
 
   public SubLayoutDemo() {
 
+    setLayout(new BorderLayout());
     // create a simple graph for the demo
     graph = TestGraphs.getOneComponentGraph();
 
@@ -113,27 +118,25 @@ public class SubLayoutDemo extends JApplet {
 
     vv = new VisualizationViewer<>(visualizationModel, preferredSize);
 
-    ps = vv.getPickedVertexState();
+    ps = vv.getPickedNodeState();
     vv.getRenderContext()
-        .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer<>(vv.getPickedEdgeState(), Color.black, Color.red));
+        .setEdgeDrawPaintFunction(
+            new PickableEdgePaintFunction<>(vv.getPickedEdgeState(), Color.black, Color.red));
     vv.getRenderContext()
-        .setVertexFillPaintTransformer(
-            new PickableVertexPaintTransformer<>(
-                vv.getPickedVertexState(), Color.red, Color.yellow));
+        .setNodeFillPaintFunction(
+            new PickableNodePaintFunction<>(vv.getPickedNodeState(), Color.red, Color.yellow));
     vv.setBackground(Color.white);
 
     // add a listener for ToolTips
-    vv.setVertexToolTipTransformer(Object::toString);
+    vv.setNodeToolTipFunction(Object::toString);
 
     /** the regular graph mouse for the normal view */
     final DefaultModalGraphMouse<?, ?> graphMouse = new DefaultModalGraphMouse<>();
 
     vv.setGraphMouse(graphMouse);
 
-    Container content = getContentPane();
     GraphZoomScrollPane gzsp = new GraphZoomScrollPane(vv);
-    content.add(gzsp);
+    add(gzsp);
 
     JComboBox<?> modeBox = graphMouse.getModeComboBox();
     modeBox.addItemListener(graphMouse.getModeListener());
@@ -270,7 +273,7 @@ public class SubLayoutDemo extends JApplet {
 
     controls.add(help);
     controls.add(Box.createVerticalGlue());
-    content.add(controls, BorderLayout.EAST);
+    add(controls, BorderLayout.EAST);
   }
 
   private void heightConstrain(Component component) {

@@ -22,11 +22,14 @@ import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
-import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
 import java.io.IOException;
-import javax.swing.*;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.WindowConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,8 +62,8 @@ public class SimpleGraphSpatialTest extends JPanel {
     VisualizationViewer vv = new VisualizationViewer(model, viewPreferredSize);
     final DefaultModalGraphMouse graphMouse = new DefaultModalGraphMouse();
     vv.setGraphMouse(graphMouse);
-    vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
-    vv.getRenderer().getVertexLabelRenderer().setPosition(Renderer.VertexLabel.Position.CNTR);
+    vv.getRenderContext().setNodeLabelFunction(Object::toString);
+    vv.getRenderer().getNodeLabelRenderer().setPosition(Renderer.NodeLabel.Position.CNTR);
     vv.addKeyListener(graphMouse.getModeKeyListener());
     vv.setToolTipText("<html><center>Type 'p' for Pick mode<p>Type 't' for Transform mode");
     vv.setForeground(Color.white);

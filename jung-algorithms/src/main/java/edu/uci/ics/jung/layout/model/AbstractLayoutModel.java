@@ -1,11 +1,16 @@
 package edu.uci.ics.jung.layout.model;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.graph.Graph;
 import edu.uci.ics.jung.algorithms.util.IterativeContext;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
+import edu.uci.ics.jung.layout.util.LayoutChangeListener;
+import edu.uci.ics.jung.layout.util.LayoutEvent;
+import edu.uci.ics.jung.layout.util.LayoutEventSupport;
 import edu.uci.ics.jung.layout.util.VisRunnable;
 import java.util.ConcurrentModificationException;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import org.slf4j.Logger;
@@ -16,11 +21,11 @@ import org.slf4j.LoggerFactory;
  * visualization
  *
  * @author Tom Nelson
- * @param <N>
- * @param <P>
+ * @param <N> the node type
+ * @param <P> the point type for locations
  */
 public abstract class AbstractLayoutModel<N, P>
-    implements LayoutModel<N, P>, LayoutModel.ChangeSupport {
+    implements LayoutModel<N, P>, LayoutModel.ChangeSupport, LayoutEventSupport<N, P> {
 
   private static final Logger log = LoggerFactory.getLogger(AbstractLayoutModel.class);
 
@@ -32,8 +37,14 @@ public abstract class AbstractLayoutModel<N, P>
   protected Graph<N> graph;
   protected PointModel<P> pointModel;
   protected VisRunnable visRunnable;
+  /** @value relaxing true is this layout model is being accessed by a running relaxer */
+  protected boolean relaxing;
+
   protected CompletableFuture theFuture;
   protected LayoutModel.ChangeSupport changeSupport = new DefaultLayoutModelChangeSupport();
+  private List<LayoutChangeListener<N, P>> layoutChangeListeners = Lists.newArrayList();
+  protected LayoutModel.LayoutStateChangeSupport layoutStateChangeSupport =
+      new DefaultLayoutStateChangeSupport();
 
   protected AbstractLayoutModel(
       Graph<N> graph, PointModel<P> pointModel, int width, int height, int depth) {
@@ -50,6 +61,7 @@ public abstract class AbstractLayoutModel<N, P>
     if (theFuture != null) {
       theFuture.cancel(true);
     }
+    setRelaxing(false);
   }
 
   /**
@@ -60,6 +72,9 @@ public abstract class AbstractLayoutModel<N, P>
    */
   @Override
   public void accept(LayoutAlgorithm<N, P> layoutAlgorithm) {
+    // the layoutMode is active with a new LayoutAlgorithm
+    layoutStateChangeSupport.fireLayoutStateChanged(this, true);
+    log.trace("accepting {}", layoutAlgorithm);
     changeSupport.setFireEvents(true);
     if (this.visRunnable != null) {
       log.trace("stopping {}", visRunnable);
@@ -75,11 +90,30 @@ public abstract class AbstractLayoutModel<N, P>
       layoutAlgorithm.visit(this);
 
       if (layoutAlgorithm instanceof IterativeContext) {
-        setupVisRunner((IterativeContext) layoutAlgorithm);
-      } else if (log.isTraceEnabled()) {
-        log.trace("no visRunner for this {}", this);
+        setRelaxing(true);
+        setupVisRunner(
+            (IterativeContext) layoutAlgorithm,
+            layoutAlgorithm instanceof IterativeContext.WithPreRelax);
+
+        // need to have the visRunner fire the layoutStateChanged event when it finishes
+      } else {
+        if (log.isTraceEnabled()) {
+          log.trace("no visRunner for this {}", this);
+        }
+        // the layout model has finished with the layout algorithm
+        log.trace("will fire layoutStateCHanged with false");
+        layoutStateChangeSupport.fireLayoutStateChanged(this, false);
       }
     }
+  }
+
+  @Override
+  public LayoutStateChangeSupport getLayoutStateChangeSupport() {
+    return layoutStateChangeSupport;
+  }
+
+  protected void setupVisRunner(IterativeContext iterativeContext) {
+    setupVisRunner(iterativeContext, true);
   }
 
   /**
@@ -87,7 +121,7 @@ public abstract class AbstractLayoutModel<N, P>
    *
    * @param iterativeContext
    */
-  protected void setupVisRunner(IterativeContext iterativeContext) {
+  protected void setupVisRunner(IterativeContext iterativeContext, boolean withPreRelax) {
     log.trace("this {} is setting up a visRunnable with {}", this, iterativeContext);
     if (visRunnable != null) {
       visRunnable.stop();
@@ -96,15 +130,19 @@ public abstract class AbstractLayoutModel<N, P>
       theFuture.cancel(true);
     }
 
-    // prerelax phase
-    changeSupport.setFireEvents(false);
+    layoutStateChangeSupport.fireLayoutStateChanged(this, true);
+    if (withPreRelax) {
+      // prerelax phase
+      changeSupport.setFireEvents(false);
 
-    long timeNow = System.currentTimeMillis();
-    while (System.currentTimeMillis() - timeNow < 500 && !iterativeContext.done()) {
-      iterativeContext.step();
+      long timeNow = System.currentTimeMillis();
+      while (System.currentTimeMillis() - timeNow < 500 && !iterativeContext.done()) {
+        iterativeContext.step();
+      }
+
+      changeSupport.setFireEvents(true);
+      log.trace("prerelax is done");
     }
-
-    changeSupport.setFireEvents(true);
 
     visRunnable = new VisRunnable(iterativeContext);
     theFuture =
@@ -112,7 +150,10 @@ public abstract class AbstractLayoutModel<N, P>
             .thenRun(
                 () -> {
                   log.trace("We're done");
+                  setRelaxing(false);
                   this.fireChanged();
+                  // fire an event to say that the layout relax is done
+                  this.layoutStateChangeSupport.fireLayoutStateChanged(this, false);
                 });
   }
 
@@ -124,6 +165,9 @@ public abstract class AbstractLayoutModel<N, P>
 
   public void setGraph(Graph<N> graph) {
     this.graph = graph;
+    if (log.isTraceEnabled()) {
+      log.trace("setGraph to n:{} e:{}", graph.nodes(), graph.edges());
+    }
   }
 
   /**
@@ -157,6 +201,7 @@ public abstract class AbstractLayoutModel<N, P>
    */
   @Override
   public void lock(boolean locked) {
+    log.trace("lock:{}", locked);
     this.locked = locked;
   }
 
@@ -255,15 +300,13 @@ public abstract class AbstractLayoutModel<N, P>
   @Override
   public void set(N node, P location) {
     if (isFireEvents()) {
-      fireChanged();
+      fireLayoutChanged(node, location);
     }
   }
 
   @Override
   public void set(N node, double x, double y, double z) {
-    if (isFireEvents()) {
-      fireChanged();
-    }
+    this.set(node, x, y);
   }
 
   /**
@@ -300,8 +343,36 @@ public abstract class AbstractLayoutModel<N, P>
   }
 
   @Override
+  public void addLayoutChangeListener(LayoutChangeListener<N, P> listener) {
+    layoutChangeListeners.add(listener);
+  }
+
+  @Override
+  public void removeLayoutChangeListener(LayoutChangeListener<N, P> listener) {
+    layoutChangeListeners.remove(listener);
+  }
+
+  protected void fireLayoutChanged(N node, P location) {
+    if (layoutChangeListeners.size() > 0) {
+      LayoutEvent<N, P> layoutEvent = new LayoutEvent(node, location);
+      for (LayoutChangeListener<N, P> layoutChangeListener : layoutChangeListeners) {
+        layoutChangeListener.layoutChanged(layoutEvent);
+      }
+    }
+  }
+
+  @Override
   public void removeChangeListener(ChangeListener l) {
     changeSupport.removeChangeListener(l);
+  }
+
+  public boolean isRelaxing() {
+    return relaxing;
+  }
+
+  public void setRelaxing(boolean relaxing) {
+    log.trace("setRelaxing:{}", relaxing);
+    this.relaxing = relaxing;
   }
 
   @Override

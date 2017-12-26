@@ -7,6 +7,7 @@ import edu.uci.ics.jung.layout.util.Caching;
 import edu.uci.ics.jung.visualization.spatial.Spatial;
 import edu.uci.ics.jung.visualization.spatial.SpatialGrid;
 import java.awt.*;
+import java.awt.geom.Point2D;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +42,7 @@ public class SpatialGridLayoutModel<N, P> extends LoadingCacheLayoutModel<N, P>
   @Override
   public void accept(LayoutAlgorithm<N, P> layoutAlgorithm) {
     super.accept(layoutAlgorithm);
-    spatial.recalculate(graph.nodes());
+    spatial.recalculate();
   }
 
   public void setSpatial(Spatial<N> spatial) {
@@ -57,7 +58,7 @@ public class SpatialGridLayoutModel<N, P> extends LoadingCacheLayoutModel<N, P>
         || spatial.getLayoutArea().getHeight() < height) {
       setupSpatialGrid(new Dimension(width, height), 10, 10);
     } else {
-      spatial.recalculate(this.graph.nodes());
+      spatial.recalculate();
     }
   }
 
@@ -80,7 +81,7 @@ public class SpatialGridLayoutModel<N, P> extends LoadingCacheLayoutModel<N, P>
   public void set(N node, P location) {
     super.set(node, location);
     if (isFireEvents()) {
-      spatial.update(node);
+      spatial.update(node, (Point2D) location);
     }
   }
 
@@ -88,7 +89,7 @@ public class SpatialGridLayoutModel<N, P> extends LoadingCacheLayoutModel<N, P>
   public void set(N node, double x, double y) {
     super.set(node, x, y);
     if (isFireEvents()) {
-      spatial.update(node);
+      spatial.update(node, new Point2D.Double(x, y));
     }
   }
 

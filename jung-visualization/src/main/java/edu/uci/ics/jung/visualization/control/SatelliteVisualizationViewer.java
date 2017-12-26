@@ -11,8 +11,9 @@
 package edu.uci.ics.jung.visualization.control;
 
 import edu.uci.ics.jung.layout.model.LayoutModel;
-import edu.uci.ics.jung.visualization.Layer;
+import edu.uci.ics.jung.visualization.MultiLayerTransformer.Layer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
+import edu.uci.ics.jung.visualization.spatial.Spatial;
 import edu.uci.ics.jung.visualization.transform.MutableAffineTransformer;
 import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
 import edu.uci.ics.jung.visualization.transform.shape.ShapeTransformer;
@@ -74,8 +75,10 @@ public class SatelliteVisualizationViewer<N, E> extends VisualizationViewer<N, E
     master.addChangeListener(this);
 
     // share the picked state of the master
-    setPickedVertexState(master.getPickedVertexState());
+    setPickedNodeState(master.getPickedNodeState());
     setPickedEdgeState(master.getPickedEdgeState());
+    setNodeSpatial(new Spatial.NoOp.Node(model.getLayoutModel()));
+    setEdgeSpatial(new Spatial.NoOp.Edge(model));
   }
 
   /**

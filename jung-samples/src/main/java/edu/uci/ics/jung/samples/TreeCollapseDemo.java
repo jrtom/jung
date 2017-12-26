@@ -14,20 +14,19 @@ import edu.uci.ics.jung.graph.MutableCTreeNetwork;
 import edu.uci.ics.jung.graph.TreeNetworkBuilder;
 import edu.uci.ics.jung.layout.algorithms.BalloonLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.RadialTreeLayoutAlgorithm;
-import edu.uci.ics.jung.layout.algorithms.TreeLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.immutable.TreeLayoutAlgorithm;
 import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.layout.model.PolarPoint;
-import edu.uci.ics.jung.layout.util.LayoutAlgorithmTransition;
 import edu.uci.ics.jung.samples.util.ControlHelpers;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
-import edu.uci.ics.jung.visualization.Layer;
+import edu.uci.ics.jung.visualization.MultiLayerTransformer.Layer;
 import edu.uci.ics.jung.visualization.VisualizationServer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 import edu.uci.ics.jung.visualization.decorators.EdgeShape;
-import edu.uci.ics.jung.visualization.decorators.EllipseVertexShapeTransformer;
-import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
+import edu.uci.ics.jung.visualization.decorators.EllipseNodeShapeFunction;
+import edu.uci.ics.jung.visualization.layout.LayoutAlgorithmTransition;
 import edu.uci.ics.jung.visualization.subLayout.TreeCollapser;
 import edu.uci.ics.jung.visualization.transform.MutableTransformer;
 import edu.uci.ics.jung.visualization.transform.MutableTransformerDecorator;
@@ -49,7 +48,7 @@ import javax.swing.*;
  * @author Tom Nelson
  */
 @SuppressWarnings("serial")
-public class TreeCollapseDemo extends JApplet {
+public class TreeCollapseDemo extends JPanel {
 
   enum Layouts {
     TREE,
@@ -76,6 +75,7 @@ public class TreeCollapseDemo extends JApplet {
   @SuppressWarnings("unchecked")
   public TreeCollapseDemo() {
 
+    setLayout(new BorderLayout());
     // create a simple graph for the demo
     graph = createTree();
 
@@ -87,16 +87,15 @@ public class TreeCollapseDemo extends JApplet {
 
     vv = new VisualizationViewer(graph, layoutAlgorithm, new Dimension(600, 600));
     vv.setBackground(Color.white);
-    vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.line());
-    vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
-    vv.getRenderContext().setVertexShapeTransformer(new ClusterVertexShapeFunction<>());
+    vv.getRenderContext().setEdgeShapeFunction(EdgeShape.line());
+    vv.getRenderContext().setNodeLabelFunction(Object::toString);
+    vv.getRenderContext().setNodeShapeFunction(new ClusterNodeShapeFunction<>());
     // add a listener for ToolTips
-    vv.setVertexToolTipTransformer(new ToStringLabeller());
-    vv.getRenderContext().setArrowFillPaintTransformer(n -> Color.lightGray);
+    vv.setNodeToolTipFunction(Object::toString);
+    vv.getRenderContext().setArrowFillPaintFunction(n -> Color.lightGray);
 
-    Container content = getContentPane();
     final GraphZoomScrollPane panel = new GraphZoomScrollPane(vv);
-    content.add(panel);
+    add(panel);
 
     final DefaultModalGraphMouse<String, Integer> graphMouse = new DefaultModalGraphMouse<>();
 
@@ -111,7 +110,7 @@ public class TreeCollapseDemo extends JApplet {
         e -> {
           if (e.getStateChange() == ItemEvent.SELECTED) {
             if (e.getItem() == Layouts.RADIAL) {
-              LayoutAlgorithmTransition.animate(vv.getModel(), radialLayoutAlgorithm);
+              LayoutAlgorithmTransition.animate(vv, radialLayoutAlgorithm);
 
               vv.removePreRenderPaintable(balloonRings);
               vv.getRenderContext().getMultiLayerTransformer().setToIdentity();
@@ -121,7 +120,7 @@ public class TreeCollapseDemo extends JApplet {
               vv.addPreRenderPaintable(rings);
 
             } else if (e.getItem() == Layouts.BALLOON) {
-              LayoutAlgorithmTransition.animate(vv.getModel(), balloonLayoutAlgorithm);
+              LayoutAlgorithmTransition.animate(vv, balloonLayoutAlgorithm);
 
               vv.removePreRenderPaintable(rings);
               vv.getRenderContext().getMultiLayerTransformer().setToIdentity();
@@ -132,7 +131,7 @@ public class TreeCollapseDemo extends JApplet {
               vv.addPreRenderPaintable(balloonRings);
 
             } else {
-              LayoutAlgorithmTransition.animate(vv.getModel(), layoutAlgorithm);
+              LayoutAlgorithmTransition.animate(vv, layoutAlgorithm);
 
               vv.removePreRenderPaintable(rings);
               vv.removePreRenderPaintable(balloonRings);
@@ -145,14 +144,14 @@ public class TreeCollapseDemo extends JApplet {
     JButton collapse = new JButton("Collapse");
     collapse.addActionListener(
         e -> {
-          Set<Object> picked = vv.getPickedVertexState().getPicked();
+          Set<Object> picked = vv.getPickedNodeState().getPicked();
           if (picked.size() == 1) {
             Object root = picked.iterator().next();
             CTreeNetwork subTree = TreeCollapser.collapse(graph, root);
             LayoutModel objectLayoutModel = vv.getModel().getLayoutModel();
             objectLayoutModel.set(subTree, objectLayoutModel.apply(root));
-            vv.getModel().setNetwork(graph, false);
-            vv.getPickedVertexState().clear();
+            vv.getModel().setNetwork(graph, true);
+            vv.getPickedNodeState().clear();
             vv.repaint();
           }
         });
@@ -160,12 +159,12 @@ public class TreeCollapseDemo extends JApplet {
     JButton expand = new JButton("Expand");
     expand.addActionListener(
         e -> {
-          for (Object v : vv.getPickedVertexState().getPicked()) {
+          for (Object v : vv.getPickedNodeState().getPicked()) {
             if (v instanceof CTreeNetwork) {
               TreeCollapser.expand(graph, (CTreeNetwork) v);
               vv.getModel().setNetwork(graph);
             }
-            vv.getPickedVertexState().clear();
+            vv.getPickedNodeState().clear();
             vv.repaint();
           }
         });
@@ -176,7 +175,7 @@ public class TreeCollapseDemo extends JApplet {
     controls.add(modeBox);
     controls.add(collapse);
     controls.add(expand);
-    content.add(controls, BorderLayout.SOUTH);
+    add(controls, BorderLayout.SOUTH);
   }
 
   class Rings implements VisualizationServer.Paintable {
@@ -312,9 +311,9 @@ public class TreeCollapseDemo extends JApplet {
    * @author Tom Nelson
    * @param <V> the vertex type
    */
-  class ClusterVertexShapeFunction<V> extends EllipseVertexShapeTransformer<V> {
+  class ClusterNodeShapeFunction<V> extends EllipseNodeShapeFunction<V> {
 
-    ClusterVertexShapeFunction() {
+    ClusterNodeShapeFunction() {
       setSizeTransformer(new ClusterVertexSizeFunction<>(20));
     }
 

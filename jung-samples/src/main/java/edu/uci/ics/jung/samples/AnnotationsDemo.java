@@ -12,14 +12,19 @@ import com.google.common.graph.Network;
 import edu.uci.ics.jung.graph.util.TestGraphs;
 import edu.uci.ics.jung.layout.algorithms.FRLayoutAlgorithm;
 import edu.uci.ics.jung.samples.util.ControlHelpers;
-import edu.uci.ics.jung.visualization.*;
+import edu.uci.ics.jung.visualization.BaseVisualizationModel;
+import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
+import edu.uci.ics.jung.visualization.RenderContext;
+import edu.uci.ics.jung.visualization.VisualizationModel;
+import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.annotations.AnnotatingGraphMousePlugin;
 import edu.uci.ics.jung.visualization.annotations.AnnotatingModalGraphMouse;
 import edu.uci.ics.jung.visualization.annotations.AnnotationControls;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
-import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
-import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
+import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintFunction;
+import edu.uci.ics.jung.visualization.decorators.PickableNodePaintFunction;
+import edu.uci.ics.jung.visualization.renderers.Renderer;
 import java.awt.*;
 import java.awt.geom.Point2D;
 import javax.swing.*;
@@ -30,7 +35,7 @@ import javax.swing.*;
  * @author Tom Nelson
  */
 @SuppressWarnings("serial")
-public class AnnotationsDemo extends JApplet {
+public class AnnotationsDemo extends JPanel {
 
   static final String instructions =
       "<html>"
@@ -60,6 +65,7 @@ public class AnnotationsDemo extends JApplet {
   /** create an instance of a simple graph in two views with controls to demo the features. */
   public AnnotationsDemo() {
 
+    setLayout(new BorderLayout());
     // create a simple graph for the demo
     Network<String, Number> graph = TestGraphs.getOneComponentGraph();
 
@@ -77,21 +83,17 @@ public class AnnotationsDemo extends JApplet {
     final VisualizationViewer<String, Number> vv = new VisualizationViewer<>(vm, preferredSize1);
     vv.setBackground(Color.white);
     vv.getRenderContext()
-        .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer<>(vv.getPickedEdgeState(), Color.black, Color.cyan));
+        .setEdgeDrawPaintFunction(
+            new PickableEdgePaintFunction<>(vv.getPickedEdgeState(), Color.black, Color.cyan));
     vv.getRenderContext()
-        .setVertexFillPaintTransformer(
-            new PickableVertexPaintTransformer<>(
-                vv.getPickedVertexState(), Color.red, Color.yellow));
-    vv.getRenderContext().setVertexLabelTransformer(Object::toString);
-    vv.getRenderer()
-        .getVertexLabelRenderer()
-        .setPosition(edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position.CNTR);
+        .setNodeFillPaintFunction(
+            new PickableNodePaintFunction<>(vv.getPickedNodeState(), Color.red, Color.yellow));
+    vv.getRenderContext().setNodeLabelFunction(Object::toString);
+    vv.getRenderer().getNodeLabelRenderer().setPosition(Renderer.NodeLabel.Position.CNTR);
 
     // add default listener for ToolTips
-    vv.setVertexToolTipTransformer(Object::toString);
+    vv.setNodeToolTipFunction(n -> n);
 
-    Container content = getContentPane();
     Container panel = new JPanel(new BorderLayout());
 
     GraphZoomScrollPane gzsp = new GraphZoomScrollPane(vv);
@@ -141,8 +143,8 @@ public class AnnotationsDemo extends JApplet {
     helpControls.setBorder(BorderFactory.createTitledBorder("Help"));
     helpControls.add(help);
     controls.add(helpControls);
-    content.add(panel);
-    content.add(controls, BorderLayout.SOUTH);
+    add(panel);
+    add(controls, BorderLayout.SOUTH);
   }
 
   public static void main(String[] args) {

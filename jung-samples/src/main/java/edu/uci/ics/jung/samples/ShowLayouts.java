@@ -17,13 +17,12 @@ import edu.uci.ics.jung.layout.algorithms.immutable.FRLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.immutable.ISOMLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.immutable.KKLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.immutable.SpringLayoutAlgorithm;
-import edu.uci.ics.jung.layout.util.LayoutAlgorithmTransition;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
-import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
-import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
+import edu.uci.ics.jung.visualization.decorators.PickableNodePaintFunction;
+import edu.uci.ics.jung.visualization.layout.LayoutAlgorithmTransition;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -37,9 +36,10 @@ import javax.swing.*;
  *
  * @author Danyel Fisher
  * @author Joshua O'Madadhain
+ * @author Tom Nelson - extensive modification
  */
 @SuppressWarnings("serial")
-public class ShowLayouts extends JApplet {
+public class ShowLayouts extends JPanel {
 
   protected static Network[] g_array;
   protected static int graph_index;
@@ -72,6 +72,8 @@ public class ShowLayouts extends JApplet {
           () -> {
             JComboBox<?> cb = (JComboBox<?>) e.getSource();
             graph_index = cb.getSelectedIndex();
+            vv.getNodeSpatial().clear();
+            vv.getEdgeSpatial().clear();
             vv.getModel().setNetwork(g_array[graph_index]);
           });
     }
@@ -89,12 +91,9 @@ public class ShowLayouts extends JApplet {
     }
 
     public void actionPerformed(ActionEvent arg0) {
-      SwingUtilities.invokeLater(
-          () -> {
-            Layouts layoutType = (Layouts) jcb.getSelectedItem();
-            LayoutAlgorithm layoutAlgorithm = createLayout(layoutType);
-            LayoutAlgorithmTransition.animate(vv.getModel(), layoutAlgorithm);
-          });
+      Layouts layoutType = (Layouts) jcb.getSelectedItem();
+      LayoutAlgorithm layoutAlgorithm = createLayout(layoutType);
+      LayoutAlgorithmTransition.animate(vv, layoutAlgorithm);
     }
   }
 
@@ -102,7 +101,7 @@ public class ShowLayouts extends JApplet {
   private static JPanel getGraphPanel() {
     g_array = new Network[graph_names.length];
 
-    Supplier<Integer> vertexFactory =
+    Supplier<Integer> nodeFactory =
         new Supplier<Integer>() {
           int count;
 
@@ -122,7 +121,7 @@ public class ShowLayouts extends JApplet {
     g_array[0] = TestGraphs.createTestGraph(false);
     BarabasiAlbertGenerator<Integer, Number> generator =
         new BarabasiAlbertGenerator<>(
-            NetworkBuilder.directed().allowsParallelEdges(true), vertexFactory, edgeFactory, 4, 3);
+            NetworkBuilder.directed().allowsParallelEdges(true), nodeFactory, edgeFactory, 4, 3);
     generator.evolveGraph(20);
     g_array[1] = generator.get();
     g_array[2] = TestGraphs.getDemoGraph();
@@ -132,21 +131,20 @@ public class ShowLayouts extends JApplet {
 
     Network g = g_array[3]; // initial graph
 
-    final VisualizationViewer vv = new VisualizationViewer<>(g);
+    final VisualizationViewer vv = new VisualizationViewer<>(g, new Dimension(600, 600));
 
     vv.getRenderContext()
-        .setVertexFillPaintTransformer(
-            new PickableVertexPaintTransformer<>(
-                vv.getPickedVertexState(), Color.red, Color.yellow));
+        .setNodeFillPaintFunction(
+            new PickableNodePaintFunction<>(vv.getPickedNodeState(), Color.red, Color.yellow));
 
-    vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
-    vv.getRenderer().getVertexLabelRenderer().setPosition(Renderer.VertexLabel.Position.CNTR);
+    vv.getRenderContext().setNodeLabelFunction(Object::toString);
+    vv.getRenderer().getNodeLabelRenderer().setPosition(Renderer.NodeLabel.Position.CNTR);
 
     final DefaultModalGraphMouse<Integer, Number> graphMouse = new DefaultModalGraphMouse<>();
     vv.setGraphMouse(graphMouse);
 
     // this reinforces that the generics (or lack of) declarations are correct
-    vv.setVertexToolTipTransformer(
+    vv.setNodeToolTipFunction(
         node ->
             node.toString() + ". with neighbors:" + vv.getModel().getNetwork().adjacentNodes(node));
 
@@ -161,7 +159,7 @@ public class ShowLayouts extends JApplet {
     modeBox.addItemListener(
         ((DefaultModalGraphMouse<Integer, Number>) vv.getGraphMouse()).getModeListener());
 
-    JPanel jp = new JPanel();
+    JPanel jp = new JPanel(new BorderLayout());
     jp.setBackground(Color.WHITE);
     jp.setLayout(new BorderLayout());
     jp.add(vv, BorderLayout.CENTER);
@@ -198,10 +196,6 @@ public class ShowLayouts extends JApplet {
     bottomControls.add(minus);
     bottomControls.add(modeBox);
     return jp;
-  }
-
-  public void start() {
-    this.getContentPane().add(getGraphPanel());
   }
 
   private static LayoutAlgorithm createLayout(Layouts layoutType) {

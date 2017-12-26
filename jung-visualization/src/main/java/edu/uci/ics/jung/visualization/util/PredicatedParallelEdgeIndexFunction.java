@@ -12,7 +12,6 @@
 package edu.uci.ics.jung.visualization.util;
 
 import com.google.common.graph.Network;
-import edu.uci.ics.jung.graph.util.ParallelEdgeIndexFunction;
 import java.util.function.Predicate;
 
 /**
@@ -21,23 +20,21 @@ import java.util.function.Predicate;
  *
  * @author Tom Nelson
  */
-public class PredicatedParallelEdgeIndexFunction<V, E> extends ParallelEdgeIndexFunction<V, E> {
+public class PredicatedParallelEdgeIndexFunction<N, E> extends ParallelEdgeIndexFunction<N, E> {
   protected Predicate<E> predicate;
 
-  /** @param graph the graph for which this index function is defined */
-  public PredicatedParallelEdgeIndexFunction(Network<V, E> graph, Predicate<E> predicate) {
-    super(graph);
+  public PredicatedParallelEdgeIndexFunction(Predicate<E> predicate) {
     this.predicate = predicate;
   }
 
   /**
    * Returns the index for the specified edge, or 0 if {@code edge} is accepted by the Predicate.
    *
-   * @param e the edge whose index is to be calculated
+   * @param context the network and the edge whose index is to be calculated
    */
   @Override
-  public int getIndex(E edge) {
-    return predicate.test(edge) ? 0 : super.getIndex(edge);
+  public int getIndex(Context<Network<N, E>, E> context) {
+    return predicate.test(context.element) ? 0 : super.getIndex(context);
   }
 
   public Predicate<E> getPredicate() {

@@ -18,19 +18,18 @@ import java.util.Set;
  *
  * @author Joshua O'Madadhain
  */
-public class ObservableNetwork<V, E>
-    implements MutableNetwork<V, E> { // extends MutableNetworkDecorator<V, E> {
+public class ObservableNetwork<N, E> implements MutableNetwork<N, E> {
 
-  List<NetworkEventListener<V, E>> listenerList =
-      synchronizedList(new ArrayList<NetworkEventListener<V, E>>());
-  MutableNetwork<V, E> delegate;
+  List<NetworkEventListener<N, E>> listenerList =
+      synchronizedList(new ArrayList<NetworkEventListener<N, E>>());
+  MutableNetwork<N, E> delegate;
 
   /**
    * Creates a new instance based on the provided {@code delegate}.
    *
    * @param delegate the graph on which this class operates
    */
-  public ObservableNetwork(MutableNetwork<V, E> delegate) {
+  public ObservableNetwork(MutableNetwork<N, E> delegate) {
     this.delegate = delegate;
   }
 
@@ -39,7 +38,7 @@ public class ObservableNetwork<V, E>
    *
    * @param l the listener to add
    */
-  public void addGraphEventListener(NetworkEventListener<V, E> l) {
+  public void addGraphEventListener(NetworkEventListener<N, E> l) {
     listenerList.add(l);
   }
 
@@ -48,33 +47,33 @@ public class ObservableNetwork<V, E>
    *
    * @param l the listener to remove
    */
-  public void removeGraphEventListener(NetworkEventListener<V, E> l) {
+  public void removeGraphEventListener(NetworkEventListener<N, E> l) {
     listenerList.remove(l);
   }
 
-  protected void fireGraphEvent(NetworkEvent<V, E> evt) {
-    for (NetworkEventListener<V, E> listener : listenerList) {
+  protected void fireGraphEvent(NetworkEvent<N, E> evt) {
+    for (NetworkEventListener<N, E> listener : listenerList) {
       listener.handleGraphEvent(evt);
     }
   }
 
   @Override
-  public boolean addEdge(V v1, V v2, E e) {
+  public boolean addEdge(N v1, N v2, E e) {
     boolean state = delegate.addEdge(v1, v2, e);
     if (state) {
-      NetworkEvent<V, E> evt =
-          new NetworkEvent.Edge<V, E>(delegate, NetworkEvent.Type.EDGE_ADDED, e);
+      NetworkEvent<N, E> evt =
+          new NetworkEvent.Edge<N, E>(delegate, NetworkEvent.Type.EDGE_ADDED, e);
       fireGraphEvent(evt);
     }
     return state;
   }
 
   @Override
-  public boolean addNode(V vertex) {
+  public boolean addNode(N vertex) {
     boolean state = delegate.addNode(vertex);
     if (state) {
-      NetworkEvent<V, E> evt =
-          new NetworkEvent.Node<V, E>(delegate, NetworkEvent.Type.VERTEX_ADDED, vertex);
+      NetworkEvent<N, E> evt =
+          new NetworkEvent.Node<>(delegate, NetworkEvent.Type.VERTEX_ADDED, vertex);
       fireGraphEvent(evt);
     }
     return state;
@@ -84,28 +83,28 @@ public class ObservableNetwork<V, E>
   public boolean removeEdge(E edge) {
     boolean state = delegate.removeEdge(edge);
     if (state) {
-      NetworkEvent<V, E> evt =
-          new NetworkEvent.Edge<V, E>(delegate, NetworkEvent.Type.EDGE_REMOVED, (E) edge);
+      NetworkEvent<N, E> evt =
+          new NetworkEvent.Edge<N, E>(delegate, NetworkEvent.Type.EDGE_REMOVED, (E) edge);
       fireGraphEvent(evt);
     }
     return state;
   }
 
   @Override
-  public boolean removeNode(V vertex) {
+  public boolean removeNode(N node) {
     // remove all incident edges first, so that the appropriate events will
     // be fired (otherwise they'll be removed inside {@code
     // delegate.removeNode}
     // and the events will not be fired)
-    List<E> incident_edges = ImmutableList.copyOf(delegate.incidentEdges(vertex));
+    List<E> incident_edges = ImmutableList.copyOf(delegate.incidentEdges(node));
     for (E e : incident_edges) {
       this.removeEdge(e);
     }
 
-    boolean state = delegate.removeNode(vertex);
+    boolean state = delegate.removeNode(node);
     if (state) {
-      NetworkEvent<V, E> evt =
-          new NetworkEvent.Node<V, E>(delegate, NetworkEvent.Type.VERTEX_REMOVED, (V) vertex);
+      NetworkEvent<N, E> evt =
+          new NetworkEvent.Node<N, E>(delegate, NetworkEvent.Type.VERTEX_REMOVED, (N) node);
       fireGraphEvent(evt);
     }
     return state;
@@ -117,7 +116,7 @@ public class ObservableNetwork<V, E>
   }
 
   @Override
-  public Set<V> adjacentNodes(V node) {
+  public Set<N> adjacentNodes(N node) {
     return delegate.adjacentNodes(node);
   }
 
@@ -132,12 +131,12 @@ public class ObservableNetwork<V, E>
   }
 
   @Override
-  public Graph<V> asGraph() {
+  public Graph<N> asGraph() {
     return delegate.asGraph();
   }
 
   @Override
-  public int degree(V node) {
+  public int degree(N node) {
     return delegate.degree(node);
   }
 
@@ -152,27 +151,27 @@ public class ObservableNetwork<V, E>
   }
 
   @Override
-  public Set<E> edgesConnecting(V nodeU, V nodeV) {
+  public Set<E> edgesConnecting(N nodeU, N nodeV) {
     return delegate.edgesConnecting(nodeU, nodeV);
   }
 
   @Override
-  public int inDegree(V node) {
+  public int inDegree(N node) {
     return delegate.inDegree(node);
   }
 
   @Override
-  public Set<E> inEdges(V node) {
+  public Set<E> inEdges(N node) {
     return delegate.inEdges(node);
   }
 
   @Override
-  public Set<E> incidentEdges(V node) {
+  public Set<E> incidentEdges(N node) {
     return delegate.incidentEdges(node);
   }
 
   @Override
-  public EndpointPair<V> incidentNodes(E edge) {
+  public EndpointPair<N> incidentNodes(E edge) {
     return delegate.incidentNodes(edge);
   }
 
@@ -182,32 +181,32 @@ public class ObservableNetwork<V, E>
   }
 
   @Override
-  public ElementOrder<V> nodeOrder() {
+  public ElementOrder<N> nodeOrder() {
     return delegate.nodeOrder();
   }
 
   @Override
-  public Set<V> nodes() {
+  public Set<N> nodes() {
     return delegate.nodes();
   }
 
   @Override
-  public int outDegree(V node) {
+  public int outDegree(N node) {
     return delegate.outDegree(node);
   }
 
   @Override
-  public Set<E> outEdges(V node) {
+  public Set<E> outEdges(N node) {
     return delegate.outEdges(node);
   }
 
   @Override
-  public Set<V> predecessors(V node) {
+  public Set<N> predecessors(N node) {
     return delegate.predecessors(node);
   }
 
   @Override
-  public Set<V> successors(V node) {
+  public Set<N> successors(N node) {
     return delegate.successors(node);
   }
 }

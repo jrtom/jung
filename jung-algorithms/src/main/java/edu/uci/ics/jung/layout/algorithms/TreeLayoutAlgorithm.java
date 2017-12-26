@@ -189,12 +189,6 @@ public class TreeLayoutAlgorithm<N, P> extends AbstractLayoutAlgorithm<N, P> {
     layoutModel.set(node, location);
   }
 
-  public boolean isLocked(N node) {
-    return false;
-  }
-
-  public void lock(N node, boolean state) {}
-
   public void reset() {}
 
   public void setInitializer(Function<N, P> initializer) {}

@@ -12,8 +12,10 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.ConcurrentModificationException;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +31,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Tom Nelson
  */
-public class SpatialGrid<N> extends AbstractSpatial<N> implements Spatial<N> {
+public class SpatialGrid<N> extends AbstractSpatial<N, N> implements Spatial<N>, TreeNode {
 
   private static final Logger log = LoggerFactory.getLogger(SpatialGrid.class);
 
@@ -54,7 +56,19 @@ public class SpatialGrid<N> extends AbstractSpatial<N> implements Spatial<N> {
   private Rectangle2D layoutArea;
 
   /** a cache of grid cell rectangles for performance */
-  private List<Rectangle2D> gridCache;
+  private List<Shape> gridCache;
+
+  /**
+   * Create an instance
+   *
+   * @param layoutModel
+   */
+  public SpatialGrid(LayoutModel<N, Point2D> layoutModel) {
+    super(layoutModel);
+    this.horizontalCount = 10;
+    this.verticalCount = 10;
+    this.setBounds(new Rectangle2D.Double(0, 0, layoutModel.getWidth(), layoutModel.getHeight()));
+  }
 
   /**
    * Create an instance
@@ -88,7 +102,32 @@ public class SpatialGrid<N> extends AbstractSpatial<N> implements Spatial<N> {
     this.gridCache = null;
   }
 
-  public static <N> List<Rectangle2D> getGrid(List<Rectangle2D> list, SpatialGrid<N> grid) {
+  @Override
+  public Collection<TreeNode> getContainingLeafs(Point2D p) {
+    int boxNumber = this.getBoxNumberFromLocation(p);
+    Rectangle2D r = (Rectangle2D) this.gridCache.get(boxNumber);
+    SpatialGrid grid = new SpatialGrid(layoutModel, r, 1, 1);
+    return Collections.singleton(grid);
+  }
+
+  @Override
+  public Collection<TreeNode> getContainingLeafs(double x, double y) {
+    return getContainingLeafs(new Point2D.Double(x, y));
+  }
+
+  @Override
+  public TreeNode getContainingLeaf(Object element) {
+    for (Map.Entry<Integer, Collection<N>> entry : map.asMap().entrySet()) {
+      if (entry.getValue().contains(element)) {
+        int index = entry.getKey();
+        Rectangle2D r = (Rectangle2D) this.gridCache.get(index);
+        return new SpatialGrid<>(layoutModel, r, 1, 1);
+      }
+    }
+    return null;
+  }
+
+  public static <N> List<Shape> getGrid(List<Shape> list, SpatialGrid<N> grid) {
     list.addAll(grid.getGrid());
     return list;
   }
@@ -99,7 +138,8 @@ public class SpatialGrid<N> extends AbstractSpatial<N> implements Spatial<N> {
    *
    * @return the boxes in the grid
    */
-  protected List<Rectangle2D> getGrid() {
+  @Override
+  public List<Shape> getGrid() {
     if (gridCache == null) {
       gridCache = Lists.newArrayList();
       for (int j = 0; j < verticalCount; j++) {
@@ -168,7 +208,8 @@ public class SpatialGrid<N> extends AbstractSpatial<N> implements Spatial<N> {
    */
   protected int getBoxNumberFromLocation(Point2D p) {
     int count = 0;
-    for (Rectangle2D r : getGrid()) {
+    for (Shape shape : getGrid()) {
+      Rectangle2D r = shape.getBounds2D();
       if (r.contains(p) || r.intersects(p.getX(), p.getY(), 1, 1)) {
         return count;
       } else {
@@ -192,7 +233,7 @@ public class SpatialGrid<N> extends AbstractSpatial<N> implements Spatial<N> {
     int[] boxIndex = new int[2];
     int hcount = 0;
     int vcount = 0;
-    for (Rectangle2D r : getGrid()) {
+    for (Shape r : getGrid()) {
       if (r.contains(new Point2D.Double(x, y))) {
         boxIndex = new int[] {hcount, vcount};
         break;
@@ -209,18 +250,29 @@ public class SpatialGrid<N> extends AbstractSpatial<N> implements Spatial<N> {
     return boxIndex;
   }
 
+  @Override
+  public void recalculate() {
+    LayoutModel<N, Point2D> nlayoutModel = (LayoutModel<N, Point2D>) layoutModel;
+    recalculate(nlayoutModel.getGraph().nodes());
+  }
+
+  @Override
+  public void clear() {
+    this.map.clear();
+  }
+
   /**
    * Recalculate the contents of the Map of box number to contained Nodes
    *
    * @param nodes the collection of nodes to update in the structure
    */
-  @Override
   public void recalculate(Collection<N> nodes) {
-    this.map.clear();
+    clear();
+    LayoutModel<N, Point2D> nlayoutModel = (LayoutModel<N, Point2D>) layoutModel;
     while (true) {
       try {
         for (N node : nodes) {
-          this.map.put(this.getBoxNumberFromLocation(layoutModel.apply(node)), node);
+          this.map.put(this.getBoxNumberFromLocation(nlayoutModel.apply(node)), node);
         }
         break;
       } catch (ConcurrentModificationException ex) {
@@ -235,15 +287,16 @@ public class SpatialGrid<N> extends AbstractSpatial<N> implements Spatial<N> {
    * @param node the node to update in the structure
    */
   @Override
-  public void update(N node) {
-    Point2D location = layoutModel.apply(node);
+  public void update(N node, Point2D location) {
+    LayoutModel<N, Point2D> nlayoutModel = (LayoutModel<N, Point2D>) layoutModel;
+    //    Point2D location = nlayoutModel.apply(node);
     if (!this.getLayoutArea().contains(location)) {
       log.trace(location + " outside of spatial " + this.getLayoutArea());
       this.setBounds(this.getUnion(this.getLayoutArea(), location));
-      recalculate(layoutModel.getGraph().nodes());
+      recalculate(nlayoutModel.getGraph().nodes());
     }
 
-    int rightBox = this.getBoxNumberFromLocation(layoutModel.apply(node));
+    int rightBox = this.getBoxNumberFromLocation(nlayoutModel.apply(node));
     // node should end up in box 'rightBox'
     // check to see if it is already there
     if (map.get(rightBox).contains(node)) {
@@ -267,6 +320,16 @@ public class SpatialGrid<N> extends AbstractSpatial<N> implements Spatial<N> {
     map.put(rightBox, node);
   }
 
+  @Override
+  public N getClosestElement(Point2D p) {
+    return null;
+  }
+
+  @Override
+  public N getClosestElement(double x, double y) {
+    return null;
+  }
+
   /**
    * given a rectangular area and an offset, return the tile numbers that are contained in it
    *
@@ -275,9 +338,9 @@ public class SpatialGrid<N> extends AbstractSpatial<N> implements Spatial<N> {
    */
   protected Collection<Integer> getVisibleTiles(Shape visibleArea) {
     Set<Integer> visibleTiles = Sets.newHashSet();
-    List<Rectangle2D> grid = getGrid();
+    List<Shape> grid = getGrid();
     for (int i = 0; i < this.horizontalCount * this.verticalCount; i++) {
-      if (visibleArea.intersects(grid.get(i))) {
+      if (visibleArea.intersects(grid.get(i).getBounds2D())) {
         visibleTiles.add(i);
       }
     }
@@ -295,7 +358,7 @@ public class SpatialGrid<N> extends AbstractSpatial<N> implements Spatial<N> {
    * @return the nodes that should be visible
    */
   @Override
-  public Collection<N> getVisibleNodes(Shape visibleArea) {
+  public Collection<N> getVisibleElements(Shape visibleArea) {
     pickShapes.add(visibleArea);
     Area area = new Area(visibleArea);
     area.intersect(new Area(this.layoutArea));
@@ -323,5 +386,15 @@ public class SpatialGrid<N> extends AbstractSpatial<N> implements Spatial<N> {
   @Override
   public Rectangle2D getLayoutArea() {
     return layoutArea;
+  }
+
+  @Override
+  public Rectangle2D getBounds() {
+    return null;
+  }
+
+  @Override
+  public Collection<? extends TreeNode> getChildren() {
+    return null;
   }
 }

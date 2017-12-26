@@ -9,7 +9,7 @@
 package edu.uci.ics.jung.visualization.picking;
 
 import edu.uci.ics.jung.layout.model.LayoutModel;
-import edu.uci.ics.jung.visualization.Layer;
+import edu.uci.ics.jung.visualization.MultiLayerTransformer.Layer;
 import edu.uci.ics.jung.visualization.VisualizationModel;
 import edu.uci.ics.jung.visualization.VisualizationServer;
 import edu.uci.ics.jung.visualization.layout.NetworkElementAccessor;
@@ -117,7 +117,7 @@ public class ClosestShapePickSupport<N, E> implements NetworkElementAccessor<N, 
     // now check to see whether (x,y) is in the shape for this vertex.
 
     // get the vertex shape
-    Shape shape = vv.getRenderContext().getVertexShapeTransformer().apply(closest);
+    Shape shape = vv.getRenderContext().getNodeShapeFunction().apply(closest);
     // get the vertex location
     Point2D p = layoutModel.apply(closest);
     // transform the vertex location to screen coords

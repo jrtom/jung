@@ -18,8 +18,9 @@ import edu.uci.ics.jung.visualization.control.AbstractModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
-import edu.uci.ics.jung.visualization.renderers.BasicVertexLabelRenderer;
-import edu.uci.ics.jung.visualization.renderers.GradientVertexRenderer;
+import edu.uci.ics.jung.visualization.renderers.BasicNodeLabelRenderer;
+import edu.uci.ics.jung.visualization.renderers.GradientNodeRenderer;
+import edu.uci.ics.jung.visualization.renderers.Renderer;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
@@ -37,7 +38,7 @@ import javax.swing.*;
  * @author Tom Nelson
  */
 @SuppressWarnings("serial")
-public class WorldMapGraphDemo extends JApplet {
+public class WorldMapGraphDemo extends JPanel {
 
   /** the graph */
   Network<String, Number> graph;
@@ -86,12 +87,12 @@ public class WorldMapGraphDemo extends JApplet {
               AffineTransform lat =
                   vv.getRenderContext()
                       .getMultiLayerTransformer()
-                      .getTransformer(Layer.LAYOUT)
+                      .getTransformer(MultiLayerTransformer.Layer.LAYOUT)
                       .getTransform();
               AffineTransform vat =
                   vv.getRenderContext()
                       .getMultiLayerTransformer()
-                      .getTransformer(Layer.VIEW)
+                      .getTransformer(MultiLayerTransformer.Layer.VIEW)
                       .getTransform();
               AffineTransform at = new AffineTransform();
               at.concatenate(g2d.getTransform());
@@ -109,21 +110,18 @@ public class WorldMapGraphDemo extends JApplet {
     }
 
     vv.getRenderer()
-        .setVertexRenderer(
-            new GradientVertexRenderer<>(
-                vv, Color.white, Color.red, Color.white, Color.blue, false));
+        .setNodeRenderer(
+            new GradientNodeRenderer<>(vv, Color.white, Color.red, Color.white, Color.blue, false));
 
     // add my listeners for ToolTips
-    vv.setVertexToolTipTransformer(n -> n);
-    vv.setEdgeToolTipTransformer(edge -> "E" + graph.incidentNodes(edge).toString());
+    vv.setNodeToolTipFunction(n -> n);
+    vv.setEdgeToolTipFunction(edge -> "E" + graph.incidentNodes(edge).toString());
 
-    vv.getRenderContext().setVertexLabelTransformer(n -> n);
+    vv.getRenderContext().setNodeLabelFunction(n -> n);
     vv.getRenderer()
-        .getVertexLabelRenderer()
-        .setPositioner(new BasicVertexLabelRenderer.InsidePositioner());
-    vv.getRenderer()
-        .getVertexLabelRenderer()
-        .setPosition(edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position.AUTO);
+        .getNodeLabelRenderer()
+        .setPositioner(new BasicNodeLabelRenderer.InsidePositioner());
+    vv.getRenderer().getNodeLabelRenderer().setPosition(Renderer.NodeLabel.Position.AUTO);
 
     final GraphZoomScrollPane panel = new GraphZoomScrollPane(vv);
     add(panel);
@@ -146,11 +144,11 @@ public class WorldMapGraphDemo extends JApplet {
         e -> {
           vv.getRenderContext()
               .getMultiLayerTransformer()
-              .getTransformer(Layer.LAYOUT)
+              .getTransformer(MultiLayerTransformer.Layer.LAYOUT)
               .setToIdentity();
           vv.getRenderContext()
               .getMultiLayerTransformer()
-              .getTransformer(Layer.VIEW)
+              .getTransformer(MultiLayerTransformer.Layer.VIEW)
               .setToIdentity();
         });
 

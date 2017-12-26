@@ -23,8 +23,8 @@ import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.EdgeShape;
-import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
-import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
+import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintFunction;
+import edu.uci.ics.jung.visualization.decorators.PickableNodePaintFunction;
 import edu.uci.ics.jung.visualization.picking.MultiPickedState;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
  * @author Tom Nelson
  */
 @SuppressWarnings("serial")
-public class MinimumSpanningTreeDemo extends JApplet {
+public class MinimumSpanningTreeDemo extends JPanel {
 
   private static final Logger log = LoggerFactory.getLogger(MinimumSpanningTreeDemo.class);
 
@@ -64,6 +64,7 @@ public class MinimumSpanningTreeDemo extends JApplet {
   /** create an instance of a simple graph in two views with controls to demo the zoom features. */
   public MinimumSpanningTreeDemo() {
 
+    setLayout(new BorderLayout());
     // create a simple graph for the demo
     // both models will share one graph
     graph = TestGraphs.getDemoGraph();
@@ -95,33 +96,31 @@ public class MinimumSpanningTreeDemo extends JApplet {
     vv2.getRenderContext()
         .setMultiLayerTransformer(vv0.getRenderContext().getMultiLayerTransformer());
 
-    vv1.getRenderContext().setEdgeShapeTransformer(EdgeShape.line());
+    vv1.getRenderContext().setEdgeShapeFunction(EdgeShape.line());
 
     vv0.addChangeListener(vv1);
     vv1.addChangeListener(vv2);
 
-    vv0.getRenderContext().setVertexLabelTransformer(Object::toString);
-    vv2.getRenderContext().setVertexLabelTransformer(Object::toString);
+    vv0.getRenderContext().setNodeLabelFunction(Object::toString);
+    vv2.getRenderContext().setNodeLabelFunction(Object::toString);
 
     Color back = Color.decode("0xffffbb");
     vv0.setBackground(back);
     vv1.setBackground(back);
     vv2.setBackground(back);
 
-    vv0.getRenderer()
-        .getVertexLabelRenderer()
-        .setPosition(edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position.CNTR);
+    vv0.getRenderer().getNodeLabelRenderer().setPosition(Renderer.NodeLabel.Position.CNTR);
     vv0.setForeground(Color.darkGray);
-    vv1.getRenderer().getVertexLabelRenderer().setPosition(Renderer.VertexLabel.Position.CNTR);
+    vv1.getRenderer().getNodeLabelRenderer().setPosition(Renderer.NodeLabel.Position.CNTR);
     vv1.setForeground(Color.darkGray);
-    vv2.getRenderer().getVertexLabelRenderer().setPosition(Renderer.VertexLabel.Position.CNTR);
+    vv2.getRenderer().getNodeLabelRenderer().setPosition(Renderer.NodeLabel.Position.CNTR);
     vv2.setForeground(Color.darkGray);
 
     // share one PickedState between the two views
     PickedState<String> ps = new MultiPickedState<>();
-    vv0.setPickedVertexState(ps);
-    vv1.setPickedVertexState(ps);
-    vv2.setPickedVertexState(ps);
+    vv0.setPickedNodeState(ps);
+    vv1.setPickedNodeState(ps);
+    vv2.setPickedNodeState(ps);
 
     PickedState<Number> pes = new MultiPickedState<>();
     vv0.setPickedEdgeState(pes);
@@ -130,24 +129,22 @@ public class MinimumSpanningTreeDemo extends JApplet {
 
     // set an edge paint function that will show picking for edges
     vv0.getRenderContext()
-        .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer<>(vv0.getPickedEdgeState(), Color.black, Color.red));
+        .setEdgeDrawPaintFunction(
+            new PickableEdgePaintFunction<>(vv0.getPickedEdgeState(), Color.black, Color.red));
     vv0.getRenderContext()
-        .setVertexFillPaintTransformer(
-            new PickableVertexPaintTransformer<>(
-                vv0.getPickedVertexState(), Color.red, Color.yellow));
+        .setNodeFillPaintFunction(
+            new PickableNodePaintFunction<>(vv0.getPickedNodeState(), Color.red, Color.yellow));
     vv1.getRenderContext()
-        .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer<>(vv1.getPickedEdgeState(), Color.black, Color.red));
+        .setEdgeDrawPaintFunction(
+            new PickableEdgePaintFunction<>(vv1.getPickedEdgeState(), Color.black, Color.red));
     vv1.getRenderContext()
-        .setVertexFillPaintTransformer(
-            new PickableVertexPaintTransformer<>(
-                vv1.getPickedVertexState(), Color.red, Color.yellow));
+        .setNodeFillPaintFunction(
+            new PickableNodePaintFunction<>(vv1.getPickedNodeState(), Color.red, Color.yellow));
 
     // add default listeners for ToolTips
-    vv0.setVertexToolTipTransformer(Object::toString);
-    vv1.setVertexToolTipTransformer(Object::toString);
-    vv2.setVertexToolTipTransformer(Object::toString);
+    vv0.setNodeToolTipFunction(Object::toString);
+    vv1.setNodeToolTipFunction(Object::toString);
+    vv2.setNodeToolTipFunction(Object::toString);
 
     vv0.setLayout(new BorderLayout());
     vv1.setLayout(new BorderLayout());
@@ -173,7 +170,6 @@ public class MinimumSpanningTreeDemo extends JApplet {
     vv1.add(flow1, BorderLayout.NORTH);
     vv2.add(flow2, BorderLayout.NORTH);
 
-    Container content = getContentPane();
     JPanel grid = new JPanel(new GridLayout(0, 1));
     JPanel panel = new JPanel(new BorderLayout());
     panel.add(new GraphZoomScrollPane(vv0), BorderLayout.WEST);
@@ -181,7 +177,7 @@ public class MinimumSpanningTreeDemo extends JApplet {
     grid.add(new GraphZoomScrollPane(vv2));
     panel.add(grid);
 
-    content.add(panel);
+    add(panel);
 
     // create a GraphMouse for each view
     DefaultModalGraphMouse<String, Number> gm0 = new DefaultModalGraphMouse<>();
@@ -217,7 +213,7 @@ public class MinimumSpanningTreeDemo extends JApplet {
     zoomPanel.add(minus);
     controls.add(zoomPanel);
     controls.add(modePanel);
-    content.add(controls, BorderLayout.SOUTH);
+    add(controls, BorderLayout.SOUTH);
   }
 
   public static void main(String[] args) {

@@ -9,6 +9,8 @@
  */
 package edu.uci.ics.jung.visualization;
 
+import static edu.uci.ics.jung.visualization.MultiLayerTransformer.Layer;
+
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
 import edu.uci.ics.jung.layout.model.LayoutModel;
@@ -35,9 +37,9 @@ import javax.swing.ToolTipManager;
 @SuppressWarnings("serial")
 public class VisualizationViewer<N, E> extends BasicVisualizationServer<N, E> {
 
-  protected Function<? super N, String> vertexToolTipTransformer;
-  protected Function<? super E, String> edgeToolTipTransformer;
-  protected Function<MouseEvent, String> mouseEventToolTipTransformer;
+  protected Function<? super N, String> nodeToolTipFunction;
+  protected Function<? super E, String> edgeToolTipFunction;
+  protected Function<MouseEvent, String> mouseEventToolTipFunction;
 
   /** provides MouseListener, MouseMotionListener, and MouseWheelListener events to the graph */
   protected GraphMouse graphMouse;
@@ -49,14 +51,29 @@ public class VisualizationViewer<N, E> extends BasicVisualizationServer<N, E> {
         }
       };
 
-  public VisualizationViewer(Network<N, E> network) {
-    this(network, null);
+  /**
+   * @param network the network to render
+   * @param size the size for the layout and for the view
+   */
+  public VisualizationViewer(Network<N, E> network, Dimension size) {
+    this(network, size, size);
   }
 
+  /**
+   * @param network the network to visualize
+   * @param layoutSize the size of the layout area
+   * @param viewSize the size of the view area
+   */
   public VisualizationViewer(Network<N, E> network, Dimension layoutSize, Dimension viewSize) {
     this(network, null, layoutSize, viewSize);
   }
 
+  /**
+   * @param network the network to visualize
+   * @param layoutAlgorithm the algorithm to apply
+   * @param layoutSize the size for the layout area
+   * @param viewSize the size of the window to display the network
+   */
   public VisualizationViewer(
       Network<N, E> network,
       LayoutAlgorithm<N, Point2D> layoutAlgorithm,
@@ -65,19 +82,20 @@ public class VisualizationViewer<N, E> extends BasicVisualizationServer<N, E> {
     this(new BaseVisualizationModel<N, E>(network, layoutAlgorithm, layoutSize), viewSize);
   }
 
-  public VisualizationViewer(Network<N, E> network, LayoutAlgorithm<N, Point2D> layoutAlgorithm) {
-    this(new BaseVisualizationModel<N, E>(network, layoutAlgorithm), DEFAULT_SIZE);
-  }
-
+  /**
+   * @param network the network to render
+   * @param layoutAlgorithm the algorithm to apply
+   * @param preferredSize the size to use for both the layout and the screen display
+   */
   public VisualizationViewer(
       Network<N, E> network, LayoutAlgorithm<N, Point2D> layoutAlgorithm, Dimension preferredSize) {
-    this(new BaseVisualizationModel<N, E>(network, layoutAlgorithm), preferredSize);
+    this(new BaseVisualizationModel<N, E>(network, layoutAlgorithm, preferredSize), preferredSize);
   }
 
-  public VisualizationViewer(VisualizationModel<N, E, Point2D> model) {
-    this(model, new Dimension(600, 600));
-  }
-
+  /**
+   * @param model the model for the view
+   * @param preferredSize the initial size of the window to display the network
+   */
   public VisualizationViewer(VisualizationModel<N, E, Point2D> model, Dimension preferredSize) {
     super(model, preferredSize);
     setFocusable(true);
@@ -140,22 +158,21 @@ public class VisualizationViewer<N, E> extends BasicVisualizationServer<N, E> {
     super.addKeyListener(l);
   }
 
-  /** @param edgeToolTipTransformer the edgeToolTipTransformer to set */
-  public void setEdgeToolTipTransformer(Function<? super E, String> edgeToolTipTransformer) {
-    this.edgeToolTipTransformer = edgeToolTipTransformer;
+  /** @param edgeToolTipFunction the edgeToolTipFunction to set */
+  public void setEdgeToolTipFunction(Function<? super E, String> edgeToolTipFunction) {
+    this.edgeToolTipFunction = edgeToolTipFunction;
     ToolTipManager.sharedInstance().registerComponent(this);
   }
 
-  /** @param mouseEventToolTipTransformer the mouseEventToolTipTransformer to set */
-  public void setMouseEventToolTipTransformer(
-      Function<MouseEvent, String> mouseEventToolTipTransformer) {
-    this.mouseEventToolTipTransformer = mouseEventToolTipTransformer;
+  /** @param mouseEventToolTipFunction the mouseEventToolTipFunction to set */
+  public void setMouseEventToolTipFunction(Function<MouseEvent, String> mouseEventToolTipFunction) {
+    this.mouseEventToolTipFunction = mouseEventToolTipFunction;
     ToolTipManager.sharedInstance().registerComponent(this);
   }
 
-  /** @param vertexToolTipTransformer the vertexToolTipTransformer to set */
-  public void setVertexToolTipTransformer(Function<? super N, String> vertexToolTipTransformer) {
-    this.vertexToolTipTransformer = vertexToolTipTransformer;
+  /** @param nodeToolTipFunction the nodeToolTipFunction to set */
+  public void setNodeToolTipFunction(Function<? super N, String> nodeToolTipFunction) {
+    this.nodeToolTipFunction = nodeToolTipFunction;
     ToolTipManager.sharedInstance().registerComponent(this);
   }
 
@@ -163,25 +180,24 @@ public class VisualizationViewer<N, E> extends BasicVisualizationServer<N, E> {
   public String getToolTipText(MouseEvent event) {
     LayoutModel<N, Point2D> layoutModel = getModel().getLayoutModel();
     Point2D p = null;
-    if (vertexToolTipTransformer != null) {
-      p = event.getPoint();
-      //renderContext.getBasicTransformer().inverseViewTransform(event.getPoint());
+    if (nodeToolTipFunction != null) {
+      p = getTransformSupport().inverseTransform(this, event.getPoint());
       N vertex = getPickSupport().getNode(layoutModel, p.getX(), p.getY());
       if (vertex != null) {
-        return vertexToolTipTransformer.apply(vertex);
+        return nodeToolTipFunction.apply(vertex);
       }
     }
-    if (edgeToolTipTransformer != null) {
+    if (edgeToolTipFunction != null) {
       if (p == null) {
         p = renderContext.getMultiLayerTransformer().inverseTransform(Layer.VIEW, event.getPoint());
       }
       E edge = getPickSupport().getEdge(layoutModel, p.getX(), p.getY());
       if (edge != null) {
-        return edgeToolTipTransformer.apply(edge);
+        return edgeToolTipFunction.apply(edge);
       }
     }
-    if (mouseEventToolTipTransformer != null) {
-      return mouseEventToolTipTransformer.apply(event);
+    if (mouseEventToolTipFunction != null) {
+      return mouseEventToolTipFunction.apply(event);
     }
     return super.getToolTipText(event);
   }

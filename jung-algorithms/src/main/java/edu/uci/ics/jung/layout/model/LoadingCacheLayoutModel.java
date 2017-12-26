@@ -5,10 +5,18 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.graph.Graph;
 import edu.uci.ics.jung.layout.util.Caching;
+import java.util.Map;
 import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * A LayoutModel that uses a lazy cache for node locations (LoadingCache)
+ *
+ * @param <N> the node type
+ * @param <P> the point type
+ * @author Tom Nelson
+ */
 public class LoadingCacheLayoutModel<N, P> extends AbstractLayoutModel<N, P>
     implements LayoutModel<N, P>, Caching {
 
@@ -17,6 +25,13 @@ public class LoadingCacheLayoutModel<N, P> extends AbstractLayoutModel<N, P>
   protected LoadingCache<N, P> locations =
       CacheBuilder.newBuilder().build(CacheLoader.from(() -> pointModel.newPoint(0, 0, 0)));
 
+  /**
+   * a builder for LoadingCache instances
+   *
+   * @param <N> the node type
+   * @param <P> the point type
+   * @param <T> the type of the superclass of the LayoutModel to be built
+   */
   public abstract static class Builder<N, P, T extends LoadingCacheLayoutModel<N, P>> {
     protected Graph<N> graph;
     protected PointModel<P> pointModel;
@@ -27,11 +42,23 @@ public class LoadingCacheLayoutModel<N, P> extends AbstractLayoutModel<N, P>
     protected LoadingCache<N, P> locations =
         CacheBuilder.newBuilder().build(CacheLoader.from(() -> pointModel.newPoint(0, 0, 0)));
 
+    /**
+     * set the Graph to use for the LayoutModel
+     *
+     * @param graph
+     * @return this builder for further use
+     */
     public LoadingCacheLayoutModel.Builder<N, P, T> setGraph(Graph<N> graph) {
       this.graph = graph;
       return this;
     }
 
+    /**
+     * set the LayoutModel to copy with this builder
+     *
+     * @param layoutModel
+     * @return this builder for further use
+     */
     public LoadingCacheLayoutModel.Builder<N, P, T> setLayoutModel(LayoutModel<N, P> layoutModel) {
       this.pointModel = layoutModel.getPointModel();
       this.width = layoutModel.getWidth();
@@ -40,11 +67,25 @@ public class LoadingCacheLayoutModel<N, P> extends AbstractLayoutModel<N, P>
       return this;
     }
 
+    /**
+     * sets the pointModel to use in the LayoutModel
+     *
+     * @param pointModel
+     * @return this builder for further use
+     */
     public LoadingCacheLayoutModel.Builder<N, P, T> setPointModel(PointModel<P> pointModel) {
       this.pointModel = pointModel;
       return this;
     }
 
+    /**
+     * sets the size that will be used for the LayoutModel
+     *
+     * @param width
+     * @param height
+     * @param depth
+     * @return the LayoutModel.Builder being built
+     */
     public LoadingCacheLayoutModel.Builder<N, P, T> setSize(int width, int height, int depth) {
       this.width = width;
       this.height = height;
@@ -52,12 +93,25 @@ public class LoadingCacheLayoutModel<N, P> extends AbstractLayoutModel<N, P>
       return this;
     }
 
+    /**
+     * sets the size that will be used for the LayoutModel
+     *
+     * @param width
+     * @param height
+     * @return the LayoutModel.Builder being built
+     */
     public LoadingCacheLayoutModel.Builder<N, P, T> setSize(int width, int height) {
       this.width = width;
       this.height = height;
       return this;
     }
 
+    /**
+     * sets the initializer to use for new nodes
+     *
+     * @param initializer
+     * @return the builder
+     */
     public LoadingCacheLayoutModel.Builder<N, P, T> setInitializer(Function<N, P> initializer) {
       Function<N, P> chain =
           initializer.andThen(
@@ -66,6 +120,11 @@ public class LoadingCacheLayoutModel<N, P> extends AbstractLayoutModel<N, P>
       return this;
     }
 
+    /**
+     * build an instance of the requested LayoutModel of type T
+     *
+     * @return
+     */
     public abstract T build();
   }
 
@@ -98,6 +157,10 @@ public class LoadingCacheLayoutModel<N, P> extends AbstractLayoutModel<N, P>
     this.locations = CacheBuilder.newBuilder().build(CacheLoader.from(chain::apply));
   }
 
+  public Map<N, P> getLocations() {
+    return locations.asMap();
+  }
+
   @Override
   public void setGraph(Graph<N> graph) {
     super.setGraph(graph);
@@ -107,8 +170,8 @@ public class LoadingCacheLayoutModel<N, P> extends AbstractLayoutModel<N, P>
   @Override
   public void set(N node, P location) {
     if (!locked) {
-      super.set(node, location);
       this.locations.put(node, location);
+      super.set(node, location); // will fire events
     }
   }
 

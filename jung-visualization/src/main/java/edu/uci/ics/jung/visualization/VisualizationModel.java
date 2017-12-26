@@ -12,14 +12,20 @@ package edu.uci.ics.jung.visualization;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
 import edu.uci.ics.jung.layout.model.LayoutModel;
-import edu.uci.ics.jung.layout.model.LayoutModelAware;
-import edu.uci.ics.jung.visualization.spatial.Spatial;
+import edu.uci.ics.jung.layout.util.LayoutEventSupport;
+import edu.uci.ics.jung.visualization.util.ChangeEventSupport;
 import java.awt.Dimension;
 import javax.swing.event.ChangeListener;
 
 /** */
-public interface VisualizationModel<N, E, P> extends LayoutModelAware<N, E, P> {
+public interface VisualizationModel<N, E, P> extends LayoutEventSupport<N, P>, ChangeEventSupport {
 
+  enum SpatialSupport {
+    RTREE,
+    QUADTREE,
+    GRID,
+    NONE
+  }
   /** @return the current layoutSize of the visualization's space */
   Dimension getLayoutSize();
 
@@ -37,7 +43,7 @@ public interface VisualizationModel<N, E, P> extends LayoutModelAware<N, E, P> {
 
   void setNetwork(Network<N, E> network, boolean forceUpdate);
 
-  Spatial<N> getSpatial();
+  //  Spatial<N> getSpatial();
 
   void addChangeListener(ChangeListener changeListener);
 }

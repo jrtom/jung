@@ -53,7 +53,7 @@ import javax.swing.border.TitledBorder;
  * @author Scott White
  */
 @SuppressWarnings("serial")
-public class ClusteringDemo extends JApplet {
+public class ClusteringDemo extends JPanel {
 
   VisualizationViewer<Number, Number> vv;
 
@@ -105,7 +105,7 @@ public class ClusteringDemo extends JApplet {
 
   private void setUpView(BufferedReader br) throws IOException {
 
-    Supplier<Number> vertexFactory =
+    Supplier<Number> nodeFactory =
         new Supplier<Number>() {
           int n = 0;
 
@@ -123,7 +123,7 @@ public class ClusteringDemo extends JApplet {
         };
 
     PajekNetReader<MutableNetwork<Number, Number>, Number, Number> pnr =
-        new PajekNetReader<>(vertexFactory, edgeFactory);
+        new PajekNetReader<>(nodeFactory, edgeFactory);
 
     final MutableNetwork<Number, Number> graph = NetworkBuilder.undirected().build();
 
@@ -139,24 +139,25 @@ public class ClusteringDemo extends JApplet {
             .setSize(600, 600)
             .build();
 
+    setLayout(new BorderLayout());
+
     final AggregateLayoutModel<Number, Point2D> layoutModel =
         new AggregateLayoutModel<>(delegateModel);
     VisualizationModel visualizationModel =
         new BaseVisualizationModel(graph, layoutModel, algorithm);
 
-    vv = new VisualizationViewer<>(visualizationModel);
+    vv = new VisualizationViewer<>(visualizationModel, new Dimension(800, 800));
     vv.setBackground(Color.white);
     //Tell the renderer to use our own customized color rendering
-    vv.getRenderContext().setVertexFillPaintTransformer(vertexPaints);
+    vv.getRenderContext().setNodeFillPaintFunction(vertexPaints);
     vv.getRenderContext()
-        .setVertexDrawPaintTransformer(
-            v -> vv.getPickedVertexState().isPicked(v) ? Color.CYAN : Color.BLACK);
+        .setNodeDrawPaintFunction(
+            v -> vv.getPickedNodeState().isPicked(v) ? Color.CYAN : Color.BLACK);
 
-    vv.getRenderContext().setEdgeDrawPaintTransformer(edgePaints);
+    vv.getRenderContext().setEdgeDrawPaintFunction(edgePaints);
 
     vv.getRenderContext()
-        .setEdgeStrokeTransformer(
-            e -> edgePaints.getUnchecked(e) == Color.LIGHT_GRAY ? THIN : THICK);
+        .setEdgeStrokeFunction(e -> edgePaints.getUnchecked(e) == Color.LIGHT_GRAY ? THIN : THICK);
 
     //add restart button
     JButton scramble = new JButton("Restart");
@@ -226,8 +227,7 @@ public class ClusteringDemo extends JApplet {
           }
         });
 
-    Container content = getContentPane();
-    content.add(new GraphZoomScrollPane(vv));
+    add(new GraphZoomScrollPane(vv));
     JPanel south = new JPanel();
     JPanel grid = new JPanel(new GridLayout(2, 1));
     grid.add(scramble);
@@ -238,7 +238,7 @@ public class ClusteringDemo extends JApplet {
     p.setBorder(BorderFactory.createTitledBorder("Mouse Mode"));
     p.add(gm.getModeComboBox());
     south.add(p);
-    content.add(south, BorderLayout.SOUTH);
+    add(south, BorderLayout.SOUTH);
   }
 
   public void clusterAndRecolor(

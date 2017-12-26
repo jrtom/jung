@@ -11,7 +11,7 @@ package edu.uci.ics.jung.visualization.renderers;
 
 import com.google.common.graph.EndpointPair;
 import edu.uci.ics.jung.layout.model.LayoutModel;
-import edu.uci.ics.jung.visualization.Layer;
+import edu.uci.ics.jung.visualization.MultiLayerTransformer.Layer;
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.VisualizationModel;
 import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
@@ -24,11 +24,11 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.util.function.Predicate;
 
-public class BasicEdgeLabelRenderer<V, E> implements Renderer.EdgeLabel<V, E> {
+public class BasicEdgeLabelRenderer<N, E> implements Renderer.EdgeLabel<N, E> {
 
   public Component prepareRenderer(
-      RenderContext<V, E> renderContext,
-      LayoutModel<V, Point2D> layoutModel,
+      RenderContext<N, E> renderContext,
+      LayoutModel<N, Point2D> layoutModel,
       EdgeLabelRenderer graphLabelRenderer,
       Object value,
       boolean isSelected,
@@ -38,15 +38,15 @@ public class BasicEdgeLabelRenderer<V, E> implements Renderer.EdgeLabel<V, E> {
         .<E>getEdgeLabelRendererComponent(
             renderContext.getScreenDevice(),
             value,
-            renderContext.getEdgeFontTransformer().apply(edge),
+            renderContext.getEdgeFontFunction().apply(edge),
             isSelected,
             edge);
   }
 
   @Override
   public void labelEdge(
-      RenderContext<V, E> renderContext,
-      VisualizationModel<V, E, Point2D> visualizationModel,
+      RenderContext<N, E> renderContext,
+      VisualizationModel<N, E, Point2D> visualizationModel,
       E e,
       String label) {
     if (label == null || label.length() == 0) {
@@ -54,10 +54,10 @@ public class BasicEdgeLabelRenderer<V, E> implements Renderer.EdgeLabel<V, E> {
     }
 
     // don't draw edge if either incident vertex is not drawn
-    EndpointPair<V> endpoints = visualizationModel.getNetwork().incidentNodes(e);
-    V v1 = endpoints.nodeU();
-    V v2 = endpoints.nodeV();
-    Predicate<V> nodeIncludePredicate = renderContext.getVertexIncludePredicate();
+    EndpointPair<N> endpoints = visualizationModel.getNetwork().incidentNodes(e);
+    N v1 = endpoints.nodeU();
+    N v2 = endpoints.nodeV();
+    Predicate<N> nodeIncludePredicate = renderContext.getNodeIncludePredicate();
     if (!nodeIncludePredicate.test(v1) || !nodeIncludePredicate.test(v2)) {
       return;
     }
@@ -97,12 +97,15 @@ public class BasicEdgeLabelRenderer<V, E> implements Renderer.EdgeLabel<V, E> {
 
     Shape edgeShape =
         renderContext
-            .getEdgeShapeTransformer()
+            .getEdgeShapeFunction()
             .apply(Context.getInstance(visualizationModel.getNetwork(), e));
 
     double parallelOffset = 1;
 
-    parallelOffset += renderContext.getParallelEdgeIndexFunction().getIndex(e);
+    parallelOffset +=
+        renderContext
+            .getParallelEdgeIndexFunction()
+            .getIndex(Context.getInstance(visualizationModel.getNetwork(), e));
 
     parallelOffset *= d.height;
     if (edgeShape instanceof Ellipse2D) {

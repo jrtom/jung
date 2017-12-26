@@ -19,8 +19,8 @@ import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.VisualizationModel;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
-import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
-import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
+import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintFunction;
+import edu.uci.ics.jung.visualization.decorators.PickableNodePaintFunction;
 import edu.uci.ics.jung.visualization.picking.MultiPickedState;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import java.awt.*;
@@ -34,7 +34,7 @@ import javax.swing.*;
  * @author Tom Nelson
  */
 @SuppressWarnings("serial")
-public class TwoModelDemo extends JApplet {
+public class TwoModelDemo extends JPanel {
 
   /** the graph */
   Network<String, Number> graph;
@@ -49,6 +49,7 @@ public class TwoModelDemo extends JApplet {
   /** create an instance of a simple graph in two views with controls to demo the zoom features. */
   public TwoModelDemo() {
 
+    setLayout(new BorderLayout());
     // create a simple graph for the demo
     // both models will share one graph
     graph = TestGraphs.getOneComponentGraph();
@@ -85,30 +86,28 @@ public class TwoModelDemo extends JApplet {
 
     // share one PickedState between the two views
     PickedState<String> ps = new MultiPickedState<>();
-    vv1.setPickedVertexState(ps);
-    vv2.setPickedVertexState(ps);
+    vv1.setPickedNodeState(ps);
+    vv2.setPickedNodeState(ps);
     PickedState<Number> pes = new MultiPickedState<>();
     vv1.setPickedEdgeState(pes);
     vv2.setPickedEdgeState(pes);
 
     // set an edge paint function that will show picking for edges
     vv1.getRenderContext()
-        .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer<>(vv1.getPickedEdgeState(), Color.black, Color.red));
+        .setEdgeDrawPaintFunction(
+            new PickableEdgePaintFunction<>(vv1.getPickedEdgeState(), Color.black, Color.red));
     vv1.getRenderContext()
-        .setVertexFillPaintTransformer(
-            new PickableVertexPaintTransformer<>(
-                vv1.getPickedVertexState(), Color.red, Color.yellow));
+        .setNodeFillPaintFunction(
+            new PickableNodePaintFunction<>(vv1.getPickedNodeState(), Color.red, Color.yellow));
     // add default listeners for ToolTips
-    vv1.setVertexToolTipTransformer(Object::toString);
-    vv2.setVertexToolTipTransformer(Object::toString);
+    vv1.setNodeToolTipFunction(Object::toString);
+    vv2.setNodeToolTipFunction(Object::toString);
 
-    Container content = getContentPane();
     JPanel panel = new JPanel(new GridLayout(1, 0));
     panel.add(new GraphZoomScrollPane(vv1));
     panel.add(new GraphZoomScrollPane(vv2));
 
-    content.add(panel);
+    add(panel);
 
     // create a GraphMouse for each view
     final DefaultModalGraphMouse<String, Number> gm1 = new DefaultModalGraphMouse<>();
@@ -126,7 +125,7 @@ public class TwoModelDemo extends JApplet {
     JPanel controls = new JPanel();
     controls.add(ControlHelpers.getZoomControls(vv1, "Zoom"));
     controls.add(modePanel);
-    content.add(controls, BorderLayout.SOUTH);
+    add(controls, BorderLayout.SOUTH);
   }
 
   public static void main(String[] args) {

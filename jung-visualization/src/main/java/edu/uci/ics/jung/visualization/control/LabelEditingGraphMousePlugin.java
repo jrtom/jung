@@ -13,7 +13,7 @@ package edu.uci.ics.jung.visualization.control;
 
 import edu.uci.ics.jung.algorithms.util.MapSettableTransformer;
 import edu.uci.ics.jung.layout.model.LayoutModel;
-import edu.uci.ics.jung.visualization.Layer;
+import edu.uci.ics.jung.visualization.MultiLayerTransformer.Layer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.layout.NetworkElementAccessor;
 import java.awt.Cursor;
@@ -25,11 +25,11 @@ import java.util.function.Function;
 import javax.swing.JOptionPane;
 
 /** @author Tom Nelson */
-public class LabelEditingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
+public class LabelEditingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
     implements MouseListener {
 
-  /** the picked Vertex, if any */
-  protected V vertex;
+  /** the picked Node, if any */
+  protected N node;
 
   /** the picked Edge, if any */
   protected E edge;
@@ -50,12 +50,12 @@ public class LabelEditingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
   }
 
   /**
-   * For primary modifiers (default, MouseButton1): pick a single Vertex or Edge that is under the
+   * For primary modifiers (default, MouseButton1): pick a single Node or Edge that is under the
    * mouse pointer. If no Vertex or edge is under the pointer, unselect all picked Vertices and
    * edges, and set up to draw a rectangle for multiple selection of contained Vertices. For
    * additional selection (default Shift+MouseButton1): Add to the selection, a single Vertex or
    * Edge that is under the mouse pointer. If a previously picked Vertex or Edge is under the
-   * pointer, it is un-picked. If no vertex or Edge is under the pointer, set up to draw a multiple
+   * pointer, it is un-picked. If no node or Edge is under the pointer, set up to draw a multiple
    * selection rectangle (as above) but do not unpick previously picked elements.
    *
    * @param e the event
@@ -63,30 +63,30 @@ public class LabelEditingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
   @SuppressWarnings("unchecked")
   public void mouseClicked(MouseEvent e) {
     if (e.getModifiers() == modifiers && e.getClickCount() == 2) {
-      VisualizationViewer<V, E> vv = (VisualizationViewer<V, E>) e.getSource();
-      LayoutModel<V, Point2D> layoutModel = vv.getModel().getLayoutModel();
-      NetworkElementAccessor<V, E> pickSupport = vv.getPickSupport();
+      VisualizationViewer<N, E> vv = (VisualizationViewer<N, E>) e.getSource();
+      LayoutModel<N, Point2D> layoutModel = vv.getModel().getLayoutModel();
+      NetworkElementAccessor<N, E> pickSupport = vv.getPickSupport();
       if (pickSupport != null) {
-        Function<? super V, String> vs = vv.getRenderContext().getVertexLabelTransformer();
+        Function<? super N, String> vs = vv.getRenderContext().getNodeLabelFunction();
         if (vs instanceof MapSettableTransformer) {
-          MapSettableTransformer<? super V, String> mst =
-              (MapSettableTransformer<? super V, String>) vs;
+          MapSettableTransformer<? super N, String> mst =
+              (MapSettableTransformer<? super N, String>) vs;
           //    				Layout<V, Point2D> layout = vv.getGraphLayout();
           // p is the screen point for the mouse event
           Point2D p = e.getPoint();
 
-          V vertex = pickSupport.getNode(layoutModel, p.getX(), p.getY());
-          if (vertex != null) {
-            String newLabel = vs.apply(vertex);
-            newLabel = JOptionPane.showInputDialog("New Vertex Label for " + vertex);
+          N node = pickSupport.getNode(layoutModel, p.getX(), p.getY());
+          if (node != null) {
+            String newLabel = vs.apply(node);
+            newLabel = JOptionPane.showInputDialog("New Node Label for " + node);
             if (newLabel != null) {
-              mst.set(vertex, newLabel);
+              mst.set(node, newLabel);
               vv.repaint();
             }
             return;
           }
         }
-        Function<? super E, String> es = vv.getRenderContext().getEdgeLabelTransformer();
+        Function<? super E, String> es = vv.getRenderContext().getEdgeLabelFunction();
         if (es instanceof MapSettableTransformer) {
           MapSettableTransformer<? super E, String> mst =
               (MapSettableTransformer<? super E, String>) es;
@@ -119,7 +119,7 @@ public class LabelEditingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
   public void mouseReleased(MouseEvent e) {}
 
   /**
-   * If the mouse is over a picked vertex, drag all picked vertices with the mouse. If the mouse is
+   * If the mouse is over a picked node, drag all picked vertices with the mouse. If the mouse is
    * not over a Vertex, draw the rectangle to select multiple Vertices
    */
   public void mousePressed(MouseEvent e) {}

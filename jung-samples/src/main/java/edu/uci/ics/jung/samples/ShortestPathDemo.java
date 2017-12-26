@@ -9,7 +9,7 @@ import edu.uci.ics.jung.algorithms.shortestpath.BFSDistanceLabeler;
 import edu.uci.ics.jung.layout.algorithms.FRLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
 import edu.uci.ics.jung.layout.model.LayoutModel;
-import edu.uci.ics.jung.visualization.Layer;
+import edu.uci.ics.jung.visualization.MultiLayerTransformer.Layer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
@@ -31,10 +31,10 @@ public class ShortestPathDemo extends JPanel {
   /** */
   private static final long serialVersionUID = 7526217664458188502L;
 
-  /** Starting vertex */
+  /** Starting node */
   private String mFrom;
 
-  /** Ending vertex */
+  /** Ending node */
   private String mTo;
 
   private Network<String, Number> mGraph;
@@ -47,14 +47,14 @@ public class ShortestPathDemo extends JPanel {
     // show graph
     final LayoutAlgorithm<String, Point2D> layoutAlgorithm = new FRLayoutAlgorithm<>();
     final VisualizationViewer<String, Number> vv =
-        new VisualizationViewer<>(mGraph, layoutAlgorithm);
+        new VisualizationViewer<>(mGraph, layoutAlgorithm, new Dimension(1000, 1000));
     vv.setBackground(Color.WHITE);
 
-    vv.getRenderContext().setVertexDrawPaintTransformer(new MyVertexDrawPaintFunction<>());
-    vv.getRenderContext().setVertexFillPaintTransformer(new MyVertexFillPaintFunction<>());
-    vv.getRenderContext().setEdgeDrawPaintTransformer(new MyEdgePaintFunction());
-    vv.getRenderContext().setEdgeStrokeTransformer(new MyEdgeStrokeFunction());
-    vv.getRenderContext().setVertexLabelTransformer(Object::toString);
+    vv.getRenderContext().setNodeDrawPaintFunction(new MyVertexDrawPaintFunction<>());
+    vv.getRenderContext().setNodeFillPaintFunction(new MyVertexFillPaintFunction<>());
+    vv.getRenderContext().setEdgeDrawPaintFunction(new MyEdgePaintFunction());
+    vv.getRenderContext().setEdgeStrokeFunction(new MyEdgeStrokeFunction());
+    vv.getRenderContext().setNodeLabelFunction(Object::toString);
     vv.setGraphMouse(new DefaultModalGraphMouse<String, Number>());
     LayoutModel<String, Point2D> layoutModel = vv.getModel().getLayoutModel();
     vv.addPostRenderPaintable(
@@ -167,11 +167,11 @@ public class ShortestPathDemo extends JPanel {
     jp.setBorder(BorderFactory.createLineBorder(Color.black, 3));
     jp.add(new JLabel("Select a pair of vertices for which a shortest path will be displayed"));
     JPanel jp2 = new JPanel();
-    jp2.add(new JLabel("vertex from", SwingConstants.LEFT));
+    jp2.add(new JLabel("node from", SwingConstants.LEFT));
     jp2.add(getSelectionBox(true));
     jp2.setBackground(Color.white);
     JPanel jp3 = new JPanel();
-    jp3.add(new JLabel("vertex to", SwingConstants.LEFT));
+    jp3.add(new JLabel("node to", SwingConstants.LEFT));
     jp3.add(getSelectionBox(false));
     jp3.setBackground(Color.white);
     jp.add(jp2);

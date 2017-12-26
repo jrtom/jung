@@ -11,7 +11,7 @@ package edu.uci.ics.jung.visualization.renderers;
 
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Network;
-import edu.uci.ics.jung.visualization.Layer;
+import edu.uci.ics.jung.visualization.MultiLayerTransformer.Layer;
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.VisualizationModel;
 import edu.uci.ics.jung.visualization.transform.LensTransformer;
@@ -30,12 +30,12 @@ import java.awt.geom.RectangularShape;
  * uses a flatness argument to break edges into smaller segments. This produces a more detailed
  * transformation of the edge shape
  *
- * @author Tom Nelson - tomnelson@dev.java.net
- * @param <V> the vertex type
- * @param <V> the edge type
+ * @author Tom Nelson
+ * @param <N> the node type
+ * @param <E> the edge type
  */
-public class ReshapingEdgeRenderer<V, E> extends BasicEdgeRenderer<V, E>
-    implements Renderer.Edge<V, E> {
+public class ReshapingEdgeRenderer<N, E> extends BasicEdgeRenderer<N, E>
+    implements Renderer.Edge<N, E> {
 
   /**
    * Draws the edge <code>e</code>, whose endpoints are at <code>(x1,y1)</code> and <code>(x2,y2)
@@ -44,15 +44,15 @@ public class ReshapingEdgeRenderer<V, E> extends BasicEdgeRenderer<V, E>
    * the distance between <code>(x1,y1)</code> and <code>(x2,y2)</code>.
    */
   protected void drawSimpleEdge(
-      RenderContext<V, E> renderContext,
-      VisualizationModel<V, E, Point2D> visualizationModel,
+      RenderContext<N, E> renderContext,
+      VisualizationModel<N, E, Point2D> visualizationModel,
       E e) {
 
     TransformingGraphics g = (TransformingGraphics) renderContext.getGraphicsContext();
-    Network<V, E> graph = visualizationModel.getNetwork();
-    EndpointPair<V> endpoints = graph.incidentNodes(e);
-    V v1 = endpoints.nodeU();
-    V v2 = endpoints.nodeV();
+    Network<N, E> graph = visualizationModel.getNetwork();
+    EndpointPair<N> endpoints = graph.incidentNodes(e);
+    N v1 = endpoints.nodeU();
+    N v2 = endpoints.nodeV();
     Point2D p1 = visualizationModel.getLayoutModel().apply(v1);
     Point2D p2 = visualizationModel.getLayoutModel().apply(v2);
     p1 = renderContext.getMultiLayerTransformer().transform(Layer.LAYOUT, p1);
@@ -74,8 +74,8 @@ public class ReshapingEdgeRenderer<V, E> extends BasicEdgeRenderer<V, E>
     }
 
     boolean isLoop = v1.equals(v2);
-    Shape s2 = renderContext.getVertexShapeTransformer().apply(v2);
-    Shape edgeShape = renderContext.getEdgeShapeTransformer().apply(Context.getInstance(graph, e));
+    Shape s2 = renderContext.getNodeShapeFunction().apply(v2);
+    Shape edgeShape = renderContext.getEdgeShapeFunction().apply(Context.getInstance(graph, e));
 
     AffineTransform xform = AffineTransform.getTranslateInstance(x1, y1);
 
@@ -104,12 +104,12 @@ public class ReshapingEdgeRenderer<V, E> extends BasicEdgeRenderer<V, E>
 
     // get Paints for filling and drawing
     // (filling is done first so that drawing and label use same Paint)
-    Paint fill_paint = renderContext.getEdgeFillPaintTransformer().apply(e);
+    Paint fill_paint = renderContext.getEdgeFillPaintFunction().apply(e);
     if (fill_paint != null) {
       g.setPaint(fill_paint);
       g.fill(edgeShape, flatness);
     }
-    Paint draw_paint = renderContext.getEdgeDrawPaintTransformer().apply(e);
+    Paint draw_paint = renderContext.getEdgeDrawPaintFunction().apply(e);
     if (draw_paint != null) {
       g.setPaint(draw_paint);
       g.draw(edgeShape, flatness);
@@ -124,26 +124,26 @@ public class ReshapingEdgeRenderer<V, E> extends BasicEdgeRenderer<V, E>
 
     if (renderContext.renderEdgeArrow()) {
 
-      Shape destVertexShape = renderContext.getVertexShapeTransformer().apply(v2);
+      Shape destNodeShape = renderContext.getNodeShapeFunction().apply(v2);
 
       AffineTransform xf = AffineTransform.getTranslateInstance(x2, y2);
-      destVertexShape = xf.createTransformedShape(destVertexShape);
+      destNodeShape = xf.createTransformedShape(destNodeShape);
 
       AffineTransform at =
           edgeArrowRenderingSupport.getArrowTransform(
-              renderContext, new GeneralPath(edgeShape), destVertexShape);
+              renderContext, new GeneralPath(edgeShape), destNodeShape);
       if (at == null) {
         return;
       }
       Shape arrow = renderContext.getEdgeArrow();
       arrow = at.createTransformedShape(arrow);
-      g.setPaint(renderContext.getArrowFillPaintTransformer().apply(e));
+      g.setPaint(renderContext.getArrowFillPaintFunction().apply(e));
       g.fill(arrow);
-      g.setPaint(renderContext.getArrowDrawPaintTransformer().apply(e));
+      g.setPaint(renderContext.getArrowDrawPaintFunction().apply(e));
       g.draw(arrow);
 
       if (!graph.isDirected()) {
-        Shape vertexShape = renderContext.getVertexShapeTransformer().apply(v1);
+        Shape vertexShape = renderContext.getNodeShapeFunction().apply(v1);
         xf = AffineTransform.getTranslateInstance(x1, y1);
         vertexShape = xf.createTransformedShape(vertexShape);
 
@@ -155,9 +155,9 @@ public class ReshapingEdgeRenderer<V, E> extends BasicEdgeRenderer<V, E>
         }
         arrow = renderContext.getEdgeArrow();
         arrow = at.createTransformedShape(arrow);
-        g.setPaint(renderContext.getArrowFillPaintTransformer().apply(e));
+        g.setPaint(renderContext.getArrowFillPaintFunction().apply(e));
         g.fill(arrow);
-        g.setPaint(renderContext.getArrowDrawPaintTransformer().apply(e));
+        g.setPaint(renderContext.getArrowDrawPaintFunction().apply(e));
         g.draw(arrow);
       }
     }

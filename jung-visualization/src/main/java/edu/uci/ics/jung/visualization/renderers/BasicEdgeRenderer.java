@@ -11,32 +11,30 @@ package edu.uci.ics.jung.visualization.renderers;
 
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Network;
-import edu.uci.ics.jung.graph.util.EdgeIndexFunction;
-import edu.uci.ics.jung.visualization.Layer;
+import edu.uci.ics.jung.visualization.MultiLayerTransformer.Layer;
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.VisualizationModel;
 import edu.uci.ics.jung.visualization.decorators.EdgeShape;
-import edu.uci.ics.jung.visualization.decorators.ParallelEdgeShapeTransformer;
+import edu.uci.ics.jung.visualization.decorators.ParallelEdgeShapeFunction;
 import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
 import edu.uci.ics.jung.visualization.util.Context;
-import java.awt.Paint;
-import java.awt.Shape;
-import java.awt.Stroke;
+import edu.uci.ics.jung.visualization.util.EdgeIndexFunction;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.function.Predicate;
 
-public class BasicEdgeRenderer<V, E> implements Renderer.Edge<V, E> {
+public class BasicEdgeRenderer<N, E> implements Renderer.Edge<N, E> {
 
-  protected EdgeArrowRenderingSupport<V, E> edgeArrowRenderingSupport =
-      new BasicEdgeArrowRenderingSupport<V, E>();
+  protected EdgeArrowRenderingSupport<N, E> edgeArrowRenderingSupport =
+      new BasicEdgeArrowRenderingSupport<N, E>();
 
   @Override
   public void paintEdge(
-      RenderContext<V, E> renderContext,
-      VisualizationModel<V, E, Point2D> visualizationModel,
+      RenderContext<N, E> renderContext,
+      VisualizationModel<N, E, Point2D> visualizationModel,
       E e) {
     GraphicsDecorator g2d = renderContext.getGraphicsContext();
     if (!renderContext.getEdgeIncludePredicate().test(e)) {
@@ -44,15 +42,15 @@ public class BasicEdgeRenderer<V, E> implements Renderer.Edge<V, E> {
     }
 
     // don't draw edge if either incident vertex is not drawn
-    EndpointPair<V> endpoints = visualizationModel.getNetwork().incidentNodes(e);
-    V u = endpoints.nodeU();
-    V v = endpoints.nodeV();
-    Predicate<V> nodeIncludePredicate = renderContext.getVertexIncludePredicate();
+    EndpointPair<N> endpoints = visualizationModel.getNetwork().incidentNodes(e);
+    N u = endpoints.nodeU();
+    N v = endpoints.nodeV();
+    Predicate<N> nodeIncludePredicate = renderContext.getNodeIncludePredicate();
     if (!nodeIncludePredicate.test(u) || !nodeIncludePredicate.test(v)) {
       return;
     }
 
-    Stroke new_stroke = renderContext.edgestrokeTransformer().apply(e);
+    Stroke new_stroke = renderContext.edgeStrokeFunction().apply(e);
     Stroke old_stroke = g2d.getStroke();
     if (new_stroke != null) {
       g2d.setStroke(new_stroke);
@@ -67,14 +65,14 @@ public class BasicEdgeRenderer<V, E> implements Renderer.Edge<V, E> {
   }
 
   protected Shape prepareFinalEdgeShape(
-      RenderContext<V, E> renderContext,
-      VisualizationModel<V, E, Point2D> visualizationModel,
+      RenderContext<N, E> renderContext,
+      VisualizationModel<N, E, Point2D> visualizationModel,
       E e,
       int[] coords,
       boolean[] loop) {
-    EndpointPair<V> endpoints = visualizationModel.getNetwork().incidentNodes(e);
-    V v1 = endpoints.nodeU();
-    V v2 = endpoints.nodeV();
+    EndpointPair<N> endpoints = visualizationModel.getNetwork().incidentNodes(e);
+    N v1 = endpoints.nodeU();
+    N v2 = endpoints.nodeV();
 
     Point2D p1 = visualizationModel.getLayoutModel().apply(v1);
     Point2D p2 = visualizationModel.getLayoutModel().apply(v2);
@@ -90,10 +88,10 @@ public class BasicEdgeRenderer<V, E> implements Renderer.Edge<V, E> {
     coords[3] = (int) y2;
 
     boolean isLoop = loop[0] = v1.equals(v2);
-    Shape s2 = renderContext.getVertexShapeTransformer().apply(v2);
+    Shape s2 = renderContext.getNodeShapeFunction().apply(v2);
     Shape edgeShape =
         renderContext
-            .getEdgeShapeTransformer()
+            .getEdgeShapeFunction()
             .apply(Context.getInstance(visualizationModel.getNetwork(), e));
 
     AffineTransform xform = AffineTransform.getTranslateInstance(x1, y1);
@@ -105,16 +103,16 @@ public class BasicEdgeRenderer<V, E> implements Renderer.Edge<V, E> {
       Rectangle2D s2Bounds = s2.getBounds2D();
       xform.scale(s2Bounds.getWidth(), s2Bounds.getHeight());
       xform.translate(0, -edgeShape.getBounds2D().getWidth() / 2);
-    } else if (renderContext.getEdgeShapeTransformer() instanceof EdgeShape.Orthogonal) {
+    } else if (renderContext.getEdgeShapeFunction() instanceof EdgeShape.Orthogonal) {
       float dx = x2 - x1;
       float dy = y2 - y1;
       int index = 0;
-      if (renderContext.getEdgeShapeTransformer() instanceof ParallelEdgeShapeTransformer) {
+      if (renderContext.getEdgeShapeFunction() instanceof ParallelEdgeShapeFunction) {
         @SuppressWarnings("unchecked")
-        EdgeIndexFunction<E> peif =
-            ((ParallelEdgeShapeTransformer<E>) renderContext.getEdgeShapeTransformer())
+        EdgeIndexFunction<N, E> peif =
+            ((ParallelEdgeShapeFunction<N, E>) renderContext.getEdgeShapeFunction())
                 .getEdgeIndexFunction();
-        index = peif.getIndex(e);
+        index = peif.getIndex(Context.getInstance(visualizationModel.getNetwork(), e));
         index *= 20;
       }
       GeneralPath gp = new GeneralPath();
@@ -175,8 +173,8 @@ public class BasicEdgeRenderer<V, E> implements Renderer.Edge<V, E> {
    * @param e the edge to be drawn
    */
   protected void drawSimpleEdge(
-      RenderContext<V, E> renderContext,
-      VisualizationModel<V, E, Point2D> visualizationModel,
+      RenderContext<N, E> renderContext,
+      VisualizationModel<N, E, Point2D> visualizationModel,
       E e) {
 
     int[] coords = new int[4];
@@ -190,18 +188,18 @@ public class BasicEdgeRenderer<V, E> implements Renderer.Edge<V, E> {
     boolean isLoop = loop[0];
 
     GraphicsDecorator g = renderContext.getGraphicsContext();
-    Network<V, E> network = visualizationModel.getNetwork();
+    Network<N, E> network = visualizationModel.getNetwork();
 
     Paint oldPaint = g.getPaint();
 
     // get Paints for filling and drawing
     // (filling is done first so that drawing and label use same Paint)
-    Paint fill_paint = renderContext.getEdgeFillPaintTransformer().apply(e);
+    Paint fill_paint = renderContext.getEdgeFillPaintFunction().apply(e);
     if (fill_paint != null) {
       g.setPaint(fill_paint);
       g.fill(edgeShape);
     }
-    Paint draw_paint = renderContext.getEdgeDrawPaintTransformer().apply(e);
+    Paint draw_paint = renderContext.getEdgeDrawPaintFunction().apply(e);
     if (draw_paint != null) {
       g.setPaint(draw_paint);
       g.draw(edgeShape);
@@ -216,33 +214,33 @@ public class BasicEdgeRenderer<V, E> implements Renderer.Edge<V, E> {
 
     if (renderContext.renderEdgeArrow()) {
 
-      Stroke new_stroke = renderContext.getEdgeArrowStrokeTransformer().apply(e);
+      Stroke new_stroke = renderContext.getEdgeArrowStrokeFunction().apply(e);
       Stroke old_stroke = g.getStroke();
       if (new_stroke != null) {
         g.setStroke(new_stroke);
       }
 
-      Shape destVertexShape =
-          renderContext.getVertexShapeTransformer().apply(network.incidentNodes(e).nodeV());
+      Shape destNodeShape =
+          renderContext.getNodeShapeFunction().apply(network.incidentNodes(e).nodeV());
 
       AffineTransform xf = AffineTransform.getTranslateInstance(x2, y2);
-      destVertexShape = xf.createTransformedShape(destVertexShape);
+      destNodeShape = xf.createTransformedShape(destNodeShape);
 
       AffineTransform at =
-          edgeArrowRenderingSupport.getArrowTransform(renderContext, edgeShape, destVertexShape);
+          edgeArrowRenderingSupport.getArrowTransform(renderContext, edgeShape, destNodeShape);
       if (at == null) {
         return;
       }
       Shape arrow = renderContext.getEdgeArrow();
       arrow = at.createTransformedShape(arrow);
-      g.setPaint(renderContext.getArrowFillPaintTransformer().apply(e));
+      g.setPaint(renderContext.getArrowFillPaintFunction().apply(e));
       g.fill(arrow);
-      g.setPaint(renderContext.getArrowDrawPaintTransformer().apply(e));
+      g.setPaint(renderContext.getArrowDrawPaintFunction().apply(e));
       g.draw(arrow);
 
       if (!network.isDirected()) {
         Shape vertexShape =
-            renderContext.getVertexShapeTransformer().apply(network.incidentNodes(e).nodeU());
+            renderContext.getNodeShapeFunction().apply(network.incidentNodes(e).nodeU());
         xf = AffineTransform.getTranslateInstance(x1, y1);
         vertexShape = xf.createTransformedShape(vertexShape);
         at =
@@ -253,9 +251,9 @@ public class BasicEdgeRenderer<V, E> implements Renderer.Edge<V, E> {
         }
         arrow = renderContext.getEdgeArrow();
         arrow = at.createTransformedShape(arrow);
-        g.setPaint(renderContext.getArrowFillPaintTransformer().apply(e));
+        g.setPaint(renderContext.getArrowFillPaintFunction().apply(e));
         g.fill(arrow);
-        g.setPaint(renderContext.getArrowDrawPaintTransformer().apply(e));
+        g.setPaint(renderContext.getArrowDrawPaintFunction().apply(e));
         g.draw(arrow);
       }
       // restore paint and stroke
@@ -268,12 +266,12 @@ public class BasicEdgeRenderer<V, E> implements Renderer.Edge<V, E> {
     g.setPaint(oldPaint);
   }
 
-  public EdgeArrowRenderingSupport<V, E> getEdgeArrowRenderingSupport() {
+  public EdgeArrowRenderingSupport<N, E> getEdgeArrowRenderingSupport() {
     return edgeArrowRenderingSupport;
   }
 
   public void setEdgeArrowRenderingSupport(
-      EdgeArrowRenderingSupport<V, E> edgeArrowRenderingSupport) {
+      EdgeArrowRenderingSupport<N, E> edgeArrowRenderingSupport) {
     this.edgeArrowRenderingSupport = edgeArrowRenderingSupport;
   }
 }

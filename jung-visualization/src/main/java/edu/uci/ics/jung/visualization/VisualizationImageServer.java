@@ -56,7 +56,7 @@ public class VisualizationImageServer<N, E> extends BasicVisualizationServer<N, 
     try {
       renderContext
           .getMultiLayerTransformer()
-          .getTransformer(Layer.VIEW)
+          .getTransformer(MultiLayerTransformer.Layer.VIEW)
           .scale(scalex, scaley, center);
 
       BufferedImage bi = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
@@ -66,7 +66,10 @@ public class VisualizationImageServer<N, E> extends BasicVisualizationServer<N, 
       graphics.dispose();
       return bi;
     } finally {
-      renderContext.getMultiLayerTransformer().getTransformer(Layer.VIEW).setToIdentity();
+      renderContext
+          .getMultiLayerTransformer()
+          .getTransformer(MultiLayerTransformer.Layer.VIEW)
+          .setToIdentity();
     }
   }
 }

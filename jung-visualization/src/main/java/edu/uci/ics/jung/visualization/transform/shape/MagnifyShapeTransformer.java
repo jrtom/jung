@@ -37,10 +37,6 @@ public class MagnifyShapeTransformer extends MagnifyTransformer
     super(d);
   }
 
-  public MagnifyShapeTransformer(Lens lens) {
-    super(lens);
-  }
-
   /**
    * @param d the size used for the lens
    * @param delegate the transformer to use

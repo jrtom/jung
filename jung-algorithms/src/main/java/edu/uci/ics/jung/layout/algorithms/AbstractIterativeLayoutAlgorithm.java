@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
  * @author Tom Nelson
  */
 public abstract class AbstractIterativeLayoutAlgorithm<N, P> extends AbstractLayoutAlgorithm<N, P>
-    implements LayoutAlgorithm<N, P>, IterativeContext {
+    implements LayoutAlgorithm<N, P>, IterativeContext.WithPreRelax {
 
   private static final Logger log = LoggerFactory.getLogger(AbstractIterativeLayoutAlgorithm.class);
   /**

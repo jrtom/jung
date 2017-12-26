@@ -31,6 +31,20 @@ public interface LayoutModel<N, P> extends Function<N, P> {
   void stopRelaxer();
 
   /**
+   * indicates that there is a relaxer thread operating on this LayoutModel
+   *
+   * @param relaxing
+   */
+  void setRelaxing(boolean relaxing);
+
+  /**
+   * indicates that there is a relaxer thread operating on this LayoutModel
+   *
+   * @return relaxing
+   */
+  boolean isRelaxing();
+
+  /**
    * @param node the node whose locked state is being queried
    * @return <code>true</code> if the position of node <code>v</code> is locked
    */
@@ -66,6 +80,28 @@ public interface LayoutModel<N, P> extends Function<N, P> {
     void changed();
   }
 
+  /**
+   * This exists so that LayoutModel will not have dependencies on java awt or swing event classes
+   *
+   * @return
+   */
+  LayoutStateChangeSupport getLayoutStateChangeSupport();
+
+  interface LayoutStateChangeSupport {
+    boolean isFireEvents();
+
+    void setFireEvents(boolean fireEvents);
+
+    void addLayoutStateChangeListener(LayoutStateChangeListener l);
+
+    void removeLayoutStateChangeListener(LayoutStateChangeListener l);
+
+    void fireLayoutStateChanged(LayoutModel source, boolean state);
+  }
+
+  /**
+   * This exists so that LayoutModel will not have dependencies on java awt or swing event classes
+   */
   interface ChangeSupport {
 
     boolean isFireEvents();
@@ -77,5 +113,24 @@ public interface LayoutModel<N, P> extends Function<N, P> {
     void removeChangeListener(ChangeListener l);
 
     void fireChanged();
+  }
+
+  class LayoutStateChangeEvent {
+    public final LayoutModel layoutModel;
+    public final boolean active;
+
+    public LayoutStateChangeEvent(LayoutModel layoutModel, boolean active) {
+      this.layoutModel = layoutModel;
+      this.active = active;
+    }
+
+    @Override
+    public String toString() {
+      return "LayoutStateChangeEvent{" + "layoutModel=" + layoutModel + ", active=" + active + '}';
+    }
+  }
+
+  interface LayoutStateChangeListener {
+    void layoutStateChanged(LayoutStateChangeEvent evt);
   }
 }

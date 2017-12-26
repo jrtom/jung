@@ -13,11 +13,12 @@ import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
 import edu.uci.ics.jung.layout.algorithms.KKLayoutAlgorithm;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
-import edu.uci.ics.jung.visualization.Layer;
+import edu.uci.ics.jung.visualization.MultiLayerTransformer.Layer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.*;
-import edu.uci.ics.jung.visualization.renderers.BasicVertexLabelRenderer;
-import edu.uci.ics.jung.visualization.renderers.GradientVertexRenderer;
+import edu.uci.ics.jung.visualization.renderers.BasicNodeLabelRenderer;
+import edu.uci.ics.jung.visualization.renderers.GradientNodeRenderer;
+import edu.uci.ics.jung.visualization.renderers.Renderer;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import javax.swing.*;
@@ -54,7 +55,7 @@ public class GraphZoomScrollPaneDemo {
       System.err.println("Can't load \"" + imageLocation + "\"");
     }
     final ImageIcon icon = sandstoneIcon;
-    vv = new VisualizationViewer<>(graph, new KKLayoutAlgorithm<>());
+    vv = new VisualizationViewer<>(graph, new KKLayoutAlgorithm<>(), new Dimension(700, 700));
 
     if (icon != null) {
       vv.addPreRenderPaintable(
@@ -103,24 +104,21 @@ public class GraphZoomScrollPaneDemo {
 
     vv.addGraphMouseListener(new TestGraphMouseListener<>());
     vv.getRenderer()
-        .setVertexRenderer(
-            new GradientVertexRenderer<>(
-                vv, Color.white, Color.red, Color.white, Color.blue, false));
-    vv.getRenderContext().setEdgeDrawPaintTransformer(e -> Color.lightGray);
-    vv.getRenderContext().setArrowFillPaintTransformer(a -> Color.lightGray);
-    vv.getRenderContext().setArrowDrawPaintTransformer(a -> Color.lightGray);
+        .setNodeRenderer(
+            new GradientNodeRenderer<>(vv, Color.white, Color.red, Color.white, Color.blue, false));
+    vv.getRenderContext().setEdgeDrawPaintFunction(e -> Color.lightGray);
+    vv.getRenderContext().setArrowFillPaintFunction(a -> Color.lightGray);
+    vv.getRenderContext().setArrowDrawPaintFunction(a -> Color.lightGray);
 
     // add my listeners for ToolTips
-    vv.setVertexToolTipTransformer(Object::toString);
-    vv.setEdgeToolTipTransformer(edge -> "E" + graph.incidentNodes(edge).toString());
+    vv.setNodeToolTipFunction(Object::toString);
+    vv.setEdgeToolTipFunction(edge -> "E" + graph.incidentNodes(edge).toString());
 
-    vv.getRenderContext().setVertexLabelTransformer(Object::toString);
+    vv.getRenderContext().setNodeLabelFunction(Object::toString);
     vv.getRenderer()
-        .getVertexLabelRenderer()
-        .setPositioner(new BasicVertexLabelRenderer.InsidePositioner());
-    vv.getRenderer()
-        .getVertexLabelRenderer()
-        .setPosition(edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position.AUTO);
+        .getNodeLabelRenderer()
+        .setPositioner(new BasicNodeLabelRenderer.InsidePositioner());
+    vv.getRenderer().getNodeLabelRenderer().setPosition(Renderer.NodeLabel.Position.AUTO);
     vv.setForeground(Color.lightGray);
 
     // create a frome to hold the graph

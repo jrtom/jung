@@ -15,16 +15,16 @@ import edu.uci.ics.jung.layout.algorithms.RadialTreeLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.immutable.TreeLayoutAlgorithm;
 import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.layout.model.PolarPoint;
-import edu.uci.ics.jung.layout.util.LayoutAlgorithmTransition;
 import edu.uci.ics.jung.samples.util.ControlHelpers;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
-import edu.uci.ics.jung.visualization.Layer;
+import edu.uci.ics.jung.visualization.MultiLayerTransformer.Layer;
 import edu.uci.ics.jung.visualization.VisualizationServer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 import edu.uci.ics.jung.visualization.decorators.EdgeShape;
+import edu.uci.ics.jung.visualization.layout.LayoutAlgorithmTransition;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.geom.Ellipse2D;
@@ -34,6 +34,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Demonsrates TreeLayout and RadialTreeLayout.
@@ -41,8 +43,9 @@ import javax.swing.*;
  * @author Tom Nelson
  */
 @SuppressWarnings("serial")
-public class TreeLayoutDemo extends JApplet {
+public class TreeLayoutDemo extends JPanel {
 
+  private static final Logger log = LoggerFactory.getLogger(TreeLayoutDemo.class);
   CTreeNetwork<String, Integer> graph;
 
   /** the visual component and renderer for the graph */
@@ -58,6 +61,7 @@ public class TreeLayoutDemo extends JApplet {
 
   public TreeLayoutDemo() {
 
+    setLayout(new BorderLayout());
     // create a simple graph for the demo
     graph = createTree();
 
@@ -66,15 +70,14 @@ public class TreeLayoutDemo extends JApplet {
     //    radialLayout.setSize(new Dimension(600, 600));
     vv = new VisualizationViewer<>(graph, treeLayoutAlgorithm, new Dimension(600, 600));
     vv.setBackground(Color.white);
-    vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.line());
-    vv.getRenderContext().setVertexLabelTransformer(Object::toString);
+    vv.getRenderContext().setEdgeShapeFunction(EdgeShape.line());
+    vv.getRenderContext().setNodeLabelFunction(Object::toString);
     // add a listener for ToolTips
-    vv.setVertexToolTipTransformer(Object::toString);
-    vv.getRenderContext().setArrowFillPaintTransformer(n -> Color.lightGray);
+    vv.setNodeToolTipFunction(Object::toString);
+    vv.getRenderContext().setArrowFillPaintFunction(n -> Color.lightGray);
 
-    Container content = getContentPane();
     final GraphZoomScrollPane panel = new GraphZoomScrollPane(vv);
-    content.add(panel);
+    add(panel);
 
     final DefaultModalGraphMouse<String, Integer> graphMouse = new DefaultModalGraphMouse<>();
 
@@ -91,9 +94,9 @@ public class TreeLayoutDemo extends JApplet {
           if (e.getStateChange() == ItemEvent.SELECTED) {
 
             if (animate.isSelected()) {
-              LayoutAlgorithmTransition.animate(vv.getModel(), radialLayoutAlgorithm);
+              LayoutAlgorithmTransition.animate(vv, radialLayoutAlgorithm);
             } else {
-              LayoutAlgorithmTransition.apply(vv.getModel(), radialLayoutAlgorithm);
+              LayoutAlgorithmTransition.apply(vv, radialLayoutAlgorithm);
             }
             vv.getRenderContext().getMultiLayerTransformer().setToIdentity();
             if (rings == null) {
@@ -102,9 +105,9 @@ public class TreeLayoutDemo extends JApplet {
             vv.addPreRenderPaintable(rings);
           } else {
             if (animate.isSelected()) {
-              LayoutAlgorithmTransition.animate(vv.getModel(), treeLayoutAlgorithm);
+              LayoutAlgorithmTransition.animate(vv, treeLayoutAlgorithm);
             } else {
-              LayoutAlgorithmTransition.apply(vv.getModel(), treeLayoutAlgorithm);
+              LayoutAlgorithmTransition.apply(vv, treeLayoutAlgorithm);
             }
             vv.getRenderContext().getMultiLayerTransformer().setToIdentity();
             vv.removePreRenderPaintable(rings);
@@ -120,7 +123,7 @@ public class TreeLayoutDemo extends JApplet {
     controls.add(ControlHelpers.getZoomControls(vv, "Zoom"));
     controls.add(modeBox);
 
-    content.add(controls, BorderLayout.SOUTH);
+    add(controls, BorderLayout.SOUTH);
   }
 
   class Rings implements VisualizationServer.Paintable {

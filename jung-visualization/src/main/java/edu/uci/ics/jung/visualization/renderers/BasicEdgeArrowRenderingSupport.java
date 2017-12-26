@@ -18,10 +18,10 @@ import java.awt.geom.Line2D;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 
-public class BasicEdgeArrowRenderingSupport<V, E> implements EdgeArrowRenderingSupport<V, E> {
+public class BasicEdgeArrowRenderingSupport<N, E> implements EdgeArrowRenderingSupport<N, E> {
 
   public AffineTransform getArrowTransform(
-      RenderContext<V, E> rc, Shape edgeShape, Shape vertexShape) {
+      RenderContext<N, E> rc, Shape edgeShape, Shape vertexShape) {
     GeneralPath path = new GeneralPath(edgeShape);
     float[] seg = new float[6];
     Point2D p1 = null;
@@ -46,12 +46,12 @@ public class BasicEdgeArrowRenderingSupport<V, E> implements EdgeArrowRenderingS
   }
 
   public AffineTransform getReverseArrowTransform(
-      RenderContext<V, E> rc, Shape edgeShape, Shape vertexShape) {
+      RenderContext<N, E> rc, Shape edgeShape, Shape vertexShape) {
     return getReverseArrowTransform(rc, edgeShape, vertexShape, true);
   }
 
   public AffineTransform getReverseArrowTransform(
-      RenderContext<V, E> rc, Shape edgeShape, Shape vertexShape, boolean passedGo) {
+      RenderContext<N, E> rc, Shape edgeShape, Shape vertexShape, boolean passedGo) {
     GeneralPath path = new GeneralPath(edgeShape);
     float[] seg = new float[6];
     Point2D p1 = null;
@@ -77,7 +77,7 @@ public class BasicEdgeArrowRenderingSupport<V, E> implements EdgeArrowRenderingS
   }
 
   public AffineTransform getArrowTransform(
-      RenderContext<V, E> rc, Line2D edgeShape, Shape vertexShape) {
+      RenderContext<N, E> rc, Line2D edgeShape, Shape vertexShape) {
     float dx = (float) (edgeShape.getX1() - edgeShape.getX2());
     float dy = (float) (edgeShape.getY1() - edgeShape.getY2());
     // iterate over the line until the edge shape will place the
@@ -99,7 +99,7 @@ public class BasicEdgeArrowRenderingSupport<V, E> implements EdgeArrowRenderingS
   }
 
   protected AffineTransform getReverseArrowTransform(
-      RenderContext<V, E> rc, Line2D edgeShape, Shape vertexShape) {
+      RenderContext<N, E> rc, Line2D edgeShape, Shape vertexShape) {
     float dx = (float) (edgeShape.getX1() - edgeShape.getX2());
     float dy = (float) (edgeShape.getY1() - edgeShape.getY2());
     // iterate over the line until the edge shape will place the

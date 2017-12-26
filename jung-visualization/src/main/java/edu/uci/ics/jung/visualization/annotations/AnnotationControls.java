@@ -31,20 +31,20 @@ import javax.swing.JToolBar;
 /**
  * a collection of controls for annotations. allows selection of colors, shapes, etc
  *
- * @author Tom Nelson - tomnelson@dev.java.net
+ * @author Tom Nelson
  */
-public class AnnotationControls<V, E> {
+public class AnnotationControls<N, E> {
 
-  protected AnnotatingGraphMousePlugin<V, E> annotatingPlugin;
+  protected AnnotatingGraphMousePlugin<N, E> annotatingPlugin;
 
-  public AnnotationControls(AnnotatingGraphMousePlugin<V, E> annotatingPlugin) {
+  public AnnotationControls(AnnotatingGraphMousePlugin<N, E> annotatingPlugin) {
     this.annotatingPlugin = annotatingPlugin;
   }
 
   @SuppressWarnings("serial")
   public JComboBox<Shape> getShapeBox() {
     JComboBox<Shape> shapeBox =
-        new JComboBox<Shape>(
+        new JComboBox<>(
             new Shape[] {
               new Rectangle2D.Double(),
               new RoundRectangle2D.Double(0, 0, 0, 0, 50, 50),
@@ -63,12 +63,9 @@ public class AnnotationControls<V, E> {
           }
         });
     shapeBox.addItemListener(
-        new ItemListener() {
-
-          public void itemStateChanged(ItemEvent e) {
-            if (e.getStateChange() == ItemEvent.SELECTED) {
-              annotatingPlugin.setRectangularShape((RectangularShape) e.getItem());
-            }
+        e -> {
+          if (e.getStateChange() == ItemEvent.SELECTED) {
+            annotatingPlugin.setRectangularShape((RectangularShape) e.getItem());
           }
         });
     return shapeBox;
@@ -93,8 +90,7 @@ public class AnnotationControls<V, E> {
 
   public JComboBox<Annotation.Layer> getLayerBox() {
     final JComboBox<Annotation.Layer> layerBox =
-        new JComboBox<Annotation.Layer>(
-            new Annotation.Layer[] {Annotation.Layer.LOWER, Annotation.Layer.UPPER});
+        new JComboBox<>(new Annotation.Layer[] {Annotation.Layer.LOWER, Annotation.Layer.UPPER});
     layerBox.addItemListener(
         new ItemListener() {
 

@@ -15,9 +15,8 @@ import edu.uci.ics.jung.layout.algorithms.RadialTreeLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.TreeLayoutAlgorithm;
 import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.layout.model.PolarPoint;
-import edu.uci.ics.jung.layout.util.LayoutAlgorithmTransition;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
-import edu.uci.ics.jung.visualization.Layer;
+import edu.uci.ics.jung.visualization.MultiLayerTransformer.Layer;
 import edu.uci.ics.jung.visualization.VisualizationServer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
@@ -26,6 +25,7 @@ import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.EdgeShape;
+import edu.uci.ics.jung.visualization.layout.LayoutAlgorithmTransition;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.geom.Ellipse2D;
@@ -42,7 +42,7 @@ import javax.swing.*;
  * @author Tom Nelson
  */
 @SuppressWarnings("serial")
-public class L2RTreeLayoutDemo extends JApplet {
+public class L2RTreeLayoutDemo extends JPanel {
 
   /** the graph */
   CTreeNetwork<String, Integer> graph;
@@ -58,6 +58,8 @@ public class L2RTreeLayoutDemo extends JApplet {
 
   public L2RTreeLayoutDemo() {
 
+    setLayout(new BorderLayout());
+
     // create a simple graph for the demo
     graph = createTree();
 
@@ -65,18 +67,16 @@ public class L2RTreeLayoutDemo extends JApplet {
     radialLayoutAlgorithm = new RadialTreeLayoutAlgorithm<>();
     vv = new VisualizationViewer<>(graph, treeLayoutAlgorithm, new Dimension(600, 600));
     vv.setBackground(Color.white);
-    vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.quadCurve());
-    vv.getRenderContext().setVertexLabelTransformer(Object::toString);
+    vv.getRenderContext().setEdgeShapeFunction(EdgeShape.line());
+    vv.getRenderContext().setNodeLabelFunction(Object::toString);
     // add a listener for ToolTips
-    vv.setVertexToolTipTransformer(Object::toString);
-    vv.getRenderContext().setArrowFillPaintTransformer(a -> Color.lightGray);
-    //    rings = new Rings(vv.getModel().getLayoutModel());
+    vv.setNodeToolTipFunction(Object::toString);
+    vv.getRenderContext().setArrowFillPaintFunction(a -> Color.lightGray);
 
     setLtoR(vv);
 
-    Container content = getContentPane();
     final GraphZoomScrollPane panel = new GraphZoomScrollPane(vv);
-    content.add(panel);
+    add(panel);
 
     final DefaultModalGraphMouse<String, Integer> graphMouse = new DefaultModalGraphMouse<>();
 
@@ -98,14 +98,14 @@ public class L2RTreeLayoutDemo extends JApplet {
     radial.addItemListener(
         e -> {
           if (e.getStateChange() == ItemEvent.SELECTED) {
-            LayoutAlgorithmTransition.animate(vv.getModel(), radialLayoutAlgorithm);
+            LayoutAlgorithmTransition.animate(vv, radialLayoutAlgorithm);
             vv.getRenderContext().getMultiLayerTransformer().setToIdentity();
             if (rings == null) {
               rings = new Rings(vv.getModel().getLayoutModel());
             }
             vv.addPreRenderPaintable(rings);
           } else {
-            LayoutAlgorithmTransition.animate(vv.getModel(), treeLayoutAlgorithm);
+            LayoutAlgorithmTransition.animate(vv, treeLayoutAlgorithm);
             vv.getRenderContext().getMultiLayerTransformer().setToIdentity();
             setLtoR(vv);
             vv.removePreRenderPaintable(rings);
@@ -124,11 +124,10 @@ public class L2RTreeLayoutDemo extends JApplet {
     controls.add(scaleGrid);
     controls.add(modeBox);
 
-    content.add(controls, BorderLayout.SOUTH);
+    add(controls, BorderLayout.SOUTH);
   }
 
   private void setLtoR(VisualizationViewer<String, Integer> vv) {
-    //    LayoutModel<String, Point2D> layoutModel = vv.getModel().getLayoutModel();
     Dimension d = vv.getModel().getLayoutSize();
     Point2D center = new Point2D.Double(d.width / 2, d.height / 2);
     vv.getRenderContext()
