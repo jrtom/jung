@@ -23,7 +23,7 @@ import edu.uci.ics.jung.visualization.transform.LensTransformer;
 import java.awt.*;
 
 /**
- * Uses a LensTransformer to use in the view transform. This one will distort Vertex shapes.
+ * Uses a LensTransformer to use in the view transform. This one will distort Node shapes.
  *
  * @author Tom Nelson
  */

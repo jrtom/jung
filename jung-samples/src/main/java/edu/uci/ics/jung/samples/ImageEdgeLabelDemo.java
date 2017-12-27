@@ -37,7 +37,7 @@ public class ImageEdgeLabelDemo extends JPanel {
   /** */
   private static final long serialVersionUID = -4332663871914930864L;
 
-  private static final int VERTEX_COUNT = 11;
+  private static final int NODE_COUNT = 11;
 
   /** the graph */
   Network<Number, Number> graph;
@@ -49,7 +49,7 @@ public class ImageEdgeLabelDemo extends JPanel {
 
     setLayout(new BorderLayout());
     // create a simple graph for the demo
-    graph = createGraph(VERTEX_COUNT);
+    graph = createGraph(NODE_COUNT);
 
     FRLayoutAlgorithm<Number, Point2D> layoutAlgorithm = new FRLayoutAlgorithm<>();
     layoutAlgorithm.setMaxIterations(100);
@@ -105,14 +105,14 @@ public class ImageEdgeLabelDemo extends JPanel {
   }
 
   /**
-   * create some vertices
+   * create some nodes
    *
-   * @param vertexCount how many to create
-   * @return the Vertices in an array
+   * @param nodeCount how many to create
+   * @return the Nodes in an array
    */
-  private Network<Number, Number> createGraph(int vertexCount) {
+  private Network<Number, Number> createGraph(int nodeCount) {
     MutableNetwork<Number, Number> graph = NetworkBuilder.directed().build();
-    for (int i = 0; i < vertexCount; i++) {
+    for (int i = 0; i < nodeCount; i++) {
       graph.addNode(i);
     }
     int j = 0;

@@ -19,7 +19,7 @@ public class TestBetweennessCentrality extends TestCase {
   //        UndirectedGraph<Integer,Integer> graph =
   //        	new UndirectedSparseGraph<Integer,Integer>();
   //        for(int i=0; i<9; i++) {
-  //        	graph.addVertex(i);
+  //        	graph.addNode(i);
   //        }
   //
   //		int edge = 0;
@@ -38,18 +38,18 @@ public class TestBetweennessCentrality extends TestCase {
   //        	new BetweennessCentrality<Integer,Integer>(graph);
   //
   ////        System.out.println("scoring");
-  ////        for (int i = 0; i < graph.getVertexCount(); i++)
-  ////        	  System.out.println(String.format("%d: %f", i, bc.getVertexScore(i)));
+  ////        for (int i = 0; i < graph.getNodeCount(); i++)
+  ////        	  System.out.println(String.format("%d: %f", i, bc.getNodeScore(i)));
   //
-  //        Assert.assertEquals(bc.getVertexScore(0),6.000,.001);
-  //        Assert.assertEquals(bc.getVertexScore(1),7.833,.001);
-  //        Assert.assertEquals(bc.getVertexScore(2),2.500,.001);
-  //        Assert.assertEquals(bc.getVertexScore(3),2.500,.001);
-  //        Assert.assertEquals(bc.getVertexScore(4),7.833,.001);
-  //        Assert.assertEquals(bc.getVertexScore(5),6.000,.001);
-  //        Assert.assertEquals(bc.getVertexScore(6),4.666,.001);
-  //        Assert.assertEquals(bc.getVertexScore(7),4.000,.001);
-  //        Assert.assertEquals(bc.getVertexScore(8),4.666,.001);
+  //        Assert.assertEquals(bc.getNodeScore(0),6.000,.001);
+  //        Assert.assertEquals(bc.getNodeScore(1),7.833,.001);
+  //        Assert.assertEquals(bc.getNodeScore(2),2.500,.001);
+  //        Assert.assertEquals(bc.getNodeScore(3),2.500,.001);
+  //        Assert.assertEquals(bc.getNodeScore(4),7.833,.001);
+  //        Assert.assertEquals(bc.getNodeScore(5),6.000,.001);
+  //        Assert.assertEquals(bc.getNodeScore(6),4.666,.001);
+  //        Assert.assertEquals(bc.getNodeScore(7),4.000,.001);
+  //        Assert.assertEquals(bc.getNodeScore(8),4.666,.001);
   //
   //        Assert.assertEquals(bc.getEdgeScore(graph.findEdge(0,1)),10.666,.001);
   //        Assert.assertEquals(bc.getEdgeScore(graph.findEdge(0,6)),9.333,.001);
@@ -67,7 +67,7 @@ public class TestBetweennessCentrality extends TestCase {
   //    {
   //    	DirectedGraph<Integer,Integer> graph = new DirectedSparseGraph<Integer,Integer>();
   //    	for(int i=0; i<5; i++)
-  //    		graph.addVertex(i);
+  //    		graph.addNode(i);
   //
   //    	int edge=0;
   //    	graph.addEdge(edge++, 0,1);
@@ -78,11 +78,11 @@ public class TestBetweennessCentrality extends TestCase {
   //    	BetweennessCentrality<Integer,Integer> bc =
   //    		new BetweennessCentrality<Integer,Integer>(graph);
   //
-  //    	Assert.assertEquals(bc.getVertexScore(0),0,.001);
-  //    	Assert.assertEquals(bc.getVertexScore(1),2,.001);
-  //    	Assert.assertEquals(bc.getVertexScore(2),0,.001);
-  //    	Assert.assertEquals(bc.getVertexScore(3),0,.001);
-  //    	Assert.assertEquals(bc.getVertexScore(4),0,.001);
+  //    	Assert.assertEquals(bc.getNodeScore(0),0,.001);
+  //    	Assert.assertEquals(bc.getNodeScore(1),2,.001);
+  //    	Assert.assertEquals(bc.getNodeScore(2),0,.001);
+  //    	Assert.assertEquals(bc.getNodeScore(3),0,.001);
+  //    	Assert.assertEquals(bc.getNodeScore(4),0,.001);
   //
   //    	Assert.assertEquals(bc.getEdgeScore(graph.findEdge(0,1)),2,.001);
   //    	Assert.assertEquals(bc.getEdgeScore(graph.findEdge(1,2)),3,.001);
@@ -114,9 +114,9 @@ public class TestBetweennessCentrality extends TestCase {
 
     //    	System.out.println("scoring");
     //    	System.out.println("(weighted)");
-    //    	System.out.println("vertices:");
-    //    	for (int i = 0; i < graph.getVertexCount(); i++)
-    //    		System.out.println(String.format("%d: %f", i, bc.getVertexScore(i)));
+    //    	System.out.println("nodes:");
+    //    	for (int i = 0; i < graph.getNodeCount(); i++)
+    //    		System.out.println(String.format("%d: %f", i, bc.getNodeScore(i)));
     //    	System.out.println("edges:");
     //    	for (int i = 0; i < graph.getEdgeCount(); i++)
     //    	{

@@ -26,10 +26,10 @@ public interface NodeLabelRenderer {
    *     could be rendered as the string or as a checked checkbox.
    * @param font the font to use in rendering the label
    * @param isSelected whether the node is currently selected
-   * @param vertex the edge whose label is being drawn
+   * @param node the edge whose label is being drawn
    * @param <V> the node type
    * @return the component used for drawing the label
    */
   <V> Component getNodeLabelRendererComponent(
-      JComponent vv, Object value, Font font, boolean isSelected, V vertex);
+      JComponent vv, Object value, Font font, boolean isSelected, V node);
 }

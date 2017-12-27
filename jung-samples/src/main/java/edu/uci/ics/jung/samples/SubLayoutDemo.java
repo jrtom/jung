@@ -42,9 +42,9 @@ import java.util.Collection;
 import javax.swing.*;
 
 /**
- * Demonstrates the AggregateLayout class. In this demo, vertices are visually clustered as they are
+ * Demonstrates the AggregateLayout class. In this demo, nodes are visually clustered as they are
  * selected. The cluster is formed in a new Layout centered at the middle locations of the selected
- * vertices. The layoutSize and layout algorithm for each new cluster is selectable.
+ * nodes. The layoutSize and layout algorithm for each new cluster is selectable.
  *
  * @author Tom Nelson
  */
@@ -58,9 +58,9 @@ public class SubLayoutDemo extends JPanel {
           + "<p>Use the SubLayout combobox to select "
           + "<p>the type of layout for any clusters you create."
           + "<p>To create clusters, use the mouse to select "
-          + "<p>multiple vertices, either by dragging a region, "
-          + "<p>or by shift-clicking on multiple vertices."
-          + "<p>After you select vertices, use the "
+          + "<p>multiple nodes, either by dragging a region, "
+          + "<p>or by shift-clicking on multiple nodes."
+          + "<p>After you select nodes, use the "
           + "<p>Cluster Picked button to cluster them using the "
           + "<p>layout and layoutSize specified in the Sublayout comboboxen."
           + "<p>Use the Uncluster All button to remove all"
@@ -99,7 +99,7 @@ public class SubLayoutDemo extends JPanel {
 
     // ClusteringLayout is a decorator class that delegates
     // to another layout, but can also separately manage the
-    // layout of sub-sets of vertices in circular clusters.
+    // layout of sub-sets of nodes in circular clusters.
     Dimension preferredSize = new Dimension(600, 600);
 
     LayoutAlgorithm<String, Point2D> layoutAlgorithm = new FRLayoutAlgorithm();
@@ -298,14 +298,14 @@ public class SubLayoutDemo extends JPanel {
 
   private void cluster(boolean state) {
     if (state) {
-      // put the picked vertices into a new sublayout
+      // put the picked nodes into a new sublayout
       Collection<String> picked = ps.getPicked();
       if (picked.size() > 1) {
         Point2D center = new Point2D.Double();
         double x = 0;
         double y = 0;
-        for (String vertex : picked) {
-          Point2D p = clusteringLayoutModel.apply(vertex);
+        for (String node : picked) {
+          Point2D p = clusteringLayoutModel.apply(node);
           x += p.getX();
           y += p.getY();
         }
@@ -316,9 +316,9 @@ public class SubLayoutDemo extends JPanel {
         MutableNetwork<String, Number> subGraph;
         try {
           subGraph = NetworkBuilder.from(graph).build();
-          for (String vertex : picked) {
-            subGraph.addNode(vertex);
-            for (Number edge : graph.incidentEdges(vertex)) {
+          for (String node : picked) {
+            subGraph.addNode(node);
+            for (Number edge : graph.incidentEdges(node)) {
               EndpointPair<String> endpoints = graph.incidentNodes(edge);
               String nodeU = endpoints.nodeU();
               String nodeV = endpoints.nodeV();

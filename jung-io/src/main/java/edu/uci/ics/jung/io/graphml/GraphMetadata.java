@@ -60,12 +60,12 @@ public class GraphMetadata extends AbstractMetadata {
     this.description = desc;
   }
 
-  public void addNodeMetadata(Object vertex, NodeMetadata metadata) {
-    nodes.put(vertex, metadata);
+  public void addNodeMetadata(Object node, NodeMetadata metadata) {
+    nodes.put(node, metadata);
   }
 
-  public NodeMetadata getNodeMetadata(Object vertex) {
-    return nodes.get(vertex);
+  public NodeMetadata getNodeMetadata(Object node) {
+    return nodes.get(node);
   }
 
   public Map<Object, NodeMetadata> getNodeMap() {
@@ -109,16 +109,16 @@ public class GraphMetadata extends AbstractMetadata {
   }
 
   /**
-   * Gets the property for the given vertex object.
+   * Gets the property for the given node object.
    *
-   * @param vertex the subject vertex
+   * @param node the subject node
    * @param key the property key
    * @return the property value
    * @throws IllegalArgumentException thrown if there is no metadata associated with the provided
-   *     vertex object.
+   *     node object.
    */
-  public String getVertexProperty(Object vertex, String key) throws IllegalArgumentException {
-    NodeMetadata metadata = Preconditions.checkNotNull(getNodeMetadata(vertex));
+  public String getNodeProperty(Object node, String key) throws IllegalArgumentException {
+    NodeMetadata metadata = Preconditions.checkNotNull(getNodeMetadata(node));
 
     return metadata.getProperty(key);
   }

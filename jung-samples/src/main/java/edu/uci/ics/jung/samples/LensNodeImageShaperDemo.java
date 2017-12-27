@@ -47,14 +47,14 @@ import java.util.function.Function;
 import javax.swing.*;
 
 /**
- * Demonstrates the use of images to represent graph vertices. The images are added to the
+ * Demonstrates the use of images to represent graph nodes. The images are added to the
  * DefaultGraphLabelRenderer and can either be offset from the node, or centered on the node.
  * Additionally, the relative positioning of the label and image is controlled by subclassing the
  * DefaultGraphLabelRenderer and setting the appropriate properties on its JLabel superclass
  * FancyGraphLabelRenderer
  *
  * <p>The images used in this demo (courtesy of slashdot.org) are rectangular but with a transparent
- * background. When vertices are represented by these images, it looks better if the actual shape of
+ * background. When nodes are represented by these images, it looks better if the actual shape of
  * the opaque part of the image is computed so that the edge arrowheads follow the visual shape of
  * the image. This demo uses the FourPassImageShaper class to compute the Shape from an image with
  * transparent background.
@@ -131,20 +131,20 @@ public class LensNodeImageShaperDemo extends JPanel {
     vv.getRenderContext().setNodeLabelRenderer(new DefaultNodeLabelRenderer(Color.cyan));
     vv.getRenderContext().setEdgeLabelRenderer(new DefaultEdgeLabelRenderer(Color.cyan));
 
-    final NodeIconShapeFunction<Number> vertexImageShapeFunction =
+    final NodeIconShapeFunction<Number> nodeImageShapeFunction =
         new NodeIconShapeFunction<>(new EllipseNodeShapeFunction<>());
 
-    final Function<Number, Icon> vertexIconFunction = iconMap::get;
+    final Function<Number, Icon> nodeIconFunction = iconMap::get;
 
-    vertexImageShapeFunction.setIconMap(iconMap);
+    nodeImageShapeFunction.setIconMap(iconMap);
 
-    vv.getRenderContext().setNodeShapeFunction(vertexImageShapeFunction);
-    vv.getRenderContext().setNodeIconFunction(vertexIconFunction);
+    vv.getRenderContext().setNodeShapeFunction(nodeImageShapeFunction);
+    vv.getRenderContext().setNodeIconFunction(nodeIconFunction);
 
     // Get the pickedState and add a listener that will decorate the
     //Node images with a checkmark icon when they are picked
     PickedState<Number> ps = vv.getPickedNodeState();
-    ps.addItemListener(new PickWithIconListener(vertexIconFunction));
+    ps.addItemListener(new PickWithIconListener(nodeIconFunction));
 
     vv.addPostRenderPaintable(
         new VisualizationViewer.Paintable() {

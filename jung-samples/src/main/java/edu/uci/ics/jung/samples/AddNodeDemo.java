@@ -155,7 +155,7 @@ public class AddNodeDemo extends JPanel {
     try {
 
       if (g.nodes().size() < 100) {
-        //add a vertex
+        //add a node
         Integer v1 = g.nodes().size();
 
         g.addNode(v1);
@@ -166,7 +166,7 @@ public class AddNodeDemo extends JPanel {
           Integer edge = g.edges().size();
           vv.getRenderContext().getPickedEdgeState().pick(edge, true);
           g.addEdge(v_prev, v1, edge);
-          // let's connect to a random vertex, too!
+          // let's connect to a random node, too!
           int rand = (int) (Math.random() * g.nodes().size());
           edge = g.edges().size();
           vv.getRenderContext().getPickedEdgeState().pick(edge, true);

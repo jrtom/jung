@@ -51,12 +51,12 @@ public class LabelEditingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
 
   /**
    * For primary modifiers (default, MouseButton1): pick a single Node or Edge that is under the
-   * mouse pointer. If no Vertex or edge is under the pointer, unselect all picked Vertices and
-   * edges, and set up to draw a rectangle for multiple selection of contained Vertices. For
-   * additional selection (default Shift+MouseButton1): Add to the selection, a single Vertex or
-   * Edge that is under the mouse pointer. If a previously picked Vertex or Edge is under the
-   * pointer, it is un-picked. If no node or Edge is under the pointer, set up to draw a multiple
-   * selection rectangle (as above) but do not unpick previously picked elements.
+   * mouse pointer. If no Node or edge is under the pointer, unselect all picked Nodes and edges,
+   * and set up to draw a rectangle for multiple selection of contained Nodes. For additional
+   * selection (default Shift+MouseButton1): Add to the selection, a single Node or Edge that is
+   * under the mouse pointer. If a previously picked Node or Edge is under the pointer, it is
+   * un-picked. If no node or Edge is under the pointer, set up to draw a multiple selection
+   * rectangle (as above) but do not unpick previously picked elements.
    *
    * @param e the event
    */
@@ -112,15 +112,15 @@ public class LabelEditingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
   }
 
   /**
-   * If the mouse is dragging a rectangle, pick the Vertices contained in that rectangle
+   * If the mouse is dragging a rectangle, pick the Nodes contained in that rectangle
    *
    * <p>clean up settings from mousePressed
    */
   public void mouseReleased(MouseEvent e) {}
 
   /**
-   * If the mouse is over a picked node, drag all picked vertices with the mouse. If the mouse is
-   * not over a Vertex, draw the rectangle to select multiple Vertices
+   * If the mouse is over a picked node, drag all picked nodes with the mouse. If the mouse is not
+   * over a Node, draw the rectangle to select multiple Nodes
    */
   public void mousePressed(MouseEvent e) {}
 

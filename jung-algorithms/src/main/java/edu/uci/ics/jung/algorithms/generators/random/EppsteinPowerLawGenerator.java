@@ -31,22 +31,21 @@ public class EppsteinPowerLawGenerator<V> {
   private int mNumIterations;
   private double mMaxDegree;
   private Random mRandom;
-  private Supplier<V> vertexFactory;
+  private Supplier<V> nodeFactory;
   private List<V> nodes;
 
   /**
    * Creates an instance with the specified factories and specifications.
    *
-   * @param vertexFactory the Supplier to use to create vertices
-   * @param numVertices the number of vertices for the generated graph
-   * @param numEdges the number of edges the generated graph will have, should be Theta(numVertices)
+   * @param nodeFactory the Supplier to use to create nodes
+   * @param numNodes the number of nodes for the generated graph
+   * @param numEdges the number of edges the generated graph will have, should be Theta(numNodes)
    * @param r the number of iterations to use; the larger the value the better the graph's degree
    *     distribution will approximate a power-law
    */
-  public EppsteinPowerLawGenerator(
-      Supplier<V> vertexFactory, int numVertices, int numEdges, int r) {
-    this.vertexFactory = vertexFactory;
-    nodeCount = numVertices;
+  public EppsteinPowerLawGenerator(Supplier<V> nodeFactory, int numNodes, int numEdges, int r) {
+    this.nodeFactory = nodeFactory;
+    nodeCount = numNodes;
     edgeCount = numEdges;
     mNumIterations = r;
     mRandom = new Random();
@@ -56,7 +55,7 @@ public class EppsteinPowerLawGenerator<V> {
     MutableGraph<V> graph = GraphBuilder.undirected().build();
     nodes = new ArrayList<V>(nodeCount);
     for (int i = 0; i < nodeCount; i++) {
-      V node = vertexFactory.get();
+      V node = nodeFactory.get();
       graph.addNode(node);
       nodes.add(node);
     }

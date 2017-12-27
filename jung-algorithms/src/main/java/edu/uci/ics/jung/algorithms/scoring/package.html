@@ -17,24 +17,24 @@ Mechanisms for assigning values (denoting significance, influence, centrality, e
 to graph elements based on topological properties.  These include:
 
 <ul>
-<li><code>BarycenterScorer</code>: assigns a score to each vertex according to 
-the sum of the distances to all other vertices
-<li><code>ClosenessCentrality</code>: assigns a score to each vertex based on 
-the mean distance to each other vertex
-<li><code>DegreeScorer</code>: assigns a score to each vertex based on its degree
-<li><code>EigenvectorCentrality</code>: assigns vertex scores based on 
-long-term probabilities of random walks passing through the vertex at time t
+<li><code>BarycenterScorer</code>: assigns a score to each node according to
+the sum of the distances to all other nodes
+<li><code>ClosenessCentrality</code>: assigns a score to each node based on
+the mean distance to each other node
+<li><code>DegreeScorer</code>: assigns a score to each node based on its degree
+<li><code>EigenvectorCentrality</code>: assigns node scores based on
+long-term probabilities of random walks passing through the node at time t
 <li><code>PageRank</code>: like <code>EigenvectorCentrality</code>, but with 
 a constant probability of the
-random walk restarting at a uniform-randomly chosen vertex
+random walk restarting at a uniform-randomly chosen node
 <li><code>PageRankWithPriors</code>: like <code>PageRank</code>, but with a 
 constant probability of the random
-walk restarting at a vertex drawn from an arbitrary distribution
-<li><code>HITS</code>: assigns hubs-and-authorities scores to vertices based on 
+walk restarting at a node drawn from an arbitrary distribution
+<li><code>HITS</code>: assigns hubs-and-authorities scores to nodes based on
 complementary random walk processes
 <li><code>HITSWithPriors</code>: analogous to <code>HITS</code> 
 (see <code>PageRankWithPriors</code>)
-<li><code>VoltageScorer</code>: assigns scores to vertices based on simulated 
+<li><code>VoltageScorer</code>: assigns scores to nodes based on simulated
 current flow along edges
 </ul>
 

@@ -58,8 +58,8 @@ public class TestHITSWithPriors extends TestCase {
     double auth_sum = 0;
     for (Number n : graph.nodes()) {
       int i = n.intValue();
-      double auth = ranker.getVertexScore(i).authority;
-      double hub = ranker.getVertexScore(i).hub;
+      double auth = ranker.getNodeScore(i).authority;
+      double hub = ranker.getNodeScore(i).hub;
       Assert.assertEquals(auth, expected_auth[i], 0.001);
       Assert.assertEquals(hub, expected_hub[i], 0.001);
       hub_sum += hub * hub;

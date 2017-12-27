@@ -18,7 +18,7 @@ import java.util.Set;
 
 /**
  * TriadicCensus is a standard social network tool that counts, for each of the different possible
- * configurations of three vertices, the number of times that that configuration occurs in the given
+ * configurations of three nodes, the number of times that that configuration occurs in the given
  * graph. This may then be compared to the set of expected counts for this particular graph or to an
  * expected sample. This is often used in p* modeling.
  *
@@ -51,7 +51,7 @@ import java.util.Set;
  * <tr><td>6</td><td>021C</td><td>"Circle": one in, one out</td></tr>
  * <tr><td>7</td><td>111D</td><td>"Down": 021D but one edge is mutual</td></tr>
  * <tr><td>8</td><td>111U</td><td>"Up": 021U but one edge is mutual</td></tr>
- * <tr><td>9</td><td>030T</td><td>"Transitive": two point to the same vertex</td></tr>
+ * <tr><td>9</td><td>030T</td><td>"Transitive": two point to the same node</td></tr>
  * <tr><td>10</td><td>030C</td><td>"Circle": A&#8594;B&#8594;C&#8594;A</td></tr>
  * <tr><td>11</td><td>201</td><td></td></tr>
  * <tr><td>12</td><td>120D</td><td>"Down": 021D but the third edge is mutual</td></tr>
@@ -87,7 +87,7 @@ public class TriadicCensus {
    * effectively 1-based.)
    *
    * @param g the graph whose properties are being measured
-   * @param <V> the vertex type
+   * @param <V> the node type
    * @return an array encoding the number of occurrences of each triad type
    */
   public static <V> long[] getCounts(Graph<V> g) {
@@ -138,10 +138,10 @@ public class TriadicCensus {
    * 4, UV = 2, VU = 1
    *
    * @param g the graph for which the calculation is being made
-   * @param u a vertex in g
-   * @param v a vertex in g
-   * @param w a vertex in g
-   * @param <V> the vertex type
+   * @param u a node in g
+   * @param v a node in g
+   * @param w a node in g
+   * @param <V> the node type
    * @return an int encoding the presence of all links between u, v, and w
    */
   public static <V, E> int triCode(Graph<V> g, V u, V v, V w) {
@@ -181,11 +181,11 @@ public class TriadicCensus {
    * Return true iff this ordering is canonical and therefore we should build statistics for it.
    *
    * @param g the graph whose properties are being examined
-   * @param id a list of the vertices in g; used to assign an index to each
-   * @param u a vertex in g
-   * @param v a vertex in g
-   * @param w a vertex in g
-   * @param <V> the vertex type
+   * @param id a list of the nodes in g; used to assign an index to each
+   * @param u a node in g
+   * @param v a node in g
+   * @param w a node in g
+   * @param <V> the node type
    * @param <E> the edge type
    * @return true if index(u) &lt; index(w), or if index(v) &lt; index(w) &lt; index(u) and v
    *     doesn't link to w; false otherwise

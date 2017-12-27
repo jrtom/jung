@@ -94,14 +94,14 @@ public class TestBicomponentClusterer extends TestCase {
     for (int k = 0; k < edge_array.length; k++) {
       int i = edge_array[k][0];
       int j = edge_array[k][1];
-      String v1 = getVertex(v, i, g);
-      String v2 = getVertex(v, j, g);
+      String v1 = getNode(v, i, g);
+      String v2 = getNode(v, j, g);
 
       g.putEdge(v1, v2);
     }
   }
 
-  public String getVertex(String[] v_array, int i, MutableGraph<String> g) {
+  public String getNode(String[] v_array, int i, MutableGraph<String> g) {
     String v = v_array[i];
     if (v == null) {
       v_array[i] = Character.toString((char) ('0' + i));
@@ -201,7 +201,7 @@ public class TestBicomponentClusterer extends TestCase {
     testComponents(graph, v, c);
   }
 
-  public void testComponents(Graph<String> graph, String[] vertices, List<Set<String>> c) {
+  public void testComponents(Graph<String> graph, String[] nodes, List<Set<String>> c) {
     BicomponentClusterer<String, Number> finder = new BicomponentClusterer<String, Number>();
     Set<Set<String>> bicomponents = finder.apply(graph);
 
@@ -215,7 +215,7 @@ public class TestBicomponentClusterer extends TestCase {
     //            Set bicomponent = bicomponents.getCluster(i);
     //            for (Iterator iter = bicomponent.iterator(); iter.hasNext(); )
     //            {
-    //                Vertex w = (Vertex)iter.next();
+    //                Node w = (Node)iter.next();
     //                System.out.print(sl.getLabel(w) + " ");
     //            }
     //            System.out.println();
@@ -235,7 +235,7 @@ public class TestBicomponentClusterer extends TestCase {
       assertTrue(found);
     }
 
-    // make sure that each vertex is represented in >=1 element of bicomponents
+    // make sure that each node is represented in >=1 element of bicomponents
     Set<String> collapsedSet = new HashSet<String>();
     for (Set<String> set : bicomponents) {
       collapsedSet.addAll(set);

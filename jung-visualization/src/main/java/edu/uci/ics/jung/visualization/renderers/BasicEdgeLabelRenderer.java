@@ -53,7 +53,7 @@ public class BasicEdgeLabelRenderer<N, E> implements Renderer.EdgeLabel<N, E> {
       return;
     }
 
-    // don't draw edge if either incident vertex is not drawn
+    // don't draw edge if either incident node is not drawn
     EndpointPair<N> endpoints = visualizationModel.getNetwork().incidentNodes(e);
     N v1 = endpoints.nodeU();
     N v2 = endpoints.nodeV();

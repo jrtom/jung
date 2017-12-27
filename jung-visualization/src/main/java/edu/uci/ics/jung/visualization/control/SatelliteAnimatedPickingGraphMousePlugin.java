@@ -22,8 +22,8 @@ import java.awt.geom.Point2D;
 
 /**
  * A version of the AnimatedPickingGraphMousePlugin that is for the SatelliteVisualizationViewer.
- * The difference it that when you pick a Vertex in the Satellite View, the 'master view' is
- * translated to move that Vertex to the center.
+ * The difference it that when you pick a Node in the Satellite View, the 'master view' is
+ * translated to move that Node to the center.
  *
  * @see AnimatedPickingGraphMousePlugin
  * @author Tom Nelson
@@ -49,9 +49,9 @@ public class SatelliteAnimatedPickingGraphMousePlugin<N, E>
         final VisualizationViewer<N, E> vvMaster =
             ((SatelliteVisualizationViewer<N, E>) vv).getMaster();
 
-        if (vertex != null) {
+        if (node != null) {
           LayoutModel<N, Point2D> layoutModel = vvMaster.getModel().getLayoutModel();
-          Point2D q = layoutModel.apply(vertex);
+          Point2D q = layoutModel.apply(node);
           Point2D lvc =
               vvMaster
                   .getRenderContext()

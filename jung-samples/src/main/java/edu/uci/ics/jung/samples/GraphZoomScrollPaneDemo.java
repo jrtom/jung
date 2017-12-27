@@ -28,7 +28,7 @@ import javax.swing.*;
  * VisualizationViewer</code> zooming and panning capabilities, using horizontal and vertical
  * scrollbars.
  *
- * <p>This demo also shows ToolTips on graph vertices and edges, and a key listener to change graph
+ * <p>This demo also shows ToolTips on graph nodes and edges, and a key listener to change graph
  * mouse modes.
  *
  * @author Tom Nelson
@@ -189,19 +189,19 @@ public class GraphZoomScrollPaneDemo {
     return graph;
   }
 
-  /** A nested class to demo the GraphMouseListener finding the right vertices after zoom/pan */
+  /** A nested class to demo the GraphMouseListener finding the right nodes after zoom/pan */
   static class TestGraphMouseListener<V> implements GraphMouseListener<V> {
 
     public void graphClicked(V v, MouseEvent me) {
-      System.err.println("Vertex " + v + " was clicked at (" + me.getX() + "," + me.getY() + ")");
+      System.err.println("Node " + v + " was clicked at (" + me.getX() + "," + me.getY() + ")");
     }
 
     public void graphPressed(V v, MouseEvent me) {
-      System.err.println("Vertex " + v + " was pressed at (" + me.getX() + "," + me.getY() + ")");
+      System.err.println("Node " + v + " was pressed at (" + me.getX() + "," + me.getY() + ")");
     }
 
     public void graphReleased(V v, MouseEvent me) {
-      System.err.println("Vertex " + v + " was released at (" + me.getX() + "," + me.getY() + ")");
+      System.err.println("Node " + v + " was released at (" + me.getX() + "," + me.getY() + ")");
     }
   }
 

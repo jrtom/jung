@@ -13,8 +13,8 @@ public class LayoutNetworkEvent<N, P> extends LayoutEvent<N, P> {
 
   final Network<N, ?> network;
 
-  public LayoutNetworkEvent(N vertex, Network<N, ?> network, P location) {
-    super(vertex, location);
+  public LayoutNetworkEvent(N node, Network<N, ?> network, P location) {
+    super(node, location);
     this.network = network;
   }
 

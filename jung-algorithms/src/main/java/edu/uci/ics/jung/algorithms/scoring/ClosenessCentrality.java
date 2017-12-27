@@ -17,17 +17,17 @@ import edu.uci.ics.jung.algorithms.shortestpath.Distance;
 import java.util.function.Function;
 
 /**
- * Assigns scores to each vertex based on the mean distance to each other vertex.
+ * Assigns scores to each node based on the mean distance to each other node.
  *
  * @author Joshua O'Madadhain
  */
 public class ClosenessCentrality<V, E> extends DistanceCentralityScorer<V, E> {
 
   /**
-   * Creates an instance using the specified vertex/vertex distance metric.
+   * Creates an instance using the specified node/node distance metric.
    *
    * @param graph the input
-   * @param distance the vertex/vertex distance metric.
+   * @param distance the node/node distance metric.
    */
   public ClosenessCentrality(Network<V, E> graph, Distance<V> distance) {
     super(graph, distance, true);
@@ -37,7 +37,7 @@ public class ClosenessCentrality<V, E> extends DistanceCentralityScorer<V, E> {
    * Creates an instance which measures distance using the specified edge weights.
    *
    * @param graph the input graph
-   * @param edge_weights the edge weights to be used to determine vertex/vertex distances
+   * @param edge_weights the edge weights to be used to determine node/node distances
    */
   public ClosenessCentrality(Network<V, E> graph, Function<E, ? extends Number> edge_weights) {
     super(graph, edge_weights, true);
@@ -46,7 +46,7 @@ public class ClosenessCentrality<V, E> extends DistanceCentralityScorer<V, E> {
   /**
    * Creates an instance which measures distance on the graph without edge weights.
    *
-   * @param graph the graph whose vertices' centrality scores will be calculated
+   * @param graph the graph whose nodes' centrality scores will be calculated
    */
   public ClosenessCentrality(Graph<V> graph) {
     super(graph, true);

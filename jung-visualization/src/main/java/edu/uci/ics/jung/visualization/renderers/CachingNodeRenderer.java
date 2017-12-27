@@ -21,9 +21,9 @@ import javax.swing.event.ChangeListener;
 public class CachingNodeRenderer<N, E> extends BasicNodeRenderer<N, E>
     implements ChangeListener, LayoutChangeListener<N, Point2D> {
 
-  protected Map<N, Shape> vertexShapeMap = new HashMap<>();
+  protected Map<N, Shape> nodeShapeMap = new HashMap<>();
 
-  protected Set<N> dirtyVertices = new HashSet<>();
+  protected Set<N> dirtyNodes = new HashSet<>();
 
   @SuppressWarnings({"rawtypes", "unchecked"})
   public CachingNodeRenderer(BasicVisualizationServer<N, E> vv) {
@@ -42,11 +42,11 @@ public class CachingNodeRenderer<N, E> extends BasicNodeRenderer<N, E>
     GraphicsDecorator g = renderContext.getGraphicsContext();
 
     int[] coords = new int[2];
-    Shape shape = vertexShapeMap.get(v);
-    if (shape == null || dirtyVertices.contains(v)) {
+    Shape shape = nodeShapeMap.get(v);
+    if (shape == null || dirtyNodes.contains(v)) {
       shape = prepareFinalNodeShape(renderContext, visualizationModel, v, coords);
-      vertexShapeMap.put(v, shape);
-      dirtyVertices.remove(v);
+      nodeShapeMap.put(v, shape);
+      dirtyNodes.remove(v);
     }
     if (renderContext.getNodeIconFunction() != null) {
       Icon icon = renderContext.getNodeIconFunction().apply(v);
@@ -63,14 +63,14 @@ public class CachingNodeRenderer<N, E> extends BasicNodeRenderer<N, E>
   }
 
   public void stateChanged(ChangeEvent evt) {
-    vertexShapeMap.clear();
+    nodeShapeMap.clear();
   }
 
   public void layoutChanged(LayoutEvent<N, Point2D> evt) {
-    this.dirtyVertices.add(evt.getNode());
+    this.dirtyNodes.add(evt.getNode());
   }
 
   public void layoutChanged(LayoutNetworkEvent<N, Point2D> evt) {
-    this.dirtyVertices.add(evt.getNode());
+    this.dirtyNodes.add(evt.getNode());
   }
 }

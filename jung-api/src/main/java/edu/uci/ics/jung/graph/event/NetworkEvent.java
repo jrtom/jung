@@ -4,7 +4,7 @@ import com.google.common.graph.Network;
 
 /**
  * @author tom nelson
- * @param <V> the vertex type
+ * @param <V> the node type
  * @param <E> the edge type
  */
 public abstract class NetworkEvent<V, E> {
@@ -13,7 +13,7 @@ public abstract class NetworkEvent<V, E> {
   protected Type type;
 
   /**
-   * Creates an instance with the specified {@code source} graph and {@code Type} (vertex/edge
+   * Creates an instance with the specified {@code source} graph and {@code Type} (node/edge
    * addition/removal).
    *
    * @param source the graph whose event this is
@@ -26,36 +26,36 @@ public abstract class NetworkEvent<V, E> {
 
   /** Types of graph events. */
   public static enum Type {
-    VERTEX_ADDED,
-    VERTEX_REMOVED,
+    NODE_ADDED,
+    NODE_REMOVED,
     EDGE_ADDED,
     EDGE_REMOVED
   }
 
-  /** An event type pertaining to graph vertices. */
+  /** An event type pertaining to graph nodes. */
   public static class Node<V, E> extends NetworkEvent<V, E> {
-    protected V vertex;
+    protected V node;
 
     /**
-     * Creates a graph event for the specified graph, vertex, and type.
+     * Creates a graph event for the specified graph, node, and type.
      *
      * @param source the graph whose event this is
      * @param type the type of event this is
-     * @param vertex the vertex involved in this event
+     * @param node the node involved in this event
      */
-    public Node(Network<V, E> source, Type type, V vertex) {
+    public Node(Network<V, E> source, Type type, V node) {
       super(source, type);
-      this.vertex = vertex;
+      this.node = node;
     }
 
-    /** @return the vertex associated with this event */
+    /** @return the node associated with this event */
     public V getNode() {
-      return vertex;
+      return node;
     }
 
     @Override
     public String toString() {
-      return "GraphEvent type:" + type + " for " + vertex;
+      return "GraphEvent type:" + type + " for " + node;
     }
   }
 

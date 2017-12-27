@@ -15,7 +15,7 @@ package edu.uci.ics.jung.visualization.control;
 import java.awt.event.MouseEvent;
 
 /**
- * This interface allows users to register listeners to register to receive vertex clicks.
+ * This interface allows users to register listeners to register to receive node clicks.
  *
  * @author danyelf
  */

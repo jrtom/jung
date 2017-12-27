@@ -116,14 +116,14 @@ public class CachingEdgeRenderer<N, E> extends BasicEdgeRenderer<N, E>
       g.draw(arrow);
 
       if (!graph.isDirected()) {
-        Shape vertexShape =
+        Shape nodeShape =
             renderContext.getNodeShapeFunction().apply(graph.incidentNodes(e).nodeU());
         xf = AffineTransform.getTranslateInstance(x1, y1);
-        vertexShape = xf.createTransformedShape(vertexShape);
+        nodeShape = xf.createTransformedShape(nodeShape);
 
         at =
             edgeArrowRenderingSupport.getReverseArrowTransform(
-                renderContext, edgeShape, vertexShape, !isLoop);
+                renderContext, edgeShape, nodeShape, !isLoop);
         if (at == null) {
           return;
         }

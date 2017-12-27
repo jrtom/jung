@@ -25,7 +25,7 @@ import java.util.Map;
  * visualization, then produces an image of it.
  *
  * @author tom
- * @param <N> the vertex type
+ * @param <N> the node type
  * @param <E> the edge type
  */
 @SuppressWarnings("serial")
@@ -36,7 +36,7 @@ public class VisualizationImageServer<N, E> extends BasicVisualizationServer<N, 
   /**
    * Creates a new instance with the specified layout and preferred layoutSize.
    *
-   * @param layoutAlgorithm the Layout instance; provides the vertex locations
+   * @param layoutAlgorithm the Layout instance; provides the node locations
    * @param preferredSize the preferred layoutSize of the image
    */
   public VisualizationImageServer(

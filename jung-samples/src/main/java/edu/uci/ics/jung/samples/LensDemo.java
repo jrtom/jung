@@ -100,7 +100,7 @@ public class LensDemo extends JPanel {
     Dimension preferredSize = new Dimension(600, 600);
     Map<String, Point2D> map = new HashMap<>();
     Function<String, Point2D> vlf = map::get;
-    grid = this.generateVertexGrid(map, preferredSize, 25);
+    grid = this.generateNodeGrid(map, preferredSize, 25);
     gridLayoutAlgorithm = new StaticLayoutAlgorithm<>();
 
     final VisualizationModel<String, Number, Point2D> visualizationModel =
@@ -309,7 +309,7 @@ public class LensDemo extends JPanel {
     add(controls, BorderLayout.SOUTH);
   }
 
-  private Network<String, Number> generateVertexGrid(
+  private Network<String, Number> generateNodeGrid(
       Map<String, Point2D> vlf, Dimension d, int interval) {
     int count = d.width / interval * d.height / interval;
     MutableNetwork<String, Number> graph = NetworkBuilder.directed().build();
@@ -319,9 +319,9 @@ public class LensDemo extends JPanel {
       x %= d.width;
 
       Point2D location = new Point2D.Float(x, y);
-      String vertex = "v" + i;
-      vlf.put(vertex, location);
-      graph.addNode(vertex);
+      String node = "v" + i;
+      vlf.put(node, location);
+      graph.addNode(node);
     }
     return graph;
   }

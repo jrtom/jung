@@ -44,42 +44,42 @@ public class KStepMarkov<V, E> extends PageRankWithPriors<V, E> {
   private boolean cumulative;
 
   /**
-   * Creates an instance based on the specified graph, edge weights, vertex priors (initial scores),
+   * Creates an instance based on the specified graph, edge weights, node priors (initial scores),
    * and number of steps to take.
    *
    * @param graph the input graph
    * @param edge_weights the edge weights (transition probabilities)
-   * @param vertex_priors the initial probability distribution (score assignment)
+   * @param node_priors the initial probability distribution (score assignment)
    * @param steps the number of times that {@code step()} will be called by {@code evaluate}
    */
   public KStepMarkov(
       Network<V, E> graph,
       Function<E, ? extends Number> edge_weights,
-      Function<V, Double> vertex_priors,
+      Function<V, Double> node_priors,
       int steps) {
-    super(graph, edge_weights, vertex_priors, 0);
+    super(graph, edge_weights, node_priors, 0);
     initialize(steps);
   }
 
   /**
-   * Creates an instance based on the specified graph, vertex priors (initial scores), and number of
+   * Creates an instance based on the specified graph, node priors (initial scores), and number of
    * steps to take. The edge weights (transition probabilities) are set to default values (a uniform
    * distribution over all outgoing edges).
    *
    * @param graph the input graph
-   * @param vertex_priors the initial probability distribution (score assignment)
+   * @param node_priors the initial probability distribution (score assignment)
    * @param steps the number of times that {@code step()} will be called by {@code evaluate}
    */
-  public KStepMarkov(Network<V, E> graph, Function<V, Double> vertex_priors, int steps) {
-    super(graph, vertex_priors, 0);
+  public KStepMarkov(Network<V, E> graph, Function<V, Double> node_priors, int steps) {
+    super(graph, node_priors, 0);
     initialize(steps);
   }
 
   /**
    * Creates an instance based on the specified graph and number of steps to take. The edge weights
-   * (transition probabilities) and vertex initial scores (prior probabilities) are set to default
+   * (transition probabilities) and node initial scores (prior probabilities) are set to default
    * values (a uniform distribution over all outgoing edges, and a uniform distribution over all
-   * vertices, respectively).
+   * nodes, respectively).
    *
    * @param graph the input graph
    * @param steps the number of times that {@code step()} will be called by {@code evaluate}
@@ -99,16 +99,16 @@ public class KStepMarkov<V, E> extends PageRankWithPriors<V, E> {
   }
 
   /**
-   * Specifies whether this instance should assign a score to each vertex based on the sum over all
+   * Specifies whether this instance should assign a score to each node based on the sum over all
    * steps of the probability for each step. See the class-level documentation for details.
    *
-   * @param cumulative true if this instance should assign a cumulative score to each vertex
+   * @param cumulative true if this instance should assign a cumulative score to each node
    */
   public void setCumulative(boolean cumulative) {
     this.cumulative = cumulative;
   }
 
-  /** Updates the value for this vertex. Called by <code>step()</code>. */
+  /** Updates the value for this node. Called by <code>step()</code>. */
   @Override
   public double update(V v) {
     if (!cumulative) {
@@ -125,7 +125,7 @@ public class KStepMarkov<V, E> extends PageRankWithPriors<V, E> {
     }
 
     // modify total_input according to alpha
-    double new_value = alpha > 0 ? v_input * (1 - alpha) + getVertexPrior(v) * alpha : v_input;
+    double new_value = alpha > 0 ? v_input * (1 - alpha) + getNodePrior(v) * alpha : v_input;
     setOutputValue(v, new_value + getCurrentValue(v));
 
     // FIXME: DO WE NEED TO CHANGE HOW DISAPPEARING IS COUNTED?  NORMALIZE?

@@ -80,16 +80,16 @@ public class ReshapingEdgeRenderer<N, E> extends BasicEdgeRenderer<N, E>
     AffineTransform xform = AffineTransform.getTranslateInstance(x1, y1);
 
     if (isLoop) {
-      // this is a self-loop. scale it is larger than the vertex
+      // this is a self-loop. scale it is larger than the node
       // it decorates and translate it so that its nadir is
-      // at the center of the vertex.
+      // at the center of the node.
       Rectangle2D s2Bounds = s2.getBounds2D();
       xform.scale(s2Bounds.getWidth(), s2Bounds.getHeight());
       xform.translate(0, -edgeShape.getBounds2D().getWidth() / 2);
     } else {
       // this is a normal edge. Rotate it to the angle between
-      // vertex endpoints, then scale it to the distance between
-      // the vertices
+      // node endpoints, then scale it to the distance between
+      // the nodes
       float dx = x2 - x1;
       float dy = y2 - y1;
       float thetaRadians = (float) Math.atan2(dy, dx);
@@ -143,13 +143,13 @@ public class ReshapingEdgeRenderer<N, E> extends BasicEdgeRenderer<N, E>
       g.draw(arrow);
 
       if (!graph.isDirected()) {
-        Shape vertexShape = renderContext.getNodeShapeFunction().apply(v1);
+        Shape nodeShape = renderContext.getNodeShapeFunction().apply(v1);
         xf = AffineTransform.getTranslateInstance(x1, y1);
-        vertexShape = xf.createTransformedShape(vertexShape);
+        nodeShape = xf.createTransformedShape(nodeShape);
 
         at =
             edgeArrowRenderingSupport.getReverseArrowTransform(
-                renderContext, new GeneralPath(edgeShape), vertexShape, !isLoop);
+                renderContext, new GeneralPath(edgeShape), nodeShape, !isLoop);
         if (at == null) {
           return;
         }

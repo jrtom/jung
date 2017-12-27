@@ -28,10 +28,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A renderer that will fill vertex shapes with a GradientPaint
+ * A renderer that will fill node shapes with a GradientPaint
  *
  * @author Tom Nelson
- * @param <N> the vertex type
+ * @param <N> the node type
  * @param <N> the edge type
  */
 public class GradientNodeRenderer<N, E> implements Renderer.Node<N, E> {
@@ -82,9 +82,9 @@ public class GradientNodeRenderer<N, E> implements Renderer.Node<N, E> {
       float y = (float) p.getY();
 
       // create a transform that translates to the location of
-      // the vertex to be rendered
+      // the node to be rendered
       AffineTransform xform = AffineTransform.getTranslateInstance(x, y);
-      // transform the vertex shape with xtransform
+      // transform the node shape with xtransform
       shape = xform.createTransformedShape(shape);
       log.trace("prepared a shape for " + v + " to go at " + p);
 

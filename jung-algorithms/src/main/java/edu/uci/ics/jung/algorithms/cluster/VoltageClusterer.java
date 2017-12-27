@@ -31,7 +31,7 @@ import java.util.Random;
 import java.util.Set;
 
 /**
- * Clusters vertices of a <code>Network</code> based on their ranks as calculated by <code>
+ * Clusters nodes of a <code>Network</code> based on their ranks as calculated by <code>
  * VoltageScorer</code>. This algorithm is based on, but not identical with, the method described in
  * the paper below. The primary difference is that Wu and Huberman assume a priori that the clusters
  * are of approximately the same size, and therefore use a more complex method than k-means (which
@@ -42,19 +42,19 @@ import java.util.Set;
  * <ul>
  *   <li>first, generate a set of candidate clusters as follows:
  *       <ul>
- *         <li>pick (widely separated) vertex pair, run VoltageScorer
- *         <li>group the vertices in two clusters according to their voltages
+ *         <li>pick (widely separated) node pair, run VoltageScorer
+ *         <li>group the nodes in two clusters according to their voltages
  *         <li>store resulting candidate clusters
  *       </ul>
  *   <li>second, generate k-1 clusters as follows:
  *       <ul>
- *         <li>pick a vertex v as a cluster 'seed' <br>
- *             (Wu/Huberman: most frequent vertex in candidate clusters)
- *         <li>calculate co-occurrence over all candidate clusters of v with each other vertex
- *         <li>separate co-occurrence counts into high/low; high vertices constitute a cluster
- *         <li>remove v's vertices from candidate clusters; continue
+ *         <li>pick a node v as a cluster 'seed' <br>
+ *             (Wu/Huberman: most frequent node in candidate clusters)
+ *         <li>calculate co-occurrence over all candidate clusters of v with each other node
+ *         <li>separate co-occurrence counts into high/low; high nodes constitute a cluster
+ *         <li>remove v's nodes from candidate clusters; continue
  *       </ul>
- *   <li>finally, remaining unassigned vertices are assigned to the kth ("garbage") cluster.
+ *   <li>finally, remaining unassigned nodes are assigned to the kth ("garbage") cluster.
  * </ul>
  *
  * <p><b>NOTE</b>: Depending on how the co-occurrence data splits the data into clusters, the number
@@ -77,7 +77,7 @@ public class VoltageClusterer<V, E> {
    * Creates an instance of a VoltageCluster with the specified parameters. These are mostly
    * parameters that are passed directly to VoltageScorer and KMeansClusterer.
    *
-   * @param g the graph whose vertices are to be clustered
+   * @param g the graph whose nodes are to be clustered
    * @param num_candidates the number of candidate clusters to create
    */
   public VoltageClusterer(Network<V, E> g, int num_candidates) {
@@ -94,7 +94,7 @@ public class VoltageClusterer<V, E> {
   }
 
   /**
-   * @param v the vertex whose community we wish to discover
+   * @param v the node whose community we wish to discover
    * @return a community (cluster) centered around <code>v</code>.
    */
   public Collection<Set<V>> getCommunity(V v) {
@@ -102,11 +102,11 @@ public class VoltageClusterer<V, E> {
   }
 
   /**
-   * Clusters the vertices of <code>g</code> into <code>num_clusters</code> clusters, based on their
+   * Clusters the nodes of <code>g</code> into <code>num_clusters</code> clusters, based on their
    * connectivity.
    *
    * @param num_clusters the number of clusters to identify
-   * @return a collection of clusters (sets of vertices)
+   * @return a collection of clusters (sets of nodes)
    */
   public Collection<Set<V>> cluster(int num_clusters) {
     return cluster_internal(null, num_clusters);
@@ -115,14 +115,14 @@ public class VoltageClusterer<V, E> {
   /**
    * Does the work of <code>getCommunity</code> and <code>cluster</code>.
    *
-   * @param origin the vertex around which clustering is to be done
+   * @param origin the node around which clustering is to be done
    * @param num_clusters the (maximum) number of clusters to find
-   * @return a collection of clusters (sets of vertices)
+   * @return a collection of clusters (sets of nodes)
    */
   protected Collection<Set<V>> cluster_internal(V origin, int num_clusters) {
     // generate candidate clusters
     // repeat the following 'samples' times:
-    // * pick (widely separated) vertex pair, run VoltageScorer
+    // * pick (widely separated) node pair, run VoltageScorer
     // * use k-means to identify 2 communities in ranked graph
     // * store resulting candidate communities
     ArrayList<V> v_array = new ArrayList<V>(g.nodes());
@@ -145,7 +145,7 @@ public class VoltageClusterer<V, E> {
 
       Map<V, double[]> voltage_ranks = new HashMap<V, double[]>();
       for (V v : g.nodes()) {
-        voltage_ranks.put(v, new double[] {vs.getVertexScore(v)});
+        voltage_ranks.put(v, new double[] {vs.getNodeScore(v)});
       }
 
       //            addOneCandidateCluster(candidates, voltage_ranks);
@@ -153,13 +153,13 @@ public class VoltageClusterer<V, E> {
     }
 
     // repeat the following k-1 times:
-    // * pick a vertex v as a cluster seed
-    //   (Wu/Huberman: most frequent vertex in candidates)
+    // * pick a node v as a cluster seed
+    //   (Wu/Huberman: most frequent node in candidates)
     // * calculate co-occurrence (in candidate clusters)
-    //   of this vertex with all others
+    //   of this node with all others
     // * use k-means to separate co-occurrence counts into high/low;
-    //   high vertices are a cluster
-    // * remove v's vertices from candidate clusters
+    //   high nodes are a cluster
+    // * remove v's nodes from candidate clusters
 
     Collection<Set<V>> clusters = new LinkedList<Set<V>>();
     Set<V> remaining = new HashSet<V>(g.nodes());
@@ -209,12 +209,12 @@ public class VoltageClusterer<V, E> {
         clusters.add(new_cluster);
         remaining.removeAll(new_cluster);
       } catch (NotEnoughClustersException nece) {
-        // all remaining vertices are in the same cluster
+        // all remaining nodes are in the same cluster
         break;
       }
     }
 
-    // identify remaining vertices (if any) as a 'garbage' cluster
+    // identify remaining nodes (if any) as a 'garbage' cluster
     if (!remaining.isEmpty()) {
       clusters.add(remaining);
     }
@@ -236,7 +236,7 @@ public class VoltageClusterer<V, E> {
    * this is closer to the Wu-Huberman method.
    *
    * @param candidates the list of clusters to populate
-   * @param voltage_ranks the voltage values for each vertex
+   * @param voltage_ranks the voltage values for each node
    */
   protected void addTwoCandidateClusters(
       LinkedList<Set<V>> candidates, Map<V, double[]> voltage_ranks) {
@@ -262,12 +262,12 @@ public class VoltageClusterer<V, E> {
   }
 
   /**
-   * alternative to addTwoCandidateClusters(): cluster vertices by voltages into 2 clusters. We only
+   * alternative to addTwoCandidateClusters(): cluster nodes by voltages into 2 clusters. We only
    * consider the smaller of the two clusters returned by k-means to be a 'true' cluster candidate;
    * the other is a garbage cluster.
    *
    * @param candidates the list of clusters to populate
-   * @param voltage_ranks the voltage values for each vertex
+   * @param voltage_ranks the voltage values for each node
    */
   protected void addOneCandidateCluster(
       LinkedList<Set<V>> candidates, Map<V, double[]> voltage_ranks) {

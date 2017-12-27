@@ -38,7 +38,7 @@ import javax.xml.stream.events.XMLEvent;
  *
  * @author Nathan Mittler - nathan.mittler@gmail.com
  * @param <G> The graph type to be read from the GraphML file
- * @param <V> the vertex type The vertex type used by the graph
+ * @param <V> the node type The node type used by the graph
  * @param <V> the edge type The edge type used by the graph
  * @see "http://graphml.graphdrawing.org/specification.html"
  */
@@ -50,7 +50,7 @@ public class GraphMLReader2<G extends MutableNetwork<V, E>, V, E> implements Gra
   protected XMLEventReader xmlEventReader;
   protected Reader fileReader;
   protected Function<GraphMetadata, G> graphTransformer;
-  protected Function<NodeMetadata, V> vertexTransformer;
+  protected Function<NodeMetadata, V> nodeTransformer;
   protected Function<EdgeMetadata, E> edgeTransformer;
   protected boolean initialized;
   protected final GraphMLDocument document = new GraphMLDocument();
@@ -59,14 +59,14 @@ public class GraphMLReader2<G extends MutableNetwork<V, E>, V, E> implements Gra
 
   /**
    * Constructs a GraphML reader around the given reader. This constructor requires the user to
-   * supply transformation functions to convert from the GraphML metadata to Graph, Vertex, Edge
+   * supply transformation functions to convert from the GraphML metadata to Graph, Node, Edge
    * instances. These Function functions can be used as purely factories (i.e. the metadata is
    * disregarded) or can use the metadata to set particular fields in the objects.
    *
    * @param fileReader the reader for the input GraphML document.
    * @param graphTransformer Transformation function to convert from GraphML GraphMetadata to graph
    *     objects. This must be non-null.
-   * @param vertexTransformer Transformation function to convert from GraphML NodeMetadata to vertex
+   * @param nodeTransformer Transformation function to convert from GraphML NodeMetadata to node
    *     objects. This must be non-null.
    * @param edgeTransformer Transformation function to convert from GraphML EdgeMetadata to edge
    *     objects. This must be non-null.
@@ -75,12 +75,12 @@ public class GraphMLReader2<G extends MutableNetwork<V, E>, V, E> implements Gra
   public GraphMLReader2(
       Reader fileReader,
       Function<GraphMetadata, G> graphTransformer,
-      Function<NodeMetadata, V> vertexTransformer,
+      Function<NodeMetadata, V> nodeTransformer,
       Function<EdgeMetadata, E> edgeTransformer) {
 
     this.fileReader = Preconditions.checkNotNull(fileReader);
     this.graphTransformer = Preconditions.checkNotNull(graphTransformer);
-    this.vertexTransformer = Preconditions.checkNotNull(vertexTransformer);
+    this.nodeTransformer = Preconditions.checkNotNull(nodeTransformer);
     this.edgeTransformer = Preconditions.checkNotNull(edgeTransformer);
 
     // Create the parser registry.
@@ -88,20 +88,20 @@ public class GraphMLReader2<G extends MutableNetwork<V, E>, V, E> implements Gra
         new ElementParserRegistry<G, V, E>(
             document.getKeyMap(),
             graphTransformer,
-            vertexTransformer,
+            nodeTransformer,
             edgeTransformer); // , hyperEdgeTransformer);
   }
 
   /**
    * Constructs a GraphML reader around the given reader. This constructor requires the user to
-   * supply transformation functions to convert from the GraphML metadata to Graph, Vertex, Edge
+   * supply transformation functions to convert from the GraphML metadata to Graph, Node, Edge
    * instances. These Function functions can be used as purely factories (i.e. the metadata is
    * disregarded) or can use the metadata to set particular fields in the objects.
    *
    * @param inputStream the inputstream for the input GraphML document.
    * @param graphTransformer Transformation function to convert from GraphML GraphMetadata to graph
    *     objects. This must be non-null.
-   * @param vertexTransformer Transformation function to convert from GraphML NodeMetadata to vertex
+   * @param nodeTransformer Transformation function to convert from GraphML NodeMetadata to node
    *     objects. This must be non-null.
    * @param edgeTransformer Transformation function to convert from GraphML EdgeMetadata to edge
    *     objects. This must be non-null.
@@ -110,12 +110,12 @@ public class GraphMLReader2<G extends MutableNetwork<V, E>, V, E> implements Gra
   public GraphMLReader2(
       InputStream inputStream,
       Function<GraphMetadata, G> graphTransformer,
-      Function<NodeMetadata, V> vertexTransformer,
+      Function<NodeMetadata, V> nodeTransformer,
       Function<EdgeMetadata, E> edgeTransformer) {
 
     this.inputStream = Preconditions.checkNotNull(inputStream);
     this.graphTransformer = Preconditions.checkNotNull(graphTransformer);
-    this.vertexTransformer = Preconditions.checkNotNull(vertexTransformer);
+    this.nodeTransformer = Preconditions.checkNotNull(nodeTransformer);
     this.edgeTransformer = Preconditions.checkNotNull(edgeTransformer);
 
     // Create the parser registry.
@@ -123,7 +123,7 @@ public class GraphMLReader2<G extends MutableNetwork<V, E>, V, E> implements Gra
         new ElementParserRegistry<G, V, E>(
             document.getKeyMap(),
             graphTransformer,
-            vertexTransformer,
+            nodeTransformer,
             edgeTransformer); // , hyperEdgeTransformer);
   }
 
@@ -137,12 +137,12 @@ public class GraphMLReader2<G extends MutableNetwork<V, E>, V, E> implements Gra
   }
 
   /**
-   * Gets the current Function that is being used for vertex objects.
+   * Gets the current Function that is being used for node objects.
    *
    * @return the current Function.
    */
-  public Function<NodeMetadata, V> getVertexTransformer() {
-    return vertexTransformer;
+  public Function<NodeMetadata, V> getNodeTransformer() {
+    return nodeTransformer;
   }
 
   /**
@@ -217,7 +217,7 @@ public class GraphMLReader2<G extends MutableNetwork<V, E>, V, E> implements Gra
       inputStream = null;
       xmlEventReader = null;
       graphTransformer = null;
-      vertexTransformer = null;
+      nodeTransformer = null;
       edgeTransformer = null;
     }
   }

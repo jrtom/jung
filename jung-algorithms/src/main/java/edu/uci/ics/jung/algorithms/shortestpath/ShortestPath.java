@@ -16,11 +16,11 @@ import java.util.Map;
 /** An interface for algorithms that calculate shortest paths. */
 public interface ShortestPath<V, E> {
   /**
-   * Returns a map from vertices to the last edge on the shortest path to that vertex starting from
+   * Returns a map from nodes to the last edge on the shortest path to that node starting from
    * {@code source}.
    *
    * @param source the starting point for the shortest paths
-   * @return a map from vertices to the last edge on the shortest path to that vertex starting from
+   * @return a map from nodes to the last edge on the shortest path to that node starting from
    *     {@code source}
    */
   Map<V, E> getIncomingEdgeMap(V source);

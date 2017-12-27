@@ -4,8 +4,8 @@ import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 import java.awt.geom.Point2D;
 
 /**
- * interface to support the creation of new vertices by the EditingGraphMousePlugin.
- * SimpleNodeSupport is a sample implementation.
+ * interface to support the creation of new nodes by the EditingGraphMousePlugin. SimpleNodeSupport
+ * is a sample implementation.
  *
  * @author Tom Nelson
  * @param <N> the node type

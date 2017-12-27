@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * HyperbolicShapeTransformer extends HyperbolicTransformer and adds implementations for methods in
- * ShapeFlatnessTransformer. It modifies the shapes (Vertex, Edge, and Arrowheads) so that they are
+ * ShapeFlatnessTransformer. It modifies the shapes (Node, Edge, and Arrowheads) so that they are
  * distorted by the hyperbolic transformation
  *
  * @author Tom Nelson

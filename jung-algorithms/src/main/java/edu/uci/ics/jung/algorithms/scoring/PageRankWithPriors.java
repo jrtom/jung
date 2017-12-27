@@ -18,8 +18,8 @@ import java.util.function.Function;
 
 /**
  * A generalization of PageRank that permits non-uniformly-distributed random jumps. The
- * 'vertex_priors' (that is, prior probabilities for each vertex) may be thought of as the fraction
- * of the total 'potential' that is assigned to that vertex at each step out of the portion that is
+ * 'node_priors' (that is, prior probabilities for each node) may be thought of as the fraction of
+ * the total 'potential' that is assigned to that node at each step out of the portion that is
  * assigned according to random jumps (this portion is specified by 'alpha').
  *
  * @see "Algorithms for Estimating Relative Importance in Graphs by Scott White and Padhraic Smyth,
@@ -27,41 +27,41 @@ import java.util.function.Function;
  * @see PageRank
  */
 public class PageRankWithPriors<V, E> extends AbstractIterativeScorerWithPriors<V, E, Double> {
-  /** Maintains the amount of potential associated with vertices with no out-edges. */
+  /** Maintains the amount of potential associated with nodes with no out-edges. */
   protected double disappearing_potential = 0.0;
 
   /**
-   * Creates an instance with the specified graph, edge weights, vertex priors, and 'random jump'
+   * Creates an instance with the specified graph, edge weights, node priors, and 'random jump'
    * probability (alpha).
    *
    * @param graph the input graph
    * @param edge_weights the edge weights, denoting transition probabilities from source to
    *     destination
-   * @param vertex_priors the prior probabilities for each vertex
+   * @param node_priors the prior probabilities for each node
    * @param alpha the probability of executing a 'random jump' at each step
    */
   public PageRankWithPriors(
       Network<V, E> graph,
       Function<E, ? extends Number> edge_weights,
-      Function<V, Double> vertex_priors,
+      Function<V, Double> node_priors,
       double alpha) {
-    super(graph, edge_weights, vertex_priors, alpha);
+    super(graph, edge_weights, node_priors, alpha);
   }
 
   /**
-   * Creates an instance with the specified graph, vertex priors, and 'random jump' probability
-   * (alpha). The outgoing edge weights for each vertex will be equal and sum to 1.
+   * Creates an instance with the specified graph, node priors, and 'random jump' probability
+   * (alpha). The outgoing edge weights for each node will be equal and sum to 1.
    *
    * @param graph the input graph
-   * @param vertex_priors the prior probabilities for each vertex
+   * @param node_priors the prior probabilities for each node
    * @param alpha the probability of executing a 'random jump' at each step
    */
-  public PageRankWithPriors(Network<V, E> graph, Function<V, Double> vertex_priors, double alpha) {
-    super(graph, vertex_priors, alpha);
+  public PageRankWithPriors(Network<V, E> graph, Function<V, Double> node_priors, double alpha) {
+    super(graph, node_priors, alpha);
     this.edge_weights = new UniformDegreeWeight<V, E>(graph);
   }
 
-  /** Updates the value for this vertex. Called by <code>step()</code>. */
+  /** Updates the value for this node. Called by <code>step()</code>. */
   @Override
   public double update(V v) {
     collectDisappearingPotential(v);
@@ -74,7 +74,7 @@ public class PageRankWithPriors<V, E> extends AbstractIterativeScorerWithPriors<
     }
 
     // modify total_input according to alpha
-    double new_value = alpha > 0 ? v_input * (1 - alpha) + getVertexPrior(v) * alpha : v_input;
+    double new_value = alpha > 0 ? v_input * (1 - alpha) + getNodePrior(v) * alpha : v_input;
     setOutputValue(v, new_value);
 
     return Math.abs(getCurrentValue(v) - new_value);
@@ -82,7 +82,7 @@ public class PageRankWithPriors<V, E> extends AbstractIterativeScorerWithPriors<
 
   /**
    * Cleans up after each step. In this case that involves allocating the disappearing potential
-   * (thus maintaining normalization of the scores) according to the vertex probability priors, and
+   * (thus maintaining normalization of the scores) according to the node probability priors, and
    * then calling <code>super.afterStep</code>.
    */
   @Override
@@ -91,7 +91,7 @@ public class PageRankWithPriors<V, E> extends AbstractIterativeScorerWithPriors<
     if (disappearing_potential > 0) {
       for (V v : graph.nodes()) {
         setOutputValue(
-            v, getOutputValue(v) + (1 - alpha) * (disappearing_potential * getVertexPrior(v)));
+            v, getOutputValue(v) + (1 - alpha) * (disappearing_potential * getNodePrior(v)));
       }
       disappearing_potential = 0;
     }
@@ -100,10 +100,10 @@ public class PageRankWithPriors<V, E> extends AbstractIterativeScorerWithPriors<
   }
 
   /**
-   * Collects the "disappearing potential" associated with vertices that have no outgoing edges.
-   * Vertices that have no outgoing edges do not directly contribute to the scores of other
-   * vertices. These values are collected at each step and then distributed across all vertices as a
-   * part of the normalization process.
+   * Collects the "disappearing potential" associated with nodes that have no outgoing edges. Nodes
+   * that have no outgoing edges do not directly contribute to the scores of other nodes. These
+   * values are collected at each step and then distributed across all nodes as a part of the
+   * normalization process.
    */
   @Override
   protected void collectDisappearingPotential(V v) {

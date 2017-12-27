@@ -94,25 +94,19 @@ public class DijkstraShortestPath<V, E> extends DijkstraDistance<V, E>
    * Returns the last edge on a shortest path from <code>source</code> to <code>target</code>, or
    * null if <code>target</code> is not reachable from <code>source</code>.
    *
-   * <p>If either vertex is not in the graph for which this instance was created, throws <code>
+   * <p>If either node is not in the graph for which this instance was created, throws <code>
    * IllegalArgumentException</code>.
    *
-   * @param source the vertex where the shortest path starts
-   * @param target the vertex where the shortest path ends
+   * @param source the node where the shortest path starts
+   * @param target the node where the shortest path ends
    * @return the last edge on a shortest path from {@code source} to {@code target} or null if
    *     {@code target} is not reachable from {@code source}
    */
   public E getIncomingEdge(V source, V target) {
     Preconditions.checkArgument(
-        g.nodes().contains(target),
-        "Specified target vertex %s  is not part of graph %s",
-        target,
-        g);
+        g.nodes().contains(target), "Specified target node %s  is not part of graph %s", target, g);
     Preconditions.checkArgument(
-        g.nodes().contains(source),
-        "Specified source vertex %s  is not part of graph %s",
-        source,
-        g);
+        g.nodes().contains(source), "Specified source node %s  is not part of graph %s", source, g);
 
     Set<V> targets = new HashSet<V>();
     targets.add(target);
@@ -129,14 +123,14 @@ public class DijkstraShortestPath<V, E> extends DijkstraDistance<V, E>
   }
 
   /**
-   * Returns a <code>LinkedHashMap</code> which maps each vertex in the graph (including the <code>
-   * source</code> vertex) to the last edge on the shortest path from the <code>source</code>
-   * vertex. The map's iterator will return the elements in order of increasing distance from <code>
+   * Returns a <code>LinkedHashMap</code> which maps each node in the graph (including the <code>
+   * source</code> node) to the last edge on the shortest path from the <code>source</code> node.
+   * The map's iterator will return the elements in order of increasing distance from <code>
    * source</code>.
    *
    * @see DijkstraDistance#getDistanceMap(Object,int)
    * @see DijkstraDistance#getDistance(Object,Object)
-   * @param source the vertex from which distances are measured
+   * @param source the node from which distances are measured
    */
   public Map<V, E> getIncomingEdgeMap(V source) {
     return getIncomingEdgeMap(source, g.nodes().size());
@@ -144,25 +138,19 @@ public class DijkstraShortestPath<V, E> extends DijkstraDistance<V, E>
 
   /**
    * Returns a <code>List</code> of the edges on the shortest path from <code>source</code> to
-   * <code>target</code>, in order of their occurrence on this path. If either vertex is not in the
+   * <code>target</code>, in order of their occurrence on this path. If either node is not in the
    * graph for which this instance was created, throws <code>IllegalArgumentException</code>.
    *
-   * @param source the starting vertex for the path to generate
-   * @param target the ending vertex for the path to generate
+   * @param source the starting node for the path to generate
+   * @param target the ending node for the path to generate
    * @return the edges on the shortest path from {@code source} to {@code target}, in order of their
    *     occurrence
    */
   public List<E> getPath(V source, V target) {
     Preconditions.checkArgument(
-        g.nodes().contains(target),
-        "Specified target vertex %s  is not part of graph %s",
-        target,
-        g);
+        g.nodes().contains(target), "Specified target node %s  is not part of graph %s", target, g);
     Preconditions.checkArgument(
-        g.nodes().contains(source),
-        "Specified source vertex %s  is not part of graph %s",
-        source,
-        g);
+        g.nodes().contains(source), "Specified source node %s  is not part of graph %s", source, g);
 
     // TODO: Consider replacing this with an `ArrayList` (http://errorprone.info/bugpattern/JdkObsolete)
     LinkedList<E> path = new LinkedList<E>();
@@ -189,26 +177,22 @@ public class DijkstraShortestPath<V, E> extends DijkstraDistance<V, E>
   }
 
   /**
-   * Returns a <code>LinkedHashMap</code> which maps each of the closest <code>numDests</code>
-   * vertices to the <code>source</code> vertex in the graph (including the <code>source</code>
-   * vertex) to the incoming edge along the path from that vertex. Throws an <code>
+   * Returns a <code>LinkedHashMap</code> which maps each of the closest <code>numDests</code> nodes
+   * to the <code>source</code> node in the graph (including the <code>source</code> node) to the
+   * incoming edge along the path from that node. Throws an <code>
    * IllegalArgumentException</code> if <code>source</code> is not in this instance's graph, or if
-   * <code>numDests</code> is either less than 1 or greater than the number of vertices in the
-   * graph.
+   * <code>numDests</code> is either less than 1 or greater than the number of nodes in the graph.
    *
    * @see #getIncomingEdgeMap(Object)
    * @see #getPath(Object,Object)
-   * @param source the vertex from which distances are measured
-   * @param numDests the number of vertices for which to measure distances
-   * @return a map from each of the closest {@code numDests} vertices to the last edge on the
-   *     shortest path to that vertex starting from {@code source}
+   * @param source the node from which distances are measured
+   * @param numDests the number of nodes for which to measure distances
+   * @return a map from each of the closest {@code numDests} nodes to the last edge on the shortest
+   *     path to that node starting from {@code source}
    */
   public LinkedHashMap<V, E> getIncomingEdgeMap(V source, int numDests) {
     Preconditions.checkArgument(
-        g.nodes().contains(source),
-        "Specified source vertex %s  is not part of graph %s",
-        source,
-        g);
+        g.nodes().contains(source), "Specified source node %s  is not part of graph %s", source, g);
     Preconditions.checkArgument(
         numDests >= 1 && numDests <= g.nodes().size(),
         "number of destinations must be in [1, %d]",
@@ -227,9 +211,9 @@ public class DijkstraShortestPath<V, E> extends DijkstraDistance<V, E>
   }
 
   /**
-   * For a given source vertex, holds the estimated and final distances, tentative and final
-   * assignments of incoming edges on the shortest path from the source vertex, and a priority queue
-   * (ordered by estimaed distance) of the vertices for which distances are unknown.
+   * For a given source node, holds the estimated and final distances, tentative and final
+   * assignments of incoming edges on the shortest path from the source node, and a priority queue
+   * (ordered by estimaed distance) of the nodes for which distances are unknown.
    *
    * @author Joshua O'Madadhain
    */
@@ -250,8 +234,8 @@ public class DijkstraShortestPath<V, E> extends DijkstraDistance<V, E>
     }
 
     @Override
-    public Map.Entry<V, Number> getNextVertex() {
-      Map.Entry<V, Number> p = super.getNextVertex();
+    public Map.Entry<V, Number> getNextNode() {
+      Map.Entry<V, Number> p = super.getNextNode();
       V v = p.getKey();
       E incoming = tentativeIncomingEdges.remove(v);
       incomingEdges.put(v, incoming);
@@ -259,8 +243,8 @@ public class DijkstraShortestPath<V, E> extends DijkstraDistance<V, E>
     }
 
     @Override
-    public void restoreVertex(V v, double dist) {
-      super.restoreVertex(v, dist);
+    public void restoreNode(V v, double dist) {
+      super.restoreNode(v, dist);
       E incoming = incomingEdges.get(v);
       tentativeIncomingEdges.put(v, incoming);
     }

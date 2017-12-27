@@ -22,13 +22,13 @@ import java.util.Map;
 import java.util.function.Function;
 
 /**
- * An abstract class for algorithms that assign scores to vertices based on iterative methods.
+ * An abstract class for algorithms that assign scores to nodes based on iterative methods.
  * Generally, any (concrete) subclass will function by creating an instance, and then either calling
  * <code>evaluate</code> (if the user wants to iterate until the algorithms is 'done') or repeatedly
  * call <code>step</code> (if the user wants to observe the values at each step).
  */
 public abstract class AbstractIterativeScorer<V, E, T>
-    implements IterativeContext, VertexScorer<V, T> {
+    implements IterativeContext, NodeScorer<V, T> {
   /** Maximum number of iterations to use before terminating. Defaults to 100. */
   protected int max_iterations;
 
@@ -61,9 +61,9 @@ public abstract class AbstractIterativeScorer<V, E, T>
   private boolean accept_disconnected_graph;
 
   /**
-   * Sets the output value for this vertex.
+   * Sets the output value for this node.
    *
-   * @param v the vertex whose output value is to be set
+   * @param v the node whose output value is to be set
    * @param value the value to set
    */
   protected void setOutputValue(V v, T value) {
@@ -71,36 +71,36 @@ public abstract class AbstractIterativeScorer<V, E, T>
   }
 
   /**
-   * Gets the output value for this vertex.
+   * Gets the output value for this node.
    *
-   * @param v the vertex whose output value is to be retrieved
-   * @return the output value for this vertex
+   * @param v the node whose output value is to be retrieved
+   * @return the output value for this node
    */
   protected T getOutputValue(V v) {
     return output.get(v);
   }
 
   /**
-   * Gets the current value for this vertex
+   * Gets the current value for this node
    *
-   * @param v the vertex whose current value is to be retrieved
-   * @return the current value for this vertex
+   * @param v the node whose current value is to be retrieved
+   * @return the current value for this node
    */
   protected T getCurrentValue(V v) {
     return current_values.get(v);
   }
 
   /**
-   * Sets the current value for this vertex.
+   * Sets the current value for this node.
    *
-   * @param v the vertex whose current value is to be set
+   * @param v the node whose current value is to be set
    * @param value the current value to set
    */
   protected void setCurrentValue(V v, T value) {
     current_values.put(v, value);
   }
 
-  /** The largest change seen so far among all vertex scores. */
+  /** The largest change seen so far among all node scores. */
   protected double max_delta;
 
   /**
@@ -155,7 +155,7 @@ public abstract class AbstractIterativeScorer<V, E, T>
     return total_iterations >= max_iterations || max_delta < tolerance;
   }
 
-  /** Performs one step of this algorithm; updates the state (value) for each vertex. */
+  /** Performs one step of this algorithm; updates the state (value) for each node. */
   public void step() {
     swapOutputForCurrent();
     max_delta = 0;
@@ -178,7 +178,7 @@ public abstract class AbstractIterativeScorer<V, E, T>
   /**
    * Updates the value for <code>v</code>.
    *
-   * @param v the vertex whose value is to be updated
+   * @param v the node whose value is to be updated
    * @return the updated value
    */
   protected abstract double update(V v);
@@ -190,15 +190,15 @@ public abstract class AbstractIterativeScorer<V, E, T>
   protected void afterStep() {}
 
   @Override
-  public T getVertexScore(V v) {
+  public T getNodeScore(V v) {
     Preconditions.checkArgument(
-        graph.nodes().contains(v), "Vertex %s not an element of this graph", v.toString());
+        graph.nodes().contains(v), "Node %s not an element of this graph", v.toString());
 
     return output.get(v);
   }
 
   @Override
-  public Map<V, T> vertexScores() {
+  public Map<V, T> nodeScores() {
     return Collections.unmodifiableMap(output);
   }
 
@@ -232,7 +232,7 @@ public abstract class AbstractIterativeScorer<V, E, T>
 
   /**
    * Gets the size of the largest change (difference between the current and previous values) for
-   * any vertex that can be tolerated. Once all changes are less than this value, <code>evaluate
+   * any node that can be tolerated. Once all changes are less than this value, <code>evaluate
    * </code> will terminate.
    *
    * @return the size of the largest change that evaluate() will permit
@@ -243,7 +243,7 @@ public abstract class AbstractIterativeScorer<V, E, T>
 
   /**
    * Sets the size of the largest change (difference between the current and previous values) for
-   * any vertex that can be tolerated.
+   * any node that can be tolerated.
    *
    * @param tolerance the size of the largest change that evaluate() will permit
    */
@@ -271,11 +271,11 @@ public abstract class AbstractIterativeScorer<V, E, T>
   }
 
   /**
-   * Gets the edge weight for <code>e</code> in the context of its (incident) vertex <code>v</code>.
+   * Gets the edge weight for <code>e</code> in the context of its (incident) node <code>v</code>.
    *
-   * @param v the vertex incident to e as a context in which the edge weight is to be calculated
+   * @param v the node incident to e as a context in which the edge weight is to be calculated
    * @param e the edge whose weight is to be returned
-   * @return the edge weight for <code>e</code> in the context of its (incident) vertex <code>v
+   * @return the edge weight for <code>e</code> in the context of its (incident) node <code>v
    *     </code>
    */
   protected Number getEdgeWeight(V v, E e) {
@@ -284,26 +284,25 @@ public abstract class AbstractIterativeScorer<V, E, T>
 
   /**
    * Collects the 'potential' from v (its current value) if it has no outgoing edges; this can then
-   * be redistributed among the other vertices as a means of normalization.
+   * be redistributed among the other nodes as a means of normalization.
    *
-   * @param v the vertex whose potential is being collected
+   * @param v the node whose potential is being collected
    */
   protected void collectDisappearingPotential(V v) {}
 
   /**
-   * Specifies whether this instance should accept vertices with no outgoing edges.
+   * Specifies whether this instance should accept nodes with no outgoing edges.
    *
-   * @param accept true if this instance should accept vertices with no outgoing edges, false
-   *     otherwise
+   * @param accept true if this instance should accept nodes with no outgoing edges, false otherwise
    */
   public void acceptDisconnectedGraph(boolean accept) {
     this.accept_disconnected_graph = accept;
   }
 
   /**
-   * Returns true if this instance accepts vertices with no outgoing edges, and false otherwise.
+   * Returns true if this instance accepts nodes with no outgoing edges, and false otherwise.
    *
-   * @return true if this instance accepts vertices with no outgoing edges, otherwise false
+   * @return true if this instance accepts nodes with no outgoing edges, otherwise false
    */
   public boolean isDisconnectedGraphOK() {
     return this.accept_disconnected_graph;

@@ -14,17 +14,17 @@ package edu.uci.ics.jung.algorithms.scoring;
 import java.util.Map;
 
 /**
- * An interface for algorithms that assign scores to vertices.
+ * An interface for algorithms that assign scores to nodes.
  *
- * @param <V> the vertex type
+ * @param <V> the node type
  * @param <S> the score type
  */
-public interface VertexScorer<V, S> {
+public interface NodeScorer<V, S> {
   /**
-   * @param v the vertex whose score is requested
-   * @return the algorithm's score for this vertex
+   * @param v the node whose score is requested
+   * @return the algorithm's score for this node
    */
-  public S getVertexScore(V v);
+  public S getNodeScore(V v);
 
-  public Map<V, S> vertexScores();
+  public Map<V, S> nodeScores();
 }

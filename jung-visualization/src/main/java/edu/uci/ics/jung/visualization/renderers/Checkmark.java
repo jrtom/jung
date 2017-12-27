@@ -15,7 +15,7 @@ import javax.swing.Icon;
 
 /**
  * a simple Icon that draws a checkmark in the lower-right quadrant of its area. Used to draw a
- * checkmark on Picked Vertices.
+ * checkmark on Picked Nodes.
  *
  * @author Tom Nelson
  */

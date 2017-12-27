@@ -21,7 +21,7 @@ import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 
 /**
- * DefaultVertexLabelRenderer is similar to the cell renderers used by the JTable and JTree JFC
+ * DefaultNodeLabelRenderer is similar to the cell renderers used by the JTable and JTree JFC
  * classes.
  *
  * @author Tom Nelson
@@ -36,7 +36,7 @@ public class DefaultNodeLabelRenderer extends JLabel implements NodeLabelRendere
   /**
    * Creates a default table cell renderer.
    *
-   * @param pickedNodeLabelColor the color to use for rendering the labels of picked vertices
+   * @param pickedNodeLabelColor the color to use for rendering the labels of picked nodes
    */
   public DefaultNodeLabelRenderer(Color pickedNodeLabelColor) {
     this.pickedNodeLabelColor = pickedNodeLabelColor;
@@ -80,15 +80,15 @@ public class DefaultNodeLabelRenderer extends JLabel implements NodeLabelRendere
   }
 
   /**
-   * Returns the default label renderer for a Vertex
+   * Returns the default label renderer for a Node
    *
    * @param vv the <code>VisualizationViewer</code> to render on
-   * @param value the value to assign to the label for <code>Vertex</code>
-   * @param vertex the <code>Vertex</code>
+   * @param value the value to assign to the label for <code>Node</code>
+   * @param node the <code>Node</code>
    * @return the default label renderer
    */
   public <V> Component getNodeLabelRendererComponent(
-      JComponent vv, Object value, Font font, boolean isSelected, V vertex) {
+      JComponent vv, Object value, Font font, boolean isSelected, V node) {
 
     super.setForeground(vv.getForeground());
     if (isSelected) {

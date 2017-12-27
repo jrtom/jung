@@ -14,42 +14,42 @@ import com.google.common.graph.Graph;
 import com.google.common.graph.MutableValueGraph;
 import com.google.common.graph.ValueGraph;
 import com.google.common.graph.ValueGraphBuilder;
-import edu.uci.ics.jung.algorithms.blockmodel.VertexPartition;
+import edu.uci.ics.jung.algorithms.blockmodel.NodePartition;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * This class transforms a graph with a known vertex partitioning into a graph whose vertices
- * correspond to the input graph's partitions
+ * This class transforms a graph with a known node partitioning into a graph whose nodes correspond
+ * to the input graph's partitions
  *
  * <p>Concept based on Danyel Fisher's <code>GraphCollapser</code> in JUNG 1.x.
  */
 // TODO: add tests
-public class VertexPartitionCollapser {
+public class NodePartitionCollapser {
   /**
-   * Creates a new graph whose vertices correspond to the partitions of the supplied graph. Two
-   * nodes u and v in the collapsed graph will be connected if there is an edge between any of the
-   * nodes in u and any of the nodes in v, and u and v are distinct. The value of the edge
-   * represents the number of such edges.
+   * Creates a new graph whose nodes correspond to the partitions of the supplied graph. Two nodes u
+   * and v in the collapsed graph will be connected if there is an edge between any of the nodes in
+   * u and any of the nodes in v, and u and v are distinct. The value of the edge represents the
+   * number of such edges.
    *
-   * @param partitioning a vertex partition of a graph
+   * @param partitioning a node partition of a graph
    * @return the collapsed graph
    */
-  public static <V> ValueGraph<Set<V>, Integer> collapseVertexPartitions(
-      VertexPartition<V> partitioning) {
+  public static <V> ValueGraph<Set<V>, Integer> collapseNodePartitions(
+      NodePartition<V> partitioning) {
     Graph<V> original = partitioning.getGraph();
     ValueGraphBuilder<Object, Object> builder =
         original.isDirected() ? ValueGraphBuilder.directed() : ValueGraphBuilder.undirected();
     MutableValueGraph<Set<V>, Integer> collapsed = builder.build();
 
-    // create vertices in new graph corresponding to equivalence sets in the original graph
-    for (Set<V> set : partitioning.getVertexPartitions()) {
+    // create nodes in new graph corresponding to equivalence sets in the original graph
+    for (Set<V> set : partitioning.getNodePartitions()) {
       collapsed.addNode(set);
     }
 
     // for each pair of endpoints in the original graph, connect the corresponding nodes
     // (representing partitions) in the collapsed graph if the partitions are different
-    Map<V, Set<V>> nodeToPartition = partitioning.getVertexToPartitionMap();
+    Map<V, Set<V>> nodeToPartition = partitioning.getNodeToPartitionMap();
     for (EndpointPair<V> endpoints : original.edges()) {
       V nodeU = endpoints.nodeU();
       V nodeV = endpoints.nodeV();

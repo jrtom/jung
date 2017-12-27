@@ -29,7 +29,7 @@ public class PickableEdgePaintFunction<E> implements Function<E, Paint> {
   protected Paint picked_paint;
 
   /**
-   * @param pi specifies which vertices report as "picked"
+   * @param pi specifies which nodes report as "picked"
    * @param draw_paint <code>Paint</code> used to draw edge shapes
    * @param picked_paint <code>Paint</code> used to draw picked edge shapes
    */

@@ -179,7 +179,7 @@ public class ShapePickSupport<N, E> implements NetworkElementAccessor<N, E> {
     // fall back on checking every node
     while (true) {
       try {
-        for (N v : getFilteredVertices()) {
+        for (N v : getFilteredNodes()) {
 
           // get the shape for the node (it is at the origin)
           Shape shape = vv.getRenderContext().getNodeShapeFunction().apply(v);
@@ -282,7 +282,7 @@ public class ShapePickSupport<N, E> implements NetworkElementAccessor<N, E> {
     // get the all nodes from any leafs that intersect the target
     Collection<N> nodes = spatial.getVisibleElements(target);
     if (log.isTraceEnabled()) {
-      log.trace("instead of checking all nodes: {}", getFilteredVertices());
+      log.trace("instead of checking all nodes: {}", getFilteredNodes());
       log.trace("out of these candidates: {}...", nodes);
     }
     // Check the (smaller) set of eligible nodes
@@ -371,7 +371,7 @@ public class ShapePickSupport<N, E> implements NetworkElementAccessor<N, E> {
   //    // get the all nodes from any leafs that intersect the target
   //    Collection<N> nodes = spatial.getVisibleElements(target);
   //    if (log.isTraceEnabled()) {
-  //      log.trace("instead of checking all nodes: {}", getFilteredVertices());
+  //      log.trace("instead of checking all nodes: {}", getFilteredNodes());
   //      log.trace("out of these candidates: {}...", nodes);
   //    }
   //    // Check the (smaller) set of eligible nodes
@@ -463,7 +463,7 @@ public class ShapePickSupport<N, E> implements NetworkElementAccessor<N, E> {
   //    // get the all nodes from any leafs that intersect the target
   //    Collection<N> nodes = spatial.getVisibleElements(target);
   //    if (log.isTraceEnabled()) {
-  //      log.trace("instead of checking all nodes: {}", getFilteredVertices());
+  //      log.trace("instead of checking all nodes: {}", getFilteredNodes());
   //      log.trace("out of these candidates: {}...", nodes);
   //    }
   //    // Check the (smaller) set of eligible nodes
@@ -510,16 +510,16 @@ public class ShapePickSupport<N, E> implements NetworkElementAccessor<N, E> {
   //  }
   //
   /**
-   * Returns the vertices whose layout coordinates are contained in <code>Shape</code>. The shape is
-   * in screen coordinates, and the graph vertices are transformed to screen coordinates before they
-   * are tested for inclusion.
+   * Returns the nodes whose layout coordinates are contained in <code>Shape</code>. The shape is in
+   * screen coordinates, and the graph nodes are transformed to screen coordinates before they are
+   * tested for inclusion.
    *
-   * @return the <code>Collection</code> of vertices whose <code>layout</code> coordinates are
+   * @return the <code>Collection</code> of nodes whose <code>layout</code> coordinates are
    *     contained in <code>shape</code>.
    */
   @Override
   public Collection<N> getNodes(LayoutModel<N, Point2D> layoutModel, Shape shape) {
-    Set<N> pickedVertices = new HashSet<>();
+    Set<N> pickedNodes = new HashSet<>();
 
     // the pick target shape is in layout coordinate system.
 
@@ -531,20 +531,20 @@ public class ShapePickSupport<N, E> implements NetworkElementAccessor<N, E> {
     // fall back on checking every node
     while (true) {
       try {
-        for (N v : getFilteredVertices()) {
+        for (N v : getFilteredNodes()) {
           Point2D p = layoutModel.apply(v);
           if (p == null) {
             continue;
           }
           if (shape.contains(p)) {
-            pickedVertices.add(v);
+            pickedNodes.add(v);
           }
         }
         break;
       } catch (ConcurrentModificationException cme) {
       }
     }
-    return pickedVertices;
+    return pickedNodes;
   }
 
   /**
@@ -822,10 +822,10 @@ public class ShapePickSupport<N, E> implements NetworkElementAccessor<N, E> {
     } else {
       float dx = x2 - x1;
       float dy = y2 - y1;
-      // rotate the edge to the angle between the vertices
+      // rotate the edge to the angle between the nodes
       double theta = Math.atan2(dy, dx);
       xform.rotate(theta);
-      // stretch the edge to span the distance between the vertices
+      // stretch the edge to span the distance between the nodes
       float dist = (float) Math.sqrt(dx * dx + dy * dy);
       xform.scale(dist, 1.0f);
     }
@@ -835,9 +835,9 @@ public class ShapePickSupport<N, E> implements NetworkElementAccessor<N, E> {
     return edgeShape;
   }
 
-  protected Collection<N> getFilteredVertices() {
+  protected Collection<N> getFilteredNodes() {
     Set<N> nodes = vv.getModel().getNetwork().nodes();
-    return verticesAreFiltered()
+    return nodesAreFiltered()
         ? Sets.filter(nodes, vv.getRenderContext().getNodeIncludePredicate()::test)
         : nodes;
   }
@@ -850,15 +850,14 @@ public class ShapePickSupport<N, E> implements NetworkElementAccessor<N, E> {
   }
 
   /**
-   * Quick test to allow optimization of <code>getFilteredVertices()</code>.
+   * Quick test to allow optimization of <code>getFilteredNodes()</code>.
    *
    * @return <code>true</code> if there is an relaxing node filtering mechanism for this
    *     visualization, <code>false</code> otherwise
    */
-  protected boolean verticesAreFiltered() {
-    Predicate<N> vertexIncludePredicate = vv.getRenderContext().getNodeIncludePredicate();
-    return vertexIncludePredicate != null
-        && !vertexIncludePredicate.equals((Predicate<N>) (n -> true));
+  protected boolean nodesAreFiltered() {
+    Predicate<N> nodeIncludePredicate = vv.getRenderContext().getNodeIncludePredicate();
+    return nodeIncludePredicate != null && !nodeIncludePredicate.equals((Predicate<N>) (n -> true));
   }
 
   /**
@@ -892,7 +891,7 @@ public class ShapePickSupport<N, E> implements NetworkElementAccessor<N, E> {
    *     elements to be rendered, <code>false</code> otherwise.
    */
   protected boolean isEdgeRendered(E edge) {
-    Predicate<N> vertexIncludePredicate = vv.getRenderContext().getNodeIncludePredicate();
+    Predicate<N> nodeIncludePredicate = vv.getRenderContext().getNodeIncludePredicate();
     Predicate<E> edgeIncludePredicate = vv.getRenderContext().getEdgeIncludePredicate();
     Network<N, E> g = vv.getModel().getNetwork();
     if (edgeIncludePredicate != null && !edgeIncludePredicate.test(edge)) {
@@ -901,8 +900,8 @@ public class ShapePickSupport<N, E> implements NetworkElementAccessor<N, E> {
     EndpointPair<N> endpoints = g.incidentNodes(edge);
     N v1 = endpoints.nodeU();
     N v2 = endpoints.nodeV();
-    return vertexIncludePredicate == null
-        || (vertexIncludePredicate.test(v1) && vertexIncludePredicate.test(v2));
+    return nodeIncludePredicate == null
+        || (nodeIncludePredicate.test(v1) && nodeIncludePredicate.test(v2));
   }
 
   /**

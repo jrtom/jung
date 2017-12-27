@@ -140,7 +140,7 @@ public class VisualizationViewer<N, E> extends BasicVisualizationServer<N, E> {
 
   /**
    * This is the interface for adding a mouse listener. The GEL will be called back with mouse
-   * clicks on vertices.
+   * clicks on nodes.
    *
    * @param gel the mouse listener to add
    */
@@ -182,9 +182,9 @@ public class VisualizationViewer<N, E> extends BasicVisualizationServer<N, E> {
     Point2D p = null;
     if (nodeToolTipFunction != null) {
       p = getTransformSupport().inverseTransform(this, event.getPoint());
-      N vertex = getPickSupport().getNode(layoutModel, p.getX(), p.getY());
-      if (vertex != null) {
-        return nodeToolTipFunction.apply(vertex);
+      N node = getPickSupport().getNode(layoutModel, p.getX(), p.getY());
+      if (node != null) {
+        return nodeToolTipFunction.apply(node);
       }
     }
     if (edgeToolTipFunction != null) {

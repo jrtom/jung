@@ -15,7 +15,7 @@ import com.google.common.base.Preconditions;
 import java.util.function.Function;
 
 /**
- * Provides vertex sizes that are spaced proportionally between min_size and max_size depending on
+ * Provides node sizes that are spaced proportionally between min_size and max_size depending on
  *
  * @author Joshua O'Madadhain
  */

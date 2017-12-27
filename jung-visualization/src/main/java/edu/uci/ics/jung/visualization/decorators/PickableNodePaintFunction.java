@@ -17,8 +17,8 @@ import java.awt.Paint;
 import java.util.function.Function;
 
 /**
- * Paints each vertex according to the <code>Paint</code> parameters given in the constructor, so
- * that picked and non-picked vertices can be made to look different.
+ * Paints each node according to the <code>Paint</code> parameters given in the constructor, so that
+ * picked and non-picked nodes can be made to look different.
  */
 public class PickableNodePaintFunction<V> implements Function<V, Paint> {
 
@@ -27,9 +27,9 @@ public class PickableNodePaintFunction<V> implements Function<V, Paint> {
   protected PickedInfo<V> pi;
 
   /**
-   * @param pi specifies which vertices report as "picked"
-   * @param fill_paint <code>Paint</code> used to fill vertex shapes
-   * @param picked_paint <code>Paint</code> used to fill picked vertex shapes
+   * @param pi specifies which nodes report as "picked"
+   * @param fill_paint <code>Paint</code> used to fill node shapes
+   * @param picked_paint <code>Paint</code> used to fill picked node shapes
    */
   public PickableNodePaintFunction(PickedInfo<V> pi, Paint fill_paint, Paint picked_paint) {
     this.pi = Preconditions.checkNotNull(pi);

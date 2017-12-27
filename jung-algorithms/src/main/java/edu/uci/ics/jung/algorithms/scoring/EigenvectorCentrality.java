@@ -15,9 +15,9 @@ import com.google.common.graph.Network;
 import java.util.function.Function;
 
 /**
- * Calculates eigenvector centrality for each vertex in the graph. The 'eigenvector centrality' for
- * a vertex is defined as the fraction of time that a random walk(er) will spend at that vertex over
- * an infinite time horizon. Assumes that the graph is strongly connected.
+ * Calculates eigenvector centrality for each node in the graph. The 'eigenvector centrality' for a
+ * node is defined as the fraction of time that a random walk(er) will spend at that node over an
+ * infinite time horizon. Assumes that the graph is strongly connected.
  */
 public class EigenvectorCentrality<V, E> extends PageRank<V, E> {
   /**

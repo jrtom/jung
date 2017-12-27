@@ -25,9 +25,9 @@ import java.util.function.Function;
 /**
  * Writes graphs in the Pajek NET format.
  *
- * <p>Labels for vertices, edge weights, and vertex locations may each optionally be specified. Note
- * that vertex location coordinates must be normalized to the interval [0, 1] on each axis in order
- * to conform to the Pajek specification.
+ * <p>Labels for nodes, edge weights, and node locations may each optionally be specified. Note that
+ * node location coordinates must be normalized to the interval [0, 1] on each axis in order to
+ * conform to the Pajek specification.
  *
  * @author Joshua O'Madadhain
  * @author Tom Nelson - converted to jung2
@@ -41,9 +41,9 @@ public class PajekNetWriter<V, E> {
    *
    * @param g the graph to be saved
    * @param filename the filename of the file to write the graph to
-   * @param vs mapping from vertices to labels
+   * @param vs mapping from nodes to labels
    * @param nev mapping from edges to weights
-   * @param vld mapping from vertices to locations
+   * @param vld mapping from nodes to locations
    * @throws IOException if the graph cannot be saved
    */
   public void save(
@@ -61,7 +61,7 @@ public class PajekNetWriter<V, E> {
    *
    * @param g the graph to be saved
    * @param filename the filename of the file to write the graph to
-   * @param vs mapping from vertices to labels
+   * @param vs mapping from nodes to labels
    * @param nev mapping from edges to weights
    * @throws IOException if the graph cannot be saved
    */
@@ -72,7 +72,7 @@ public class PajekNetWriter<V, E> {
   }
 
   /**
-   * Saves the graph to the specified file. No vertex labels are written, and the edge weights are
+   * Saves the graph to the specified file. No node labels are written, and the edge weights are
    * written as 1.0.
    *
    * @param g the graph to be saved
@@ -84,7 +84,7 @@ public class PajekNetWriter<V, E> {
   }
 
   /**
-   * Saves the graph to the specified writer. No vertex labels are written, and the edge weights are
+   * Saves the graph to the specified writer. No node labels are written, and the edge weights are
    * written as 1.0.
    *
    * @param g the graph to be saved
@@ -100,7 +100,7 @@ public class PajekNetWriter<V, E> {
    *
    * @param g the graph to be saved
    * @param w the writer instance to write the graph to
-   * @param vs mapping from vertices to labels
+   * @param vs mapping from nodes to labels
    * @param nev mapping from edges to weights
    * @throws IOException if the graph cannot be saved
    */
@@ -114,9 +114,9 @@ public class PajekNetWriter<V, E> {
    *
    * @param graph the graph to be saved
    * @param w the writer instance to write the graph to
-   * @param vs mapping from vertices to labels (no labels are written if null)
+   * @param vs mapping from nodes to labels (no labels are written if null)
    * @param nev mapping from edges to weights (defaults to weights of 1.0 if null)
-   * @param vld mapping from vertices to locations (no locations are written if null)
+   * @param vld mapping from nodes to locations (no locations are written if null)
    * @throws IOException if the graph cannot be saved
    */
   public void save(
@@ -140,22 +140,22 @@ public class PajekNetWriter<V, E> {
             }
           };
     }
-    writer.write("*Vertices " + graph.nodes().size());
+    writer.write("*Nodes " + graph.nodes().size());
     writer.newLine();
 
     List<V> id = new ArrayList<V>(graph.nodes());
-    for (V currentVertex : graph.nodes()) {
+    for (V currentNode : graph.nodes()) {
       // convert from 0-based to 1-based index
-      int v_id = id.indexOf(currentVertex) + 1;
+      int v_id = id.indexOf(currentNode) + 1;
       writer.write("" + v_id);
       if (vs != null) {
-        String label = vs.apply(currentVertex);
+        String label = vs.apply(currentNode);
         if (label != null) {
           writer.write(" \"" + label + "\"");
         }
       }
       if (vld != null) {
-        Point2D location = vld.apply(currentVertex);
+        Point2D location = vld.apply(currentNode);
         if (location != null) {
           writer.write(" " + location.getX() + " " + location.getY() + " 0.0");
         }

@@ -30,7 +30,7 @@ import java.util.function.Function;
 import javax.swing.*;
 
 /**
- * A demo that shows flag images as vertices, and uses unicode to render vertex labels.
+ * A demo that shows flag images as nodes, and uses unicode to render node labels.
  *
  * @author Tom Nelson
  */
@@ -52,13 +52,13 @@ public class UnicodeLabelDemo {
     vv.getRenderContext().setNodeLabelFunction(new UnicodeNodeStringer());
     vv.getRenderContext().setNodeLabelRenderer(new DefaultNodeLabelRenderer(Color.cyan));
     vv.getRenderContext().setEdgeLabelRenderer(new DefaultEdgeLabelRenderer(Color.cyan));
-    NodeIconShapeFunction<Integer> vertexIconShapeFunction =
+    NodeIconShapeFunction<Integer> nodeIconShapeFunction =
         new NodeIconShapeFunction<>(new EllipseNodeShapeFunction<>());
-    Function<Integer, Icon> vertexIconFunction = iconMap::get;
-    vv.getRenderContext().setNodeShapeFunction(vertexIconShapeFunction);
-    vv.getRenderContext().setNodeIconFunction(vertexIconFunction);
+    Function<Integer, Icon> nodeIconFunction = iconMap::get;
+    vv.getRenderContext().setNodeShapeFunction(nodeIconShapeFunction);
+    vv.getRenderContext().setNodeIconFunction(nodeIconFunction);
     loadImages(iconMap);
-    vertexIconShapeFunction.setIconMap(iconMap);
+    nodeIconShapeFunction.setIconMap(iconMap);
     vv.getRenderContext()
         .setNodeFillPaintFunction(
             new PickableNodePaintFunction<>(vv.getPickedNodeState(), Color.white, Color.yellow));

@@ -15,7 +15,7 @@ import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
 import edu.uci.ics.jung.algorithms.generators.random.BarabasiAlbertGenerator;
 import edu.uci.ics.jung.algorithms.scoring.VoltageScorer;
-import edu.uci.ics.jung.algorithms.scoring.util.VertexScoreTransformer;
+import edu.uci.ics.jung.algorithms.scoring.util.NodeScoreTransformer;
 import edu.uci.ics.jung.graph.util.Graphs;
 import edu.uci.ics.jung.layout.algorithms.FRLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
@@ -53,8 +53,8 @@ import javax.swing.*;
  * to the renderer.
  *
  * <p>This demo creates a random graph with random edge weights. It then runs <code>VoltageRanker
- * </code> on this graph, using half of the "seed" vertices from the random graph generation as
- * voltage sources, and half of them as voltage sinks.
+ * </code> on this graph, using half of the "seed" nodes from the random graph generation as voltage
+ * sources, and half of them as voltage sinks.
  *
  * <p>What the controls do:
  *
@@ -71,27 +71,25 @@ import javax.swing.*;
  *         <li>Hovering over a node tells you what its voltage is; hovering over an edge shows its
  *             identity; hovering over the background shows an informational message.
  *       </ul>
- *   <li>Vertex stuff:
+ *   <li>Node stuff:
  *       <ul>
- *         <li>"node seed coloring": if checked, the seed vertices are colored blue, and all other
- *             vertices are colored red. Otherwise, all vertices are colored a slightly transparent
- *             red (except the currently "picked" node, which is colored transparent purple).
+ *         <li>"node seed coloring": if checked, the seed nodes are colored blue, and all other
+ *             nodes are colored red. Otherwise, all nodes are colored a slightly transparent red
+ *             (except the currently "picked" node, which is colored transparent purple).
  *         <li>"node selection stroke highlighting": if checked, the picked node and its neighbors
- *             are all drawn with heavy borders. Otherwise, all vertices are drawn with light
- *             borders.
+ *             are all drawn with heavy borders. Otherwise, all nodes are drawn with light borders.
  *         <li>"show node ranks (voltages)": if checked, each node is labeled with its calculated
- *             'voltage'. Otherwise, vertices are unlabeled.
- *         <li>"node degree shapes": if checked, vertices are drawn with a polygon with number of
- *             sides proportional to its degree. Otherwise, vertices are drawn as ellipses.
- *         <li>"node voltage layoutSize": if checked, vertices are drawn with a layoutSize
- *             proportional to their voltage ranking. Otherwise, all vertices are drawn at the same
- *             layoutSize.
- *         <li>"node degree ratio stretch": if checked, vertices are drawn with an aspect ratio
+ *             'voltage'. Otherwise, nodes are unlabeled.
+ *         <li>"node degree shapes": if checked, nodes are drawn with a polygon with number of sides
+ *             proportional to its degree. Otherwise, nodes are drawn as ellipses.
+ *         <li>"node voltage layoutSize": if checked, nodes are drawn with a layoutSize proportional
+ *             to their voltage ranking. Otherwise, all nodes are drawn at the same layoutSize.
+ *         <li>"node degree ratio stretch": if checked, nodes are drawn with an aspect ratio
  *             (height/width ratio) proportional to the ratio of their indegree to their outdegree.
- *             Otherwise, vertices are drawn with an aspect ratio of 1.
- *         <li>"filter vertices of degree &lt; 4": if checked, does not display any vertices (or
- *             their incident edges) whose degree in the original graph is less than 4; otherwise,
- *             all vertices are drawn.
+ *             Otherwise, nodes are drawn with an aspect ratio of 1.
+ *         <li>"filter nodes of degree &lt; 4": if checked, does not display any nodes (or their
+ *             incident edges) whose degree in the original graph is less than 4; otherwise, all
+ *             nodes are drawn.
  *       </ul>
  *   <li>Edge stuff:
  *       <ul>
@@ -163,16 +161,16 @@ public class PluggableRendererDemo extends JPanel implements ActionListener {
   protected SeedFillColor<Integer> seedFillColor;
   protected SeedDrawColor<Integer> seedDrawColor;
   protected EdgeWeightStrokeFunction<Number> ewcs;
-  protected VertexStrokeHighlight<Integer, Number> vsh;
+  protected NodeStrokeHighlight<Integer, Number> vsh;
   protected Function<? super Integer, String> vs;
   protected Function<? super Integer, String> vs_none;
   protected Function<? super Number, String> es;
   protected Function<? super Number, String> es_none;
-  protected VertexFontTransformer<Integer> vff;
+  protected NodeFontTransformer<Integer> vff;
   protected EdgeFontTransformer<Number> eff;
   protected NodeShapeSizeAspect<Integer, Number> vssa;
-  protected VertexDisplayPredicate<Integer> show_vertex;
-  protected EdgeDisplayPredicate<Number> show_edge;
+  protected NodeDisplayPredicate<Integer> showNode;
+  protected EdgeDisplayPredicate<Number> showEdge;
   protected Predicate<Number> self_loop;
   protected GradientPickedEdgePaintFunction<Integer, Number> edgeDrawPaint;
   protected GradientPickedEdgePaintFunction<Integer, Number> edgeFillPaint;
@@ -185,7 +183,7 @@ public class PluggableRendererDemo extends JPanel implements ActionListener {
 
   protected VisualizationViewer<Integer, Number> vv;
   protected DefaultModalGraphMouse<Integer, Number> gm;
-  protected Set<Integer> seedVertices = new HashSet<>();
+  protected Set<Integer> seedNodes = new HashSet<>();
 
   private Network<Integer, Number> graph;
 
@@ -209,7 +207,7 @@ public class PluggableRendererDemo extends JPanel implements ActionListener {
     LayoutAlgorithm<Integer, Point2D> layoutAlgorithm = new FRLayoutAlgorithm<>();
     vv = new VisualizationViewer<>(graph, layoutAlgorithm, new Dimension(1000, 800));
 
-    //    vv.getRenderer().setVertexRenderer(new CachingVertexRenderer<Integer, Number>(vv));
+    //    vv.getRenderer().setNodeRenderer(new CachingNodeRenderer<Integer, Number>(vv));
     //    vv.getRenderer().setEdgeRenderer(new CachingEdgeRenderer<Integer, Number>(vv));
 
     PickedState<Integer> picked_state = vv.getPickedNodeState();
@@ -220,14 +218,14 @@ public class PluggableRendererDemo extends JPanel implements ActionListener {
     seedFillColor = new SeedFillColor<>(picked_state);
     seedDrawColor = new SeedDrawColor<>();
     ewcs = new EdgeWeightStrokeFunction<>(edge_weight);
-    vsh = new VertexStrokeHighlight<>(graph, picked_state);
-    vff = new VertexFontTransformer<>();
+    vsh = new NodeStrokeHighlight<>(graph, picked_state);
+    vff = new NodeFontTransformer<>();
     eff = new EdgeFontTransformer<>();
     vs_none = n -> null;
     es_none = e -> null;
     vssa = new NodeShapeSizeAspect<>(graph, voltages);
-    show_vertex = new VertexDisplayPredicate<>(graph, false);
-    show_edge = new EdgeDisplayPredicate<>(edge_weight, false);
+    showNode = new NodeDisplayPredicate<>(graph, false);
+    showEdge = new EdgeDisplayPredicate<>(edge_weight, false);
 
     // uses a gradient edge if unpicked, otherwise uses picked selection
     edgeDrawPaint =
@@ -243,13 +241,13 @@ public class PluggableRendererDemo extends JPanel implements ActionListener {
     vv.getRenderContext().setNodeLabelFunction(vs_none);
     vv.getRenderContext().setNodeFontFunction(vff);
     vv.getRenderContext().setNodeShapeFunction(vssa);
-    vv.getRenderContext().setNodeIncludePredicate(show_vertex);
+    vv.getRenderContext().setNodeIncludePredicate(showNode);
 
     vv.getRenderContext().setEdgeDrawPaintFunction(edgeDrawPaint);
     vv.getRenderContext().setEdgeLabelFunction(es_none);
     vv.getRenderContext().setEdgeFontFunction(eff);
     vv.getRenderContext().setEdgeStrokeFunction(ewcs);
-    vv.getRenderContext().setEdgeIncludePredicate(show_edge);
+    vv.getRenderContext().setEdgeIncludePredicate(showEdge);
     vv.getRenderContext().setEdgeShapeFunction(EdgeShape.line());
 
     vv.getRenderContext().setArrowFillPaintFunction(n -> Color.lightGray);
@@ -312,17 +310,17 @@ public class PluggableRendererDemo extends JPanel implements ActionListener {
     es = new NumberFormattingFunction<>(edge_weight::get);
 
     // collect the seeds used to define the random graph
-    seedVertices = generator.seedNodes();
+    seedNodes = generator.seedNodes();
 
-    if (seedVertices.size() < 2) {
+    if (seedNodes.size() < 2) {
       System.out.println("need at least 2 seeds (one source, one sink)");
     }
 
-    // use these seeds as source and sink vertices, run VoltageRanker
+    // use these seeds as source and sink nodes, run VoltageRanker
     boolean source = true;
     Set<Integer> sources = new HashSet<>();
     Set<Integer> sinks = new HashSet<>();
-    for (Integer v : seedVertices) {
+    for (Integer v : seedNodes) {
       if (source) {
         sources.add(v);
       } else {
@@ -333,12 +331,12 @@ public class PluggableRendererDemo extends JPanel implements ActionListener {
     VoltageScorer<Integer, Number> voltage_scores =
         new VoltageScorer<>(g, edge_weight::get, sources, sinks);
     voltage_scores.evaluate();
-    voltages = new VertexScoreTransformer<>(voltage_scores);
+    voltages = new NodeScoreTransformer<>(voltage_scores);
     vs = new NumberFormattingFunction<>(voltages);
 
     Collection<Integer> verts = g.nodes();
 
-    // assign a transparency value of 0.9 to all vertices
+    // assign a transparency value of 0.9 to all nodes
     for (Integer v : verts) {
       transparency.put(v, 0.9);
     }
@@ -359,15 +357,15 @@ public class PluggableRendererDemo extends JPanel implements ActionListener {
     final JPanel control_panel = new JPanel();
     jp.add(control_panel, BorderLayout.EAST);
     control_panel.setLayout(new BorderLayout());
-    final Box vertex_panel = Box.createVerticalBox();
-    vertex_panel.setBorder(BorderFactory.createTitledBorder("Vertices"));
-    final Box edge_panel = Box.createVerticalBox();
-    edge_panel.setBorder(BorderFactory.createTitledBorder("Edges"));
-    final Box both_panel = Box.createVerticalBox();
+    final Box nodePanel = Box.createVerticalBox();
+    nodePanel.setBorder(BorderFactory.createTitledBorder("Nodes"));
+    final Box edgePanel = Box.createVerticalBox();
+    edgePanel.setBorder(BorderFactory.createTitledBorder("Edges"));
+    final Box bothPanel = Box.createVerticalBox();
 
-    control_panel.add(vertex_panel, BorderLayout.NORTH);
-    control_panel.add(edge_panel, BorderLayout.SOUTH);
-    control_panel.add(both_panel, BorderLayout.CENTER);
+    control_panel.add(nodePanel, BorderLayout.NORTH);
+    control_panel.add(edgePanel, BorderLayout.SOUTH);
+    control_panel.add(bothPanel, BorderLayout.CENTER);
 
     // set up node controls
     v_color = new JCheckBox("seed highlight");
@@ -383,16 +381,16 @@ public class PluggableRendererDemo extends JPanel implements ActionListener {
     v_size.setSelected(true);
     v_aspect = new JCheckBox("stretch by degree ratio");
     v_aspect.addActionListener(this);
-    v_small = new JCheckBox("filter when degree < " + VertexDisplayPredicate.MIN_DEGREE);
+    v_small = new JCheckBox("filter when degree < " + NodeDisplayPredicate.MIN_DEGREE);
     v_small.addActionListener(this);
 
-    vertex_panel.add(v_color);
-    vertex_panel.add(v_stroke);
-    vertex_panel.add(v_labels);
-    vertex_panel.add(v_shape);
-    vertex_panel.add(v_size);
-    vertex_panel.add(v_aspect);
-    vertex_panel.add(v_small);
+    nodePanel.add(v_color);
+    nodePanel.add(v_stroke);
+    nodePanel.add(v_labels);
+    nodePanel.add(v_shape);
+    nodePanel.add(v_size);
+    nodePanel.add(v_aspect);
+    nodePanel.add(v_small);
 
     // set up edge controls
     JPanel gradient_panel = new JPanel(new GridLayout(1, 0));
@@ -463,18 +461,18 @@ public class PluggableRendererDemo extends JPanel implements ActionListener {
     show_edge_panel.add(e_filter_small);
 
     shape_panel.setAlignmentX(Component.LEFT_ALIGNMENT);
-    edge_panel.add(shape_panel);
+    edgePanel.add(shape_panel);
     gradient_panel.setAlignmentX(Component.LEFT_ALIGNMENT);
-    edge_panel.add(gradient_panel);
+    edgePanel.add(gradient_panel);
     show_edge_panel.setAlignmentX(Component.LEFT_ALIGNMENT);
-    edge_panel.add(show_edge_panel);
+    edgePanel.add(show_edge_panel);
     arrow_panel.setAlignmentX(Component.LEFT_ALIGNMENT);
-    edge_panel.add(arrow_panel);
+    edgePanel.add(arrow_panel);
 
     e_color.setAlignmentX(Component.LEFT_ALIGNMENT);
-    edge_panel.add(e_color);
+    edgePanel.add(e_color);
     e_labels.setAlignmentX(Component.LEFT_ALIGNMENT);
-    edge_panel.add(e_labels);
+    edgePanel.add(e_labels);
 
     // set up zoom controls
     zoom_at_mouse = new JCheckBox("<html><center>zoom at mouse<p>(wheel only)</center></html>");
@@ -505,8 +503,8 @@ public class PluggableRendererDemo extends JPanel implements ActionListener {
     font.setAlignmentX(Component.CENTER_ALIGNMENT);
     fontPanel.add(font);
 
-    both_panel.add(zoomPanel);
-    both_panel.add(fontPanel);
+    bothPanel.add(zoomPanel);
+    bothPanel.add(fontPanel);
 
     JComboBox<?> modeBox = gm.getModeComboBox();
     modeBox.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -616,9 +614,9 @@ public class PluggableRendererDemo extends JPanel implements ActionListener {
         vv.getRenderContext().setEdgeShapeFunction(EdgeShape.cubicCurve());
       }
     } else if (source == e_filter_small) {
-      show_edge.filterSmall(source.isSelected());
+      showEdge.filterSmall(source.isSelected());
     } else if (source == v_small) {
-      show_vertex.filterSmall(source.isSelected());
+      showNode.filterSmall(source.isSelected());
     } else if (source == zoom_at_mouse) {
       gm.setZoomAtMouse(source.isSelected());
     } else if (source == no_gradient) {
@@ -662,7 +660,7 @@ public class PluggableRendererDemo extends JPanel implements ActionListener {
       if (pi.isPicked(v)) {
         return new Color(1f, 1f, 0, alpha);
       } else {
-        if (seed_coloring && seedVertices.contains(v)) {
+        if (seed_coloring && seedNodes.contains(v)) {
           Color dark = new Color(0, 0, dark_value, alpha);
           Color light = new Color(0, 0, light_value, alpha);
           return new GradientPaint(0, 0, dark, 10, 0, light, true);
@@ -707,7 +705,7 @@ public class PluggableRendererDemo extends JPanel implements ActionListener {
     }
   }
 
-  private static final class VertexStrokeHighlight<N, E> implements Function<N, Stroke> {
+  private static final class NodeStrokeHighlight<N, E> implements Function<N, Stroke> {
     protected boolean highlight = false;
     protected Stroke heavy = new BasicStroke(5);
     protected Stroke medium = new BasicStroke(3);
@@ -715,7 +713,7 @@ public class PluggableRendererDemo extends JPanel implements ActionListener {
     protected PickedInfo<N> pi;
     protected Network<N, E> graph;
 
-    public VertexStrokeHighlight(Network<N, E> graph, PickedInfo<N> pi) {
+    public NodeStrokeHighlight(Network<N, E> graph, PickedInfo<N> pi) {
       this.graph = graph;
       this.pi = pi;
     }
@@ -742,7 +740,7 @@ public class PluggableRendererDemo extends JPanel implements ActionListener {
     }
   }
 
-  private static final class VertexFontTransformer<N> implements Function<N, Font> {
+  private static final class NodeFontTransformer<N> implements Function<N, Font> {
     protected boolean bold = false;
     Font f = new Font("Helvetica", Font.PLAIN, 12);
     Font b = new Font("Helvetica", Font.BOLD, 12);
@@ -778,12 +776,12 @@ public class PluggableRendererDemo extends JPanel implements ActionListener {
     }
   }
 
-  private static final class VertexDisplayPredicate<N> implements Predicate<N> {
+  private static final class NodeDisplayPredicate<N> implements Predicate<N> {
     protected boolean filter_small;
     protected static final int MIN_DEGREE = 4;
     protected final Network<N, ?> graph;
 
-    public VertexDisplayPredicate(Network<N, ?> graph, boolean filter) {
+    public NodeDisplayPredicate(Network<N, ?> graph, boolean filter) {
       this.graph = graph;
       this.filter_small = filter;
     }
@@ -938,8 +936,8 @@ public class PluggableRendererDemo extends JPanel implements ActionListener {
 
   public class VoltageTips<E> implements Function<Integer, String> {
 
-    public String apply(Integer vertex) {
-      return "Voltage:" + voltages.apply(vertex);
+    public String apply(Integer node) {
+      return "Voltage:" + voltages.apply(node);
     }
   }
 

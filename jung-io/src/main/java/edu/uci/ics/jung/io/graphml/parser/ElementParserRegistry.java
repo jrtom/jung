@@ -34,14 +34,14 @@ public class ElementParserRegistry<G extends MutableNetwork<V, E>, V, E> {
   public ElementParserRegistry(
       KeyMap keyMap,
       Function<GraphMetadata, G> graphTransformer,
-      Function<NodeMetadata, V> vertexTransformer,
+      Function<NodeMetadata, V> nodeTransformer,
       Function<EdgeMetadata, E> edgeTransformer) {
     //            Function<HyperEdgeMetadata, E> hyperEdgeTransformer) {
 
     // Create the parser context.
     ParserContext<G, V, E> context =
         new ParserContext<G, V, E>(
-            this, keyMap, graphTransformer, vertexTransformer, edgeTransformer);
+            this, keyMap, graphTransformer, nodeTransformer, edgeTransformer);
 
     parserMap.put(GraphMLConstants.DEFAULT_NAME, new StringElementParser<G, V, E>(context));
     parserMap.put(GraphMLConstants.DESC_NAME, new StringElementParser<G, V, E>(context));

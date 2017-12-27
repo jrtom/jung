@@ -10,7 +10,7 @@ import junit.framework.TestSuite;
 /** @author W. Giordano, Scott White */
 public class TestErdosRenyi extends TestCase {
 
-  Supplier<String> vertexFactory;
+  Supplier<String> nodeFactory;
 
   public static Test suite() {
     return new TestSuite(TestErdosRenyi.class);
@@ -18,7 +18,7 @@ public class TestErdosRenyi extends TestCase {
 
   @Override
   protected void setUp() {
-    vertexFactory =
+    nodeFactory =
         new Supplier<String>() {
           int count;
 
@@ -30,15 +30,14 @@ public class TestErdosRenyi extends TestCase {
 
   public void test() {
 
-    int numVertices = 100;
+    int numNodes = 100;
     int total = 0;
     for (int i = 1; i <= 10; i++) {
-      ErdosRenyiGenerator<String> generator =
-          new ErdosRenyiGenerator<>(vertexFactory, numVertices, 0.1);
+      ErdosRenyiGenerator<String> generator = new ErdosRenyiGenerator<>(nodeFactory, numNodes, 0.1);
       generator.setSeed(0);
 
       Graph<String> graph = generator.get();
-      Assert.assertTrue(graph.nodes().size() == numVertices);
+      Assert.assertTrue(graph.nodes().size() == numNodes);
       total += graph.edges().size();
     }
     total /= 10.0;

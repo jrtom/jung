@@ -56,7 +56,7 @@ public class TreeUtils {
   /**
    * Returns a copy of the subtree of <code>tree</code> which is rooted at <code>root</code>.
    *
-   * @param <N> the vertex type
+   * @param <N> the node type
    * @param <E> the edge type
    * @param tree the tree whose subtree is to be extracted
    * @param root the root of the subtree to be extracted
@@ -74,7 +74,7 @@ public class TreeUtils {
    * Populates <code>subtree</code> with the subtree of <code>tree</code> which is rooted at <code>
    * root</code>.
    *
-   * @param <N> the vertex type
+   * @param <N> the node type
    * @param <E> the edge type
    * @param tree the tree whose subtree is to be extracted
    * @param subTree the tree instance which is to be populated with the subtree of <code>tree</code>

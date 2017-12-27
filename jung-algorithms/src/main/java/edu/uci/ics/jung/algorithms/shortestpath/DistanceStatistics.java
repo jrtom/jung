@@ -12,12 +12,12 @@ package edu.uci.ics.jung.algorithms.shortestpath;
 import com.google.common.graph.Graph;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.algorithms.scoring.ClosenessCentrality;
-import edu.uci.ics.jung.algorithms.scoring.util.VertexScoreTransformer;
+import edu.uci.ics.jung.algorithms.scoring.util.NodeScoreTransformer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /**
- * Statistics relating to vertex-vertex distances in a graph.
+ * Statistics relating to node-node distances in a graph.
  *
  * <p>Formerly known as <code>GraphStatistics</code> in JUNG 1.x.
  *
@@ -26,12 +26,12 @@ import java.util.function.Function;
  */
 public class DistanceStatistics {
   /**
-   * For each vertex <code>v</code> in <code>graph</code>, calculates the average shortest path
-   * length from <code>v</code> to all other vertices in <code>graph</code> using the metric
-   * specified by <code>d</code>, and returns the results in a <code>Map</code> from vertices to
-   * <code>Double</code> values. If there exists an ordered pair <code>&lt;u,v&gt;</code> for which
-   * <code>d.getDistance(u,v)</code> returns <code>null</code>, then the average distance value for
-   * <code>u</code> will be stored as <code>Double.POSITIVE_INFINITY</code>).
+   * For each node <code>v</code> in <code>graph</code>, calculates the average shortest path length
+   * from <code>v</code> to all other nodes in <code>graph</code> using the metric specified by
+   * <code>d</code>, and returns the results in a <code>Map</code> from nodes to <code>Double</code>
+   * values. If there exists an ordered pair <code>&lt;u,v&gt;</code> for which <code>
+   * d.getDistance(u,v)</code> returns <code>null</code>, then the average distance value for <code>
+   * u</code> will be stored as <code>Double.POSITIVE_INFINITY</code>).
    *
    * <p>Does not include self-distances (path lengths from <code>v</code> to <code>v</code>).
    *
@@ -55,47 +55,47 @@ public class DistanceStatistics {
    * @see edu.uci.ics.jung.algorithms.shortestpath.DijkstraDistance
    * @param graph the graph for which distances are to be calculated
    * @param d the distance metric to use for the calculation
-   * @param <V> the vertex type
+   * @param <V> the node type
    * @param <E> the edge type
-   * @return a map from each vertex to the mean distance to each other (reachable) vertex
+   * @return a map from each node to the mean distance to each other (reachable) node
    */
   public static <V, E> Function<V, Double> averageDistances(Network<V, E> graph, Distance<V> d) {
     final ClosenessCentrality<V, E> cc = new ClosenessCentrality<V, E>(graph, d);
-    return new VertexScoreTransformer<V, Double>(cc);
+    return new NodeScoreTransformer<V, Double>(cc);
   }
 
   /**
-   * For each vertex <code>v</code> in <code>g</code>, calculates the average shortest path length
-   * from <code>v</code> to all other vertices in <code>g</code>, ignoring edge weights.
+   * For each node <code>v</code> in <code>g</code>, calculates the average shortest path length
+   * from <code>v</code> to all other nodes in <code>g</code>, ignoring edge weights.
    *
    * @see #diameter(Hypergraph)
    * @see edu.uci.ics.jung.algorithms.scoring.ClosenessCentrality
    * @param g the graph for which distances are to be calculated
-   * @param <V> the vertex type
+   * @param <V> the node type
    * @param <E> the edge type
-   * @return a map from each vertex to the mean distance to each other (reachable) vertex
+   * @return a map from each node to the mean distance to each other (reachable) node
    */
   public static <V, E> Function<V, Double> averageDistances(Network<V, E> g) {
     final ClosenessCentrality<V, E> cc =
         new ClosenessCentrality<V, E>(g, new UnweightedShortestPath<V>(g.asGraph()));
-    return new VertexScoreTransformer<V, Double>(cc);
+    return new NodeScoreTransformer<V, Double>(cc);
   }
 
   /**
    * Returns the diameter of <code>g</code> using the metric specified by <code>d</code>. The
-   * diameter is defined to be the maximum, over all pairs of vertices <code>u,v</code>, of the
-   * length of the shortest path from <code>u</code> to <code>v</code>. If the graph is disconnected
-   * (that is, not all pairs of vertices are reachable from one another), the value returned will
-   * depend on <code>use_max</code>: if <code>use_max == true</code>, the value returned will be the
-   * the maximum shortest path length over all pairs of <b>connected</b> vertices; otherwise it will
-   * be <code>Double.POSITIVE_INFINITY</code>.
+   * diameter is defined to be the maximum, over all pairs of nodes <code>u,v</code>, of the length
+   * of the shortest path from <code>u</code> to <code>v</code>. If the graph is disconnected (that
+   * is, not all pairs of nodes are reachable from one another), the value returned will depend on
+   * <code>use_max</code>: if <code>use_max == true</code>, the value returned will be the the
+   * maximum shortest path length over all pairs of <b>connected</b> nodes; otherwise it will be
+   * <code>Double.POSITIVE_INFINITY</code>.
    *
    * @param g the graph for which distances are to be calculated
    * @param d the distance metric to use for the calculation
    * @param use_max if {@code true}, return the maximum shortest path length for all graphs;
    *     otherwise, return {@code Double.POSITIVE_INFINITY} for disconnected graphs
-   * @param <N> the vertex type
-   * @return the longest distance from any vertex to any other
+   * @param <N> the node type
+   * @return the longest distance from any node to any other
    */
   public static <N> double diameter(
       Graph<N> g, BiFunction<N, N, ? extends Number> d, boolean use_max) {
@@ -121,15 +121,15 @@ public class DistanceStatistics {
 
   /**
    * Returns the diameter of <code>g</code> using the metric specified by <code>d</code>. The
-   * diameter is defined to be the maximum, over all pairs of vertices <code>u,v</code>, of the
-   * length of the shortest path from <code>u</code> to <code>v</code>, or <code>
+   * diameter is defined to be the maximum, over all pairs of nodes <code>u,v</code>, of the length
+   * of the shortest path from <code>u</code> to <code>v</code>, or <code>
    * Double.POSITIVE_INFINITY</code> if any of these distances do not exist.
    *
    * @see #diameter(Graph, BiFunction, boolean)
    * @param g the graph for which distances are to be calculated
    * @param distance the distance metric to use for the calculation
-   * @param <N> the vertex type
-   * @return the longest distance from any vertex to any other
+   * @param <N> the node type
+   * @return the longest distance from any node to any other
    */
   public static <N> double diameter(Graph<N> g, BiFunction<N, N, ? extends Number> distance) {
     return diameter(g, distance, false);
@@ -140,8 +140,8 @@ public class DistanceStatistics {
    *
    * @see #diameter(Graph, BiFunction, boolean)
    * @param g the graph for which distances are to be calculated
-   * @param <N> the vertex type
-   * @return the longest distance from any vertex to any other
+   * @param <N> the node type
+   * @return the longest distance from any node to any other
    */
   public static <N> double diameter(Graph<N> g) {
     return diameter(g, new UnweightedShortestPath<N>(g)::getDistance);

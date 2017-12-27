@@ -158,7 +158,7 @@ public class ISOMLayoutAlgorithm<N, P> extends AbstractIterativeLayoutAlgorithm<
         (float) (10 + Math.random() * diameter) - radius,
         (float) (10 + Math.random() * diameter) - radius);
 
-    //Get closest vertex to random position
+    //Get closest node to random position
     N winner =
         elementAccessor.getNode(
             layoutModel,

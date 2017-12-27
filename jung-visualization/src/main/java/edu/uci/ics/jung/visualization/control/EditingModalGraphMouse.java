@@ -37,7 +37,7 @@ public class EditingModalGraphMouse<N, E> extends AbstractModalGraphMouse
    * default zoom in/out values of 1.1 and 1/1.1.
    *
    * @param rc the rendering context
-   * @param nodeFactory used to construct vertices
+   * @param nodeFactory used to construct nodes
    * @param edgeFactory used to construct edges
    */
   public EditingModalGraphMouse(
@@ -50,7 +50,7 @@ public class EditingModalGraphMouse<N, E> extends AbstractModalGraphMouse
    * specified zoom in/out values.
    *
    * @param rc the rendering context
-   * @param nodeFactory used to construct vertices
+   * @param nodeFactory used to construct nodes
    * @param edgeFactory used to construct edges
    * @param in amount to zoom in by for each action
    * @param out amount to zoom out by for each action

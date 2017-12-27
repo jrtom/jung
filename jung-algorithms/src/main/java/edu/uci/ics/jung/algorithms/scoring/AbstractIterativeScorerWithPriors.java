@@ -15,55 +15,55 @@ import com.google.common.graph.Network;
 import java.util.function.Function;
 
 /**
- * An abstract class for iterative random-walk-based vertex scoring algorithms that have a fixed
- * probability, for each vertex, of 'jumping' to that vertex at each step in the algorithm (rather
- * than following a link out of that vertex).
+ * An abstract class for iterative random-walk-based node scoring algorithms that have a fixed
+ * probability, for each node, of 'jumping' to that node at each step in the algorithm (rather than
+ * following a link out of that node).
  *
- * @param <V> the vertex type
+ * @param <V> the node type
  * @param <E> the edge type
  * @param <S> the score type
  */
 public abstract class AbstractIterativeScorerWithPriors<V, E, S>
-    extends AbstractIterativeScorer<V, E, S> implements VertexScorer<V, S> {
+    extends AbstractIterativeScorer<V, E, S> implements NodeScorer<V, S> {
   /**
-   * The prior probability of each vertex being visited on a given 'jump' (non-link-following) step.
+   * The prior probability of each node being visited on a given 'jump' (non-link-following) step.
    */
-  protected Function<? super V, ? extends S> vertex_priors;
+  protected Function<? super V, ? extends S> node_priors;
 
   /** The probability of making a 'jump' at each step. */
   protected double alpha;
 
   /**
-   * Creates an instance for the specified graph, edge weights, vertex priors, and jump probability.
+   * Creates an instance for the specified graph, edge weights, node priors, and jump probability.
    *
-   * @param g the graph whose vertices are to be assigned scores
+   * @param g the graph whose nodes are to be assigned scores
    * @param edge_weights the edge weights to use in the score assignment
-   * @param vertex_priors the prior probabilities of each vertex being 'jumped' to
+   * @param node_priors the prior probabilities of each node being 'jumped' to
    * @param alpha the probability of making a 'jump' at each step
    */
   public AbstractIterativeScorerWithPriors(
       Network<V, E> g,
       Function<? super E, ? extends Number> edge_weights,
-      Function<? super V, ? extends S> vertex_priors,
+      Function<? super V, ? extends S> node_priors,
       double alpha) {
     super(g, edge_weights);
-    this.vertex_priors = vertex_priors;
+    this.node_priors = node_priors;
     this.alpha = alpha;
     initialize();
   }
 
   /**
-   * Creates an instance for the specified graph, vertex priors, and jump probability, with edge
+   * Creates an instance for the specified graph, node priors, and jump probability, with edge
    * weights specified by the subclass.
    *
-   * @param g the graph whose vertices are to be assigned scores
-   * @param vertex_priors the prior probabilities of each vertex being 'jumped' to
+   * @param g the graph whose nodes are to be assigned scores
+   * @param node_priors the prior probabilities of each node being 'jumped' to
    * @param alpha the probability of making a 'jump' at each step
    */
   public AbstractIterativeScorerWithPriors(
-      Network<V, E> g, Function<V, ? extends S> vertex_priors, double alpha) {
+      Network<V, E> g, Function<V, ? extends S> node_priors, double alpha) {
     super(g);
-    this.vertex_priors = vertex_priors;
+    this.node_priors = node_priors;
     this.alpha = alpha;
     initialize();
   }
@@ -76,27 +76,27 @@ public abstract class AbstractIterativeScorerWithPriors<V, E, S>
     // (output and current are swapped before each step(), so current will
     // have priors when update()s start happening)
     for (V v : graph.nodes()) {
-      setOutputValue(v, getVertexPrior(v));
+      setOutputValue(v, getNodePrior(v));
     }
   }
 
   /**
    * Returns the prior probability for <code>v</code>.
    *
-   * @param v the vertex whose prior probability is being queried
+   * @param v the node whose prior probability is being queried
    * @return the prior probability for <code>v</code>
    */
-  protected S getVertexPrior(V v) {
-    return vertex_priors.apply(v);
+  protected S getNodePrior(V v) {
+    return node_priors.apply(v);
   }
 
   /**
-   * Returns a Function which maps each vertex to its prior probability.
+   * Returns a Function which maps each node to its prior probability.
    *
-   * @return a Function which maps each vertex to its prior probability
+   * @return a Function which maps each node to its prior probability
    */
-  public Function<? super V, ? extends S> getVertexPriors() {
-    return vertex_priors;
+  public Function<? super V, ? extends S> getNodePriors() {
+    return node_priors;
   }
 
   /**

@@ -23,13 +23,13 @@ import java.util.Set;
 import java.util.function.Function;
 
 /**
- * Assigns scores to vertices according to their 'voltage' in an approximate solution to the
- * Kirchoff equations. This is accomplished by tying "source" vertices to specified positive
- * voltages, "sink" vertices to 0 V, and iteratively updating the voltage of each other vertex to
- * the (weighted) average of the voltages of its neighbors.
+ * Assigns scores to nodes according to their 'voltage' in an approximate solution to the Kirchoff
+ * equations. This is accomplished by tying "source" nodes to specified positive voltages, "sink"
+ * nodes to 0 V, and iteratively updating the voltage of each other node to the (weighted) average
+ * of the voltages of its neighbors.
  *
  * <p>The resultant voltages will all be in the range <code>[0, max]</code> where <code>max</code>
- * is the largest voltage of any source vertex (in the absence of negative source voltages; see
+ * is the largest voltage of any source node (in the absence of negative source voltages; see
  * below).
  *
  * <p>A few notes about this algorithm's interpretation of the graph data:
@@ -47,7 +47,7 @@ import java.util.function.Function;
  * </ul>
  */
 public class VoltageScorer<V, E> extends AbstractIterativeScorer<V, E, Double>
-    implements VertexScorer<V, Double> {
+    implements NodeScorer<V, Double> {
   protected Map<V, ? extends Number> source_voltages;
   protected Set<V> sinks;
 
@@ -57,7 +57,7 @@ public class VoltageScorer<V, E> extends AbstractIterativeScorer<V, E, Double>
    * @param g the input graph
    * @param edge_weights the edge weights, representing conductivity
    * @param source_voltages the (fixed) voltage for each source
-   * @param sinks the vertices whose voltages are tied to 0
+   * @param sinks the nodes whose voltages are tied to 0
    */
   public VoltageScorer(
       Network<V, E> g,
@@ -71,13 +71,13 @@ public class VoltageScorer<V, E> extends AbstractIterativeScorer<V, E, Double>
   }
 
   /**
-   * Creates an instance with the specified graph, edge weights, source vertices (each of whose
+   * Creates an instance with the specified graph, edge weights, source nodes (each of whose
    * 'voltages' are tied to 1), and sinks.
    *
    * @param g the input graph
    * @param edge_weights the edge weights, representing conductivity
-   * @param sources the vertices whose voltages are tied to 1
-   * @param sinks the vertices whose voltages are tied to 0
+   * @param sources the nodes whose voltages are tied to 1
+   * @param sinks the nodes whose voltages are tied to 0
    */
   public VoltageScorer(
       Network<V, E> g,
@@ -96,12 +96,12 @@ public class VoltageScorer<V, E> extends AbstractIterativeScorer<V, E, Double>
   }
 
   /**
-   * Creates an instance with the specified graph, source vertices (each of whose 'voltages' are
-   * tied to 1), and sinks. The outgoing edges for each vertex are assigned weights that sum to 1.
+   * Creates an instance with the specified graph, source nodes (each of whose 'voltages' are tied
+   * to 1), and sinks. The outgoing edges for each node are assigned weights that sum to 1.
    *
    * @param g the input graph
-   * @param sources the vertices whose voltages are tied to 1
-   * @param sinks the vertices whose voltages are tied to 0
+   * @param sources the nodes whose voltages are tied to 1
+   * @param sinks the nodes whose voltages are tied to 0
    */
   public VoltageScorer(Network<V, E> g, Set<V> sources, Set<V> sinks) {
     super(g);
@@ -117,11 +117,11 @@ public class VoltageScorer<V, E> extends AbstractIterativeScorer<V, E, Double>
 
   /**
    * Creates an instance with the specified graph, source voltages, and sinks. The outgoing edges
-   * for each vertex are assigned weights that sum to 1.
+   * for each node are assigned weights that sum to 1.
    *
    * @param g the input graph
    * @param source_voltages the (fixed) voltage for each source
-   * @param sinks the vertices whose voltages are tied to 0
+   * @param sinks the nodes whose voltages are tied to 0
    */
   public VoltageScorer(Network<V, E> g, Map<V, ? extends Number> source_voltages, Set<V> sinks) {
     super(g);
@@ -132,13 +132,13 @@ public class VoltageScorer<V, E> extends AbstractIterativeScorer<V, E, Double>
   }
 
   /**
-   * Creates an instance with the specified graph, edge weights, source, and sink. The source vertex
+   * Creates an instance with the specified graph, edge weights, source, and sink. The source node
    * voltage is tied to 1.
    *
    * @param g the input graph
    * @param edge_weights the edge weights, representing conductivity
-   * @param source the vertex whose voltage is tied to 1
-   * @param sink the vertex whose voltage is tied to 0
+   * @param source the node whose voltage is tied to 1
+   * @param sink the node whose voltage is tied to 0
    */
   public VoltageScorer(
       Network<V, E> g, Function<? super E, ? extends Number> edge_weights, V source, V sink) {
@@ -147,12 +147,12 @@ public class VoltageScorer<V, E> extends AbstractIterativeScorer<V, E, Double>
   }
 
   /**
-   * Creates an instance with the specified graph, edge weights, source, and sink. The source vertex
-   * voltage is tied to 1. The outgoing edges for each vertex are assigned weights that sum to 1.
+   * Creates an instance with the specified graph, edge weights, source, and sink. The source node
+   * voltage is tied to 1. The outgoing edges for each node are assigned weights that sum to 1.
    *
    * @param g the input graph
-   * @param source the vertex whose voltage is tied to 1
-   * @param sink the vertex whose voltage is tied to 0
+   * @param source the node whose voltage is tied to 1
+   * @param sink the node whose voltage is tied to 0
    */
   public VoltageScorer(Network<V, E> g, V source, V sink) {
     this(g, ImmutableMap.of(source, 1.0), ImmutableSet.of(sink));
@@ -180,10 +180,10 @@ public class VoltageScorer<V, E> extends AbstractIterativeScorer<V, E, Double>
     for (Map.Entry<V, ? extends Number> entry : source_voltages.entrySet()) {
       V v = entry.getKey();
       Preconditions.checkArgument(
-          !sinks.contains(v), "Vertex " + v + " is incorrectly specified as both source and sink");
+          !sinks.contains(v), "Node " + v + " is incorrectly specified as both source and sink");
       double value = entry.getValue().doubleValue();
       Preconditions.checkArgument(
-          value > 0, "Source vertex " + v + " has non-positive voltage " + value);
+          value > 0, "Source node " + v + " has non-positive voltage " + value);
     }
 
     // set up initial voltages

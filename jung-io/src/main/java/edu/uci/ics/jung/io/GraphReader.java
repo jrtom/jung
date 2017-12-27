@@ -17,7 +17,7 @@ import com.google.common.graph.MutableNetwork;
  *
  * @author Nathan Mittler - nathan.mittler@gmail.com
  * @param <G> the graph type
- * @param <V> the vertex type the vertex type
+ * @param <V> the node type the node type
  * @param <V> the edge type the edge type
  */
 public interface GraphReader<G extends MutableNetwork<V, E>, V, E> {

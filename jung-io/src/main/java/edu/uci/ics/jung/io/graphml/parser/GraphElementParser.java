@@ -76,7 +76,7 @@ public class GraphElementParser<G extends MutableNetwork<V, E>, V, E>
         throw new GraphIOException("Element 'graph' is missing attribute 'edgedefault'");
       }
 
-      Map<String, V> idToVertexMap = new HashMap<String, V>();
+      Map<String, V> idToNodeMap = new HashMap<String, V>();
       Collection<EdgeMetadata> edgeMetadata = new LinkedList<EdgeMetadata>();
       //            Collection<HyperEdgeMetadata> hyperEdgeMetadata = new LinkedList<HyperEdgeMetadata>();
 
@@ -104,13 +104,13 @@ public class GraphElementParser<G extends MutableNetwork<V, E>, V, E>
             // Parse the node metadata
             NodeMetadata metadata = (NodeMetadata) getParser(name).parse(xmlEventReader, element);
 
-            // Create the vertex object and store it in the metadata
-            V vertex = getParserContext().createVertex(metadata);
-            metadata.setVertex(vertex);
-            idToVertexMap.put(metadata.getId(), vertex);
+            // Create the node object and store it in the metadata
+            V node = getParserContext().createNode(metadata);
+            metadata.setNode(node);
+            idToNodeMap.put(metadata.getId(), node);
 
             // Add it to the graph
-            graphMetadata.addNodeMetadata(vertex, metadata);
+            graphMetadata.addNodeMetadata(node, metadata);
 
           } else if (GraphMLConstants.EDGE_NAME.equals(name)) {
 
@@ -164,12 +164,12 @@ public class GraphElementParser<G extends MutableNetwork<V, E>, V, E>
       G graph = getParserContext().createGraph(graphMetadata);
       graphMetadata.setGraph(graph);
 
-      // Add all of the vertices to the graph object.
-      addVerticesToGraph(graph, idToVertexMap.values());
+      // Add all of the nodes to the graph object.
+      addNodesToGraph(graph, idToNodeMap.values());
 
       // Add the edges to the graph object.
-      addEdgesToGraph(graph, edgeMetadata, idToVertexMap);
-      //            addHyperEdgesToGraph(graph, hyperEdgeMetadata, idToVertexMap);
+      addEdgesToGraph(graph, edgeMetadata, idToNodeMap);
+      //            addHyperEdgesToGraph(graph, hyperEdgeMetadata, idToNodeMap);
 
       return graphMetadata;
 
@@ -180,16 +180,16 @@ public class GraphElementParser<G extends MutableNetwork<V, E>, V, E>
     return null;
   }
 
-  private void addVerticesToGraph(G graph, Collection<V> vertices) {
+  private void addNodesToGraph(G graph, Collection<V> nodes) {
 
-    for (V vertex : vertices) {
-      graph.addNode(vertex);
+    for (V node : nodes) {
+      graph.addNode(node);
     }
   }
 
   @SuppressWarnings("unchecked")
   private void addEdgesToGraph(
-      G graph, Collection<EdgeMetadata> metadata, Map<String, V> idToVertexMap)
+      G graph, Collection<EdgeMetadata> metadata, Map<String, V> idToNodeMap)
       throws GraphIOException {
 
     for (EdgeMetadata emd : metadata) {
@@ -197,12 +197,12 @@ public class GraphElementParser<G extends MutableNetwork<V, E>, V, E>
       // Get the edge out of the metadata
       E edge = (E) emd.getEdge();
 
-      // Get the vertices.
-      V source = idToVertexMap.get(emd.getSource());
-      V target = idToVertexMap.get(emd.getTarget());
+      // Get the nodes.
+      V source = idToNodeMap.get(emd.getSource());
+      V target = idToNodeMap.get(emd.getTarget());
       if (source == null || target == null) {
         throw new GraphIOException(
-            "edge references undefined source or target vertex. "
+            "edge references undefined source or target node. "
                 + "Source: "
                 + emd.getSource()
                 + ", Target: "
@@ -217,7 +217,7 @@ public class GraphElementParser<G extends MutableNetwork<V, E>, V, E>
   // TODO: hypergraph support
   //    @SuppressWarnings("unchecked")
   //    private void addHyperEdgesToGraph(G graph, Collection<HyperEdgeMetadata> metadata,
-  //            Map<String,V> idToVertexMap) throws GraphIOException {
+  //            Map<String,V> idToNodeMap) throws GraphIOException {
   //
   //        for (HyperEdgeMetadata emd : metadata) {
   //
@@ -228,10 +228,10 @@ public class GraphElementParser<G extends MutableNetwork<V, E>, V, E>
   //            List<V> verticies = new ArrayList<V>();
   //            List<EndpointMetadata> endpoints = emd.getEndpoints();
   //            for (EndpointMetadata ep : endpoints) {
-  //                V v = idToVertexMap.get(ep.getNode());
+  //                V v = idToNodeMap.get(ep.getNode());
   //                if (v == null) {
   //                    throw new GraphIOException(
-  //                            "hyperedge references undefined vertex: "
+  //                            "hyperedge references undefined node: "
   //                                    + ep.getNode());
   //                }
   //                verticies.add(v);

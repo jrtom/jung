@@ -35,7 +35,7 @@ import junit.framework.TestCase;
  * @author Tom Nelson - converted to jung2
  */
 public class PajekNetIOTest extends TestCase {
-  protected String[] vertex_labels = {"alpha", "beta", "gamma", "delta", "epsilon"};
+  protected String[] node_labels = {"alpha", "beta", "gamma", "delta", "epsilon"};
 
   Supplier<MutableNetwork<Number, Number>> directedGraphFactory =
       new Supplier<MutableNetwork<Number, Number>>() {
@@ -49,13 +49,13 @@ public class PajekNetIOTest extends TestCase {
           return NetworkBuilder.undirected().allowsSelfLoops(true).build();
         }
       };
-  Supplier<Number> vertexFactory;
+  Supplier<Number> nodeFactory;
   Supplier<Number> edgeFactory;
   PajekNetReader<MutableNetwork<Number, Number>, Number, Number> pnr;
 
   @Override
   protected void setUp() {
-    vertexFactory =
+    nodeFactory =
         new Supplier<Number>() {
           int n = 0;
 
@@ -73,7 +73,7 @@ public class PajekNetIOTest extends TestCase {
         };
     pnr =
         new PajekNetReader<MutableNetwork<Number, Number>, Number, Number>(
-            vertexFactory, edgeFactory);
+            nodeFactory, edgeFactory);
   }
 
   public void testNull() {}
@@ -89,7 +89,7 @@ public class PajekNetIOTest extends TestCase {
   }
 
   public void testNoLabels() throws IOException {
-    String test = "*Vertices 3\n1\n2\n3\n*Edges\n1 2\n2 2";
+    String test = "*Nodes 3\n1\n2\n3\n*Edges\n1 2\n2 2";
     Reader r = new StringReader(test);
 
     Network<Number, Number> g = pnr.load(r, undirectedGraphFactory);
@@ -125,7 +125,7 @@ public class PajekNetIOTest extends TestCase {
     assertEquals(graph1.nodes().size(), graph2.nodes().size());
     assertEquals(graph1.edges().size(), graph2.edges().size());
 
-    pnw.save(graph2, testFilename2, pnr.getVertexLabeller(), null, null);
+    pnw.save(graph2, testFilename2, pnr.getNodeLabeller(), null, null);
 
     compareIndexedGraphs(graph1, graph2);
 
@@ -170,7 +170,7 @@ public class PajekNetIOTest extends TestCase {
     assertEquals(graph1.nodes().size(), graph2.nodes().size());
     assertEquals(graph1.edges().size(), graph2.edges().size());
 
-    pnw.save(graph2, testFilename2, pnr.getVertexLabeller(), null, null);
+    pnw.save(graph2, testFilename2, pnr.getNodeLabeller(), null, null);
     compareIndexedGraphs(graph1, graph2);
 
     MutableNetwork<Number, Number> graph3 = pnr.load(testFilename2, undirectedGraphFactory);
@@ -187,7 +187,7 @@ public class PajekNetIOTest extends TestCase {
 
   /**
    * Tests to see whether these two graphs are structurally equivalent, based on the connectivity of
-   * the vertices with matching indices in each graph. Assumes a 0-based index.
+   * the nodes with matching indices in each graph. Assumes a 0-based index.
    *
    * @param g1
    * @param g2
@@ -230,7 +230,7 @@ public class PajekNetIOTest extends TestCase {
     }
 
     public String apply(V v) {
-      return vertex_labels[id.indexOf(v)];
+      return node_labels[id.indexOf(v)];
     }
   }
 }

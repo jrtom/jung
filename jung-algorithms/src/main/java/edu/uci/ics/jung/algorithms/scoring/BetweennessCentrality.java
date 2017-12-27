@@ -25,16 +25,16 @@ import java.util.Queue;
 import java.util.function.Function;
 
 /**
- * Computes betweenness centrality for each vertex and edge in the graph.
+ * Computes betweenness centrality for each node and edge in the graph.
  *
  * @see "Ulrik Brandes: A Faster Algorithm for Betweenness Centrality. Journal of Mathematical
  *     Sociology 25(2):163-177, 2001."
  */
-public class BetweennessCentrality<V, E> implements VertexScorer<V, Double>, EdgeScorer<E, Double> {
+public class BetweennessCentrality<V, E> implements NodeScorer<V, Double>, EdgeScorer<E, Double> {
   protected Network<V, E> graph;
-  protected Map<V, Double> vertex_scores;
+  protected Map<V, Double> node_scores;
   protected Map<E, Double> edge_scores;
-  protected Map<V, BetweennessData> vertex_data;
+  protected Map<V, BetweennessData> node_data;
 
   /**
    * Calculates betweenness scores based on the all-pairs unweighted shortest paths in the graph.
@@ -66,18 +66,18 @@ public class BetweennessCentrality<V, E> implements VertexScorer<V, Double>, Edg
     initialize(graph);
     computeBetweenness(
         new MapBinaryHeap<V>(
-            (v1, v2) -> Double.compare(vertex_data.get(v1).distance, vertex_data.get(v2).distance)),
+            (v1, v2) -> Double.compare(node_data.get(v1).distance, node_data.get(v2).distance)),
         edge_weights);
   }
 
   protected void initialize(Network<V, E> graph) {
     this.graph = graph;
-    this.vertex_scores = new HashMap<V, Double>();
+    this.node_scores = new HashMap<V, Double>();
     this.edge_scores = new HashMap<E, Double>();
-    this.vertex_data = new HashMap<V, BetweennessData>();
+    this.node_data = new HashMap<V, BetweennessData>();
 
     for (V v : graph.nodes()) {
-      this.vertex_scores.put(v, 0.0);
+      this.node_scores.put(v, 0.0);
     }
 
     for (E e : graph.edges()) {
@@ -88,13 +88,13 @@ public class BetweennessCentrality<V, E> implements VertexScorer<V, Double>, Edg
   protected void computeBetweenness(
       Queue<V> queue, Function<? super E, ? extends Number> edge_weights) {
     for (V v : graph.nodes()) {
-      // initialize the betweenness data for this new vertex
+      // initialize the betweenness data for this new node
       for (V s : graph.nodes()) {
-        this.vertex_data.put(s, new BetweennessData());
+        this.node_data.put(s, new BetweennessData());
       }
 
-      vertex_data.get(v).numSPs = 1;
-      vertex_data.get(v).distance = 0;
+      node_data.get(v).numSPs = 1;
+      node_data.get(v).distance = 0;
 
       Deque<V> stack = new ArrayDeque<V>();
       queue.offer(v);
@@ -103,7 +103,7 @@ public class BetweennessCentrality<V, E> implements VertexScorer<V, Double>, Edg
         //                V w = queue.remove();
         V w = queue.poll();
         stack.push(w);
-        BetweennessData w_data = vertex_data.get(w);
+        BetweennessData w_data = node_data.get(w);
 
         for (E e : graph.outEdges(w)) {
           V x = graph.incidentNodes(e).adjacentNode(w);
@@ -136,12 +136,12 @@ public class BetweennessCentrality<V, E> implements VertexScorer<V, Double>, Edg
           // if w's dist + edge weight = x's dist
           //   add e to x's incoming edge list
 
-          BetweennessData x_data = vertex_data.get(x);
+          BetweennessData x_data = node_data.get(x);
           double x_potential_dist = w_data.distance + wx_weight;
 
           if (x_data.distance < 0) {
             //                        queue.add(x);
-            //                        vertex_data.get(x).distance = vertex_data.get(w).distance + 1;
+            //                        node_data.get(x).distance = node_data.get(w).distance + 1;
             x_data.distance = x_potential_dist;
             queue.offer(x);
           }
@@ -157,12 +157,12 @@ public class BetweennessCentrality<V, E> implements VertexScorer<V, Double>, Edg
             // update x's position in queue
             ((MapBinaryHeap<V>) queue).update(x);
           }
-          //                  if (vertex_data.get(x).distance == vertex_data.get(w).distance + 1)
+          //                  if (node_data.get(x).distance == node_data.get(w).distance + 1)
           //
           //                    if (x_data.distance == x_potential_dist)
           //                    {
           //                        x_data.numSPs += w_data.numSPs;
-          ////                        vertex_data.get(x).predecessors.add(w);
+          ////                        node_data.get(x).predecessors.add(w);
           //                        x_data.incomingEdges.add(e);
           //                    }
         }
@@ -172,11 +172,11 @@ public class BetweennessCentrality<V, E> implements VertexScorer<V, Double>, Edg
             continue;
           }
           double e_weight = edge_weights.apply(e).doubleValue();
-          BetweennessData x_data = vertex_data.get(x);
+          BetweennessData x_data = node_data.get(x);
           double x_potential_dist = w_data.distance + e_weight;
           if (x_data.distance == x_potential_dist) {
             x_data.numSPs += w_data.numSPs;
-            //                        vertex_data.get(x).predecessors.add(w);
+            //                        node_data.get(x).predecessors.add(w);
             x_data.incomingEdges.add(e);
           }
         }
@@ -184,14 +184,14 @@ public class BetweennessCentrality<V, E> implements VertexScorer<V, Double>, Edg
       while (!stack.isEmpty()) {
         V x = stack.pop();
 
-        //    		    for (V w : vertex_data.get(x).predecessors)
-        for (E e : vertex_data.get(x).incomingEdges) {
+        //    		    for (V w : node_data.get(x).predecessors)
+        for (E e : node_data.get(x).incomingEdges) {
           V w = graph.incidentNodes(e).adjacentNode(x);
           double partialDependency =
-              vertex_data.get(w).numSPs
-                  / vertex_data.get(x).numSPs
-                  * (1.0 + vertex_data.get(x).dependency);
-          vertex_data.get(w).dependency += partialDependency;
+              node_data.get(w).numSPs
+                  / node_data.get(x).numSPs
+                  * (1.0 + node_data.get(x).dependency);
+          node_data.get(w).dependency += partialDependency;
           //    		        E w_x = graph.findEdge(w, x);
           //    		        double w_x_score = edge_scores.get(w_x).doubleValue();
           //    		        w_x_score += partialDependency;
@@ -200,18 +200,18 @@ public class BetweennessCentrality<V, E> implements VertexScorer<V, Double>, Edg
           edge_scores.put(e, e_score + partialDependency);
         }
         if (!x.equals(v)) {
-          double x_score = vertex_scores.get(x).doubleValue();
-          x_score += vertex_data.get(x).dependency;
-          vertex_scores.put(x, x_score);
+          double x_score = node_scores.get(x).doubleValue();
+          x_score += node_data.get(x).dependency;
+          node_scores.put(x, x_score);
         }
       }
     }
 
     if (!graph.isDirected()) {
       for (V v : graph.nodes()) {
-        double v_score = vertex_scores.get(v).doubleValue();
+        double v_score = node_scores.get(v).doubleValue();
         v_score /= 2.0;
-        vertex_scores.put(v, v_score);
+        node_scores.put(v, v_score);
       }
       for (E e : graph.edges()) {
         double e_score = edge_scores.get(e).doubleValue();
@@ -220,18 +220,18 @@ public class BetweennessCentrality<V, E> implements VertexScorer<V, Double>, Edg
       }
     }
 
-    vertex_data.clear();
+    node_data.clear();
   }
 
   //	protected void computeWeightedBetweenness(Function<E, ? extends Number> edge_weights)
   //	{
   //		for (V v : graph.nodes())
   //		{
-  //			// initialize the betweenness data for this new vertex
+  //			// initialize the betweenness data for this new node
   //			for (V s : graph.nodes())
-  //				this.vertex_data.put(s, new BetweennessData());
-  //            vertex_data.get(v).numSPs = 1;
-  //            vertex_data.get(v).distance = 0;
+  //				this.node_data.put(s, new BetweennessData());
+  //            node_data.get(v).numSPs = 1;
+  //            node_data.get(v).distance = 0;
   //
   //            Stack<V> stack = new Stack<V>();
   ////            Buffer<V> queue = new UnboundedFifoBuffer<V>();
@@ -250,27 +250,27 @@ public class BetweennessCentrality<V, E> implements VertexScorer<V, Double>, Edg
   ////                for(V x : graph.getSuccessors(w))
   //                for (E e : graph.getOutEdges(w))
   //                {
-  //                	// TODO (jrtom): change this to getOtherVertices(w, e)
+  //                	// TODO (jrtom): change this to getOtherNodes(w, e)
   //                	V x = graph.getOpposite(w, e);
   //                	if (x.equals(w))
   //                		continue;
   //                	double e_weight = edge_weights.transform(e).doubleValue();
   //
-  //                    if (vertex_data.get(x).distance < 0)
+  //                    if (node_data.get(x).distance < 0)
   //                    {
   ////                        queue.add(x);
   //                    	pqueue.add(v);
-  ////                        vertex_data.get(x).distance = vertex_data.get(w).distance + 1;
-  //                        vertex_data.get(x).distance =
-  //                        	vertex_data.get(w).distance + e_weight;
+  ////                        node_data.get(x).distance = node_data.get(w).distance + 1;
+  //                        node_data.get(x).distance =
+  //                        	node_data.get(w).distance + e_weight;
   //                    }
   //
-  ////                    if (vertex_data.get(x).distance == vertex_data.get(w).distance + 1)
-  //                    if (vertex_data.get(x).distance ==
-  //                    	vertex_data.get(w).distance + e_weight)
+  ////                    if (node_data.get(x).distance == node_data.get(w).distance + 1)
+  //                    if (node_data.get(x).distance ==
+  //                    	node_data.get(w).distance + e_weight)
   //                    {
-  //                        vertex_data.get(x).numSPs += vertex_data.get(w).numSPs;
-  //                        vertex_data.get(x).predecessors.add(w);
+  //                        node_data.get(x).numSPs += node_data.get(w).numSPs;
+  //                        node_data.get(x).predecessors.add(w);
   //                    }
   //                }
   //            }
@@ -280,12 +280,12 @@ public class BetweennessCentrality<V, E> implements VertexScorer<V, Double>, Edg
   //        if(graph instanceof UndirectedGraph)
   //            adjustUndirectedScores();
   //
-  //        vertex_data.clear();
+  //        node_data.clear();
   //	}
 
   @Override
-  public Double getVertexScore(V v) {
-    return vertex_scores.get(v);
+  public Double getNodeScore(V v) {
+    return node_scores.get(v);
   }
 
   @Override
@@ -294,8 +294,8 @@ public class BetweennessCentrality<V, E> implements VertexScorer<V, Double>, Edg
   }
 
   @Override
-  public Map<V, Double> vertexScores() {
-    return Collections.unmodifiableMap(vertex_scores);
+  public Map<V, Double> nodeScores() {
+    return Collections.unmodifiableMap(node_scores);
   }
 
   @Override

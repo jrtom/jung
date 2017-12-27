@@ -91,11 +91,11 @@ public class PluggableRenderContext<N, E> implements RenderContext<N, E> {
 
   /**
    * The CellRendererPane is used here just as it is in JTree and JTable, to allow a pluggable
-   * JLabel-based renderer for Vertex and Edge label strings and icons.
+   * JLabel-based renderer for Node and Edge label strings and icons.
    */
   protected CellRendererPane rendererPane = new CellRendererPane();
 
-  /** A default GraphLabelRenderer - picked Vertex labels are blue, picked edge labels are cyan */
+  /** A default GraphLabelRenderer - picked Node labels are blue, picked edge labels are cyan */
   protected NodeLabelRenderer nodeLabelRenderer = new DefaultNodeLabelRenderer(Color.blue);
 
   protected EdgeLabelRenderer edgeLabelRenderer = new DefaultEdgeLabelRenderer(Color.cyan);

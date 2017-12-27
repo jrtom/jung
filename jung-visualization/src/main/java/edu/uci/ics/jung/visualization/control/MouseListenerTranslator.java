@@ -40,7 +40,7 @@ public class MouseListenerTranslator<N, E> extends MouseAdapter {
 
   /**
    * Transform the point to the coordinate system in the VisualizationViewer, then use either
-   * PickSuuport (if available) or Layout to find a Vertex
+   * PickSuuport (if available) or Layout to find a Node
    *
    * @param point
    * @return

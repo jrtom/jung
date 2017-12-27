@@ -30,7 +30,7 @@ import javax.swing.*;
 
 /**
  * This demo shows how to use the node labels themselves as the node shapes. Additionally, it shows
- * html labels so they are multi-line, and gradient painting of the vertex labels.
+ * html labels so they are multi-line, and gradient painting of the node labels.
  *
  * @author Tom Nelson
  */
@@ -59,7 +59,7 @@ public class NodeLabelAsShapeDemo extends JPanel {
         new BaseVisualizationModel<>(graph, layoutAlgorithm, preferredSize);
     vv = new VisualizationViewer<>(visualizationModel, preferredSize);
 
-    // this class will provide both label drawing and vertex shapes
+    // this class will provide both label drawing and node shapes
     NodeLabelAsShapeRenderer<String, Number> vlasr =
         new NodeLabelAsShapeRenderer<>(visualizationModel, vv.getRenderContext());
 
@@ -67,7 +67,7 @@ public class NodeLabelAsShapeDemo extends JPanel {
     vv.getRenderContext()
         .setNodeLabelFunction(
             ((Function<String, String>) Object::toString)
-                .andThen(input -> "<html><center>Vertex<p>" + input));
+                .andThen(input -> "<html><center>Node<p>" + input));
     vv.getRenderContext().setNodeShapeFunction(vlasr);
     vv.getRenderContext().setNodeLabelRenderer(new DefaultNodeLabelRenderer(Color.red));
     vv.getRenderContext().setEdgeDrawPaintFunction(e -> Color.yellow);

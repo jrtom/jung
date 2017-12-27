@@ -31,8 +31,8 @@ import java.util.function.Function;
  * </ul>
  *
  * <p>Running time is: O(kmn) where k is the number of edges to remove, m is the total number of
- * edges, and n is the total number of vertices. For very sparse graphs the running time is closer
- * to O(kn^2) and for graphs with strong community structure, the complexity is even lower.
+ * edges, and n is the total number of nodes. For very sparse graphs the running time is closer to
+ * O(kn^2) and for graphs with strong community structure, the complexity is even lower.
  *
  * <p>This algorithm is a slight modification of the algorithm discussed below in that the number of
  * edges to be removed is parameterized.

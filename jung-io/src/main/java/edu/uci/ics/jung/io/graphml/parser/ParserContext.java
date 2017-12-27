@@ -22,7 +22,7 @@ import java.util.function.Function;
  *
  * @author Nathan Mittler - nathan.mittler@gmail.com
  * @param <G> The graph type
- * @param <V> The vertex type
+ * @param <V> The node type
  * @param <E> The edge type
  */
 public class ParserContext<G extends MutableNetwork<V, E>, V, E> {
@@ -30,7 +30,7 @@ public class ParserContext<G extends MutableNetwork<V, E>, V, E> {
   private final KeyMap keyMap;
   private final ElementParserRegistry<G, V, E> elementParserRegistry;
   private final Function<GraphMetadata, G> graphTransformer;
-  private final Function<NodeMetadata, V> vertexTransformer;
+  private final Function<NodeMetadata, V> nodeTransformer;
   private final Function<EdgeMetadata, E> edgeTransformer;
   //    private final Function<HyperEdgeMetadata, E> hyperEdgeTransformer;
 
@@ -38,13 +38,13 @@ public class ParserContext<G extends MutableNetwork<V, E>, V, E> {
       ElementParserRegistry<G, V, E> elementParserRegistry,
       KeyMap keyMap,
       Function<GraphMetadata, G> graphTransformer,
-      Function<NodeMetadata, V> vertexTransformer,
+      Function<NodeMetadata, V> nodeTransformer,
       Function<EdgeMetadata, E> edgeTransformer) {
     //            Function<HyperEdgeMetadata, E> hyperEdgeTransformer ) {
     this.elementParserRegistry = elementParserRegistry;
     this.keyMap = keyMap;
     this.graphTransformer = graphTransformer;
-    this.vertexTransformer = vertexTransformer;
+    this.nodeTransformer = nodeTransformer;
     this.edgeTransformer = edgeTransformer;
     //        this.hyperEdgeTransformer = hyperEdgeTransformer;
   }
@@ -61,8 +61,8 @@ public class ParserContext<G extends MutableNetwork<V, E>, V, E> {
     return graphTransformer.apply(metadata);
   }
 
-  public V createVertex(NodeMetadata metadata) {
-    return vertexTransformer.apply(metadata);
+  public V createNode(NodeMetadata metadata) {
+    return nodeTransformer.apply(metadata);
   }
 
   public E createEdge(EdgeMetadata metadata) {

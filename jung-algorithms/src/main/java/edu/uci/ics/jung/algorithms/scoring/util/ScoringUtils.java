@@ -16,16 +16,16 @@ import java.util.Collection;
 import java.util.function.Function;
 
 /**
- * Methods for assigning values (to be interpreted as prior probabilities) to vertices in the
- * context of random-walk-based scoring algorithms.
+ * Methods for assigning values (to be interpreted as prior probabilities) to nodes in the context
+ * of random-walk-based scoring algorithms.
  */
 public class ScoringUtils {
   /**
    * Assigns a probability of 1/<code>roots.size()</code> to each of the elements of <code>roots
    * </code>.
    *
-   * @param <V> the vertex type
-   * @param roots the vertices to be assigned nonzero prior probabilities
+   * @param <V> the node type
+   * @param roots the nodes to be assigned nonzero prior probabilities
    * @return a Function assigning a uniform prior to each element in {@code roots}
    */
   public static <V> Function<V, Double> getUniformRootPrior(Collection<V> roots) {
@@ -48,8 +48,8 @@ public class ScoringUtils {
    * Returns a Function that hub and authority values of 1/<code>roots.size()</code> to each element
    * of <code>roots</code>.
    *
-   * @param <V> the vertex type
-   * @param roots the vertices to be assigned nonzero scores
+   * @param <V> the node type
+   * @param roots the nodes to be assigned nonzero scores
    * @return a Function that assigns uniform prior hub/authority probabilities to each root
    */
   public static <V> Function<V, HITS.Scores> getHITSUniformRootPrior(Collection<V> roots) {

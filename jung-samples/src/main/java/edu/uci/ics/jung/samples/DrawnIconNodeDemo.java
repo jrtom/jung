@@ -24,11 +24,11 @@ import java.awt.*;
 import javax.swing.*;
 
 /**
- * A demo that shows drawn Icons as vertices
+ * A demo that shows drawn Icons as nodes
  *
  * @author Tom Nelson
  */
-public class DrawnIconVertexDemo {
+public class DrawnIconNodeDemo {
 
   /** the graph */
   Network<Integer, Number> graph;
@@ -36,13 +36,13 @@ public class DrawnIconVertexDemo {
   /** the visual component and renderer for the graph */
   VisualizationViewer<Integer, Number> vv;
 
-  public DrawnIconVertexDemo() {
+  public DrawnIconNodeDemo() {
 
     // create a simple graph for the demo
     graph = createGraph();
 
     vv = new VisualizationViewer<>(graph, new FRLayoutAlgorithm<>(), new Dimension(700, 700));
-    vv.getRenderContext().setNodeLabelFunction(v -> "Vertex " + v);
+    vv.getRenderContext().setNodeLabelFunction(v -> "Node " + v);
 
     vv.getRenderContext().setNodeLabelRenderer(new DefaultNodeLabelRenderer(Color.cyan));
     vv.getRenderContext().setEdgeLabelRenderer(new DefaultEdgeLabelRenderer(Color.cyan));
@@ -133,6 +133,6 @@ public class DrawnIconVertexDemo {
   }
 
   public static void main(String[] args) {
-    new DrawnIconVertexDemo();
+    new DrawnIconNodeDemo();
   }
 }

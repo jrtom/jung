@@ -24,9 +24,9 @@ import java.util.Map;
 import java.util.function.Function;
 
 /**
- * Renders Vertex Labels, but can also supply Shapes for vertices. This has the effect of making the
- * node label the actual node shape. The user will probably want to center the node label on the
- * node location.
+ * Renders Node Labels, but can also supply Shapes for nodes. This has the effect of making the node
+ * label the actual node shape. The user will probably want to center the node label on the node
+ * location.
  *
  * @author Tom Nelson
  * @param <N> the node type
@@ -50,22 +50,22 @@ public class NodeLabelAsShapeRenderer<N, E>
       NodeLabelRenderer graphLabelRenderer,
       Object value,
       boolean isSelected,
-      N vertex) {
+      N node) {
     return renderContext
         .getNodeLabelRenderer()
         .<N>getNodeLabelRendererComponent(
             renderContext.getScreenDevice(),
             value,
-            renderContext.getNodeFontFunction().apply(vertex),
+            renderContext.getNodeFontFunction().apply(node),
             isSelected,
-            vertex);
+            node);
   }
 
   /**
    * Labels the specified node with the specified label. Uses the font specified by this instance's
-   * <code>VertexFontFunction</code>. (If the font is unspecified, the existing font for the
-   * graphics context is used.) If node label centering is active, the label is centered on the
-   * position of the node; otherwise the label is offset slightly.
+   * <code>NodeFontFunction</code>. (If the font is unspecified, the existing font for the graphics
+   * context is used.) If node label centering is active, the label is centered on the position of
+   * the node; otherwise the label is offset slightly.
    */
   public void labelNode(
       RenderContext<N, E> renderContext,

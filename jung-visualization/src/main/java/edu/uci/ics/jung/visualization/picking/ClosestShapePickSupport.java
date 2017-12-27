@@ -26,7 +26,7 @@ import java.util.ConcurrentModificationException;
  *
  * <ul>
  *   <li>If the elements overlap, this mechanism may pick another element than the one that's "on
- *       top" (rendered last) if the pick point is closer to the center of an obscured vertex.
+ *       top" (rendered last) if the pick point is closer to the center of an obscured node.
  *   <li>If element shapes are not convex, then this mechanism may return <code>null</code> even if
  *       the pick point is inside some element's shape, if the pick point is closer to the center of
  *       another element.
@@ -94,7 +94,7 @@ public class ClosestShapePickSupport<N, E> implements NetworkElementAccessor<N, 
   public N getNode(LayoutModel<N, Point2D> layoutModel, double x, double y) {
     VisualizationModel<N, E, Point2D> visualizationModel = vv.getModel();
     //    LayoutModel<N, Point2D> layoutModel = visualizationModel.getLayoutModel();
-    // first, find the closest vertex to (x,y)
+    // first, find the closest node to (x,y)
     double minDistance = Double.MAX_VALUE;
     N closest = null;
     while (true) {
@@ -114,13 +114,13 @@ public class ClosestShapePickSupport<N, E> implements NetworkElementAccessor<N, 
       }
     }
 
-    // now check to see whether (x,y) is in the shape for this vertex.
+    // now check to see whether (x,y) is in the shape for this node.
 
-    // get the vertex shape
+    // get the node shape
     Shape shape = vv.getRenderContext().getNodeShapeFunction().apply(closest);
-    // get the vertex location
+    // get the node location
     Point2D p = layoutModel.apply(closest);
-    // transform the vertex location to screen coords
+    // transform the node location to screen coords
     p = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, p);
 
     double ox = x - p.getX();

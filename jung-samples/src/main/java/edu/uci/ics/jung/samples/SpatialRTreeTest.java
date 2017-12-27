@@ -84,7 +84,7 @@ public class SpatialRTreeTest extends JPanel {
         new EditingModalGraphMouse<>(vv.getRenderContext(), nodeFactory, edgeFactory);
 
     // the EditingGraphMouse will pass mouse event coordinates to the
-    // vertexLocations function to set the locations of the vertices as
+    // nodeLocations function to set the locations of the nodes as
     // they are created
     vv.setGraphMouse(graphMouse);
     vv.addKeyListener(graphMouse.getModeKeyListener());

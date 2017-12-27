@@ -138,7 +138,6 @@ public abstract class AbstractSplitter<T> {
             leastEnlargement = enlargement;
             winningUnion = Optional.of(union);
             winner = Optional.of(kid);
-            //                        winnerArea = unionArea;
           }
         } else if (enlargement < leastEnlargement) {
           // not tie for enlargement, pick smallest enlargement

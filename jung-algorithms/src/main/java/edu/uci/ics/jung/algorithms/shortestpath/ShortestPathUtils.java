@@ -24,9 +24,9 @@ public class ShortestPathUtils {
    *
    * @param graph the graph for which the shortest path is defined
    * @param sp holder of the shortest path information
-   * @param source the vertex from which the shortest path is measured
-   * @param target the vertex to which the shortest path is measured
-   * @param <V> the vertex type
+   * @param source the node from which the shortest path is measured
+   * @param target the node to which the shortest path is measured
+   * @param <V> the node type
    * @param <E> the edge type
    * @return the edges on the shortest path from {@code source} to {@code target}, in the order
    *     traversed

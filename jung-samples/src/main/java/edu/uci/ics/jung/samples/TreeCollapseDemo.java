@@ -304,17 +304,17 @@ public class TreeCollapseDemo extends JPanel {
   }
 
   /**
-   * a demo class that will create a vertex shape that is either a polygon or star. The number of
-   * sides corresponds to the number of vertices that were collapsed into the vertex represented by
-   * this shape.
+   * a demo class that will create a node shape that is either a polygon or star. The number of
+   * sides corresponds to the number of nodes that were collapsed into the node represented by this
+   * shape.
    *
    * @author Tom Nelson
-   * @param <V> the vertex type
+   * @param <V> the node type
    */
   class ClusterNodeShapeFunction<V> extends EllipseNodeShapeFunction<V> {
 
     ClusterNodeShapeFunction() {
-      setSizeTransformer(new ClusterVertexSizeFunction<>(20));
+      setSizeTransformer(new ClusterNodeSizeFunction<>(20));
     }
 
     @Override
@@ -334,16 +334,16 @@ public class TreeCollapseDemo extends JPanel {
   }
 
   /**
-   * A demo class that will make vertices larger if they represent a collapsed collection of
-   * original vertices
+   * A demo class that will make nodes larger if they represent a collapsed collection of original
+   * nodes
    *
    * @author Tom Nelson
-   * @param <V> the vertex type
+   * @param <V> the node type
    */
-  class ClusterVertexSizeFunction<V> implements Function<V, Integer> {
+  class ClusterNodeSizeFunction<V> implements Function<V, Integer> {
     int size;
 
-    public ClusterVertexSizeFunction(Integer size) {
+    public ClusterNodeSizeFunction(Integer size) {
       this.size = size;
     }
 

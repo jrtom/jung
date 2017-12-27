@@ -36,11 +36,11 @@ public class BasicNodeRenderer<N, E> implements Renderer.Node<N, E> {
   }
 
   /**
-   * Returns the vertex shape in layout coordinates.
+   * Returns the node shape in layout coordinates.
    *
-   * @param v the vertex whose shape is to be returned
+   * @param v the node whose shape is to be returned
    * @param coords the x and y view coordinates
-   * @return the vertex shape in view coordinates
+   * @return the node shape in view coordinates
    */
   protected Shape prepareFinalNodeShape(
       RenderContext<N, E> renderContext,
@@ -61,9 +61,9 @@ public class BasicNodeRenderer<N, E> implements Renderer.Node<N, E> {
     coords[0] = (int) x;
     coords[1] = (int) y;
     // create a transform that translates to the location of
-    // the vertex to be rendered
+    // the node to be rendered
     AffineTransform xform = AffineTransform.getTranslateInstance(x, y);
-    // transform the vertex shape with xtransform
+    // transform the node shape with xtransform
     shape = xform.createTransformedShape(shape);
     return shape;
   }
@@ -71,7 +71,7 @@ public class BasicNodeRenderer<N, E> implements Renderer.Node<N, E> {
   /**
    * Paint <code>v</code>'s icon on <code>g</code> at <code>(x,y)</code>.
    *
-   * @param v the vertex to be painted
+   * @param v the node to be painted
    */
   protected void paintIconForNode(
       RenderContext<N, E> renderContext,

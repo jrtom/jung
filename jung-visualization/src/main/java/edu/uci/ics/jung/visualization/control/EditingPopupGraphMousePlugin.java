@@ -15,7 +15,7 @@ import javax.swing.JMenu;
 import javax.swing.JPopupMenu;
 
 /**
- * a plugin that uses popup menus to create vertices, undirected edges, and directed edges.
+ * a plugin that uses popup menus to create nodes, undirected edges, and directed edges.
  *
  * @author Tom Nelson
  */

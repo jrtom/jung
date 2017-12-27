@@ -37,14 +37,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A demo that shows how collections of vertices can be collapsed into a single node. In this demo,
- * the vertices that are collapsed are those mouse-picked by the user. Any criteria could be used to
- * form the node collections to be collapsed, perhaps some common characteristic of those node
- * objects.
+ * A demo that shows how collections of nodes can be collapsed into a single node. In this demo, the
+ * nodes that are collapsed are those mouse-picked by the user. Any criteria could be used to form
+ * the node collections to be collapsed, perhaps some common characteristic of those node objects.
  *
- * <p>Note that the collection types don't use generics in this demo, because the vertices are of
- * two types: String for plain vertices, and {@code Network<String,Number>} for the collapsed
- * vertices.
+ * <p>Note that the collection types don't use generics in this demo, because the nodes are of two
+ * types: String for plain nodes, and {@code Network<String,Number>} for the collapsed nodes.
  *
  * @author Tom Nelson
  */
@@ -54,21 +52,21 @@ public class NodeCollapseDemo extends JPanel {
   private static final Logger log = LoggerFactory.getLogger(NodeCollapseDemo.class);
 
   String instructions =
-      "<html>Use the mouse to select multiple vertices"
+      "<html>Use the mouse to select multiple nodes"
           + "<p>either by dragging a region, or by shift-clicking"
-          + "<p>on multiple vertices."
-          + "<p>After you select vertices, use the Collapse button"
+          + "<p>on multiple nodes."
+          + "<p>After you select nodes, use the Collapse button"
           + "<p>to combine them into a single node."
           + "<p>Select a 'collapsed' node and use the Expand button"
-          + "<p>to restore the collapsed vertices."
+          + "<p>to restore the collapsed nodes."
           + "<p>The Restore button will restore the original graph."
-          + "<p>If you select 2 (and only 2) vertices, then press"
+          + "<p>If you select 2 (and only 2) nodes, then press"
           + "<p>the Compress Edges button, parallel edges between"
-          + "<p>those two vertices will no longer be expanded."
-          + "<p>If you select 2 (and only 2) vertices, then press"
+          + "<p>those two nodes will no longer be expanded."
+          + "<p>If you select 2 (and only 2) nodes, then press"
           + "<p>the Expand Edges button, parallel edges between"
-          + "<p>those two vertices will be expanded."
-          + "<p>You can drag the vertices with the mouse."
+          + "<p>those two nodes will be expanded."
+          + "<p>You can drag the nodes with the mouse."
           + "<p>Use the 'Picking'/'Transforming' combo-box to switch"
           + "<p>between picking and transforming mode.</html>";
   /** the graph */
@@ -249,8 +247,8 @@ public class NodeCollapseDemo extends JPanel {
 
   /**
    * a demo class that will create a node shape that is either a polygon or star. The number of
-   * sides corresponds to the number of vertices that were collapsed into the node represented by
-   * this shape.
+   * sides corresponds to the number of nodes that were collapsed into the node represented by this
+   * shape.
    *
    * @author Tom Nelson
    * @param <V> the node type
@@ -258,7 +256,7 @@ public class NodeCollapseDemo extends JPanel {
   class ClusterNodeShapeFunction<V> extends EllipseNodeShapeFunction<V> {
 
     ClusterNodeShapeFunction() {
-      setSizeTransformer(new ClusterVertexSizeFunction<V>(20));
+      setSizeTransformer(new ClusterNodeSizeFunction<V>(20));
     }
 
     @Override
@@ -277,16 +275,16 @@ public class NodeCollapseDemo extends JPanel {
   }
 
   /**
-   * A demo class that will make vertices larger if they represent a collapsed collection of
-   * original vertices
+   * A demo class that will make nodes larger if they represent a collapsed collection of original
+   * nodes
    *
    * @author Tom Nelson
    * @param <V> the node type
    */
-  class ClusterVertexSizeFunction<V> implements Function<V, Integer> {
+  class ClusterNodeSizeFunction<V> implements Function<V, Integer> {
     int size;
 
-    public ClusterVertexSizeFunction(Integer size) {
+    public ClusterNodeSizeFunction(Integer size) {
       this.size = size;
     }
 

@@ -19,9 +19,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The default implementation of the Renderer used by the VisualizationViewer. Default Vertex and
- * Edge Renderers are supplied, or the user may set custom values. The Vertex and Edge renderers are
- * used in the renderNode and renderEdge methods, which are called in the render loop of the
+ * The default implementation of the Renderer used by the VisualizationViewer. Default Node and Edge
+ * Renderers are supplied, or the user may set custom values. The Node and Edge renderers are used
+ * in the renderNode and renderEdge methods, which are called in the render loop of the
  * VisualizationViewer.
  *
  * @author Tom Nelson
@@ -82,7 +82,7 @@ public class BasicRenderer<N, E> implements Renderer<N, E> {
       renderContext.getScreenDevice().repaint();
     }
 
-    // paint all the vertices
+    // paint all the nodes
     try {
       log.trace("the visibleNodes are {}", visibleNodes);
 
@@ -109,7 +109,7 @@ public class BasicRenderer<N, E> implements Renderer<N, E> {
       renderContext.getScreenDevice().repaint();
     }
 
-    // paint all the vertices
+    // paint all the nodes
     try {
       for (N v : network.nodes()) {
         renderNode(renderContext, visualizationModel, v);
@@ -168,12 +168,12 @@ public class BasicRenderer<N, E> implements Renderer<N, E> {
     this.edgeLabelRenderer = edgeLabelRenderer;
   }
 
-  /** @return the vertexLabelRenderer */
+  /** @return the nodeLabelRenderer */
   public NodeLabel<N, E> getNodeLabelRenderer() {
     return nodeLabelRenderer;
   }
 
-  /** @param nodeLabelRenderer the vertexLabelRenderer to set */
+  /** @param nodeLabelRenderer the nodeLabelRenderer to set */
   public void setNodeLabelRenderer(NodeLabel<N, E> nodeLabelRenderer) {
     this.nodeLabelRenderer = nodeLabelRenderer;
   }
@@ -183,7 +183,7 @@ public class BasicRenderer<N, E> implements Renderer<N, E> {
     return edgeRenderer;
   }
 
-  /** @return the vertexRenderer */
+  /** @return the nodeRenderer */
   public Node<N, E> getNodeRenderer() {
     return nodeRenderer;
   }

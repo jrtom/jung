@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * MagnifyShapeTransformer extends MagnifyTransformer and adds implementations for methods in
- * ShapeTransformer. It modifies the shapes (Vertex, Edge, and Arrowheads) so that they are enlarged
+ * ShapeTransformer. It modifies the shapes (Node, Edge, and Arrowheads) so that they are enlarged
  * by the magnify transformation.
  *
  * @author Tom Nelson

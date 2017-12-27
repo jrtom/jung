@@ -14,8 +14,8 @@ import com.google.common.graph.Graph;
 /** A class consisting of static methods for calculating graph metrics. */
 public class Metrics {
   /**
-   * Returns a <code>Map</code> of vertices to their clustering coefficients. The clustering
-   * coefficient cc(v) of a vertex v is defined as follows:
+   * Returns a <code>Map</code> of nodes to their clustering coefficients. The clustering
+   * coefficient cc(v) of a node v is defined as follows:
    *
    * <ul>
    *   <li><code>degree(v) == {0,1}</code>: 0
@@ -29,9 +29,9 @@ public class Metrics {
    * ignored.
    *
    * @param graph the graph whose clustering coefficients are to be calculated
-   * @param <V> the vertex type
+   * @param <V> the node type
    * @param <E> the edge type
-   * @return the clustering coefficient for each vertex
+   * @return the clustering coefficient for each node
    * @see "The structure and function of complex networks, M.E.J. Newman,
    *     aps.arxiv.org/abs/cond-mat/0303516"
    */

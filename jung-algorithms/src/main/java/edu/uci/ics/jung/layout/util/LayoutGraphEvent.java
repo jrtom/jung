@@ -12,8 +12,8 @@ public class LayoutGraphEvent<N, P> extends LayoutEvent<N, P> {
 
   final Graph<N> graph;
 
-  public LayoutGraphEvent(N vertex, Graph<N> graph, P location) {
-    super(vertex, location);
+  public LayoutGraphEvent(N node, Graph<N> graph, P location) {
+    super(node, location);
     this.graph = graph;
   }
 

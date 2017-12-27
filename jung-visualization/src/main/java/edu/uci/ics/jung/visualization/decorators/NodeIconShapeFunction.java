@@ -52,7 +52,7 @@ public class NodeIconShapeFunction<V> implements Function<V, Shape> {
 
   /**
    * get the shape from the image. If not available, get the shape from the delegate
-   * VertexShapeFunction
+   * NodeShapeFunction
    */
   public Shape apply(V v) {
     Icon icon = iconMap.get(v);

@@ -93,7 +93,7 @@ public class BasicVisualizationServer<N, E> extends JPanel
   /** rendering hints used in drawing. Anti-aliasing is on by default */
   protected Map<Key, Object> renderingHints = new HashMap<Key, Object>();
 
-  /** holds the state of which vertices of the graph are currently 'picked' */
+  /** holds the state of which nodes of the graph are currently 'picked' */
   protected PickedState<N> pickedNodeState;
 
   /** holds the state of which edges of the graph are currently 'picked' */

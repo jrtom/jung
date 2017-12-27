@@ -50,8 +50,8 @@ public class ShortestPathDemo extends JPanel {
         new VisualizationViewer<>(mGraph, layoutAlgorithm, new Dimension(1000, 1000));
     vv.setBackground(Color.WHITE);
 
-    vv.getRenderContext().setNodeDrawPaintFunction(new MyVertexDrawPaintFunction<>());
-    vv.getRenderContext().setNodeFillPaintFunction(new MyVertexFillPaintFunction<>());
+    vv.getRenderContext().setNodeDrawPaintFunction(new MyNodeDrawPaintFunction<>());
+    vv.getRenderContext().setNodeFillPaintFunction(new MyNodeFillPaintFunction<>());
     vv.getRenderContext().setEdgeDrawPaintFunction(new MyEdgePaintFunction());
     vv.getRenderContext().setEdgeStrokeFunction(new MyEdgeStrokeFunction());
     vv.getRenderContext().setNodeLabelFunction(Object::toString);
@@ -131,14 +131,14 @@ public class ShortestPathDemo extends JPanel {
   }
 
   /** @author danyelf */
-  public class MyVertexDrawPaintFunction<V> implements Function<V, Paint> {
+  public class MyNodeDrawPaintFunction<V> implements Function<V, Paint> {
 
     public Paint apply(V v) {
       return Color.black;
     }
   }
 
-  public class MyVertexFillPaintFunction<V> implements Function<V, Paint> {
+  public class MyNodeFillPaintFunction<V> implements Function<V, Paint> {
 
     public Paint apply(V v) {
       if (v == mFrom) {
@@ -165,7 +165,7 @@ public class ShortestPathDemo extends JPanel {
     jp.setBackground(Color.WHITE);
     jp.setLayout(new BoxLayout(jp, BoxLayout.PAGE_AXIS));
     jp.setBorder(BorderFactory.createLineBorder(Color.black, 3));
-    jp.add(new JLabel("Select a pair of vertices for which a shortest path will be displayed"));
+    jp.add(new JLabel("Select a pair of nodes for which a shortest path will be displayed"));
     JPanel jp2 = new JPanel();
     jp2.add(new JLabel("node from", SwingConstants.LEFT));
     jp2.add(getSelectionBox(true));
@@ -236,7 +236,7 @@ public class ShortestPathDemo extends JPanel {
 
   /** @return the graph for this demo */
   Network<String, Number> getGraph() {
-    Graph<String> g = new EppsteinPowerLawGenerator<>(new VertexFactory(), 26, 50, 50).get();
+    Graph<String> g = new EppsteinPowerLawGenerator<>(new NodeFactory(), 26, 50, 50).get();
     // convert this graph into a Network because the visualization system can't handle Graphs (yet)
     MutableNetwork<String, Number> graph =
         NetworkBuilder.undirected().nodeOrder(ElementOrder.<String>natural()).build();
@@ -248,7 +248,7 @@ public class ShortestPathDemo extends JPanel {
     return graph;
   }
 
-  static class VertexFactory implements Supplier<String> {
+  static class NodeFactory implements Supplier<String> {
     char a = 'a';
 
     public String get() {

@@ -32,9 +32,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  * PickingGraphMousePlugin supports the picking of graph elements with the mouse. MouseButtonOne
- * picks a single node or edge, and MouseButtonTwo adds to the set of selected Vertices or EdgeType.
- * If a Vertex is selected and the mouse is dragged while on the selected Vertex, then that Vertex
- * will be repositioned to follow the mouse until the button is released.
+ * picks a single node or edge, and MouseButtonTwo adds to the set of selected Nodes or EdgeType. If
+ * a Node is selected and the mouse is dragged while on the selected Node, then that Node will be
+ * repositioned to follow the mouse until the button is released.
  *
  * @author Tom Nelson
  */
@@ -42,19 +42,19 @@ public class PickingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
     implements MouseListener, MouseMotionListener {
 
   private static final Logger log = LoggerFactory.getLogger(PickingGraphMousePlugin.class);
-  /** the picked Vertex, if any */
-  protected N vertex;
+  /** the picked Node, if any */
+  protected N node;
 
   /** the picked Edge, if any */
   protected E edge;
 
-  /** controls whether the Vertices may be moved with the mouse */
+  /** controls whether the Nodes may be moved with the mouse */
   protected boolean locked;
 
   /** additional modifiers for the action of adding to an existing selection */
   protected int addToSelectionModifiers;
 
-  /** used to draw a rectangle to contain picked vertices */
+  /** used to draw a rectangle to contain picked nodes */
   protected Rectangle2D viewRectangle = new Rectangle2D.Float();
   // viewRectangle projected onto the layout coordinate system
   protected Shape layoutTargetShape = viewRectangle;
@@ -96,7 +96,7 @@ public class PickingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
   }
 
   /**
-   * a Paintable to draw the rectangle used to pick multiple Vertices
+   * a Paintable to draw the rectangle used to pick multiple Nodes
    *
    * @author Tom Nelson
    */
@@ -115,13 +115,13 @@ public class PickingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
   }
 
   /**
-   * For primary modifiers (default, MouseButton1): pick a single Vertex or Edge that is under the
-   * mouse pointer. If no Vertex or edge is under the pointer, unselect all picked Vertices and
-   * edges, and set up to draw a rectangle for multiple selection of contained Vertices. For
-   * additional selection (default Shift+MouseButton1): Add to the selection, a single Vertex or
-   * Edge that is under the mouse pointer. If a previously picked Vertex or Edge is under the
-   * pointer, it is un-picked. If no node or Edge is under the pointer, set up to draw a multiple
-   * selection rectangle (as above) but do not unpick previously picked elements.
+   * For primary modifiers (default, MouseButton1): pick a single Node or Edge that is under the
+   * mouse pointer. If no Node or edge is under the pointer, unselect all picked Nodes and edges,
+   * and set up to draw a rectangle for multiple selection of contained Nodes. For additional
+   * selection (default Shift+MouseButton1): Add to the selection, a single Node or Edge that is
+   * under the mouse pointer. If a previously picked Node or Edge is under the pointer, it is
+   * un-picked. If no node or Edge is under the pointer, set up to draw a multiple selection
+   * rectangle (as above) but do not unpick previously picked elements.
    *
    * @param e the event
    */
@@ -150,13 +150,13 @@ public class PickingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
       log.trace("layout coords of mouse click {}", layoutPoint);
       if (e.getModifiers() == modifiers) {
 
-        vertex = pickSupport.getNode(layoutModel, layoutPoint);
-        log.trace("mousePressed set the vertex to {}", vertex);
-        if (vertex != null) {
+        node = pickSupport.getNode(layoutModel, layoutPoint);
+        log.trace("mousePressed set the node to {}", node);
+        if (node != null) {
           // picked a node
-          if (pickedNodeState.isPicked(vertex) == false) {
+          if (pickedNodeState.isPicked(node) == false) {
             pickedNodeState.clear();
-            pickedNodeState.pick(vertex, true);
+            pickedNodeState.pick(node, true);
           }
 
         } else if ((edge = pickSupport.getEdge(layoutModel, layoutPoint)) != null) {
@@ -173,26 +173,26 @@ public class PickingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
       } else if (e.getModifiers() == addToSelectionModifiers) {
         vv.addPostRenderPaintable(lensPaintable);
 
-        vertex = pickSupport.getNode(layoutModel, layoutPoint);
-        log.trace("mousePressed with add set the vertex to {}", vertex);
-        if (vertex != null) {
-          boolean wasThere = pickedNodeState.pick(vertex, !pickedNodeState.isPicked(vertex));
+        node = pickSupport.getNode(layoutModel, layoutPoint);
+        log.trace("mousePressed with add set the node to {}", node);
+        if (node != null) {
+          boolean wasThere = pickedNodeState.pick(node, !pickedNodeState.isPicked(node));
           if (wasThere) {
-            log.trace("already, so now vertex will be null");
-            vertex = null;
+            log.trace("already, so now node will be null");
+            node = null;
           }
         } else if ((edge = pickSupport.getEdge(layoutModel, layoutPoint)) != null) {
           pickedEdgeState.pick(edge, !pickedEdgeState.isPicked(edge));
         }
       }
     }
-    if (vertex != null) {
+    if (node != null) {
       e.consume();
     }
   }
 
   /**
-   * If the mouse is dragging a rectangle, pick the Vertices contained in that rectangle
+   * If the mouse is dragging a rectangle, pick the Nodes contained in that rectangle
    *
    * <p>clean up settings from mousePressed
    */
@@ -208,20 +208,20 @@ public class PickingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
     if (e.getModifiers() == modifiers) {
       if (down != null) {
 
-        if (vertex == null && heyThatsTooClose(down, out, 5) == false) {
-          pickContainedVertices(vv, layoutTargetShape, true);
+        if (node == null && heyThatsTooClose(down, out, 5) == false) {
+          pickContainedNodes(vv, layoutTargetShape, true);
         }
       }
     } else if (e.getModifiers() == this.addToSelectionModifiers) {
       if (down != null) {
 
-        if (vertex == null && heyThatsTooClose(down, out, 5) == false) {
-          pickContainedVertices(vv, layoutTargetShape, false);
+        if (node == null && heyThatsTooClose(down, out, 5) == false) {
+          pickContainedNodes(vv, layoutTargetShape, false);
         }
       }
     }
     log.trace("down:{} out:{}", down, out);
-    if (vertex != null && !down.equals(out)) {
+    if (node != null && !down.equals(out)) {
 
       // dragging points and changing their layout locations
       Point2D graphPoint = multiLayerTransformer.inverseTransform(out);
@@ -244,7 +244,7 @@ public class PickingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
     }
 
     down = null;
-    vertex = null;
+    node = null;
     edge = null;
     viewRectangle.setFrame(0, 0, 0, 0);
     layoutTargetShape = multiLayerTransformer.inverseTransform(viewRectangle);
@@ -253,8 +253,8 @@ public class PickingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
   }
 
   /**
-   * If the mouse is over a picked node, drag all picked vertices with the mouse. If the mouse is
-   * not over a Vertex, draw the rectangle to select multiple Vertices
+   * If the mouse is over a picked node, drag all picked nodes with the mouse. If the mouse is not
+   * over a Node, draw the rectangle to select multiple Nodes
    */
   @SuppressWarnings("unchecked")
   public void mouseDragged(MouseEvent e) {
@@ -269,7 +269,7 @@ public class PickingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
       Point p = e.getPoint();
       log.trace("view p for drag event is {}", p);
       log.trace("down is {}", down);
-      if (vertex != null) {
+      if (node != null) {
         // dragging points and changing their layout locations
         Point2D graphPoint = multiLayerTransformer.inverseTransform(p);
         log.trace("p in graph coords is {}", graphPoint);
@@ -295,7 +295,7 @@ public class PickingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
           updatePickingTargets(vv, multiLayerTransformer, down, out);
         }
       }
-      if (vertex != null) {
+      if (node != null) {
         e.consume();
       }
       vv.repaint();
@@ -364,15 +364,14 @@ public class PickingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
   }
 
   /**
-   * pick the vertices inside the rectangle created from points 'down' and 'out' (two diagonally
+   * pick the nodes inside the rectangle created from points 'down' and 'out' (two diagonally
    * opposed corners of the rectangle)
    *
    * @param vv the viewer containing the layout and picked state
-   * @param pickTarget - the shape to pick vertices in (layout coordinate system)
+   * @param pickTarget - the shape to pick nodes in (layout coordinate system)
    * @param clear whether to reset existing picked state
    */
-  protected void pickContainedVertices(
-      VisualizationViewer<N, E> vv, Shape pickTarget, boolean clear) {
+  protected void pickContainedNodes(VisualizationViewer<N, E> vv, Shape pickTarget, boolean clear) {
     PickedState<N> pickedNodeState = vv.getPickedNodeState();
 
     if (pickedNodeState != null) {

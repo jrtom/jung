@@ -29,9 +29,9 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 /**
- * Simple generator of graphs in the shape of an m x n lattice where each vertex is adjacent to each
- * of its neighbors (to the left, right, up, and down). May be toroidal, in which case the vertices
- * on the boundaries are connected to their counterparts on the opposite boundaries as well.
+ * Simple generator of graphs in the shape of an m x n lattice where each node is adjacent to each
+ * of its neighbors (to the left, right, up, and down). May be toroidal, in which case the nodes on
+ * the boundaries are connected to their counterparts on the opposite boundaries as well.
  *
  * @author Joshua O'Madadhain
  */
@@ -75,7 +75,7 @@ public class Lattice2DGenerator<N, E> {
     Preconditions.checkNotNull(nodeFactory);
     Preconditions.checkNotNull(edgeFactory);
 
-    int vertex_count = rowCount * colCount;
+    int node_count = rowCount * colCount;
 
     int boundary_adjustment = (toroidal ? 0 : 1);
     int edge_count =
@@ -89,9 +89,9 @@ public class Lattice2DGenerator<N, E> {
     NetworkBuilder<Object, Object> builder =
         directed ? NetworkBuilder.directed() : NetworkBuilder.undirected();
     MutableNetwork<N, E> graph =
-        builder.expectedNodeCount(vertex_count).expectedEdgeCount(edge_count).build();
+        builder.expectedNodeCount(node_count).expectedEdgeCount(edge_count).build();
 
-    for (int i = 0; i < vertex_count; i++) {
+    for (int i = 0; i < node_count; i++) {
       N v = nodeFactory.get();
       graph.addNode(v);
     }
@@ -190,16 +190,16 @@ public class Lattice2DGenerator<N, E> {
     }
 
     /**
-     * @param i index of the vertex whose row we want
-     * @return the row in which the vertex with index {@code i} is found
+     * @param i index of the node whose row we want
+     * @return the row in which the node with index {@code i} is found
      */
     private int getRow(int i) {
       return i / colCount;
     }
 
     /**
-     * @param i index of the vertex whose column we want
-     * @return the column in which the vertex with index {@code i} is found
+     * @param i index of the node whose column we want
+     * @return the column in which the node with index {@code i} is found
      */
     private int getCol(int i) {
       return i % colCount;

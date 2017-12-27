@@ -12,7 +12,7 @@ import java.util.function.Supplier;
 import javax.swing.JComponent;
 
 /**
- * A plugin that can create vertices, undirected edges, and directed edges using mouse gestures.
+ * A plugin that can create nodes, undirected edges, and directed edges using mouse gestures.
  *
  * <p>nodeSupport and edgeSupport member classes are responsible for actually creating the new graph
  * elements, and for repainting the view when changes were made.
@@ -36,7 +36,7 @@ public class EditingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
    * Creates an instance and prepares shapes for visual effects, using the default modifiers of
    * BUTTON1_MASK.
    *
-   * @param nodeFactory for creating vertices
+   * @param nodeFactory for creating nodes
    * @param edgeFactory for creating edges
    */
   public EditingGraphMousePlugin(Supplier<N> nodeFactory, Supplier<E> edgeFactory) {
@@ -47,7 +47,7 @@ public class EditingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
    * Creates an instance and prepares shapes for visual effects.
    *
    * @param modifiers the mouse event modifiers to use
-   * @param nodeFactory for creating vertices
+   * @param nodeFactory for creating nodes
    * @param edgeFactory for creating edges
    */
   public EditingGraphMousePlugin(int modifiers, Supplier<N> nodeFactory, Supplier<E> edgeFactory) {

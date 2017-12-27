@@ -21,7 +21,7 @@ import java.util.Random;
 import java.util.function.Supplier;
 
 /**
- * Generates a random graph using the Erdos-Renyi binomial model (each pair of vertices is connected
+ * Generates a random graph using the Erdos-Renyi binomial model (each pair of nodes is connected
  * with probability p).
  *
  * @author William Giordano, Scott White, Joshua O'Madadhain
@@ -33,13 +33,13 @@ public class ErdosRenyiGenerator<N> {
   Supplier<N> nodeSupplier;
 
   /**
-   * @param nodeSupplier factory for vertices of the appropriate type
-   * @param nodeCount number of vertices graph should have
-   * @param p Connection's probability between 2 vertices
+   * @param nodeSupplier factory for nodes of the appropriate type
+   * @param nodeCount number of nodes graph should have
+   * @param p Connection's probability between 2 nodes
    */
   public ErdosRenyiGenerator(Supplier<N> nodeSupplier, int nodeCount, double p) {
     this.nodeSupplier = checkNotNull(nodeSupplier);
-    checkArgument(nodeCount > 0, "Number of vertices must be positive");
+    checkArgument(nodeCount > 0, "Number of nodes must be positive");
     checkArgument(p >= 0 && p <= 1, "Probability of connection must be in [0, 1]");
     this.nodeCount = nodeCount;
     edgeConnectionProbability = p;
@@ -47,7 +47,7 @@ public class ErdosRenyiGenerator<N> {
   }
 
   /**
-   * Returns a graph in which each pair of vertices is connected by an undirected edge with the
+   * Returns a graph in which each pair of nodes is connected by an undirected edge with the
    * probability specified by the constructor.
    */
   public Graph<N> get() {

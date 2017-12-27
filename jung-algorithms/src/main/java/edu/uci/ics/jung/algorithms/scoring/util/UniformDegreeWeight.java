@@ -15,7 +15,7 @@ import java.util.function.Function;
  * An edge weight function that assigns weights as uniform transition probabilities:
  *
  * <ul>
- *   <li>for undirected edges, returns 1/degree(v) (where 'v' is the vertex in the VEPair)
+ *   <li>for undirected edges, returns 1/degree(v) (where 'v' is the node in the VEPair)
  *   <li>for directed edges, returns 1/outdegree(source(e)) (where 'e' is the edge in the VEPair)
  */
 public class UniformDegreeWeight<V, E> implements Function<VEPair<V, E>, Double> {

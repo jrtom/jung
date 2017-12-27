@@ -69,11 +69,11 @@ public class ObservableNetwork<N, E> implements MutableNetwork<N, E> {
   }
 
   @Override
-  public boolean addNode(N vertex) {
-    boolean state = delegate.addNode(vertex);
+  public boolean addNode(N node) {
+    boolean state = delegate.addNode(node);
     if (state) {
       NetworkEvent<N, E> evt =
-          new NetworkEvent.Node<>(delegate, NetworkEvent.Type.VERTEX_ADDED, vertex);
+          new NetworkEvent.Node<>(delegate, NetworkEvent.Type.NODE_ADDED, node);
       fireGraphEvent(evt);
     }
     return state;
@@ -104,7 +104,7 @@ public class ObservableNetwork<N, E> implements MutableNetwork<N, E> {
     boolean state = delegate.removeNode(node);
     if (state) {
       NetworkEvent<N, E> evt =
-          new NetworkEvent.Node<N, E>(delegate, NetworkEvent.Type.VERTEX_REMOVED, (N) node);
+          new NetworkEvent.Node<N, E>(delegate, NetworkEvent.Type.NODE_REMOVED, (N) node);
       fireGraphEvent(evt);
     }
     return state;

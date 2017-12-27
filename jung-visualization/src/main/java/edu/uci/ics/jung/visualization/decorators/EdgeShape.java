@@ -81,7 +81,7 @@ public class EdgeShape<E> {
     return new Wedge(width);
   }
 
-  /** An edge shape that renders as a straight line between the vertex endpoints. */
+  /** An edge shape that renders as a straight line between the node endpoints. */
   public static class Line<N, E> extends EdgeShape<E>
       implements Function<Context<Network<N, E>, E>, Shape> {
     public Line() {}
@@ -101,7 +101,7 @@ public class EdgeShape<E> {
     return edgeIndexFunction == null ? 1 : edgeIndexFunction.getIndex(context);
   }
 
-  /** An edge shape that renders as a bent-line between the vertex endpoints. */
+  /** An edge shape that renders as a bent-line between the node endpoints. */
   public static class BentLine<N, E> extends ParallelEdgeShapeFunction<N, E> {
     public void setEdgeIndexFunction(EdgeIndexFunction<N, E> edgeIndexFunction) {
       this.edgeIndexFunction = edgeIndexFunction;
@@ -129,7 +129,7 @@ public class EdgeShape<E> {
     }
   }
 
-  /** An edge shape that renders as a QuadCurve between vertex endpoints. */
+  /** An edge shape that renders as a QuadCurve between node endpoints. */
   public static class QuadCurve<N, E> extends ParallelEdgeShapeFunction<N, E> {
     @Override
     public void setEdgeIndexFunction(EdgeIndexFunction<N, E> parallelEdgeIndexFunction) {
@@ -157,7 +157,7 @@ public class EdgeShape<E> {
   }
 
   /**
-   * An edge shape that renders as a CubicCurve between vertex endpoints. The two control points are
+   * An edge shape that renders as a CubicCurve between node endpoints. The two control points are
    * at (1/3*length, 2*controlY) and (2/3*length, controlY) giving a 'spiral' effect.
    */
   public static class CubicCurve<N, E> extends ParallelEdgeShapeFunction<N, E> {
@@ -186,7 +186,7 @@ public class EdgeShape<E> {
   }
 
   /**
-   * An edge shape that renders as a loop with its nadir at the center of the vertex. Parallel
+   * An edge shape that renders as a loop with its nadir at the center of the node. Parallel
    * instances will overlap.
    *
    * @author Tom Nelson
@@ -211,7 +211,7 @@ public class EdgeShape<E> {
   }
 
   /**
-   * An edge shape that renders as a loop with its nadir at the center of the vertex. Parallel
+   * An edge shape that renders as a loop with its nadir at the center of the node. Parallel
    * instances will not overlap.
    */
   public static class Loop<N, E> extends ParallelEdgeShapeFunction<N, E> {
@@ -223,7 +223,7 @@ public class EdgeShape<E> {
   }
 
   /**
-   * An edge shape that renders as an isosceles triangle whose apex is at the destination vertex for
+   * An edge shape that renders as an isosceles triangle whose apex is at the destination node for
    * directed edges, and as a "bowtie" shape for undirected edges.
    *
    * @author Joshua O'Madadhain
@@ -250,7 +250,7 @@ public class EdgeShape<E> {
   }
 
   /**
-   * An edge shape that renders as a diamond with its nadir at the center of the vertex. Parallel
+   * An edge shape that renders as a diamond with its nadir at the center of the node. Parallel
    * instances will not overlap.
    */
   public static class Box<N, E> extends ParallelEdgeShapeFunction<N, E> {
@@ -261,7 +261,7 @@ public class EdgeShape<E> {
     }
   }
 
-  /** An edge shape that renders as a bent-line between the vertex endpoints. */
+  /** An edge shape that renders as a bent-line between the node endpoints. */
   public static class Orthogonal<N, E> extends ParallelEdgeShapeFunction<N, E> {
     Box box;
 

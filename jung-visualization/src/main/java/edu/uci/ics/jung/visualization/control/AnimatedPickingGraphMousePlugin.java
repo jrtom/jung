@@ -34,8 +34,8 @@ import javax.swing.JComponent;
 public class AnimatedPickingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
     implements MouseListener, MouseMotionListener {
 
-  /** the picked Vertex */
-  protected N vertex;
+  /** the picked Node */
+  protected N node;
 
   /** Creates an instance with default modifiers of BUTTON1_MASK and CTRL_MASK */
   public AnimatedPickingGraphMousePlugin() {
@@ -53,7 +53,7 @@ public class AnimatedPickingGraphMousePlugin<N, E> extends AbstractGraphMousePlu
   }
 
   /**
-   * If the event occurs on a Vertex, pick that single Vertex
+   * If the event occurs on a Node, pick that single Node
    *
    * @param e the event
    */
@@ -67,11 +67,11 @@ public class AnimatedPickingGraphMousePlugin<N, E> extends AbstractGraphMousePlu
       if (pickSupport != null && pickedNodeState != null) {
         // p is the screen point for the mouse event
         Point2D p = e.getPoint();
-        vertex = pickSupport.getNode(layoutModel, p.getX(), p.getY());
-        if (vertex != null) {
-          if (pickedNodeState.isPicked(vertex) == false) {
+        node = pickSupport.getNode(layoutModel, p.getX(), p.getY());
+        if (node != null) {
+          if (pickedNodeState.isPicked(node) == false) {
             pickedNodeState.clear();
-            pickedNodeState.pick(vertex, true);
+            pickedNodeState.pick(node, true);
           }
         }
       }
@@ -90,10 +90,10 @@ public class AnimatedPickingGraphMousePlugin<N, E> extends AbstractGraphMousePlu
     if (e.getModifiers() == modifiers) {
       final VisualizationViewer<N, E> vv = (VisualizationViewer<N, E>) e.getSource();
       Point2D newCenter = null;
-      if (vertex != null) {
+      if (node != null) {
         // center the picked node
         LayoutModel<N, Point2D> layoutModel = vv.getModel().getLayoutModel();
-        newCenter = layoutModel.apply(vertex);
+        newCenter = layoutModel.apply(node);
       } else {
         // they did not pick a node to center, so
         // just center the graph

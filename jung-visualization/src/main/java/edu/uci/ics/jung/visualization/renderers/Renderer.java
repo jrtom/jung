@@ -16,8 +16,8 @@ import java.awt.Dimension;
 import java.awt.geom.Point2D;
 
 /**
- * The interface for drawing vertices, edges, and their labels. Implementations of this class can
- * set specific renderers for each element, allowing custom control of each.
+ * The interface for drawing nodes, edges, and their labels. Implementations of this class can set
+ * specific renderers for each element, allowing custom control of each.
  */
 public interface Renderer<N, E> {
 

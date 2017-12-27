@@ -43,22 +43,22 @@ public class BasicNodeLabelRenderer<N, E> implements Renderer.NodeLabel<N, E> {
       NodeLabelRenderer graphLabelRenderer,
       Object value,
       boolean isSelected,
-      N vertex) {
+      N node) {
     return renderContext
         .getNodeLabelRenderer()
         .<N>getNodeLabelRendererComponent(
             renderContext.getScreenDevice(),
             value,
-            renderContext.getNodeFontFunction().apply(vertex),
+            renderContext.getNodeFontFunction().apply(node),
             isSelected,
-            vertex);
+            node);
   }
 
   /**
    * Labels the specified node with the specified label. Uses the font specified by this instance's
-   * <code>VertexFontFunction</code>. (If the font is unspecified, the existing font for the
-   * graphics context is used.) If node label centering is active, the label is centered on the
-   * position of the node; otherwise the label is offset slightly.
+   * <code>NodeFontFunction</code>. (If the font is unspecified, the existing font for the graphics
+   * context is used.) If node label centering is active, the label is centered on the position of
+   * the node; otherwise the label is offset slightly.
    */
   public void labelNode(
       RenderContext<N, E> renderContext,
@@ -121,54 +121,54 @@ public class BasicNodeLabelRenderer<N, E> implements Renderer.NodeLabel<N, E> {
     }
   }
 
-  protected Point getAnchorPoint(Rectangle2D vertexBounds, Dimension labelSize, Position position) {
+  protected Point getAnchorPoint(Rectangle2D nodeBounds, Dimension labelSize, Position position) {
     double x;
     double y;
     int offset = 5;
     switch (position) {
       case N:
-        x = vertexBounds.getCenterX() - labelSize.width / 2;
-        y = vertexBounds.getMinY() - offset - labelSize.height;
+        x = nodeBounds.getCenterX() - labelSize.width / 2;
+        y = nodeBounds.getMinY() - offset - labelSize.height;
         return new Point((int) x, (int) y);
 
       case NE:
-        x = vertexBounds.getMaxX() + offset;
-        y = vertexBounds.getMinY() - offset - labelSize.height;
+        x = nodeBounds.getMaxX() + offset;
+        y = nodeBounds.getMinY() - offset - labelSize.height;
         return new Point((int) x, (int) y);
 
       case E:
-        x = vertexBounds.getMaxX() + offset;
-        y = vertexBounds.getCenterY() - labelSize.height / 2;
+        x = nodeBounds.getMaxX() + offset;
+        y = nodeBounds.getCenterY() - labelSize.height / 2;
         return new Point((int) x, (int) y);
 
       case SE:
-        x = vertexBounds.getMaxX() + offset;
-        y = vertexBounds.getMaxY() + offset;
+        x = nodeBounds.getMaxX() + offset;
+        y = nodeBounds.getMaxY() + offset;
         return new Point((int) x, (int) y);
 
       case S:
-        x = vertexBounds.getCenterX() - labelSize.width / 2;
-        y = vertexBounds.getMaxY() + offset;
+        x = nodeBounds.getCenterX() - labelSize.width / 2;
+        y = nodeBounds.getMaxY() + offset;
         return new Point((int) x, (int) y);
 
       case SW:
-        x = vertexBounds.getMinX() - offset - labelSize.width;
-        y = vertexBounds.getMaxY() + offset;
+        x = nodeBounds.getMinX() - offset - labelSize.width;
+        y = nodeBounds.getMaxY() + offset;
         return new Point((int) x, (int) y);
 
       case W:
-        x = vertexBounds.getMinX() - offset - labelSize.width;
-        y = vertexBounds.getCenterY() - labelSize.height / 2;
+        x = nodeBounds.getMinX() - offset - labelSize.width;
+        y = nodeBounds.getCenterY() - labelSize.height / 2;
         return new Point((int) x, (int) y);
 
       case NW:
-        x = vertexBounds.getMinX() - offset - labelSize.width;
-        y = vertexBounds.getMinY() - offset - labelSize.height;
+        x = nodeBounds.getMinX() - offset - labelSize.width;
+        y = nodeBounds.getMinY() - offset - labelSize.height;
         return new Point((int) x, (int) y);
 
       case CNTR:
-        x = vertexBounds.getCenterX() - labelSize.width / 2;
-        y = vertexBounds.getCenterY() - labelSize.height / 2;
+        x = nodeBounds.getCenterX() - labelSize.width / 2;
+        y = nodeBounds.getCenterY() - labelSize.height / 2;
         return new Point((int) x, (int) y);
 
       default:

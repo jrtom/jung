@@ -68,11 +68,11 @@ public class EdmondsKarpMaxFlow<N, E> extends IterativeProcess {
 
   /**
    * Constructs a new instance of the algorithm solver for a given graph, source, and sink. Source
-   * and sink vertices must be elements of the specified graph, and must be distinct.
+   * and sink nodes must be elements of the specified graph, and must be distinct.
    *
    * @param network the flow graph
-   * @param source the source vertex
-   * @param sink the sink vertex
+   * @param source the source node
+   * @param sink the sink node
    * @param edgeCapacityTransformer the Function that gets the capacity for each edge.
    * @param edgeFlowMap the map where the solver will place the value of the flow for each edge
    * @param edgeFactory used to create new edge instances for backEdges
@@ -122,30 +122,30 @@ public class EdmondsKarpMaxFlow<N, E> extends IterativeProcess {
     queue.add(source);
 
     while (!queue.isEmpty()) {
-      N currentVertex = queue.remove();
-      sinkPartitionNodes.remove(currentVertex);
-      sourcePartitionNodes.add(currentVertex);
-      Integer currentCapacity = parentCapacityMap.get(currentVertex);
+      N currentNode = queue.remove();
+      sinkPartitionNodes.remove(currentNode);
+      sourcePartitionNodes.add(currentNode);
+      Integer currentCapacity = parentCapacityMap.get(currentNode);
 
-      for (E neighboringEdge : flowNetwork.outEdges(currentVertex)) {
+      for (E neighboringEdge : flowNetwork.outEdges(currentNode)) {
 
-        N neighboringVertex = flowNetwork.incidentNodes(neighboringEdge).target();
+        N neighboringNode = flowNetwork.incidentNodes(neighboringEdge).target();
 
         Integer residualCapacity = residualCapacityMap.get(neighboringEdge);
         if (residualCapacity <= 0 || visitedEdgesMap.contains(neighboringEdge)) {
           continue;
         }
 
-        N neighborsParent = parentMap.get(neighboringVertex);
-        Integer neighborCapacity = parentCapacityMap.get(neighboringVertex);
+        N neighborsParent = parentMap.get(neighboringNode);
+        Integer neighborCapacity = parentCapacityMap.get(neighboringNode);
         int newCapacity = Math.min(residualCapacity, currentCapacity);
 
         if ((neighborsParent == null) || newCapacity > neighborCapacity) {
-          parentMap.put(neighboringVertex, currentVertex);
-          parentCapacityMap.put(neighboringVertex, newCapacity);
+          parentMap.put(neighboringNode, currentNode);
+          parentCapacityMap.put(neighboringNode, newCapacity);
           visitedEdgesMap.add(neighboringEdge);
-          if (neighboringVertex != target) {
-            queue.add(neighboringVertex);
+          if (neighboringNode != target) {
+            queue.add(neighboringNode);
           }
         }
       }
@@ -275,22 +275,22 @@ public class EdmondsKarpMaxFlow<N, E> extends IterativeProcess {
 
     Integer augmentingPathCapacity = parentCapacityMap.get(target);
     maxFlow += augmentingPathCapacity;
-    N currentVertex = target;
-    N parentVertex = null;
-    while ((parentVertex = parentMap.get(currentVertex)) != currentVertex) {
+    N currentNode = target;
+    N parentNode = null;
+    while ((parentNode = parentMap.get(currentNode)) != currentNode) {
       // TODO: change this to edgeConnecting() once we are using Guava 22.0+
-      E currentEdge = flowNetwork.edgesConnecting(parentVertex, currentVertex).iterator().next();
+      E currentEdge = flowNetwork.edgesConnecting(parentNode, currentNode).iterator().next();
 
       Integer residualCapacity = residualCapacityMap.get(currentEdge);
 
       residualCapacity = residualCapacity - augmentingPathCapacity;
       residualCapacityMap.put(currentEdge, residualCapacity);
 
-      E backEdge = flowNetwork.edgesConnecting(currentVertex, parentVertex).iterator().next();
+      E backEdge = flowNetwork.edgesConnecting(currentNode, parentNode).iterator().next();
       residualCapacity = residualCapacityMap.get(backEdge);
       residualCapacity = residualCapacity + augmentingPathCapacity;
       residualCapacityMap.put(backEdge, residualCapacity);
-      currentVertex = parentVertex;
+      currentNode = parentNode;
     }
   }
 }

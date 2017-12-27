@@ -7,5 +7,5 @@ import java.util.Map;
 public class CachingRenderer<N, E> extends BasicRenderer<N, E> {
 
   protected Map<E, Shape> edgeShapeMap = new HashMap<>();
-  protected Map<N, Shape> vertexShapeMap = new HashMap<>();
+  protected Map<N, Shape> nodeShapeMap = new HashMap<>();
 }

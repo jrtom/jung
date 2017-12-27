@@ -22,23 +22,23 @@ import java.util.Map;
 import java.util.function.Function;
 
 /**
- * Assigns scores to vertices based on their distances to each other vertex in the graph.
+ * Assigns scores to nodes based on their distances to each other node in the graph.
  *
  * <p>This class optionally normalizes its results based on the value of its 'averaging' constructor
- * parameter. If it is <code>true</code>, then the value returned for vertex v is 1 / (_average_
- * distance from v to all other vertices); this is sometimes called <i>closeness centrality</i>. If
- * it is <code>false</code>, then the value returned is 1 / (_total_ distance from v to all other
- * vertices); this is sometimes referred to as <i>barycenter centrality</i>. (If the average/total
+ * parameter. If it is <code>true</code>, then the value returned for node v is 1 / (_average_
+ * distance from v to all other nodes); this is sometimes called <i>closeness centrality</i>. If it
+ * is <code>false</code>, then the value returned is 1 / (_total_ distance from v to all other
+ * nodes); this is sometimes referred to as <i>barycenter centrality</i>. (If the average/total
  * distance is 0, the value returned is {@code Double.POSITIVE_INFINITY}.)
  *
  * @see BarycenterScorer
  * @see ClosenessCentrality
  */
-public class DistanceCentralityScorer<V, E> implements VertexScorer<V, Double> {
-  /** The graph on which the vertex scores are to be calculated. */
+public class DistanceCentralityScorer<V, E> implements NodeScorer<V, Double> {
+  /** The graph on which the node scores are to be calculated. */
   protected Graph<V> graph;
 
-  /** The metric to use for specifying the distance between pairs of vertices. */
+  /** The metric to use for specifying the distance between pairs of nodes. */
   protected Distance<V> distance;
 
   /**
@@ -53,7 +53,7 @@ public class DistanceCentralityScorer<V, E> implements VertexScorer<V, Double> {
   protected boolean averaging;
 
   /**
-   * Specifies whether, for a vertex <code>v</code> with missing (null) distances, <code>v</code>'s
+   * Specifies whether, for a node <code>v</code> with missing (null) distances, <code>v</code>'s
    * score should ignore the missing values or be set to 'null'. Defaults to 'true'.
    */
   protected boolean ignore_missing;
@@ -69,13 +69,13 @@ public class DistanceCentralityScorer<V, E> implements VertexScorer<V, Double> {
   /**
    * Creates an instance with the specified graph, distance metric, and averaging behavior.
    *
-   * @param graph The graph on which the vertex scores are to be calculated.
-   * @param distance The metric to use for specifying the distance between pairs of vertices.
+   * @param graph The graph on which the node scores are to be calculated.
+   * @param distance The metric to use for specifying the distance between pairs of nodes.
    * @param averaging Specifies whether the values returned is the sum of all v-distances or the
    *     mean v-distance.
    * @param ignore_missing Specifies whether scores for missing distances are to ignore missing
    *     distances or be set to null.
-   * @param ignore_self_distances Specifies whether distances from a vertex to itself should be
+   * @param ignore_self_distances Specifies whether distances from a node to itself should be
    *     included in its score.
    */
   public DistanceCentralityScorer(
@@ -95,13 +95,13 @@ public class DistanceCentralityScorer<V, E> implements VertexScorer<V, Double> {
   /**
    * Creates an instance with the specified graph, distance metric, and averaging behavior.
    *
-   * @param graph The graph on which the vertex scores are to be calculated.
-   * @param distance The metric to use for specifying the distance between pairs of vertices.
+   * @param graph The graph on which the node scores are to be calculated.
+   * @param distance The metric to use for specifying the distance between pairs of nodes.
    * @param averaging Specifies whether the values returned is the sum of all v-distances or the
    *     mean v-distance.
    * @param ignore_missing Specifies whether scores for missing distances are to ignore missing
    *     distances or be set to null.
-   * @param ignore_self_distances Specifies whether distances from a vertex to itself should be
+   * @param ignore_self_distances Specifies whether distances from a node to itself should be
    *     included in its score.
    */
   public DistanceCentralityScorer(
@@ -121,8 +121,8 @@ public class DistanceCentralityScorer<V, E> implements VertexScorer<V, Double> {
   /**
    * Equivalent to <code>this(graph, distance, averaging, true, true)</code>.
    *
-   * @param graph The graph on which the vertex scores are to be calculated.
-   * @param distance The metric to use for specifying the distance between pairs of vertices.
+   * @param graph The graph on which the node scores are to be calculated.
+   * @param distance The metric to use for specifying the distance between pairs of nodes.
    * @param averaging Specifies whether the values returned is the sum of all v-distances or the
    *     mean v-distance.
    */
@@ -131,17 +131,16 @@ public class DistanceCentralityScorer<V, E> implements VertexScorer<V, Double> {
   }
 
   /**
-   * Creates an instance with the specified graph and averaging behavior whose vertex distances are
+   * Creates an instance with the specified graph and averaging behavior whose node distances are
    * calculated based on the specified edge weights.
    *
-   * @param graph The graph on which the vertex scores are to be calculated.
-   * @param edge_weights The edge weights to use for specifying the distance between pairs of
-   *     vertices.
+   * @param graph The graph on which the node scores are to be calculated.
+   * @param edge_weights The edge weights to use for specifying the distance between pairs of nodes.
    * @param averaging Specifies whether the values returned is the sum of all v-distances or the
    *     mean v-distance.
    * @param ignore_missing Specifies whether scores for missing distances are to ignore missing
    *     distances or be set to null.
-   * @param ignore_self_distances Specifies whether distances from a vertex to itself should be
+   * @param ignore_self_distances Specifies whether distances from a node to itself should be
    *     included in its score.
    */
   public DistanceCentralityScorer(
@@ -161,9 +160,8 @@ public class DistanceCentralityScorer<V, E> implements VertexScorer<V, Double> {
   /**
    * Equivalent to <code>this(graph, edge_weights, averaging, true, true)</code>.
    *
-   * @param graph The graph on which the vertex scores are to be calculated.
-   * @param edge_weights The edge weights to use for specifying the distance between pairs of
-   *     vertices.
+   * @param graph The graph on which the node scores are to be calculated.
+   * @param edge_weights The edge weights to use for specifying the distance between pairs of nodes.
    * @param averaging Specifies whether the values returned is the sum of all v-distances or the
    *     mean v-distance.
    */
@@ -173,15 +171,15 @@ public class DistanceCentralityScorer<V, E> implements VertexScorer<V, Double> {
   }
 
   /**
-   * Creates an instance with the specified graph and averaging behavior whose vertex distances are
+   * Creates an instance with the specified graph and averaging behavior whose node distances are
    * calculated on the unweighted graph.
    *
-   * @param graph The graph on which the vertex scores are to be calculated.
+   * @param graph The graph on which the node scores are to be calculated.
    * @param averaging Specifies whether the values returned is the sum of all v-distances or the
    *     mean v-distance.
    * @param ignore_missing Specifies whether scores for missing distances are to ignore missing
    *     distances or be set to null.
-   * @param ignore_self_distances Specifies whether distances from a vertex to itself should be
+   * @param ignore_self_distances Specifies whether distances from a node to itself should be
    *     included in its score.
    */
   public DistanceCentralityScorer(
@@ -197,7 +195,7 @@ public class DistanceCentralityScorer<V, E> implements VertexScorer<V, Double> {
   /**
    * Equivalent to <code>this(graph, averaging, true, true)</code>.
    *
-   * @param graph The graph on which the vertex scores are to be calculated.
+   * @param graph The graph on which the node scores are to be calculated.
    * @param averaging Specifies whether the values returned is the sum of all v-distances or the
    *     mean v-distance.
    */
@@ -206,10 +204,10 @@ public class DistanceCentralityScorer<V, E> implements VertexScorer<V, Double> {
   }
 
   /**
-   * Calculates the score for the specified vertex. Returns {@code null} if there are missing
+   * Calculates the score for the specified node. Returns {@code null} if there are missing
    * distances and such are not ignored by this instance.
    */
-  public Double getVertexScore(V v) {
+  public Double getNodeScore(V v) {
     Double value = output.get(v);
     if (value != null) {
       if (value < 0) {
@@ -262,7 +260,7 @@ public class DistanceCentralityScorer<V, E> implements VertexScorer<V, Double> {
   }
 
   @Override
-  public Map<V, Double> vertexScores() {
-    return Maps.asMap(graph.nodes(), node -> getVertexScore(node));
+  public Map<V, Double> nodeScores() {
+    return Maps.asMap(graph.nodes(), node -> getNodeScore(node));
   }
 }

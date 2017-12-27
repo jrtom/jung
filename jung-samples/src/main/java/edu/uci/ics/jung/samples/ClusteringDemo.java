@@ -46,7 +46,7 @@ import javax.swing.border.TitledBorder;
 /**
  * This simple app demonstrates how one can use our algorithms and visualization libraries in
  * unison. In this case, we generate use the Zachary karate club data set, widely known in the
- * social networks literature, then we cluster the vertices using an edge-betweenness clusterer, and
+ * social networks literature, then we cluster the nodes using an edge-betweenness clusterer, and
  * finally we visualize the graph using Fruchtermain-Rheingold layout and provide a slider so that
  * the user can adjust the clustering granularity.
  *
@@ -57,7 +57,7 @@ public class ClusteringDemo extends JPanel {
 
   VisualizationViewer<Number, Number> vv;
 
-  LoadingCache<Number, Paint> vertexPaints =
+  LoadingCache<Number, Paint> nodePaints =
       CacheBuilder.newBuilder().build(CacheLoader.from(() -> Color.white));
   LoadingCache<Number, Paint> edgePaints =
       CacheBuilder.newBuilder().build(CacheLoader.from(() -> Color.blue));
@@ -149,7 +149,7 @@ public class ClusteringDemo extends JPanel {
     vv = new VisualizationViewer<>(visualizationModel, new Dimension(800, 800));
     vv.setBackground(Color.white);
     //Tell the renderer to use our own customized color rendering
-    vv.getRenderContext().setNodeFillPaintFunction(vertexPaints);
+    vv.getRenderContext().setNodeFillPaintFunction(nodePaints);
     vv.getRenderContext()
         .setNodeDrawPaintFunction(
             v -> vv.getPickedNodeState().isPicked(v) ? Color.CYAN : Color.BLACK);
@@ -170,7 +170,7 @@ public class ClusteringDemo extends JPanel {
     DefaultModalGraphMouse<Number, Number> gm = new DefaultModalGraphMouse<>();
     vv.setGraphMouse(gm);
 
-    final JToggleButton groupVertices = new JToggleButton("Group Clusters");
+    final JToggleButton groupNodes = new JToggleButton("Group Clusters");
 
     //Create slider to adjust the number of edges to remove when clustering
     final JSlider edgeBetweennessSlider = new JSlider(JSlider.HORIZONTAL);
@@ -200,7 +200,7 @@ public class ClusteringDemo extends JPanel {
     eastControls.setBorder(sliderBorder);
     eastControls.add(Box.createVerticalGlue());
 
-    groupVertices.addItemListener(
+    groupNodes.addItemListener(
         e -> {
           clusterAndRecolor(
               layoutModel,
@@ -211,7 +211,7 @@ public class ClusteringDemo extends JPanel {
           vv.repaint();
         });
 
-    clusterAndRecolor(layoutModel, graph, 0, similarColors, groupVertices.isSelected());
+    clusterAndRecolor(layoutModel, graph, 0, similarColors, groupNodes.isSelected());
 
     edgeBetweennessSlider.addChangeListener(
         e -> {
@@ -219,7 +219,7 @@ public class ClusteringDemo extends JPanel {
           if (!source.getValueIsAdjusting()) {
             int numEdgesToRemove = source.getValue();
             clusterAndRecolor(
-                layoutModel, graph, numEdgesToRemove, similarColors, groupVertices.isSelected());
+                layoutModel, graph, numEdgesToRemove, similarColors, groupNodes.isSelected());
             sliderBorder.setTitle(COMMANDSTRING + edgeBetweennessSlider.getValue());
             eastControls.repaint();
             vv.validate();
@@ -231,7 +231,7 @@ public class ClusteringDemo extends JPanel {
     JPanel south = new JPanel();
     JPanel grid = new JPanel(new GridLayout(2, 1));
     grid.add(scramble);
-    grid.add(groupVertices);
+    grid.add(groupNodes);
     south.add(grid);
     south.add(eastControls);
     JPanel p = new JPanel();
@@ -256,15 +256,15 @@ public class ClusteringDemo extends JPanel {
     Set<Number> edges = clusterer.getEdgesRemoved();
 
     int i = 0;
-    //Set the colors of each node so that each cluster's vertices have the same color
+    //Set the colors of each node so that each cluster's nodes have the same color
     for (Iterator<Set<Number>> cIt = clusterSet.iterator(); cIt.hasNext(); ) {
 
-      Set<Number> vertices = cIt.next();
+      Set<Number> nodes = cIt.next();
       Color c = colors[i % colors.length];
 
-      colorCluster(vertices, c);
+      colorCluster(nodes, c);
       if (groupClusters == true) {
-        groupCluster(layoutModel, vertices);
+        groupCluster(layoutModel, nodes);
       }
       i++;
     }
@@ -273,18 +273,17 @@ public class ClusteringDemo extends JPanel {
     }
   }
 
-  private void colorCluster(Set<Number> vertices, Color c) {
-    for (Number v : vertices) {
-      vertexPaints.put(v, c);
+  private void colorCluster(Set<Number> nodes, Color c) {
+    for (Number v : nodes) {
+      nodePaints.put(v, c);
     }
   }
 
-  private void groupCluster(
-      AggregateLayoutModel<Number, Point2D> layoutModel, Set<Number> vertices) {
-    if (vertices.size() < vv.getModel().getNetwork().nodes().size()) {
-      Point2D center = layoutModel.apply(vertices.iterator().next());
+  private void groupCluster(AggregateLayoutModel<Number, Point2D> layoutModel, Set<Number> nodes) {
+    if (nodes.size() < vv.getModel().getNetwork().nodes().size()) {
+      Point2D center = layoutModel.apply(nodes.iterator().next());
       MutableNetwork<Number, Number> subGraph = NetworkBuilder.undirected().build();
-      for (Number v : vertices) {
+      for (Number v : nodes) {
         subGraph.addNode(v);
       }
       LayoutAlgorithm<Number, Point2D> subLayoutAlgorithm = new CircleLayoutAlgorithm<>();

@@ -25,26 +25,26 @@ import java.util.Set;
 import java.util.function.Function;
 
 /**
- * Identifies sets of structurally equivalent vertices in a graph. Vertices <i> i</i> and <i>j</i>
- * are structurally equivalent iff the set of <i>i</i>'s neighbors is identical to the set of
- * <i>j</i>'s neighbors, with the exception of <i>i</i> and <i>j</i> themselves. This algorithm
- * finds all sets of equivalent vertices in O(V^2) time.
+ * Identifies sets of structurally equivalent nodes in a graph. Nodes <i> i</i> and <i>j</i> are
+ * structurally equivalent iff the set of <i>i</i>'s neighbors is identical to the set of <i>j</i>'s
+ * neighbors, with the exception of <i>i</i> and <i>j</i> themselves. This algorithm finds all sets
+ * of equivalent nodes in O(V^2) time.
  *
  * <p>You can extend this class to have a different definition of equivalence (by overriding <code>
  * isStructurallyEquivalent</code>), and may give it hints for accelerating the process by
  * overriding <code>canPossiblyCompare</code>. (For example, in a bipartite graph, <code>
- * canPossiblyCompare</code> may return <code>false</code> for vertices in different partitions.
- * This function should be fast.)
+ * canPossiblyCompare</code> may return <code>false</code> for nodes in different partitions. This
+ * function should be fast.)
  *
  * @author Danyel Fisher
  */
-public class StructurallyEquivalent<V> implements Function<Graph<V>, VertexPartition<V>> {
-  public VertexPartition<V> apply(Graph<V> g) {
-    ImmutableSet<ImmutableList<V>> vertexPairs = getEquivalentPairs(g);
+public class StructurallyEquivalent<V> implements Function<Graph<V>, NodePartition<V>> {
+  public NodePartition<V> apply(Graph<V> g) {
+    ImmutableSet<ImmutableList<V>> nodePairs = getEquivalentPairs(g);
 
     Set<Set<V>> rv = new HashSet<Set<V>>();
     Map<V, Set<V>> intermediate = new HashMap<V, Set<V>>();
-    for (ImmutableList<V> pair : vertexPairs) {
+    for (ImmutableList<V> pair : nodePairs) {
       Set<V> res = intermediate.get(pair.get(0));
       if (res == null) {
         res = intermediate.get(pair.get(1));
@@ -59,7 +59,7 @@ public class StructurallyEquivalent<V> implements Function<Graph<V>, VertexParti
     }
     rv.addAll(intermediate.values());
 
-    // pick up the vertices which don't appear in intermediate; they are
+    // pick up the nodes which don't appear in intermediate; they are
     // singletons (equivalence classes of size 1)
     Collection<V> singletons = new ArrayList<V>(g.nodes());
     singletons.removeAll(intermediate.keySet());
@@ -69,16 +69,16 @@ public class StructurallyEquivalent<V> implements Function<Graph<V>, VertexParti
       rv.add(vSet);
     }
 
-    return new VertexPartition<V>(g, intermediate, rv);
+    return new NodePartition<V>(g, intermediate, rv);
   }
 
   /**
-   * For each vertex pair v, v1 in G, checks whether v and v1 are fully equivalent: meaning that
-   * they connect to the exact same vertices. (Is this regular equivalence, or whathaveyou?)
+   * For each node pair v, v1 in G, checks whether v and v1 are fully equivalent: meaning that they
+   * connect to the exact same nodes. (Is this regular equivalence, or whathaveyou?)
    *
    * @param g the graph whose equivalent pairs are to be generated
-   * @return an immutable set of pairs of vertices, where all pairs are represented as immutable
-   *     lists, and the vertices in the inner pairs are equivalent.
+   * @return an immutable set of pairs of nodes, where all pairs are represented as immutable lists,
+   *     and the nodes in the inner pairs are equivalent.
    */
   protected ImmutableSet<ImmutableList<V>> getEquivalentPairs(Graph<V> g) {
 
@@ -116,8 +116,8 @@ public class StructurallyEquivalent<V> implements Function<Graph<V>, VertexParti
 
   /**
    * @param g the graph in which the structural equivalence comparison is to take place
-   * @param v1 the vertex to check for structural equivalence to v2
-   * @param v2 the vertex to check for structural equivalence to v1
+   * @param v1 the node to check for structural equivalence to v2
+   * @param v2 the node to check for structural equivalence to v1
    * @return {@code true} if {@code v1}'s predecessors/successors are equal to {@code v2}'s
    *     predecessors/successors
    */
@@ -157,12 +157,12 @@ public class StructurallyEquivalent<V> implements Function<Graph<V>, VertexParti
   }
 
   /**
-   * This is a space for optimizations. For example, for a bipartite graph, vertices from different
+   * This is a space for optimizations. For example, for a bipartite graph, nodes from different
    * partitions cannot possibly be equivalent.
    *
-   * @param v1 the first vertex to compare
-   * @param v2 the second vertex to compare
-   * @return {@code true} if the vertices can be equivalent
+   * @param v1 the first node to compare
+   * @param v2 the second node to compare
+   * @return {@code true} if the nodes can be equivalent
    */
   protected boolean canBeEquivalent(V v1, V v2) {
     return true;

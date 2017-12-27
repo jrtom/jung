@@ -42,14 +42,14 @@ public class GraphCollapser {
     MutableNetwork graph = graphBuilder.build();
     Collection cluster = clusterGraph.nodes();
 
-    // add all vertices in the delegate, unless the vertex is in the
+    // add all nodes in the delegate, unless the node is in the
     // cluster.
     for (Object v : inGraph.nodes()) {
       if (cluster.contains(v) == false) {
         graph.addNode(v);
       }
     }
-    // add the clusterGraph as a vertex
+    // add the clusterGraph as a node
     graph.addNode(clusterGraph);
 
     // add all edges from the inGraph, unless both endpoints of

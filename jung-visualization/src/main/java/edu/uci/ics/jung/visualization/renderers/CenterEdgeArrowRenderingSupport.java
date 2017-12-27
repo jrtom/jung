@@ -20,7 +20,7 @@ import java.awt.geom.Point2D;
 public class CenterEdgeArrowRenderingSupport<N, E> implements EdgeArrowRenderingSupport<N, E> {
 
   public AffineTransform getArrowTransform(
-      RenderContext<N, E> rc, Shape edgeShape, Shape vertexShape) {
+      RenderContext<N, E> rc, Shape edgeShape, Shape nodeShape) {
     GeneralPath path = new GeneralPath(edgeShape);
     float[] seg = new float[6];
     Point2D p1 = null;
@@ -45,7 +45,7 @@ public class CenterEdgeArrowRenderingSupport<N, E> implements EdgeArrowRendering
         p2 = new Point2D.Float(seg[0], seg[1]);
       }
       if (current > middleSegment) { // done
-        at = getArrowTransform(rc, new Line2D.Float(p1, p2), vertexShape);
+        at = getArrowTransform(rc, new Line2D.Float(p1, p2), nodeShape);
         break;
       }
     }
@@ -53,21 +53,21 @@ public class CenterEdgeArrowRenderingSupport<N, E> implements EdgeArrowRendering
   }
 
   public AffineTransform getReverseArrowTransform(
-      RenderContext<N, E> rc, Shape edgeShape, Shape vertexShape) {
-    return getReverseArrowTransform(rc, edgeShape, vertexShape, true);
+      RenderContext<N, E> rc, Shape edgeShape, Shape nodeShape) {
+    return getReverseArrowTransform(rc, edgeShape, nodeShape, true);
   }
 
   /**
    * Returns a transform to position the arrowhead on this edge shape at the point where it
-   * intersects the passed vertex shape.
+   * intersects the passed node shape.
    *
    * @param rc the rendering context used for rendering the arrow
    * @param edgeShape the shape used to draw the edge
-   * @param vertexShape the shape used to draw the vertex
+   * @param nodeShape the shape used to draw the node
    * @param passedGo (ignored in this implementation)
    */
   public AffineTransform getReverseArrowTransform(
-      RenderContext<N, E> rc, Shape edgeShape, Shape vertexShape, boolean passedGo) {
+      RenderContext<N, E> rc, Shape edgeShape, Shape nodeShape, boolean passedGo) {
     GeneralPath path = new GeneralPath(edgeShape);
     float[] seg = new float[6];
     Point2D p1 = null;
@@ -92,7 +92,7 @@ public class CenterEdgeArrowRenderingSupport<N, E> implements EdgeArrowRendering
         p2 = new Point2D.Float(seg[0], seg[1]);
       }
       if (current > middleSegment) { // done
-        at = getReverseArrowTransform(rc, new Line2D.Float(p1, p2), vertexShape);
+        at = getReverseArrowTransform(rc, new Line2D.Float(p1, p2), nodeShape);
         break;
       }
     }
@@ -100,7 +100,7 @@ public class CenterEdgeArrowRenderingSupport<N, E> implements EdgeArrowRendering
   }
 
   public AffineTransform getArrowTransform(
-      RenderContext<N, E> rc, Line2D edgeShape, Shape vertexShape) {
+      RenderContext<N, E> rc, Line2D edgeShape, Shape nodeShape) {
 
     // find the midpoint of the edgeShape line, and use it to make the transform
     Line2D left = new Line2D.Float();
@@ -116,7 +116,7 @@ public class CenterEdgeArrowRenderingSupport<N, E> implements EdgeArrowRendering
   }
 
   protected AffineTransform getReverseArrowTransform(
-      RenderContext<N, E> rc, Line2D edgeShape, Shape vertexShape) {
+      RenderContext<N, E> rc, Line2D edgeShape, Shape nodeShape) {
     // find the midpoint of the edgeShape line, and use it to make the transform
     Line2D left = new Line2D.Float();
     Line2D right = new Line2D.Float();
