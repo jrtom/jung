@@ -15,16 +15,16 @@ import edu.uci.ics.jung.algorithms.scoring.NodeScorer;
 import java.util.function.Function;
 
 /** A Function convenience wrapper around NodeScorer. */
-public class NodeScoreTransformer<V, S> implements Function<V, S> {
+public class NodeScoreTransformer<N, S> implements Function<N, S> {
   /** The NodeScorer instance that provides the values returned by <code>transform</code>. */
-  protected NodeScorer<V, S> vs;
+  protected NodeScorer<N, S> vs;
 
   /**
    * Creates an instance based on the specified NodeScorer.
    *
    * @param vs the NodeScorer which will retrieve the score for each node
    */
-  public NodeScoreTransformer(NodeScorer<V, S> vs) {
+  public NodeScoreTransformer(NodeScorer<N, S> vs) {
     this.vs = vs;
   }
 
@@ -32,7 +32,7 @@ public class NodeScoreTransformer<V, S> implements Function<V, S> {
    * @param v the node whose score is being returned
    * @return the score for this node.
    */
-  public S apply(V v) {
+  public S apply(N v) {
     return vs.getNodeScore(v);
   }
 }

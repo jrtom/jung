@@ -3,12 +3,12 @@ package edu.uci.ics.jung.layout.util;
 /**
  * interface for support to LayoutChangeListeners
  *
- * @param <V>
+ * @param <N>
  * @param <P>
  */
-public interface LayoutEventSupport<V, P> {
+public interface LayoutEventSupport<N, P> {
 
-  void addLayoutChangeListener(LayoutChangeListener<V, P> listener);
+  void addLayoutChangeListener(LayoutChangeListener<N, P> listener);
 
-  void removeLayoutChangeListener(LayoutChangeListener<V, P> listener);
+  void removeLayoutChangeListener(LayoutChangeListener<N, P> listener);
 }

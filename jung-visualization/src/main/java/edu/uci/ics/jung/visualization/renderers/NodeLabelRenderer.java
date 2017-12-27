@@ -27,9 +27,9 @@ public interface NodeLabelRenderer {
    * @param font the font to use in rendering the label
    * @param isSelected whether the node is currently selected
    * @param node the edge whose label is being drawn
-   * @param <V> the node type
+   * @param <N> the node type
    * @return the component used for drawing the label
    */
-  <V> Component getNodeLabelRendererComponent(
-      JComponent vv, Object value, Font font, boolean isSelected, V node);
+  <N> Component getNodeLabelRendererComponent(
+      JComponent vv, Object value, Font font, boolean isSelected, N node);
 }

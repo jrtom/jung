@@ -127,17 +127,17 @@ public class GraphFromGraphMLDemo {
   }
 
   /** A nested class to demo the GraphMouseListener finding the right nodes after zoom/pan */
-  static class TestGraphMouseListener<V> implements GraphMouseListener<V> {
+  static class TestGraphMouseListener<N> implements GraphMouseListener<N> {
 
-    public void graphClicked(V v, MouseEvent me) {
+    public void graphClicked(N v, MouseEvent me) {
       System.err.println("Node " + v + " was clicked at (" + me.getX() + "," + me.getY() + ")");
     }
 
-    public void graphPressed(V v, MouseEvent me) {
+    public void graphPressed(N v, MouseEvent me) {
       System.err.println("Node " + v + " was pressed at (" + me.getX() + "," + me.getY() + ")");
     }
 
-    public void graphReleased(V v, MouseEvent me) {
+    public void graphReleased(N v, MouseEvent me) {
       System.err.println("Node " + v + " was released at (" + me.getX() + "," + me.getY() + ")");
     }
   }

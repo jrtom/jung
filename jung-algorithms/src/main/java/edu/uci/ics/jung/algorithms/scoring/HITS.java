@@ -63,11 +63,11 @@ import java.util.function.Function;
  *       overridden to a no-op. (Other normalization methods may also be employed.)
  * </ul>
  *
- * @param <V> the node type
+ * @param <N> the node type
  * @param <E> the edge type
  * @see "'Authoritative sources in a hyperlinked environment' by Jon Kleinberg, 1997"
  */
-public class HITS<V, E> extends HITSWithPriors<V, E> {
+public class HITS<N, E> extends HITSWithPriors<N, E> {
 
   /**
    * Creates an instance for the specified graph, edge weights, and alpha (random jump probability)
@@ -78,7 +78,7 @@ public class HITS<V, E> extends HITSWithPriors<V, E> {
    * @param alpha the probability of a hub giving some authority to all nodes, and of an authority
    *     increasing the score of all hubs (not just those connected via links)
    */
-  public HITS(Network<V, E> g, Function<E, Double> edge_weights, double alpha) {
+  public HITS(Network<N, E> g, Function<E, Double> edge_weights, double alpha) {
     super(g, edge_weights, ScoringUtils.getHITSUniformRootPrior(g.nodes()), alpha);
   }
 
@@ -90,7 +90,7 @@ public class HITS<V, E> extends HITSWithPriors<V, E> {
    * @param alpha the probability of a hub giving some authority to all nodes, and of an authority
    *     increasing the score of all hubs (not just those connected via links)
    */
-  public HITS(Network<V, E> g, double alpha) {
+  public HITS(Network<N, E> g, double alpha) {
     super(g, ScoringUtils.getHITSUniformRootPrior(g.nodes()), alpha);
   }
 
@@ -100,7 +100,7 @@ public class HITS<V, E> extends HITSWithPriors<V, E> {
    *
    * @param g the input graph
    */
-  public HITS(Network<V, E> g) {
+  public HITS(Network<N, E> g) {
     this(g, 0.0);
   }
 

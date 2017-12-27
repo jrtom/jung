@@ -222,14 +222,14 @@ public class PajekNetIOTest extends TestCase {
     }
   }
 
-  private class GreekLabels<V> implements Function<V, String> {
-    private List<V> id;
+  private class GreekLabels<N> implements Function<N, String> {
+    private List<N> id;
 
-    public GreekLabels(List<V> id) {
+    public GreekLabels(List<N> id) {
       this.id = id;
     }
 
-    public String apply(V v) {
+    public String apply(N v) {
       return node_labels[id.indexOf(v)];
     }
   }

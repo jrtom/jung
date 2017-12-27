@@ -258,18 +258,18 @@ public class NodeImageShaperDemo extends JPanel {
    *
    * @author Tom Nelson
    */
-  public static class PickWithIconListener<V> implements ItemListener {
-    Function<V, Icon> imager;
+  public static class PickWithIconListener<N> implements ItemListener {
+    Function<N, Icon> imager;
     Icon checked;
 
-    public PickWithIconListener(Function<V, Icon> imager) {
+    public PickWithIconListener(Function<N, Icon> imager) {
       this.imager = imager;
       checked = new Checkmark();
     }
 
     public void itemStateChanged(ItemEvent e) {
       @SuppressWarnings("unchecked")
-      Icon icon = imager.apply((V) e.getItem());
+      Icon icon = imager.apply((N) e.getItem());
       if (icon != null && icon instanceof LayeredIcon) {
         if (e.getStateChange() == ItemEvent.SELECTED) {
           ((LayeredIcon) icon).add(checked);
@@ -284,17 +284,17 @@ public class NodeImageShaperDemo extends JPanel {
    *
    * @author Tom Nelson
    */
-  public static class NodeStringerImpl<V> implements Function<V, String> {
+  public static class NodeStringerImpl<N> implements Function<N, String> {
 
-    Map<V, String> map = new HashMap<>();
+    Map<N, String> map = new HashMap<>();
 
     boolean enabled = true;
 
-    public NodeStringerImpl(Map<V, String> map) {
+    public NodeStringerImpl(Map<N, String> map) {
       this.map = map;
     }
 
-    public String apply(V v) {
+    public String apply(N v) {
       if (isEnabled()) {
         return map.get(v);
       } else {
@@ -342,14 +342,14 @@ public class NodeImageShaperDemo extends JPanel {
    * This class exists only to provide settings to turn on/off shapes and image fill in this demo.
    *
    * <p>For a real application, just use {@code Functions.forMap(iconMap)} to provide a {@code
-   * Function<V, Icon>}.
+   * Function<N, Icon>}.
    */
-  public static class DemoNodeIconTransformer<V> implements Function<V, Icon> {
+  public static class DemoNodeIconTransformer<N> implements Function<N, Icon> {
     boolean fillImages = true;
     boolean outlineImages = false;
-    Map<V, Icon> iconMap = new HashMap<>();
+    Map<N, Icon> iconMap = new HashMap<>();
 
-    public DemoNodeIconTransformer(Map<V, Icon> iconMap) {
+    public DemoNodeIconTransformer(Map<N, Icon> iconMap) {
       this.iconMap = iconMap;
     }
 
@@ -370,7 +370,7 @@ public class NodeImageShaperDemo extends JPanel {
       this.outlineImages = outlineImages;
     }
 
-    public Icon apply(V v) {
+    public Icon apply(N v) {
       if (fillImages) {
         return iconMap.get(v);
       } else {
@@ -383,11 +383,11 @@ public class NodeImageShaperDemo extends JPanel {
    * this class exists only to provide settings to turn on/off shapes and image fill in this demo.
    * In a real application, use NodeIconShapeTransformer instead.
    */
-  public static class DemoNodeIconShapeFunction<V> extends NodeIconShapeFunction<V> {
+  public static class DemoNodeIconShapeFunction<N> extends NodeIconShapeFunction<N> {
 
     boolean shapeImages = true;
 
-    public DemoNodeIconShapeFunction(Function<V, Shape> delegate) {
+    public DemoNodeIconShapeFunction(Function<N, Shape> delegate) {
       super(delegate);
     }
 
@@ -402,7 +402,7 @@ public class NodeImageShaperDemo extends JPanel {
     }
 
     @Override
-    public Shape apply(V v) {
+    public Shape apply(N v) {
       Icon icon = iconMap.get(v);
 
       if (icon != null && icon instanceof ImageIcon) {

@@ -26,7 +26,7 @@ public abstract class BoundingRectangleCollector<T> {
     compute();
   }
 
-  public static class Point<V> extends BoundingRectangleCollector<V> {
+  public static class Point<N> extends BoundingRectangleCollector<N> {
     private static final Logger log =
         LoggerFactory.getLogger(BoundingRectangleCollector.Point.class);
 
@@ -34,7 +34,7 @@ public abstract class BoundingRectangleCollector<T> {
       super(rc, visualizationModel);
     }
 
-    public Rectangle2D getForElement(V node) {
+    public Rectangle2D getForElement(N node) {
       Shape shape = new Rectangle2D.Double();
       Point2D p = (Point2D) visualizationModel.getLayoutModel().apply(node);
 
@@ -52,11 +52,11 @@ public abstract class BoundingRectangleCollector<T> {
      * @param p2 ignored for Nodes
      * @return
      */
-    public Rectangle2D getForElement(V node, Point2D p1, Point2D p2) {
+    public Rectangle2D getForElement(N node, Point2D p1, Point2D p2) {
       return getForElement(node, p1);
     }
 
-    public Rectangle2D getForElement(V node, Point2D p) {
+    public Rectangle2D getForElement(N node, Point2D p) {
       Shape shape = (Shape) rc.getNodeShapeFunction().apply(node);
       //      Point2D p = (Point2D) layoutModel.apply(node);
       log.trace("node is at {}", p);
@@ -98,7 +98,7 @@ public abstract class BoundingRectangleCollector<T> {
     }
   }
 
-  public static class Node<V> extends BoundingRectangleCollector<V> {
+  public static class Node<N> extends BoundingRectangleCollector<N> {
     private static final Logger log =
         LoggerFactory.getLogger(BoundingRectangleCollector.Node.class);
 
@@ -106,7 +106,7 @@ public abstract class BoundingRectangleCollector<T> {
       super(rc, visualizationModel);
     }
 
-    public Rectangle2D getForElement(V node) {
+    public Rectangle2D getForElement(N node) {
       Shape shape = (Shape) rc.getNodeShapeFunction().apply(node);
       Point2D p = (Point2D) visualizationModel.getLayoutModel().apply(node);
 
@@ -124,11 +124,11 @@ public abstract class BoundingRectangleCollector<T> {
      * @param p2 ignored for Nodes
      * @return
      */
-    public Rectangle2D getForElement(V node, Point2D p1, Point2D p2) {
+    public Rectangle2D getForElement(N node, Point2D p1, Point2D p2) {
       return getForElement(node, p1);
     }
 
-    public Rectangle2D getForElement(V node, Point2D p) {
+    public Rectangle2D getForElement(N node, Point2D p) {
       Shape shape = (Shape) rc.getNodeShapeFunction().apply(node);
       //      Point2D p = (Point2D) layoutModel.apply(node);
       log.trace("node is at {}", p);

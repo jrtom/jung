@@ -251,16 +251,16 @@ public class NodeCollapseDemo extends JPanel {
    * shape.
    *
    * @author Tom Nelson
-   * @param <V> the node type
+   * @param <N> the node type
    */
-  class ClusterNodeShapeFunction<V> extends EllipseNodeShapeFunction<V> {
+  class ClusterNodeShapeFunction<N> extends EllipseNodeShapeFunction<N> {
 
     ClusterNodeShapeFunction() {
-      setSizeTransformer(new ClusterNodeSizeFunction<V>(20));
+      setSizeTransformer(new ClusterNodeSizeFunction<N>(20));
     }
 
     @Override
-    public Shape apply(V v) {
+    public Shape apply(N v) {
       if (v instanceof Network) {
         int size = ((Network) v).nodes().size();
         if (size < 8) {
@@ -279,16 +279,16 @@ public class NodeCollapseDemo extends JPanel {
    * nodes
    *
    * @author Tom Nelson
-   * @param <V> the node type
+   * @param <N> the node type
    */
-  class ClusterNodeSizeFunction<V> implements Function<V, Integer> {
+  class ClusterNodeSizeFunction<N> implements Function<N, Integer> {
     int size;
 
     public ClusterNodeSizeFunction(Integer size) {
       this.size = size;
     }
 
-    public Integer apply(V v) {
+    public Integer apply(N v) {
       if (v instanceof Network) {
         return 30;
       }

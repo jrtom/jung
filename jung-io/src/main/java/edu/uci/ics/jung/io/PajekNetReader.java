@@ -85,17 +85,17 @@ import java.util.function.Supplier;
  *     Andrej Mrvar, http://vlado.fmf.uni-lj.si/pub/networks/pajek/doc/pajekman.pdf"
  * @author Tom Nelson - converted to jung2
  */
-public class PajekNetReader<G extends MutableNetwork<V, E>, V, E> {
-  protected Supplier<V> node_factory;
+public class PajekNetReader<G extends MutableNetwork<N, E>, N, E> {
+  protected Supplier<N> node_factory;
   protected Supplier<E> edge_factory;
 
   /** The map for node labels (if any) created by this class. */
-  protected SettableTransformer<V, String> node_labels =
-      new MapSettableTransformer<V, String>(new HashMap<V, String>());
+  protected SettableTransformer<N, String> node_labels =
+      new MapSettableTransformer<N, String>(new HashMap<N, String>());
 
   /** The map for node locations (if any) defined by this class. */
-  protected SettableTransformer<V, Point2D> node_locations =
-      new MapSettableTransformer<V, Point2D>(new HashMap<V, Point2D>());
+  protected SettableTransformer<N, Point2D> node_locations =
+      new MapSettableTransformer<N, Point2D>(new HashMap<N, Point2D>());
 
   protected SettableTransformer<E, Number> edge_weights =
       new MapSettableTransformer<E, Number>(new HashMap<E, Number>());
@@ -115,7 +115,7 @@ public class PajekNetReader<G extends MutableNetwork<V, E>, V, E> {
    * @param node_factory the Supplier to use to create node objects
    * @param edge_factory the Supplier to use to create edge objects
    */
-  public PajekNetReader(Supplier<V> node_factory, Supplier<E> edge_factory) {
+  public PajekNetReader(Supplier<N> node_factory, Supplier<E> edge_factory) {
     this.node_factory = node_factory;
     this.edge_factory = edge_factory;
   }
@@ -198,13 +198,13 @@ public class PajekNetReader<G extends MutableNetwork<V, E>, V, E> {
     StringTokenizer st = new StringTokenizer(curLine);
     st.nextToken(); // skip past "*nodes";
     int num_nodes = Integer.parseInt(st.nextToken());
-    List<V> id = null;
+    List<N> id = null;
     // TODO: under what circumstances (if any) is it reasonable for node_factory to be null?
     if (node_factory != null) {
       for (int i = 1; i <= num_nodes; i++) {
         g.addNode(node_factory.get());
       }
-      id = new ArrayList<V>(g.nodes());
+      id = new ArrayList<N>(g.nodes());
     }
 
     // read nodes until we see any Pajek format tag ('*...')
@@ -245,8 +245,8 @@ public class PajekNetReader<G extends MutableNetwork<V, E>, V, E> {
    * information.
    */
   @SuppressWarnings("unchecked")
-  private void readNode(String curLine, List<V> id, int num_nodes) {
-    V v;
+  private void readNode(String curLine, List<N> id, int num_nodes) {
+    N v;
     String[] parts = null;
     int coord_idx = -1; // index of first coordinate in parts; -1 indicates no coordinates found
     String index;
@@ -286,7 +286,7 @@ public class PajekNetReader<G extends MutableNetwork<V, E>, V, E> {
     if (id != null) {
       v = id.get(v_id);
     } else {
-      v = (V) (new Integer(v_id));
+      v = (N) (new Integer(v_id));
     }
     // only attach the label if there's one to attach
     if (label != null && label.length() > 0 && node_labels != null) {
@@ -308,8 +308,8 @@ public class PajekNetReader<G extends MutableNetwork<V, E>, V, E> {
   private String readArcsOrEdges(
       String curLine,
       BufferedReader br,
-      MutableNetwork<V, E> g,
-      List<V> id,
+      MutableNetwork<N, E> g,
+      List<N> id,
       Supplier<E> edge_factory)
       throws IOException {
     String nextLine = curLine;
@@ -352,12 +352,12 @@ public class PajekNetReader<G extends MutableNetwork<V, E>, V, E> {
 
       int vid1 = Integer.parseInt(st.nextToken()) - 1;
       // FIXME: check for vid < 0
-      V v1;
+      N v1;
       if (id != null) {
         v1 = id.get(vid1);
       } else {
-        // TODO: wat (look for other (V) casts also)
-        v1 = (V) new Integer(vid1);
+        // TODO: wat (look for other (N) casts also)
+        v1 = (N) new Integer(vid1);
       }
 
       if (is_list) { // one source, multiple destinations
@@ -377,13 +377,13 @@ public class PajekNetReader<G extends MutableNetwork<V, E>, V, E> {
 
   @SuppressWarnings("unchecked")
   protected E createAddEdge(
-      StringTokenizer st, V v1, MutableNetwork<V, E> g, List<V> id, Supplier<E> edge_factory) {
+      StringTokenizer st, N v1, MutableNetwork<N, E> g, List<N> id, Supplier<E> edge_factory) {
     int vid2 = Integer.parseInt(st.nextToken()) - 1;
-    V v2;
+    N v2;
     if (id != null) {
       v2 = id.get(vid2);
     } else {
-      v2 = (V) new Integer(vid2);
+      v2 = (N) new Integer(vid2);
     }
     E e = edge_factory.get();
 
@@ -457,7 +457,7 @@ public class PajekNetReader<G extends MutableNetwork<V, E>, V, E> {
   }
 
   /** @return the nodeLocationTransformer */
-  public SettableTransformer<V, Point2D> getNodeLocationTransformer() {
+  public SettableTransformer<N, Point2D> getNodeLocationTransformer() {
     return node_locations;
   }
 
@@ -466,12 +466,12 @@ public class PajekNetReader<G extends MutableNetwork<V, E>, V, E> {
    *
    * @param node_locations a container for the node locations
    */
-  public void setNodeLocationTransformer(SettableTransformer<V, Point2D> node_locations) {
+  public void setNodeLocationTransformer(SettableTransformer<N, Point2D> node_locations) {
     this.node_locations = node_locations;
   }
 
   /** @return a mapping from nodes to their labels */
-  public SettableTransformer<V, String> getNodeLabeller() {
+  public SettableTransformer<N, String> getNodeLabeller() {
     return node_labels;
   }
 
@@ -480,7 +480,7 @@ public class PajekNetReader<G extends MutableNetwork<V, E>, V, E> {
    *
    * @param node_labels a container for the node labels
    */
-  public void setNodeLabeller(SettableTransformer<V, String> node_labels) {
+  public void setNodeLabeller(SettableTransformer<N, String> node_labels) {
     this.node_labels = node_labels;
   }
 

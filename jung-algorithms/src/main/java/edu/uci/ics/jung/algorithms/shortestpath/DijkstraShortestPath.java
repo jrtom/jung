@@ -32,8 +32,8 @@ import java.util.function.Function;
  * @author Tom Nelson converted to jung2
  * @see DijkstraDistance
  */
-public class DijkstraShortestPath<V, E> extends DijkstraDistance<V, E>
-    implements ShortestPath<V, E> {
+public class DijkstraShortestPath<N, E> extends DijkstraDistance<N, E>
+    implements ShortestPath<N, E> {
   // TODO: refactor the heck out of this and of DijkstraDistance
 
   /**
@@ -45,7 +45,7 @@ public class DijkstraShortestPath<V, E> extends DijkstraDistance<V, E>
    * @param nev the class responsible for returning weights for edges
    * @param cached specifies whether the results are to be cached
    */
-  public DijkstraShortestPath(Network<V, E> g, Function<E, ? extends Number> nev, boolean cached) {
+  public DijkstraShortestPath(Network<N, E> g, Function<E, ? extends Number> nev, boolean cached) {
     super(g, nev, cached);
   }
 
@@ -56,7 +56,7 @@ public class DijkstraShortestPath<V, E> extends DijkstraDistance<V, E>
    * @param g the graph on which distances will be calculated
    * @param nev the class responsible for returning weights for edges
    */
-  public DijkstraShortestPath(Network<V, E> g, Function<E, ? extends Number> nev) {
+  public DijkstraShortestPath(Network<N, E> g, Function<E, ? extends Number> nev) {
     super(g, nev);
   }
 
@@ -66,7 +66,7 @@ public class DijkstraShortestPath<V, E> extends DijkstraDistance<V, E>
    *
    * @param g the graph on which distances will be calculated
    */
-  public DijkstraShortestPath(Network<V, E> g) {
+  public DijkstraShortestPath(Network<N, E> g) {
     super(g);
   }
 
@@ -77,12 +77,12 @@ public class DijkstraShortestPath<V, E> extends DijkstraDistance<V, E>
    * @param g the graph on which distances will be calculated
    * @param cached specifies whether the results are to be cached
    */
-  public DijkstraShortestPath(Network<V, E> g, boolean cached) {
+  public DijkstraShortestPath(Network<N, E> g, boolean cached) {
     super(g, cached);
   }
 
   @Override
-  protected SourceData getSourceData(V source) {
+  protected SourceData getSourceData(N source) {
     SourceData sd = sourceMap.get(source);
     if (sd == null) {
       sd = new SourcePathData(source);
@@ -102,17 +102,17 @@ public class DijkstraShortestPath<V, E> extends DijkstraDistance<V, E>
    * @return the last edge on a shortest path from {@code source} to {@code target} or null if
    *     {@code target} is not reachable from {@code source}
    */
-  public E getIncomingEdge(V source, V target) {
+  public E getIncomingEdge(N source, N target) {
     Preconditions.checkArgument(
         g.nodes().contains(target), "Specified target node %s  is not part of graph %s", target, g);
     Preconditions.checkArgument(
         g.nodes().contains(source), "Specified source node %s  is not part of graph %s", source, g);
 
-    Set<V> targets = new HashSet<V>();
+    Set<N> targets = new HashSet<N>();
     targets.add(target);
     singleSourceShortestPath(source, targets, g.nodes().size());
     @SuppressWarnings("unchecked")
-    Map<V, E> incomingEdgeMap = ((SourcePathData) sourceMap.get(source)).incomingEdges;
+    Map<N, E> incomingEdgeMap = ((SourcePathData) sourceMap.get(source)).incomingEdges;
     E incomingEdge = incomingEdgeMap.get(target);
 
     if (!cached) {
@@ -132,7 +132,7 @@ public class DijkstraShortestPath<V, E> extends DijkstraDistance<V, E>
    * @see DijkstraDistance#getDistance(Object,Object)
    * @param source the node from which distances are measured
    */
-  public Map<V, E> getIncomingEdgeMap(V source) {
+  public Map<N, E> getIncomingEdgeMap(N source) {
     return getIncomingEdgeMap(source, g.nodes().size());
   }
 
@@ -146,7 +146,7 @@ public class DijkstraShortestPath<V, E> extends DijkstraDistance<V, E>
    * @return the edges on the shortest path from {@code source} to {@code target}, in order of their
    *     occurrence
    */
-  public List<E> getPath(V source, V target) {
+  public List<E> getPath(N source, N target) {
     Preconditions.checkArgument(
         g.nodes().contains(target), "Specified target node %s  is not part of graph %s", target, g);
     Preconditions.checkArgument(
@@ -158,16 +158,16 @@ public class DijkstraShortestPath<V, E> extends DijkstraDistance<V, E>
     // collect path data; must use internal method rather than
     // calling getIncomingEdge() because getIncomingEdge() may
     // wipe out results if results are not cached
-    Set<V> targets = new HashSet<V>();
+    Set<N> targets = new HashSet<N>();
     targets.add(target);
     singleSourceShortestPath(source, targets, g.nodes().size());
     @SuppressWarnings("unchecked")
-    Map<V, E> incomingEdges = ((SourcePathData) sourceMap.get(source)).incomingEdges;
+    Map<N, E> incomingEdges = ((SourcePathData) sourceMap.get(source)).incomingEdges;
 
     if (incomingEdges.isEmpty() || incomingEdges.get(target) == null) {
       return path;
     }
-    V current = target;
+    N current = target;
     while (!current.equals(source)) {
       E incoming = incomingEdges.get(current);
       path.addFirst(incoming);
@@ -190,7 +190,7 @@ public class DijkstraShortestPath<V, E> extends DijkstraDistance<V, E>
    * @return a map from each of the closest {@code numDests} nodes to the last edge on the shortest
    *     path to that node starting from {@code source}
    */
-  public LinkedHashMap<V, E> getIncomingEdgeMap(V source, int numDests) {
+  public LinkedHashMap<N, E> getIncomingEdgeMap(N source, int numDests) {
     Preconditions.checkArgument(
         g.nodes().contains(source), "Specified source node %s  is not part of graph %s", source, g);
     Preconditions.checkArgument(
@@ -201,7 +201,7 @@ public class DijkstraShortestPath<V, E> extends DijkstraDistance<V, E>
     singleSourceShortestPath(source, null, numDests);
 
     @SuppressWarnings("unchecked")
-    LinkedHashMap<V, E> incomingEdgeMap = ((SourcePathData) sourceMap.get(source)).incomingEdges;
+    LinkedHashMap<N, E> incomingEdgeMap = ((SourcePathData) sourceMap.get(source)).incomingEdges;
 
     if (!cached) {
       reset(source);
@@ -218,39 +218,39 @@ public class DijkstraShortestPath<V, E> extends DijkstraDistance<V, E>
    * @author Joshua O'Madadhain
    */
   protected class SourcePathData extends SourceData {
-    protected Map<V, E> tentativeIncomingEdges;
-    protected LinkedHashMap<V, E> incomingEdges;
+    protected Map<N, E> tentativeIncomingEdges;
+    protected LinkedHashMap<N, E> incomingEdges;
 
-    protected SourcePathData(V source) {
+    protected SourcePathData(N source) {
       super(source);
-      incomingEdges = new LinkedHashMap<V, E>();
-      tentativeIncomingEdges = new HashMap<V, E>();
+      incomingEdges = new LinkedHashMap<N, E>();
+      tentativeIncomingEdges = new HashMap<N, E>();
     }
 
     @Override
-    public void update(V dest, E tentative_edge, double new_dist) {
+    public void update(N dest, E tentative_edge, double new_dist) {
       super.update(dest, tentative_edge, new_dist);
       tentativeIncomingEdges.put(dest, tentative_edge);
     }
 
     @Override
-    public Map.Entry<V, Number> getNextNode() {
-      Map.Entry<V, Number> p = super.getNextNode();
-      V v = p.getKey();
+    public Map.Entry<N, Number> getNextNode() {
+      Map.Entry<N, Number> p = super.getNextNode();
+      N v = p.getKey();
       E incoming = tentativeIncomingEdges.remove(v);
       incomingEdges.put(v, incoming);
       return p;
     }
 
     @Override
-    public void restoreNode(V v, double dist) {
+    public void restoreNode(N v, double dist) {
       super.restoreNode(v, dist);
       E incoming = incomingEdges.get(v);
       tentativeIncomingEdges.put(v, incoming);
     }
 
     @Override
-    public void createRecord(V w, E e, double new_dist) {
+    public void createRecord(N w, E e, double new_dist) {
       super.createRecord(w, e, new_dist);
       tentativeIncomingEdges.put(w, e);
     }

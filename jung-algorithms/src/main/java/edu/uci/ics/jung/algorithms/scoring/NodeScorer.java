@@ -16,15 +16,15 @@ import java.util.Map;
 /**
  * An interface for algorithms that assign scores to nodes.
  *
- * @param <V> the node type
+ * @param <N> the node type
  * @param <S> the score type
  */
-public interface NodeScorer<V, S> {
+public interface NodeScorer<N, S> {
   /**
    * @param v the node whose score is requested
    * @return the algorithm's score for this node
    */
-  public S getNodeScore(V v);
+  public S getNodeScore(N v);
 
-  public Map<V, S> nodeScores();
+  public Map<N, S> nodeScores();
 }

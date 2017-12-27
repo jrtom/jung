@@ -26,27 +26,27 @@ import javax.swing.ImageIcon;
  *
  * @author Tom Nelson
  */
-public class NodeIconShapeFunction<V> implements Function<V, Shape> {
+public class NodeIconShapeFunction<N> implements Function<N, Shape> {
   protected Map<Image, Shape> shapeMap = new HashMap<Image, Shape>();
-  protected Map<V, Icon> iconMap;
-  protected Function<V, Shape> delegate;
+  protected Map<N, Icon> iconMap;
+  protected Function<N, Shape> delegate;
 
   /**
    * Creates an instance with the specified delegate.
    *
    * @param delegate the node-to-shape function to use if no image is present for the node
    */
-  public NodeIconShapeFunction(Function<V, Shape> delegate) {
+  public NodeIconShapeFunction(Function<N, Shape> delegate) {
     this.delegate = delegate;
   }
 
   /** @return Returns the delegate. */
-  public Function<V, Shape> getDelegate() {
+  public Function<N, Shape> getDelegate() {
     return delegate;
   }
 
   /** @param delegate The delegate to set. */
-  public void setDelegate(Function<V, Shape> delegate) {
+  public void setDelegate(Function<N, Shape> delegate) {
     this.delegate = delegate;
   }
 
@@ -54,7 +54,7 @@ public class NodeIconShapeFunction<V> implements Function<V, Shape> {
    * get the shape from the image. If not available, get the shape from the delegate
    * NodeShapeFunction
    */
-  public Shape apply(V v) {
+  public Shape apply(N v) {
     Icon icon = iconMap.get(v);
     if (icon != null && icon instanceof ImageIcon) {
       Image image = ((ImageIcon) icon).getImage();
@@ -78,12 +78,12 @@ public class NodeIconShapeFunction<V> implements Function<V, Shape> {
   }
 
   /** @return the iconMap */
-  public Map<V, Icon> getIconMap() {
+  public Map<N, Icon> getIconMap() {
     return iconMap;
   }
 
   /** @param iconMap the iconMap to set */
-  public void setIconMap(Map<V, Icon> iconMap) {
+  public void setIconMap(Map<N, Icon> iconMap) {
     this.iconMap = iconMap;
   }
 

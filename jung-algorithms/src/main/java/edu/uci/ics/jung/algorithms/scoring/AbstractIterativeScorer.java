@@ -27,8 +27,8 @@ import java.util.function.Function;
  * <code>evaluate</code> (if the user wants to iterate until the algorithms is 'done') or repeatedly
  * call <code>step</code> (if the user wants to observe the values at each step).
  */
-public abstract class AbstractIterativeScorer<V, E, T>
-    implements IterativeContext, NodeScorer<V, T> {
+public abstract class AbstractIterativeScorer<N, E, T>
+    implements IterativeContext, NodeScorer<N, T> {
   /** Maximum number of iterations to use before terminating. Defaults to 100. */
   protected int max_iterations;
 
@@ -39,19 +39,19 @@ public abstract class AbstractIterativeScorer<V, E, T>
   protected double tolerance;
 
   /** The graph on which the calculations are to be made. */
-  protected Network<V, E> graph;
+  protected Network<N, E> graph;
 
   /** The total number of iterations used so far. */
   protected int total_iterations;
 
   /** The edge weights used by this algorithm. */
-  protected Function<VEPair<V, E>, ? extends Number> edge_weights;
+  protected Function<VEPair<N, E>, ? extends Number> edge_weights;
 
   /** The map in which the output values are stored. */
-  private Map<V, T> output;
+  private Map<N, T> output;
 
   /** The map in which the current values are stored. */
-  private Map<V, T> current_values;
+  private Map<N, T> current_values;
 
   /**
    * A flag representing whether this instance tolerates disconnected graphs. Instances that do not
@@ -66,7 +66,7 @@ public abstract class AbstractIterativeScorer<V, E, T>
    * @param v the node whose output value is to be set
    * @param value the value to set
    */
-  protected void setOutputValue(V v, T value) {
+  protected void setOutputValue(N v, T value) {
     output.put(v, value);
   }
 
@@ -76,7 +76,7 @@ public abstract class AbstractIterativeScorer<V, E, T>
    * @param v the node whose output value is to be retrieved
    * @return the output value for this node
    */
-  protected T getOutputValue(V v) {
+  protected T getOutputValue(N v) {
     return output.get(v);
   }
 
@@ -86,7 +86,7 @@ public abstract class AbstractIterativeScorer<V, E, T>
    * @param v the node whose current value is to be retrieved
    * @return the current value for this node
    */
-  protected T getCurrentValue(V v) {
+  protected T getCurrentValue(N v) {
     return current_values.get(v);
   }
 
@@ -96,7 +96,7 @@ public abstract class AbstractIterativeScorer<V, E, T>
    * @param v the node whose current value is to be set
    * @param value the current value to set
    */
-  protected void setCurrentValue(V v, T value) {
+  protected void setCurrentValue(N v, T value) {
     current_values.put(v, value);
   }
 
@@ -110,7 +110,7 @@ public abstract class AbstractIterativeScorer<V, E, T>
    * @param edge_weights the edge weights for this instance
    */
   public AbstractIterativeScorer(
-      Network<V, E> g, Function<? super E, ? extends Number> edge_weights) {
+      Network<N, E> g, Function<? super E, ? extends Number> edge_weights) {
     this.graph = g;
     this.max_iterations = 100;
     this.tolerance = 0.001;
@@ -125,7 +125,7 @@ public abstract class AbstractIterativeScorer<V, E, T>
    *
    * @param g the graph for which the instance is to be created
    */
-  public AbstractIterativeScorer(Network<V, E> g) {
+  public AbstractIterativeScorer(Network<N, E> g) {
     this.graph = g;
     this.max_iterations = 100;
     this.tolerance = 0.001;
@@ -136,8 +136,8 @@ public abstract class AbstractIterativeScorer<V, E, T>
   protected void initialize() {
     this.total_iterations = 0;
     this.max_delta = Double.MIN_VALUE;
-    this.current_values = new HashMap<V, T>();
-    this.output = new HashMap<V, T>();
+    this.current_values = new HashMap<N, T>();
+    this.output = new HashMap<N, T>();
   }
 
   /** Steps through this scoring algorithm until a termination condition is reached. */
@@ -160,7 +160,7 @@ public abstract class AbstractIterativeScorer<V, E, T>
     swapOutputForCurrent();
     max_delta = 0;
 
-    for (V v : graph.nodes()) {
+    for (N v : graph.nodes()) {
       double diff = update(v);
       updateMaxDelta(v, diff);
     }
@@ -170,7 +170,7 @@ public abstract class AbstractIterativeScorer<V, E, T>
 
   /** */
   protected void swapOutputForCurrent() {
-    Map<V, T> tmp = output;
+    Map<N, T> tmp = output;
     output = current_values;
     current_values = tmp;
   }
@@ -181,16 +181,16 @@ public abstract class AbstractIterativeScorer<V, E, T>
    * @param v the node whose value is to be updated
    * @return the updated value
    */
-  protected abstract double update(V v);
+  protected abstract double update(N v);
 
-  protected void updateMaxDelta(V v, double diff) {
+  protected void updateMaxDelta(N v, double diff) {
     max_delta = Math.max(max_delta, diff);
   }
 
   protected void afterStep() {}
 
   @Override
-  public T getNodeScore(V v) {
+  public T getNodeScore(N v) {
     Preconditions.checkArgument(
         graph.nodes().contains(v), "Node %s not an element of this graph", v.toString());
 
@@ -198,7 +198,7 @@ public abstract class AbstractIterativeScorer<V, E, T>
   }
 
   @Override
-  public Map<V, T> nodeScores() {
+  public Map<N, T> nodeScores() {
     return Collections.unmodifiableMap(output);
   }
 
@@ -256,7 +256,7 @@ public abstract class AbstractIterativeScorer<V, E, T>
    *
    * @return the Function that associates an edge weight with each edge
    */
-  public Function<VEPair<V, E>, ? extends Number> getEdgeWeights() {
+  public Function<VEPair<N, E>, ? extends Number> getEdgeWeights() {
     return edge_weights;
   }
 
@@ -267,7 +267,7 @@ public abstract class AbstractIterativeScorer<V, E, T>
    * @see edu.uci.ics.jung.algorithms.scoring.util.UniformDegreeWeight
    */
   public void setEdgeWeights(Function<? super E, ? extends Number> edge_weights) {
-    this.edge_weights = new DelegateToEdgeTransformer<V, E>(edge_weights);
+    this.edge_weights = new DelegateToEdgeTransformer<N, E>(edge_weights);
   }
 
   /**
@@ -278,8 +278,8 @@ public abstract class AbstractIterativeScorer<V, E, T>
    * @return the edge weight for <code>e</code> in the context of its (incident) node <code>v
    *     </code>
    */
-  protected Number getEdgeWeight(V v, E e) {
-    return edge_weights.apply(new VEPair<V, E>(v, e));
+  protected Number getEdgeWeight(N v, E e) {
+    return edge_weights.apply(new VEPair<N, E>(v, e));
   }
 
   /**
@@ -288,7 +288,7 @@ public abstract class AbstractIterativeScorer<V, E, T>
    *
    * @param v the node whose potential is being collected
    */
-  protected void collectDisappearingPotential(V v) {}
+  protected void collectDisappearingPotential(N v) {}
 
   /**
    * Specifies whether this instance should accept nodes with no outgoing edges.

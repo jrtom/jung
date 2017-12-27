@@ -18,11 +18,11 @@ import com.google.common.base.Preconditions;
  * is necessary to know the origin for an edge traversal (that is, the direction in which an
  * (undirected) edge is being traversed).
  *
- * @param <V> the node type
+ * @param <N> the node type
  * @param <E> the edge type
  */
-public class VEPair<V, E> {
-  private V v;
+public class VEPair<N, E> {
+  private N v;
   private E e;
 
   /**
@@ -31,7 +31,7 @@ public class VEPair<V, E> {
    * @param v the node to add
    * @param e the edge to add
    */
-  public VEPair(V v, E e) {
+  public VEPair(N v, E e) {
     Preconditions.checkNotNull(v);
     Preconditions.checkNotNull(e);
 
@@ -40,7 +40,7 @@ public class VEPair<V, E> {
   }
 
   /** @return the node of this pair */
-  public V getV() {
+  public N getV() {
     return v;
   }
 

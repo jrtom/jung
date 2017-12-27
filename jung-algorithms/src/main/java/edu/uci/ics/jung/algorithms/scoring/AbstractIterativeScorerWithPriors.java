@@ -19,16 +19,16 @@ import java.util.function.Function;
  * probability, for each node, of 'jumping' to that node at each step in the algorithm (rather than
  * following a link out of that node).
  *
- * @param <V> the node type
+ * @param <N> the node type
  * @param <E> the edge type
  * @param <S> the score type
  */
-public abstract class AbstractIterativeScorerWithPriors<V, E, S>
-    extends AbstractIterativeScorer<V, E, S> implements NodeScorer<V, S> {
+public abstract class AbstractIterativeScorerWithPriors<N, E, S>
+    extends AbstractIterativeScorer<N, E, S> implements NodeScorer<N, S> {
   /**
    * The prior probability of each node being visited on a given 'jump' (non-link-following) step.
    */
-  protected Function<? super V, ? extends S> node_priors;
+  protected Function<? super N, ? extends S> node_priors;
 
   /** The probability of making a 'jump' at each step. */
   protected double alpha;
@@ -42,9 +42,9 @@ public abstract class AbstractIterativeScorerWithPriors<V, E, S>
    * @param alpha the probability of making a 'jump' at each step
    */
   public AbstractIterativeScorerWithPriors(
-      Network<V, E> g,
+      Network<N, E> g,
       Function<? super E, ? extends Number> edge_weights,
-      Function<? super V, ? extends S> node_priors,
+      Function<? super N, ? extends S> node_priors,
       double alpha) {
     super(g, edge_weights);
     this.node_priors = node_priors;
@@ -61,7 +61,7 @@ public abstract class AbstractIterativeScorerWithPriors<V, E, S>
    * @param alpha the probability of making a 'jump' at each step
    */
   public AbstractIterativeScorerWithPriors(
-      Network<V, E> g, Function<V, ? extends S> node_priors, double alpha) {
+      Network<N, E> g, Function<N, ? extends S> node_priors, double alpha) {
     super(g);
     this.node_priors = node_priors;
     this.alpha = alpha;
@@ -75,7 +75,7 @@ public abstract class AbstractIterativeScorerWithPriors<V, E, S>
     // initialize output values to priors
     // (output and current are swapped before each step(), so current will
     // have priors when update()s start happening)
-    for (V v : graph.nodes()) {
+    for (N v : graph.nodes()) {
       setOutputValue(v, getNodePrior(v));
     }
   }
@@ -86,7 +86,7 @@ public abstract class AbstractIterativeScorerWithPriors<V, E, S>
    * @param v the node whose prior probability is being queried
    * @return the prior probability for <code>v</code>
    */
-  protected S getNodePrior(V v) {
+  protected S getNodePrior(N v) {
     return node_priors.apply(v);
   }
 
@@ -95,7 +95,7 @@ public abstract class AbstractIterativeScorerWithPriors<V, E, S>
    *
    * @return a Function which maps each node to its prior probability
    */
-  public Function<? super V, ? extends S> getNodePriors() {
+  public Function<? super N, ? extends S> getNodePriors() {
     return node_priors;
   }
 

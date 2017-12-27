@@ -87,8 +87,8 @@ public class DefaultNodeLabelRenderer extends JLabel implements NodeLabelRendere
    * @param node the <code>Node</code>
    * @return the default label renderer
    */
-  public <V> Component getNodeLabelRendererComponent(
-      JComponent vv, Object value, Font font, boolean isSelected, V node) {
+  public <N> Component getNodeLabelRendererComponent(
+      JComponent vv, Object value, Font font, boolean isSelected, N node) {
 
     super.setForeground(vv.getForeground());
     if (isSelected) {

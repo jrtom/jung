@@ -32,11 +32,11 @@ import java.util.function.Function;
  * @see "Depth first search and linear graph algorithms by R. E. Tarjan (1972), SIAM J. Comp."
  * @author Joshua O'Madadhain
  */
-public class BicomponentClusterer<V, E> implements Function<Graph<V>, Set<Set<V>>> {
-  protected Map<V, Number> dfs_num;
-  protected Map<V, Number> high;
-  protected Map<V, V> parents;
-  protected Deque<EndpointPair<V>> stack;
+public class BicomponentClusterer<N, E> implements Function<Graph<N>, Set<Set<N>>> {
+  protected Map<N, Number> dfs_num;
+  protected Map<N, Number> high;
+  protected Map<N, N> parents;
+  protected Deque<EndpointPair<N>> stack;
   protected int converse_depth;
 
   /** Constructs a new bicomponent finder */
@@ -48,24 +48,24 @@ public class BicomponentClusterer<V, E> implements Function<Graph<V>, Set<Set<V>
    * @param graph the graph whose bicomponents are to be extracted
    * @return the <code>ClusterSet</code> of bicomponents
    */
-  public Set<Set<V>> apply(Graph<V> graph) {
-    Set<Set<V>> bicomponents = new LinkedHashSet<Set<V>>();
+  public Set<Set<N>> apply(Graph<N> graph) {
+    Set<Set<N>> bicomponents = new LinkedHashSet<Set<N>>();
 
     if (graph.nodes().isEmpty()) {
       return bicomponents;
     }
 
     // initialize DFS number for each node to 0
-    dfs_num = new HashMap<V, Number>();
-    for (V v : graph.nodes()) {
+    dfs_num = new HashMap<N, Number>();
+    for (N v : graph.nodes()) {
       dfs_num.put(v, 0);
     }
 
-    for (V v : graph.nodes()) {
+    for (N v : graph.nodes()) {
       if (dfs_num.get(v).intValue() == 0) { // if we haven't hit this node yet...
-        high = new HashMap<V, Number>();
-        stack = new ArrayDeque<EndpointPair<V>>();
-        parents = new HashMap<V, V>();
+        high = new HashMap<N, Number>();
+        stack = new ArrayDeque<EndpointPair<N>>();
+        parents = new HashMap<N, N>();
         converse_depth = graph.nodes().size();
         // find the biconnected components for this subgraph, starting from v
         findBiconnectedComponents(graph, v, bicomponents);
@@ -73,7 +73,7 @@ public class BicomponentClusterer<V, E> implements Function<Graph<V>, Set<Set<V>
         // if we only visited one node, this method won't have
         // ID'd it as a biconnected component, so mark it as one
         if (graph.nodes().size() - converse_depth == 1) {
-          Set<V> s = new HashSet<V>();
+          Set<N> s = new HashSet<N>();
           s.add(v);
           bicomponents.add(s);
         }
@@ -109,15 +109,15 @@ public class BicomponentClusterer<V, E> implements Function<Graph<V>, Set<Set<V>
    * @param v the starting place for searching for biconnected components
    * @param bicomponents storage for the biconnected components found by this algorithm
    */
-  protected void findBiconnectedComponents(Graph<V> g, V v, Set<Set<V>> bicomponents) {
+  protected void findBiconnectedComponents(Graph<N> g, N v, Set<Set<N>> bicomponents) {
     int v_dfs_num = converse_depth;
     dfs_num.put(v, v_dfs_num);
     converse_depth--;
     high.put(v, v_dfs_num);
 
-    for (V w : g.adjacentNodes(v)) {
+    for (N w : g.adjacentNodes(v)) {
       int w_dfs_num = dfs_num.get(w).intValue();
-      EndpointPair<V> vw = EndpointPair.unordered(v, w);
+      EndpointPair<N> vw = EndpointPair.unordered(v, w);
       if (w_dfs_num == 0) { // w hasn't yet been visited
         parents.put(w, v); // v is w's parent in the DFS tree
         stack.push(vw);
@@ -128,8 +128,8 @@ public class BicomponentClusterer<V, E> implements Function<Graph<V>, Set<Set<V>
           // i.e., v is an articulation point
           // thus, everything between the top of the stack and
           // v is part of a single biconnected component
-          Set<V> bicomponent = new HashSet<V>();
-          EndpointPair<V> endpoints;
+          Set<N> bicomponent = new HashSet<N>();
+          EndpointPair<N> endpoints;
           do {
             endpoints = stack.pop();
             bicomponent.add(endpoints.nodeU());

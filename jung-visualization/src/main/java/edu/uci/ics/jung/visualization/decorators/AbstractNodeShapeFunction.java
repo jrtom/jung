@@ -15,31 +15,31 @@ import edu.uci.ics.jung.visualization.util.NodeShapeFactory;
 import java.util.function.Function;
 
 /** @author Joshua O'Madadhain */
-public abstract class AbstractNodeShapeFunction<V> implements SettableNodeShapeFunction<V> {
-  protected Function<? super V, Integer> vsf;
-  protected Function<? super V, Float> varf;
-  protected NodeShapeFactory<V> factory;
+public abstract class AbstractNodeShapeFunction<N> implements SettableNodeShapeFunction<N> {
+  protected Function<? super N, Integer> vsf;
+  protected Function<? super N, Float> varf;
+  protected NodeShapeFactory<N> factory;
   public static final int DEFAULT_SIZE = 8;
   public static final float DEFAULT_ASPECT_RATIO = 1.0f;
 
   public AbstractNodeShapeFunction(
-      Function<? super V, Integer> vsf, Function<? super V, Float> varf) {
+      Function<? super N, Integer> vsf, Function<? super N, Float> varf) {
     this.vsf = vsf;
     this.varf = varf;
-    factory = new NodeShapeFactory<V>(vsf, varf);
+    factory = new NodeShapeFactory<N>(vsf, varf);
   }
 
   public AbstractNodeShapeFunction() {
     this(n -> DEFAULT_SIZE, n -> DEFAULT_ASPECT_RATIO);
   }
 
-  public void setSizeTransformer(Function<V, Integer> vsf) {
+  public void setSizeTransformer(Function<N, Integer> vsf) {
     this.vsf = vsf;
-    factory = new NodeShapeFactory<V>(vsf, varf);
+    factory = new NodeShapeFactory<N>(vsf, varf);
   }
 
-  public void setAspectRatioTransformer(Function<V, Float> varf) {
+  public void setAspectRatioTransformer(Function<N, Float> varf) {
     this.varf = varf;
-    factory = new NodeShapeFactory<V>(vsf, varf);
+    factory = new NodeShapeFactory<N>(vsf, varf);
   }
 }

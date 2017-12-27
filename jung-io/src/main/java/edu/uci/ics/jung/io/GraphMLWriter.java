@@ -31,20 +31,20 @@ import java.util.function.Function;
  *   <li>Does not indent lines for text-format readability.
  * </ul>
  */
-public class GraphMLWriter<V, E> {
-  protected Function<? super V, String> node_ids;
+public class GraphMLWriter<N, E> {
+  protected Function<? super N, String> node_ids;
   protected Function<? super E, String> edge_ids;
-  protected Map<String, GraphMLMetadata<Network<V, E>>> graph_data;
-  protected Map<String, GraphMLMetadata<V>> node_data;
+  protected Map<String, GraphMLMetadata<Network<N, E>>> graph_data;
+  protected Map<String, GraphMLMetadata<N>> node_data;
   protected Map<String, GraphMLMetadata<E>> edge_data;
-  protected Function<? super V, String> node_desc;
+  protected Function<? super N, String> node_desc;
   protected Function<? super E, String> edge_desc;
-  protected Function<? super Network<V, E>, String> graph_desc;
+  protected Function<? super Network<N, E>, String> graph_desc;
   protected boolean directed;
   protected int nest_level;
 
   public GraphMLWriter() {
-    node_ids = V::toString;
+    node_ids = N::toString;
     edge_ids = e -> null;
     graph_data = Collections.emptyMap();
     node_data = Collections.emptyMap();
@@ -62,7 +62,7 @@ public class GraphMLWriter<V, E> {
    * @param w the writer instance to which the graph data will be written out
    * @throws IOException if writing the graph fails
    */
-  public void save(Network<V, E> g, Writer w) throws IOException {
+  public void save(Network<N, E> g, Writer w) throws IOException {
     BufferedWriter bw = new BufferedWriter(w);
 
     // write out boilerplate header
@@ -100,7 +100,7 @@ public class GraphMLWriter<V, E> {
 
     // write graph data out if any
     for (String key : graph_data.keySet()) {
-      Function<Network<V, E>, ?> t = graph_data.get(key).transformer;
+      Function<Network<N, E>, ?> t = graph_data.get(key).transformer;
       Object value = t.apply(g);
       if (value != null) {
         bw.write(format("data", "key", key, value.toString()) + "\n");
@@ -128,8 +128,8 @@ public class GraphMLWriter<V, E> {
     w.write(to_write);
   }
 
-  protected void writeNodeData(Network<V, E> graph, BufferedWriter w) throws IOException {
-    for (V v : graph.nodes()) {
+  protected void writeNodeData(Network<N, E> graph, BufferedWriter w) throws IOException {
+    for (N v : graph.nodes()) {
       String v_string = String.format("<node id=\"%s\"", node_ids.apply(v));
       boolean closed = false;
       // write description out if any
@@ -141,7 +141,7 @@ public class GraphMLWriter<V, E> {
       }
       // write data out if any
       for (String key : node_data.keySet()) {
-        Function<V, ?> t = node_data.get(key).transformer;
+        Function<N, ?> t = node_data.get(key).transformer;
         if (t != null) {
           Object value = t.apply(v);
           if (value != null) {
@@ -161,9 +161,9 @@ public class GraphMLWriter<V, E> {
     }
   }
 
-  protected void writeEdgeData(Network<V, E> g, Writer w) throws IOException {
+  protected void writeEdgeData(Network<N, E> g, Writer w) throws IOException {
     for (E e : g.edges()) {
-      EndpointPair<V> endpoints = g.incidentNodes(e);
+      EndpointPair<N> endpoints = g.incidentNodes(e);
       String id = edge_ids.apply(e);
       String e_string;
       e_string = "<edge ";
@@ -248,7 +248,7 @@ public class GraphMLWriter<V, E> {
    *
    * @param node_ids a mapping from node to ID
    */
-  public void setNodeIDs(Function<V, String> node_ids) {
+  public void setNodeIDs(Function<N, String> node_ids) {
     this.node_ids = node_ids;
   }
 
@@ -267,7 +267,7 @@ public class GraphMLWriter<V, E> {
    *
    * @param graph_map map from data type name to graph data
    */
-  public void setGraphData(Map<String, GraphMLMetadata<Network<V, E>>> graph_map) {
+  public void setGraphData(Map<String, GraphMLMetadata<Network<N, E>>> graph_map) {
     graph_data = graph_map;
   }
 
@@ -276,7 +276,7 @@ public class GraphMLWriter<V, E> {
    *
    * @param node_map map from data type name to node data
    */
-  public void setNodeData(Map<String, GraphMLMetadata<V>> node_map) {
+  public void setNodeData(Map<String, GraphMLMetadata<N>> node_map) {
     node_data = node_map;
   }
 
@@ -301,12 +301,12 @@ public class GraphMLWriter<V, E> {
       String id,
       String description,
       String default_value,
-      Function<Network<V, E>, String> graph_transformer) {
+      Function<Network<N, E>, String> graph_transformer) {
     if (graph_data.equals(Collections.EMPTY_MAP)) {
-      graph_data = new HashMap<String, GraphMLMetadata<Network<V, E>>>();
+      graph_data = new HashMap<String, GraphMLMetadata<Network<N, E>>>();
     }
     graph_data.put(
-        id, new GraphMLMetadata<Network<V, E>>(description, default_value, graph_transformer));
+        id, new GraphMLMetadata<Network<N, E>>(description, default_value, graph_transformer));
   }
 
   /**
@@ -318,11 +318,11 @@ public class GraphMLWriter<V, E> {
    * @param node_transformer a mapping from nodes to their string representations
    */
   public void addNodeData(
-      String id, String description, String default_value, Function<V, String> node_transformer) {
+      String id, String description, String default_value, Function<N, String> node_transformer) {
     if (node_data.equals(Collections.EMPTY_MAP)) {
-      node_data = new HashMap<String, GraphMLMetadata<V>>();
+      node_data = new HashMap<String, GraphMLMetadata<N>>();
     }
-    node_data.put(id, new GraphMLMetadata<V>(description, default_value, node_transformer));
+    node_data.put(id, new GraphMLMetadata<N>(description, default_value, node_transformer));
   }
 
   /**
@@ -346,7 +346,7 @@ public class GraphMLWriter<V, E> {
    *
    * @param node_desc a mapping from nodes to their descriptions
    */
-  public void setNodeDescriptions(Function<V, String> node_desc) {
+  public void setNodeDescriptions(Function<N, String> node_desc) {
     this.node_desc = node_desc;
   }
 
@@ -364,7 +364,7 @@ public class GraphMLWriter<V, E> {
    *
    * @param graph_desc a mapping from graphs to their descriptions
    */
-  public void setGraphDescriptions(Function<Network<V, E>, String> graph_desc) {
+  public void setGraphDescriptions(Function<Network<N, E>, String> graph_desc) {
     this.graph_desc = graph_desc;
   }
 }

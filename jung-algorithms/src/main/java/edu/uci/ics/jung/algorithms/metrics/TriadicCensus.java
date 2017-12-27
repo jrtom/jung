@@ -87,25 +87,25 @@ public class TriadicCensus {
    * effectively 1-based.)
    *
    * @param g the graph whose properties are being measured
-   * @param <V> the node type
+   * @param <N> the node type
    * @return an array encoding the number of occurrences of each triad type
    */
-  public static <V> long[] getCounts(Graph<V> g) {
+  public static <N> long[] getCounts(Graph<N> g) {
     Preconditions.checkArgument(g.isDirected(), "input graph must be directed");
     long[] count = new long[MAX_TRIADS];
 
     // TODO: can we make this more efficient and not require the extra list?
-    List<V> id = new ArrayList<V>(g.nodes());
+    List<N> id = new ArrayList<N>(g.nodes());
 
     // apply algorithm to each edge, one at at time
     for (int i_v = 0; i_v < id.size(); i_v++) {
-      V v = id.get(i_v);
-      for (V u : g.adjacentNodes(v)) {
+      N v = id.get(i_v);
+      for (N u : g.adjacentNodes(v)) {
         int triType = -1;
         if (id.indexOf(u) <= i_v) {
           continue;
         }
-        Set<V> neighbors = new HashSet<V>(g.adjacentNodes(u));
+        Set<N> neighbors = new HashSet<N>(g.adjacentNodes(u));
         neighbors.addAll(g.adjacentNodes(v));
         neighbors.remove(u);
         neighbors.remove(v);
@@ -116,7 +116,7 @@ public class TriadicCensus {
           triType = 2;
         }
         count[triType] += id.size() - neighbors.size() - 2;
-        for (V w : neighbors) {
+        for (N w : neighbors) {
           if (shouldCount(g, id, u, v, w)) {
             count[triType(triCode(g, u, v, w))]++;
           }
@@ -141,10 +141,10 @@ public class TriadicCensus {
    * @param u a node in g
    * @param v a node in g
    * @param w a node in g
-   * @param <V> the node type
+   * @param <N> the node type
    * @return an int encoding the presence of all links between u, v, and w
    */
-  public static <V, E> int triCode(Graph<V> g, V u, V v, V w) {
+  public static <N, E> int triCode(Graph<N> g, N u, N v, N w) {
     int i = 0;
     i += link(g, v, u) ? 1 : 0;
     i += link(g, u, v) ? 2 : 0;
@@ -155,7 +155,7 @@ public class TriadicCensus {
     return i;
   }
 
-  protected static <V, E> boolean link(Graph<V> g, V a, V b) {
+  protected static <N, E> boolean link(Graph<N> g, N a, N b) {
     return g.predecessors(b).contains(a);
   }
 
@@ -185,12 +185,12 @@ public class TriadicCensus {
    * @param u a node in g
    * @param v a node in g
    * @param w a node in g
-   * @param <V> the node type
+   * @param <N> the node type
    * @param <E> the edge type
    * @return true if index(u) &lt; index(w), or if index(v) &lt; index(w) &lt; index(u) and v
    *     doesn't link to w; false otherwise
    */
-  protected static <V, E> boolean shouldCount(Graph<V> g, List<V> id, V u, V v, V w) {
+  protected static <N, E> boolean shouldCount(Graph<N> g, List<N> id, N u, N v, N w) {
     int i_u = id.indexOf(u);
     int i_w = id.indexOf(w);
     if (i_u < i_w) {

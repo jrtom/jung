@@ -29,33 +29,33 @@ import java.util.function.Function;
  *
  * @author Scott White
  */
-public class WeakComponentClusterer<V, E> implements Function<Network<V, E>, Set<Set<V>>> {
+public class WeakComponentClusterer<N, E> implements Function<Network<N, E>, Set<Set<N>>> {
   /**
    * Extracts the weak components from a graph.
    *
    * @param graph the graph whose weak components are to be extracted
    * @return the list of weak components
    */
-  public Set<Set<V>> apply(Network<V, E> graph) {
+  public Set<Set<N>> apply(Network<N, E> graph) {
 
-    Set<Set<V>> clusterSet = new HashSet<Set<V>>();
+    Set<Set<N>> clusterSet = new HashSet<Set<N>>();
 
-    HashSet<V> unvisitedNodes = new HashSet<V>(graph.nodes());
+    HashSet<N> unvisitedNodes = new HashSet<N>(graph.nodes());
 
     while (!unvisitedNodes.isEmpty()) {
-      Set<V> cluster = new HashSet<V>();
-      V root = unvisitedNodes.iterator().next();
+      Set<N> cluster = new HashSet<N>();
+      N root = unvisitedNodes.iterator().next();
       unvisitedNodes.remove(root);
       cluster.add(root);
 
-      Queue<V> queue = new LinkedList<V>();
+      Queue<N> queue = new LinkedList<N>();
       queue.add(root);
 
       while (!queue.isEmpty()) {
-        V currentNode = queue.remove();
-        Collection<V> neighbors = graph.adjacentNodes(currentNode);
+        N currentNode = queue.remove();
+        Collection<N> neighbors = graph.adjacentNodes(currentNode);
 
-        for (V neighbor : neighbors) {
+        for (N neighbor : neighbors) {
           if (unvisitedNodes.contains(neighbor)) {
             queue.add(neighbor);
             unvisitedNodes.remove(neighbor);

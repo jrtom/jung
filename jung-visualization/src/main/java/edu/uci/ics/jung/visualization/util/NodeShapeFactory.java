@@ -25,18 +25,18 @@ import org.slf4j.LoggerFactory;
  * A utility class for generating <code>Shape</code>s for drawing nodes. The available shapes
  * include rectangles, rounded rectangles, ellipses, regular polygons, and regular stars. The
  * dimensions of the requested shapes are defined by the specified node layoutSize function
- * (specified by a {@code Function<? super V, Integer>}) and node aspect ratio function (specified
- * by a {@code Function<? super V, Float>}) implementations: the width of the bounding box of the
+ * (specified by a {@code Function<? super N, Integer>}) and node aspect ratio function (specified
+ * by a {@code Function<? super N, Float>}) implementations: the width of the bounding box of the
  * shape is given by the node layoutSize, and the height is given by the layoutSize multiplied by
  * the node's aspect ratio.
  *
  * @author Joshua O'Madadhain
  */
-public class NodeShapeFactory<V> {
+public class NodeShapeFactory<N> {
 
   private static final Logger log = LoggerFactory.getLogger(NodeShapeFactory.class);
-  protected Function<? super V, Integer> vsf;
-  protected Function<? super V, Float> varf;
+  protected Function<? super N, Integer> vsf;
+  protected Function<? super N, Float> varf;
 
   /**
    * Creates an instance with the specified node layoutSize and aspect ratio functions.
@@ -44,7 +44,7 @@ public class NodeShapeFactory<V> {
    * @param vsf provides a layoutSize (width) for each node
    * @param varf provides a height/width ratio for each node
    */
-  public NodeShapeFactory(Function<? super V, Integer> vsf, Function<? super V, Float> varf) {
+  public NodeShapeFactory(Function<? super N, Integer> vsf, Function<? super N, Float> varf) {
     this.vsf = vsf;
     this.varf = varf;
   }
@@ -66,7 +66,7 @@ public class NodeShapeFactory<V> {
    * @param v the node for which the shape will be drawn
    * @return a rectangle for this node
    */
-  public Rectangle2D getRectangle(V v) {
+  public Rectangle2D getRectangle(N v) {
     float width = vsf.apply(v);
     float height = width * varf.apply(v);
     float h_offset = -(width / 2);
@@ -84,7 +84,7 @@ public class NodeShapeFactory<V> {
    * @param v the node for which the shape will be drawn
    * @return an ellipse for this node
    */
-  public Ellipse2D getEllipse(V v) {
+  public Ellipse2D getEllipse(N v) {
     theEllipse.setFrame(getRectangle(v));
     return theEllipse;
   }
@@ -98,7 +98,7 @@ public class NodeShapeFactory<V> {
    * @param v the node for which the shape will be drawn
    * @return an round rectangle for this node
    */
-  public RoundRectangle2D getRoundRectangle(V v) {
+  public RoundRectangle2D getRoundRectangle(N v) {
     Rectangle2D frame = getRectangle(v);
     float arc_size = (float) Math.min(frame.getHeight(), frame.getWidth()) / 2;
     theRoundRectangle.setRoundRect(
@@ -116,7 +116,7 @@ public class NodeShapeFactory<V> {
    * @param num_sides the number of sides of the polygon; must be &ge; 3.
    * @return a regular polygon for this node
    */
-  public Shape getRegularPolygon(V v, int num_sides) {
+  public Shape getRegularPolygon(N v, int num_sides) {
     GeneralPath thePolygon = new GeneralPath();
     Preconditions.checkArgument(num_sides >= 3, "Number of sides must be >= 3");
     Rectangle2D frame = getRectangle(v);
@@ -160,7 +160,7 @@ public class NodeShapeFactory<V> {
    * @param num_points the number of points of the polygon; must be &ge; 5.
    * @return an star shape for this node
    */
-  public Shape getRegularStar(V v, int num_points) {
+  public Shape getRegularStar(N v, int num_points) {
     GeneralPath thePolygon = new GeneralPath();
     Preconditions.checkArgument(num_points >= 5, "Number of points must be >= 5");
     Rectangle2D frame = getRectangle(v);

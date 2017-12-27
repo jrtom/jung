@@ -25,10 +25,10 @@ import java.util.Set;
  * to node sets or from a collection of (disjoint) node sets, such as those created by various
  * clustering methods.
  */
-public class NodePartition<V> {
-  private Map<V, Set<V>> node_partition_map;
-  private Collection<Set<V>> node_sets;
-  private Graph<V> graph;
+public class NodePartition<N> {
+  private Map<N, Set<N>> node_partition_map;
+  private Collection<Set<N>> node_sets;
+  private Graph<N> graph;
 
   /**
    * Creates an instance based on the specified graph and mapping from nodes to node sets, and
@@ -37,7 +37,7 @@ public class NodePartition<V> {
    * @param g the graph over which the node partition is defined
    * @param partition_map the mapping from nodes to node sets (partitions)
    */
-  public NodePartition(Graph<V> g, Map<V, Set<V>> partition_map) {
+  public NodePartition(Graph<N> g, Map<N, Set<N>> partition_map) {
     this.node_partition_map = Collections.unmodifiableMap(partition_map);
     this.graph = g;
   }
@@ -52,7 +52,7 @@ public class NodePartition<V> {
    * @param partition_map the mapping from nodes to node sets (partitions)
    * @param node_sets the set of disjoint node sets
    */
-  public NodePartition(Graph<V> g, Map<V, Set<V>> partition_map, Collection<Set<V>> node_sets) {
+  public NodePartition(Graph<N> g, Map<N, Set<N>> partition_map, Collection<Set<N>> node_sets) {
     this.node_partition_map = Collections.unmodifiableMap(partition_map);
     this.node_sets = node_sets;
     this.graph = g;
@@ -65,7 +65,7 @@ public class NodePartition<V> {
    * @param g the graph over which the node partition is defined
    * @param node_sets the set of disjoint node sets
    */
-  public NodePartition(Graph<V> g, Collection<Set<V>> node_sets) {
+  public NodePartition(Graph<N> g, Collection<Set<N>> node_sets) {
     this.node_sets = node_sets;
     this.graph = g;
   }
@@ -75,7 +75,7 @@ public class NodePartition<V> {
    *
    * @return the graph on which the partition is defined
    */
-  public Graph<V> getGraph() {
+  public Graph<N> getGraph() {
     return graph;
   }
 
@@ -85,11 +85,11 @@ public class NodePartition<V> {
    *
    * @return a map from each node in the input graph to a node set
    */
-  public Map<V, Set<V>> getNodeToPartitionMap() {
+  public Map<N, Set<N>> getNodeToPartitionMap() {
     if (node_partition_map == null) {
-      this.node_partition_map = new HashMap<V, Set<V>>();
-      for (Set<V> set : this.node_sets) {
-        for (V v : set) {
+      this.node_partition_map = new HashMap<N, Set<N>>();
+      for (Set<N> set : this.node_sets) {
+        for (N v : set) {
           this.node_partition_map.put(v, set);
         }
       }
@@ -104,9 +104,9 @@ public class NodePartition<V> {
    * @return a collection of node sets such that each node in the instance's graph is in exactly one
    *     set
    */
-  public Collection<Set<V>> getNodePartitions() {
+  public Collection<Set<N>> getNodePartitions() {
     if (node_sets == null) {
-      this.node_sets = new HashSet<Set<V>>();
+      this.node_sets = new HashSet<Set<N>>();
       this.node_sets.addAll(node_partition_map.values());
     }
     return node_sets;

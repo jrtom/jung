@@ -19,7 +19,7 @@ import java.util.function.Function;
  * essence it allows the edge weight instance variable to be of type <code>VEPair,W</code> even if
  * the edge weight <code>Transformer</code> only operates on edges.
  */
-public class DelegateToEdgeTransformer<V, E> implements Function<VEPair<V, E>, Number> {
+public class DelegateToEdgeTransformer<N, E> implements Function<VEPair<N, E>, Number> {
   /** The Function to which this instance delegates its function. */
   protected Function<? super E, ? extends Number> delegate;
 
@@ -33,7 +33,7 @@ public class DelegateToEdgeTransformer<V, E> implements Function<VEPair<V, E>, N
   }
 
   /** @see Function#apply(Object) */
-  public Number apply(VEPair<V, E> arg0) {
+  public Number apply(VEPair<N, E> arg0) {
     return delegate.apply(arg0.getE());
   }
 }

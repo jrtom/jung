@@ -4,12 +4,12 @@ import com.google.common.graph.Network;
 
 /**
  * @author tom nelson
- * @param <V> the node type
+ * @param <N> the node type
  * @param <E> the edge type
  */
-public abstract class NetworkEvent<V, E> {
+public abstract class NetworkEvent<N, E> {
 
-  protected Network<V, E> source;
+  protected Network<N, E> source;
   protected Type type;
 
   /**
@@ -19,7 +19,7 @@ public abstract class NetworkEvent<V, E> {
    * @param source the graph whose event this is
    * @param type the type of event this is
    */
-  public NetworkEvent(Network<V, E> source, Type type) {
+  public NetworkEvent(Network<N, E> source, Type type) {
     this.source = source;
     this.type = type;
   }
@@ -33,8 +33,8 @@ public abstract class NetworkEvent<V, E> {
   }
 
   /** An event type pertaining to graph nodes. */
-  public static class Node<V, E> extends NetworkEvent<V, E> {
-    protected V node;
+  public static class Node<N, E> extends NetworkEvent<N, E> {
+    protected N node;
 
     /**
      * Creates a graph event for the specified graph, node, and type.
@@ -43,13 +43,13 @@ public abstract class NetworkEvent<V, E> {
      * @param type the type of event this is
      * @param node the node involved in this event
      */
-    public Node(Network<V, E> source, Type type, V node) {
+    public Node(Network<N, E> source, Type type, N node) {
       super(source, type);
       this.node = node;
     }
 
     /** @return the node associated with this event */
-    public V getNode() {
+    public N getNode() {
       return node;
     }
 
@@ -60,7 +60,7 @@ public abstract class NetworkEvent<V, E> {
   }
 
   /** An event type pertaining to graph edges. */
-  public static class Edge<V, E> extends NetworkEvent<V, E> {
+  public static class Edge<N, E> extends NetworkEvent<N, E> {
     protected E edge;
 
     /**
@@ -70,7 +70,7 @@ public abstract class NetworkEvent<V, E> {
      * @param type the type of event this is
      * @param edge the edge involved in this event
      */
-    public Edge(Network<V, E> source, Type type, E edge) {
+    public Edge(Network<N, E> source, Type type, E edge) {
       super(source, type);
       this.edge = edge;
     }
@@ -87,7 +87,7 @@ public abstract class NetworkEvent<V, E> {
   }
 
   /** @return the source */
-  public Network<V, E> getSource() {
+  public Network<N, E> getSource() {
     return source;
   }
 

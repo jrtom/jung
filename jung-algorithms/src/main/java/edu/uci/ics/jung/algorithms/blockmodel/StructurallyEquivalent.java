@@ -38,19 +38,19 @@ import java.util.function.Function;
  *
  * @author Danyel Fisher
  */
-public class StructurallyEquivalent<V> implements Function<Graph<V>, NodePartition<V>> {
-  public NodePartition<V> apply(Graph<V> g) {
-    ImmutableSet<ImmutableList<V>> nodePairs = getEquivalentPairs(g);
+public class StructurallyEquivalent<N> implements Function<Graph<N>, NodePartition<N>> {
+  public NodePartition<N> apply(Graph<N> g) {
+    ImmutableSet<ImmutableList<N>> nodePairs = getEquivalentPairs(g);
 
-    Set<Set<V>> rv = new HashSet<Set<V>>();
-    Map<V, Set<V>> intermediate = new HashMap<V, Set<V>>();
-    for (ImmutableList<V> pair : nodePairs) {
-      Set<V> res = intermediate.get(pair.get(0));
+    Set<Set<N>> rv = new HashSet<Set<N>>();
+    Map<N, Set<N>> intermediate = new HashMap<N, Set<N>>();
+    for (ImmutableList<N> pair : nodePairs) {
+      Set<N> res = intermediate.get(pair.get(0));
       if (res == null) {
         res = intermediate.get(pair.get(1));
       }
       if (res == null) { // we haven't seen this one before
-        res = new HashSet<V>();
+        res = new HashSet<N>();
       }
       res.add(pair.get(0));
       res.add(pair.get(1));
@@ -61,15 +61,15 @@ public class StructurallyEquivalent<V> implements Function<Graph<V>, NodePartiti
 
     // pick up the nodes which don't appear in intermediate; they are
     // singletons (equivalence classes of size 1)
-    Collection<V> singletons = new ArrayList<V>(g.nodes());
+    Collection<N> singletons = new ArrayList<N>(g.nodes());
     singletons.removeAll(intermediate.keySet());
-    for (V v : singletons) {
-      Set<V> vSet = Collections.singleton(v);
+    for (N v : singletons) {
+      Set<N> vSet = Collections.singleton(v);
       intermediate.put(v, vSet);
       rv.add(vSet);
     }
 
-    return new NodePartition<V>(g, intermediate, rv);
+    return new NodePartition<N>(g, intermediate, rv);
   }
 
   /**
@@ -80,20 +80,20 @@ public class StructurallyEquivalent<V> implements Function<Graph<V>, NodePartiti
    * @return an immutable set of pairs of nodes, where all pairs are represented as immutable lists,
    *     and the nodes in the inner pairs are equivalent.
    */
-  protected ImmutableSet<ImmutableList<V>> getEquivalentPairs(Graph<V> g) {
+  protected ImmutableSet<ImmutableList<N>> getEquivalentPairs(Graph<N> g) {
 
-    ImmutableSet.Builder<ImmutableList<V>> rv = ImmutableSet.builder();
-    Set<V> alreadyEquivalent = new HashSet<V>();
+    ImmutableSet.Builder<ImmutableList<N>> rv = ImmutableSet.builder();
+    Set<N> alreadyEquivalent = new HashSet<N>();
 
-    List<V> l = new ArrayList<V>(g.nodes());
+    List<N> l = new ArrayList<N>(g.nodes());
 
-    for (V v1 : l) {
+    for (N v1 : l) {
       if (alreadyEquivalent.contains(v1)) {
         continue;
       }
 
-      for (Iterator<V> iterator = l.listIterator(l.indexOf(v1) + 1); iterator.hasNext(); ) {
-        V v2 = iterator.next();
+      for (Iterator<N> iterator = l.listIterator(l.indexOf(v1) + 1); iterator.hasNext(); ) {
+        N v2 = iterator.next();
 
         if (alreadyEquivalent.contains(v2)) {
           continue;
@@ -104,7 +104,7 @@ public class StructurallyEquivalent<V> implements Function<Graph<V>, NodePartiti
         }
 
         if (isStructurallyEquivalent(g, v1, v2)) {
-          ImmutableList<V> pair = ImmutableList.of(v1, v2);
+          ImmutableList<N> pair = ImmutableList.of(v1, v2);
           alreadyEquivalent.add(v2);
           rv.add(pair);
         }
@@ -121,21 +121,21 @@ public class StructurallyEquivalent<V> implements Function<Graph<V>, NodePartiti
    * @return {@code true} if {@code v1}'s predecessors/successors are equal to {@code v2}'s
    *     predecessors/successors
    */
-  protected boolean isStructurallyEquivalent(Graph<V> g, V v1, V v2) {
+  protected boolean isStructurallyEquivalent(Graph<N> g, N v1, N v2) {
 
     if (g.degree(v1) != g.degree(v2)) {
       return false;
     }
 
-    Set<V> n1 = new HashSet<V>(g.predecessors(v1));
+    Set<N> n1 = new HashSet<N>(g.predecessors(v1));
     n1.remove(v2);
     n1.remove(v1);
-    Set<V> n2 = new HashSet<V>(g.predecessors(v2));
+    Set<N> n2 = new HashSet<N>(g.predecessors(v2));
     n2.remove(v1);
     n2.remove(v2);
 
-    Set<V> o1 = new HashSet<V>(g.successors(v1));
-    Set<V> o2 = new HashSet<V>(g.successors(v2));
+    Set<N> o1 = new HashSet<N>(g.successors(v1));
+    Set<N> o2 = new HashSet<N>(g.successors(v2));
     o1.remove(v1);
     o1.remove(v2);
     o2.remove(v1);
@@ -164,7 +164,7 @@ public class StructurallyEquivalent<V> implements Function<Graph<V>, NodePartiti
    * @param v2 the second node to compare
    * @return {@code true} if the nodes can be equivalent
    */
-  protected boolean canBeEquivalent(V v1, V v2) {
+  protected boolean canBeEquivalent(N v1, N v2) {
     return true;
   }
 }

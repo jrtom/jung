@@ -30,20 +30,20 @@ import java.util.function.Function;
  * @see "Ulrik Brandes: A Faster Algorithm for Betweenness Centrality. Journal of Mathematical
  *     Sociology 25(2):163-177, 2001."
  */
-public class BetweennessCentrality<V, E> implements NodeScorer<V, Double>, EdgeScorer<E, Double> {
-  protected Network<V, E> graph;
-  protected Map<V, Double> node_scores;
+public class BetweennessCentrality<N, E> implements NodeScorer<N, Double>, EdgeScorer<E, Double> {
+  protected Network<N, E> graph;
+  protected Map<N, Double> node_scores;
   protected Map<E, Double> edge_scores;
-  protected Map<V, BetweennessData> node_data;
+  protected Map<N, BetweennessData> node_data;
 
   /**
    * Calculates betweenness scores based on the all-pairs unweighted shortest paths in the graph.
    *
    * @param graph the graph for which the scores are to be calculated
    */
-  public BetweennessCentrality(Network<V, E> graph) {
+  public BetweennessCentrality(Network<N, E> graph) {
     initialize(graph);
-    computeBetweenness(new LinkedList<V>(), n -> 1);
+    computeBetweenness(new LinkedList<N>(), n -> 1);
   }
 
   /**
@@ -56,7 +56,7 @@ public class BetweennessCentrality<V, E> implements NodeScorer<V, Double>, EdgeS
    * @param edge_weights the edge weights to be used in the path length calculations
    */
   public BetweennessCentrality(
-      Network<V, E> graph, Function<? super E, ? extends Number> edge_weights) {
+      Network<N, E> graph, Function<? super E, ? extends Number> edge_weights) {
     // reject negative-weight edges up front
     for (E e : graph.edges()) {
       double e_weight = edge_weights.apply(e).doubleValue();
@@ -65,18 +65,18 @@ public class BetweennessCentrality<V, E> implements NodeScorer<V, Double>, EdgeS
 
     initialize(graph);
     computeBetweenness(
-        new MapBinaryHeap<V>(
+        new MapBinaryHeap<N>(
             (v1, v2) -> Double.compare(node_data.get(v1).distance, node_data.get(v2).distance)),
         edge_weights);
   }
 
-  protected void initialize(Network<V, E> graph) {
+  protected void initialize(Network<N, E> graph) {
     this.graph = graph;
-    this.node_scores = new HashMap<V, Double>();
+    this.node_scores = new HashMap<N, Double>();
     this.edge_scores = new HashMap<E, Double>();
-    this.node_data = new HashMap<V, BetweennessData>();
+    this.node_data = new HashMap<N, BetweennessData>();
 
-    for (V v : graph.nodes()) {
+    for (N v : graph.nodes()) {
       this.node_scores.put(v, 0.0);
     }
 
@@ -86,33 +86,33 @@ public class BetweennessCentrality<V, E> implements NodeScorer<V, Double>, EdgeS
   }
 
   protected void computeBetweenness(
-      Queue<V> queue, Function<? super E, ? extends Number> edge_weights) {
-    for (V v : graph.nodes()) {
+      Queue<N> queue, Function<? super E, ? extends Number> edge_weights) {
+    for (N v : graph.nodes()) {
       // initialize the betweenness data for this new node
-      for (V s : graph.nodes()) {
+      for (N s : graph.nodes()) {
         this.node_data.put(s, new BetweennessData());
       }
 
       node_data.get(v).numSPs = 1;
       node_data.get(v).distance = 0;
 
-      Deque<V> stack = new ArrayDeque<V>();
+      Deque<N> stack = new ArrayDeque<N>();
       queue.offer(v);
 
       while (!queue.isEmpty()) {
-        //                V w = queue.remove();
-        V w = queue.poll();
+        //                N w = queue.remove();
+        N w = queue.poll();
         stack.push(w);
         BetweennessData w_data = node_data.get(w);
 
         for (E e : graph.outEdges(w)) {
-          V x = graph.incidentNodes(e).adjacentNode(w);
+          N x = graph.incidentNodes(e).adjacentNode(w);
           if (x.equals(w)) {
             continue;
           }
           double wx_weight = edge_weights.apply(e).doubleValue();
 
-          //                for(V x : graph.getSuccessors(w))
+          //                for(N x : graph.getSuccessors(w))
           //                {
           //                	if (x.equals(w))
           //                		continue;
@@ -155,7 +155,7 @@ public class BetweennessCentrality<V, E> implements NodeScorer<V, Double>, EdgeS
             // (we have a new shortest path distance to x)
             x_data.incomingEdges.clear();
             // update x's position in queue
-            ((MapBinaryHeap<V>) queue).update(x);
+            ((MapBinaryHeap<N>) queue).update(x);
           }
           //                  if (node_data.get(x).distance == node_data.get(w).distance + 1)
           //
@@ -167,7 +167,7 @@ public class BetweennessCentrality<V, E> implements NodeScorer<V, Double>, EdgeS
           //                    }
         }
         for (E e : graph.outEdges(w)) {
-          V x = graph.incidentNodes(e).adjacentNode(w);
+          N x = graph.incidentNodes(e).adjacentNode(w);
           if (x.equals(w)) {
             continue;
           }
@@ -182,11 +182,11 @@ public class BetweennessCentrality<V, E> implements NodeScorer<V, Double>, EdgeS
         }
       }
       while (!stack.isEmpty()) {
-        V x = stack.pop();
+        N x = stack.pop();
 
-        //    		    for (V w : node_data.get(x).predecessors)
+        //    		    for (N w : node_data.get(x).predecessors)
         for (E e : node_data.get(x).incomingEdges) {
-          V w = graph.incidentNodes(e).adjacentNode(x);
+          N w = graph.incidentNodes(e).adjacentNode(x);
           double partialDependency =
               node_data.get(w).numSPs
                   / node_data.get(x).numSPs
@@ -208,7 +208,7 @@ public class BetweennessCentrality<V, E> implements NodeScorer<V, Double>, EdgeS
     }
 
     if (!graph.isDirected()) {
-      for (V v : graph.nodes()) {
+      for (N v : graph.nodes()) {
         double v_score = node_scores.get(v).doubleValue();
         v_score /= 2.0;
         node_scores.put(v, v_score);
@@ -225,29 +225,29 @@ public class BetweennessCentrality<V, E> implements NodeScorer<V, Double>, EdgeS
 
   //	protected void computeWeightedBetweenness(Function<E, ? extends Number> edge_weights)
   //	{
-  //		for (V v : graph.nodes())
+  //		for (N v : graph.nodes())
   //		{
   //			// initialize the betweenness data for this new node
-  //			for (V s : graph.nodes())
+  //			for (N s : graph.nodes())
   //				this.node_data.put(s, new BetweennessData());
   //            node_data.get(v).numSPs = 1;
   //            node_data.get(v).distance = 0;
   //
-  //            Stack<V> stack = new Stack<V>();
-  ////            Buffer<V> queue = new UnboundedFifoBuffer<V>();
-  //            SortedSet<V> pqueue = new TreeSet<V>(new BetweennessComparator());
+  //            Stack<N> stack = new Stack<N>();
+  ////            Buffer<N> queue = new UnboundedFifoBuffer<N>();
+  //            SortedSet<N> pqueue = new TreeSet<N>(new BetweennessComparator());
   ////          queue.add(v);
   //            pqueue.add(v);
   //
   ////            while (!queue.isEmpty())
   //            while (!pqueue.isEmpty())
   //            {
-  ////              V w = queue.remove();
+  ////              N w = queue.remove();
   //            	V w = pqueue.first();
   //            	pqueue.remove(w);
   //                stack.push(w);
   //
-  ////                for(V x : graph.getSuccessors(w))
+  ////                for(N x : graph.getSuccessors(w))
   //                for (E e : graph.getOutEdges(w))
   //                {
   //                	// TODO (jrtom): change this to getOtherNodes(w, e)
@@ -284,7 +284,7 @@ public class BetweennessCentrality<V, E> implements NodeScorer<V, Double>, EdgeS
   //	}
 
   @Override
-  public Double getNodeScore(V v) {
+  public Double getNodeScore(N v) {
     return node_scores.get(v);
   }
 
@@ -294,7 +294,7 @@ public class BetweennessCentrality<V, E> implements NodeScorer<V, Double>, EdgeS
   }
 
   @Override
-  public Map<V, Double> nodeScores() {
+  public Map<N, Double> nodeScores() {
     return Collections.unmodifiableMap(node_scores);
   }
 
@@ -306,14 +306,14 @@ public class BetweennessCentrality<V, E> implements NodeScorer<V, Double>, EdgeS
   private class BetweennessData {
     double distance;
     double numSPs;
-    //        List<V> predecessors;
+    //        List<N> predecessors;
     List<E> incomingEdges;
     double dependency;
 
     BetweennessData() {
       distance = -1;
       numSPs = 0;
-      //            predecessors = new ArrayList<V>();
+      //            predecessors = new ArrayList<N>();
       incomingEdges = new ArrayList<E>();
       dependency = 0;
     }

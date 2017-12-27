@@ -40,7 +40,7 @@ import java.util.function.Function;
  *
  * @see "The Anatomy of a Large-Scale Hypertextual Web Search Engine by L. Page and S. Brin, 1999"
  */
-public class PageRank<V, E> extends PageRankWithPriors<V, E> {
+public class PageRank<N, E> extends PageRankWithPriors<N, E> {
 
   /**
    * Creates an instance for the specified graph, edge weights, and random jump probability.
@@ -49,7 +49,7 @@ public class PageRank<V, E> extends PageRankWithPriors<V, E> {
    * @param edge_weight the edge weights (transition probabilities)
    * @param alpha the probability of taking a random jump to an arbitrary node
    */
-  public PageRank(Network<V, E> graph, Function<E, ? extends Number> edge_weight, double alpha) {
+  public PageRank(Network<N, E> graph, Function<E, ? extends Number> edge_weight, double alpha) {
     super(graph, edge_weight, ScoringUtils.getUniformRootPrior(graph.nodes()), alpha);
   }
 
@@ -60,7 +60,7 @@ public class PageRank<V, E> extends PageRankWithPriors<V, E> {
    * @param graph the input graph
    * @param alpha the probability of taking a random jump to an arbitrary node
    */
-  public PageRank(Network<V, E> graph, double alpha) {
+  public PageRank(Network<N, E> graph, double alpha) {
     super(graph, ScoringUtils.getUniformRootPrior(graph.nodes()), alpha);
   }
 }

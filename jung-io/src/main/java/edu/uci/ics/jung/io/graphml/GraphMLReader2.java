@@ -38,23 +38,23 @@ import javax.xml.stream.events.XMLEvent;
  *
  * @author Nathan Mittler - nathan.mittler@gmail.com
  * @param <G> The graph type to be read from the GraphML file
- * @param <V> the node type The node type used by the graph
- * @param <V> the edge type The edge type used by the graph
+ * @param <N> the node type The node type used by the graph
+ * @param <N> the edge type The edge type used by the graph
  * @see "http://graphml.graphdrawing.org/specification.html"
  */
 // TODO: do we actually need the G type, or can we just have it be "Network"?
 // TODO: provide Graph/ValueGraph support?
 // TODO: don't bother taking in a graph factory
-public class GraphMLReader2<G extends MutableNetwork<V, E>, V, E> implements GraphReader<G, V, E> {
+public class GraphMLReader2<G extends MutableNetwork<N, E>, N, E> implements GraphReader<G, N, E> {
 
   protected XMLEventReader xmlEventReader;
   protected Reader fileReader;
   protected Function<GraphMetadata, G> graphTransformer;
-  protected Function<NodeMetadata, V> nodeTransformer;
+  protected Function<NodeMetadata, N> nodeTransformer;
   protected Function<EdgeMetadata, E> edgeTransformer;
   protected boolean initialized;
   protected final GraphMLDocument document = new GraphMLDocument();
-  protected final ElementParserRegistry<G, V, E> parserRegistry;
+  protected final ElementParserRegistry<G, N, E> parserRegistry;
   private InputStream inputStream;
 
   /**
@@ -75,7 +75,7 @@ public class GraphMLReader2<G extends MutableNetwork<V, E>, V, E> implements Gra
   public GraphMLReader2(
       Reader fileReader,
       Function<GraphMetadata, G> graphTransformer,
-      Function<NodeMetadata, V> nodeTransformer,
+      Function<NodeMetadata, N> nodeTransformer,
       Function<EdgeMetadata, E> edgeTransformer) {
 
     this.fileReader = Preconditions.checkNotNull(fileReader);
@@ -85,7 +85,7 @@ public class GraphMLReader2<G extends MutableNetwork<V, E>, V, E> implements Gra
 
     // Create the parser registry.
     this.parserRegistry =
-        new ElementParserRegistry<G, V, E>(
+        new ElementParserRegistry<G, N, E>(
             document.getKeyMap(),
             graphTransformer,
             nodeTransformer,
@@ -110,7 +110,7 @@ public class GraphMLReader2<G extends MutableNetwork<V, E>, V, E> implements Gra
   public GraphMLReader2(
       InputStream inputStream,
       Function<GraphMetadata, G> graphTransformer,
-      Function<NodeMetadata, V> nodeTransformer,
+      Function<NodeMetadata, N> nodeTransformer,
       Function<EdgeMetadata, E> edgeTransformer) {
 
     this.inputStream = Preconditions.checkNotNull(inputStream);
@@ -120,7 +120,7 @@ public class GraphMLReader2<G extends MutableNetwork<V, E>, V, E> implements Gra
 
     // Create the parser registry.
     this.parserRegistry =
-        new ElementParserRegistry<G, V, E>(
+        new ElementParserRegistry<G, N, E>(
             document.getKeyMap(),
             graphTransformer,
             nodeTransformer,
@@ -141,7 +141,7 @@ public class GraphMLReader2<G extends MutableNetwork<V, E>, V, E> implements Gra
    *
    * @return the current Function.
    */
-  public Function<NodeMetadata, V> getNodeTransformer() {
+  public Function<NodeMetadata, N> getNodeTransformer() {
     return nodeTransformer;
   }
 

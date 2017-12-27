@@ -55,13 +55,13 @@ public class DistanceStatistics {
    * @see edu.uci.ics.jung.algorithms.shortestpath.DijkstraDistance
    * @param graph the graph for which distances are to be calculated
    * @param d the distance metric to use for the calculation
-   * @param <V> the node type
+   * @param <N> the node type
    * @param <E> the edge type
    * @return a map from each node to the mean distance to each other (reachable) node
    */
-  public static <V, E> Function<V, Double> averageDistances(Network<V, E> graph, Distance<V> d) {
-    final ClosenessCentrality<V, E> cc = new ClosenessCentrality<V, E>(graph, d);
-    return new NodeScoreTransformer<V, Double>(cc);
+  public static <N, E> Function<N, Double> averageDistances(Network<N, E> graph, Distance<N> d) {
+    final ClosenessCentrality<N, E> cc = new ClosenessCentrality<N, E>(graph, d);
+    return new NodeScoreTransformer<N, Double>(cc);
   }
 
   /**
@@ -71,14 +71,14 @@ public class DistanceStatistics {
    * @see #diameter(Hypergraph)
    * @see edu.uci.ics.jung.algorithms.scoring.ClosenessCentrality
    * @param g the graph for which distances are to be calculated
-   * @param <V> the node type
+   * @param <N> the node type
    * @param <E> the edge type
    * @return a map from each node to the mean distance to each other (reachable) node
    */
-  public static <V, E> Function<V, Double> averageDistances(Network<V, E> g) {
-    final ClosenessCentrality<V, E> cc =
-        new ClosenessCentrality<V, E>(g, new UnweightedShortestPath<V>(g.asGraph()));
-    return new NodeScoreTransformer<V, Double>(cc);
+  public static <N, E> Function<N, Double> averageDistances(Network<N, E> g) {
+    final ClosenessCentrality<N, E> cc =
+        new ClosenessCentrality<N, E>(g, new UnweightedShortestPath<N>(g.asGraph()));
+    return new NodeScoreTransformer<N, Double>(cc);
   }
 
   /**

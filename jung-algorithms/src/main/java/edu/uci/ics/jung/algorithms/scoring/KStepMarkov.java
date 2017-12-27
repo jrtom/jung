@@ -40,7 +40,7 @@ import java.util.function.Function;
  * @see PageRank
  * @see PageRankWithPriors
  */
-public class KStepMarkov<V, E> extends PageRankWithPriors<V, E> {
+public class KStepMarkov<N, E> extends PageRankWithPriors<N, E> {
   private boolean cumulative;
 
   /**
@@ -53,9 +53,9 @@ public class KStepMarkov<V, E> extends PageRankWithPriors<V, E> {
    * @param steps the number of times that {@code step()} will be called by {@code evaluate}
    */
   public KStepMarkov(
-      Network<V, E> graph,
+      Network<N, E> graph,
       Function<E, ? extends Number> edge_weights,
-      Function<V, Double> node_priors,
+      Function<N, Double> node_priors,
       int steps) {
     super(graph, edge_weights, node_priors, 0);
     initialize(steps);
@@ -70,7 +70,7 @@ public class KStepMarkov<V, E> extends PageRankWithPriors<V, E> {
    * @param node_priors the initial probability distribution (score assignment)
    * @param steps the number of times that {@code step()} will be called by {@code evaluate}
    */
-  public KStepMarkov(Network<V, E> graph, Function<V, Double> node_priors, int steps) {
+  public KStepMarkov(Network<N, E> graph, Function<N, Double> node_priors, int steps) {
     super(graph, node_priors, 0);
     initialize(steps);
   }
@@ -84,7 +84,7 @@ public class KStepMarkov<V, E> extends PageRankWithPriors<V, E> {
    * @param graph the input graph
    * @param steps the number of times that {@code step()} will be called by {@code evaluate}
    */
-  public KStepMarkov(Network<V, E> graph, int steps) {
+  public KStepMarkov(Network<N, E> graph, int steps) {
     super(graph, ScoringUtils.getUniformRootPrior(graph.nodes()), 0);
     initialize(steps);
   }
@@ -110,7 +110,7 @@ public class KStepMarkov<V, E> extends PageRankWithPriors<V, E> {
 
   /** Updates the value for this node. Called by <code>step()</code>. */
   @Override
-  public double update(V v) {
+  public double update(N v) {
     if (!cumulative) {
       return super.update(v);
     }
@@ -118,7 +118,7 @@ public class KStepMarkov<V, E> extends PageRankWithPriors<V, E> {
     collectDisappearingPotential(v);
 
     double v_input = 0;
-    for (V u : graph.predecessors(v)) {
+    for (N u : graph.predecessors(v)) {
       for (E e : graph.edgesConnecting(u, v)) {
         v_input += (getCurrentValue(u) * getEdgeWeight(u, e).doubleValue());
       }

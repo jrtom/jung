@@ -29,10 +29,10 @@ import javax.xml.stream.events.XMLEvent;
  *
  * @author Nathan Mittler - nathan.mittler@gmail.com
  */
-public class NodeElementParser<G extends MutableNetwork<V, E>, V, E>
-    extends AbstractElementParser<G, V, E> {
+public class NodeElementParser<G extends MutableNetwork<N, E>, N, E>
+    extends AbstractElementParser<G, N, E> {
 
-  public NodeElementParser(ParserContext<G, V, E> parserContext) {
+  public NodeElementParser(ParserContext<G, N, E> parserContext) {
     super(parserContext);
   }
 

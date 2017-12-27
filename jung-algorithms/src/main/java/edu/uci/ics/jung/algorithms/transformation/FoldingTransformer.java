@@ -40,7 +40,7 @@ import java.util.Set;
 // see JUNG 2.1 source for this file for concepts:
 // * nodes -> nodes, replace hyperedges by k-cliques on incident nodes
 // * hyperedges -> nodes, (a,b) exists in new graph if a and b share a node
-public class FoldingTransformer<V, E> {
+public class FoldingTransformer<N, E> {
 
   /**
    * Converts <code>g</code> into a unipartite graph whose node set is the nodes of <code>g

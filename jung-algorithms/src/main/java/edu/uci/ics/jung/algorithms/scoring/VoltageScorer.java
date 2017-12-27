@@ -25,7 +25,7 @@ import java.util.function.Function;
 /**
  * Assigns scores to nodes according to their 'voltage' in an approximate solution to the Kirchoff
  * equations. This is accomplished by tying "source" nodes to specified positive voltages, "sink"
- * nodes to 0 V, and iteratively updating the voltage of each other node to the (weighted) average
+ * nodes to 0 N, and iteratively updating the voltage of each other node to the (weighted) average
  * of the voltages of its neighbors.
  *
  * <p>The resultant voltages will all be in the range <code>[0, max]</code> where <code>max</code>
@@ -46,10 +46,10 @@ import java.util.function.Function;
  *       edges in the direction of the edge.
  * </ul>
  */
-public class VoltageScorer<V, E> extends AbstractIterativeScorer<V, E, Double>
-    implements NodeScorer<V, Double> {
-  protected Map<V, ? extends Number> source_voltages;
-  protected Set<V> sinks;
+public class VoltageScorer<N, E> extends AbstractIterativeScorer<N, E, Double>
+    implements NodeScorer<N, Double> {
+  protected Map<N, ? extends Number> source_voltages;
+  protected Set<N> sinks;
 
   /**
    * Creates an instance with the specified graph, edge weights, source voltages, and sinks.
@@ -60,10 +60,10 @@ public class VoltageScorer<V, E> extends AbstractIterativeScorer<V, E, Double>
    * @param sinks the nodes whose voltages are tied to 0
    */
   public VoltageScorer(
-      Network<V, E> g,
+      Network<N, E> g,
       Function<? super E, ? extends Number> edge_weights,
-      Map<V, ? extends Number> source_voltages,
-      Set<V> sinks) {
+      Map<N, ? extends Number> source_voltages,
+      Set<N> sinks) {
     super(g, edge_weights);
     this.source_voltages = source_voltages;
     this.sinks = sinks;
@@ -80,14 +80,14 @@ public class VoltageScorer<V, E> extends AbstractIterativeScorer<V, E, Double>
    * @param sinks the nodes whose voltages are tied to 0
    */
   public VoltageScorer(
-      Network<V, E> g,
+      Network<N, E> g,
       Function<? super E, ? extends Number> edge_weights,
-      Set<V> sources,
-      Set<V> sinks) {
+      Set<N> sources,
+      Set<N> sinks) {
     super(g, edge_weights);
 
-    Map<V, Double> unit_voltages = new HashMap<V, Double>();
-    for (V v : sources) {
+    Map<N, Double> unit_voltages = new HashMap<N, Double>();
+    for (N v : sources) {
       unit_voltages.put(v, new Double(1.0));
     }
     this.source_voltages = unit_voltages;
@@ -103,11 +103,11 @@ public class VoltageScorer<V, E> extends AbstractIterativeScorer<V, E, Double>
    * @param sources the nodes whose voltages are tied to 1
    * @param sinks the nodes whose voltages are tied to 0
    */
-  public VoltageScorer(Network<V, E> g, Set<V> sources, Set<V> sinks) {
+  public VoltageScorer(Network<N, E> g, Set<N> sources, Set<N> sinks) {
     super(g);
 
-    Map<V, Double> unit_voltages = new HashMap<V, Double>();
-    for (V v : sources) {
+    Map<N, Double> unit_voltages = new HashMap<N, Double>();
+    for (N v : sources) {
       unit_voltages.put(v, new Double(1.0));
     }
     this.source_voltages = unit_voltages;
@@ -123,11 +123,11 @@ public class VoltageScorer<V, E> extends AbstractIterativeScorer<V, E, Double>
    * @param source_voltages the (fixed) voltage for each source
    * @param sinks the nodes whose voltages are tied to 0
    */
-  public VoltageScorer(Network<V, E> g, Map<V, ? extends Number> source_voltages, Set<V> sinks) {
+  public VoltageScorer(Network<N, E> g, Map<N, ? extends Number> source_voltages, Set<N> sinks) {
     super(g);
     this.source_voltages = source_voltages;
     this.sinks = sinks;
-    this.edge_weights = new UniformDegreeWeight<V, E>(g);
+    this.edge_weights = new UniformDegreeWeight<N, E>(g);
     initialize();
   }
 
@@ -141,7 +141,7 @@ public class VoltageScorer<V, E> extends AbstractIterativeScorer<V, E, Double>
    * @param sink the node whose voltage is tied to 0
    */
   public VoltageScorer(
-      Network<V, E> g, Function<? super E, ? extends Number> edge_weights, V source, V sink) {
+      Network<N, E> g, Function<? super E, ? extends Number> edge_weights, N source, N sink) {
     this(g, edge_weights, ImmutableMap.of(source, 1.0), ImmutableSet.of(sink));
     initialize();
   }
@@ -154,7 +154,7 @@ public class VoltageScorer<V, E> extends AbstractIterativeScorer<V, E, Double>
    * @param source the node whose voltage is tied to 1
    * @param sink the node whose voltage is tied to 0
    */
-  public VoltageScorer(Network<V, E> g, V source, V sink) {
+  public VoltageScorer(Network<N, E> g, N source, N sink) {
     this(g, ImmutableMap.of(source, 1.0), ImmutableSet.of(sink));
     initialize();
   }
@@ -177,8 +177,8 @@ public class VoltageScorer<V, E> extends AbstractIterativeScorer<V, E, Double>
     Preconditions.checkArgument(
         graph.nodes().containsAll(sinks), "Sinks must all be elements of the graph");
 
-    for (Map.Entry<V, ? extends Number> entry : source_voltages.entrySet()) {
-      V v = entry.getKey();
+    for (Map.Entry<N, ? extends Number> entry : source_voltages.entrySet()) {
+      N v = entry.getKey();
       Preconditions.checkArgument(
           !sinks.contains(v), "Node " + v + " is incorrectly specified as both source and sink");
       double value = entry.getValue().doubleValue();
@@ -187,7 +187,7 @@ public class VoltageScorer<V, E> extends AbstractIterativeScorer<V, E, Double>
     }
 
     // set up initial voltages
-    for (V v : graph.nodes()) {
+    for (N v : graph.nodes()) {
       if (source_voltages.containsKey(v)) {
         setOutputValue(v, source_voltages.get(v).doubleValue());
       } else {
@@ -198,7 +198,7 @@ public class VoltageScorer<V, E> extends AbstractIterativeScorer<V, E, Double>
 
   /** @see edu.uci.ics.jung.algorithms.scoring.AbstractIterativeScorer#update(Object) */
   @Override
-  public double update(V v) {
+  public double update(N v) {
     // if it's a voltage source or sink, we're done
     Number source_volts = source_voltages.get(v);
     if (source_volts != null) {
@@ -212,7 +212,7 @@ public class VoltageScorer<V, E> extends AbstractIterativeScorer<V, E, Double>
 
     double voltage_sum = 0;
     double weight_sum = 0;
-    for (V u : graph.predecessors(v)) {
+    for (N u : graph.predecessors(v)) {
       for (E e : graph.edgesConnecting(u, v)) {
         double weight = getEdgeWeight(u, e).doubleValue();
         voltage_sum += getCurrentValue(u).doubleValue() * weight;

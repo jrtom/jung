@@ -131,16 +131,16 @@ public class ShortestPathDemo extends JPanel {
   }
 
   /** @author danyelf */
-  public class MyNodeDrawPaintFunction<V> implements Function<V, Paint> {
+  public class MyNodeDrawPaintFunction<N> implements Function<N, Paint> {
 
-    public Paint apply(V v) {
+    public Paint apply(N v) {
       return Color.black;
     }
   }
 
-  public class MyNodeFillPaintFunction<V> implements Function<V, Paint> {
+  public class MyNodeFillPaintFunction<N> implements Function<N, Paint> {
 
-    public Paint apply(V v) {
+    public Paint apply(N v) {
       if (v == mFrom) {
         return Color.BLUE;
       }

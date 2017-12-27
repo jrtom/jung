@@ -35,26 +35,26 @@ public class NodePartitionCollapser {
    * @param partitioning a node partition of a graph
    * @return the collapsed graph
    */
-  public static <V> ValueGraph<Set<V>, Integer> collapseNodePartitions(
-      NodePartition<V> partitioning) {
-    Graph<V> original = partitioning.getGraph();
+  public static <N> ValueGraph<Set<N>, Integer> collapseNodePartitions(
+      NodePartition<N> partitioning) {
+    Graph<N> original = partitioning.getGraph();
     ValueGraphBuilder<Object, Object> builder =
         original.isDirected() ? ValueGraphBuilder.directed() : ValueGraphBuilder.undirected();
-    MutableValueGraph<Set<V>, Integer> collapsed = builder.build();
+    MutableValueGraph<Set<N>, Integer> collapsed = builder.build();
 
     // create nodes in new graph corresponding to equivalence sets in the original graph
-    for (Set<V> set : partitioning.getNodePartitions()) {
+    for (Set<N> set : partitioning.getNodePartitions()) {
       collapsed.addNode(set);
     }
 
     // for each pair of endpoints in the original graph, connect the corresponding nodes
     // (representing partitions) in the collapsed graph if the partitions are different
-    Map<V, Set<V>> nodeToPartition = partitioning.getNodeToPartitionMap();
-    for (EndpointPair<V> endpoints : original.edges()) {
-      V nodeU = endpoints.nodeU();
-      V nodeV = endpoints.nodeV();
-      Set<V> partitionU = nodeToPartition.get(nodeU);
-      Set<V> partitionV = nodeToPartition.get(nodeV);
+    Map<N, Set<N>> nodeToPartition = partitioning.getNodeToPartitionMap();
+    for (EndpointPair<N> endpoints : original.edges()) {
+      N nodeU = endpoints.nodeU();
+      N nodeV = endpoints.nodeV();
+      Set<N> partitionU = nodeToPartition.get(nodeU);
+      Set<N> partitionV = nodeToPartition.get(nodeV);
       if (nodeU.equals(nodeV) || partitionU.equals(partitionV)) {
         // we only connect partitions if the partitions are different;
         // check the nodes first as an optimization

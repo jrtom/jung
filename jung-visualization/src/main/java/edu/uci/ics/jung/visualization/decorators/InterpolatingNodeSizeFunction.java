@@ -19,15 +19,15 @@ import java.util.function.Function;
  *
  * @author Joshua O'Madadhain
  */
-public class InterpolatingNodeSizeFunction<V> implements Function<V, Integer> {
+public class InterpolatingNodeSizeFunction<N> implements Function<N, Integer> {
   protected double min;
   protected double max;
-  protected Function<V, ? extends Number> values;
+  protected Function<N, ? extends Number> values;
   protected int min_size;
   protected int size_diff;
 
   public InterpolatingNodeSizeFunction(
-      Function<V, ? extends Number> values, int min_size, int max_size) {
+      Function<N, ? extends Number> values, int min_size, int max_size) {
     super();
     Preconditions.checkArgument(min_size >= 0 && max_size >= 0, "sizes must be non-negative");
     Preconditions.checkArgument(min_size <= max_size, "min_size must be <= max_size");
@@ -38,7 +38,7 @@ public class InterpolatingNodeSizeFunction<V> implements Function<V, Integer> {
     setMaxSize(max_size);
   }
 
-  public Integer apply(V v) {
+  public Integer apply(N v) {
     Number n = values.apply(v);
     double value = min;
     if (n != null) {

@@ -18,7 +18,7 @@ import java.util.Map;
  *
  * @author Joshua O'Madadhain
  */
-public interface Distance<V> {
+public interface Distance<N> {
   /**
    * Returns the distance from the <code>source</code> node to the <code>target</code> node. If
    * <code>target</code> is not reachable from <code>source</code>, returns null.
@@ -27,7 +27,7 @@ public interface Distance<V> {
    * @param target the node to which distance is to be measured
    * @return the distance from {@code source} to {@code target}
    */
-  Number getDistance(V source, V target);
+  Number getDistance(N source, N target);
 
   /**
    * Returns a <code>Map</code> which maps each node in the graph (including the <code>source
@@ -37,5 +37,5 @@ public interface Distance<V> {
    * @param source the node from which distances are to be measured
    * @return a {@code Map} of the distances from {@code source} to other nodes in the graph
    */
-  Map<V, ? extends Number> getDistanceMap(V source);
+  Map<N, ? extends Number> getDistanceMap(N source);
 }

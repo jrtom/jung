@@ -24,7 +24,7 @@ import java.util.function.Function;
  * @see "Algorithms for Estimating Relative Importance in Graphs by Scott White and Padhraic Smyth,
  *     2003"
  */
-public class HITSWithPriors<V, E> extends AbstractIterativeScorerWithPriors<V, E, HITS.Scores> {
+public class HITSWithPriors<N, E> extends AbstractIterativeScorerWithPriors<N, E, HITS.Scores> {
   /**
    * The sum of the potential, at each step, associated with nodes with no outedges (authority) or
    * no inedges (hub).
@@ -41,9 +41,9 @@ public class HITSWithPriors<V, E> extends AbstractIterativeScorerWithPriors<V, E
    * @param alpha the probability of a random jump at each step
    */
   public HITSWithPriors(
-      Network<V, E> g,
+      Network<N, E> g,
       Function<E, ? extends Number> edge_weights,
-      Function<V, HITS.Scores> node_priors,
+      Function<N, HITS.Scores> node_priors,
       double alpha) {
     super(g, edge_weights, node_priors, alpha);
     disappearing_potential = new HITS.Scores(0, 0);
@@ -57,25 +57,25 @@ public class HITSWithPriors<V, E> extends AbstractIterativeScorerWithPriors<V, E
    * @param node_priors the prior probability for each node
    * @param alpha the probability of a random jump at each step
    */
-  public HITSWithPriors(Network<V, E> g, Function<V, HITS.Scores> node_priors, double alpha) {
+  public HITSWithPriors(Network<N, E> g, Function<N, HITS.Scores> node_priors, double alpha) {
     super(g, n -> 1.0, node_priors, alpha);
     disappearing_potential = new HITS.Scores(0, 0);
   }
 
   /** Updates the value for this node. */
   @Override
-  protected double update(V v) {
+  protected double update(N v) {
     collectDisappearingPotential(v);
 
     double v_auth = 0;
-    for (V u : graph.predecessors(v)) {
+    for (N u : graph.predecessors(v)) {
       for (E e : graph.edgesConnecting(u, v)) {
         v_auth += (getCurrentValue(u).hub * getEdgeWeight(u, e).doubleValue());
       }
     }
 
     double v_hub = 0;
-    for (V w : graph.successors(v)) {
+    for (N w : graph.successors(v)) {
       for (E e : graph.edgesConnecting(v, w)) {
         v_hub += (getCurrentValue(w).authority * getEdgeWeight(w, e).doubleValue());
       }
@@ -101,7 +101,7 @@ public class HITSWithPriors<V, E> extends AbstractIterativeScorerWithPriors<V, E
   @Override
   protected void afterStep() {
     if (disappearing_potential.hub > 0 || disappearing_potential.authority > 0) {
-      for (V v : graph.nodes()) {
+      for (N v : graph.nodes()) {
         double new_hub =
             getOutputValue(v).hub
                 + (1 - alpha) * (disappearing_potential.hub * getNodePrior(v).hub);
@@ -126,7 +126,7 @@ public class HITSWithPriors<V, E> extends AbstractIterativeScorerWithPriors<V, E
   protected void normalizeScores() {
     double hub_ssum = 0;
     double auth_ssum = 0;
-    for (V v : graph.nodes()) {
+    for (N v : graph.nodes()) {
       double hub_val = getOutputValue(v).hub;
       double auth_val = getOutputValue(v).authority;
       hub_ssum += (hub_val * hub_val);
@@ -136,7 +136,7 @@ public class HITSWithPriors<V, E> extends AbstractIterativeScorerWithPriors<V, E
     hub_ssum = Math.sqrt(hub_ssum);
     auth_ssum = Math.sqrt(auth_ssum);
 
-    for (V v : graph.nodes()) {
+    for (N v : graph.nodes()) {
       HITS.Scores values = getOutputValue(v);
       setOutputValue(v, new HITS.Scores(values.hub / hub_ssum, values.authority / auth_ssum));
     }
@@ -151,7 +151,7 @@ public class HITSWithPriors<V, E> extends AbstractIterativeScorerWithPriors<V, E
    * required for, and does not affect, the 'sum-of-squares'-style normalization.)
    */
   @Override
-  protected void collectDisappearingPotential(V v) {
+  protected void collectDisappearingPotential(N v) {
     if (graph.outDegree(v) == 0) {
       Preconditions.checkArgument(isDisconnectedGraphOK(), "Outdegree of " + v + " must be > 0");
       disappearing_potential.hub += getCurrentValue(v).authority;

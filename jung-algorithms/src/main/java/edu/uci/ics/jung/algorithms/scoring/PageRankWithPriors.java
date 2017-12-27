@@ -26,7 +26,7 @@ import java.util.function.Function;
  *     2003"
  * @see PageRank
  */
-public class PageRankWithPriors<V, E> extends AbstractIterativeScorerWithPriors<V, E, Double> {
+public class PageRankWithPriors<N, E> extends AbstractIterativeScorerWithPriors<N, E, Double> {
   /** Maintains the amount of potential associated with nodes with no out-edges. */
   protected double disappearing_potential = 0.0;
 
@@ -41,9 +41,9 @@ public class PageRankWithPriors<V, E> extends AbstractIterativeScorerWithPriors<
    * @param alpha the probability of executing a 'random jump' at each step
    */
   public PageRankWithPriors(
-      Network<V, E> graph,
+      Network<N, E> graph,
       Function<E, ? extends Number> edge_weights,
-      Function<V, Double> node_priors,
+      Function<N, Double> node_priors,
       double alpha) {
     super(graph, edge_weights, node_priors, alpha);
   }
@@ -56,18 +56,18 @@ public class PageRankWithPriors<V, E> extends AbstractIterativeScorerWithPriors<
    * @param node_priors the prior probabilities for each node
    * @param alpha the probability of executing a 'random jump' at each step
    */
-  public PageRankWithPriors(Network<V, E> graph, Function<V, Double> node_priors, double alpha) {
+  public PageRankWithPriors(Network<N, E> graph, Function<N, Double> node_priors, double alpha) {
     super(graph, node_priors, alpha);
-    this.edge_weights = new UniformDegreeWeight<V, E>(graph);
+    this.edge_weights = new UniformDegreeWeight<N, E>(graph);
   }
 
   /** Updates the value for this node. Called by <code>step()</code>. */
   @Override
-  public double update(V v) {
+  public double update(N v) {
     collectDisappearingPotential(v);
 
     double v_input = 0;
-    for (V u : graph.predecessors(v)) {
+    for (N u : graph.predecessors(v)) {
       for (E e : graph.edgesConnecting(u, v)) {
         v_input += (getCurrentValue(u) * getEdgeWeight(u, e).doubleValue());
       }
@@ -89,7 +89,7 @@ public class PageRankWithPriors<V, E> extends AbstractIterativeScorerWithPriors<
   protected void afterStep() {
     // distribute disappearing potential according to priors
     if (disappearing_potential > 0) {
-      for (V v : graph.nodes()) {
+      for (N v : graph.nodes()) {
         setOutputValue(
             v, getOutputValue(v) + (1 - alpha) * (disappearing_potential * getNodePrior(v)));
       }
@@ -106,7 +106,7 @@ public class PageRankWithPriors<V, E> extends AbstractIterativeScorerWithPriors<
    * normalization process.
    */
   @Override
-  protected void collectDisappearingPotential(V v) {
+  protected void collectDisappearingPotential(N v) {
     if (graph.outDegree(v) == 0) {
       Preconditions.checkState(isDisconnectedGraphOK(), "Outdegree of " + v + " must be > 0");
       disappearing_potential += getCurrentValue(v);

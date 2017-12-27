@@ -26,21 +26,21 @@ public class ShortestPathUtils {
    * @param sp holder of the shortest path information
    * @param source the node from which the shortest path is measured
    * @param target the node to which the shortest path is measured
-   * @param <V> the node type
+   * @param <N> the node type
    * @param <E> the edge type
    * @return the edges on the shortest path from {@code source} to {@code target}, in the order
    *     traversed
    */
-  public static <V, E> List<E> getPath(
-      Network<V, E> graph, ShortestPath<V, E> sp, V source, V target) {
+  public static <N, E> List<E> getPath(
+      Network<N, E> graph, ShortestPath<N, E> sp, N source, N target) {
     LinkedList<E> path = new LinkedList<E>();
 
-    Map<V, E> incomingEdges = sp.getIncomingEdgeMap(source);
+    Map<N, E> incomingEdges = sp.getIncomingEdgeMap(source);
 
     if (incomingEdges.isEmpty() || incomingEdges.get(target) == null) {
       return path;
     }
-    V current = target;
+    N current = target;
     while (!current.equals(source)) {
       E incoming = incomingEdges.get(current);
       path.addFirst(incoming);

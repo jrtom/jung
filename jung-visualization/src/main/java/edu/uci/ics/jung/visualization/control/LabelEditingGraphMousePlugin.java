@@ -71,7 +71,7 @@ public class LabelEditingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
         if (vs instanceof MapSettableTransformer) {
           MapSettableTransformer<? super N, String> mst =
               (MapSettableTransformer<? super N, String>) vs;
-          //    				Layout<V, Point2D> layout = vv.getGraphLayout();
+          //    				Layout<N, Point2D> layout = vv.getGraphLayout();
           // p is the screen point for the mouse event
           Point2D p = e.getPoint();
 
@@ -90,7 +90,7 @@ public class LabelEditingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
         if (es instanceof MapSettableTransformer) {
           MapSettableTransformer<? super E, String> mst =
               (MapSettableTransformer<? super E, String>) es;
-          //    				Layout<V> layout = vv.getGraphLayout();
+          //    				Layout<N> layout = vv.getGraphLayout();
           // p is the screen point for the mouse event
           Point2D p = e.getPoint();
           // take away the view transform

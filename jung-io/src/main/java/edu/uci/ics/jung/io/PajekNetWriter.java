@@ -32,7 +32,7 @@ import java.util.function.Function;
  * @author Joshua O'Madadhain
  * @author Tom Nelson - converted to jung2
  */
-public class PajekNetWriter<V, E> {
+public class PajekNetWriter<N, E> {
   /** Creates a new instance. */
   public PajekNetWriter() {}
 
@@ -47,11 +47,11 @@ public class PajekNetWriter<V, E> {
    * @throws IOException if the graph cannot be saved
    */
   public void save(
-      Network<V, E> g,
+      Network<N, E> g,
       String filename,
-      Function<V, String> vs,
+      Function<N, String> vs,
       Function<E, Number> nev,
-      Function<V, Point2D> vld)
+      Function<N, Point2D> vld)
       throws IOException {
     save(g, new FileWriter(filename), vs, nev, vld);
   }
@@ -66,7 +66,7 @@ public class PajekNetWriter<V, E> {
    * @throws IOException if the graph cannot be saved
    */
   public void save(
-      Network<V, E> g, String filename, Function<V, String> vs, Function<E, Number> nev)
+      Network<N, E> g, String filename, Function<N, String> vs, Function<E, Number> nev)
       throws IOException {
     save(g, new FileWriter(filename), vs, nev, null);
   }
@@ -79,7 +79,7 @@ public class PajekNetWriter<V, E> {
    * @param filename the filename of the file to write the graph to
    * @throws IOException if the graph cannot be saved
    */
-  public void save(Network<V, E> g, String filename) throws IOException {
+  public void save(Network<N, E> g, String filename) throws IOException {
     save(g, filename, null, null, null);
   }
 
@@ -91,7 +91,7 @@ public class PajekNetWriter<V, E> {
    * @param w the writer instance to write the graph to
    * @throws IOException if the graph cannot be saved
    */
-  public void save(Network<V, E> g, Writer w) throws IOException {
+  public void save(Network<N, E> g, Writer w) throws IOException {
     save(g, w, null, null, null);
   }
 
@@ -104,7 +104,7 @@ public class PajekNetWriter<V, E> {
    * @param nev mapping from edges to weights
    * @throws IOException if the graph cannot be saved
    */
-  public void save(Network<V, E> g, Writer w, Function<V, String> vs, Function<E, Number> nev)
+  public void save(Network<N, E> g, Writer w, Function<N, String> vs, Function<E, Number> nev)
       throws IOException {
     save(g, w, vs, nev, null);
   }
@@ -120,11 +120,11 @@ public class PajekNetWriter<V, E> {
    * @throws IOException if the graph cannot be saved
    */
   public void save(
-      Network<V, E> graph,
+      Network<N, E> graph,
       Writer w,
-      Function<V, String> vs,
+      Function<N, String> vs,
       Function<E, Number> nev,
-      Function<V, Point2D> vld)
+      Function<N, Point2D> vld)
       throws IOException {
     /*
      * TODO: Changes we might want to make:
@@ -143,8 +143,8 @@ public class PajekNetWriter<V, E> {
     writer.write("*Nodes " + graph.nodes().size());
     writer.newLine();
 
-    List<V> id = new ArrayList<V>(graph.nodes());
-    for (V currentNode : graph.nodes()) {
+    List<N> id = new ArrayList<N>(graph.nodes());
+    for (N currentNode : graph.nodes()) {
       // convert from 0-based to 1-based index
       int v_id = id.indexOf(currentNode) + 1;
       writer.write("" + v_id);
@@ -167,7 +167,7 @@ public class PajekNetWriter<V, E> {
     writer.newLine();
 
     for (E e : graph.edges()) {
-      EndpointPair<V> endpoints = graph.incidentNodes(e);
+      EndpointPair<N> endpoints = graph.incidentNodes(e);
       // convert from 0-based to 1-based index
       int nodeU_id = id.indexOf(endpoints.nodeU()) + 1;
       int nodeV_id = id.indexOf(endpoints.nodeV()) + 1;

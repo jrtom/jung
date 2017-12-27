@@ -67,11 +67,11 @@ import java.util.Set;
  * @see VoltageScorer
  * @see KMeansClusterer
  */
-public class VoltageClusterer<V, E> {
+public class VoltageClusterer<N, E> {
   protected int num_candidates;
-  protected KMeansClusterer<V> kmc;
+  protected KMeansClusterer<N> kmc;
   protected Random rand;
-  protected Network<V, E> g;
+  protected Network<N, E> g;
 
   /**
    * Creates an instance of a VoltageCluster with the specified parameters. These are mostly
@@ -80,11 +80,11 @@ public class VoltageClusterer<V, E> {
    * @param g the graph whose nodes are to be clustered
    * @param num_candidates the number of candidate clusters to create
    */
-  public VoltageClusterer(Network<V, E> g, int num_candidates) {
+  public VoltageClusterer(Network<N, E> g, int num_candidates) {
     Preconditions.checkArgument(num_candidates >= 1, "must generate >= 1 candidates");
 
     this.num_candidates = num_candidates;
-    this.kmc = new KMeansClusterer<V>();
+    this.kmc = new KMeansClusterer<N>();
     rand = new Random();
     this.g = g;
   }
@@ -97,7 +97,7 @@ public class VoltageClusterer<V, E> {
    * @param v the node whose community we wish to discover
    * @return a community (cluster) centered around <code>v</code>.
    */
-  public Collection<Set<V>> getCommunity(V v) {
+  public Collection<Set<N>> getCommunity(N v) {
     return cluster_internal(v, 2);
   }
 
@@ -108,7 +108,7 @@ public class VoltageClusterer<V, E> {
    * @param num_clusters the number of clusters to identify
    * @return a collection of clusters (sets of nodes)
    */
-  public Collection<Set<V>> cluster(int num_clusters) {
+  public Collection<Set<N>> cluster(int num_clusters) {
     return cluster_internal(null, num_clusters);
   }
 
@@ -119,32 +119,32 @@ public class VoltageClusterer<V, E> {
    * @param num_clusters the (maximum) number of clusters to find
    * @return a collection of clusters (sets of nodes)
    */
-  protected Collection<Set<V>> cluster_internal(V origin, int num_clusters) {
+  protected Collection<Set<N>> cluster_internal(N origin, int num_clusters) {
     // generate candidate clusters
     // repeat the following 'samples' times:
     // * pick (widely separated) node pair, run VoltageScorer
     // * use k-means to identify 2 communities in ranked graph
     // * store resulting candidate communities
-    ArrayList<V> v_array = new ArrayList<V>(g.nodes());
+    ArrayList<N> v_array = new ArrayList<N>(g.nodes());
 
-    LinkedList<Set<V>> candidates = new LinkedList<Set<V>>();
+    LinkedList<Set<N>> candidates = new LinkedList<Set<N>>();
 
     for (int j = 0; j < num_candidates; j++) {
-      V source;
+      N source;
       if (origin == null) {
         source = v_array.get((int) (rand.nextDouble() * v_array.size()));
       } else {
         source = origin;
       }
-      V target = null;
+      N target = null;
       do {
         target = v_array.get((int) (rand.nextDouble() * v_array.size()));
       } while (source == target);
-      VoltageScorer<V, E> vs = new VoltageScorer<V, E>(g, source, target);
+      VoltageScorer<N, E> vs = new VoltageScorer<N, E>(g, source, target);
       vs.evaluate();
 
-      Map<V, double[]> voltage_ranks = new HashMap<V, double[]>();
-      for (V v : g.nodes()) {
+      Map<N, double[]> voltage_ranks = new HashMap<N, double[]>();
+      for (N v : g.nodes()) {
         voltage_ranks.put(v, new double[] {vs.getNodeScore(v)});
       }
 
@@ -161,10 +161,10 @@ public class VoltageClusterer<V, E> {
     //   high nodes are a cluster
     // * remove v's nodes from candidate clusters
 
-    Collection<Set<V>> clusters = new LinkedList<Set<V>>();
-    Set<V> remaining = new HashSet<V>(g.nodes());
+    Collection<Set<N>> clusters = new LinkedList<Set<N>>();
+    Set<N> remaining = new HashSet<N>(g.nodes());
 
-    List<V> seed_candidates = getSeedCandidates(candidates);
+    List<N> seed_candidates = getSeedCandidates(candidates);
     int seed_index = 0;
 
     for (int j = 0; j < (num_clusters - 1); j++) {
@@ -172,7 +172,7 @@ public class VoltageClusterer<V, E> {
         break;
       }
 
-      V seed;
+      N seed;
       if (seed_index == 0 && origin != null) {
         seed = origin;
       } else {
@@ -181,21 +181,21 @@ public class VoltageClusterer<V, E> {
         } while (!remaining.contains(seed));
       }
 
-      Map<V, double[]> occur_counts = getObjectCounts(candidates, seed);
+      Map<N, double[]> occur_counts = getObjectCounts(candidates, seed);
       if (occur_counts.size() < 2) {
         break;
       }
 
       // now that we have the counts, cluster them...
       try {
-        Collection<Map<V, double[]>> high_low = kmc.cluster(occur_counts, 2);
+        Collection<Map<N, double[]>> high_low = kmc.cluster(occur_counts, 2);
         // ...get the cluster with the highest-valued centroid...
-        Iterator<Map<V, double[]>> h_iter = high_low.iterator();
-        Map<V, double[]> cluster1 = h_iter.next();
-        Map<V, double[]> cluster2 = h_iter.next();
+        Iterator<Map<N, double[]>> h_iter = high_low.iterator();
+        Map<N, double[]> cluster1 = h_iter.next();
+        Map<N, double[]> cluster2 = h_iter.next();
         double[] centroid1 = meansOf(cluster1.values());
         double[] centroid2 = meansOf(cluster2.values());
-        Set<V> new_cluster;
+        Set<N> new_cluster;
         if (centroid1[0] >= centroid2[0]) {
           new_cluster = cluster1.keySet();
         } else {
@@ -203,7 +203,7 @@ public class VoltageClusterer<V, E> {
         }
 
         // ...remove the elements of new_cluster from each candidate...
-        for (Set<V> cluster : candidates) {
+        for (Set<N> cluster : candidates) {
           cluster.removeAll(new_cluster);
         }
         clusters.add(new_cluster);
@@ -239,10 +239,10 @@ public class VoltageClusterer<V, E> {
    * @param voltage_ranks the voltage values for each node
    */
   protected void addTwoCandidateClusters(
-      LinkedList<Set<V>> candidates, Map<V, double[]> voltage_ranks) {
+      LinkedList<Set<N>> candidates, Map<N, double[]> voltage_ranks) {
     try {
-      List<Map<V, double[]>> clusters =
-          new ArrayList<Map<V, double[]>>(kmc.cluster(voltage_ranks, 3));
+      List<Map<N, double[]>> clusters =
+          new ArrayList<Map<N, double[]>>(kmc.cluster(voltage_ranks, 3));
       boolean b01 = clusters.get(0).size() > clusters.get(1).size();
       boolean b02 = clusters.get(0).size() > clusters.get(2).size();
       boolean b12 = clusters.get(1).size() > clusters.get(2).size();
@@ -270,10 +270,10 @@ public class VoltageClusterer<V, E> {
    * @param voltage_ranks the voltage values for each node
    */
   protected void addOneCandidateCluster(
-      LinkedList<Set<V>> candidates, Map<V, double[]> voltage_ranks) {
+      LinkedList<Set<N>> candidates, Map<N, double[]> voltage_ranks) {
     try {
-      List<Map<V, double[]>> clusters;
-      clusters = new ArrayList<Map<V, double[]>>(kmc.cluster(voltage_ranks, 2));
+      List<Map<N, double[]>> clusters;
+      clusters = new ArrayList<Map<N, double[]>>(kmc.cluster(voltage_ranks, 2));
       if (clusters.get(0).size() < clusters.get(1).size()) {
         candidates.add(clusters.get(0).keySet());
       } else {
@@ -291,10 +291,10 @@ public class VoltageClusterer<V, E> {
    * @param candidates the set of candidate clusters
    * @return a set of cluster seeds
    */
-  protected List<V> getSeedCandidates(Collection<Set<V>> candidates) {
-    final Map<V, double[]> occur_counts = getObjectCounts(candidates, null);
+  protected List<N> getSeedCandidates(Collection<Set<N>> candidates) {
+    final Map<N, double[]> occur_counts = getObjectCounts(candidates, null);
 
-    ArrayList<V> occurrences = new ArrayList<V>(occur_counts.keySet());
+    ArrayList<N> occurrences = new ArrayList<N>(occur_counts.keySet());
     Collections.sort(occurrences, new MapValueArrayComparator(occur_counts));
 
     //        System.out.println("occurrences: ");
@@ -305,18 +305,18 @@ public class VoltageClusterer<V, E> {
     return occurrences;
   }
 
-  protected Map<V, double[]> getObjectCounts(Collection<Set<V>> candidates, V seed) {
-    Map<V, double[]> occur_counts = new HashMap<V, double[]>();
-    for (V v : g.nodes()) {
+  protected Map<N, double[]> getObjectCounts(Collection<Set<N>> candidates, N seed) {
+    Map<N, double[]> occur_counts = new HashMap<N, double[]>();
+    for (N v : g.nodes()) {
       occur_counts.put(v, new double[] {0});
     }
 
-    for (Set<V> candidate : candidates) {
+    for (Set<N> candidate : candidates) {
       if (seed == null) {
         System.out.println(candidate.size());
       }
       if (seed == null || candidate.contains(seed)) {
-        for (V element : candidate) {
+        for (N element : candidate) {
           double[] count = occur_counts.get(element);
           count[0]++;
         }
@@ -325,7 +325,7 @@ public class VoltageClusterer<V, E> {
 
     if (seed == null) {
       System.out.println("occur_counts size: " + occur_counts.size());
-      for (V v : occur_counts.keySet()) {
+      for (N v : occur_counts.keySet()) {
         System.out.println(occur_counts.get(v)[0]);
       }
     }
@@ -333,14 +333,14 @@ public class VoltageClusterer<V, E> {
     return occur_counts;
   }
 
-  protected class MapValueArrayComparator implements Comparator<V> {
-    private Map<V, double[]> map;
+  protected class MapValueArrayComparator implements Comparator<N> {
+    private Map<N, double[]> map;
 
-    protected MapValueArrayComparator(Map<V, double[]> map) {
+    protected MapValueArrayComparator(Map<N, double[]> map) {
       this.map = map;
     }
 
-    public int compare(V o1, V o2) {
+    public int compare(N o1, N o2) {
       double[] count0 = map.get(o1);
       double[] count1 = map.get(o2);
       if (count0[0] < count1[0]) {
