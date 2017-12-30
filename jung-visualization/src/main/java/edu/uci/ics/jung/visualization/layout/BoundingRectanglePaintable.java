@@ -8,7 +8,6 @@ import edu.uci.ics.jung.visualization.VisualizationModel;
 import edu.uci.ics.jung.visualization.VisualizationServer;
 import edu.uci.ics.jung.visualization.util.ChangeEventSupport;
 import java.awt.*;
-import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.List;
 import javax.swing.event.ChangeEvent;
@@ -18,17 +17,16 @@ public class BoundingRectanglePaintable<N> implements VisualizationServer.Painta
 
   protected RenderContext rc;
   protected Network graph;
-  protected LayoutModel<N, Point2D> layoutModel;
+  protected LayoutModel<N> layoutModel;
   protected List<Rectangle2D> rectangles;
 
-  public BoundingRectanglePaintable(
-      RenderContext rc, VisualizationModel<N, ?, Point2D> visualizationModel) {
+  public BoundingRectanglePaintable(RenderContext rc, VisualizationModel<N, ?> visualizationModel) {
     super();
     this.rc = rc;
     this.layoutModel = visualizationModel.getLayoutModel();
     this.graph = visualizationModel.getNetwork();
-    final BoundingRectangleCollector.Node<N> brc =
-        new BoundingRectangleCollector.Node<>(rc, visualizationModel);
+    final BoundingRectangleCollector.Nodes<N> brc =
+        new BoundingRectangleCollector.Nodes<>(rc, visualizationModel);
     this.rectangles = brc.getRectangles();
     if (layoutModel instanceof ChangeEventSupport) {
       ((ChangeEventSupport) layoutModel)

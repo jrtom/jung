@@ -10,6 +10,7 @@
 package edu.uci.ics.jung.visualization.renderers;
 
 import edu.uci.ics.jung.layout.model.LayoutModel;
+import edu.uci.ics.jung.layout.model.Point;
 import edu.uci.ics.jung.visualization.MultiLayerTransformer.Layer;
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.VisualizationModel;
@@ -36,11 +37,11 @@ public class NodeLabelAsShapeRenderer<N, E>
     implements Renderer.NodeLabel<N, E>, Function<N, Shape> {
 
   protected Map<N, Shape> shapes = new HashMap<N, Shape>();
-  protected final LayoutModel<N, Point2D> layoutModel;
+  protected final LayoutModel<N> layoutModel;
   protected final RenderContext<N, ?> renderContext;
 
   public NodeLabelAsShapeRenderer(
-      VisualizationModel<N, E, Point2D> visualizationModel, RenderContext<N, ?> rc) {
+      VisualizationModel<N, E> visualizationModel, RenderContext<N, ?> rc) {
     this.layoutModel = visualizationModel.getLayoutModel();
     this.renderContext = rc;
   }
@@ -69,7 +70,7 @@ public class NodeLabelAsShapeRenderer<N, E>
    */
   public void labelNode(
       RenderContext<N, E> renderContext,
-      VisualizationModel<N, E, Point2D> visualizationModel,
+      VisualizationModel<N, E> visualizationModel,
       N v,
       String label) {
     if (!renderContext.getNodeIncludePredicate().test(v)) {
@@ -88,11 +89,14 @@ public class NodeLabelAsShapeRenderer<N, E>
     int h_offset = -d.width / 2;
     int v_offset = -d.height / 2;
 
-    Point2D p = layoutModel.apply(v);
-    p = renderContext.getMultiLayerTransformer().transform(Layer.LAYOUT, p);
+    Point p = layoutModel.apply(v);
+    Point2D p2d =
+        renderContext
+            .getMultiLayerTransformer()
+            .transform(Layer.LAYOUT, new Point2D.Double(p.x, p.y));
 
-    int x = (int) p.getX();
-    int y = (int) p.getY();
+    int x = (int) p2d.getX();
+    int y = (int) p2d.getY();
 
     g.draw(
         component,
@@ -121,11 +125,6 @@ public class NodeLabelAsShapeRenderer<N, E>
     Rectangle bounds =
         new Rectangle(-size.width / 2 - 2, -size.height / 2 - 2, size.width + 4, size.height);
     return bounds;
-    //		Shape shape = shapes.get(v);
-    //		if(shape == null) {
-    //			return new Rectangle(-20,-20,40,40);
-    //		}
-    //		else return shape;
   }
 
   public Renderer.NodeLabel.Position getPosition() {

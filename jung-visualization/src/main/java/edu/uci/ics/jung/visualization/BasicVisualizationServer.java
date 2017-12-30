@@ -78,14 +78,14 @@ public class BasicVisualizationServer<N, E> extends JPanel
     implements ChangeListener,
         ChangeEventSupport,
         VisualizationServer<N, E>,
-        LayoutChangeListener<N, Point2D> {
+        LayoutChangeListener<N> {
 
   static Logger log = LoggerFactory.getLogger(BasicVisualizationServer.class);
 
   protected ChangeEventSupport changeSupport = new DefaultChangeEventSupport(this);
 
   /** holds the state of this View */
-  protected VisualizationModel<N, E, Point2D> model;
+  protected VisualizationModel<N, E> model;
 
   /** handles the actual drawing of graph elements */
   protected Renderer<N, E> renderer;
@@ -139,7 +139,7 @@ public class BasicVisualizationServer<N, E> extends JPanel
    * @param preferredSize the size of the graph area
    */
   public BasicVisualizationServer(
-      Network<N, E> network, LayoutAlgorithm<N, Point2D> layoutAlgorithm, Dimension preferredSize) {
+      Network<N, E> network, LayoutAlgorithm<N> layoutAlgorithm, Dimension preferredSize) {
     this(new BaseVisualizationModel<N, E>(network, layoutAlgorithm, preferredSize), preferredSize);
   }
 
@@ -149,8 +149,7 @@ public class BasicVisualizationServer<N, E> extends JPanel
    * @param model the model to use
    * @param preferredSize initial preferred layoutSize of the view
    */
-  public BasicVisualizationServer(
-      VisualizationModel<N, E, Point2D> model, Dimension preferredSize) {
+  public BasicVisualizationServer(VisualizationModel<N, E> model, Dimension preferredSize) {
     this.model = model;
     renderContext = new PluggableRenderContext<>(model.getNetwork());
     renderer = new BasicRenderer<>();
@@ -184,12 +183,12 @@ public class BasicVisualizationServer<N, E> extends JPanel
     setNodeSpatial(
         new SpatialRTree.Nodes<N>(
             model,
-            new BoundingRectangleCollector.Node<>(renderContext, model),
+            new BoundingRectangleCollector.Nodes<>(renderContext, model),
             SplitterContext.of(new RStarLeafSplitter(), new RStarSplitter())));
     setEdgeSpatial(
         new SpatialRTree.Edges<>(
             model,
-            new BoundingRectangleCollector.Edge<E>(renderContext, model),
+            new BoundingRectangleCollector.Edges<E>(renderContext, model),
             SplitterContext.of(new QuadraticLeafSplitter<>(), new QuadraticSplitter<>())));
   }
 
@@ -209,8 +208,6 @@ public class BasicVisualizationServer<N, E> extends JPanel
     if (!layoutModelRelaxing) {
       nodeSpatial.recalculate();
     }
-    //    model.getLayoutModel().getLayoutStateChangeSupport().addLayoutStateChangeListener(nodeSpatial);
-
     connectListeners(spatial);
   }
 
@@ -230,8 +227,6 @@ public class BasicVisualizationServer<N, E> extends JPanel
     if (!layoutModelRelaxing) {
       edgeSpatial.recalculate();
     }
-    //    model.getLayoutModel().getLayoutStateChangeSupport().addLayoutStateChangeListener(edgeSpatial);
-
     connectListeners(edgeSpatial);
   }
 
@@ -323,11 +318,11 @@ public class BasicVisualizationServer<N, E> extends JPanel
     }
   }
 
-  public VisualizationModel<N, E, Point2D> getModel() {
+  public VisualizationModel<N, E> getModel() {
     return model;
   }
 
-  public void setModel(VisualizationModel<N, E, Point2D> model) {
+  public void setModel(VisualizationModel<N, E> model) {
     this.model = model;
   }
 
@@ -409,8 +404,6 @@ public class BasicVisualizationServer<N, E> extends JPanel
 
     g2d.setTransform(newXform);
 
-    //    Spatial<N> spatial = this.nodeSpatial;
-
     AnnotationPaintable lowerAnnotationPaintable = null;
 
     if (log.isTraceEnabled()) {
@@ -457,12 +450,12 @@ public class BasicVisualizationServer<N, E> extends JPanel
   }
 
   @Override
-  public void layoutChanged(LayoutEvent<N, Point2D> evt) {
+  public void layoutChanged(LayoutEvent<N> evt) {
     repaint();
   }
 
   @Override
-  public void layoutChanged(LayoutNetworkEvent<N, Point2D> evt) {
+  public void layoutChanged(LayoutNetworkEvent<N> evt) {
     repaint();
   }
 
@@ -589,7 +582,7 @@ public class BasicVisualizationServer<N, E> extends JPanel
 
   public Point2D getCenter() {
     Dimension d = getSize();
-    return new Point2D.Float(d.width / 2, d.height / 2);
+    return new Point2D.Double(d.width / 2, d.height / 2);
   }
 
   public RenderContext<N, E> getRenderContext() {

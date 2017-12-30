@@ -51,11 +51,8 @@ public class LensTransformSupport<N, E> extends TransformSupport<N, E> {
         p = ht.inverseTransform(p);
       }
 
-    } else if (layoutTransformer instanceof LensTransformer) {
-
-      p = multiLayerTransformer.inverseTransform(p);
-
     } else {
+      // the layoutTransformer may be a LensTransformer or not
       p = multiLayerTransformer.inverseTransform(p);
     }
     return p;
@@ -65,12 +62,12 @@ public class LensTransformSupport<N, E> extends TransformSupport<N, E> {
     MultiLayerTransformer multiLayerTransformer = vv.getRenderContext().getMultiLayerTransformer();
     MutableTransformer viewTransformer = multiLayerTransformer.getTransformer(Layer.VIEW);
     MutableTransformer layoutTransformer = multiLayerTransformer.getTransformer(Layer.LAYOUT);
-    VisualizationModel<N, E, Point2D> model = vv.getModel();
+    VisualizationModel<N, E> model = vv.getModel();
 
     if (viewTransformer instanceof LensTransformer) {
       shape = multiLayerTransformer.transform(shape);
     } else if (layoutTransformer instanceof LensTransformer) {
-      LayoutModel<N, Point2D> layoutModel = model.getLayoutModel();
+      LayoutModel<N> layoutModel = model.getLayoutModel();
       Dimension d = new Dimension(layoutModel.getWidth(), layoutModel.getHeight());
       HyperbolicShapeTransformer shapeChanger = new HyperbolicShapeTransformer(d, viewTransformer);
       LensTransformer lensTransformer = (LensTransformer) layoutTransformer;
@@ -88,12 +85,14 @@ public class LensTransformSupport<N, E> extends TransformSupport<N, E> {
     MultiLayerTransformer multiLayerTransformer = vv.getRenderContext().getMultiLayerTransformer();
     MutableTransformer viewTransformer = multiLayerTransformer.getTransformer(Layer.VIEW);
     MutableTransformer layoutTransformer = multiLayerTransformer.getTransformer(Layer.LAYOUT);
-    VisualizationModel<N, E, Point2D> model = vv.getModel();
+    VisualizationModel<N, E> model = vv.getModel();
 
     if (viewTransformer instanceof LensTransformer) {
+      // use all layers
       p = multiLayerTransformer.transform(p);
     } else if (layoutTransformer instanceof LensTransformer) {
-      LayoutModel<N, Point2D> layoutModel = model.getLayoutModel();
+      // apply the shape changer
+      LayoutModel<N> layoutModel = model.getLayoutModel();
       Dimension d = new Dimension(layoutModel.getWidth(), layoutModel.getHeight());
       HyperbolicShapeTransformer shapeChanger = new HyperbolicShapeTransformer(d, viewTransformer);
       LensTransformer lensTransformer = (LensTransformer) layoutTransformer;
@@ -102,6 +101,7 @@ public class LensTransformSupport<N, E> extends TransformSupport<N, E> {
           ((MutableTransformerDecorator) layoutTransformer).getDelegate();
       p = shapeChanger.transform(layoutDelegate.transform(p));
     } else {
+      // use the default
       p = multiLayerTransformer.transform(Layer.LAYOUT, p);
     }
     return p;
@@ -120,10 +120,9 @@ public class LensTransformSupport<N, E> extends TransformSupport<N, E> {
     MutableTransformer viewTransformer = multiLayerTransformer.getTransformer(Layer.VIEW);
     MutableTransformer layoutTransformer = multiLayerTransformer.getTransformer(Layer.LAYOUT);
 
-    if (viewTransformer instanceof LensTransformer) {
-      shape = multiLayerTransformer.inverseTransform(shape);
-    } else if (layoutTransformer instanceof LensTransformer) {
-      LayoutModel<N, Point2D> layoutModel = vv.getModel().getLayoutModel();
+    if (layoutTransformer instanceof LensTransformer) {
+      // apply the shape changer
+      LayoutModel<N> layoutModel = vv.getModel().getLayoutModel();
       Dimension d = new Dimension(layoutModel.getWidth(), layoutModel.getHeight());
       HyperbolicShapeTransformer shapeChanger = new HyperbolicShapeTransformer(d, viewTransformer);
       LensTransformer lensTransformer = (LensTransformer) layoutTransformer;
@@ -132,6 +131,7 @@ public class LensTransformSupport<N, E> extends TransformSupport<N, E> {
           ((MutableTransformerDecorator) layoutTransformer).getDelegate();
       shape = layoutDelegate.inverseTransform(shapeChanger.inverseTransform(shape));
     } else {
+      // if the viewTransformer is either a LensTransformer or the default
       shape = multiLayerTransformer.inverseTransform(shape);
     }
     return shape;

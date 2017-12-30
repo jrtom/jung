@@ -14,17 +14,13 @@ import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
 import java.util.function.Function;
 
 /** two or three dimensional layoutmodel */
-public interface LayoutModel<N, P> extends Function<N, P> {
+public interface LayoutModel<N> extends Function<N, Point> {
 
   int getWidth();
 
   int getHeight();
 
-  int getDepth();
-
-  void accept(LayoutAlgorithm<N, P> layoutAlgorithm);
-
-  PointModel<P> getPointModel();
+  void accept(LayoutAlgorithm<N> layoutAlgorithm);
 
   void setSize(int width, int helght);
 
@@ -56,13 +52,11 @@ public interface LayoutModel<N, P> extends Function<N, P> {
    * @param node the node whose location is to be specified
    * @param location the coordinates of the specified location
    */
-  void set(N node, P location);
+  void set(N node, Point location);
 
   void set(N node, double x, double y);
 
-  void set(N node, double x, double y, double z);
-
-  P get(N node);
+  Point get(N node);
 
   Graph<N> getGraph();
 
@@ -74,7 +68,7 @@ public interface LayoutModel<N, P> extends Function<N, P> {
 
   boolean isLocked();
 
-  void setInitializer(Function<N, P> initializer);
+  void setInitializer(Function<N, Point> initializer);
 
   interface ChangeListener {
     void changed();

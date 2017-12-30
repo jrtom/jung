@@ -7,8 +7,6 @@
  */
 package edu.uci.ics.jung.samples;
 
-import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
-
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 import com.google.common.graph.MutableNetwork;
@@ -74,7 +72,7 @@ public class SimpleGraphSpatialEdgeSearchTest extends JPanel {
         new BaseVisualizationModel(
             g,
             layoutAlgorithm,
-            new RandomLocationTransformer(POINT_MODEL, 600, 600, 0, System.currentTimeMillis()),
+            new RandomLocationTransformer(600, 600, System.currentTimeMillis()),
             layoutPreferredSize);
     VisualizationViewer vv = new VisualizationViewer(model, viewPreferredSize);
 
@@ -145,18 +143,18 @@ public class SimpleGraphSpatialEdgeSearchTest extends JPanel {
   public void testClosestNodes(
       VisualizationViewer<String, String> vv,
       MutableNetwork<String, Number> graph,
-      LayoutModel<String, Point2D> layoutModel,
+      LayoutModel<String> layoutModel,
       Spatial<String> tree) {
     vv.getPickedNodeState().clear();
-    NetworkNodeAccessor<String, Point2D> slowWay =
-        new RadiusNetworkNodeAccessor<>(graph.asGraph(), POINT_MODEL, Double.MAX_VALUE);
+    NetworkNodeAccessor<String> slowWay =
+        new RadiusNetworkNodeAccessor<>(graph.asGraph(), Double.MAX_VALUE);
 
     // look for nodes closest to 1000 random locations
     for (int i = 0; i < 1000; i++) {
       double x = Math.random() * layoutModel.getWidth();
       double y = Math.random() * layoutModel.getHeight();
       // use the slowWay
-      String winnerOne = slowWay.getNode(layoutModel, x, y, 0);
+      String winnerOne = slowWay.getNode(layoutModel, x, y);
       // use the quadtree
       String winnerTwo = tree.getClosestElement(x, y);
 
@@ -169,14 +167,14 @@ public class SimpleGraphSpatialEdgeSearchTest extends JPanel {
             layoutModel.apply(winnerOne),
             x,
             y,
-            layoutModel.apply(winnerOne).distanceSq(x, y));
+            layoutModel.apply(winnerOne).distanceSquared(x, y));
         log.info(
             "the radius distanceSq from winnerTwo {} at {} to {},{} is {}",
             winnerTwo,
             layoutModel.apply(winnerTwo),
             x,
             y,
-            layoutModel.apply(winnerTwo).distanceSq(x, y));
+            layoutModel.apply(winnerTwo).distanceSquared(x, y));
 
         log.info("the cell for winnerOne {} is {}", winnerOne, tree.getContainingLeaf(winnerOne));
         log.info("the cell for winnerTwo {} is {}", winnerTwo, tree.getContainingLeaf(winnerTwo));

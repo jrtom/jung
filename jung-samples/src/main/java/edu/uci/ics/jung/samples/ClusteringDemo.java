@@ -9,8 +9,6 @@
  */
 package edu.uci.ics.jung.samples;
 
-import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
-
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -24,6 +22,7 @@ import edu.uci.ics.jung.layout.algorithms.FRLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
 import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.layout.model.LoadingCacheLayoutModel;
+import edu.uci.ics.jung.layout.model.Point;
 import edu.uci.ics.jung.visualization.BaseVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.VisualizationModel;
@@ -32,7 +31,6 @@ import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.layout.AggregateLayoutModel;
 import java.awt.*;
 import java.awt.event.ItemEvent;
-import java.awt.geom.Point2D;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -131,18 +129,16 @@ public class ClusteringDemo extends JPanel {
 
     //Create a simple layout frame
     //specify the Fruchterman-Rheingold layout algorithm
-    LayoutAlgorithm<Number, Point2D> algorithm = new FRLayoutAlgorithm<>();
-    LayoutModel<Number, Point2D> delegateModel =
-        LoadingCacheLayoutModel.<Number, Point2D>builder()
+    LayoutAlgorithm<Number> algorithm = new FRLayoutAlgorithm<>();
+    LayoutModel<Number> delegateModel =
+        LoadingCacheLayoutModel.<Number>builder()
             .setGraph(graph.asGraph())
-            .setPointModel(POINT_MODEL)
             .setSize(600, 600)
             .build();
 
     setLayout(new BorderLayout());
 
-    final AggregateLayoutModel<Number, Point2D> layoutModel =
-        new AggregateLayoutModel<>(delegateModel);
+    final AggregateLayoutModel<Number> layoutModel = new AggregateLayoutModel<>(delegateModel);
     VisualizationModel visualizationModel =
         new BaseVisualizationModel(graph, layoutModel, algorithm);
 
@@ -163,7 +159,7 @@ public class ClusteringDemo extends JPanel {
     JButton scramble = new JButton("Restart");
     scramble.addActionListener(
         e -> {
-          LayoutAlgorithm<Number, Point2D> layoutAlgorithm = vv.getModel().getLayoutAlgorithm();
+          LayoutAlgorithm<Number> layoutAlgorithm = vv.getModel().getLayoutAlgorithm();
           vv.getModel().getLayoutModel().accept(layoutAlgorithm);
         });
 
@@ -242,7 +238,7 @@ public class ClusteringDemo extends JPanel {
   }
 
   public void clusterAndRecolor(
-      AggregateLayoutModel<Number, Point2D> layoutModel,
+      AggregateLayoutModel<Number> layoutModel,
       Network<Number, Number> graph,
       int numEdgesToRemove,
       Color[] colors,
@@ -279,19 +275,18 @@ public class ClusteringDemo extends JPanel {
     }
   }
 
-  private void groupCluster(AggregateLayoutModel<Number, Point2D> layoutModel, Set<Number> nodes) {
+  private void groupCluster(AggregateLayoutModel<Number> layoutModel, Set<Number> nodes) {
     if (nodes.size() < vv.getModel().getNetwork().nodes().size()) {
-      Point2D center = layoutModel.apply(nodes.iterator().next());
+      Point center = layoutModel.apply(nodes.iterator().next());
       MutableNetwork<Number, Number> subGraph = NetworkBuilder.undirected().build();
       for (Number v : nodes) {
         subGraph.addNode(v);
       }
-      LayoutAlgorithm<Number, Point2D> subLayoutAlgorithm = new CircleLayoutAlgorithm<>();
+      LayoutAlgorithm<Number> subLayoutAlgorithm = new CircleLayoutAlgorithm<>();
 
-      LayoutModel<Number, Point2D> subModel =
-          LoadingCacheLayoutModel.<Number, Point2D>builder()
+      LayoutModel<Number> subModel =
+          LoadingCacheLayoutModel.<Number>builder()
               .setGraph(subGraph.asGraph())
-              .setPointModel(POINT_MODEL)
               .setSize(40, 40)
               .build();
 

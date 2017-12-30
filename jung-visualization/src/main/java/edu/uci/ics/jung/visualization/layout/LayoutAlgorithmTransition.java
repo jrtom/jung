@@ -3,7 +3,6 @@ package edu.uci.ics.jung.visualization.layout;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
 import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.visualization.VisualizationServer;
-import java.awt.geom.Point2D;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,29 +20,20 @@ public class LayoutAlgorithmTransition<N, E> {
   private static Logger log = LoggerFactory.getLogger(LayoutAlgorithmTransition.class);
 
   public static <N, E> void animate(
-      VisualizationServer<N, E> visualizationServer,
-      LayoutAlgorithm<N, Point2D> endLayoutAlgorithm) {
+      VisualizationServer<N, E> visualizationServer, LayoutAlgorithm<N> endLayoutAlgorithm) {
     fireLayoutStateChanged(visualizationServer.getModel().getLayoutModel(), true);
-    new LayoutAlgorithmTransition(visualizationServer, endLayoutAlgorithm);
+    LayoutAlgorithm<N> transitionLayoutAlgorithm =
+        new AnimationLayoutAlgorithm<>(visualizationServer, endLayoutAlgorithm);
+    visualizationServer.getModel().setLayoutAlgorithm(transitionLayoutAlgorithm);
   }
 
   public static <N, E> void apply(
-      VisualizationServer<N, E> visualizationServer,
-      LayoutAlgorithm<N, Point2D> endLayoutAlgorithm) {
+      VisualizationServer<N, E> visualizationServer, LayoutAlgorithm<N> endLayoutAlgorithm) {
     visualizationServer.getModel().setLayoutAlgorithm(endLayoutAlgorithm);
   }
 
   private static void fireLayoutStateChanged(LayoutModel layoutModel, boolean state) {
     log.trace("fireLayoutStateChanged to {}", state);
     layoutModel.getLayoutStateChangeSupport().fireLayoutStateChanged(layoutModel, state);
-  }
-
-  private LayoutAlgorithmTransition(
-      VisualizationServer<N, E> visualizationServer,
-      LayoutAlgorithm<N, Point2D> endLayoutAlgorithm) {
-
-    LayoutAlgorithm<N, Point2D> transitionLayoutAlgorithm =
-        new AnimationLayoutAlgorithm<>(visualizationServer, endLayoutAlgorithm);
-    visualizationServer.getModel().setLayoutAlgorithm(transitionLayoutAlgorithm);
   }
 }

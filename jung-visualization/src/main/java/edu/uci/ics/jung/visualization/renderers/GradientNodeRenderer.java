@@ -10,6 +10,7 @@
 package edu.uci.ics.jung.visualization.renderers;
 
 import edu.uci.ics.jung.layout.model.LayoutModel;
+import edu.uci.ics.jung.layout.model.Point;
 import edu.uci.ics.jung.visualization.MultiLayerTransformer.Layer;
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.VisualizationModel;
@@ -68,18 +69,19 @@ public class GradientNodeRenderer<N, E> implements Renderer.Node<N, E> {
   }
 
   public void paintNode(
-      RenderContext<N, E> renderContext,
-      VisualizationModel<N, E, Point2D> visualizationModel,
-      N v) {
+      RenderContext<N, E> renderContext, VisualizationModel<N, E> visualizationModel, N v) {
     if (renderContext.getNodeIncludePredicate().test(v)) {
       // get the shape to be rendered
       Shape shape = renderContext.getNodeShapeFunction().apply(v);
-      LayoutModel<N, Point2D> layoutModel = visualizationModel.getLayoutModel();
-      Point2D p = layoutModel.apply(v);
-      p = renderContext.getMultiLayerTransformer().transform(Layer.LAYOUT, p);
+      LayoutModel<N> layoutModel = visualizationModel.getLayoutModel();
+      Point p = layoutModel.apply(v);
+      Point2D p2d =
+          renderContext
+              .getMultiLayerTransformer()
+              .transform(Layer.LAYOUT, new Point2D.Double(p.x, p.y));
 
-      float x = (float) p.getX();
-      float y = (float) p.getY();
+      float x = (float) p2d.getX();
+      float y = (float) p2d.getY();
 
       // create a transform that translates to the location of
       // the node to be rendered

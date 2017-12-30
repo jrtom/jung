@@ -1,15 +1,14 @@
 package edu.uci.ics.jung.visualization.spatial;
 
-import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
-
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.layout.model.LayoutModel;
+import edu.uci.ics.jung.layout.model.Point;
 import edu.uci.ics.jung.layout.util.LayoutChangeListener;
 import edu.uci.ics.jung.layout.util.LayoutEvent;
 import edu.uci.ics.jung.layout.util.LayoutNetworkEvent;
-import edu.uci.ics.jung.layout.util.NetworkNodeAccessor;
 import edu.uci.ics.jung.visualization.VisualizationModel;
 import edu.uci.ics.jung.visualization.layout.BoundingRectangleCollector;
 import edu.uci.ics.jung.visualization.layout.NetworkElementAccessor;
@@ -55,7 +54,7 @@ public abstract class SpatialRTree<T, NT> extends AbstractSpatial<T, NT> impleme
    * @param layoutModel
    * @param splitterContext
    */
-  public SpatialRTree(LayoutModel<NT, Point2D> layoutModel, SplitterContext<T> splitterContext) {
+  public SpatialRTree(LayoutModel<NT> layoutModel, SplitterContext<T> splitterContext) {
     super(layoutModel);
     this.splitterContext = splitterContext;
   }
@@ -152,18 +151,18 @@ public abstract class SpatialRTree<T, NT> extends AbstractSpatial<T, NT> impleme
   }
 
   public static class Nodes<N> extends SpatialRTree<N, N>
-      implements Spatial<N>, LayoutChangeListener<N, Point2D> {
+      implements Spatial<N>, LayoutChangeListener<N> {
 
-    private static final Logger log = LoggerFactory.getLogger(SpatialRTree.Nodes.class);
+    private static final Logger log = LoggerFactory.getLogger(Nodes.class);
 
-    public Nodes(LayoutModel<N, Point2D> layoutModel, SplitterContext<N> splitterContext) {
+    public Nodes(LayoutModel<N> layoutModel, SplitterContext<N> splitterContext) {
       super(layoutModel, splitterContext);
       rtree = rtree.create();
     }
 
     public Nodes(
         VisualizationModel visualizationModel,
-        BoundingRectangleCollector.Node<N> boundingRectangleCollector,
+        BoundingRectangleCollector.Nodes<N> boundingRectangleCollector,
         SplitterContext<N> splitterContext) {
       super(visualizationModel.getLayoutModel(), splitterContext);
       this.boundingRectangleCollector = boundingRectangleCollector;
@@ -183,7 +182,8 @@ public abstract class SpatialRTree<T, NT> extends AbstractSpatial<T, NT> impleme
 
       Node<N> root = rtree.getRoot().get();
       log.trace("out of nodes {}", layoutModel.getGraph().nodes());
-      return root.getVisibleElements(shape);
+      Collection<N> visibleElements = Sets.newHashSet();
+      return root.getVisibleElements(visibleElements, shape);
     }
 
     /**
@@ -193,11 +193,11 @@ public abstract class SpatialRTree<T, NT> extends AbstractSpatial<T, NT> impleme
      * @param location the new location for the element
      */
     @Override
-    public void update(N element, Point2D location) {
+    public void update(N element, Point location) {
       gridCache = null;
       // do nothing if we are not active
       if (isActive() && rtree.getRoot().isPresent()) {
-        TreeNode root = rtree.getRoot().get();
+        //        TreeNode root = rtree.getRoot().get();
 
         LeafNode<N> containingLeaf = getContainingLeaf(element);
         Rectangle2D itsShape = boundingRectangleCollector.getForElement(element, location);
@@ -242,16 +242,10 @@ public abstract class SpatialRTree<T, NT> extends AbstractSpatial<T, NT> impleme
     public N getClosestElement(double x, double y) {
       if (!isActive() || !rtree.getRoot().isPresent()) {
         // use the fallback NetworkNodeAccessor
-        return ((NetworkNodeAccessor<N, Point2D>) fallback)
-            .getNode((LayoutModel<N, Point2D>) layoutModel, x, y);
+        return fallback.getNode(layoutModel, x, y);
       }
-      Node<N> root = rtree.getRoot().get();
-      Collection<? extends Node<N>> containingLeafs = root.getContainingLeafs(x, y);
 
-      Rectangle2D union = Node.union(containingLeafs);
-
-      union = union == null ? rectangle : union;
-      double radius = Math.max(union.getWidth(), union.getHeight()) / 2;
+      double radius = layoutModel.getWidth() / 20;
 
       N closest = null;
       while (closest == null) {
@@ -263,46 +257,18 @@ public abstract class SpatialRTree<T, NT> extends AbstractSpatial<T, NT> impleme
         Collection<N> nodes = getVisibleElements(searchArea);
         closest = getClosest(nodes, x, y, radius);
 
+        // if i found a winner or
         // if I have already considered all of the nodes in the graph
         // (in the spatialtree) there is no reason to enlarge the
         // area and try again
-        if (nodes.size() >= layoutModel.getGraph().nodes().size()) {
+        if (closest != null || nodes.size() >= layoutModel.getGraph().nodes().size()) {
           break;
         }
         // double the search area size and try again
         radius *= 2;
       }
+      //      log.info("returning {}", closest);
       return closest;
-    }
-
-    private N getClosest(Collection<N> nodes, double x, double y, double radius) {
-
-      LayoutModel<N, Point2D> nlayoutModel = (LayoutModel<N, Point2D>) layoutModel;
-      // since I am comparing with distance squared, i need to square the radius
-      double radiusSq = radius * radius;
-      if (nodes.size() > 0) {
-        double closestSoFar = Double.MAX_VALUE;
-        N winner = null;
-        double winningDistance = -1;
-        for (N node : nodes) {
-          Point2D loc = nlayoutModel.apply(node);
-          double dist = loc.distanceSq(x, y);
-
-          // consider only nodes that are inside the search radius
-          // and are closer than previously found nodes
-          if (dist < radiusSq && dist < closestSoFar) {
-            closestSoFar = dist;
-            winner = node;
-            winningDistance = dist;
-          }
-        }
-        if (log.isTraceEnabled()) {
-          log.trace("closest winner is {} at distance {}", winner, winningDistance);
-        }
-        return winner;
-      } else {
-        return null;
-      }
     }
 
     protected List<Shape> collectGrids(List<Shape> list, RTree<N> tree) {
@@ -333,35 +299,34 @@ public abstract class SpatialRTree<T, NT> extends AbstractSpatial<T, NT> impleme
     }
 
     @Override
-    public void layoutChanged(LayoutEvent<N, Point2D> evt) {
+    public void layoutChanged(LayoutEvent<N> evt) {
       this.update(evt.getNode(), evt.getLocation());
     }
 
     @Override
-    public void layoutChanged(LayoutNetworkEvent<N, Point2D> evt) {
+    public void layoutChanged(LayoutNetworkEvent<N> evt) {
       update(evt.getNode(), evt.getLocation());
     }
   }
 
   public static class Edges<E, N> extends SpatialRTree<E, N>
-      implements Spatial<E>, LayoutChangeListener<N, Point2D> {
+      implements Spatial<E>, LayoutChangeListener<N> {
 
-    private static final Logger log = LoggerFactory.getLogger(SpatialRTree.Edges.class);
+    private static final Logger log = LoggerFactory.getLogger(Edges.class);
 
     NetworkElementAccessor<N, E> networkElementAccessor;
 
     // Edges gets a VisualizationModel reference to access the Network and work with edges
-    VisualizationModel<N, E, Point2D> visualizationModel;
+    VisualizationModel<N, E> visualizationModel;
 
     public Edges(
         VisualizationModel visualizationModel,
-        BoundingRectangleCollector.Edge<E> boundingRectangleCollector,
+        BoundingRectangleCollector.Edges<E> boundingRectangleCollector,
         SplitterContext<E> splitterContext) {
       super(visualizationModel.getLayoutModel(), splitterContext);
       this.visualizationModel = visualizationModel;
       this.boundingRectangleCollector = boundingRectangleCollector;
-      networkElementAccessor =
-          new RadiusNetworkElementAccessor(visualizationModel.getNetwork(), POINT_MODEL);
+      networkElementAccessor = new RadiusNetworkElementAccessor(visualizationModel.getNetwork());
       rtree = RTree.create();
       recalculate();
     }
@@ -378,7 +343,8 @@ public abstract class SpatialRTree<T, NT> extends AbstractSpatial<T, NT> impleme
       }
       pickShapes.add(shape);
       Node<E> root = rtree.getRoot().get();
-      return root.getVisibleElements(shape);
+      Collection<E> visibleElements = Sets.newHashSet();
+      return root.getVisibleElements(visibleElements, shape);
     }
 
     /**
@@ -388,7 +354,7 @@ public abstract class SpatialRTree<T, NT> extends AbstractSpatial<T, NT> impleme
      * @param location the new location for the element
      */
     @Override
-    public void update(E element, Point2D location) {
+    public void update(E element, Point location) {
       gridCache = null;
       if (isActive()) {
 
@@ -436,10 +402,10 @@ public abstract class SpatialRTree<T, NT> extends AbstractSpatial<T, NT> impleme
     }
 
     @Override
-    public void layoutChanged(LayoutEvent<N, Point2D> evt) {
+    public void layoutChanged(LayoutEvent<N> evt) {
       // need to take care of edge changes
       N node = evt.getNode();
-      Point2D p = evt.getLocation();
+      Point p = evt.getLocation();
       if (visualizationModel.getNetwork().nodes().contains(node)) {
         Set<E> edges = visualizationModel.getNetwork().incidentEdges(node);
         for (E edge : edges) {
@@ -449,9 +415,9 @@ public abstract class SpatialRTree<T, NT> extends AbstractSpatial<T, NT> impleme
     }
 
     @Override
-    public void layoutChanged(LayoutNetworkEvent<N, Point2D> evt) {
+    public void layoutChanged(LayoutNetworkEvent<N> evt) {
       N node = evt.getNode();
-      Point2D p = evt.getLocation();
+      Point p = evt.getLocation();
       if (visualizationModel.getNetwork().nodes().contains(node)) {
         Set<E> edges = visualizationModel.getNetwork().incidentEdges(node);
         for (E edge : edges) {
@@ -487,11 +453,7 @@ public abstract class SpatialRTree<T, NT> extends AbstractSpatial<T, NT> impleme
         return networkElementAccessor.getEdge(layoutModel, x, y);
       }
       Node<E> root = rtree.getRoot().get();
-      Collection<? extends Node<E>> containingLeafs = root.getContainingLeafs(x, y);
-
-      Rectangle2D union = Node.union(containingLeafs);
-
-      double radius = Math.max(union.getWidth(), union.getHeight()) / 2;
+      double radius = layoutModel.getWidth() / 20;
 
       E closest = null;
       while (closest == null) {
@@ -501,12 +463,13 @@ public abstract class SpatialRTree<T, NT> extends AbstractSpatial<T, NT> impleme
         Ellipse2D searchArea = new Ellipse2D.Double(x - radius, y - radius, diameter, diameter);
 
         Collection<E> edges = getVisibleElements(searchArea);
-        closest = getClosest(edges, x, y, radius);
+        closest = getClosestEdge(edges, x, y, radius);
 
+        // If i found a winner, break. also
         // if I have already considered all of the nodes in the graph
         // (in the spatialquadtree) there is no reason to enlarge the
         // area and try again
-        if (edges.size() >= layoutModel.getGraph().edges().size()) {
+        if (closest != null || edges.size() >= layoutModel.getGraph().edges().size()) {
           break;
         }
         // double the search area size and try again
@@ -515,7 +478,7 @@ public abstract class SpatialRTree<T, NT> extends AbstractSpatial<T, NT> impleme
       return closest;
     }
 
-    private E getClosest(Collection<E> edges, double x, double y, double radius) {
+    protected E getClosestEdge(Collection<E> edges, double x, double y, double radius) {
 
       // since I am comparing with distance squared, i need to square the radius
       double radiusSq = radius * radius;
@@ -529,10 +492,10 @@ public abstract class SpatialRTree<T, NT> extends AbstractSpatial<T, NT> impleme
           EndpointPair<N> endpoints = network.incidentNodes(edge);
           N u = endpoints.nodeU();
           N v = endpoints.nodeV();
-          Point2D up = layoutModel.apply(u);
-          Point2D vp = layoutModel.apply(v);
+          Point up = layoutModel.apply(u);
+          Point vp = layoutModel.apply(v);
           // compute the distance between my point and a Line connecting u and v
-          Line2D line = new Line2D.Double(up, vp);
+          Line2D line = new Line2D.Double(up.x, up.y, vp.x, vp.y);
           double dist = line.ptSegDist(x, y);
 
           // consider only edges that cross inside the search radius

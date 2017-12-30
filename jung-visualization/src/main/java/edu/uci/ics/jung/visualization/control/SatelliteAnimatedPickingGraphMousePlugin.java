@@ -12,6 +12,7 @@
 package edu.uci.ics.jung.visualization.control;
 
 import edu.uci.ics.jung.layout.model.LayoutModel;
+import edu.uci.ics.jung.layout.model.Point;
 import edu.uci.ics.jung.visualization.MultiLayerTransformer.Layer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import java.awt.event.InputEvent;
@@ -50,15 +51,15 @@ public class SatelliteAnimatedPickingGraphMousePlugin<N, E>
             ((SatelliteVisualizationViewer<N, E>) vv).getMaster();
 
         if (node != null) {
-          LayoutModel<N, Point2D> layoutModel = vvMaster.getModel().getLayoutModel();
-          Point2D q = layoutModel.apply(node);
+          LayoutModel<N> layoutModel = vvMaster.getModel().getLayoutModel();
+          Point q = layoutModel.apply(node);
           Point2D lvc =
               vvMaster
                   .getRenderContext()
                   .getMultiLayerTransformer()
                   .inverseTransform(Layer.LAYOUT, vvMaster.getCenter());
-          final double dx = (lvc.getX() - q.getX()) / 10;
-          final double dy = (lvc.getY() - q.getY()) / 10;
+          final double dx = (lvc.getX() - q.x) / 10;
+          final double dy = (lvc.getY() - q.y) / 10;
 
           Runnable animator =
               new Runnable() {

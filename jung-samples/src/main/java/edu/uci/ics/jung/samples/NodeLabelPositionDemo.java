@@ -25,7 +25,6 @@ import edu.uci.ics.jung.visualization.picking.PickedState;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
 import edu.uci.ics.jung.visualization.renderers.Renderer.NodeLabel.Position;
 import java.awt.*;
-import java.awt.geom.Point2D;
 import javax.swing.*;
 
 /**
@@ -40,7 +39,7 @@ public class NodeLabelPositionDemo extends JPanel {
   /** the graph */
   Network<String, Number> graph;
 
-  FRLayoutAlgorithm<String, Point2D> graphLayoutAlgorithm;
+  FRLayoutAlgorithm<String> graphLayoutAlgorithm;
 
   /** the visual component and renderer for the graph */
   VisualizationViewer<String, Number> vv;
@@ -59,7 +58,7 @@ public class NodeLabelPositionDemo extends JPanel {
 
     Dimension preferredSize = new Dimension(600, 600);
 
-    final VisualizationModel<String, Number, Point2D> visualizationModel =
+    final VisualizationModel<String, Number> visualizationModel =
         new BaseVisualizationModel<>(graph, graphLayoutAlgorithm, preferredSize);
     vv = new VisualizationViewer<>(visualizationModel, preferredSize);
 

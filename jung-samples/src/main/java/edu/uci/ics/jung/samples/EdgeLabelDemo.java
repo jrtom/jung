@@ -26,7 +26,6 @@ import edu.uci.ics.jung.visualization.renderers.NodeLabelRenderer;
 import edu.uci.ics.jung.visualization.util.Context;
 import java.awt.*;
 import java.awt.event.ItemEvent;
-import java.awt.geom.Point2D;
 import java.util.function.Function;
 import javax.swing.*;
 
@@ -60,7 +59,7 @@ public class EdgeLabelDemo extends JPanel {
     // create a simple graph for the demo
     graph = buildGraph();
 
-    LayoutAlgorithm<Integer, Point2D> layoutAlgorithm = new CircleLayoutAlgorithm<>();
+    LayoutAlgorithm<Integer> layoutAlgorithm = new CircleLayoutAlgorithm<>();
     vv = new VisualizationViewer<>(graph, layoutAlgorithm, new Dimension(600, 400));
     vv.setBackground(Color.white);
 

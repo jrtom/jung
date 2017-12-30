@@ -14,6 +14,7 @@ import edu.uci.ics.jung.graph.TreeNetworkBuilder;
 import edu.uci.ics.jung.layout.algorithms.BalloonLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.TreeLayoutAlgorithm;
 import edu.uci.ics.jung.layout.model.LayoutModel;
+import edu.uci.ics.jung.layout.model.Point;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.MultiLayerTransformer;
 import edu.uci.ics.jung.visualization.MultiLayerTransformer.Layer;
@@ -39,7 +40,6 @@ import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
-import java.awt.geom.Point2D;
 import javax.swing.*;
 
 /**
@@ -55,9 +55,9 @@ public class BalloonLayoutDemo extends JPanel {
 
   VisualizationServer.Paintable rings;
 
-  TreeLayoutAlgorithm<String, Point2D> treeLayoutAlgorithm;
+  TreeLayoutAlgorithm<String> treeLayoutAlgorithm;
 
-  BalloonLayoutAlgorithm<String, Point2D> radialLayoutAlgorithm;
+  BalloonLayoutAlgorithm<String> radialLayoutAlgorithm;
 
   /** the visual component and renderer for the graph */
   VisualizationViewer<String, Integer> vv;
@@ -200,9 +200,9 @@ public class BalloonLayoutDemo extends JPanel {
 
   class Rings implements VisualizationServer.Paintable {
 
-    BalloonLayoutAlgorithm<String, Point2D> layoutAlgorithm;
+    BalloonLayoutAlgorithm<String> layoutAlgorithm;
 
-    public Rings(BalloonLayoutAlgorithm<String, Point2D> layoutAlgorithm) {
+    public Rings(BalloonLayoutAlgorithm<String> layoutAlgorithm) {
       this.layoutAlgorithm = layoutAlgorithm;
     }
 
@@ -217,9 +217,9 @@ public class BalloonLayoutDemo extends JPanel {
         if (radius == null) {
           continue;
         }
-        Point2D p = vv.getModel().getLayoutModel().apply(v);
+        Point p = vv.getModel().getLayoutModel().apply(v);
         ellipse.setFrame(-radius, -radius, 2 * radius, 2 * radius);
-        AffineTransform at = AffineTransform.getTranslateInstance(p.getX(), p.getY());
+        AffineTransform at = AffineTransform.getTranslateInstance(p.x, p.y);
         Shape shape = at.createTransformedShape(ellipse);
 
         MultiLayerTransformer multiLayerTransformer =
@@ -231,7 +231,7 @@ public class BalloonLayoutDemo extends JPanel {
         if (viewTransformer instanceof LensTransformer) {
           shape = multiLayerTransformer.transform(shape);
         } else if (layoutTransformer instanceof LensTransformer) {
-          LayoutModel<String, Point2D> layoutModel = vv.getModel().getLayoutModel();
+          LayoutModel<String> layoutModel = vv.getModel().getLayoutModel();
           Dimension d = new Dimension(layoutModel.getWidth(), layoutModel.getHeight());
 
           HyperbolicShapeTransformer shapeChanger =

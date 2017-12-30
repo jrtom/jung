@@ -40,7 +40,6 @@ import edu.uci.ics.jung.visualization.transform.shape.MagnifyShapeTransformer;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.awt.geom.Point2D;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -114,7 +113,7 @@ public class LensNodeImageShaperDemo extends JPanel {
       }
     }
 
-    FRLayoutAlgorithm<Number, Point2D> layoutAlgorithm = new FRLayoutAlgorithm<>();
+    FRLayoutAlgorithm<Number> layoutAlgorithm = new FRLayoutAlgorithm<>();
     layoutAlgorithm.setMaxIterations(100);
     vv = new VisualizationViewer<>(graph, layoutAlgorithm, new Dimension(600, 600));
 
@@ -210,7 +209,7 @@ public class LensNodeImageShaperDemo extends JPanel {
     controls.add(modePanel);
     add(controls, BorderLayout.SOUTH);
 
-    LayoutModel<Number, Point2D> layoutModel = vv.getModel().getLayoutModel();
+    LayoutModel<Number> layoutModel = vv.getModel().getLayoutModel();
     Dimension d = new Dimension(layoutModel.getWidth(), layoutModel.getHeight());
 
     Lens lens = new Lens(d);

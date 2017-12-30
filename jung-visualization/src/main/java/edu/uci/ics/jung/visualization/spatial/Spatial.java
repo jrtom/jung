@@ -1,9 +1,8 @@
 package edu.uci.ics.jung.visualization.spatial;
 
-import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
-
 import com.google.common.collect.Sets;
 import edu.uci.ics.jung.layout.model.LayoutModel;
+import edu.uci.ics.jung.layout.model.Point;
 import edu.uci.ics.jung.layout.util.RadiusNetworkNodeAccessor;
 import edu.uci.ics.jung.visualization.VisualizationModel;
 import edu.uci.ics.jung.visualization.layout.RadiusNetworkElementAccessor;
@@ -69,13 +68,22 @@ public interface Spatial<T> extends LayoutModel.LayoutStateChangeListener {
     return new Rectangle2D.Double(left, top, right - left, bottom - top);
   }
 
+  default Rectangle2D getUnion(Rectangle2D rect, double x, double y) {
+    double left = Math.min(x, rect.getX());
+    double top = Math.min(y, rect.getY());
+    double right = Math.max(x, rect.getX() + rect.getWidth());
+    double bottom = Math.max(y, rect.getY() + rect.getHeight());
+
+    return new Rectangle2D.Double(left, top, right - left, bottom - top);
+  }
+
   /**
    * update the spatial structure with the (possibly new) location of the passed element
    *
    * @param element the element to consider
    * @param location the location of the element
    */
-  void update(T element, Point2D location);
+  void update(T element, Point location);
 
   /**
    * @param p a point to search in the spatial structure
@@ -125,7 +133,7 @@ public interface Spatial<T> extends LayoutModel.LayoutStateChangeListener {
 
     private TreeNode treeNode;
 
-    public NoOp(LayoutModel<NT, Point2D> layoutModel) {
+    public NoOp(LayoutModel<NT> layoutModel) {
       super(layoutModel);
       this.treeNode = new DegenerateTreeNode(layoutModel);
     }
@@ -179,7 +187,7 @@ public interface Spatial<T> extends LayoutModel.LayoutStateChangeListener {
      * @param location the location of the element
      */
     @Override
-    public void update(T element, Point2D location) {
+    public void update(T element, Point location) {
       // no op
     }
 
@@ -217,9 +225,9 @@ public interface Spatial<T> extends LayoutModel.LayoutStateChangeListener {
      * @param <N>
      */
     public static class DegenerateTreeNode<N> implements TreeNode {
-      LayoutModel<N, Point> layoutModel;
+      LayoutModel<N> layoutModel;
 
-      public DegenerateTreeNode(LayoutModel<N, Point> layoutModel) {
+      public DegenerateTreeNode(LayoutModel<N> layoutModel) {
         this.layoutModel = layoutModel;
       }
 
@@ -241,11 +249,11 @@ public interface Spatial<T> extends LayoutModel.LayoutStateChangeListener {
 
     public static class Node<N> extends NoOp<N, N> {
 
-      RadiusNetworkNodeAccessor<N, Point2D> accessor;
+      RadiusNetworkNodeAccessor<N> accessor;
 
-      public Node(LayoutModel<N, Point2D> layoutModel) {
+      public Node(LayoutModel<N> layoutModel) {
         super(layoutModel);
-        this.accessor = new RadiusNetworkNodeAccessor<>(layoutModel.getGraph(), POINT_MODEL);
+        this.accessor = new RadiusNetworkNodeAccessor<>(layoutModel.getGraph());
       }
 
       @Override
@@ -271,14 +279,13 @@ public interface Spatial<T> extends LayoutModel.LayoutStateChangeListener {
 
     public static class Edge<E, N> extends NoOp<E, N> {
 
-      private VisualizationModel<N, E, Point2D> visualizationModel;
+      private VisualizationModel<N, E> visualizationModel;
       RadiusNetworkElementAccessor<N, E> accessor;
 
-      public Edge(VisualizationModel<N, E, Point2D> visualizationModel) {
+      public Edge(VisualizationModel<N, E> visualizationModel) {
         super(visualizationModel.getLayoutModel());
         this.visualizationModel = visualizationModel;
-        this.accessor =
-            new RadiusNetworkElementAccessor<>(visualizationModel.getNetwork(), POINT_MODEL);
+        this.accessor = new RadiusNetworkElementAccessor<>(visualizationModel.getNetwork());
       }
 
       @Override

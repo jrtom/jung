@@ -7,8 +7,6 @@
  */
 package edu.uci.ics.jung.samples;
 
-import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
-
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 import com.google.common.graph.Network;
@@ -57,7 +55,7 @@ public class SimpleGraphSpatialTest extends JPanel {
         new BaseVisualizationModel(
             g,
             layoutAlgorithm,
-            new RandomLocationTransformer(POINT_MODEL, 600, 600, 0, System.currentTimeMillis()),
+            new RandomLocationTransformer(600, 600, System.currentTimeMillis()),
             layoutPreferredSize);
     VisualizationViewer vv = new VisualizationViewer(model, viewPreferredSize);
     final DefaultModalGraphMouse graphMouse = new DefaultModalGraphMouse();

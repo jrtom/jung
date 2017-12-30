@@ -12,6 +12,7 @@
 package edu.uci.ics.jung.visualization.control;
 
 import edu.uci.ics.jung.layout.model.LayoutModel;
+import edu.uci.ics.jung.layout.model.Point;
 import edu.uci.ics.jung.visualization.MultiLayerTransformer.Layer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.layout.NetworkElementAccessor;
@@ -61,7 +62,7 @@ public class AnimatedPickingGraphMousePlugin<N, E> extends AbstractGraphMousePlu
   public void mousePressed(MouseEvent e) {
     if (e.getModifiers() == modifiers) {
       VisualizationViewer<N, E> vv = (VisualizationViewer<N, E>) e.getSource();
-      LayoutModel<N, Point2D> layoutModel = vv.getModel().getLayoutModel();
+      LayoutModel<N> layoutModel = vv.getModel().getLayoutModel();
       NetworkElementAccessor<N, E> pickSupport = vv.getPickSupport();
       PickedState<N> pickedNodeState = vv.getPickedNodeState();
       if (pickSupport != null && pickedNodeState != null) {
@@ -89,20 +90,21 @@ public class AnimatedPickingGraphMousePlugin<N, E> extends AbstractGraphMousePlu
   public void mouseReleased(MouseEvent e) {
     if (e.getModifiers() == modifiers) {
       final VisualizationViewer<N, E> vv = (VisualizationViewer<N, E>) e.getSource();
-      Point2D newCenter = null;
+      Point newCenter = null;
       if (node != null) {
         // center the picked node
-        LayoutModel<N, Point2D> layoutModel = vv.getModel().getLayoutModel();
+        LayoutModel<N> layoutModel = vv.getModel().getLayoutModel();
         newCenter = layoutModel.apply(node);
       } else {
         // they did not pick a node to center, so
         // just center the graph
-        newCenter = vv.getCenter();
+        Point2D center = vv.getCenter();
+        newCenter = new Point(center.getX(), center.getY());
       }
       Point2D lvc =
           vv.getRenderContext().getMultiLayerTransformer().inverseTransform(vv.getCenter());
-      final double dx = (lvc.getX() - newCenter.getX()) / 10;
-      final double dy = (lvc.getY() - newCenter.getY()) / 10;
+      final double dx = (lvc.getX() - newCenter.x) / 10;
+      final double dy = (lvc.getY() - newCenter.y) / 10;
 
       Runnable animator =
           new Runnable() {

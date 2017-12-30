@@ -21,7 +21,6 @@ import edu.uci.ics.jung.visualization.renderers.GradientNodeRenderer;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
 import java.awt.*;
 import java.awt.event.MouseEvent;
-import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.function.Supplier;
@@ -74,7 +73,7 @@ public class GraphFromGraphMLDemo {
     gmlr.load(new InputStreamReader(this.getClass().getResourceAsStream(filename)), graph);
 
     // create a simple graph for the demo
-    LayoutAlgorithm<Number, Point2D> layoutAlgorithm = new FRLayoutAlgorithm<>();
+    LayoutAlgorithm<Number> layoutAlgorithm = new FRLayoutAlgorithm<>();
     vv = new VisualizationViewer<>(graph, layoutAlgorithm, new Dimension(800, 800));
 
     vv.addGraphMouseListener(new TestGraphMouseListener<>());

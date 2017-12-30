@@ -12,7 +12,6 @@ import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.VisualizationModel;
 import edu.uci.ics.jung.visualization.VisualizationServer;
 import edu.uci.ics.jung.visualization.spatial.Spatial;
-import java.awt.geom.Point2D;
 import java.util.ConcurrentModificationException;
 import java.util.Set;
 import org.slf4j.Logger;
@@ -36,7 +35,7 @@ public class BasicRenderer<N, E> implements Renderer<N, E> {
 
   public void render(
       RenderContext<N, E> renderContext,
-      VisualizationModel<N, E, Point2D> visualizationModel,
+      VisualizationModel<N, E> visualizationModel,
       Spatial<N> nodeSpatial,
       Spatial<E> edgeSpatial) {
     if (nodeSpatial == null) {
@@ -97,7 +96,7 @@ public class BasicRenderer<N, E> implements Renderer<N, E> {
 
   @Override
   public void render(
-      RenderContext<N, E> renderContext, VisualizationModel<N, E, Point2D> visualizationModel) {
+      RenderContext<N, E> renderContext, VisualizationModel<N, E> visualizationModel) {
     Network<N, E> network = visualizationModel.getNetwork();
     // paint all the edges
     try {
@@ -121,31 +120,23 @@ public class BasicRenderer<N, E> implements Renderer<N, E> {
   }
 
   public void renderNode(
-      RenderContext<N, E> renderContext,
-      VisualizationModel<N, E, Point2D> visualizationModel,
-      N v) {
+      RenderContext<N, E> renderContext, VisualizationModel<N, E> visualizationModel, N v) {
     nodeRenderer.paintNode(renderContext, visualizationModel, v);
   }
 
   public void renderNodeLabel(
-      RenderContext<N, E> renderContext,
-      VisualizationModel<N, E, Point2D> visualizationModel,
-      N v) {
+      RenderContext<N, E> renderContext, VisualizationModel<N, E> visualizationModel, N v) {
     nodeLabelRenderer.labelNode(
         renderContext, visualizationModel, v, renderContext.getNodeLabelFunction().apply(v));
   }
 
   public void renderEdge(
-      RenderContext<N, E> renderContext,
-      VisualizationModel<N, E, Point2D> visualizationModel,
-      E e) {
+      RenderContext<N, E> renderContext, VisualizationModel<N, E> visualizationModel, E e) {
     edgeRenderer.paintEdge(renderContext, visualizationModel, e);
   }
 
   public void renderEdgeLabel(
-      RenderContext<N, E> renderContext,
-      VisualizationModel<N, E, Point2D> visualizationModel,
-      E e) {
+      RenderContext<N, E> renderContext, VisualizationModel<N, E> visualizationModel, E e) {
     edgeLabelRenderer.labelEdge(
         renderContext, visualizationModel, e, renderContext.getEdgeLabelFunction().apply(e));
   }

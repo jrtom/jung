@@ -1,6 +1,5 @@
 package edu.uci.ics.jung.visualization.spatial.rtree;
 
-import com.google.common.collect.Sets;
 import edu.uci.ics.jung.visualization.spatial.TreeNode;
 import java.awt.*;
 import java.awt.geom.Point2D;
@@ -296,8 +295,7 @@ public class LeafNode<T> extends RTreeNode<T> implements Node<T> {
    * @return a subset of elements whose bounds intersect with the passed shape
    */
   @Override
-  public Collection<T> getVisibleElements(Shape shape) {
-    Collection<T> visibleElements = Sets.newHashSet();
+  public Collection<T> getVisibleElements(Collection<T> visibleElements, Shape shape) {
     if (shape.intersects(getBounds())) {
       for (Map.Entry<T, Rectangle2D> entry : map.entrySet()) {
         if (shape.intersects(entry.getValue())) {
@@ -338,11 +336,6 @@ public class LeafNode<T> extends RTreeNode<T> implements Node<T> {
   private static <T> String asString(Map.Entry<T, Rectangle2D> entry) {
     return entry.getKey() + "->" + Node.asString(entry.getValue());
   }
-
-  //  @Override
-  //  public Rectangle2D getBounds() {
-  //    return super.getBounds();
-  //  }
 
   @Override
   public Collection<? extends TreeNode> getChildren() {

@@ -14,6 +14,7 @@ import edu.uci.ics.jung.graph.TreeNetworkBuilder;
 import edu.uci.ics.jung.layout.algorithms.RadialTreeLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.TreeLayoutAlgorithm;
 import edu.uci.ics.jung.layout.model.LayoutModel;
+import edu.uci.ics.jung.layout.model.Point;
 import edu.uci.ics.jung.layout.model.PolarPoint;
 import edu.uci.ics.jung.samples.util.ControlHelpers;
 import edu.uci.ics.jung.visualization.BaseVisualizationModel;
@@ -42,7 +43,6 @@ import edu.uci.ics.jung.visualization.transform.shape.ViewLensSupport;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.geom.Ellipse2D;
-import java.awt.geom.Point2D;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
@@ -62,9 +62,9 @@ public class RadialTreeLensDemo extends JPanel {
 
   VisualizationServer.Paintable rings;
 
-  TreeLayoutAlgorithm<String, Point2D> treeLayoutAlgorithm;
+  TreeLayoutAlgorithm<String> treeLayoutAlgorithm;
 
-  RadialTreeLayoutAlgorithm<String, Point2D> radialLayoutAlgorithm;
+  RadialTreeLayoutAlgorithm<String> radialLayoutAlgorithm;
 
   /** the visual component and renderer for the graph */
   VisualizationViewer<String, Integer> vv;
@@ -86,7 +86,7 @@ public class RadialTreeLensDemo extends JPanel {
 
     Dimension preferredSize = new Dimension(600, 600);
 
-    final VisualizationModel<String, Integer, Point2D> visualizationModel =
+    final VisualizationModel<String, Integer> visualizationModel =
         new BaseVisualizationModel<>(graph, radialLayoutAlgorithm, preferredSize);
     vv = new VisualizationViewer<>(visualizationModel, preferredSize);
 
@@ -150,7 +150,7 @@ public class RadialTreeLensDemo extends JPanel {
           }
           vv.repaint();
         });
-    LayoutModel<String, Point2D> layoutModel = vv.getModel().getLayoutModel();
+    LayoutModel<String> layoutModel = vv.getModel().getLayoutModel();
     Dimension d = new Dimension(layoutModel.getWidth(), layoutModel.getHeight());
 
     Lens lens = new Lens(d);
@@ -252,9 +252,9 @@ public class RadialTreeLensDemo extends JPanel {
   class Rings implements VisualizationServer.Paintable {
 
     Collection<Double> depths;
-    LayoutModel<String, Point2D> layoutModel;
+    LayoutModel<String> layoutModel;
 
-    public Rings(LayoutModel<String, Point2D> layoutModel) {
+    public Rings(LayoutModel<String> layoutModel) {
       this.layoutModel = layoutModel;
       depths = getDepths();
     }
@@ -272,12 +272,11 @@ public class RadialTreeLensDemo extends JPanel {
     public void paint(Graphics g) {
       g.setColor(Color.gray);
       Graphics2D g2d = (Graphics2D) g;
-      Point2D center = radialLayoutAlgorithm.getCenter(layoutModel);
+      Point center = radialLayoutAlgorithm.getCenter(layoutModel);
 
       Ellipse2D ellipse = new Ellipse2D.Double();
       for (double d : depths) {
-        ellipse.setFrameFromDiagonal(
-            center.getX() - d, center.getY() - d, center.getX() + d, center.getY() + d);
+        ellipse.setFrameFromDiagonal(center.x - d, center.y - d, center.x + d, center.y + d);
         Shape shape = ellipse;
 
         MultiLayerTransformer multiLayerTransformer =
@@ -289,7 +288,7 @@ public class RadialTreeLensDemo extends JPanel {
         if (viewTransformer instanceof MutableTransformerDecorator) {
           shape = multiLayerTransformer.transform(shape);
         } else if (layoutTransformer instanceof LensTransformer) {
-          LayoutModel<String, Point2D> layoutModel = vv.getModel().getLayoutModel();
+          LayoutModel<String> layoutModel = vv.getModel().getLayoutModel();
           Dimension dimension = new Dimension(layoutModel.getWidth(), layoutModel.getHeight());
 
           HyperbolicShapeTransformer shapeChanger =

@@ -56,10 +56,10 @@ public interface VisualizationServer<N, E> {
   TransformSupport<N, E> getTransformSupport();
 
   /** @return the model. */
-  VisualizationModel<N, E, Point2D> getModel();
+  VisualizationModel<N, E> getModel();
 
   /** @param model the model for this class to use */
-  void setModel(VisualizationModel<N, E, Point2D> model);
+  void setModel(VisualizationModel<N, E> model);
 
   /**
    * In response to changes from the model, repaint the view, then fire an event to any listeners.

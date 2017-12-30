@@ -8,8 +8,6 @@
  */
 package edu.uci.ics.jung.samples;
 
-import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
-
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
@@ -22,6 +20,7 @@ import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.SpringLayoutAlgorithm;
 import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.layout.model.LoadingCacheLayoutModel;
+import edu.uci.ics.jung.layout.model.Point;
 import edu.uci.ics.jung.layout.util.RandomLocationTransformer;
 import edu.uci.ics.jung.samples.util.ControlHelpers;
 import edu.uci.ics.jung.visualization.BaseVisualizationModel;
@@ -82,7 +81,7 @@ public class SubLayoutDemo extends JPanel {
   /** the visual component and renderer for the graph */
   VisualizationViewer<String, Number> vv;
 
-  AggregateLayoutModel<String, Point2D> clusteringLayoutModel;
+  AggregateLayoutModel<String> clusteringLayoutModel;
 
   Dimension subLayoutSize;
 
@@ -102,18 +101,17 @@ public class SubLayoutDemo extends JPanel {
     // layout of sub-sets of nodes in circular clusters.
     Dimension preferredSize = new Dimension(600, 600);
 
-    LayoutAlgorithm<String, Point2D> layoutAlgorithm = new FRLayoutAlgorithm();
+    LayoutAlgorithm<String> layoutAlgorithm = new FRLayoutAlgorithm();
     clusteringLayoutModel =
         new AggregateLayoutModel<>(
-            LoadingCacheLayoutModel.<String, Point2D>builder()
+            LoadingCacheLayoutModel.<String>builder()
                 .setGraph(graph.asGraph())
-                .setPointModel(POINT_MODEL)
                 .setSize(preferredSize.width, preferredSize.height)
                 .build());
 
     clusteringLayoutModel.accept(layoutAlgorithm);
 
-    final VisualizationModel<String, Number, Point2D> visualizationModel =
+    final VisualizationModel<String, Number> visualizationModel =
         new BaseVisualizationModel<>(graph, clusteringLayoutModel, layoutAlgorithm);
 
     vv = new VisualizationViewer<>(visualizationModel, preferredSize);
@@ -282,8 +280,8 @@ public class SubLayoutDemo extends JPanel {
     component.setMaximumSize(d);
   }
 
-  private LayoutAlgorithm<String, Point2D> getLayoutAlgorithmFor(
-      Class<CircleLayoutAlgorithm> layoutClass) throws Exception {
+  private LayoutAlgorithm<String> getLayoutAlgorithmFor(Class<CircleLayoutAlgorithm> layoutClass)
+      throws Exception {
     Constructor<CircleLayoutAlgorithm> constructor = layoutClass.getConstructor();
     return constructor.newInstance();
   }
@@ -305,9 +303,9 @@ public class SubLayoutDemo extends JPanel {
         double x = 0;
         double y = 0;
         for (String node : picked) {
-          Point2D p = clusteringLayoutModel.apply(node);
-          x += p.getX();
-          y += p.getY();
+          Point p = clusteringLayoutModel.apply(node);
+          x += p.x;
+          y += p.y;
         }
         x /= picked.size();
         y /= picked.size();
@@ -329,20 +327,17 @@ public class SubLayoutDemo extends JPanel {
             }
           }
 
-          LayoutAlgorithm<String, Point2D> subLayoutAlgorithm =
-              getLayoutAlgorithmFor(subLayoutType);
+          LayoutAlgorithm<String> subLayoutAlgorithm = getLayoutAlgorithmFor(subLayoutType);
 
-          LayoutModel<String, Point2D> newLayoutModel =
-              LoadingCacheLayoutModel.<String, Point2D>builder()
+          LayoutModel<String> newLayoutModel =
+              LoadingCacheLayoutModel.<String>builder()
                   .setGraph(subGraph.asGraph())
-                  .setPointModel(POINT_MODEL)
                   .setSize(subLayoutSize.width, subLayoutSize.height)
                   .setInitializer(
-                      new RandomLocationTransformer<>(
-                          POINT_MODEL, subLayoutSize.width, subLayoutSize.height, 0))
+                      new RandomLocationTransformer<>(subLayoutSize.width, subLayoutSize.height, 0))
                   .build();
 
-          clusteringLayoutModel.put(newLayoutModel, center);
+          clusteringLayoutModel.put(newLayoutModel, new Point(center.getX(), center.getY()));
           newLayoutModel.accept(subLayoutAlgorithm);
           vv.repaint();
 

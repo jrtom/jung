@@ -23,7 +23,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Point2D;
 
 /**
  * A VisualizationViewer that can act as a satellite view for another (master) VisualizationViewer.
@@ -94,7 +93,7 @@ public class SatelliteVisualizationViewer<N, E> extends VisualizationViewer<N, E
       renderContext.getGraphicsContext().setDelegate(g2d);
     }
     renderContext.setScreenDevice(this);
-    LayoutModel<N, Point2D> layoutModel = getModel().getLayoutModel();
+    LayoutModel<N> layoutModel = getModel().getLayoutModel();
 
     g2d.setRenderingHints(renderingHints);
 

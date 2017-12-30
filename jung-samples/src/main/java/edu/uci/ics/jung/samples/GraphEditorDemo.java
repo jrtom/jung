@@ -10,7 +10,7 @@ package edu.uci.ics.jung.samples;
 
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.NetworkBuilder;
-import edu.uci.ics.jung.layout.algorithms.AbstractLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.StaticLayoutAlgorithm;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
@@ -23,7 +23,6 @@ import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.util.ParallelEdgeIndexFunction;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.awt.print.Printable;
 import java.awt.print.PrinterJob;
@@ -48,7 +47,7 @@ public class GraphEditorDemo extends JPanel implements Printable {
   /** the graph */
   MutableNetwork<Number, Number> graph;
 
-  AbstractLayoutAlgorithm<Number, Point2D> layoutAlgorithm;
+  LayoutAlgorithm<Number> layoutAlgorithm;
 
   /** the visual component and renderer for the graph */
   VisualizationViewer<Number, Number> vv;

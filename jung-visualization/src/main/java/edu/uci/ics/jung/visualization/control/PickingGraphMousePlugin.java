@@ -12,6 +12,7 @@
 package edu.uci.ics.jung.visualization.control;
 
 import edu.uci.ics.jung.layout.model.LayoutModel;
+import edu.uci.ics.jung.layout.model.Point;
 import edu.uci.ics.jung.visualization.MultiLayerTransformer;
 import edu.uci.ics.jung.visualization.VisualizationModel;
 import edu.uci.ics.jung.visualization.VisualizationServer;
@@ -132,7 +133,7 @@ public class PickingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
     deltaDown = down;
     VisualizationViewer<N, E> vv = (VisualizationViewer<N, E>) e.getSource();
     TransformSupport<N, E> transformSupport = vv.getTransformSupport();
-    LayoutModel<N, Point2D> layoutModel = vv.getModel().getLayoutModel();
+    LayoutModel<N> layoutModel = vv.getModel().getLayoutModel();
     NetworkElementAccessor<N, E> pickSupport = vv.getPickSupport();
     PickedState<N> pickedNodeState = vv.getPickedNodeState();
     PickedState<E> pickedEdgeState = vv.getPickedEdgeState();
@@ -150,7 +151,7 @@ public class PickingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
       log.trace("layout coords of mouse click {}", layoutPoint);
       if (e.getModifiers() == modifiers) {
 
-        node = pickSupport.getNode(layoutModel, layoutPoint);
+        node = pickSupport.getNode(layoutModel, layoutPoint.getX(), layoutPoint.getY());
         log.trace("mousePressed set the node to {}", node);
         if (node != null) {
           // picked a node
@@ -173,7 +174,7 @@ public class PickingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
       } else if (e.getModifiers() == addToSelectionModifiers) {
         vv.addPostRenderPaintable(lensPaintable);
 
-        node = pickSupport.getNode(layoutModel, layoutPoint);
+        node = pickSupport.getNode(layoutModel, layoutPoint.getX(), layoutPoint.getY());
         log.trace("mousePressed with add set the node to {}", node);
         if (node != null) {
           boolean wasThere = pickedNodeState.pick(node, !pickedNodeState.isPicked(node));
@@ -228,16 +229,16 @@ public class PickingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
       log.trace("p in graph coords is {}", graphPoint);
       Point2D graphDown = multiLayerTransformer.inverseTransform(deltaDown);
       log.trace("graphDown (down in graph coords) is {}", graphDown);
-      VisualizationModel<N, E, Point2D> visualizationModel = vv.getModel();
-      LayoutModel<N, Point2D> layoutModel = visualizationModel.getLayoutModel();
+      VisualizationModel<N, E> visualizationModel = vv.getModel();
+      LayoutModel<N> layoutModel = visualizationModel.getLayoutModel();
       double dx = graphPoint.getX() - graphDown.getX();
       double dy = graphPoint.getY() - graphDown.getY();
       log.trace("dx, dy: {},{}", dx, dy);
       PickedState<N> ps = vv.getPickedNodeState();
 
       for (N v : ps.getPicked()) {
-        Point2D vp = layoutModel.apply(v);
-        vp.setLocation(vp.getX() + dx, vp.getY() + dy);
+        Point vp = layoutModel.apply(v);
+        vp = new Point(vp.x + dx, vp.y + dy);
         layoutModel.set(v, vp);
       }
       deltaDown = out;
@@ -266,7 +267,7 @@ public class PickingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
 
       MultiLayerTransformer multiLayerTransformer =
           vv.getRenderContext().getMultiLayerTransformer();
-      Point p = e.getPoint();
+      Point2D p = e.getPoint();
       log.trace("view p for drag event is {}", p);
       log.trace("down is {}", down);
       if (node != null) {
@@ -275,16 +276,16 @@ public class PickingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
         log.trace("p in graph coords is {}", graphPoint);
         Point2D graphDown = multiLayerTransformer.inverseTransform(deltaDown);
         log.trace("graphDown (down in graph coords) is {}", graphDown);
-        VisualizationModel<N, E, Point2D> visualizationModel = vv.getModel();
-        LayoutModel<N, Point2D> layoutModel = visualizationModel.getLayoutModel();
+        VisualizationModel<N, E> visualizationModel = vv.getModel();
+        LayoutModel<N> layoutModel = visualizationModel.getLayoutModel();
         double dx = graphPoint.getX() - graphDown.getX();
         double dy = graphPoint.getY() - graphDown.getY();
         log.trace("dx, dy: {},{}", dx, dy);
         PickedState<N> ps = vv.getPickedNodeState();
 
         for (N v : ps.getPicked()) {
-          Point2D vp = layoutModel.apply(v);
-          vp.setLocation(vp.getX() + dx, vp.getY() + dy);
+          Point vp = layoutModel.apply(v);
+          vp = new Point(vp.x + dx, vp.y + dy);
           layoutModel.set(v, vp);
         }
         deltaDown = p;
@@ -379,7 +380,7 @@ public class PickingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
         pickedNodeState.clear();
       }
       NetworkElementAccessor<N, E> pickSupport = vv.getPickSupport();
-      LayoutModel<N, Point2D> layoutModel = vv.getModel().getLayoutModel();
+      LayoutModel<N> layoutModel = vv.getModel().getLayoutModel();
       Collection<N> picked = pickSupport.getNodes(layoutModel, pickTarget);
       for (N v : picked) {
         pickedNodeState.pick(v, true);

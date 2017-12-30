@@ -33,7 +33,6 @@ import edu.uci.ics.jung.visualization.picking.PickedState;
 import edu.uci.ics.jung.visualization.picking.ShapePickSupport;
 import java.awt.*;
 import java.awt.event.InputEvent;
-import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import javax.swing.*;
 
@@ -85,11 +84,11 @@ public class MultiViewDemo extends JPanel {
     graph = TestGraphs.getOneComponentGraph();
 
     // create one layout for the graph
-    FRLayoutAlgorithm<String, Point2D> layoutAlgorithm = new FRLayoutAlgorithm<>();
+    FRLayoutAlgorithm<String> layoutAlgorithm = new FRLayoutAlgorithm<>();
     layoutAlgorithm.setMaxIterations(1000);
 
     // create one model that all 3 views will share
-    VisualizationModel<String, Number, Point2D> visualizationModel =
+    VisualizationModel<String, Number> visualizationModel =
         new BaseVisualizationModel<>(graph, layoutAlgorithm, preferredSize);
 
     // create 3 views that share the same model

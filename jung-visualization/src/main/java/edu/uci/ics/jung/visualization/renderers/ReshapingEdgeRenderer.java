@@ -11,6 +11,7 @@ package edu.uci.ics.jung.visualization.renderers;
 
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Network;
+import edu.uci.ics.jung.layout.model.Point;
 import edu.uci.ics.jung.visualization.MultiLayerTransformer.Layer;
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.VisualizationModel;
@@ -44,23 +45,27 @@ public class ReshapingEdgeRenderer<N, E> extends BasicEdgeRenderer<N, E>
    * the distance between <code>(x1,y1)</code> and <code>(x2,y2)</code>.
    */
   protected void drawSimpleEdge(
-      RenderContext<N, E> renderContext,
-      VisualizationModel<N, E, Point2D> visualizationModel,
-      E e) {
+      RenderContext<N, E> renderContext, VisualizationModel<N, E> visualizationModel, E e) {
 
     TransformingGraphics g = (TransformingGraphics) renderContext.getGraphicsContext();
     Network<N, E> graph = visualizationModel.getNetwork();
     EndpointPair<N> endpoints = graph.incidentNodes(e);
     N v1 = endpoints.nodeU();
     N v2 = endpoints.nodeV();
-    Point2D p1 = visualizationModel.getLayoutModel().apply(v1);
-    Point2D p2 = visualizationModel.getLayoutModel().apply(v2);
-    p1 = renderContext.getMultiLayerTransformer().transform(Layer.LAYOUT, p1);
-    p2 = renderContext.getMultiLayerTransformer().transform(Layer.LAYOUT, p2);
-    float x1 = (float) p1.getX();
-    float y1 = (float) p1.getY();
-    float x2 = (float) p2.getX();
-    float y2 = (float) p2.getY();
+    Point p1 = visualizationModel.getLayoutModel().apply(v1);
+    Point p2 = visualizationModel.getLayoutModel().apply(v2);
+    Point2D p12d =
+        renderContext
+            .getMultiLayerTransformer()
+            .transform(Layer.LAYOUT, new Point2D.Double(p1.x, p1.y));
+    Point2D p22d =
+        renderContext
+            .getMultiLayerTransformer()
+            .transform(Layer.LAYOUT, new Point2D.Double(p2.x, p2.y));
+    float x1 = (float) p12d.getX();
+    float y1 = (float) p12d.getY();
+    float x2 = (float) p22d.getX();
+    float y2 = (float) p22d.getY();
 
     float flatness = 0;
     MutableTransformer transformer =

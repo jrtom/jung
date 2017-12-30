@@ -1,12 +1,10 @@
 package edu.uci.ics.jung.visualization.spatial;
 
-import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
-
 import com.google.common.collect.EvictingQueue;
 import edu.uci.ics.jung.layout.model.LayoutModel;
+import edu.uci.ics.jung.layout.model.Point;
 import edu.uci.ics.jung.layout.util.RadiusNetworkNodeAccessor;
 import java.awt.*;
-import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.Collection;
 import java.util.List;
@@ -31,16 +29,16 @@ public abstract class AbstractSpatial<T, NT> implements Spatial<T> {
   protected List<Shape> gridCache;
 
   /** the layoutModel that the stucture operates on */
-  protected LayoutModel<NT, Point2D> layoutModel;
+  protected LayoutModel<NT> layoutModel;
 
-  RadiusNetworkNodeAccessor fallback;
+  RadiusNetworkNodeAccessor<NT> fallback;
 
-  protected AbstractSpatial(LayoutModel<NT, Point2D> layoutModel) {
+  protected AbstractSpatial(LayoutModel<NT> layoutModel) {
     this.layoutModel = layoutModel;
     if (layoutModel != null) {
       this.rectangle =
           new Rectangle2D.Double(0, 0, layoutModel.getWidth(), layoutModel.getHeight());
-      this.fallback = new RadiusNetworkNodeAccessor(layoutModel.getGraph(), POINT_MODEL);
+      this.fallback = new RadiusNetworkNodeAccessor(layoutModel.getGraph());
     }
   }
 
@@ -57,6 +55,35 @@ public abstract class AbstractSpatial<T, NT> implements Spatial<T> {
   public void setActive(boolean active) {
     gridCache = null;
     this.active = active;
+  }
+
+  protected NT getClosest(Collection<NT> nodes, double x, double y, double radius) {
+
+    // since I am comparing with distance squared, i need to square the radius
+    double radiusSq = radius * radius;
+    if (nodes.size() > 0) {
+      double closestSoFar = Double.MAX_VALUE;
+      NT winner = null;
+      double winningDistance = -1;
+      for (NT node : nodes) {
+        Point loc = layoutModel.apply(node);
+        double dist = loc.distanceSquared(x, y);
+
+        // consider only nodes that are inside the search radius
+        // and are closer than previously found nodes
+        if (dist < radiusSq && dist < closestSoFar) {
+          closestSoFar = dist;
+          winner = node;
+          winningDistance = dist;
+        }
+      }
+      if (log.isTraceEnabled()) {
+        log.trace("closest winner is {} at distance {}", winner, winningDistance);
+      }
+      return winner;
+    } else {
+      return null;
+    }
   }
 
   @Override

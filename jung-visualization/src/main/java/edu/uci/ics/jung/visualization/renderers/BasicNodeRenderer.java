@@ -9,6 +9,7 @@
  */
 package edu.uci.ics.jung.visualization.renderers;
 
+import edu.uci.ics.jung.layout.model.Point;
 import edu.uci.ics.jung.visualization.MultiLayerTransformer.Layer;
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.VisualizationModel;
@@ -27,9 +28,7 @@ public class BasicNodeRenderer<N, E> implements Renderer.Node<N, E> {
   private static final Logger log = LoggerFactory.getLogger(BasicNodeRenderer.class);
 
   public void paintNode(
-      RenderContext<N, E> renderContext,
-      VisualizationModel<N, E, Point2D> visualizationModel,
-      N v) {
+      RenderContext<N, E> renderContext, VisualizationModel<N, E> visualizationModel, N v) {
     if (renderContext.getNodeIncludePredicate().test(v)) {
       paintIconForNode(renderContext, visualizationModel, v);
     }
@@ -44,20 +43,23 @@ public class BasicNodeRenderer<N, E> implements Renderer.Node<N, E> {
    */
   protected Shape prepareFinalNodeShape(
       RenderContext<N, E> renderContext,
-      VisualizationModel<N, E, Point2D> visualizationModel,
+      VisualizationModel<N, E> visualizationModel,
       N v,
       int[] coords) {
 
     // get the shape to be rendered
     Shape shape = renderContext.getNodeShapeFunction().apply(v);
-    Point2D p = visualizationModel.getLayoutModel().apply(v);
+    Point p = visualizationModel.getLayoutModel().apply(v);
     // p is the node location in layout coordinates
     log.trace("prepared a shape for " + v + " to go at " + p);
-    p = renderContext.getMultiLayerTransformer().transform(Layer.LAYOUT, (Point2D) p);
+    Point2D p2d =
+        renderContext
+            .getMultiLayerTransformer()
+            .transform(Layer.LAYOUT, new Point2D.Double(p.x, p.y));
     // now p is in view coordinates, ready to be further transformed by any transform in the
     // graphics context
-    float x = (float) p.getX();
-    float y = (float) p.getY();
+    float x = (float) p2d.getX();
+    float y = (float) p2d.getY();
     coords[0] = (int) x;
     coords[1] = (int) y;
     // create a transform that translates to the location of
@@ -74,9 +76,7 @@ public class BasicNodeRenderer<N, E> implements Renderer.Node<N, E> {
    * @param v the node to be painted
    */
   protected void paintIconForNode(
-      RenderContext<N, E> renderContext,
-      VisualizationModel<N, E, Point2D> visualizationModel,
-      N v) {
+      RenderContext<N, E> renderContext, VisualizationModel<N, E> visualizationModel, N v) {
     GraphicsDecorator g = renderContext.getGraphicsContext();
     int[] coords = new int[2];
     Shape shape = prepareFinalNodeShape(renderContext, visualizationModel, v, coords);
@@ -97,7 +97,7 @@ public class BasicNodeRenderer<N, E> implements Renderer.Node<N, E> {
 
   protected void paintShapeForNode(
       RenderContext<N, E> renderContext,
-      VisualizationModel<N, E, Point2D> visualizationModel,
+      VisualizationModel<N, E> visualizationModel,
       N v,
       Shape shape) {
     GraphicsDecorator g = renderContext.getGraphicsContext();

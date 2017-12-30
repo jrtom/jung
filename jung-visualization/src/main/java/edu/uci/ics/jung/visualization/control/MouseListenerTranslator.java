@@ -50,7 +50,7 @@ public class MouseListenerTranslator<N, E> extends MouseAdapter {
     Point2D p = point;
     //vv.getRenderContext().getBasicTransformer().inverseViewTransform(point);
     NetworkElementAccessor<N, E> pickSupport = vv.getPickSupport();
-    LayoutModel<N, Point2D> layoutModel = vv.getModel().getLayoutModel();
+    LayoutModel<N> layoutModel = vv.getModel().getLayoutModel();
     //        Layout<N> layout = vv.getGraphLayout();
     N v = null;
     if (pickSupport != null) {

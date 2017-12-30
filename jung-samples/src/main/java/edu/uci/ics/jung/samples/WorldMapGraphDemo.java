@@ -13,6 +13,7 @@ import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.StaticLayoutAlgorithm;
+import edu.uci.ics.jung.layout.model.Point;
 import edu.uci.ics.jung.visualization.*;
 import edu.uci.ics.jung.visualization.control.AbstractModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
@@ -23,7 +24,6 @@ import edu.uci.ics.jung.visualization.renderers.GradientNodeRenderer;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -68,11 +68,11 @@ public class WorldMapGraphDemo extends JPanel {
     }
     final ImageIcon icon = mapIcon;
 
-    LayoutAlgorithm<String, Point2D> layoutAlgorithm = new StaticLayoutAlgorithm<>();
+    LayoutAlgorithm<String> layoutAlgorithm = new StaticLayoutAlgorithm<>();
 
-    Function<String, Point2D> initializer =
+    Function<String, Point> initializer =
         new CityTransformer(map).andThen(new LatLonPixelTransformer(new Dimension(2000, 1000)));
-    VisualizationModel<String, Number, Point2D> model =
+    VisualizationModel<String, Number> model =
         new BaseVisualizationModel<>(
             graph, layoutAlgorithm, initializer, new Dimension(2000, 1000));
 
@@ -217,14 +217,14 @@ public class WorldMapGraphDemo extends JPanel {
     }
   }
 
-  static class LatLonPixelTransformer implements Function<String[], Point2D> {
+  static class LatLonPixelTransformer implements Function<String[], Point> {
     Dimension d;
 
     public LatLonPixelTransformer(Dimension d) {
       this.d = d;
     }
     /** transform a lat */
-    public Point2D apply(String[] latlon) {
+    public Point apply(String[] latlon) {
       String[] lat = latlon[0].split(" ");
       String[] lon = latlon[1].split(" ");
       double latitude = Integer.parseInt(lat[0]) + Integer.parseInt(lat[1]) / 60f;
@@ -245,7 +245,7 @@ public class WorldMapGraphDemo extends JPanel {
         longitude = d.width / 2 + longitude;
       }
 
-      return new Point2D.Double(longitude, latitude);
+      return new Point(longitude, latitude);
     }
   }
 

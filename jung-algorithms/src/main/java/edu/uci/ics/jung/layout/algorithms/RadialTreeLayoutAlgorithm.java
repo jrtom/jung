@@ -11,6 +11,7 @@
 package edu.uci.ics.jung.layout.algorithms;
 
 import edu.uci.ics.jung.layout.model.LayoutModel;
+import edu.uci.ics.jung.layout.model.Point;
 import edu.uci.ics.jung.layout.model.PolarPoint;
 import java.util.Collection;
 import java.util.HashMap;
@@ -23,7 +24,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Tom Nelson
  */
-public class RadialTreeLayoutAlgorithm<N, P> extends TreeLayoutAlgorithm<N, P> {
+public class RadialTreeLayoutAlgorithm<N> extends TreeLayoutAlgorithm<N> {
 
   private static final Logger log = LoggerFactory.getLogger(RadialTreeLayoutAlgorithm.class);
 
@@ -43,13 +44,13 @@ public class RadialTreeLayoutAlgorithm<N, P> extends TreeLayoutAlgorithm<N, P> {
   }
 
   @Override
-  protected void buildTree(LayoutModel<N, P> layoutModel) {
+  protected void buildTree(LayoutModel<N> layoutModel) {
     super.buildTree(layoutModel);
     setRadialLocations(layoutModel);
     putRadialPointsInModel(layoutModel);
   }
 
-  private void putRadialPointsInModel(LayoutModel<N, P> layoutModel) {
+  private void putRadialPointsInModel(LayoutModel<N> layoutModel) {
     for (Map.Entry<N, PolarPoint> entry : polarLocations.entrySet()) {
       PolarPoint polar = entry.getValue();
       layoutModel.set(entry.getKey(), getCartesian(layoutModel, entry.getKey()));
@@ -57,13 +58,10 @@ public class RadialTreeLayoutAlgorithm<N, P> extends TreeLayoutAlgorithm<N, P> {
   }
 
   @Override
-  protected void setLocation(LayoutModel<N, P> layoutModel, N node, P location) {
-    P c = getCenter(layoutModel);
-    P pv =
-        pointModel.newPoint(
-            pointModel.getX(location) - pointModel.getX(c),
-            pointModel.getY(location) - pointModel.getY(c));
-    PolarPoint newLocation = PolarPoint.cartesianToPolar(pointModel, pv);
+  protected void setLocation(LayoutModel<N> layoutModel, N node, Point location) {
+    Point c = getCenter(layoutModel);
+    Point pv = new Point(location.x - c.x, location.y - c.y);
+    PolarPoint newLocation = PolarPoint.cartesianToPolar(pv);
     PolarPoint currentLocation = polarLocations.get(node);
     if (currentLocation == null) {
       polarLocations.put(node, newLocation);
@@ -77,43 +75,40 @@ public class RadialTreeLayoutAlgorithm<N, P> extends TreeLayoutAlgorithm<N, P> {
     return polarLocations;
   }
 
-  private P getCartesian(LayoutModel<N, P> layoutModel, N node) {
+  private Point getCartesian(LayoutModel<N> layoutModel, N node) {
     PolarPoint pp = polarLocations.get(node);
     double centerX = layoutModel.getWidth() / 2;
     double centerY = layoutModel.getHeight() / 2;
-    P cartesian = PolarPoint.polarToCartesian(pointModel, pp);
-    pointModel.setLocation(
-        cartesian, pointModel.getX(cartesian) + centerX, pointModel.getY(cartesian) + centerY);
+    Point cartesian = PolarPoint.polarToCartesian(pp);
+    cartesian = new Point(cartesian.x + centerX, cartesian.y + centerY);
     return cartesian;
   }
 
-  private P getMaxXY(LayoutModel<N, P> layoutModel) {
+  private Point getMaxXY(LayoutModel<N> layoutModel) {
     double maxx = 0;
     double maxy = 0;
     Collection<N> nodes = layoutModel.getGraph().nodes();
     for (N node : nodes) {
-      P location = layoutModel.apply(node);
-      maxx = Math.max(maxx, pointModel.getX(location));
-      maxy = Math.max(maxy, pointModel.getY(location));
+      Point location = layoutModel.apply(node);
+      maxx = Math.max(maxx, location.x);
+      maxy = Math.max(maxy, location.y);
     }
-    return pointModel.newPoint(maxx, maxy);
+    return new Point(maxx, maxy);
   }
 
-  private void setRadialLocations(LayoutModel<N, P> layoutModel) {
+  private void setRadialLocations(LayoutModel<N> layoutModel) {
     int width = layoutModel.getWidth();
-    P max = getMaxXY(layoutModel);
-    double maxx = pointModel.getX(max);
-    double maxy = pointModel.getY(max);
+    Point max = getMaxXY(layoutModel);
+    double maxx = max.x;
+    double maxy = max.y;
     maxx = Math.max(maxx, width);
     double theta = 2 * Math.PI / maxx;
 
     double deltaRadius = width / 2 / maxy;
     for (N node : layoutModel.getGraph().nodes()) {
-      P p = layoutModel.get(node);
+      Point p = layoutModel.get(node);
 
-      PolarPoint polarPoint =
-          new PolarPoint(
-              pointModel.getX(p) * theta, (pointModel.getY(p) - this.distY) * deltaRadius);
+      PolarPoint polarPoint = new PolarPoint(p.x * theta, (p.y - this.distY) * deltaRadius);
       polarLocations.put(node, polarPoint);
     }
   }

@@ -29,7 +29,6 @@ import edu.uci.ics.jung.visualization.picking.MultiPickedState;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
 import java.awt.*;
-import java.awt.geom.Point2D;
 import javax.swing.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,18 +70,18 @@ public class MinimumSpanningTreeDemo extends JPanel {
 
     tree = MinimumSpanningTree.extractFrom(graph, e -> 1.0);
 
-    LayoutAlgorithm<String, Point2D> layout0 = new KKLayoutAlgorithm<>();
-    LayoutAlgorithm<String, Point2D> layout1 = new TreeLayoutAlgorithm<>();
-    LayoutAlgorithm<String, Point2D> layout2 = new StaticLayoutAlgorithm<>();
+    LayoutAlgorithm<String> layout0 = new KKLayoutAlgorithm<>();
+    LayoutAlgorithm<String> layout1 = new TreeLayoutAlgorithm<>();
+    LayoutAlgorithm<String> layout2 = new StaticLayoutAlgorithm<>();
 
     // create the two models, each with a different layout
-    VisualizationModel<String, Number, Point2D> vm0 =
+    VisualizationModel<String, Number> vm0 =
         new BaseVisualizationModel<>(graph, layout0, preferredSize);
-    VisualizationModel<String, Number, Point2D> vm1 =
+    VisualizationModel<String, Number> vm1 =
         new BaseVisualizationModel<>(tree, layout1, preferredSizeRect);
     // initializer is the layout model for vm1
     // and the size is also set to the same size required for the Tree in layout1
-    VisualizationModel<String, Number, Point2D> vm2 =
+    VisualizationModel<String, Number> vm2 =
         new BaseVisualizationModel<>(graph, layout2, vm1.getLayoutModel(), vm1.getLayoutSize());
 
     // create the two views, one for each model

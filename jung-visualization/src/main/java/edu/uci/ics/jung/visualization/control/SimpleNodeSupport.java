@@ -28,12 +28,11 @@ public class SimpleNodeSupport<N, E> implements NodeSupport<N, E> {
     Preconditions.checkState(
         vv.getModel().getNetwork() instanceof MutableNetwork<?, ?>, "graph must be mutable");
     N newNode = nodeFactory.get();
-    VisualizationModel<N, E, Point2D> visualizationModel = vv.getModel();
+    VisualizationModel<N, E> visualizationModel = vv.getModel();
     MutableNetwork<N, E> graph = (MutableNetwork<N, E>) visualizationModel.getNetwork();
     graph.addNode(newNode);
-    visualizationModel
-        .getLayoutModel()
-        .set(newNode, vv.getRenderContext().getMultiLayerTransformer().inverseTransform(point));
+    Point2D p2d = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(point);
+    visualizationModel.getLayoutModel().set(newNode, p2d.getX(), p2d.getY());
     vv.repaint();
   }
 

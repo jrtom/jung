@@ -24,7 +24,6 @@ import edu.uci.ics.jung.visualization.decorators.PickableNodePaintFunction;
 import edu.uci.ics.jung.visualization.picking.MultiPickedState;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import java.awt.*;
-import java.awt.geom.Point2D;
 import javax.swing.*;
 
 /**
@@ -55,13 +54,13 @@ public class TwoModelDemo extends JPanel {
     graph = TestGraphs.getOneComponentGraph();
 
     // create two layouts for the one graph, one layout for each model
-    LayoutAlgorithm<String, Point2D> layoutAlgorithm1 = new FRLayoutAlgorithm<>();
-    LayoutAlgorithm<String, Point2D> layoutAlgorithm2 = new ISOMLayoutAlgorithm<>();
+    LayoutAlgorithm<String> layoutAlgorithm1 = new FRLayoutAlgorithm<>();
+    LayoutAlgorithm<String> layoutAlgorithm2 = new ISOMLayoutAlgorithm<>();
 
     // create the two models, each with a different layout
-    VisualizationModel<String, Number, Point2D> vm1 =
+    VisualizationModel<String, Number> vm1 =
         new BaseVisualizationModel<>(graph, layoutAlgorithm1, preferredSize);
-    VisualizationModel<String, Number, Point2D> vm2 =
+    VisualizationModel<String, Number> vm2 =
         new BaseVisualizationModel<>(graph, layoutAlgorithm2, preferredSize);
 
     // create the two views, one for each model

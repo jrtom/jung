@@ -37,7 +37,6 @@ import edu.uci.ics.jung.visualization.transform.shape.ViewLensSupport;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.Iterator;
 import javax.swing.*;
@@ -59,7 +58,7 @@ public class SpatialLensLargeGraphDemo extends JPanel {
   /** the graph */
   Network<String, Number> graph;
 
-  LayoutAlgorithm<String, Point2D> graphLayoutAlgorithm;
+  LayoutAlgorithm<String> graphLayoutAlgorithm;
 
   /** the visual component and renderer for the graph */
   VisualizationViewer<String, Number> vv;
@@ -85,7 +84,7 @@ public class SpatialLensLargeGraphDemo extends JPanel {
     Dimension preferredSize = new Dimension(800, 800);
     Dimension viewPreferredSize = new Dimension(800, 800);
 
-    final VisualizationModel<String, Number, Point2D> visualizationModel =
+    final VisualizationModel<String, Number> visualizationModel =
         new BaseVisualizationModel<>(graph, graphLayoutAlgorithm, preferredSize);
     vv = new VisualizationViewer<>(visualizationModel, viewPreferredSize);
     vv.getRenderContext().setNodeLabelFunction(Object::toString);
@@ -104,7 +103,7 @@ public class SpatialLensLargeGraphDemo extends JPanel {
     vv.addKeyListener(graphMouse.getModeKeyListener());
 
     // create a lens to share between the two hyperbolic transformers
-    LayoutModel<String, Point2D> layoutModel = vv.getModel().getLayoutModel();
+    LayoutModel<String> layoutModel = vv.getModel().getLayoutModel();
     Dimension d = new Dimension(layoutModel.getWidth(), layoutModel.getHeight());
     Lens lens = new Lens(d);
     hyperbolicViewSupport =

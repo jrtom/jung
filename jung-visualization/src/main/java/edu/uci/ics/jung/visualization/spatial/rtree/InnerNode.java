@@ -112,12 +112,6 @@ public class InnerNode<T> extends RTreeNode<T> implements Node<T> {
     return children.get(i);
   }
 
-  /** @return the bonuding box for this InnerNode */
-  //  @Override
-  //  public Rectangle2D getBounds() {
-  //    return super.getBounds();
-  //  }
-
   /** @return an immutable collection of the child nodes */
   public List<Node<T>> getChildren() {
     return Collections.unmodifiableList(children);
@@ -413,29 +407,10 @@ public class InnerNode<T> extends RTreeNode<T> implements Node<T> {
    * @return a collection of all elements that intersect with the passed shape
    */
   @Override
-  public Collection<T> getVisibleElements(Shape shape) {
-    Collection<T> visibleElements = Sets.newHashSet();
+  public Collection<T> getVisibleElements(Collection<T> visibleElements, Shape shape) {
     if (shape.intersects(getBounds())) {
       for (Node<T> child : children) {
-        if (child instanceof LeafNode) {
-          LeafNode<T> leafNode = (LeafNode<T>) child;
-          if (shape.intersects(leafNode.getBounds())) {
-            Collection<T> picked = leafNode.getKeys();
-            if (picked != null) {
-              visibleElements.addAll(picked);
-            }
-          }
-        } else if (child instanceof InnerNode) {
-          InnerNode<T> innerNode = (InnerNode<T>) child;
-          for (Node<T> kid : innerNode.children) {
-            if (shape.intersects(kid.getBounds())) {
-              Collection<T> found = innerNode.getVisibleElements(shape);
-              if (found != null) {
-                visibleElements.addAll(found);
-              }
-            }
-          }
-        }
+        child.getVisibleElements(visibleElements, shape);
       }
     }
     log.trace("visibleElements of InnerNode inside {} are {}", shape, visibleElements);

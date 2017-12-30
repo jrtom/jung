@@ -8,12 +8,11 @@
  */
 package edu.uci.ics.jung.samples;
 
-import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
-
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
 import edu.uci.ics.jung.layout.algorithms.FRLayoutAlgorithm;
+import edu.uci.ics.jung.layout.model.Point;
 import edu.uci.ics.jung.layout.util.RandomLocationTransformer;
 import edu.uci.ics.jung.visualization.BaseVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
@@ -107,7 +106,7 @@ public class NodeImageShaperDemo extends JPanel {
       }
     }
 
-    FRLayoutAlgorithm<Number, Point2D> layoutAlgorithm = new FRLayoutAlgorithm<>();
+    FRLayoutAlgorithm<Number> layoutAlgorithm = new FRLayoutAlgorithm<>();
     layoutAlgorithm.setMaxIterations(100);
     //    treeLayoutAlgorithm.setInitializer(new RandomLocationTransformer<>(new Dimension(400, 400), 0));
 
@@ -116,7 +115,7 @@ public class NodeImageShaperDemo extends JPanel {
             new BaseVisualizationModel(
                 graph,
                 layoutAlgorithm,
-                new RandomLocationTransformer<>(POINT_MODEL, 400, 400, 0),
+                new RandomLocationTransformer<>(400, 400, 0),
                 new Dimension(400, 400)),
             new Dimension(400, 400));
 
@@ -442,12 +441,15 @@ public class NodeImageShaperDemo extends JPanel {
 
     @Override
     public void paintIconForNode(
-        RenderContext<N, E> renderContext, VisualizationModel<N, E, Point2D> model, N v) {
+        RenderContext<N, E> renderContext, VisualizationModel<N, E> model, N v) {
 
-      Point2D p = model.getLayoutModel().apply(v);
-      p = renderContext.getMultiLayerTransformer().transform(Layer.LAYOUT, p);
-      float x = (float) p.getX();
-      float y = (float) p.getY();
+      Point p = model.getLayoutModel().apply(v);
+      Point2D p2d =
+          renderContext
+              .getMultiLayerTransformer()
+              .transform(Layer.LAYOUT, new Point2D.Double(p.x, p.y));
+      float x = (float) p2d.getX();
+      float y = (float) p2d.getY();
 
       GraphicsDecorator g = renderContext.getGraphicsContext();
       boolean outlineImages = false;

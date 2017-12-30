@@ -3,7 +3,7 @@ package edu.uci.ics.jung.layout.model;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.graph.Graph;
-import edu.uci.ics.jung.algorithms.util.IterativeContext;
+import edu.uci.ics.jung.layout.algorithms.IterativeLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
 import edu.uci.ics.jung.layout.util.LayoutChangeListener;
 import edu.uci.ics.jung.layout.util.LayoutEvent;
@@ -22,10 +22,9 @@ import org.slf4j.LoggerFactory;
  *
  * @author Tom Nelson
  * @param <N> the node type
- * @param <P> the point type for locations
  */
-public abstract class AbstractLayoutModel<N, P>
-    implements LayoutModel<N, P>, LayoutModel.ChangeSupport, LayoutEventSupport<N, P> {
+public abstract class AbstractLayoutModel<N>
+    implements LayoutModel<N>, LayoutModel.ChangeSupport, LayoutEventSupport<N> {
 
   private static final Logger log = LoggerFactory.getLogger(AbstractLayoutModel.class);
 
@@ -33,24 +32,20 @@ public abstract class AbstractLayoutModel<N, P>
   protected boolean locked;
   protected int width;
   protected int height;
-  protected int depth;
   protected Graph<N> graph;
-  protected PointModel<P> pointModel;
   protected VisRunnable visRunnable;
   /** @value relaxing true is this layout model is being accessed by a running relaxer */
   protected boolean relaxing;
 
   protected CompletableFuture theFuture;
   protected LayoutModel.ChangeSupport changeSupport = new DefaultLayoutModelChangeSupport();
-  private List<LayoutChangeListener<N, P>> layoutChangeListeners = Lists.newArrayList();
+  private List<LayoutChangeListener<N>> layoutChangeListeners = Lists.newArrayList();
   protected LayoutModel.LayoutStateChangeSupport layoutStateChangeSupport =
       new DefaultLayoutStateChangeSupport();
 
-  protected AbstractLayoutModel(
-      Graph<N> graph, PointModel<P> pointModel, int width, int height, int depth) {
+  protected AbstractLayoutModel(Graph<N> graph, int width, int height) {
     this.graph = graph;
-    this.pointModel = pointModel;
-    setSize(width, height, depth);
+    setSize(width, height);
   }
 
   /** stop any running Relaxer */
@@ -71,7 +66,7 @@ public abstract class AbstractLayoutModel<N, P>
    * @param layoutAlgorithm
    */
   @Override
-  public void accept(LayoutAlgorithm<N, P> layoutAlgorithm) {
+  public void accept(LayoutAlgorithm<N> layoutAlgorithm) {
     // the layoutMode is active with a new LayoutAlgorithm
     layoutStateChangeSupport.fireLayoutStateChanged(this, true);
     log.trace("accepting {}", layoutAlgorithm);
@@ -89,11 +84,9 @@ public abstract class AbstractLayoutModel<N, P>
     if (layoutAlgorithm != null) {
       layoutAlgorithm.visit(this);
 
-      if (layoutAlgorithm instanceof IterativeContext) {
+      if (layoutAlgorithm instanceof IterativeLayoutAlgorithm) {
         setRelaxing(true);
-        setupVisRunner(
-            (IterativeContext) layoutAlgorithm,
-            layoutAlgorithm instanceof IterativeContext.WithPreRelax);
+        setupVisRunner((IterativeLayoutAlgorithm) layoutAlgorithm);
 
         // need to have the visRunner fire the layoutStateChanged event when it finishes
       } else {
@@ -112,16 +105,12 @@ public abstract class AbstractLayoutModel<N, P>
     return layoutStateChangeSupport;
   }
 
-  protected void setupVisRunner(IterativeContext iterativeContext) {
-    setupVisRunner(iterativeContext, true);
-  }
-
   /**
    * create and start a new VisRunner for the passed IterativeContext
    *
    * @param iterativeContext
    */
-  protected void setupVisRunner(IterativeContext iterativeContext, boolean withPreRelax) {
+  protected void setupVisRunner(IterativeLayoutAlgorithm iterativeContext) {
     log.trace("this {} is setting up a visRunnable with {}", this, iterativeContext);
     if (visRunnable != null) {
       visRunnable.stop();
@@ -130,19 +119,13 @@ public abstract class AbstractLayoutModel<N, P>
       theFuture.cancel(true);
     }
 
+    // layout becomes active
     layoutStateChangeSupport.fireLayoutStateChanged(this, true);
-    if (withPreRelax) {
-      // prerelax phase
-      changeSupport.setFireEvents(false);
-
-      long timeNow = System.currentTimeMillis();
-      while (System.currentTimeMillis() - timeNow < 500 && !iterativeContext.done()) {
-        iterativeContext.step();
-      }
-
-      changeSupport.setFireEvents(true);
-      log.trace("prerelax is done");
-    }
+    // prerelax phase
+    changeSupport.setFireEvents(false);
+    iterativeContext.preRelax();
+    changeSupport.setFireEvents(true);
+    log.trace("prerelax is done");
 
     visRunnable = new VisRunnable(iterativeContext);
     theFuture =
@@ -211,32 +194,27 @@ public abstract class AbstractLayoutModel<N, P>
     return this.locked;
   }
 
-  public void setSize(int width, int height) {
-    this.setSize(width, height, 0);
-  }
   /**
    * When a visualization is resized, it presumably wants to fix the locations of the nodes and
    * possibly to reinitialize its data. The current method calls <tt>initializeLocations</tt>
    * followed by <tt>initialize_local</tt>.
    */
-  public void setSize(int width, int height, int depth) {
+  public void setSize(int width, int height) {
     if (width == 0 || height == 0) {
-      throw new IllegalArgumentException("Can't be zeros " + width + "/" + height + "/" + depth);
+      throw new IllegalArgumentException("Can't be zeros " + width + "/" + height);
     }
     int oldWidth = this.width;
     int oldHeight = this.height;
-    int oldDepth = this.depth;
 
-    if (oldWidth == width && oldHeight == height && oldDepth == depth) {
+    if (oldWidth == width && oldHeight == height) {
       return;
     }
 
-    if (oldWidth != 0 || oldHeight != 0 || oldDepth != 0) {
-      adjustLocations(oldWidth, oldHeight, oldDepth, width, height, depth); //, size);
+    if (oldWidth != 0 || oldHeight != 0) {
+      adjustLocations(oldWidth, oldHeight, width, height); //, size);
     }
     this.width = width;
     this.height = height;
-    this.depth = depth;
   }
 
   /**
@@ -247,32 +225,24 @@ public abstract class AbstractLayoutModel<N, P>
    * @param width
    * @param height
    */
-  private void adjustLocations(
-      int oldWidth, int oldHeight, int oldDepth, int width, int height, int depth) {
-    if (oldWidth == width && oldHeight == height && oldDepth == depth) {
+  private void adjustLocations(int oldWidth, int oldHeight, int width, int height) {
+    if (oldWidth == width && oldHeight == height) {
       return;
     }
 
     int xOffset = (width - oldWidth) / 2;
     int yOffset = (height - oldHeight) / 2;
-    int zOffset = (depth - oldDepth) / 2;
 
     // now, move each node to be at the new screen center
     while (true) {
       try {
         for (N node : this.graph.nodes()) {
-          offsetnode(node, xOffset, yOffset, zOffset);
+          offsetnode(node, xOffset, yOffset);
         }
         break;
       } catch (ConcurrentModificationException cme) {
       }
     }
-  }
-
-  /** @return the current PointModel */
-  @Override
-  public PointModel<P> getPointModel() {
-    return pointModel;
   }
 
   /** @return the width of the layout domain */
@@ -288,25 +258,15 @@ public abstract class AbstractLayoutModel<N, P>
   }
 
   @Override
-  public int getDepth() {
-    return depth;
-  }
-
-  @Override
   public void set(N node, double x, double y) {
-    this.set(node, x, y, 0);
+    this.set(node, x, y);
   }
 
   @Override
-  public void set(N node, P location) {
+  public void set(N node, Point location) {
     if (isFireEvents()) {
       fireLayoutChanged(node, location);
     }
-  }
-
-  @Override
-  public void set(N node, double x, double y, double z) {
-    this.set(node, x, y);
   }
 
   /**
@@ -314,16 +274,10 @@ public abstract class AbstractLayoutModel<N, P>
    * @param xOffset the change to apply to this node's x coordinate
    * @param yOffset the change to apply to this node's y coordinate
    */
-  protected void offsetnode(N node, double xOffset, double yOffset, double zOffset) {
+  protected void offsetnode(N node, double xOffset, double yOffset) {
     if (!locked && !isLocked(node)) {
-      P c = get(node);
-
-      pointModel.setLocation(
-          c,
-          pointModel.getX(c) + xOffset,
-          pointModel.getY(c) + yOffset,
-          pointModel.getZ(c) + zOffset);
-      this.set(node, c);
+      Point p = get(node);
+      this.set(node, p.x + xOffset, p.y + yOffset);
     }
   }
 
@@ -343,19 +297,19 @@ public abstract class AbstractLayoutModel<N, P>
   }
 
   @Override
-  public void addLayoutChangeListener(LayoutChangeListener<N, P> listener) {
+  public void addLayoutChangeListener(LayoutChangeListener<N> listener) {
     layoutChangeListeners.add(listener);
   }
 
   @Override
-  public void removeLayoutChangeListener(LayoutChangeListener<N, P> listener) {
+  public void removeLayoutChangeListener(LayoutChangeListener<N> listener) {
     layoutChangeListeners.remove(listener);
   }
 
-  protected void fireLayoutChanged(N node, P location) {
+  protected void fireLayoutChanged(N node, Point location) {
     if (layoutChangeListeners.size() > 0) {
-      LayoutEvent<N, P> layoutEvent = new LayoutEvent(node, location);
-      for (LayoutChangeListener<N, P> layoutChangeListener : layoutChangeListeners) {
+      LayoutEvent<N> layoutEvent = new LayoutEvent(node, location);
+      for (LayoutChangeListener<N> layoutChangeListener : layoutChangeListeners) {
         layoutChangeListener.layoutChanged(layoutEvent);
       }
     }
@@ -390,8 +344,6 @@ public abstract class AbstractLayoutModel<N, P>
         + width
         + ", height="
         + height
-        + ", depth="
-        + depth
         + ", graph of size ="
         + graph.nodes().size()
         + '}';

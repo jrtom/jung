@@ -18,7 +18,7 @@ import java.awt.Dimension;
 import javax.swing.event.ChangeListener;
 
 /** */
-public interface VisualizationModel<N, E, P> extends LayoutEventSupport<N, P>, ChangeEventSupport {
+public interface VisualizationModel<N, E> extends LayoutEventSupport<N>, ChangeEventSupport {
 
   enum SpatialSupport {
     RTREE,
@@ -29,13 +29,13 @@ public interface VisualizationModel<N, E, P> extends LayoutEventSupport<N, P>, C
   /** @return the current layoutSize of the visualization's space */
   Dimension getLayoutSize();
 
-  void setLayoutAlgorithm(LayoutAlgorithm<N, P> layoutAlgorithm);
+  void setLayoutAlgorithm(LayoutAlgorithm<N> layoutAlgorithm);
 
-  LayoutAlgorithm<N, P> getLayoutAlgorithm();
+  LayoutAlgorithm<N> getLayoutAlgorithm();
 
-  LayoutModel<N, P> getLayoutModel();
+  LayoutModel<N> getLayoutModel();
 
-  void setLayoutModel(LayoutModel<N, P> layoutModel);
+  void setLayoutModel(LayoutModel<N> layoutModel);
 
   Network<N, E> getNetwork();
 

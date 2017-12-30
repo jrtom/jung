@@ -14,6 +14,7 @@ import edu.uci.ics.jung.graph.TreeNetworkBuilder;
 import edu.uci.ics.jung.layout.algorithms.RadialTreeLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.TreeLayoutAlgorithm;
 import edu.uci.ics.jung.layout.model.LayoutModel;
+import edu.uci.ics.jung.layout.model.Point;
 import edu.uci.ics.jung.layout.model.PolarPoint;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.MultiLayerTransformer.Layer;
@@ -52,9 +53,9 @@ public class L2RTreeLayoutDemo extends JPanel {
 
   VisualizationServer.Paintable rings;
 
-  TreeLayoutAlgorithm<String, Point2D> treeLayoutAlgorithm;
+  TreeLayoutAlgorithm<String> treeLayoutAlgorithm;
 
-  RadialTreeLayoutAlgorithm<String, Point2D> radialLayoutAlgorithm;
+  RadialTreeLayoutAlgorithm<String> radialLayoutAlgorithm;
 
   public L2RTreeLayoutDemo() {
 
@@ -139,9 +140,9 @@ public class L2RTreeLayoutDemo extends JPanel {
   class Rings implements VisualizationServer.Paintable {
 
     Collection<Double> depths;
-    LayoutModel<String, Point2D> layoutModel;
+    LayoutModel<String> layoutModel;
 
-    public Rings(LayoutModel<String, Point2D> layoutModel) {
+    public Rings(LayoutModel<String> layoutModel) {
       this.layoutModel = layoutModel;
       depths = getDepths();
     }
@@ -160,12 +161,11 @@ public class L2RTreeLayoutDemo extends JPanel {
       g.setColor(Color.lightGray);
 
       Graphics2D g2d = (Graphics2D) g;
-      Point2D center = radialLayoutAlgorithm.getCenter(layoutModel);
+      Point center = radialLayoutAlgorithm.getCenter(layoutModel);
 
       Ellipse2D ellipse = new Ellipse2D.Double();
       for (double d : depths) {
-        ellipse.setFrameFromDiagonal(
-            center.getX() - d, center.getY() - d, center.getX() + d, center.getY() + d);
+        ellipse.setFrameFromDiagonal(center.x - d, center.y - d, center.x + d, center.y + d);
         Shape shape =
             vv.getRenderContext()
                 .getMultiLayerTransformer()

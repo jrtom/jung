@@ -13,7 +13,6 @@ import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.NetworkBuilder;
 import edu.uci.ics.jung.graph.ObservableNetwork;
 import edu.uci.ics.jung.graph.util.Graphs;
-import edu.uci.ics.jung.layout.algorithms.AbstractLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.FRLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.SpringLayoutAlgorithm;
@@ -24,21 +23,12 @@ import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.layout.LayoutAlgorithmTransition;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.GridLayout;
+import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.awt.geom.Point2D;
 import java.util.Timer;
 import java.util.TimerTask;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.WindowConstants;
+import javax.swing.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +47,7 @@ public class AddNodeDemo extends JPanel {
 
   private VisualizationViewer<Number, Number> vv = null;
 
-  private AbstractLayoutAlgorithm<Number, Point2D> layoutAlgorithm = null;
+  private LayoutAlgorithm<Number> layoutAlgorithm = null;
 
   Timer timer;
 
@@ -81,7 +71,7 @@ public class AddNodeDemo extends JPanel {
 
     layoutAlgorithm = new FRLayoutAlgorithm<>();
 
-    LayoutAlgorithm<Number, Point2D> staticLayoutAlgorithm = new StaticLayoutAlgorithm<>();
+    LayoutAlgorithm<Number> staticLayoutAlgorithm = new StaticLayoutAlgorithm<>();
 
     vv = new VisualizationViewer<>(ig, staticLayoutAlgorithm, new Dimension(600, 600));
 

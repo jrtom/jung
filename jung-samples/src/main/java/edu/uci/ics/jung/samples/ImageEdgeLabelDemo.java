@@ -22,7 +22,6 @@ import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintFunction;
 import edu.uci.ics.jung.visualization.renderers.DefaultEdgeLabelRenderer;
 import edu.uci.ics.jung.visualization.renderers.DefaultNodeLabelRenderer;
 import java.awt.*;
-import java.awt.geom.Point2D;
 import java.net.URL;
 import java.util.function.Function;
 import javax.swing.*;
@@ -51,7 +50,7 @@ public class ImageEdgeLabelDemo extends JPanel {
     // create a simple graph for the demo
     graph = createGraph(NODE_COUNT);
 
-    FRLayoutAlgorithm<Number, Point2D> layoutAlgorithm = new FRLayoutAlgorithm<>();
+    FRLayoutAlgorithm<Number> layoutAlgorithm = new FRLayoutAlgorithm<>();
     layoutAlgorithm.setMaxIterations(100);
     vv = new VisualizationViewer<>(graph, layoutAlgorithm, new Dimension(400, 400));
 

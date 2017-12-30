@@ -17,6 +17,7 @@ import edu.uci.ics.jung.layout.algorithms.KKLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.SpringLayoutAlgorithm;
 import edu.uci.ics.jung.layout.model.LayoutModel;
+import edu.uci.ics.jung.layout.model.Point;
 import edu.uci.ics.jung.samples.util.ControlHelpers;
 import edu.uci.ics.jung.visualization.BaseVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
@@ -171,7 +172,7 @@ public class NodeCollapseDemoWithLayouts extends JPanel {
               sumx += p.getX();
               sumy += p.getY();
             }
-            Point2D cp = new Point2D.Double(sumx / picked.size(), sumy / picked.size());
+            Point cp = new Point(sumx / picked.size(), sumy / picked.size());
             layoutModel.lock(false);
             layoutModel.set(clusterGraph, cp);
             log.trace("put the cluster at " + cp);
@@ -319,7 +320,7 @@ public class NodeCollapseDemoWithLayouts extends JPanel {
     }
   }
 
-  private static <N> LayoutAlgorithm<N, Point2D> createLayout(Layouts layoutType) {
+  private static <N> LayoutAlgorithm<N> createLayout(Layouts layoutType) {
     switch (layoutType) {
       case CIRCLE:
         return new CircleLayoutAlgorithm<>();

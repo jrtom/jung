@@ -14,7 +14,6 @@ import java.awt.Paint;
 import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Point2D;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -23,7 +22,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 public class CachingEdgeRenderer<N, E> extends BasicEdgeRenderer<N, E>
-    implements ChangeListener, LayoutChangeListener<N, Point2D> {
+    implements ChangeListener, LayoutChangeListener<N> {
 
   protected Map<E, Shape> edgeShapeMap = new HashMap<E, Shape>();
   protected Set dirtyEdges = new HashSet<>();
@@ -31,7 +30,7 @@ public class CachingEdgeRenderer<N, E> extends BasicEdgeRenderer<N, E>
   @SuppressWarnings({"rawtypes", "unchecked"})
   public CachingEdgeRenderer(BasicVisualizationServer<N, E> vv) {
     vv.getRenderContext().getMultiLayerTransformer().addChangeListener(this);
-    LayoutModel<N, Point2D> layoutModel = vv.getModel().getLayoutModel();
+    LayoutModel<N> layoutModel = vv.getModel().getLayoutModel();
     if (layoutModel instanceof LayoutEventSupport) {
       ((LayoutEventSupport) layoutModel).addLayoutChangeListener(this);
     }
@@ -44,9 +43,7 @@ public class CachingEdgeRenderer<N, E> extends BasicEdgeRenderer<N, E>
    */
   @Override
   protected void drawSimpleEdge(
-      RenderContext<N, E> renderContext,
-      VisualizationModel<N, E, Point2D> visualizationModel,
-      E e) {
+      RenderContext<N, E> renderContext, VisualizationModel<N, E> visualizationModel, E e) {
 
     int[] coords = new int[4];
     boolean[] loop = new boolean[1];
@@ -150,13 +147,13 @@ public class CachingEdgeRenderer<N, E> extends BasicEdgeRenderer<N, E>
   }
 
   //  @Override
-  public void layoutChanged(LayoutNetworkEvent<N, Point2D> evt) {
+  public void layoutChanged(LayoutNetworkEvent<N> evt) {
     N node = evt.getNode();
     Network<N, ?> network = evt.getNetwork();
     dirtyEdges.addAll(network.incidentEdges(node));
   }
 
-  public void layoutChanged(LayoutEvent<N, Point2D> evt) {
+  public void layoutChanged(LayoutEvent<N> evt) {
     System.err.println("FIX ME");
   }
 }

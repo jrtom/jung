@@ -8,11 +8,9 @@ import edu.uci.ics.jung.layout.model.LayoutModel;
  *
  * @author Tom Nelson
  */
-public class StaticLayoutAlgorithm<N, P> extends AbstractLayoutAlgorithm<N, P> {
+public class StaticLayoutAlgorithm<N> implements LayoutAlgorithm<N> {
 
-  public void visit(LayoutModel<N, P> layoutModel) {
-    super.visit(layoutModel);
-  }
+  public void visit(LayoutModel<N> layoutModel) {}
 
   public void initialize() {}
 

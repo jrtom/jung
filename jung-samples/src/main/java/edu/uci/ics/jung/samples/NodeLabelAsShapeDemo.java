@@ -24,7 +24,6 @@ import edu.uci.ics.jung.visualization.renderers.DefaultNodeLabelRenderer;
 import edu.uci.ics.jung.visualization.renderers.GradientNodeRenderer;
 import edu.uci.ics.jung.visualization.renderers.NodeLabelAsShapeRenderer;
 import java.awt.*;
-import java.awt.geom.Point2D;
 import java.util.function.Function;
 import javax.swing.*;
 
@@ -43,7 +42,7 @@ public class NodeLabelAsShapeDemo extends JPanel {
 
   VisualizationViewer<String, Number> vv;
 
-  LayoutAlgorithm<String, Point2D> layoutAlgorithm;
+  LayoutAlgorithm<String> layoutAlgorithm;
 
   /** create an instance of a simple graph with basic controls */
   public NodeLabelAsShapeDemo() {
@@ -55,7 +54,7 @@ public class NodeLabelAsShapeDemo extends JPanel {
     layoutAlgorithm = new FRLayoutAlgorithm<>();
 
     Dimension preferredSize = new Dimension(400, 400);
-    final VisualizationModel<String, Number, Point2D> visualizationModel =
+    final VisualizationModel<String, Number> visualizationModel =
         new BaseVisualizationModel<>(graph, layoutAlgorithm, preferredSize);
     vv = new VisualizationViewer<>(visualizationModel, preferredSize);
 

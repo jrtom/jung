@@ -11,6 +11,7 @@ package edu.uci.ics.jung.visualization.renderers;
 
 import com.google.common.graph.EndpointPair;
 import edu.uci.ics.jung.layout.model.LayoutModel;
+import edu.uci.ics.jung.layout.model.Point;
 import edu.uci.ics.jung.visualization.MultiLayerTransformer.Layer;
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.VisualizationModel;
@@ -28,7 +29,7 @@ public class BasicEdgeLabelRenderer<N, E> implements Renderer.EdgeLabel<N, E> {
 
   public Component prepareRenderer(
       RenderContext<N, E> renderContext,
-      LayoutModel<N, Point2D> layoutModel,
+      LayoutModel<N> layoutModel,
       EdgeLabelRenderer graphLabelRenderer,
       Object value,
       boolean isSelected,
@@ -46,7 +47,7 @@ public class BasicEdgeLabelRenderer<N, E> implements Renderer.EdgeLabel<N, E> {
   @Override
   public void labelEdge(
       RenderContext<N, E> renderContext,
-      VisualizationModel<N, E, Point2D> visualizationModel,
+      VisualizationModel<N, E> visualizationModel,
       E e,
       String label) {
     if (label == null || label.length() == 0) {
@@ -62,14 +63,20 @@ public class BasicEdgeLabelRenderer<N, E> implements Renderer.EdgeLabel<N, E> {
       return;
     }
 
-    Point2D p1 = visualizationModel.getLayoutModel().apply(v1);
-    Point2D p2 = visualizationModel.getLayoutModel().apply(v2);
-    p1 = renderContext.getMultiLayerTransformer().transform(Layer.LAYOUT, p1);
-    p2 = renderContext.getMultiLayerTransformer().transform(Layer.LAYOUT, p2);
-    float x1 = (float) p1.getX();
-    float y1 = (float) p1.getY();
-    float x2 = (float) p2.getX();
-    float y2 = (float) p2.getY();
+    Point p1 = visualizationModel.getLayoutModel().apply(v1);
+    Point p2 = visualizationModel.getLayoutModel().apply(v2);
+    Point2D p2d1 =
+        renderContext
+            .getMultiLayerTransformer()
+            .transform(Layer.LAYOUT, new Point2D.Double(p1.x, p1.y));
+    Point2D p2d2 =
+        renderContext
+            .getMultiLayerTransformer()
+            .transform(Layer.LAYOUT, new Point2D.Double(p2.x, p2.y));
+    float x1 = (float) p2d1.getX();
+    float y1 = (float) p2d1.getY();
+    float x2 = (float) p2d2.getX();
+    float y2 = (float) p2d2.getY();
 
     GraphicsDecorator g = renderContext.getGraphicsContext();
     float distX = x2 - x1;

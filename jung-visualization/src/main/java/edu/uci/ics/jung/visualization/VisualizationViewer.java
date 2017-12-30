@@ -76,7 +76,7 @@ public class VisualizationViewer<N, E> extends BasicVisualizationServer<N, E> {
    */
   public VisualizationViewer(
       Network<N, E> network,
-      LayoutAlgorithm<N, Point2D> layoutAlgorithm,
+      LayoutAlgorithm<N> layoutAlgorithm,
       Dimension layoutSize,
       Dimension viewSize) {
     this(new BaseVisualizationModel<N, E>(network, layoutAlgorithm, layoutSize), viewSize);
@@ -88,7 +88,7 @@ public class VisualizationViewer<N, E> extends BasicVisualizationServer<N, E> {
    * @param preferredSize the size to use for both the layout and the screen display
    */
   public VisualizationViewer(
-      Network<N, E> network, LayoutAlgorithm<N, Point2D> layoutAlgorithm, Dimension preferredSize) {
+      Network<N, E> network, LayoutAlgorithm<N> layoutAlgorithm, Dimension preferredSize) {
     this(new BaseVisualizationModel<N, E>(network, layoutAlgorithm, preferredSize), preferredSize);
   }
 
@@ -96,7 +96,7 @@ public class VisualizationViewer<N, E> extends BasicVisualizationServer<N, E> {
    * @param model the model for the view
    * @param preferredSize the initial size of the window to display the network
    */
-  public VisualizationViewer(VisualizationModel<N, E, Point2D> model, Dimension preferredSize) {
+  public VisualizationViewer(VisualizationModel<N, E> model, Dimension preferredSize) {
     super(model, preferredSize);
     setFocusable(true);
     addMouseListener(requestFocusListener);
@@ -178,7 +178,7 @@ public class VisualizationViewer<N, E> extends BasicVisualizationServer<N, E> {
 
   /** called by the superclass to display tooltips */
   public String getToolTipText(MouseEvent event) {
-    LayoutModel<N, Point2D> layoutModel = getModel().getLayoutModel();
+    LayoutModel<N> layoutModel = getModel().getLayoutModel();
     Point2D p = null;
     if (nodeToolTipFunction != null) {
       p = getTransformSupport().inverseTransform(this, event.getPoint());

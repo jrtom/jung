@@ -13,6 +13,7 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Graph;
 import edu.uci.ics.jung.algorithms.util.IterativeContext;
+import edu.uci.ics.jung.layout.model.Point;
 import java.util.ConcurrentModificationException;
 import java.util.function.Function;
 
@@ -25,7 +26,7 @@ import java.util.function.Function;
  * @author Joshua O'Madadhain
  * @author Tom Nelson
  */
-public class SpringLayoutAlgorithm<N, P> extends AbstractIterativeLayoutAlgorithm<N, P>
+public class SpringLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
     implements IterativeContext {
 
   protected double stretch = 0.70;
@@ -100,13 +101,13 @@ public class SpringLayoutAlgorithm<N, P> extends AbstractIterativeLayoutAlgorith
         N node1 = endpoints.nodeU();
         N node2 = endpoints.nodeV();
 
-        P p1 = this.layoutModel.get(node1);
-        P p2 = this.layoutModel.get(node2);
+        Point p1 = this.layoutModel.get(node1);
+        Point p2 = this.layoutModel.get(node2);
         if (p1 == null || p2 == null) {
           continue;
         }
-        double vx = pointModel.getX(p1) - pointModel.getX(p2); //p1.getX() - p2.getX();
-        double vy = pointModel.getY(p1) - pointModel.getY(p2); //p1.getY() - p2.getY();
+        double vx = p1.x - p2.x; //p1.getX() - p2.getX();
+        double vy = p1.y - p2.y; //p1.getY() - p2.getY();
         double len = Math.sqrt(vx * vx + vy * vy);
 
         double desiredLen = lengthFunction.apply(endpoints);
@@ -155,14 +156,14 @@ public class SpringLayoutAlgorithm<N, P> extends AbstractIterativeLayoutAlgorith
           if (node == node2) {
             continue;
           }
-          P p = layoutModel.apply(node);
-          P p2 = layoutModel.apply(node2);
+          Point p = layoutModel.apply(node);
+          Point p2 = layoutModel.apply(node2);
           if (p == null || p2 == null) {
             continue;
           }
-          double vx = pointModel.getX(p) - pointModel.getX(p2);
-          double vy = pointModel.getY(p) - pointModel.getY(p2);
-          double distanceSq = pointModel.distanceSquared(p, p2);
+          double vx = p.x - p2.x;
+          double vy = p.y - p2.y;
+          double distanceSq = p.distanceSquared(p2); //p.distanceSq(p2);
           if (distanceSq == 0) {
             dx += Math.random();
             dy += Math.random();
@@ -197,33 +198,33 @@ public class SpringLayoutAlgorithm<N, P> extends AbstractIterativeLayoutAlgorith
           if (vd == null) {
             continue;
           }
-          P xyd = layoutModel.apply(node);
+          Point xyd = layoutModel.apply(node);
+          double posX = xyd.x;
+          double posY = xyd.y;
 
           vd.dx += vd.repulsiondx + vd.edgedx;
           vd.dy += vd.repulsiondy + vd.edgedy;
 
           // keeps nodes from moving any faster than 5 per time unit
-          pointModel.setLocation(
-              xyd,
-              pointModel.getX(xyd) + Math.max(-5, Math.min(5, vd.dx)),
-              pointModel.getY(xyd) + Math.max(-5, Math.min(5, vd.dy)));
+          posX = posX + Math.max(-5, Math.min(5, vd.dx));
+          posY = posY + Math.max(-5, Math.min(5, vd.dy));
 
           int width = layoutModel.getWidth();
           int height = layoutModel.getHeight();
 
-          if (pointModel.getX(xyd) < 0) {
-            pointModel.setLocation(xyd, 0, pointModel.getY(xyd));
-          } else if (pointModel.getX(xyd) > width) {
-            pointModel.setLocation(xyd, width, pointModel.getY(xyd));
+          if (posX < 0) {
+            posX = 0;
+          } else if (posX > width) {
+            posX = width;
           }
-          if (pointModel.getY(xyd) < 0) {
-            pointModel.setLocation(xyd, pointModel.getX(xyd), 0);
-          } else if (pointModel.getY(xyd) > height) {
-            pointModel.setLocation(xyd, pointModel.getX(xyd), height);
+          if (posY < 0) {
+            posY = 0;
+          } else if (posY > height) {
+            posY = height;
           }
           // after the bounds have been honored above, really set the location
           // in the layout model
-          layoutModel.set(node, xyd);
+          layoutModel.set(node, posX, posY);
         }
       } catch (ConcurrentModificationException cme) {
         moveNodes();

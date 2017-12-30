@@ -204,7 +204,7 @@ public class PluggableRendererDemo extends JPanel implements ActionListener {
   public JPanel startFunction() {
     this.graph = buildGraph();
 
-    LayoutAlgorithm<Integer, Point2D> layoutAlgorithm = new FRLayoutAlgorithm<>();
+    LayoutAlgorithm<Integer> layoutAlgorithm = new FRLayoutAlgorithm<>();
     vv = new VisualizationViewer<>(graph, layoutAlgorithm, new Dimension(1000, 800));
 
     //    vv.getRenderer().setNodeRenderer(new CachingNodeRenderer<Integer, Number>(vv));
@@ -885,7 +885,7 @@ public class PluggableRendererDemo extends JPanel implements ActionListener {
     protected void handlePopup(MouseEvent e) {
       final VisualizationViewer<Integer, Number> vv =
           (VisualizationViewer<Integer, Number>) e.getSource();
-      final LayoutModel<Integer, Point2D> layoutModel = vv.getModel().getLayoutModel();
+      final LayoutModel<Integer> layoutModel = vv.getModel().getLayoutModel();
       Point2D p =
           e
               .getPoint(); //vv.getRenderContext().getBasicTransformer().inverseViewTransform(e.getPoint());

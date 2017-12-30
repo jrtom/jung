@@ -217,7 +217,7 @@ public class VisualizationViewerUI<N, E> {
       case RTREE:
         return new SpatialRTree.Nodes<>(
             visualizationServer.getModel(),
-            new BoundingRectangleCollector.Node<>(
+            new BoundingRectangleCollector.Nodes<>(
                 visualizationServer.getRenderContext(), visualizationServer.getModel()),
             SplitterContext.of(new RStarLeafSplitter<>(), new RStarSplitter<>()));
       case GRID:
@@ -235,7 +235,7 @@ public class VisualizationViewerUI<N, E> {
       case RTREE:
         return new SpatialRTree.Edges<E, N>(
             visualizationServer.getModel(),
-            new BoundingRectangleCollector.Edge<>(
+            new BoundingRectangleCollector.Edges<>(
                 visualizationServer.getRenderContext(), visualizationServer.getModel()),
             SplitterContext.of(new QuadraticLeafSplitter(), new QuadraticSplitter()));
       case NONE:

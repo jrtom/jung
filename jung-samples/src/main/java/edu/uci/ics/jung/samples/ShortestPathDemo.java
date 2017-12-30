@@ -9,6 +9,7 @@ import edu.uci.ics.jung.algorithms.shortestpath.BFSDistanceLabeler;
 import edu.uci.ics.jung.layout.algorithms.FRLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
 import edu.uci.ics.jung.layout.model.LayoutModel;
+import edu.uci.ics.jung.layout.model.Point;
 import edu.uci.ics.jung.visualization.MultiLayerTransformer.Layer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
@@ -45,7 +46,7 @@ public class ShortestPathDemo extends JPanel {
     this.mGraph = getGraph();
     setBackground(Color.WHITE);
     // show graph
-    final LayoutAlgorithm<String, Point2D> layoutAlgorithm = new FRLayoutAlgorithm<>();
+    final LayoutAlgorithm<String> layoutAlgorithm = new FRLayoutAlgorithm<>();
     final VisualizationViewer<String, Number> vv =
         new VisualizationViewer<>(mGraph, layoutAlgorithm, new Dimension(1000, 1000));
     vv.setBackground(Color.WHITE);
@@ -56,7 +57,7 @@ public class ShortestPathDemo extends JPanel {
     vv.getRenderContext().setEdgeStrokeFunction(new MyEdgeStrokeFunction());
     vv.getRenderContext().setNodeLabelFunction(Object::toString);
     vv.setGraphMouse(new DefaultModalGraphMouse<String, Number>());
-    LayoutModel<String, Point2D> layoutModel = vv.getModel().getLayoutModel();
+    LayoutModel<String> layoutModel = vv.getModel().getLayoutModel();
     vv.addPostRenderPaintable(
         new VisualizationViewer.Paintable() {
 
@@ -75,10 +76,16 @@ public class ShortestPathDemo extends JPanel {
                 EndpointPair<String> endpoints = mGraph.incidentNodes(e);
                 String v1 = endpoints.nodeU();
                 String v2 = endpoints.nodeV();
-                Point2D p1 = layoutModel.apply(v1);
-                Point2D p2 = layoutModel.apply(v2);
-                p1 = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, p1);
-                p2 = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, p2);
+                Point p1 = layoutModel.apply(v1);
+                Point p2 = layoutModel.apply(v2);
+                Point2D p2d1 =
+                    vv.getRenderContext()
+                        .getMultiLayerTransformer()
+                        .transform(Layer.LAYOUT, new Point2D.Double(p1.x, p1.y));
+                Point2D p2d2 =
+                    vv.getRenderContext()
+                        .getMultiLayerTransformer()
+                        .transform(Layer.LAYOUT, new Point2D.Double(p2.x, p2.y));
                 Renderer<String, Number> renderer = vv.getRenderer();
                 renderer.renderEdge(vv.getRenderContext(), vv.getModel(), e);
               }

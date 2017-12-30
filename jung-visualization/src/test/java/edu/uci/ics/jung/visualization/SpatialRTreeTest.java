@@ -1,19 +1,17 @@
-package edu.uci.ics.jung.visualization.spatial;
-
-import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
+package edu.uci.ics.jung.visualization;
 
 import com.google.common.graph.Graph;
+import com.google.common.graph.Network;
 import edu.uci.ics.jung.graph.util.TestGraphs;
+import edu.uci.ics.jung.layout.algorithms.StaticLayoutAlgorithm;
 import edu.uci.ics.jung.layout.model.LayoutModel;
-import edu.uci.ics.jung.layout.model.LoadingCacheLayoutModel;
+import edu.uci.ics.jung.layout.model.Point;
 import edu.uci.ics.jung.layout.util.NetworkNodeAccessor;
 import edu.uci.ics.jung.layout.util.RadiusNetworkNodeAccessor;
-import edu.uci.ics.jung.layout.util.RandomLocationTransformer;
-import edu.uci.ics.jung.visualization.spatial.rtree.LeafNode;
-import edu.uci.ics.jung.visualization.spatial.rtree.RStarLeafSplitter;
-import edu.uci.ics.jung.visualization.spatial.rtree.RStarSplitter;
-import edu.uci.ics.jung.visualization.spatial.rtree.SplitterContext;
-import java.awt.geom.Point2D;
+import edu.uci.ics.jung.visualization.spatial.Spatial;
+import edu.uci.ics.jung.visualization.spatial.TreeNode;
+import java.awt.*;
+import java.util.Collection;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,30 +31,20 @@ public class SpatialRTreeTest {
   int width = 600;
   int height = 600;
   Graph<String> graph;
-  LayoutModel<String, Point2D> layoutModel;
-  SpatialRTree<String, String> tree;
+  LayoutModel<String> layoutModel;
+  Spatial<String> tree;
 
   @Before
   public void setup() {
     // generate 100 random nodes in a graph at random locations in the layoutModel
-    graph = TestGraphs.createChainPlusIsolates(0, 500).asGraph();
-    layoutModel =
-        LoadingCacheLayoutModel.<String, Point2D>builder()
-            .setGraph(graph)
-            .setPointModel(POINT_MODEL)
-            .setSize(width, height)
-            .setInitializer(
-                new RandomLocationTransformer(
-                    POINT_MODEL, width, height, 0, System.currentTimeMillis()))
-            .build();
+    Network<String, Number> network = TestGraphs.createChainPlusIsolates(0, 5000);
+    graph = network.asGraph();
 
-    tree =
-        new SpatialRTree.Nodes(
-            layoutModel, SplitterContext.of(new RStarLeafSplitter<>(), new RStarSplitter<>()));
-    //    for (String node : graph.nodes()) {
-    //      tree.ad(node);
-    //    }
-    tree.recalculate();
+    VisualizationServer<String, Number> vv =
+        new BasicVisualizationServer(network, new StaticLayoutAlgorithm(), new Dimension(600, 600));
+
+    tree = vv.getNodeSpatial();
+    layoutModel = vv.getModel().getLayoutModel();
   }
 
   /**
@@ -66,14 +54,11 @@ public class SpatialRTreeTest {
   @Test
   public void testRandomPointsAndLocations() {
     for (String node : graph.nodes()) {
-      Point2D location = layoutModel.apply(node);
-      LeafNode pointQuadTree = tree.getContainingLeaf(location);
-      LeafNode nodeQuadTree = tree.getContainingLeaf(node);
-      Assert.assertEquals(pointQuadTree, nodeQuadTree);
-      //      log.debug(
-      //          "pointQuadTree level {} nodeQuadTree level {}",
-      //          pointQuadTree.getLevel(),
-      //          nodeQuadTree.getLevel());
+      Point location = layoutModel.apply(node);
+      Collection<? extends TreeNode> pointQuadTrees =
+          tree.getContainingLeafs(location.x, location.y);
+      TreeNode nodeQuadTree = tree.getContainingLeaf(node);
+      Assert.assertTrue(pointQuadTrees.contains(nodeQuadTree));
     }
   }
 
@@ -84,15 +69,14 @@ public class SpatialRTreeTest {
   @Test
   public void testClosestNodes() {
     final int COUNT = 10000;
-    NetworkNodeAccessor<String, Point2D> slowWay =
-        new RadiusNetworkNodeAccessor<>(graph, POINT_MODEL, Double.MAX_VALUE);
+    NetworkNodeAccessor<String> slowWay = new RadiusNetworkNodeAccessor<>(graph, Double.MAX_VALUE);
 
     // look for nodes closest to COUNT random locations
     for (int i = 0; i < COUNT; i++) {
       double x = Math.random() * layoutModel.getWidth();
       double y = Math.random() * layoutModel.getHeight();
       // use the slowWay
-      String winnerOne = slowWay.getNode(layoutModel, x, y, 0);
+      String winnerOne = slowWay.getNode(layoutModel, x, y);
       // use the quadtree
       String winnerTwo = tree.getClosestElement(x, y);
 
@@ -105,14 +89,14 @@ public class SpatialRTreeTest {
             layoutModel.apply(winnerOne),
             x,
             y,
-            layoutModel.apply(winnerOne).distanceSq(x, y));
+            layoutModel.apply(winnerOne).distanceSquared(x, y));
         log.warn(
             "the radius distanceSq from winnerTwo {} at {} to {},{} is {}",
             winnerTwo,
             layoutModel.apply(winnerTwo),
             x,
             y,
-            layoutModel.apply(winnerTwo).distanceSq(x, y));
+            layoutModel.apply(winnerTwo).distanceSquared(x, y));
 
         log.warn("the cell for winnerOne {} is {}", winnerOne, tree.getContainingLeaf(winnerOne));
         log.warn("the cell for winnerTwo {} is {}", winnerTwo, tree.getContainingLeaf(winnerTwo));
@@ -128,9 +112,8 @@ public class SpatialRTreeTest {
    */
   @Test
   public void comparePerformance() {
-    final int COUNT = 100000;
-    NetworkNodeAccessor<String, Point2D> slowWay =
-        new RadiusNetworkNodeAccessor<>(graph, POINT_MODEL, Double.MAX_VALUE);
+    final int COUNT = 1000;
+    NetworkNodeAccessor<String> slowWay = new RadiusNetworkNodeAccessor<>(graph, Double.MAX_VALUE);
 
     // generate the points first so both tests use the same points
     double[] xs = new double[COUNT];
@@ -143,13 +126,13 @@ public class SpatialRTreeTest {
     // look for nodes closest to 10000 random locations
     for (int i = 0; i < COUNT; i++) {
       // use the RadiusNetworkNodeAccessor
-      String winnerOne = slowWay.getNode(layoutModel, xs[i], ys[i], 0);
+      String winnerOne = slowWay.getNode(layoutModel, xs[i], ys[i]);
     }
     long end = System.currentTimeMillis();
     log.info("radius way took {}", end - start);
     start = System.currentTimeMillis();
     for (int i = 0; i < COUNT; i++) {
-      // use the quadtree
+      // use the rtree
       String winnerTwo = tree.getClosestElement(xs[i], ys[i]);
     }
     end = System.currentTimeMillis();

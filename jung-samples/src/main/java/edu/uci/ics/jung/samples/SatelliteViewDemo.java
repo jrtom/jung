@@ -30,7 +30,6 @@ import edu.uci.ics.jung.visualization.transform.shape.ShapeTransformer;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.geom.GeneralPath;
-import java.awt.geom.Point2D;
 import javax.swing.*;
 
 /**
@@ -88,13 +87,13 @@ public class SatelliteViewDemo extends JPanel {
     Dimension preferredSize2 = new Dimension(300, 300);
 
     // create one layout for the graph
-    FRLayoutAlgorithm<String, Point2D> layoutAlgorithm = new FRLayoutAlgorithm<>();
+    FRLayoutAlgorithm<String> layoutAlgorithm = new FRLayoutAlgorithm<>();
     // not used, for testing only
     //    CircleLayoutAlgorithm<String, Point2D> clayout = new CircleLayoutAlgorithm<>();
     layoutAlgorithm.setMaxIterations(500);
 
     // create one model that both views will share
-    VisualizationModel<String, Number, Point2D> vm =
+    VisualizationModel<String, Number> vm =
         new BaseVisualizationModel<>(graph, layoutAlgorithm, preferredSize1);
 
     // create 2 views that share the same model

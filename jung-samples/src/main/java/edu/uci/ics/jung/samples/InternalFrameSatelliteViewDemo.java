@@ -18,7 +18,6 @@ import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintFunction;
 import edu.uci.ics.jung.visualization.decorators.PickableNodePaintFunction;
 import java.awt.*;
-import java.awt.geom.Point2D;
 import javax.swing.*;
 
 /**
@@ -71,7 +70,7 @@ public class InternalFrameSatelliteViewDemo {
     // create a simple graph for the demo
     graph = TestGraphs.getOneComponentGraph();
 
-    LayoutAlgorithm<String, Point2D> layout = new ISOMLayoutAlgorithm<>();
+    LayoutAlgorithm<String> layout = new ISOMLayoutAlgorithm<>();
 
     vv = new VisualizationViewer<>(graph, layout, new Dimension(600, 600));
     vv.getRenderContext()

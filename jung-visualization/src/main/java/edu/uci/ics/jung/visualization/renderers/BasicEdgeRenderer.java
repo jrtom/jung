@@ -11,6 +11,7 @@ package edu.uci.ics.jung.visualization.renderers;
 
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Network;
+import edu.uci.ics.jung.layout.model.Point;
 import edu.uci.ics.jung.visualization.MultiLayerTransformer.Layer;
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.VisualizationModel;
@@ -33,9 +34,7 @@ public class BasicEdgeRenderer<N, E> implements Renderer.Edge<N, E> {
 
   @Override
   public void paintEdge(
-      RenderContext<N, E> renderContext,
-      VisualizationModel<N, E, Point2D> visualizationModel,
-      E e) {
+      RenderContext<N, E> renderContext, VisualizationModel<N, E> visualizationModel, E e) {
     GraphicsDecorator g2d = renderContext.getGraphicsContext();
     if (!renderContext.getEdgeIncludePredicate().test(e)) {
       return;
@@ -66,7 +65,7 @@ public class BasicEdgeRenderer<N, E> implements Renderer.Edge<N, E> {
 
   protected Shape prepareFinalEdgeShape(
       RenderContext<N, E> renderContext,
-      VisualizationModel<N, E, Point2D> visualizationModel,
+      VisualizationModel<N, E> visualizationModel,
       E e,
       int[] coords,
       boolean[] loop) {
@@ -74,14 +73,20 @@ public class BasicEdgeRenderer<N, E> implements Renderer.Edge<N, E> {
     N v1 = endpoints.nodeU();
     N v2 = endpoints.nodeV();
 
-    Point2D p1 = visualizationModel.getLayoutModel().apply(v1);
-    Point2D p2 = visualizationModel.getLayoutModel().apply(v2);
-    p1 = renderContext.getMultiLayerTransformer().transform(Layer.LAYOUT, p1);
-    p2 = renderContext.getMultiLayerTransformer().transform(Layer.LAYOUT, p2);
-    float x1 = (float) p1.getX();
-    float y1 = (float) p1.getY();
-    float x2 = (float) p2.getX();
-    float y2 = (float) p2.getY();
+    Point p1 = visualizationModel.getLayoutModel().apply(v1);
+    Point p2 = visualizationModel.getLayoutModel().apply(v2);
+    Point2D p2d1 =
+        renderContext
+            .getMultiLayerTransformer()
+            .transform(Layer.LAYOUT, new Point2D.Double(p1.x, p1.y));
+    Point2D p2d2 =
+        renderContext
+            .getMultiLayerTransformer()
+            .transform(Layer.LAYOUT, new Point2D.Double(p2.x, p2.y));
+    float x1 = (float) p2d1.getX();
+    float y1 = (float) p2d1.getY();
+    float x2 = (float) p2d2.getX();
+    float y2 = (float) p2d2.getY();
     coords[0] = (int) x1;
     coords[1] = (int) y1;
     coords[2] = (int) x2;
@@ -173,9 +178,7 @@ public class BasicEdgeRenderer<N, E> implements Renderer.Edge<N, E> {
    * @param e the edge to be drawn
    */
   protected void drawSimpleEdge(
-      RenderContext<N, E> renderContext,
-      VisualizationModel<N, E, Point2D> visualizationModel,
-      E e) {
+      RenderContext<N, E> renderContext, VisualizationModel<N, E> visualizationModel, E e) {
 
     int[] coords = new int[4];
     boolean[] loop = new boolean[1];

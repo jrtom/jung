@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import edu.uci.ics.jung.layout.model.LayoutModel;
+import edu.uci.ics.jung.layout.model.Point;
 import edu.uci.ics.jung.layout.util.LayoutChangeListener;
 import edu.uci.ics.jung.layout.util.LayoutEvent;
 import edu.uci.ics.jung.layout.util.LayoutNetworkEvent;
@@ -25,7 +26,7 @@ import org.slf4j.LoggerFactory;
  * @param <N> the node type
  */
 public class SpatialQuadTree<N> extends AbstractSpatial<N, N>
-    implements TreeNode, Spatial<N>, LayoutChangeListener<N, Point2D> {
+    implements TreeNode, Spatial<N>, LayoutChangeListener<N> {
 
   private static final Logger log = LoggerFactory.getLogger(SpatialQuadTree.class);
 
@@ -69,7 +70,7 @@ public class SpatialQuadTree<N> extends AbstractSpatial<N, N>
   //  private Collection<Shape> pickShapes = EvictingQueue.create(4);
 
   /** @param layoutModel */
-  public SpatialQuadTree(LayoutModel<N, Point2D> layoutModel) {
+  public SpatialQuadTree(LayoutModel<N> layoutModel) {
     this(layoutModel, 0, 0, 0, layoutModel.getWidth(), layoutModel.getHeight());
   }
 
@@ -78,7 +79,7 @@ public class SpatialQuadTree<N> extends AbstractSpatial<N, N>
    * @param width
    * @param height
    */
-  public SpatialQuadTree(LayoutModel<N, Point2D> layoutModel, double width, double height) {
+  public SpatialQuadTree(LayoutModel<N> layoutModel, double width, double height) {
     this(layoutModel, 0, 0, 0, width, height);
   }
 
@@ -90,16 +91,11 @@ public class SpatialQuadTree<N> extends AbstractSpatial<N, N>
    * @param height
    */
   public SpatialQuadTree(
-      LayoutModel<N, Point2D> layoutModel,
-      int level,
-      double x,
-      double y,
-      double width,
-      double height) {
+      LayoutModel<N> layoutModel, int level, double x, double y, double width, double height) {
     this(layoutModel, level, new Rectangle2D.Double(x, y, width, height));
   }
 
-  public SpatialQuadTree(LayoutModel<N, Point2D> layoutModel, int pLevel, Rectangle2D area) {
+  public SpatialQuadTree(LayoutModel<N> layoutModel, int pLevel, Rectangle2D area) {
     super(layoutModel);
     level = pLevel;
     nodes = Collections.synchronizedSet(Sets.newHashSet());
@@ -175,16 +171,26 @@ public class SpatialQuadTree<N> extends AbstractSpatial<N, N>
    * @param p the point of interest
    * @return the quadrant that would contain the point
    */
-  protected Quadrant getQuadrant(Point2D p) {
+  protected Quadrant getQuadrant(Point p) {
+    return getQuadrant(p.x, p.y);
+  }
+
+  /**
+   * find the quadrant that the point would be in
+   *
+   * @param x, y the point of interest
+   * @return the quadrant that would contain the point
+   */
+  protected Quadrant getQuadrant(double x, double y) {
 
     double centerX = area.getCenterX();
     double centerY = area.getCenterY();
 
-    boolean inNorth = p.getY() < centerY;
+    boolean inNorth = y < centerY;
 
-    boolean inSouth = p.getY() >= centerY;
+    boolean inSouth = y >= centerY;
 
-    boolean inWest = p.getX() < centerX;
+    boolean inWest = x < centerX;
 
     if (inNorth && inWest) {
       return Quadrant.NW;
@@ -192,7 +198,7 @@ public class SpatialQuadTree<N> extends AbstractSpatial<N, N>
     if (inSouth && inWest) {
       return Quadrant.SW;
     }
-    boolean inEast = p.getX() >= centerX;
+    boolean inEast = x >= centerX;
     if (inNorth && inEast) {
       return Quadrant.NE;
     }
@@ -208,11 +214,10 @@ public class SpatialQuadTree<N> extends AbstractSpatial<N, N>
    */
   protected void insert(N p) {
     gridCache = null;
-    LayoutModel<N, Point2D> nlayoutModel = (LayoutModel<N, Point2D>) layoutModel;
-    log.trace("{} inserting {} at {}", this, p, nlayoutModel.apply(p));
+    log.trace("{} inserting {} at {}", this, p, layoutModel.apply(p));
     if (children != null) {
       // there are child QuadTrees available
-      Quadrant quadrant = getQuadrant(nlayoutModel.apply(p));
+      Quadrant quadrant = getQuadrant(layoutModel.apply(p));
       if (quadrant != null && children.get(quadrant) != null) {
         // insert into the child QuadTree
         children.get(quadrant).insert(p);
@@ -228,7 +233,7 @@ public class SpatialQuadTree<N> extends AbstractSpatial<N, N>
 
       for (Iterator<N> iterator = nodes.iterator(); iterator.hasNext(); ) {
         N node = iterator.next();
-        Quadrant quadrant = getQuadrant(nlayoutModel.apply(node));
+        Quadrant quadrant = getQuadrant(layoutModel.apply(node));
         children.get(quadrant).insert(node);
         iterator.remove();
       }
@@ -315,6 +320,11 @@ public class SpatialQuadTree<N> extends AbstractSpatial<N, N>
    */
   @Override
   public Collection<N> getVisibleElements(Shape shape) {
+    if (!isActive()) {
+      log.trace("not active so getting from the graph");
+      return layoutModel.getGraph().nodes();
+    }
+
     pickShapes.add(shape);
     Set<N> list = Sets.newHashSet();
     Collection<N> visibleNodes = this.retrieve(list, shape);
@@ -330,6 +340,11 @@ public class SpatialQuadTree<N> extends AbstractSpatial<N, N>
    * @return the nodes that are in the quadtree cells that intersect with the passed rectangle
    */
   public Collection<N> getVisibleNodes(Rectangle2D r) {
+    if (!isActive()) {
+      log.trace("not active so getting from the graph");
+      return layoutModel.getGraph().nodes();
+    }
+
     Set<N> list = Sets.newHashSet();
     Collection<N> visibleNodes = this.retrieve(list, r);
     if (log.isDebugEnabled()) {
@@ -350,11 +365,12 @@ public class SpatialQuadTree<N> extends AbstractSpatial<N, N>
 
   @Override
   public void recalculate() {
-    LayoutModel<N, Point2D> nlayoutModel = (LayoutModel<N, Point2D>) layoutModel;
-    recalculate(nlayoutModel.getGraph().nodes());
+    if (isActive()) {
+      recalculate(layoutModel.getGraph().nodes());
+    }
   }
 
-  public void recalculate(Collection<N> nodes) {
+  private void recalculate(Collection<N> nodes) {
 
     this.clear();
     while (true) {
@@ -452,6 +468,9 @@ public class SpatialQuadTree<N> extends AbstractSpatial<N, N>
    */
   @Override
   public N getClosestElement(double x, double y) {
+    if (!isActive()) {
+      return fallback.getNode(layoutModel, x, y);
+    }
     Spatial leaf = getContainingQuadTreeLeaf(x, y);
     Rectangle2D area = leaf.getLayoutArea();
     double radius = area.getWidth();
@@ -477,35 +496,6 @@ public class SpatialQuadTree<N> extends AbstractSpatial<N, N>
     return closest;
   }
 
-  private N getClosest(Collection<N> nodes, double x, double y, double radius) {
-    LayoutModel<N, Point2D> nlayoutModel = (LayoutModel<N, Point2D>) layoutModel;
-    // since I am comparing with distance squared, i need to square the radius
-    double radiusSq = radius * radius;
-    if (nodes.size() > 0) {
-      double closestSoFar = Double.MAX_VALUE;
-      N winner = null;
-      double winningDistance = -1;
-      for (N node : nodes) {
-        Point2D loc = nlayoutModel.apply(node);
-        double dist = loc.distanceSq(x, y);
-
-        // consider only nodes that are inside the search radius
-        // and are closer than previously found nodes
-        if (dist < radiusSq && dist < closestSoFar) {
-          closestSoFar = dist;
-          winner = node;
-          winningDistance = dist;
-        }
-      }
-      if (log.isTraceEnabled()) {
-        log.trace("closest winner is {} at distance {}", winner, winningDistance);
-      }
-      return winner;
-    } else {
-      return null;
-    }
-  }
-
   /**
    * reset the side of this structure
    *
@@ -524,41 +514,41 @@ public class SpatialQuadTree<N> extends AbstractSpatial<N, N>
    * @param node
    */
   @Override
-  public void update(N node, Point2D location) {
-    //    LayoutModel<N, Point2D> nlayoutModel = (LayoutModel<N, Point2D>) layoutModel;
-    gridCache = null;
-    //    Point2D location = nlayoutModel.apply(node);
-    if (!this.getLayoutArea().contains(location)) {
-      log.trace(location + " outside of spatial " + this.getLayoutArea());
-      this.setBounds(this.getUnion(this.getLayoutArea(), location));
-      this.recalculate(layoutModel.getGraph().nodes());
+  public void update(N node, Point location) {
+    if (isActive()) {
+      gridCache = null;
+      if (!this.getLayoutArea().contains(location.x, location.y)) {
+        log.trace(location + " outside of spatial " + this.getLayoutArea());
+        this.setBounds(this.getUnion(this.getLayoutArea(), location.x, location.y));
+        this.recalculate(layoutModel.getGraph().nodes());
+      }
+      Spatial locationContainingLeaf = getContainingQuadTreeLeaf(location.x, location.y);
+      log.trace("leaf {} contains {}", locationContainingLeaf, location);
+      TreeNode nodeContainingLeaf = getContainingQuadTreeLeaf(node);
+      log.trace("leaf {} contains node {}", nodeContainingLeaf, node);
+      if (locationContainingLeaf == null) {
+        log.trace("got null for leaf containing {}", location);
+      }
+      if (nodeContainingLeaf == null) {
+        log.trace("got null for leaf containing {}", node);
+      }
+      if (locationContainingLeaf != null && !locationContainingLeaf.equals(nodeContainingLeaf)) {
+        log.trace("time to recalculate");
+        this.recalculate(layoutModel.getGraph().nodes());
+      }
+      this.insert(node);
     }
-    Spatial locationContainingLeaf = getContainingQuadTreeLeaf(location);
-    log.trace("leaf {} contains {}", locationContainingLeaf, location);
-    TreeNode nodeContainingLeaf = getContainingQuadTreeLeaf(node);
-    log.trace("leaf {} contains node {}", nodeContainingLeaf, node);
-    if (locationContainingLeaf == null) {
-      log.trace("got null for leaf containing {}", location);
-    }
-    if (nodeContainingLeaf == null) {
-      log.trace("got null for leaf containing {}", node);
-    }
-    if (locationContainingLeaf != null && !locationContainingLeaf.equals(nodeContainingLeaf)) {
-      log.trace("time to recalculate");
-      this.recalculate(layoutModel.getGraph().nodes());
-    }
-    this.insert(node);
   }
 
   @Override
-  public void layoutChanged(LayoutEvent<N, Point2D> evt) {
-    Point2D location = evt.getLocation();
+  public void layoutChanged(LayoutEvent<N> evt) {
+    Point location = evt.getLocation();
     N node = evt.getNode();
     this.update(node, evt.getLocation());
   }
 
   @Override
-  public void layoutChanged(LayoutNetworkEvent<N, Point2D> evt) {
+  public void layoutChanged(LayoutNetworkEvent<N> evt) {
     this.update(evt.getNode(), evt.getLocation());
   }
 

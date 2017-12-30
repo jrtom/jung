@@ -16,6 +16,7 @@ import static edu.uci.ics.jung.graph.util.Graphs.isSelfLoop;
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.layout.model.LayoutModel;
+import edu.uci.ics.jung.layout.model.Point;
 import edu.uci.ics.jung.visualization.MultiLayerTransformer.Layer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.transform.BidirectionalTransformer;
@@ -37,7 +38,7 @@ public class GradientEdgePaintFunction<N, E> implements Function<E, Paint> {
   protected Color c1;
   protected Color c2;
   protected Network<N, E> graph;
-  protected LayoutModel<N, Point2D> layoutModel;
+  protected LayoutModel<N> layoutModel;
   protected BidirectionalTransformer transformer;
 
   public GradientEdgePaintFunction(Color c1, Color c2, VisualizationViewer<N, E> vv) {
@@ -53,12 +54,14 @@ public class GradientEdgePaintFunction<N, E> implements Function<E, Paint> {
     EndpointPair<N> endpoints = graph.incidentNodes(e);
     N b = endpoints.nodeU();
     N f = endpoints.nodeV();
-    Point2D pb = transformer.transform(layoutModel.apply(b));
-    Point2D pf = transformer.transform(layoutModel.apply(f));
-    float xB = (float) pb.getX();
-    float yB = (float) pb.getY();
-    float xF = (float) pf.getX();
-    float yF = (float) pf.getY();
+    Point pb = layoutModel.apply(b);
+    Point pf = layoutModel.apply(f);
+    Point2D p2db = transformer.transform(new Point2D.Double(pb.x, pb.y));
+    Point2D p2df = transformer.transform(new Point2D.Double(pf.x, pf.y));
+    float xB = (float) p2db.getX();
+    float yB = (float) p2db.getY();
+    float xF = (float) p2df.getX();
+    float yF = (float) p2df.getY();
     if (!graph.isDirected()) {
       xF = (xF + xB) / 2;
       yF = (yF + yB) / 2;

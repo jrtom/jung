@@ -9,7 +9,6 @@ import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.VisualizationModel;
 import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
 import java.awt.Shape;
-import java.awt.geom.Point2D;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -19,7 +18,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 public class CachingNodeRenderer<N, E> extends BasicNodeRenderer<N, E>
-    implements ChangeListener, LayoutChangeListener<N, Point2D> {
+    implements ChangeListener, LayoutChangeListener<N> {
 
   protected Map<N, Shape> nodeShapeMap = new HashMap<>();
 
@@ -28,7 +27,7 @@ public class CachingNodeRenderer<N, E> extends BasicNodeRenderer<N, E>
   @SuppressWarnings({"rawtypes", "unchecked"})
   public CachingNodeRenderer(BasicVisualizationServer<N, E> vv) {
     vv.getRenderContext().getMultiLayerTransformer().addChangeListener(this);
-    VisualizationModel<N, E, Point2D> visualizationModel = vv.getModel();
+    VisualizationModel<N, E> visualizationModel = vv.getModel();
     if (visualizationModel instanceof LayoutEventSupport) {
       ((LayoutEventSupport) visualizationModel).addLayoutChangeListener(this);
     }
@@ -36,9 +35,7 @@ public class CachingNodeRenderer<N, E> extends BasicNodeRenderer<N, E>
 
   /** Paint <code>v</code>'s icon on <code>g</code> at <code>(x,y)</code>. */
   protected void paintIconForNode(
-      RenderContext<N, E> renderContext,
-      VisualizationModel<N, E, Point2D> visualizationModel,
-      N v) {
+      RenderContext<N, E> renderContext, VisualizationModel<N, E> visualizationModel, N v) {
     GraphicsDecorator g = renderContext.getGraphicsContext();
 
     int[] coords = new int[2];
@@ -66,11 +63,11 @@ public class CachingNodeRenderer<N, E> extends BasicNodeRenderer<N, E>
     nodeShapeMap.clear();
   }
 
-  public void layoutChanged(LayoutEvent<N, Point2D> evt) {
+  public void layoutChanged(LayoutEvent<N> evt) {
     this.dirtyNodes.add(evt.getNode());
   }
 
-  public void layoutChanged(LayoutNetworkEvent<N, Point2D> evt) {
+  public void layoutChanged(LayoutNetworkEvent<N> evt) {
     this.dirtyNodes.add(evt.getNode());
   }
 }

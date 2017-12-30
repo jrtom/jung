@@ -8,8 +8,6 @@
  */
 package edu.uci.ics.jung.samples;
 
-import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
-
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
@@ -18,6 +16,7 @@ import edu.uci.ics.jung.layout.algorithms.FRLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.StaticLayoutAlgorithm;
 import edu.uci.ics.jung.layout.model.LayoutModel;
+import edu.uci.ics.jung.layout.model.Point;
 import edu.uci.ics.jung.layout.util.RandomLocationTransformer;
 import edu.uci.ics.jung.visualization.BaseVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
@@ -44,7 +43,6 @@ import edu.uci.ics.jung.visualization.transform.shape.ViewLensSupport;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.HashMap;
 import java.util.Map;
@@ -65,12 +63,12 @@ public class LensDemo extends JPanel {
   /** the graph */
   Network<String, Number> graph;
 
-  FRLayoutAlgorithm<String, Point2D> graphLayoutAlgorithm;
+  FRLayoutAlgorithm<String> graphLayoutAlgorithm;
 
   /** a grid shaped graph */
   Network<String, Number> grid;
 
-  LayoutAlgorithm<String, Point2D> gridLayoutAlgorithm;
+  LayoutAlgorithm<String> gridLayoutAlgorithm;
 
   /** the visual component and renderer for the graph */
   VisualizationViewer<String, Number> vv;
@@ -98,12 +96,12 @@ public class LensDemo extends JPanel {
     graphLayoutAlgorithm.setMaxIterations(1000);
 
     Dimension preferredSize = new Dimension(600, 600);
-    Map<String, Point2D> map = new HashMap<>();
-    Function<String, Point2D> vlf = map::get;
+    Map<String, Point> map = new HashMap<>();
+    Function<String, Point> vlf = map::get;
     grid = this.generateNodeGrid(map, preferredSize, 25);
     gridLayoutAlgorithm = new StaticLayoutAlgorithm<>();
 
-    final VisualizationModel<String, Number, Point2D> visualizationModel =
+    final VisualizationModel<String, Number> visualizationModel =
         new BaseVisualizationModel<>(graph, graphLayoutAlgorithm, preferredSize);
     vv = new VisualizationViewer<>(visualizationModel, preferredSize);
 
@@ -133,7 +131,7 @@ public class LensDemo extends JPanel {
     vv.addKeyListener(graphMouse.getModeKeyListener());
 
     // create a lens to share between the two hyperbolic transformers
-    LayoutModel<String, Point2D> layoutModel = vv.getModel().getLayoutModel();
+    LayoutModel<String> layoutModel = vv.getModel().getLayoutModel();
     Dimension d = new Dimension(layoutModel.getWidth(), layoutModel.getHeight());
 
     Lens lens = new Lens(d);
@@ -246,11 +244,7 @@ public class LensDemo extends JPanel {
         e -> {
           if (e.getStateChange() == ItemEvent.SELECTED) {
             layoutModel.setInitializer(
-                new RandomLocationTransformer<String, Point2D>(
-                    POINT_MODEL,
-                    layoutModel.getWidth(),
-                    layoutModel.getHeight(),
-                    layoutModel.getDepth()));
+                new RandomLocationTransformer<>(layoutModel.getWidth(), layoutModel.getHeight()));
             visualizationModel.setNetwork(graph, false);
             LayoutAlgorithmTransition.apply(vv, graphLayoutAlgorithm);
             vv.getRenderContext().setNodeShapeFunction(ovals);
@@ -310,7 +304,7 @@ public class LensDemo extends JPanel {
   }
 
   private Network<String, Number> generateNodeGrid(
-      Map<String, Point2D> vlf, Dimension d, int interval) {
+      Map<String, Point> vlf, Dimension d, int interval) {
     int count = d.width / interval * d.height / interval;
     MutableNetwork<String, Number> graph = NetworkBuilder.directed().build();
     for (int i = 0; i < count; i++) {
@@ -318,7 +312,7 @@ public class LensDemo extends JPanel {
       int y = x / d.width * interval;
       x %= d.width;
 
-      Point2D location = new Point2D.Float(x, y);
+      Point location = new Point(x, y);
       String node = "v" + i;
       vlf.put(node, location);
       graph.addNode(node);

@@ -26,7 +26,6 @@ import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintFunction;
 import edu.uci.ics.jung.visualization.decorators.PickableNodePaintFunction;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
 import java.awt.*;
-import java.awt.geom.Point2D;
 import javax.swing.*;
 
 /**
@@ -73,10 +72,10 @@ public class AnnotationsDemo extends JPanel {
     Dimension preferredSize1 = new Dimension(600, 600);
 
     // create one layout for the graph
-    FRLayoutAlgorithm<String, Point2D> layoutAlgorithm = new FRLayoutAlgorithm<>();
+    FRLayoutAlgorithm<String> layoutAlgorithm = new FRLayoutAlgorithm<>();
     layoutAlgorithm.setMaxIterations(500);
 
-    VisualizationModel<String, Number, Point2D> vm =
+    VisualizationModel<String, Number> vm =
         new BaseVisualizationModel<>(graph, layoutAlgorithm, preferredSize1);
 
     // create 2 views that share the same model

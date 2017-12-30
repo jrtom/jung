@@ -51,7 +51,7 @@ public interface Node<T> extends TreeNode, Bounded {
 
   Collection<Shape> collectGrids(Collection<Shape> list);
 
-  Collection<T> getVisibleElements(Shape shape);
+  Collection<T> getVisibleElements(Collection<T> visibleElements, Shape shape);
 
   static String asString(List<Shape> rectangles) {
     StringBuilder sb = new StringBuilder();
@@ -217,5 +217,15 @@ public interface Node<T> extends TreeNode, Bounded {
       }
     }
     return union;
+  }
+
+  static double width(Collection<? extends Bounded> boundedItems) {
+    double min = 600;
+    double max = 0;
+    for (Bounded b : boundedItems) {
+      min = Math.min(b.getBounds().getMinX(), min);
+      max = Math.max(b.getBounds().getMaxX(), max);
+    }
+    return max - min;
   }
 }

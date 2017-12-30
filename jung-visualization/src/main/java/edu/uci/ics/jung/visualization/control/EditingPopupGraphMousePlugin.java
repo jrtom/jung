@@ -32,7 +32,7 @@ public class EditingPopupGraphMousePlugin<N, E> extends AbstractPopupGraphMouseP
   @SuppressWarnings({"unchecked", "serial"})
   protected void handlePopup(MouseEvent e) {
     final VisualizationViewer<N, E> vv = (VisualizationViewer<N, E>) e.getSource();
-    final LayoutModel<N, Point2D> layoutModel = vv.getModel().getLayoutModel();
+    final LayoutModel<N> layoutModel = vv.getModel().getLayoutModel();
 
     final MutableNetwork<N, E> graph = (MutableNetwork<N, E>) vv.getModel().getNetwork();
     final Point2D p = e.getPoint();
@@ -86,11 +86,8 @@ public class EditingPopupGraphMousePlugin<N, E> extends AbstractPopupGraphMouseP
               public void actionPerformed(ActionEvent e) {
                 N newNode = nodeFactory.get();
                 graph.addNode(newNode);
-                vv.getModel()
-                    .getLayoutModel()
-                    .set(
-                        newNode,
-                        vv.getRenderContext().getMultiLayerTransformer().inverseTransform(p));
+                Point2D p2d = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(p);
+                vv.getModel().getLayoutModel().set(newNode, p2d.getX(), p2d.getY());
                 vv.repaint();
               }
             });

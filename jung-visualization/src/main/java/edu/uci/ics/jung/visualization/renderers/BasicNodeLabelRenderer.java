@@ -10,6 +10,7 @@
 package edu.uci.ics.jung.visualization.renderers;
 
 import edu.uci.ics.jung.layout.model.LayoutModel;
+import edu.uci.ics.jung.layout.model.Point;
 import edu.uci.ics.jung.visualization.MultiLayerTransformer.Layer;
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.VisualizationModel;
@@ -39,7 +40,7 @@ public class BasicNodeLabelRenderer<N, E> implements Renderer.NodeLabel<N, E> {
 
   public Component prepareRenderer(
       RenderContext<N, E> renderContext,
-      LayoutModel<N, Point2D> layoutModel,
+      LayoutModel<N> layoutModel,
       NodeLabelRenderer graphLabelRenderer,
       Object value,
       boolean isSelected,
@@ -62,18 +63,21 @@ public class BasicNodeLabelRenderer<N, E> implements Renderer.NodeLabel<N, E> {
    */
   public void labelNode(
       RenderContext<N, E> renderContext,
-      VisualizationModel<N, E, Point2D> visualizationModel,
+      VisualizationModel<N, E> visualizationModel,
       N v,
       String label) {
     if (!renderContext.getNodeIncludePredicate().test(v)) {
       return;
     }
-    LayoutModel<N, Point2D> layoutModel = visualizationModel.getLayoutModel();
-    Point2D pt = layoutModel.apply(v);
-    pt = renderContext.getMultiLayerTransformer().transform(Layer.LAYOUT, pt);
+    LayoutModel<N> layoutModel = visualizationModel.getLayoutModel();
+    Point pt = layoutModel.apply(v);
+    Point2D pt2d =
+        renderContext
+            .getMultiLayerTransformer()
+            .transform(Layer.LAYOUT, new Point2D.Double(pt.x, pt.y));
 
-    float x = (float) pt.getX();
-    float y = (float) pt.getY();
+    float x = (float) pt2d.getX();
+    float y = (float) pt2d.getY();
 
     Component component =
         prepareRenderer(
@@ -110,14 +114,28 @@ public class BasicNodeLabelRenderer<N, E> implements Renderer.NodeLabel<N, E> {
       p = getAnchorPoint(bounds, d, position);
     }
 
-    Paint oldPaint = component.getForeground();
     Paint fillPaint = renderContext.getNodeLabelDrawPaintFunction().apply(v);
     if (fillPaint != null) {
+      Paint oldPaint = component.getForeground();
       component.setForeground((Color) fillPaint);
-      g.draw(component, renderContext.getRendererPane(), p.x, p.y, d.width, d.height, true);
+      g.draw(
+          component,
+          renderContext.getRendererPane(),
+          (int) p.x,
+          (int) p.y,
+          d.width,
+          d.height,
+          true);
       component.setForeground((Color) oldPaint);
     } else {
-      g.draw(component, renderContext.getRendererPane(), p.x, p.y, d.width, d.height, true);
+      g.draw(
+          component,
+          renderContext.getRendererPane(),
+          (int) p.x,
+          (int) p.y,
+          d.width,
+          d.height,
+          true);
     }
   }
 

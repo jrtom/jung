@@ -80,7 +80,7 @@ public class SpatialLensDemo extends JPanel {
   /** the graph */
   Network<String, Number> graph;
 
-  LayoutAlgorithm<String, Point2D> graphLayoutAlgorithm;
+  LayoutAlgorithm<String> graphLayoutAlgorithm;
 
   /** the visual component and renderer for the graph */
   VisualizationViewer<String, Number> vv;
@@ -108,7 +108,7 @@ public class SpatialLensDemo extends JPanel {
     Dimension preferredSize = new Dimension(600, 600);
     Map<String, Point2D> map = new HashMap<>();
 
-    final VisualizationModel<String, Number, Point2D> visualizationModel =
+    final VisualizationModel<String, Number> visualizationModel =
         new BaseVisualizationModel<>(graph, graphLayoutAlgorithm, preferredSize);
     vv = new VisualizationViewer<>(visualizationModel, preferredSize);
     vv.getRenderContext().setNodeLabelFunction(Object::toString);
@@ -126,7 +126,7 @@ public class SpatialLensDemo extends JPanel {
     vv.addKeyListener(graphMouse.getModeKeyListener());
 
     // create a lens to share between the two hyperbolic transformers
-    LayoutModel<String, Point2D> layoutModel = vv.getModel().getLayoutModel();
+    LayoutModel<String> layoutModel = vv.getModel().getLayoutModel();
     Dimension d = new Dimension(layoutModel.getWidth(), layoutModel.getHeight());
     Lens lens = new Lens(d);
     hyperbolicViewSupport =

@@ -14,8 +14,9 @@ import edu.uci.ics.jung.graph.MutableCTreeNetwork;
 import edu.uci.ics.jung.graph.TreeNetworkBuilder;
 import edu.uci.ics.jung.layout.algorithms.BalloonLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.RadialTreeLayoutAlgorithm;
-import edu.uci.ics.jung.layout.algorithms.immutable.TreeLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.TreeLayoutAlgorithm;
 import edu.uci.ics.jung.layout.model.LayoutModel;
+import edu.uci.ics.jung.layout.model.Point;
 import edu.uci.ics.jung.layout.model.PolarPoint;
 import edu.uci.ics.jung.samples.util.ControlHelpers;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
@@ -34,7 +35,6 @@ import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
-import java.awt.geom.Point2D;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
@@ -66,11 +66,11 @@ public class TreeCollapseDemo extends JPanel {
 
   VisualizationServer.Paintable balloonRings;
 
-  TreeLayoutAlgorithm<Object, Point2D> layoutAlgorithm;
+  TreeLayoutAlgorithm<Object> layoutAlgorithm;
 
-  RadialTreeLayoutAlgorithm<Object, Point2D> radialLayoutAlgorithm;
+  RadialTreeLayoutAlgorithm<Object> radialLayoutAlgorithm;
 
-  BalloonLayoutAlgorithm<Object, Point2D> balloonLayoutAlgorithm;
+  BalloonLayoutAlgorithm<Object> balloonLayoutAlgorithm;
 
   @SuppressWarnings("unchecked")
   public TreeCollapseDemo() {
@@ -148,7 +148,7 @@ public class TreeCollapseDemo extends JPanel {
           if (picked.size() == 1) {
             Object root = picked.iterator().next();
             CTreeNetwork subTree = TreeCollapser.collapse(graph, root);
-            LayoutModel objectLayoutModel = vv.getModel().getLayoutModel();
+            LayoutModel<Object> objectLayoutModel = vv.getModel().getLayoutModel();
             objectLayoutModel.set(subTree, objectLayoutModel.apply(root));
             vv.getModel().setNetwork(graph, true);
             vv.getPickedNodeState().clear();
@@ -181,9 +181,9 @@ public class TreeCollapseDemo extends JPanel {
   class Rings implements VisualizationServer.Paintable {
 
     Collection<Double> depths;
-    LayoutModel<Object, Point2D> layoutModel;
+    LayoutModel<Object> layoutModel;
 
-    public Rings(LayoutModel<Object, Point2D> layoutModel) {
+    public Rings(LayoutModel<Object> layoutModel) {
       this.layoutModel = layoutModel;
       depths = getDepths();
     }
@@ -202,12 +202,11 @@ public class TreeCollapseDemo extends JPanel {
       g.setColor(Color.lightGray);
 
       Graphics2D g2d = (Graphics2D) g;
-      Point2D center = radialLayoutAlgorithm.getCenter(layoutModel);
+      Point center = radialLayoutAlgorithm.getCenter(layoutModel);
 
       Ellipse2D ellipse = new Ellipse2D.Double();
       for (double d : depths) {
-        ellipse.setFrameFromDiagonal(
-            center.getX() - d, center.getY() - d, center.getX() + d, center.getY() + d);
+        ellipse.setFrameFromDiagonal(center.x - d, center.y - d, center.x + d, center.y + d);
         Shape shape =
             vv.getRenderContext()
                 .getMultiLayerTransformer()
@@ -224,9 +223,9 @@ public class TreeCollapseDemo extends JPanel {
 
   class BalloonRings implements VisualizationServer.Paintable {
 
-    BalloonLayoutAlgorithm<?, Point2D> layoutAlgorithm;
+    BalloonLayoutAlgorithm<?> layoutAlgorithm;
 
-    public BalloonRings(BalloonLayoutAlgorithm<?, Point2D> layoutAlgorithm) {
+    public BalloonRings(BalloonLayoutAlgorithm<?> layoutAlgorithm) {
       this.layoutAlgorithm = layoutAlgorithm;
     }
 
@@ -241,9 +240,9 @@ public class TreeCollapseDemo extends JPanel {
         if (radius == null) {
           continue;
         }
-        Point2D p = vv.getModel().getLayoutModel().apply(v);
+        Point p = vv.getModel().getLayoutModel().apply(v);
         ellipse.setFrame(-radius, -radius, 2 * radius, 2 * radius);
-        AffineTransform at = AffineTransform.getTranslateInstance(p.getX(), p.getY());
+        AffineTransform at = AffineTransform.getTranslateInstance(p.x, p.y);
         Shape shape = at.createTransformedShape(ellipse);
 
         MutableTransformer viewTransformer =
