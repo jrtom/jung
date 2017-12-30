@@ -19,6 +19,7 @@ import java.util.Set;
  *
  * @author Joshua O'Madadhain
  */
+// TODO: Add tests in similar fashion to CTreeTest and AbstractCTreeTest
 public class ObservableNetwork<V, E>
     implements MutableNetwork<V, E> { // extends MutableNetworkDecorator<V, E> {
 

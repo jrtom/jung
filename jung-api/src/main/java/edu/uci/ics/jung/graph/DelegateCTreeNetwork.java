@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+// TODO: Add tests in similar fashion to CTreeTest and AbstractCTreeTest
 class DelegateCTreeNetwork<N, E> implements MutableCTreeNetwork<N, E> {
   private final MutableNetwork<N, E> delegate;
   private final Map<N, Integer> depths;
