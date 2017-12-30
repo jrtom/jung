@@ -28,13 +28,22 @@ final class TestUtil {
   static final String ERROR_ELEMENT_NOT_IN_TREE = "not an element of this tree";
   static final String ERROR_NODE_NOT_IN_TREE =
       "Should not be allowed to pass a node that is not an element of the tree.";
+  static final String ERROR_TREE_ALREADY_HAS_ROOT = "is already the root of this tree";
+  static final String ERROR_TREE_ALREADY_HAS_NODE =
+      "Should not be allowed to pass a node to the tree when it already has a root.";
   private static final String NODE_STRING = "Node";
+  private static final String CANNOT_ADD_NODE_STRING = "Cannot add node";
 
   private TestUtil() {}
 
   static void assertNodeNotInTreeErrorMessage(Throwable throwable) {
     assertThat(throwable).hasMessageThat().startsWith(NODE_STRING);
     assertThat(throwable).hasMessageThat().contains(ERROR_ELEMENT_NOT_IN_TREE);
+  }
+
+  static void assertTreeAlreadyHasRootErrorMessage(Throwable throwable) {
+    assertThat(throwable).hasMessageThat().startsWith(CANNOT_ADD_NODE_STRING);
+    assertThat(throwable).hasMessageThat().contains(ERROR_TREE_ALREADY_HAS_ROOT);
   }
 
   static void assertStronglyEquivalent(CTree<?> treeA, CTree<?> treeB) {

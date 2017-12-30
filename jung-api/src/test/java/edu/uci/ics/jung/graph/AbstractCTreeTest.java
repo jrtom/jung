@@ -18,7 +18,9 @@ package edu.uci.ics.jung.graph;
 
 import static com.google.common.truth.Truth.assertThat;
 import static edu.uci.ics.jung.graph.TestUtil.ERROR_NODE_NOT_IN_TREE;
+import static edu.uci.ics.jung.graph.TestUtil.ERROR_TREE_ALREADY_HAS_NODE;
 import static edu.uci.ics.jung.graph.TestUtil.assertNodeNotInTreeErrorMessage;
+import static edu.uci.ics.jung.graph.TestUtil.assertTreeAlreadyHasRootErrorMessage;
 import static edu.uci.ics.jung.graph.TestUtil.sanityCheckSet;
 import static org.junit.Assert.fail;
 
@@ -40,6 +42,7 @@ public abstract class AbstractCTreeTest {
   static final Integer N3 = 3;
   static final Integer N4 = 4;
   static final Integer N5 = 5;
+  static final Integer N6 = 6;
   private static final Integer NODE_NOT_IN_TREE = 1000;
 
   static final String ERROR_MODIFIABLE_SET = "Set returned is unexpectedly modifiable";
@@ -61,20 +64,9 @@ public abstract class AbstractCTreeTest {
   /**
    * A proxy method that adds the edge {@code e} to the tree being tested.
    *
-   * <p>This method should be used in tests of specific implementations if you want to ensure
-   * uniform behavior (including side effects) with how edges are added elsewhere in the tests. For
-   * example, the existing implementations of this method explicitly add the supplied nodes to the
-   * tree, and then call {@code tree.addEdge()} to connect the edge to the nodes; this is not part
-   * of the contract of {@code tree.addEdge()} and is done for convenience. In cases where you want
-   * to avoid such side effects (e.g., if you're testing what happens in your implementation if you
-   * add an edge whose end-points don't already exist in the tree), you should <b>not</b> use this
-   * method.
-   *
    * @return {@code true} iff the tree was modified as a result of this call
    */
   protected boolean putEdge(Integer n1, Integer n2) {
-    tree.addNode(n1);
-    tree.addNode(n2);
     return tree.putEdge(n1, n2);
   }
 
@@ -285,102 +277,6 @@ public abstract class AbstractCTreeTest {
   }
 
   @Test
-  public void addNode_newNode() {
-    assertThat(addNode(N1)).isTrue();
-    assertThat(tree.nodes()).contains(N1);
-  }
-
-  @Test
-  public void addNode_existingNode() {
-    addNode(N1);
-    ImmutableSet<Integer> nodes = ImmutableSet.copyOf(tree.nodes());
-    assertThat(addNode(N1)).isFalse();
-    assertThat(tree.nodes()).containsExactlyElementsIn(nodes);
-  }
-
-  @Test
-  public void removeNode_existingNode() {
-    putEdge(N1, N2);
-    putEdge(N4, N1);
-    assertThat(tree.removeNode(N1)).isTrue();
-    assertThat(tree.removeNode(N1)).isFalse();
-    assertThat(tree.nodes()).containsExactly(N2, N4);
-    assertThat(tree.adjacentNodes(N2)).isEmpty();
-    assertThat(tree.adjacentNodes(N4)).isEmpty();
-  }
-
-  @Test
-  public void removeNode_antiparallelEdges() {
-    putEdge(N1, N2);
-    putEdge(N2, N1);
-
-    assertThat(tree.removeNode(N1)).isTrue();
-    assertThat(tree.nodes()).containsExactly(N2);
-    assertThat(tree.edges()).isEmpty();
-
-    assertThat(tree.removeNode(N2)).isTrue();
-    assertThat(tree.nodes()).isEmpty();
-    assertThat(tree.edges()).isEmpty();
-  }
-
-  @Test
-  public void removeNode_nodeNotPresent() {
-    addNode(N1);
-    ImmutableSet<Integer> nodes = ImmutableSet.copyOf(tree.nodes());
-    assertThat(tree.removeNode(NODE_NOT_IN_TREE)).isFalse();
-    assertThat(tree.nodes()).containsExactlyElementsIn(nodes);
-  }
-
-  @Test
-  public void removeNode_queryAfterRemoval() {
-    addNode(N1);
-    @SuppressWarnings("unused")
-    Set<Integer> unused = tree.adjacentNodes(N1); // ensure cache (if any) is populated
-    assertThat(tree.removeNode(N1)).isTrue();
-    try {
-      tree.adjacentNodes(N1);
-      fail(ERROR_NODE_NOT_IN_TREE);
-    } catch (IllegalArgumentException e) {
-      assertNodeNotInTreeErrorMessage(e);
-    }
-  }
-
-  @Test
-  public void removeEdge_existingEdge() {
-    putEdge(N1, N2);
-    assertThat(tree.successors(N1)).containsExactly(N2);
-    assertThat(tree.predecessors(N2)).containsExactly(N1);
-    assertThat(tree.removeEdge(N1, N2)).isTrue();
-    assertThat(tree.removeEdge(N1, N2)).isFalse();
-    assertThat(tree.successors(N1)).isEmpty();
-    assertThat(tree.predecessors(N2)).isEmpty();
-  }
-
-  @Test
-  public void removeEdge_oneOfMany() {
-    putEdge(N1, N2);
-    putEdge(N1, N3);
-    putEdge(N1, N4);
-    assertThat(tree.removeEdge(N1, N3)).isTrue();
-    assertThat(tree.adjacentNodes(N1)).containsExactly(N2, N4);
-  }
-
-  @Test
-  public void removeEdge_nodeNotPresent() {
-    putEdge(N1, N2);
-    assertThat(tree.removeEdge(N1, NODE_NOT_IN_TREE)).isFalse();
-    assertThat(tree.successors(N1)).contains(N2);
-  }
-
-  @Test
-  public void removeEdge_edgeNotPresent() {
-    putEdge(N1, N2);
-    addNode(N3);
-    assertThat(tree.removeEdge(N1, N3)).isFalse();
-    assertThat(tree.successors(N1)).contains(N2);
-  }
-
-  @Test
   public void predecessors_oneEdge() {
     putEdge(N1, N2);
     assertThat(tree.predecessors(N2)).containsExactly(N1);
@@ -415,11 +311,114 @@ public abstract class AbstractCTreeTest {
   // Element Mutation
 
   @Test
-  public void addEdge_existingNodes() {
-    // Adding nodes initially for safety (insulating from possible future
-    // modifications to proxy methods)
+  public void addNode_newNode() {
+    assertThat(addNode(N1)).isTrue();
+    assertThat(tree.nodes()).contains(N1);
+  }
+
+  @Test
+  public void addNode_existingNode() {
     addNode(N1);
-    addNode(N2);
+    ImmutableSet<Integer> nodes = ImmutableSet.copyOf(tree.nodes());
+    assertThat(addNode(N1)).isFalse();
+    assertThat(tree.nodes()).containsExactlyElementsIn(nodes);
+  }
+
+  @Test
+  public void addNode_twoNodes() {
+    addNode(N1);
+    try {
+      addNode(N2);
+      fail(ERROR_TREE_ALREADY_HAS_NODE);
+    } catch (IllegalArgumentException e) {
+      assertTreeAlreadyHasRootErrorMessage(e);
+    }
+  }
+
+  @Test
+  public void addNode_existingEdge() {
+    putEdge(N1, N2);
+    try {
+      addNode(N3);
+      fail(ERROR_TREE_ALREADY_HAS_NODE);
+    } catch (IllegalArgumentException e) {
+      assertTreeAlreadyHasRootErrorMessage(e);
+    }
+  }
+
+  @Test
+  public void removeNode_existingNode() {
+    putEdge(N1, N2);
+    putEdge(N1, N4);
+    assertThat(tree.removeNode(N2)).isTrue();
+    assertThat(tree.removeNode(N2)).isFalse();
+    assertThat(tree.nodes()).containsExactly(N1, N4);
+    assertThat(tree.successors(N1)).containsExactly(N4);
+    assertThat(tree.predecessors(N4)).containsExactly(N1);
+  }
+
+  @Test
+  public void removeNode_nodeNotPresent() {
+    addNode(N1);
+    ImmutableSet<Integer> nodes = ImmutableSet.copyOf(tree.nodes());
+    assertThat(tree.removeNode(NODE_NOT_IN_TREE)).isFalse();
+    assertThat(tree.nodes()).containsExactlyElementsIn(nodes);
+  }
+
+  @Test
+  public void removeNode_queryAfterRemoval() {
+    addNode(N1);
+    @SuppressWarnings("unused")
+    Set<Integer> unused = tree.adjacentNodes(N1); // ensure cache (if any) is populated
+    assertThat(tree.removeNode(N1)).isTrue();
+    try {
+      tree.adjacentNodes(N1);
+      fail(ERROR_NODE_NOT_IN_TREE);
+    } catch (IllegalArgumentException e) {
+      assertNodeNotInTreeErrorMessage(e);
+    }
+  }
+
+  @Test
+  public void removeEdge_existingEdge() {
+    putEdge(N1, N2);
+    assertThat(tree.successors(N1)).containsExactly(N2);
+    assertThat(tree.predecessors(N2)).containsExactly(N1);
+    assertThat(tree.removeEdge(N1, N2)).isTrue();
+    assertThat(tree.removeEdge(N1, N2)).isFalse();
+    assertThat(tree.successors(N1)).isEmpty();
+    try {
+      tree.predecessors(N2);
+      fail(ERROR_NODE_NOT_IN_TREE);
+    } catch (IllegalArgumentException e) {
+      assertNodeNotInTreeErrorMessage(e);
+    }
+  }
+
+  @Test
+  public void removeEdge_oneOfMany() {
+    putEdge(N1, N2);
+    putEdge(N1, N3);
+    putEdge(N1, N4);
+    assertThat(tree.removeEdge(N1, N3)).isTrue();
+    assertThat(tree.adjacentNodes(N1)).containsExactly(N2, N4);
+  }
+
+  @Test
+  public void removeEdge_nodeNotPresent() {
+    putEdge(N1, N2);
+    assertThat(tree.removeEdge(N1, NODE_NOT_IN_TREE)).isFalse();
+    assertThat(tree.successors(N1)).contains(N2);
+  }
+
+  @Test
+  public void addEdge_existingRoot() {
+    addNode(N1);
+    assertThat(putEdge(N1, N2)).isTrue();
+  }
+
+  @Test
+  public void addEdge_noExistingRoot() {
     assertThat(putEdge(N1, N2)).isTrue();
   }
 
@@ -429,27 +428,58 @@ public abstract class AbstractCTreeTest {
     assertThat(putEdge(N1, N2)).isFalse();
   }
 
+  @Test
+  public void addEdge_selfLoop() {
+    try {
+      putEdge(N1, N1);
+      fail(ERROR_ADDED_SELF_LOOP);
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessageThat().contains(ERROR_SELF_LOOP);
+    }
+  }
+
+  @Test
+  public void addEdge_antiparallelEdges() {
+    putEdge(N1, N2);
+    try {
+      putEdge(N2, N1);
+      fail(ERROR_ADDED_SELF_LOOP);
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessageThat().contains(ERROR_SELF_LOOP);
+    }
+  }
+
+  @Test
+  public void addEdge_nodesNotInTree() {
+    addNode(N1);
+
+    assertThat(putEdge(N1, N5)).isTrue();
+    assertThat(putEdge(N1, N4)).isTrue();
+    assertThat(putEdge(N1, N2)).isTrue();
+    assertThat(putEdge(N4, N3)).isTrue();
+    assertThat(putEdge(N3, N6)).isTrue();
+
+    assertThat(tree.nodes()).containsExactly(N1, N5, N4, N2, N3, N6).inOrder();
+    assertThat(tree.successors(N1)).containsExactly(N2, N4, N5);
+    assertThat(tree.successors(N2)).isEmpty();
+    assertThat(tree.successors(N3)).containsExactly(N6);
+    assertThat(tree.successors(N4)).containsExactly(N3);
+    assertThat(tree.successors(N5)).isEmpty();
+    assertThat(tree.successors(N6)).isEmpty();
+
+    assertThat(tree.predecessors(N1)).isEmpty();
+    assertThat(tree.predecessors(N2)).containsExactly(N1);
+    assertThat(tree.predecessors(N3)).containsExactly(N4);
+    assertThat(tree.predecessors(N4)).containsExactly(N1);
+    assertThat(tree.predecessors(N5)).containsExactly(N1);
+    assertThat(tree.predecessors(N6)).containsExactly(N3);
+  }
+
   @Ignore("Enable if https://github.com/jrtom/jung/issues/169 is accepted, otherwise remove")
   @Test
   public void addEdge_rootChangedIndirectly() {
     putEdge(N1, N2); // N1 is set as the root initially
     putEdge(N3, N1); // But now N3 should be the new root
     Truth8.assertThat(tree.root()).hasValue(N3);
-  }
-
-  @Test
-  public void removeEdge_antiparallelEdges() {
-    putEdge(N1, N2);
-    putEdge(N2, N1);
-
-    assertThat(tree.removeEdge(N1, N2)).isTrue();
-    assertThat(tree.successors(N1)).isEmpty();
-    assertThat(tree.predecessors(N1)).containsExactly(N2);
-    assertThat(tree.edges()).hasSize(1);
-
-    assertThat(tree.removeEdge(N2, N1)).isTrue();
-    assertThat(tree.successors(N1)).isEmpty();
-    assertThat(tree.predecessors(N1)).isEmpty();
-    assertThat(tree.edges()).isEmpty();
   }
 }

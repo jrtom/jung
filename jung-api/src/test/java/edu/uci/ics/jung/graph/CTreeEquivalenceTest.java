@@ -70,12 +70,12 @@ public final class CTreeEquivalenceTest {
     MutableGraph<Integer> t1 = builder.build();
     MutableGraph<Integer> t2 = builder.build();
 
-    // for t1, add 1->2 first, then 3->1
+    // for t1, add 1->2 first, then 1->3
     t1.putEdge(N1, N2);
-    t1.putEdge(N3, N1);
+    t1.putEdge(N1, N3);
 
-    // for t2, add 3->1 first, then 1->2
-    t2.putEdge(N3, N1);
+    // for t2, add 1->3 first, then 1->2
+    t2.putEdge(N1, N3);
     t2.putEdge(N1, N2);
 
     assertThat(t1).isEqualTo(t2);

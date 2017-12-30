@@ -23,6 +23,7 @@ import static org.junit.Assert.fail;
 import java.util.Set;
 import org.junit.Test;
 
+// TODO: Consider merging AbstractCTreeTest into CTreeTest
 public class CTreeTest extends AbstractCTreeTest {
 
   @Override
@@ -66,8 +67,9 @@ public class CTreeTest extends AbstractCTreeTest {
       predecessors.add(N1);
       fail(ERROR_MODIFIABLE_SET);
     } catch (UnsupportedOperationException e) {
-      putEdge(N1, N2);
-      assertThat(tree.predecessors(N2)).containsExactlyElementsIn(predecessors);
+      // putting an edge like `putEdge(N1, N2)`, which would be used to check that N2's predecessors
+      // gets updated, cannot be done because CTree#putEdge cannot be used to implicitly update the
+      // root of a tree.
     }
   }
 
@@ -83,37 +85,5 @@ public class CTreeTest extends AbstractCTreeTest {
       putEdge(N1, N2);
       assertThat(successors).containsExactlyElementsIn(tree.successors(N1));
     }
-  }
-
-  // Element Mutation
-
-  @Test
-  public void addEdge_selfLoop() {
-    try {
-      putEdge(N1, N1);
-      fail(ERROR_ADDED_SELF_LOOP);
-    } catch (IllegalArgumentException e) {
-      assertThat(e.getMessage()).contains(ERROR_SELF_LOOP);
-    }
-  }
-
-  /**
-   * This test checks an implementation dependent feature. It tests that the method {@code addEdge}
-   * will silently add the missing nodes to the tree, then add the edge connecting them. We are not
-   * using the proxy methods here as we want to test {@code addEdge} when the end-points are not
-   * elements of the tree.
-   */
-  @Test
-  public void addEdge_nodesNotInTree() {
-    tree.addNode(N1);
-    assertTrue(tree.putEdge(N1, N5));
-    assertTrue(tree.putEdge(N4, N1));
-    assertTrue(tree.putEdge(N2, N3));
-    assertThat(tree.nodes()).containsExactly(N1, N5, N4, N2, N3).inOrder();
-    assertThat(tree.successors(N1)).containsExactly(N5);
-    assertThat(tree.successors(N2)).containsExactly(N3);
-    assertThat(tree.successors(N3)).isEmpty();
-    assertThat(tree.successors(N4)).containsExactly(N1);
-    assertThat(tree.successors(N5)).isEmpty();
   }
 }

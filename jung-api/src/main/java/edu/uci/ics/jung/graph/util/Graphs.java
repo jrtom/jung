@@ -1,5 +1,7 @@
 package edu.uci.ics.jung.graph.util;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.graph.AbstractNetwork;
 import com.google.common.graph.ElementOrder;
 import com.google.common.graph.EndpointPair;
@@ -20,15 +22,20 @@ import java.util.Set;
 public class Graphs {
 
   public static boolean isSelfLoop(EndpointPair<?> endpoints) {
+    checkNotNull(endpoints, "endpoints");
+    checkNotNull(endpoints.nodeU(), "endpoints.nodeU()");
+    checkNotNull(endpoints.nodeV(), "endpoints.nodeV()");
     return endpoints.nodeU().equals(endpoints.nodeV());
   }
 
   public static <E> boolean isSelfLoop(Network<?, E> network, E edge) {
+    checkNotNull(network, "network");
+    checkNotNull(edge, "edge");
     return isSelfLoop(network.incidentNodes(edge));
   }
 
   public static <N, E> MutableNetwork<N, E> synchronizedNetwork(MutableNetwork<N, E> network) {
-    return new SynchronizedNetwork<N, E>(network);
+    return new SynchronizedNetwork<>(network);
   }
 
   private static class SynchronizedNetwork<N, E> extends AbstractNetwork<N, E>
@@ -37,7 +44,7 @@ public class Graphs {
     private final MutableNetwork<N, E> delegate;
 
     private SynchronizedNetwork(MutableNetwork<N, E> delegate) {
-      this.delegate = delegate;
+      this.delegate = checkNotNull(delegate, "delegate");
     }
 
     @Override

@@ -1,5 +1,6 @@
 package edu.uci.ics.jung.graph;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.Collections.synchronizedList;
 
 import com.google.common.collect.ImmutableList;
@@ -21,9 +22,9 @@ import java.util.Set;
 public class ObservableNetwork<V, E>
     implements MutableNetwork<V, E> { // extends MutableNetworkDecorator<V, E> {
 
-  List<NetworkEventListener<V, E>> listenerList =
+  private List<NetworkEventListener<V, E>> listenerList =
       synchronizedList(new ArrayList<NetworkEventListener<V, E>>());
-  MutableNetwork<V, E> delegate;
+  private MutableNetwork<V, E> delegate;
 
   /**
    * Creates a new instance based on the provided {@code delegate}.
@@ -31,7 +32,7 @@ public class ObservableNetwork<V, E>
    * @param delegate the graph on which this class operates
    */
   public ObservableNetwork(MutableNetwork<V, E> delegate) {
-    this.delegate = delegate;
+    this.delegate = checkNotNull(delegate, "delegate");
   }
 
   /**
@@ -40,7 +41,7 @@ public class ObservableNetwork<V, E>
    * @param l the listener to add
    */
   public void addGraphEventListener(NetworkEventListener<V, E> l) {
-    listenerList.add(l);
+    listenerList.add(checkNotNull(l, "l"));
   }
 
   /**
@@ -49,10 +50,11 @@ public class ObservableNetwork<V, E>
    * @param l the listener to remove
    */
   public void removeGraphEventListener(NetworkEventListener<V, E> l) {
-    listenerList.remove(l);
+    listenerList.remove(checkNotNull(l, "l"));
   }
 
   protected void fireGraphEvent(NetworkEvent<V, E> evt) {
+    checkNotNull(evt, "evt");
     for (NetworkEventListener<V, E> listener : listenerList) {
       listener.handleGraphEvent(evt);
     }
@@ -60,10 +62,12 @@ public class ObservableNetwork<V, E>
 
   @Override
   public boolean addEdge(V v1, V v2, E e) {
+    checkNotNull(v1, "v1");
+    checkNotNull(v2, "v2");
+    checkNotNull(e, "e");
     boolean state = delegate.addEdge(v1, v2, e);
     if (state) {
-      NetworkEvent<V, E> evt =
-          new NetworkEvent.Edge<V, E>(delegate, NetworkEvent.Type.EDGE_ADDED, e);
+      NetworkEvent<V, E> evt = new NetworkEvent.Edge<>(delegate, NetworkEvent.Type.EDGE_ADDED, e);
       fireGraphEvent(evt);
     }
     return state;
@@ -71,10 +75,11 @@ public class ObservableNetwork<V, E>
 
   @Override
   public boolean addNode(V vertex) {
+    checkNotNull(vertex, "vertex");
     boolean state = delegate.addNode(vertex);
     if (state) {
       NetworkEvent<V, E> evt =
-          new NetworkEvent.Node<V, E>(delegate, NetworkEvent.Type.VERTEX_ADDED, vertex);
+          new NetworkEvent.Node<>(delegate, NetworkEvent.Type.VERTEX_ADDED, vertex);
       fireGraphEvent(evt);
     }
     return state;
@@ -85,7 +90,7 @@ public class ObservableNetwork<V, E>
     boolean state = delegate.removeEdge(edge);
     if (state) {
       NetworkEvent<V, E> evt =
-          new NetworkEvent.Edge<V, E>(delegate, NetworkEvent.Type.EDGE_REMOVED, (E) edge);
+          new NetworkEvent.Edge<>(delegate, NetworkEvent.Type.EDGE_REMOVED, edge);
       fireGraphEvent(evt);
     }
     return state;
@@ -105,7 +110,7 @@ public class ObservableNetwork<V, E>
     boolean state = delegate.removeNode(vertex);
     if (state) {
       NetworkEvent<V, E> evt =
-          new NetworkEvent.Node<V, E>(delegate, NetworkEvent.Type.VERTEX_REMOVED, (V) vertex);
+          new NetworkEvent.Node<>(delegate, NetworkEvent.Type.VERTEX_REMOVED, vertex);
       fireGraphEvent(evt);
     }
     return state;
@@ -113,11 +118,13 @@ public class ObservableNetwork<V, E>
 
   @Override
   public Set<E> adjacentEdges(E edge) {
+    checkNotNull(edge, "edge");
     return delegate.adjacentEdges(edge);
   }
 
   @Override
   public Set<V> adjacentNodes(V node) {
+    checkNotNull(node, "node");
     return delegate.adjacentNodes(node);
   }
 
@@ -138,6 +145,7 @@ public class ObservableNetwork<V, E>
 
   @Override
   public int degree(V node) {
+    checkNotNull(node, "node");
     return delegate.degree(node);
   }
 
@@ -153,26 +161,32 @@ public class ObservableNetwork<V, E>
 
   @Override
   public Set<E> edgesConnecting(V nodeU, V nodeV) {
+    checkNotNull(nodeU, "nodeU");
+    checkNotNull(nodeV, "nodeV");
     return delegate.edgesConnecting(nodeU, nodeV);
   }
 
   @Override
   public int inDegree(V node) {
+    checkNotNull(node, "node");
     return delegate.inDegree(node);
   }
 
   @Override
   public Set<E> inEdges(V node) {
+    checkNotNull(node, "node");
     return delegate.inEdges(node);
   }
 
   @Override
   public Set<E> incidentEdges(V node) {
+    checkNotNull(node, "node");
     return delegate.incidentEdges(node);
   }
 
   @Override
   public EndpointPair<V> incidentNodes(E edge) {
+    checkNotNull(edge, "edge");
     return delegate.incidentNodes(edge);
   }
 
@@ -193,21 +207,25 @@ public class ObservableNetwork<V, E>
 
   @Override
   public int outDegree(V node) {
+    checkNotNull(node, "node");
     return delegate.outDegree(node);
   }
 
   @Override
   public Set<E> outEdges(V node) {
+    checkNotNull(node, "node");
     return delegate.outEdges(node);
   }
 
   @Override
   public Set<V> predecessors(V node) {
+    checkNotNull(node, "node");
     return delegate.predecessors(node);
   }
 
   @Override
   public Set<V> successors(V node) {
+    checkNotNull(node, "node");
     return delegate.successors(node);
   }
 }
