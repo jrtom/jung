@@ -231,8 +231,9 @@ public class LeafNode<T> extends RTreeNode<T> implements Node<T> {
    * @return a Collection of LeafNodes that would contain the point
    */
   @Override
-  public Collection<LeafNode<T>> getContainingLeafs(Point2D p) {
-    return getContainingLeafs(p.getX(), p.getY());
+  public Collection<LeafNode<T>> getContainingLeafs(
+      Collection<LeafNode<T>> containingLeafs, Point2D p) {
+    return getContainingLeafs(containingLeafs, p.getX(), p.getY());
   }
 
   /**
@@ -241,9 +242,11 @@ public class LeafNode<T> extends RTreeNode<T> implements Node<T> {
    * @return a Collection of LeafNodes that would contain the passed coordinates
    */
   @Override
-  public Collection<LeafNode<T>> getContainingLeafs(double x, double y) {
+  public Collection<LeafNode<T>> getContainingLeafs(
+      Collection<LeafNode<T>> containingLeafs, double x, double y) {
     if (getBounds().contains(x, y)) {
-      return Collections.singleton(this);
+      containingLeafs.add(this);
+      return containingLeafs;
     }
     return Collections.emptySet();
   }
@@ -257,8 +260,6 @@ public class LeafNode<T> extends RTreeNode<T> implements Node<T> {
   public Collection<Shape> collectGrids(Collection<Shape> list) {
     list.add(getBounds());
     for (Rectangle2D r : map.values()) {
-      //      RoundRectangle2D rounded =
-      //          new RoundRectangle2D.Double(r.getX(), r.getY(), r.getWidth(), r.getHeight(), 20, 20);
       list.add(r);
     }
     log.trace("in leaf {}, added {} so list size now {}", this.hashCode(), map.size(), list.size());

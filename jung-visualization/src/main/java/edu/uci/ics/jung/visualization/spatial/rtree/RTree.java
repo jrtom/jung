@@ -158,7 +158,7 @@ public class RTree<T> {
       if (theRoot instanceof LeafNode) {
         return Collections.singleton(theRoot);
       } else if (theRoot instanceof InnerNode) {
-        return ((InnerNode) theRoot).getContainingLeafs(p);
+        return ((InnerNode) theRoot).getContainingLeafs(Sets.newHashSet(), p);
       }
     }
     return Collections.emptySet();

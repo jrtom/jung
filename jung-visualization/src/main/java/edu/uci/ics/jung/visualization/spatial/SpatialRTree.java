@@ -115,7 +115,7 @@ public abstract class SpatialRTree<T, NT> extends AbstractSpatial<T, NT> impleme
     }
 
     Node<T> theRoot = rtree.getRoot().get();
-    return theRoot.getContainingLeafs(x, y);
+    return theRoot.getContainingLeafs(Sets.newHashSet(), x, y);
   }
 
   @Override

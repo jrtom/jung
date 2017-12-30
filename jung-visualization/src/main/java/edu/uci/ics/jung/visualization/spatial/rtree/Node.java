@@ -39,9 +39,10 @@ public interface Node<T> extends TreeNode, Bounded {
 
   int count();
 
-  Collection<LeafNode<T>> getContainingLeafs(double x, double y);
+  Collection<LeafNode<T>> getContainingLeafs(
+      Collection<LeafNode<T>> containingLeafs, double x, double y);
 
-  Collection<LeafNode<T>> getContainingLeafs(Point2D p);
+  Collection<LeafNode<T>> getContainingLeafs(Collection<LeafNode<T>> containingLeafs, Point2D p);
 
   LeafNode<T> getContainingLeaf(T element);
 
