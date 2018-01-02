@@ -62,23 +62,11 @@ public interface Spatial<T> extends LayoutModel.LayoutStateChangeListener {
   default Rectangle2D getUnion(Rectangle2D rect, Point2D p) {
     rect.add(p);
     return rect;
-    //    double left = Math.min(p.getX(), rect.getX());
-    //    double top = Math.min(p.getY(), rect.getY());
-    //    double right = Math.max(p.getX(), rect.getX() + rect.getWidth());
-    //    double bottom = Math.max(p.getY(), rect.getY() + rect.getHeight());
-    //
-    //    return new Rectangle2D.Double(left, top, right - left, bottom - top);
   }
 
   default Rectangle2D getUnion(Rectangle2D rect, double x, double y) {
     rect.add(x, y);
     return rect;
-    //    double left = Math.min(x, rect.getX());
-    //    double top = Math.min(y, rect.getY());
-    //    double right = Math.max(x, rect.getX() + rect.getWidth());
-    //    double bottom = Math.max(y, rect.getY() + rect.getHeight());
-    //
-    //    return new Rectangle2D.Double(left, top, right - left, bottom - top);
   }
 
   /**
