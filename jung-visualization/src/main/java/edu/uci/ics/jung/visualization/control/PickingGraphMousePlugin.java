@@ -238,7 +238,7 @@ public class PickingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
 
       for (N v : ps.getPicked()) {
         Point vp = layoutModel.apply(v);
-        vp = new Point(vp.x + dx, vp.y + dy);
+        vp = Point.of(vp.x + dx, vp.y + dy);
         layoutModel.set(v, vp);
       }
       deltaDown = out;
@@ -285,7 +285,7 @@ public class PickingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
 
         for (N v : ps.getPicked()) {
           Point vp = layoutModel.apply(v);
-          vp = new Point(vp.x + dx, vp.y + dy);
+          vp = Point.of(vp.x + dx, vp.y + dy);
           layoutModel.set(v, vp);
         }
         deltaDown = p;

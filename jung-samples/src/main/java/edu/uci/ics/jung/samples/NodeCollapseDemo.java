@@ -149,7 +149,7 @@ public class NodeCollapseDemo extends JPanel {
               sumx += p.getX();
               sumy += p.getY();
             }
-            Point cp = new Point(sumx / picked.size(), sumy / picked.size());
+            Point cp = Point.of(sumx / picked.size(), sumy / picked.size());
             layoutModel.lock(false);
             layoutModel.set(clusterGraph, cp);
             log.info("put the cluster at " + cp);

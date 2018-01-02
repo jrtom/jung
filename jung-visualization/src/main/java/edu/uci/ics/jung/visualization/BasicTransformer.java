@@ -66,6 +66,10 @@ public class BasicTransformer
     return inverseLayoutTransform(inverseViewTransform(p));
   }
 
+  public Point2D inverseTransform(double x, double y) {
+    return inverseTransform(new Point2D.Double(x, y));
+  }
+
   protected Point2D inverseViewTransform(Point2D p) {
     return viewTransformer.inverseTransform(p);
   }
@@ -76,6 +80,10 @@ public class BasicTransformer
 
   public Point2D transform(Point2D p) {
     return viewTransform(layoutTransform(p));
+  }
+
+  public Point2D transform(double x, double y) {
+    return transform(new Point2D.Double(x, y));
   }
 
   protected Point2D viewTransform(Point2D p) {
@@ -155,6 +163,11 @@ public class BasicTransformer
     return null;
   }
 
+  @Override
+  public Point2D inverseTransform(Layer layer, double x, double y) {
+    return inverseTransform(layer, new Point2D.Double(x, y));
+  }
+
   public void setTransformer(Layer layer, MutableTransformer Function) {
     if (layer == Layer.LAYOUT) {
       setLayoutTransformer(Function);
@@ -172,6 +185,11 @@ public class BasicTransformer
       return viewTransform(p);
     }
     return null;
+  }
+
+  @Override
+  public Point2D transform(Layer layer, double x, double y) {
+    return transform(layer, new Point2D.Double(x, y));
   }
 
   public Shape transform(Layer layer, Shape shape) {

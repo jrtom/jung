@@ -72,6 +72,14 @@ public abstract class LensTransformer extends MutableTransformerDecorator
   /** override base class transform to project the fisheye effect */
   public abstract Point2D transform(Point2D graphPoint);
 
+  public Point2D transform(double x, double y) {
+    return transform(new Point2D.Double(x, y));
+  }
+
   /** override base class to un-project the fisheye effect */
   public abstract Point2D inverseTransform(Point2D viewPoint);
+
+  public Point2D inverseTransform(double x, double y) {
+    return inverseTransform(new Point2D.Double(x, y));
+  }
 }

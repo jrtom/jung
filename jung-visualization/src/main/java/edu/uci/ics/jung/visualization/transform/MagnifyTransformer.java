@@ -72,7 +72,7 @@ public class MagnifyTransformer extends LensTransformer implements MutableTransf
     double dy = viewPoint.getY() - viewCenter.getY();
     // factor out ellipse
     dx *= ratio;
-    Point pointFromCenter = new Point(dx, dy);
+    Point pointFromCenter = Point.of(dx, dy);
 
     PolarPoint polar = PolarPoint.cartesianToPolar(pointFromCenter);
     double theta = polar.getTheta();
@@ -86,7 +86,7 @@ public class MagnifyTransformer extends LensTransformer implements MutableTransf
 
     radius = Math.min(radius, viewRadius);
     Point projectedPoint = PolarPoint.polarToCartesian(theta, radius);
-    projectedPoint = new Point(projectedPoint.x / ratio, projectedPoint.y);
+    projectedPoint = Point.of(projectedPoint.x / ratio, projectedPoint.y);
     Point2D translatedBack =
         new Point2D.Double(
             projectedPoint.x + viewCenter.getX(), projectedPoint.y + viewCenter.getY());
@@ -104,7 +104,7 @@ public class MagnifyTransformer extends LensTransformer implements MutableTransf
     // factor out ellipse
     dx *= ratio;
 
-    Point pointFromCenter = new Point(dx, dy);
+    Point pointFromCenter = Point.of(dx, dy);
 
     PolarPoint polar = PolarPoint.cartesianToPolar(pointFromCenter);
 
@@ -115,9 +115,9 @@ public class MagnifyTransformer extends LensTransformer implements MutableTransf
 
     double mag = lens.getMagnification();
     radius /= mag;
-    polar.setRadius(radius);
+    polar = polar.setRadius(radius);
     Point projectedPoint = PolarPoint.polarToCartesian(polar);
-    projectedPoint = new Point(projectedPoint.x / ratio, projectedPoint.y);
+    projectedPoint = Point.of(projectedPoint.x / ratio, projectedPoint.y);
     Point2D translatedBack =
         new Point2D.Double(
             projectedPoint.x + viewCenter.getX(), projectedPoint.y + viewCenter.getY());
@@ -143,7 +143,7 @@ public class MagnifyTransformer extends LensTransformer implements MutableTransf
     double dy = viewPoint.getY() - viewCenter.getY();
     // factor out ellipse
     dx *= ratio;
-    Point pointFromCenter = new Point(dx, dy);
+    Point pointFromCenter = Point.of(dx, dy);
 
     PolarPoint polar = PolarPoint.cartesianToPolar(pointFromCenter);
     double theta = polar.getTheta();
@@ -154,7 +154,7 @@ public class MagnifyTransformer extends LensTransformer implements MutableTransf
 
     //        radius = Math.min(radius, viewRadius);
     Point projectedPoint = PolarPoint.polarToCartesian(theta, radius);
-    projectedPoint = new Point(projectedPoint.x / ratio, projectedPoint.y);
+    projectedPoint = Point.of(projectedPoint.x / ratio, projectedPoint.y);
     Point2D translatedBack =
         new Point2D.Double(
             projectedPoint.x + viewCenter.getX(), projectedPoint.y + viewCenter.getY());

@@ -88,8 +88,7 @@ public class SimpleGraphSpatialEdgeSearchTest extends JPanel {
           public void mouseClicked(MouseEvent e) {
             MultiLayerTransformer multiLayerTransformer =
                 vv.getRenderContext().getMultiLayerTransformer();
-            Point2D layoutPoint =
-                multiLayerTransformer.inverseTransform(new Point2D.Double(e.getX(), e.getY()));
+            Point2D layoutPoint = multiLayerTransformer.inverseTransform(e.getX(), e.getY());
             Object edge = vv.getEdgeSpatial().getClosestElement(layoutPoint);
             if (edge != null) {
               vv.getPickedEdgeState().clear();

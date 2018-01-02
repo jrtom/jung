@@ -21,7 +21,11 @@ public interface MultiLayerTransformer
 
   Point2D inverseTransform(Layer layer, Point2D p);
 
+  Point2D inverseTransform(Layer layer, double x, double y);
+
   Point2D transform(Layer layer, Point2D p);
+
+  Point2D transform(Layer layer, double x, double y);
 
   Shape transform(Layer layer, Shape shape);
 

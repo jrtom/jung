@@ -124,7 +124,7 @@ public class ISOMLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
     double height = layoutModel.getHeight();
     //Generate random position in graph space
     // creates a new XY data location
-    Point tempXYD = new Point(10 + Math.random() * width, 10 + Math.random() * height);
+    Point tempXYD = Point.of(10 + Math.random() * width, 10 + Math.random() * height);
 
     //Get closest node to random position
     N winner = elementAccessor.getNode(layoutModel, tempXYD.x, tempXYD.y);

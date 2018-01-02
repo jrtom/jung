@@ -12,7 +12,6 @@ package edu.uci.ics.jung.visualization.layout;
 
 import com.google.common.collect.Maps;
 import com.google.common.graph.Graph;
-import edu.uci.ics.jung.algorithms.util.IterativeContext;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
 import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.layout.model.Point;
@@ -214,24 +213,9 @@ public class AggregateLayoutModel<N> implements LayoutModel<N> {
         double[] srcPoints = new double[] {nodeCenter.x, nodeCenter.y};
         double[] destPoints = new double[2];
         at.transform(srcPoints, 0, destPoints, 0, 1);
-        return new Point(destPoints[0], destPoints[1]);
+        return Point.of(destPoints[0], destPoints[1]);
       }
     }
     return delegate.apply(node);
-  }
-
-  /** @return {@code true} iff the delegate layout and all sublayouts are done */
-  public boolean done() {
-    for (LayoutModel<N> layoutModel : layouts.keySet()) {
-      if (layoutModel instanceof IterativeContext) {
-        if (!((IterativeContext) layoutModel).done()) {
-          return false;
-        }
-      }
-    }
-    if (delegate instanceof IterativeContext) {
-      return ((IterativeContext) delegate).done();
-    }
-    return true;
   }
 }

@@ -22,7 +22,7 @@ public class LoadingCacheLayoutModel<N> extends AbstractLayoutModel<N>
   private static final Logger log = LoggerFactory.getLogger(LoadingCacheLayoutModel.class);
 
   protected LoadingCache<N, Point> locations =
-      CacheBuilder.newBuilder().build(CacheLoader.from(() -> new Point(0, 0)));
+      CacheBuilder.newBuilder().build(CacheLoader.from(() -> Point.ORIGIN));
 
   /**
    * a builder for LoadingCache instances
@@ -36,7 +36,7 @@ public class LoadingCacheLayoutModel<N> extends AbstractLayoutModel<N>
     protected int height;
 
     protected LoadingCache<N, Point> locations =
-        CacheBuilder.newBuilder().build(CacheLoader.from(() -> new Point(0, 0)));
+        CacheBuilder.newBuilder().build(CacheLoader.from(() -> Point.ORIGIN));
 
     /**
      * set the Graph to use for the LayoutModel
@@ -81,7 +81,7 @@ public class LoadingCacheLayoutModel<N> extends AbstractLayoutModel<N>
      * @return the builder
      */
     public LoadingCacheLayoutModel.Builder<N, T> setInitializer(Function<N, Point> initializer) {
-      Function<N, Point> chain = initializer.andThen(p -> new Point(p.x, p.y));
+      Function<N, Point> chain = initializer.andThen(p -> Point.of(p.x, p.y));
       this.locations = CacheBuilder.newBuilder().build(CacheLoader.from(chain::apply));
       return this;
     }
@@ -117,7 +117,7 @@ public class LoadingCacheLayoutModel<N> extends AbstractLayoutModel<N>
   }
 
   public void setInitializer(Function<N, Point> initializer) {
-    Function<N, Point> chain = initializer.andThen(p -> new Point(p.x, p.y));
+    Function<N, Point> chain = initializer.andThen(p -> Point.of(p.x, p.y));
     this.locations = CacheBuilder.newBuilder().build(CacheLoader.from(chain::apply));
   }
 
@@ -141,7 +141,7 @@ public class LoadingCacheLayoutModel<N> extends AbstractLayoutModel<N>
 
   @Override
   public void set(N node, double x, double y) {
-    this.set(node, new Point(x, y));
+    this.set(node, Point.of(x, y));
   }
 
   @Override
@@ -159,6 +159,6 @@ public class LoadingCacheLayoutModel<N> extends AbstractLayoutModel<N>
 
   @Override
   public void clear() {
-    this.locations = CacheBuilder.newBuilder().build(CacheLoader.from(() -> new Point(0, 0)));
+    this.locations = CacheBuilder.newBuilder().build(CacheLoader.from(() -> Point.ORIGIN));
   }
 }

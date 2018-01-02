@@ -85,13 +85,13 @@ public class RandomLocationTransformer<N> implements Function<N, Point> {
   }
 
   private Point applyNE(N node) {
-    return new Point(random.nextDouble() * width, random.nextDouble() * height);
+    return Point.of(random.nextDouble() * width, random.nextDouble() * height);
   }
 
   private Point applyCenter(N node) {
     double radiusX = width / 2;
     double radiusY = height / 2;
-    return new Point(random.nextDouble() * width - radiusX, random.nextDouble() * height - radiusY);
+    return Point.of(random.nextDouble() * width - radiusX, random.nextDouble() * height - radiusY);
   }
 
   @Override

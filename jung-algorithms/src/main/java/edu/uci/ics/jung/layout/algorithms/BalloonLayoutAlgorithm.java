@@ -41,7 +41,7 @@ public class BalloonLayoutAlgorithm<N> extends TreeLayoutAlgorithm<N> {
           .build(
               new CacheLoader<N, PolarPoint>() {
                 public PolarPoint load(N node) {
-                  return new PolarPoint();
+                  return PolarPoint.ORIGIN;
                 }
               });
 
@@ -80,7 +80,7 @@ public class BalloonLayoutAlgorithm<N> extends TreeLayoutAlgorithm<N> {
   }
 
   protected void setRootPolar(LayoutModel<N> layoutModel, N root) {
-    PolarPoint pp = new PolarPoint(0, 0);
+    PolarPoint pp = PolarPoint.ORIGIN;
     Point p = getCenter(layoutModel);
     polarLocations.put(root, pp);
     layoutModel.set(root, p);
@@ -105,11 +105,11 @@ public class BalloonLayoutAlgorithm<N> extends TreeLayoutAlgorithm<N> {
       double theta = i++ * 2 * Math.PI / childCount + rand;
       radii.put(child, childRadius);
 
-      PolarPoint pp = new PolarPoint(theta, radius);
+      PolarPoint pp = PolarPoint.of(theta, radius);
       polarLocations.put(child, pp);
 
       Point p = PolarPoint.polarToCartesian(pp);
-      p = new Point(p.x + parentLocation.x, p.y + parentLocation.y);
+      p = p.add(parentLocation.x, parentLocation.y);
       layoutModel.set(child, p);
       setPolars(layoutModel, layoutModel.getGraph().successors(child), p, childRadius);
     }
@@ -134,18 +134,18 @@ public class BalloonLayoutAlgorithm<N> extends TreeLayoutAlgorithm<N> {
     double centerX = layoutModel.getWidth() / 2;
     double centerY = layoutModel.getHeight() / 2;
     Point cartesian = PolarPoint.polarToCartesian(pp);
-    cartesian = new Point(cartesian.x + centerX, cartesian.y + centerY);
+    cartesian = cartesian.add(centerX, centerY);
     return cartesian;
   }
 
   protected void setLocation(LayoutModel<N> layoutModel, N node, Point location) {
     Point c = getCenter(layoutModel, node);
-    Point pv = new Point(location.x - c.x, location.y - c.y);
+    Point pv = location.add(-c.x, -c.y);
     PolarPoint newLocation = PolarPoint.cartesianToPolar(pv.x, pv.y);
-    polarLocations.getUnchecked(node).setLocation(newLocation);
+    polarLocations.put(node, newLocation);
 
     Point center = getCenter(layoutModel, node);
-    center = new Point(pv.x + center.x, pv.y + center.y);
+    center = pv.add(center.x, center.y);
     layoutModel.set(node, pv);
   }
 

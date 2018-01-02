@@ -83,8 +83,7 @@ public class SimpleGraphSpatialSearchTest extends JPanel {
           public void mouseClicked(MouseEvent e) {
             MultiLayerTransformer multiLayerTransformer =
                 vv.getRenderContext().getMultiLayerTransformer();
-            Point2D layoutPoint =
-                multiLayerTransformer.inverseTransform(new Point2D.Double(e.getX(), e.getY()));
+            Point2D layoutPoint = multiLayerTransformer.inverseTransform(e.getX(), e.getY());
             Object node = vv.getNodeSpatial().getClosestElement(layoutPoint);
             if (node != null) {
               vv.getPickedNodeState().clear();

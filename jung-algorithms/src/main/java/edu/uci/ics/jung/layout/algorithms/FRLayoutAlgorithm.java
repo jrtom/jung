@@ -71,7 +71,7 @@ public class FRLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
             .build(
                 new CacheLoader<N, Point>() {
                   public Point load(N node) {
-                    return new Point(0, 0);
+                    return Point.ORIGIN;
                   }
                 });
   }
@@ -230,15 +230,11 @@ public class FRLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
     double dy = (yDelta / deltaLength) * force;
     if (v1_locked == false) {
       Point fvd1 = getFRData(node1);
-      double newX = fvd1.x - dx;
-      double newY = fvd1.y - dy;
-      frNodeData.put(node1, new Point(newX, newY));
+      frNodeData.put(node1, fvd1.add(-dx, -dy));
     }
     if (v2_locked == false) {
       Point fvd2 = getFRData(node2);
-      double newX = fvd2.x + dx;
-      double newY = fvd2.y + dy;
-      frNodeData.put(node2, new Point(newX, newY));
+      frNodeData.put(node2, fvd2.add(dx, dy));
     }
   }
 
@@ -247,12 +243,11 @@ public class FRLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
     if (fvd1 == null) {
       return;
     }
-    frNodeData.put(node1, new Point(0, 0));
+    frNodeData.put(node1, Point.ORIGIN);
 
     try {
       for (N node2 : layoutModel.getGraph().nodes()) {
 
-        //                        if (layoutModel.isLocked(node2)) continue;
         if (node1 != node2) {
           fvd1 = getFRData(node1);
           Point p1 = layoutModel.apply(node1);
@@ -271,10 +266,8 @@ public class FRLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
             throw new RuntimeException(
                 "Unexpected mathematical result in FRLayout:calcPositions [repulsion]");
           }
-
-          double newX = fvd1.x + (xDelta / deltaLength) * force;
-          double newY = fvd1.y + (yDelta / deltaLength) * force;
-          frNodeData.put(node1, new Point(newX, newY));
+          frNodeData.put(
+              node1, fvd1.add((xDelta / deltaLength) * force, (yDelta / deltaLength) * force));
         }
       }
     } catch (ConcurrentModificationException cme) {

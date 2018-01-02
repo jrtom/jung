@@ -88,7 +88,7 @@ public class HyperbolicTransformer extends LensTransformer implements MutableTra
     double dy = viewPoint.getY() - viewCenter.getY();
     // factor out ellipse
     dx *= ratio;
-    Point pointFromCenter = new Point(dx, dy);
+    Point pointFromCenter = Point.of(dx, dy);
 
     PolarPoint polar = PolarPoint.cartesianToPolar(pointFromCenter);
     double theta = polar.getTheta();
@@ -109,7 +109,7 @@ public class HyperbolicTransformer extends LensTransformer implements MutableTra
     radius = Math.abs(Math.atan(radius));
     radius *= viewRadius;
     Point projectedPoint = PolarPoint.polarToCartesian(theta, radius);
-    projectedPoint = new Point(projectedPoint.x / ratio, projectedPoint.y);
+    projectedPoint = Point.of(projectedPoint.x / ratio, projectedPoint.y);
     Point2D translatedBack =
         new Point2D.Double(
             projectedPoint.x + viewCenter.getX(), projectedPoint.y + viewCenter.getY());
@@ -134,7 +134,7 @@ public class HyperbolicTransformer extends LensTransformer implements MutableTra
     // factor out ellipse
     dx *= ratio;
 
-    Point pointFromCenter = new Point(dx, dy);
+    Point pointFromCenter = Point.of(dx, dy);
 
     PolarPoint polar = PolarPoint.cartesianToPolar(pointFromCenter);
 
@@ -155,9 +155,9 @@ public class HyperbolicTransformer extends LensTransformer implements MutableTra
     radius *= viewRadius;
     double mag = Math.tan(Math.PI / 2 * lens.getMagnification());
     radius /= mag;
-    polar.setRadius(radius);
+    polar = polar.setRadius(radius);
     Point projectedPoint = PolarPoint.polarToCartesian(polar);
-    projectedPoint = new Point(projectedPoint.x / ratio, projectedPoint.y);
+    projectedPoint = Point.of(projectedPoint.x / ratio, projectedPoint.y);
     Point2D translatedBack =
         new Point2D.Double(
             projectedPoint.x + viewCenter.getX(), projectedPoint.y + viewCenter.getY());

@@ -312,7 +312,7 @@ public class LensDemo extends JPanel {
       int y = x / d.width * interval;
       x %= d.width;
 
-      Point location = new Point(x, y);
+      Point location = Point.of(x, y);
       String node = "v" + i;
       vlf.put(node, location);
       graph.addNode(node);

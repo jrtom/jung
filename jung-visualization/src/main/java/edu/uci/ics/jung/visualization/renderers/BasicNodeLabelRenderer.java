@@ -147,50 +147,50 @@ public class BasicNodeLabelRenderer<N, E> implements Renderer.NodeLabel<N, E> {
       case N:
         x = nodeBounds.getCenterX() - labelSize.width / 2;
         y = nodeBounds.getMinY() - offset - labelSize.height;
-        return new Point((int) x, (int) y);
+        return Point.of(x, y);
 
       case NE:
         x = nodeBounds.getMaxX() + offset;
         y = nodeBounds.getMinY() - offset - labelSize.height;
-        return new Point((int) x, (int) y);
+        return Point.of(x, y);
 
       case E:
         x = nodeBounds.getMaxX() + offset;
         y = nodeBounds.getCenterY() - labelSize.height / 2;
-        return new Point((int) x, (int) y);
+        return Point.of(x, y);
 
       case SE:
         x = nodeBounds.getMaxX() + offset;
         y = nodeBounds.getMaxY() + offset;
-        return new Point((int) x, (int) y);
+        return Point.of(x, y);
 
       case S:
         x = nodeBounds.getCenterX() - labelSize.width / 2;
         y = nodeBounds.getMaxY() + offset;
-        return new Point((int) x, (int) y);
+        return Point.of(x, y);
 
       case SW:
         x = nodeBounds.getMinX() - offset - labelSize.width;
         y = nodeBounds.getMaxY() + offset;
-        return new Point((int) x, (int) y);
+        return Point.of(x, y);
 
       case W:
         x = nodeBounds.getMinX() - offset - labelSize.width;
         y = nodeBounds.getCenterY() - labelSize.height / 2;
-        return new Point((int) x, (int) y);
+        return Point.of(x, y);
 
       case NW:
         x = nodeBounds.getMinX() - offset - labelSize.width;
         y = nodeBounds.getMinY() - offset - labelSize.height;
-        return new Point((int) x, (int) y);
+        return Point.of(x, y);
 
       case CNTR:
         x = nodeBounds.getCenterX() - labelSize.width / 2;
         y = nodeBounds.getCenterY() - labelSize.height / 2;
-        return new Point((int) x, (int) y);
+        return Point.of(x, y);
 
       default:
-        return new Point();
+        return Point.ORIGIN;
     }
   }
 
