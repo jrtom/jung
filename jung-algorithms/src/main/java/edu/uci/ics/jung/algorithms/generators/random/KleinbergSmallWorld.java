@@ -111,7 +111,7 @@ public class KleinbergSmallWorld<N, E> {
     Preconditions.checkArgument(graph.nodes().size() - 5 >= connectionCount);
 
     // TODO: For toroidal graphs, we can make this more clever by pre-creating the WeightedChoice object
-    // and using the output as an offset to the current vertex location.
+    // and using the output as an offset to the current node location.
 
     for (N node : graph.nodes()) {
       // TODO: come up with a better random selection mechanism.

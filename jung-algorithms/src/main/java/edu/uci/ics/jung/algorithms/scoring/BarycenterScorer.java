@@ -16,15 +16,15 @@ import com.google.common.graph.Network;
 import edu.uci.ics.jung.algorithms.shortestpath.Distance;
 import java.util.function.Function;
 
-/** Assigns scores to each vertex according to the sum of its distances to all other vertices. */
-public class BarycenterScorer<V, E> extends DistanceCentralityScorer<V, E> {
+/** Assigns scores to each node according to the sum of its distances to all other nodes. */
+public class BarycenterScorer<N, E> extends DistanceCentralityScorer<N, E> {
   /**
    * Creates an instance with the specified graph and distance metric.
    *
    * @param graph the input graph
    * @param distance the distance metric to use
    */
-  public BarycenterScorer(Network<V, E> graph, Distance<V> distance) {
+  public BarycenterScorer(Network<N, E> graph, Distance<N> distance) {
     super(graph, distance, false);
   }
 
@@ -33,9 +33,9 @@ public class BarycenterScorer<V, E> extends DistanceCentralityScorer<V, E> {
    * </code> metric internally based on the edge weights.
    *
    * @param graph the input graph
-   * @param edge_weights the edge weights to use to calculate vertex/vertex distances
+   * @param edge_weights the edge weights to use to calculate node/node distances
    */
-  public BarycenterScorer(Network<V, E> graph, Function<E, ? extends Number> edge_weights) {
+  public BarycenterScorer(Network<N, E> graph, Function<E, ? extends Number> edge_weights) {
     super(graph, edge_weights, false);
   }
 
@@ -45,7 +45,7 @@ public class BarycenterScorer<V, E> extends DistanceCentralityScorer<V, E> {
    *
    * @param graph the input graph
    */
-  public BarycenterScorer(Graph<V> graph) {
+  public BarycenterScorer(Graph<N> graph) {
     super(graph, false);
   }
 }

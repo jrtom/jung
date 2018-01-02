@@ -1,7 +1,5 @@
 package edu.uci.ics.jung.visualization.layout;
 
-import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
-
 import com.google.common.collect.Sets;
 import com.google.common.graph.Graph;
 import edu.uci.ics.jung.graph.CTreeNetwork;
@@ -9,12 +7,12 @@ import edu.uci.ics.jung.graph.MutableCTreeNetwork;
 import edu.uci.ics.jung.graph.TreeNetworkBuilder;
 import edu.uci.ics.jung.graph.util.TestGraphs;
 import edu.uci.ics.jung.layout.algorithms.CircleLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.KKLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.SpringLayoutAlgorithm;
-import edu.uci.ics.jung.layout.algorithms.immutable.KKLayoutAlgorithm;
-import edu.uci.ics.jung.layout.algorithms.immutable.TreeLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.TreeLayoutAlgorithm;
 import edu.uci.ics.jung.layout.model.LoadingCacheLayoutModel;
-import java.awt.geom.Point2D;
+import edu.uci.ics.jung.layout.model.Point;
 import java.util.Collection;
 import java.util.Set;
 import org.junit.Assert;
@@ -28,17 +26,13 @@ public class LayoutAlgorithmTestAWT {
   private static final Logger log = LoggerFactory.getLogger(LayoutAlgorithmTestAWT.class);
 
   Graph<String> graph;
-  LoadingCacheLayoutModel<String, Point2D> layoutModel;
+  LoadingCacheLayoutModel<String> layoutModel;
 
   @Test
   public void testLayoutAlgorithms() {
     graph = TestGraphs.getDemoGraph().asGraph();
     layoutModel =
-        LoadingCacheLayoutModel.<String, Point2D>builder()
-            .setGraph(graph)
-            .setPointModel(POINT_MODEL)
-            .setSize(500, 500)
-            .build();
+        LoadingCacheLayoutModel.<String>builder().setGraph(graph).setSize(500, 500).build();
     testLayoutAlgorithm(new SpringLayoutAlgorithm<>());
     testLayoutAlgorithm(new KKLayoutAlgorithm<>());
     testLayoutAlgorithm(new CircleLayoutAlgorithm<>());
@@ -48,24 +42,20 @@ public class LayoutAlgorithmTestAWT {
   public void testTreeLayoutAlgorithms() {
     graph = createTree().asGraph();
     layoutModel =
-        LoadingCacheLayoutModel.<String, Point2D>builder()
-            .setGraph(graph)
-            .setPointModel(POINT_MODEL)
-            .setSize(500, 500)
-            .build();
+        LoadingCacheLayoutModel.<String>builder().setGraph(graph).setSize(500, 500).build();
     testLayoutAlgorithm(new TreeLayoutAlgorithm<>());
   }
 
-  private void testLayoutAlgorithm(LayoutAlgorithm<String, Point2D> layoutAlgorithm) {
+  private void testLayoutAlgorithm(LayoutAlgorithm<String> layoutAlgorithm) {
     layoutModel.accept(layoutAlgorithm);
     testUniqueLocations();
   }
 
   private void testUniqueLocations() {
-    Set<Point2D> locations = Sets.newHashSet();
+    Set<Point> locations = Sets.newHashSet();
     Collection<String> nodes = layoutModel.getGraph().nodes();
     for (String node : nodes) {
-      Point2D p = layoutModel.get(node);
+      Point p = layoutModel.get(node);
       locations.add(layoutModel.get(node));
     }
     // make sure that the algorithm as provided unique locations for all nodes

@@ -19,9 +19,9 @@ import java.awt.image.BufferedImage;
 /**
  * Provides Supplier methods that, given a BufferedImage, an Image, or the fileName of an image,
  * will return a java.awt.Shape that is the contiguous traced outline of the opaque part of the
- * image. This could be used to define an image for use in a Vertex, where the shape used for
- * picking and edge-arrow placement follows the opaque part of an image that has a transparent
- * background. The methods try to detect lines in order to minimize points in the path
+ * image. This could be used to define an image for use in a Node, where the shape used for picking
+ * and edge-arrow placement follows the opaque part of an image that has a transparent background.
+ * The methods try to detect lines in order to minimize points in the path
  *
  * @author Tom Nelson
  */

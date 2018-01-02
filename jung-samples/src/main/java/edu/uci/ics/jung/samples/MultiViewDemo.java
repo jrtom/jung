@@ -15,17 +15,24 @@ import edu.uci.ics.jung.visualization.BaseVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.VisualizationModel;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
-import edu.uci.ics.jung.visualization.control.*;
+import edu.uci.ics.jung.visualization.control.AnimatedPickingGraphMousePlugin;
+import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
+import edu.uci.ics.jung.visualization.control.LayoutScalingControl;
+import edu.uci.ics.jung.visualization.control.PickingGraphMousePlugin;
+import edu.uci.ics.jung.visualization.control.RotatingGraphMousePlugin;
+import edu.uci.ics.jung.visualization.control.ScalingGraphMousePlugin;
+import edu.uci.ics.jung.visualization.control.ShearingGraphMousePlugin;
+import edu.uci.ics.jung.visualization.control.TranslatingGraphMousePlugin;
+import edu.uci.ics.jung.visualization.control.ViewScalingControl;
 import edu.uci.ics.jung.visualization.decorators.EdgeShape;
-import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
-import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
+import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintFunction;
+import edu.uci.ics.jung.visualization.decorators.PickableNodePaintFunction;
 import edu.uci.ics.jung.visualization.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.visualization.picking.MultiPickedState;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import edu.uci.ics.jung.visualization.picking.ShapePickSupport;
 import java.awt.*;
 import java.awt.event.InputEvent;
-import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import javax.swing.*;
 
@@ -36,7 +43,7 @@ import javax.swing.*;
  * @author Tom Nelson
  */
 @SuppressWarnings("serial")
-public class MultiViewDemo extends JApplet {
+public class MultiViewDemo extends JPanel {
 
   /** the graph */
   Network<String, Number> graph;
@@ -46,9 +53,6 @@ public class MultiViewDemo extends JApplet {
 
   VisualizationViewer<String, Number> vv2;
   VisualizationViewer<String, Number> vv3;
-
-  /** the normal Function */
-  //    MutableTransformer Function;
 
   Dimension preferredSize = new Dimension(300, 300);
 
@@ -75,15 +79,16 @@ public class MultiViewDemo extends JApplet {
   /** create an instance of a simple graph in two views with controls to demo the zoom features. */
   public MultiViewDemo() {
 
+    setLayout(new BorderLayout());
     // create a simple graph for the demo
     graph = TestGraphs.getOneComponentGraph();
 
     // create one layout for the graph
-    FRLayoutAlgorithm<String, Point2D> layoutAlgorithm = new FRLayoutAlgorithm<>();
+    FRLayoutAlgorithm<String> layoutAlgorithm = new FRLayoutAlgorithm<>();
     layoutAlgorithm.setMaxIterations(1000);
 
     // create one model that all 3 views will share
-    VisualizationModel<String, Number, Point2D> visualizationModel =
+    VisualizationModel<String, Number> visualizationModel =
         new BaseVisualizationModel<>(graph, layoutAlgorithm, preferredSize);
 
     // create 3 views that share the same model
@@ -91,19 +96,12 @@ public class MultiViewDemo extends JApplet {
     vv2 = new VisualizationViewer<>(visualizationModel, preferredSize);
     vv3 = new VisualizationViewer<>(visualizationModel, preferredSize);
 
-    vv1.getRenderContext().setEdgeShapeTransformer(EdgeShape.line());
-    vv2.getRenderContext().setVertexShapeTransformer(n -> new Rectangle2D.Float(-6, -6, 12, 12));
+    vv1.getRenderContext().setEdgeShapeFunction(EdgeShape.line());
+    vv2.getRenderContext().setNodeShapeFunction(n -> new Rectangle2D.Float(-6, -6, 12, 12));
 
-    vv2.getRenderContext().setEdgeShapeTransformer(EdgeShape.quadCurve());
+    vv2.getRenderContext().setEdgeShapeFunction(EdgeShape.quadCurve());
 
-    vv3.getRenderContext().setEdgeShapeTransformer(EdgeShape.cubicCurve());
-
-    //        Function = vv1.getLayoutTransformer();
-    //        vv2.setLayoutTransformer(Function);
-    //        vv3.setLayoutTransformer(Function);
-    //
-    //        vv2.setViewTransformer(vv1.getViewTransformer());
-    //        vv3.setViewTransformer(vv1.getViewTransformer());
+    vv3.getRenderContext().setEdgeShapeFunction(EdgeShape.cubicCurve());
 
     vv2.getRenderContext()
         .setMultiLayerTransformer(vv1.getRenderContext().getMultiLayerTransformer());
@@ -127,39 +125,32 @@ public class MultiViewDemo extends JApplet {
     // create one picked state for all 3 views to share
     PickedState<Number> pes = new MultiPickedState<>();
     PickedState<String> pvs = new MultiPickedState<>();
-    vv1.setPickedVertexState(pvs);
-    vv2.setPickedVertexState(pvs);
-    vv3.setPickedVertexState(pvs);
+    vv1.setPickedNodeState(pvs);
+    vv2.setPickedNodeState(pvs);
+    vv3.setPickedNodeState(pvs);
     vv1.setPickedEdgeState(pes);
     vv2.setPickedEdgeState(pes);
     vv3.setPickedEdgeState(pes);
 
     // set an edge paint function that shows picked edges
     vv1.getRenderContext()
-        .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer<>(pes, Color.black, Color.red));
+        .setEdgeDrawPaintFunction(new PickableEdgePaintFunction<>(pes, Color.black, Color.red));
     vv2.getRenderContext()
-        .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer<>(pes, Color.black, Color.red));
+        .setEdgeDrawPaintFunction(new PickableEdgePaintFunction<>(pes, Color.black, Color.red));
     vv3.getRenderContext()
-        .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer<>(pes, Color.black, Color.red));
+        .setEdgeDrawPaintFunction(new PickableEdgePaintFunction<>(pes, Color.black, Color.red));
     vv1.getRenderContext()
-        .setVertexFillPaintTransformer(
-            new PickableVertexPaintTransformer<>(pvs, Color.red, Color.yellow));
+        .setNodeFillPaintFunction(new PickableNodePaintFunction<>(pvs, Color.red, Color.yellow));
     vv2.getRenderContext()
-        .setVertexFillPaintTransformer(
-            new PickableVertexPaintTransformer<>(pvs, Color.blue, Color.cyan));
+        .setNodeFillPaintFunction(new PickableNodePaintFunction<>(pvs, Color.blue, Color.cyan));
     vv3.getRenderContext()
-        .setVertexFillPaintTransformer(
-            new PickableVertexPaintTransformer<>(pvs, Color.red, Color.yellow));
+        .setNodeFillPaintFunction(new PickableNodePaintFunction<>(pvs, Color.red, Color.yellow));
 
     // add default listener for ToolTips
-    vv1.setVertexToolTipTransformer(Object::toString);
-    vv2.setVertexToolTipTransformer(Object::toString);
-    vv3.setVertexToolTipTransformer(Object::toString);
+    vv1.setNodeToolTipFunction(Object::toString);
+    vv2.setNodeToolTipFunction(Object::toString);
+    vv3.setNodeToolTipFunction(Object::toString);
 
-    Container content = getContentPane();
     JPanel panel = new JPanel(new GridLayout(1, 0));
 
     final JPanel p1 = new JPanel(new BorderLayout());
@@ -265,7 +256,7 @@ public class MultiViewDemo extends JApplet {
     panel.add(p1);
     panel.add(p2);
     panel.add(p3);
-    content.add(panel);
+    add(panel);
   }
 
   class BannerLabel implements VisualizationViewer.Paintable {

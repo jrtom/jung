@@ -19,7 +19,24 @@ public class ControlHelpers {
     JButton minus = new JButton("-");
     minus.addActionListener(e -> scaler.scale(vv, 1 / 1.1f, vv.getCenter()));
 
-    JPanel zoomPanel = new JPanel(new GridLayout(1, 2));
+    JPanel zoomPanel = new JPanel();
+    zoomPanel.setBorder(BorderFactory.createTitledBorder(title));
+    zoomPanel.add(plus);
+    zoomPanel.add(minus);
+
+    return zoomPanel;
+  }
+
+  public static JComponent getZoomControls(
+      VisualizationServer vv, String title, LayoutManager buttonContainerLayoutManager) {
+
+    final ScalingControl scaler = new CrossoverScalingControl();
+    JButton plus = new JButton("+");
+    plus.addActionListener(e -> scaler.scale(vv, 1.1f, vv.getCenter()));
+    JButton minus = new JButton("-");
+    minus.addActionListener(e -> scaler.scale(vv, 1 / 1.1f, vv.getCenter()));
+
+    JPanel zoomPanel = new JPanel(buttonContainerLayoutManager);
     zoomPanel.setBorder(BorderFactory.createTitledBorder(title));
     zoomPanel.add(plus);
     zoomPanel.add(minus);

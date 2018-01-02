@@ -14,6 +14,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 import edu.uci.ics.jung.graph.util.TreeUtils;
 import edu.uci.ics.jung.layout.model.LayoutModel;
+import edu.uci.ics.jung.layout.model.Point;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -27,7 +28,7 @@ import org.slf4j.LoggerFactory;
  * @author Karlheinz Toni
  * @author Tom Nelson - converted to jung2, refactored into Algorithm/Visitor
  */
-public class TreeLayoutAlgorithm<N, P> extends AbstractLayoutAlgorithm<N, P> {
+public class TreeLayoutAlgorithm<N> implements LayoutAlgorithm<N> {
 
   private static final Logger log = LoggerFactory.getLogger(TreeLayoutAlgorithm.class);
 
@@ -47,7 +48,8 @@ public class TreeLayoutAlgorithm<N, P> extends AbstractLayoutAlgorithm<N, P> {
   /** The vertical node spacing. Defaults to {@code DEFAULT_YDIST}. */
   protected int distY = 50;
 
-  protected transient P m_currentPoint;
+  protected double currentX;
+  protected double currentY;
 
   /** Creates an instance for the specified graph with default X and Y distances. */
   public TreeLayoutAlgorithm() {
@@ -74,35 +76,34 @@ public class TreeLayoutAlgorithm<N, P> extends AbstractLayoutAlgorithm<N, P> {
     Preconditions.checkArgument(disty >= 1, "Y distance must be positive");
     this.distX = distx;
     this.distY = disty;
+    this.currentX = this.currentY = 0;
   }
 
-  public void visit(LayoutModel<N, P> layoutModel) {
-    super.visit(layoutModel);
+  public void visit(LayoutModel<N> layoutModel) {
     buildTree(layoutModel);
   }
 
-  protected void buildTree(LayoutModel<N, P> layoutModel) {
+  protected void buildTree(LayoutModel<N> layoutModel) {
     alreadyDone = Sets.newHashSet();
-    this.m_currentPoint = pointModel.newPoint(0, 20);
+    this.currentX = 0;
+    this.currentY = 20;
     Set<N> roots = TreeUtils.roots(layoutModel.getGraph());
     Preconditions.checkArgument(roots.size() > 0);
     calculateDimensionX(layoutModel, roots);
     for (N node : roots) {
       calculateDimensionX(layoutModel, node);
-
-      pointModel.offset(m_currentPoint, this.basePositions.get(node) / 2 + this.distX, 0);
-      buildTree(layoutModel, node, (int) pointModel.getX(this.m_currentPoint));
+      double posX = this.basePositions.get(node) / 2 + this.distX;
+      buildTree(layoutModel, node, (int) posX);
     }
   }
 
-  protected void buildTree(LayoutModel<N, P> layoutModel, N node, int x) {
+  protected void buildTree(LayoutModel<N> layoutModel, N node, int x) {
 
     if (alreadyDone.add(node)) {
       //go one level further down
-      double newY = pointModel.getY(m_currentPoint) + this.distY;
-
-      pointModel.setLocation(m_currentPoint, x, newY);
-
+      double newY = this.currentY + this.distY;
+      this.currentX = x;
+      this.currentY = newY;
       this.setCurrentPositionFor(layoutModel, node);
 
       int sizeXofCurrent = basePositions.get(node);
@@ -120,11 +121,11 @@ public class TreeLayoutAlgorithm<N, P> extends AbstractLayoutAlgorithm<N, P> {
         lastX = lastX + sizeXofChild + distX;
       }
 
-      pointModel.offset(m_currentPoint, 0, -this.distY);
+      this.currentY -= this.distY;
     }
   }
 
-  private int calculateDimensionX(LayoutModel<N, P> layoutModel, N node) {
+  private int calculateDimensionX(LayoutModel<N> layoutModel, N node) {
 
     int size = 0;
     int childrenNum = layoutModel.getGraph().successors(node).size();
@@ -140,7 +141,7 @@ public class TreeLayoutAlgorithm<N, P> extends AbstractLayoutAlgorithm<N, P> {
     return size;
   }
 
-  private int calculateDimensionX(LayoutModel<N, P> layoutModel, Collection<N> roots) {
+  private int calculateDimensionX(LayoutModel<N> layoutModel, Collection<N> roots) {
 
     int size = 0;
     for (N node : roots) {
@@ -150,11 +151,11 @@ public class TreeLayoutAlgorithm<N, P> extends AbstractLayoutAlgorithm<N, P> {
     return size;
   }
 
-  protected void setCurrentPositionFor(LayoutModel<N, P> layoutModel, N node) {
+  protected void setCurrentPositionFor(LayoutModel<N> layoutModel, N node) {
     int width = layoutModel.getWidth();
     int height = layoutModel.getHeight();
-    int x = (int) pointModel.getX(m_currentPoint);
-    int y = (int) pointModel.getY(m_currentPoint);
+    int x = (int) this.currentX;
+    int y = (int) this.currentY;
     if (x < 0) {
       width -= x;
     }
@@ -173,9 +174,8 @@ public class TreeLayoutAlgorithm<N, P> extends AbstractLayoutAlgorithm<N, P> {
       layoutModel.setSize(width, height);
     }
 
-    P location = layoutModel.get(node);
-    pointModel.setLocation(location, m_currentPoint);
-    setLocation(layoutModel, node, location);
+    //    Point location = layoutModel.get(node);
+    setLocation(layoutModel, node, this.currentX, this.currentY);
   }
 
   /**
@@ -185,8 +185,12 @@ public class TreeLayoutAlgorithm<N, P> extends AbstractLayoutAlgorithm<N, P> {
    * @param node
    * @param location
    */
-  protected void setLocation(LayoutModel<N, P> layoutModel, N node, P location) {
+  protected void setLocation(LayoutModel<N> layoutModel, N node, Point location) {
     layoutModel.set(node, location);
+  }
+
+  protected void setLocation(LayoutModel<N> layoutModel, N node, double x, double y) {
+    layoutModel.set(node, x, y);
   }
 
   public boolean isLocked(N node) {
@@ -197,10 +201,10 @@ public class TreeLayoutAlgorithm<N, P> extends AbstractLayoutAlgorithm<N, P> {
 
   public void reset() {}
 
-  public void setInitializer(Function<N, P> initializer) {}
+  public void setInitializer(Function<N, Point> initializer) {}
 
   /** @return the center of this layout's area. */
-  public P getCenter(LayoutModel<N, P> layoutModel) {
-    return pointModel.newPoint(layoutModel.getWidth() / 2, layoutModel.getHeight() / 2);
+  public Point getCenter(LayoutModel<N> layoutModel) {
+    return new Point(layoutModel.getWidth() / 2, layoutModel.getHeight() / 2);
   }
 }

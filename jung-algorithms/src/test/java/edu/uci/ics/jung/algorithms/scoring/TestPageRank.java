@@ -61,9 +61,9 @@ public class TestPageRank extends TestCase {
     PageRank<Integer, Integer> pr = new PageRank<Integer, Integer>(graph, edgeWeights::get, 0);
     pr.evaluate();
 
-    Assert.assertEquals(pr.getVertexScore(0), 0.0, pr.getTolerance());
-    Assert.assertEquals(pr.getVertexScore(1), 0.4, pr.getTolerance());
-    Assert.assertEquals(pr.getVertexScore(2), 0.4, pr.getTolerance());
-    Assert.assertEquals(pr.getVertexScore(3), 0.2, pr.getTolerance());
+    Assert.assertEquals(pr.getNodeScore(0), 0.0, pr.getTolerance());
+    Assert.assertEquals(pr.getNodeScore(1), 0.4, pr.getTolerance());
+    Assert.assertEquals(pr.getNodeScore(2), 0.4, pr.getTolerance());
+    Assert.assertEquals(pr.getNodeScore(3), 0.2, pr.getTolerance());
   }
 }

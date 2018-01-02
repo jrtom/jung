@@ -9,7 +9,8 @@
 package edu.uci.ics.jung.visualization.picking;
 
 import edu.uci.ics.jung.layout.model.LayoutModel;
-import edu.uci.ics.jung.visualization.Layer;
+import edu.uci.ics.jung.layout.model.Point;
+import edu.uci.ics.jung.visualization.MultiLayerTransformer.Layer;
 import edu.uci.ics.jung.visualization.VisualizationModel;
 import edu.uci.ics.jung.visualization.VisualizationServer;
 import edu.uci.ics.jung.visualization.layout.NetworkElementAccessor;
@@ -26,7 +27,7 @@ import java.util.ConcurrentModificationException;
  *
  * <ul>
  *   <li>If the elements overlap, this mechanism may pick another element than the one that's "on
- *       top" (rendered last) if the pick point is closer to the center of an obscured vertex.
+ *       top" (rendered last) if the pick point is closer to the center of an obscured node.
  *   <li>If element shapes are not convex, then this mechanism may return <code>null</code> even if
  *       the pick point is inside some element's shape, if the pick point is closer to the center of
  *       another element.
@@ -66,7 +67,7 @@ public class ClosestShapePickSupport<N, E> implements NetworkElementAccessor<N, 
   }
 
   @Override
-  public E getEdge(LayoutModel<N, Point2D> layoutModel, double x, double y) {
+  public E getEdge(LayoutModel<N> layoutModel, double x, double y) {
     return null;
   }
 
@@ -76,7 +77,7 @@ public class ClosestShapePickSupport<N, E> implements NetworkElementAccessor<N, 
    * @return an edge associated with the pick location
    */
   @Override
-  public E getEdge(LayoutModel<N, Point2D> layoutModel, Point2D p) {
+  public E getEdge(LayoutModel<N> layoutModel, Point2D p) {
     return getEdge(layoutModel, p.getX(), p.getY());
   }
 
@@ -86,23 +87,23 @@ public class ClosestShapePickSupport<N, E> implements NetworkElementAccessor<N, 
    * @return the node associated with the pick point
    */
   @Override
-  public N getNode(LayoutModel<N, Point2D> layoutModel, Point2D p) {
-    return getNode(layoutModel, p.getX(), p.getY());
+  public N getNode(LayoutModel<N> layoutModel, Point p) {
+    return getNode(layoutModel, p.x, p.y);
   }
 
   @Override
-  public N getNode(LayoutModel<N, Point2D> layoutModel, double x, double y) {
-    VisualizationModel<N, E, Point2D> visualizationModel = vv.getModel();
+  public N getNode(LayoutModel<N> layoutModel, double x, double y) {
+    VisualizationModel<N, E> visualizationModel = vv.getModel();
     //    LayoutModel<N, Point2D> layoutModel = visualizationModel.getLayoutModel();
-    // first, find the closest vertex to (x,y)
+    // first, find the closest node to (x,y)
     double minDistance = Double.MAX_VALUE;
     N closest = null;
     while (true) {
       try {
         for (N v : visualizationModel.getNetwork().nodes()) {
-          Point2D p = layoutModel.apply(v);
-          double dx = p.getX() - x;
-          double dy = p.getY() - y;
+          Point p = layoutModel.apply(v);
+          double dx = p.x - x;
+          double dy = p.y - y;
           double dist = dx * dx + dy * dy;
           if (dist < minDistance) {
             minDistance = dist;
@@ -114,17 +115,20 @@ public class ClosestShapePickSupport<N, E> implements NetworkElementAccessor<N, 
       }
     }
 
-    // now check to see whether (x,y) is in the shape for this vertex.
+    // now check to see whether (x,y) is in the shape for this node.
 
-    // get the vertex shape
-    Shape shape = vv.getRenderContext().getVertexShapeTransformer().apply(closest);
-    // get the vertex location
-    Point2D p = layoutModel.apply(closest);
-    // transform the vertex location to screen coords
-    p = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, p);
+    // get the node shape
+    Shape shape = vv.getRenderContext().getNodeShapeFunction().apply(closest);
+    // get the node location
+    Point p = layoutModel.apply(closest);
+    // transform the node location to screen coords
+    Point2D p2d =
+        vv.getRenderContext()
+            .getMultiLayerTransformer()
+            .transform(Layer.LAYOUT, new Point2D.Double(p.x, p.y));
 
-    double ox = x - p.getX();
-    double oy = y - p.getY();
+    double ox = x - p2d.getX();
+    double oy = y - p2d.getY();
 
     if (shape.contains(ox, oy)) {
       return closest;
@@ -133,22 +137,22 @@ public class ClosestShapePickSupport<N, E> implements NetworkElementAccessor<N, 
     }
   }
 
-  /**
-   * Returns the node, if any, associated with (x, y).
-   *
-   * @param layoutModel
-   * @param x the x coordinate of the pick point
-   * @param y the y coordinate of the pick point
-   * @param z the z coordinate of the pick point - ignored
-   * @return the node associated with (x, y)
-   */
-  @Override
-  public N getNode(LayoutModel<N, Point2D> layoutModel, double x, double y, double z) {
-    return getNode(layoutModel, x, y);
-  }
+  //  /**
+  //   * Returns the node, if any, associated with (x, y).
+  //   *
+  //   * @param layoutModel
+  //   * @param x the x coordinate of the pick point
+  //   * @param y the y coordinate of the pick point
+  //   * @param z the z coordinate of the pick point - ignored
+  //   * @return the node associated with (x, y)
+  //   */
+  //  @Override
+  //  public N getNode(LayoutModel<N> layoutModel, double x, double y, double z) {
+  //    return getNode(layoutModel, x, y);
+  //  }
 
   @Override
-  public Collection<N> getNodes(LayoutModel<N, Point2D> layoutModel, Shape rectangle) {
+  public Collection<N> getNodes(LayoutModel<N> layoutModel, Shape rectangle) {
     // FIXME: RadiusPickSupport and ShapePickSupport are not using the same mechanism!
     // talk to Tom and make sure I understand which should be used.
     // in particular, there are some transformations that the latter uses; the latter is also

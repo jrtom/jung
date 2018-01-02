@@ -13,7 +13,7 @@ package edu.uci.ics.jung.layout.util;
 
 import static edu.uci.ics.jung.layout.util.RandomLocationTransformer.Origin.NE;
 
-import edu.uci.ics.jung.layout.model.PointModel;
+import edu.uci.ics.jung.layout.model.Point;
 import java.util.Date;
 import java.util.Random;
 import java.util.function.Function;
@@ -29,12 +29,11 @@ import java.util.function.Function;
  * @author Tom Nelson
  * @param <N> the node type
  */
-public class RandomLocationTransformer<N, P> implements Function<N, P> {
+public class RandomLocationTransformer<N> implements Function<N, Point> {
   protected double width;
   protected double height;
   protected double depth;
   protected Random random;
-  protected PointModel<P> pointModel;
   protected Origin origin = NE;
 
   public static enum Origin {
@@ -48,9 +47,8 @@ public class RandomLocationTransformer<N, P> implements Function<N, P> {
    *
    * @param width, height the layoutSize of the layout area
    */
-  public RandomLocationTransformer(
-      PointModel<P> pointModel, double width, double height, double depth) {
-    this(NE, pointModel, width, height, depth, new Date().getTime());
+  public RandomLocationTransformer(double width, double height) {
+    this(NE, width, height, new Date().getTime());
   }
 
   /**
@@ -59,9 +57,8 @@ public class RandomLocationTransformer<N, P> implements Function<N, P> {
    *
    * @param width, height the layoutSize of the layout area
    */
-  public RandomLocationTransformer(
-      Origin origin, PointModel<P> pointModel, double width, double height, double depth) {
-    this(origin, pointModel, width, height, depth, new Date().getTime());
+  public RandomLocationTransformer(Origin origin, double width, double height) {
+    this(origin, width, height, new Date().getTime());
   }
 
   /**
@@ -70,9 +67,8 @@ public class RandomLocationTransformer<N, P> implements Function<N, P> {
    * @param
    * @param seed the seed for the internal random number generator
    */
-  public RandomLocationTransformer(
-      PointModel<P> pointModel, double width, double height, double depth, long seed) {
-    this(NE, pointModel, width, height, depth, seed);
+  public RandomLocationTransformer(double width, double height, long seed) {
+    this(NE, width, height, seed);
   }
 
   /**
@@ -81,38 +77,25 @@ public class RandomLocationTransformer<N, P> implements Function<N, P> {
    * @param
    * @param seed the seed for the internal random number generator
    */
-  public RandomLocationTransformer(
-      Origin origin,
-      PointModel<P> pointModel,
-      double width,
-      double height,
-      double depth,
-      long seed) {
+  public RandomLocationTransformer(Origin origin, double width, double height, long seed) {
     this.origin = origin;
-    this.pointModel = pointModel;
     this.width = width;
     this.height = height;
-    this.depth = depth;
     this.random = new Random(seed);
   }
 
-  private P applyNE(N node) {
-    return pointModel.newPoint(
-        random.nextDouble() * width, random.nextDouble() * height, random.nextDouble() * depth);
+  private Point applyNE(N node) {
+    return new Point(random.nextDouble() * width, random.nextDouble() * height);
   }
 
-  private P applyCenter(N node) {
+  private Point applyCenter(N node) {
     double radiusX = width / 2;
     double radiusY = height / 2;
-    double radiusZ = depth / 2;
-    return pointModel.newPoint(
-        random.nextDouble() * width - radiusX,
-        random.nextDouble() * height - radiusY,
-        random.nextDouble() * depth - radiusZ);
+    return new Point(random.nextDouble() * width - radiusX, random.nextDouble() * height - radiusY);
   }
 
   @Override
-  public P apply(N node) {
+  public Point apply(N node) {
     if (this.origin == NE) {
       return applyNE(node);
     } else {

@@ -40,9 +40,9 @@ import org.xml.sax.helpers.DefaultHandler;
  * <ul>
  *   <li>graphs and hypergraphs
  *   <li>directed and undirected edges
- *   <li>graph, vertex, edge <code>data</code>
- *   <li>graph, vertex, edge descriptions and <code>data</code> descriptions
- *   <li>vertex and edge IDs
+ *   <li>graph, node, edge <code>data</code>
+ *   <li>graph, node, edge descriptions and <code>data</code> descriptions
+ *   <li>node and edge IDs
  * </ul>
  *
  * Each of these is exposed via appropriate <code>get</code> methods.
@@ -56,10 +56,10 @@ import org.xml.sax.helpers.DefaultHandler;
  *
  * @see "http://graphml.graphdrawing.org/specification.html"
  */
-public class GraphMLReader<G extends MutableNetwork<V, E>, V, E> extends DefaultHandler {
+public class GraphMLReader<G extends MutableNetwork<N, E>, N, E> extends DefaultHandler {
   protected enum TagState {
     NO_TAG,
-    VERTEX,
+    NODE,
     EDGE,
     HYPEREDGE,
     ENDPOINT,
@@ -74,7 +74,7 @@ public class GraphMLReader<G extends MutableNetwork<V, E>, V, E> extends Default
 
   protected enum KeyType {
     NONE,
-    VERTEX,
+    NODE,
     EDGE,
     GRAPH,
     ALL
@@ -83,20 +83,20 @@ public class GraphMLReader<G extends MutableNetwork<V, E>, V, E> extends Default
   protected SAXParser saxp;
   protected boolean default_directed;
   protected G current_graph;
-  protected V current_vertex;
+  protected N current_node;
   protected E current_edge;
   protected String current_key;
   protected LinkedList<TagState> current_states;
   protected BiMap<String, TagState> tag_state;
   protected Supplier<G> graph_factory;
-  protected Supplier<V> vertex_factory;
+  protected Supplier<N> node_factory;
   protected Supplier<E> edge_factory;
-  protected BiMap<V, String> vertex_ids;
+  protected BiMap<N, String> node_ids;
   protected BiMap<E, String> edge_ids;
   protected Map<String, GraphMLMetadata<G>> graph_metadata;
-  protected Map<String, GraphMLMetadata<V>> vertex_metadata;
+  protected Map<String, GraphMLMetadata<N>> node_metadata;
   protected Map<String, GraphMLMetadata<E>> edge_metadata;
-  protected Map<V, String> vertex_desc;
+  protected Map<N, String> node_desc;
   protected Map<E, String> edge_desc;
   protected Map<G, String> graph_desc;
   protected KeyType key_type;
@@ -108,16 +108,16 @@ public class GraphMLReader<G extends MutableNetwork<V, E>, V, E> extends Default
   // TODO(jrtom): replace graph supplier with NetworkBuilder, or just provide another overload?
 
   /**
-   * Creates a <code>GraphMLReader</code> instance with the specified vertex and edge factories.
+   * Creates a <code>GraphMLReader</code> instance with the specified node and edge factories.
    *
-   * @param vertex_factory the vertex supplier to use to create vertex objects
+   * @param node_factory the node supplier to use to create node objects
    * @param edge_factory the edge supplier to use to create edge objects
    * @throws ParserConfigurationException if a SAX parser cannot be constructed
    * @throws SAXException if the SAX parser factory cannot be constructed
    */
-  public GraphMLReader(Supplier<V> vertex_factory, Supplier<E> edge_factory)
+  public GraphMLReader(Supplier<N> node_factory, Supplier<E> edge_factory)
       throws ParserConfigurationException, SAXException {
-    current_vertex = null;
+    current_node = null;
     current_edge = null;
 
     SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
@@ -126,7 +126,7 @@ public class GraphMLReader<G extends MutableNetwork<V, E>, V, E> extends Default
     current_states = new LinkedList<TagState>();
 
     tag_state = HashBiMap.<String, TagState>create();
-    tag_state.put("node", TagState.VERTEX);
+    tag_state.put("node", TagState.NODE);
     tag_state.put("edge", TagState.EDGE);
     tag_state.put("hyperedge", TagState.HYPEREDGE);
     tag_state.put("endpoint", TagState.ENDPOINT);
@@ -139,15 +139,15 @@ public class GraphMLReader<G extends MutableNetwork<V, E>, V, E> extends Default
 
     this.key_type = KeyType.NONE;
 
-    this.vertex_factory = vertex_factory;
+    this.node_factory = node_factory;
     this.edge_factory = edge_factory;
   }
 
   /**
-   * Creates a <code>GraphMLReader</code> instance that assigns the vertex and edge <code>id</code>
-   * strings to be the vertex and edge objects, as well as their IDs. Note that this requires that
-   * (a) each edge have a valid ID, which is not normally a requirement for edges in GraphML, and
-   * (b) that the vertex and edge types be assignment-compatible with <code>String</code>.
+   * Creates a <code>GraphMLReader</code> instance that assigns the node and edge <code>id</code>
+   * strings to be the node and edge objects, as well as their IDs. Note that this requires that (a)
+   * each edge have a valid ID, which is not normally a requirement for edges in GraphML, and (b)
+   * that the node and edge types be assignment-compatible with <code>String</code>.
    *
    * @throws ParserConfigurationException if a SAX parser cannot be constructed
    * @throws SAXException if the SAX parser factory cannot be constructed
@@ -215,8 +215,8 @@ public class GraphMLReader<G extends MutableNetwork<V, E>, V, E> extends Default
   }
 
   protected void clearData() {
-    this.vertex_ids.clear();
-    this.vertex_desc.clear();
+    this.node_ids.clear();
+    this.node_desc.clear();
 
     this.edge_ids.clear();
     this.edge_desc.clear();
@@ -229,9 +229,9 @@ public class GraphMLReader<G extends MutableNetwork<V, E>, V, E> extends Default
    * loaded (i.e., they're defined inside <code>graphml</code> rather than <code>graph</code>.
    */
   protected void initializeData() {
-    this.vertex_ids = HashBiMap.<V, String>create();
-    this.vertex_desc = new HashMap<V, String>();
-    this.vertex_metadata = new HashMap<String, GraphMLMetadata<V>>();
+    this.node_ids = HashBiMap.<N, String>create();
+    this.node_desc = new HashMap<N, String>();
+    this.node_metadata = new HashMap<String, GraphMLMetadata<N>>();
 
     this.edge_ids = HashBiMap.<E, String>create();
     this.edge_desc = new HashMap<E, String>();
@@ -263,15 +263,15 @@ public class GraphMLReader<G extends MutableNetwork<V, E>, V, E> extends Default
       case GRAPHML:
         break;
 
-      case VERTEX:
+      case NODE:
         if (this.current_graph == null) {
           throw new SAXNotSupportedException("Graph must be defined prior to elements");
         }
-        if (this.current_edge != null || this.current_vertex != null) {
+        if (this.current_edge != null || this.current_node != null) {
           throw new SAXNotSupportedException("Nesting elements not supported");
         }
 
-        createVertex(atts);
+        createNode(atts);
 
         break;
 
@@ -290,19 +290,19 @@ public class GraphMLReader<G extends MutableNetwork<V, E>, V, E> extends Default
         if (node == null) {
           throw new SAXNotSupportedException("Endpoint must include an 'id' attribute");
         }
-        V v = vertex_ids.inverse().get(node);
+        N v = node_ids.inverse().get(node);
         if (v == null) {
           throw new SAXNotSupportedException("Endpoint refers to nonexistent node ID: " + node);
         }
 
-        this.current_vertex = v;
+        this.current_node = v;
         break;
 
       case EDGE:
         if (this.current_graph == null) {
           throw new SAXNotSupportedException("Graph must be defined prior to elements");
         }
-        if (this.current_edge != null || this.current_vertex != null) {
+        if (this.current_edge != null || this.current_node != null) {
           throw new SAXNotSupportedException("Nesting elements not supported");
         }
 
@@ -442,9 +442,9 @@ public class GraphMLReader<G extends MutableNetwork<V, E>, V, E> extends Default
     }
 
     switch (state) {
-      case VERTEX:
+      case NODE:
       case ENDPOINT:
-        current_vertex = null;
+        current_node = null;
         break;
 
       case EDGE:
@@ -467,9 +467,9 @@ public class GraphMLReader<G extends MutableNetwork<V, E>, V, E> extends Default
           case GRAPH:
             graph_desc.put(current_graph, text);
             break;
-          case VERTEX:
+          case NODE:
           case ENDPOINT:
-            vertex_desc.put(current_vertex, text);
+            node_desc.put(current_node, text);
             break;
           case EDGE:
           case HYPEREDGE:
@@ -480,15 +480,15 @@ public class GraphMLReader<G extends MutableNetwork<V, E>, V, E> extends Default
               case GRAPH:
                 graph_metadata.get(current_key).description = text;
                 break;
-              case VERTEX:
-                vertex_metadata.get(current_key).description = text;
+              case NODE:
+                node_metadata.get(current_key).description = text;
                 break;
               case EDGE:
                 edge_metadata.get(current_key).description = text;
                 break;
               case ALL:
                 graph_metadata.get(current_key).description = text;
-                vertex_metadata.get(current_key).description = text;
+                node_metadata.get(current_key).description = text;
                 edge_metadata.get(current_key).description = text;
                 break;
               default:
@@ -507,9 +507,9 @@ public class GraphMLReader<G extends MutableNetwork<V, E>, V, E> extends Default
           case GRAPH:
             addDatum(graph_metadata, current_graph, text);
             break;
-          case VERTEX:
+          case NODE:
           case ENDPOINT:
-            addDatum(vertex_metadata, current_vertex, text);
+            addDatum(node_metadata, current_node, text);
             break;
           case EDGE:
           case HYPEREDGE:
@@ -531,15 +531,15 @@ public class GraphMLReader<G extends MutableNetwork<V, E>, V, E> extends Default
           case GRAPH:
             graph_metadata.get(current_key).default_value = text;
             break;
-          case VERTEX:
-            vertex_metadata.get(current_key).default_value = text;
+          case NODE:
+            node_metadata.get(current_key).default_value = text;
             break;
           case EDGE:
             edge_metadata.get(current_key).default_value = text;
             break;
           case ALL:
             graph_metadata.get(current_key).default_value = text;
-            vertex_metadata.get(current_key).default_value = text;
+            node_metadata.get(current_key).default_value = text;
             edge_metadata.get(current_key).default_value = text;
             break;
           default:
@@ -568,7 +568,7 @@ public class GraphMLReader<G extends MutableNetwork<V, E>, V, E> extends Default
     switch (this.current_states.getFirst()) {
       case GRAPH:
         break;
-      case VERTEX:
+      case NODE:
       case ENDPOINT:
         break;
       case EDGE:
@@ -589,7 +589,7 @@ public class GraphMLReader<G extends MutableNetwork<V, E>, V, E> extends Default
       throw new SAXNotSupportedException("'data' tag requires a non-empty key");
     }
     if (!getGraphMetadata().containsKey(this.current_key)
-        && !getVertexMetadata().containsKey(this.current_key)
+        && !getNodeMetadata().containsKey(this.current_key)
         && !getEdgeMetadata().containsKey(this.current_key)) {
       throw new SAXNotSupportedException(
           "'data' tag's key specification must reference a defined key");
@@ -602,10 +602,10 @@ public class GraphMLReader<G extends MutableNetwork<V, E>, V, E> extends Default
     String for_type = key_atts.remove("for");
 
     if (for_type == null || for_type.equals("") || for_type.equals("all")) {
-      vertex_metadata.put(
+      node_metadata.put(
           id,
-          new GraphMLMetadata<V>(
-              null, null, new MapSettableTransformer<V, String>(new HashMap<V, String>())));
+          new GraphMLMetadata<N>(
+              null, null, new MapSettableTransformer<N, String>(new HashMap<N, String>())));
       edge_metadata.put(
           id,
           new GraphMLMetadata<E>(
@@ -618,12 +618,12 @@ public class GraphMLReader<G extends MutableNetwork<V, E>, V, E> extends Default
     } else {
       TagState type = tag_state.get(for_type);
       switch (type) {
-        case VERTEX:
-          vertex_metadata.put(
+        case NODE:
+          node_metadata.put(
               id,
-              new GraphMLMetadata<V>(
-                  null, null, new MapSettableTransformer<V, String>(new HashMap<V, String>())));
-          key_type = KeyType.VERTEX;
+              new GraphMLMetadata<N>(
+                  null, null, new MapSettableTransformer<N, String>(new HashMap<N, String>())));
+          key_type = KeyType.NODE;
           break;
         case EDGE:
         case HYPEREDGE:
@@ -649,32 +649,32 @@ public class GraphMLReader<G extends MutableNetwork<V, E>, V, E> extends Default
   }
 
   @SuppressWarnings("unchecked")
-  protected void createVertex(Attributes atts) throws SAXNotSupportedException {
-    Map<String, String> vertex_atts = getAttributeMap(atts);
-    String id = vertex_atts.remove("id");
+  protected void createNode(Attributes atts) throws SAXNotSupportedException {
+    Map<String, String> node_atts = getAttributeMap(atts);
+    String id = node_atts.remove("id");
     if (id == null) {
       throw new SAXNotSupportedException(
           "node attribute list missing " + "'id': " + atts.toString());
     }
-    V v = vertex_ids.inverse().get(id);
+    N v = node_ids.inverse().get(id);
 
     if (v == null) {
-      if (vertex_factory != null) {
-        v = vertex_factory.get();
+      if (node_factory != null) {
+        v = node_factory.get();
       } else {
-        v = (V) id;
+        v = (N) id;
       }
-      vertex_ids.put(v, id);
+      node_ids.put(v, id);
       this.current_graph.addNode(v);
 
-      // put remaining attribute/value pairs in vertex_data
-      addExtraData(vertex_atts, vertex_metadata, v);
+      // put remaining attribute/value pairs in node_data
+      addExtraData(node_atts, node_metadata, v);
     } else {
       throw new SAXNotSupportedException(
           "Node id \"" + id + " is a duplicate of an existing node ID");
     }
 
-    this.current_vertex = v;
+    this.current_node = v;
   }
 
   @SuppressWarnings("unchecked")
@@ -718,7 +718,7 @@ public class GraphMLReader<G extends MutableNetwork<V, E>, V, E> extends Default
       throw new SAXNotSupportedException(
           "edge attribute list missing " + "'source': " + atts.toString());
     }
-    V source = vertex_ids.inverse().get(source_id);
+    N source = node_ids.inverse().get(source_id);
     if (source == null) {
       throw new SAXNotSupportedException(
           "specified 'source' attribute " + "\"" + source_id + "\" does not match any node ID");
@@ -729,7 +729,7 @@ public class GraphMLReader<G extends MutableNetwork<V, E>, V, E> extends Default
       throw new SAXNotSupportedException(
           "edge attribute list missing " + "'target': " + atts.toString());
     }
-    V target = vertex_ids.inverse().get(target_id);
+    N target = node_ids.inverse().get(target_id);
     if (target == null) {
       throw new SAXNotSupportedException(
           "specified 'target' attribute " + "\"" + target_id + "\" does not match any node ID");
@@ -760,9 +760,9 @@ public class GraphMLReader<G extends MutableNetwork<V, E>, V, E> extends Default
     current_graph.addEdge(source, target, e);
   }
 
-  /** @return a bidirectional map relating vertices and IDs. */
-  public BiMap<V, String> getVertexIDs() {
-    return vertex_ids;
+  /** @return a bidirectional map relating nodes and IDs. */
+  public BiMap<N, String> getNodeIDs() {
+    return node_ids;
   }
 
   /**
@@ -780,9 +780,9 @@ public class GraphMLReader<G extends MutableNetwork<V, E>, V, E> extends Default
     return graph_metadata;
   }
 
-  /** @return a map from vertex type name to type metadata */
-  public Map<String, GraphMLMetadata<V>> getVertexMetadata() {
-    return vertex_metadata;
+  /** @return a map from node type name to type metadata */
+  public Map<String, GraphMLMetadata<N>> getNodeMetadata() {
+    return node_metadata;
   }
 
   /** @return a map from edge type name to type metadata */
@@ -795,9 +795,9 @@ public class GraphMLReader<G extends MutableNetwork<V, E>, V, E> extends Default
     return graph_desc;
   }
 
-  /** @return a map from vertices to vertex descriptions */
-  public Map<V, String> getVertexDescriptions() {
-    return vertex_desc;
+  /** @return a map from nodes to node descriptions */
+  public Map<N, String> getNodeDescriptions() {
+    return node_desc;
   }
 
   /** @return a map from edges to edge descriptions */

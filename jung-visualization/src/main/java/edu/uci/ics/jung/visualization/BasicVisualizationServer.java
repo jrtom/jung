@@ -9,41 +9,50 @@
 */
 package edu.uci.ics.jung.visualization;
 
+import static edu.uci.ics.jung.visualization.MultiLayerTransformer.Layer;
+
 import com.google.common.collect.Lists;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
 import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.layout.util.Caching;
+import edu.uci.ics.jung.layout.util.LayoutChangeListener;
+import edu.uci.ics.jung.layout.util.LayoutEvent;
+import edu.uci.ics.jung.layout.util.LayoutEventSupport;
+import edu.uci.ics.jung.layout.util.LayoutNetworkEvent;
 import edu.uci.ics.jung.visualization.annotations.AnnotationPaintable;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
-import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
-import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
+import edu.uci.ics.jung.visualization.control.TransformSupport;
+import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintFunction;
+import edu.uci.ics.jung.visualization.decorators.PickableNodePaintFunction;
+import edu.uci.ics.jung.visualization.layout.BoundingRectangleCollector;
 import edu.uci.ics.jung.visualization.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.visualization.picking.MultiPickedState;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import edu.uci.ics.jung.visualization.picking.ShapePickSupport;
+import edu.uci.ics.jung.visualization.properties.VisualizationViewerUI;
 import edu.uci.ics.jung.visualization.renderers.BasicRenderer;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
 import edu.uci.ics.jung.visualization.spatial.Spatial;
-import edu.uci.ics.jung.visualization.spatial.SpatialGrid;
-import edu.uci.ics.jung.visualization.spatial.SpatialQuadTree;
-import edu.uci.ics.jung.visualization.transform.LensTransformer;
-import edu.uci.ics.jung.visualization.transform.MutableTransformer;
-import edu.uci.ics.jung.visualization.transform.MutableTransformerDecorator;
+import edu.uci.ics.jung.visualization.spatial.SpatialRTree;
+import edu.uci.ics.jung.visualization.spatial.rtree.QuadraticLeafSplitter;
+import edu.uci.ics.jung.visualization.spatial.rtree.QuadraticSplitter;
+import edu.uci.ics.jung.visualization.spatial.rtree.RStarLeafSplitter;
+import edu.uci.ics.jung.visualization.spatial.rtree.RStarSplitter;
+import edu.uci.ics.jung.visualization.spatial.rtree.SplitterContext;
 import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
-import edu.uci.ics.jung.visualization.transform.shape.HyperbolicShapeTransformer;
 import edu.uci.ics.jung.visualization.util.ChangeEventSupport;
 import edu.uci.ics.jung.visualization.util.DefaultChangeEventSupport;
 import java.awt.*;
 import java.awt.RenderingHints.Key;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -66,14 +75,17 @@ import org.slf4j.LoggerFactory;
  */
 @SuppressWarnings("serial")
 public class BasicVisualizationServer<N, E> extends JPanel
-    implements ChangeListener, ChangeEventSupport, VisualizationServer<N, E> {
+    implements ChangeListener,
+        ChangeEventSupport,
+        VisualizationServer<N, E>,
+        LayoutChangeListener<N> {
 
   static Logger log = LoggerFactory.getLogger(BasicVisualizationServer.class);
 
   protected ChangeEventSupport changeSupport = new DefaultChangeEventSupport(this);
 
   /** holds the state of this View */
-  protected VisualizationModel<N, E, Point2D> model;
+  protected VisualizationModel<N, E> model;
 
   /** handles the actual drawing of graph elements */
   protected Renderer<N, E> renderer;
@@ -81,8 +93,8 @@ public class BasicVisualizationServer<N, E> extends JPanel
   /** rendering hints used in drawing. Anti-aliasing is on by default */
   protected Map<Key, Object> renderingHints = new HashMap<Key, Object>();
 
-  /** holds the state of which vertices of the graph are currently 'picked' */
-  protected PickedState<N> pickedVertexState;
+  /** holds the state of which nodes of the graph are currently 'picked' */
+  protected PickedState<N> pickedNodeState;
 
   /** holds the state of which edges of the graph are currently 'picked' */
   protected PickedState<E> pickedEdgeState;
@@ -105,44 +117,30 @@ public class BasicVisualizationServer<N, E> extends JPanel
    * a collection of user-implementable functions to render under the topology (before the graph is
    * rendered)
    */
-  protected List<Paintable> preRenderers = new ArrayList<Paintable>();
+  protected List<Paintable> preRenderers = new ArrayList<>();
 
   /**
    * a collection of user-implementable functions to render over the topology (after the graph is
    * rendered)
    */
-  protected List<Paintable> postRenderers = new ArrayList<Paintable>();
+  protected List<Paintable> postRenderers = new ArrayList<>();
 
   protected RenderContext<N, E> renderContext;
 
-  /**
-   * Create an instance with the specified Layout.
-   *
-   * @param
-   */
-  public BasicVisualizationServer(
-      Network<N, E> network, LayoutAlgorithm<N, Point2D> layoutAlgorithm) {
-    this(new BaseVisualizationModel<N, E>(network, layoutAlgorithm), DEFAULT_SIZE);
-  }
+  protected TransformSupport<N, E> transformSupport = new TransformSupport();
+
+  protected Spatial<N> nodeSpatial;
+
+  protected Spatial<E> edgeSpatial;
 
   /**
-   * Create an instance with the specified Layout and view dimension.
-   *
-   * @param
-   * @param preferredSize the preferred layoutSize of this View
+   * @param network the network to render
+   * @param layoutAlgorithm the algorithm to apply
+   * @param preferredSize the size of the graph area
    */
   public BasicVisualizationServer(
-      Network<N, E> network, LayoutAlgorithm<N, Point2D> layoutAlgorithm, Dimension preferredSize) {
+      Network<N, E> network, LayoutAlgorithm<N> layoutAlgorithm, Dimension preferredSize) {
     this(new BaseVisualizationModel<N, E>(network, layoutAlgorithm, preferredSize), preferredSize);
-  }
-
-  /**
-   * Create an instance with the specified model and a default dimension (600x600).
-   *
-   * @param model the model to use
-   */
-  public BasicVisualizationServer(VisualizationModel<N, E, Point2D> model) {
-    this(model, DEFAULT_SIZE);
   }
 
   /**
@@ -151,28 +149,132 @@ public class BasicVisualizationServer<N, E> extends JPanel
    * @param model the model to use
    * @param preferredSize initial preferred layoutSize of the view
    */
-  public BasicVisualizationServer(
-      VisualizationModel<N, E, Point2D> model, Dimension preferredSize) {
+  public BasicVisualizationServer(VisualizationModel<N, E> model, Dimension preferredSize) {
     this.model = model;
-    renderContext = new PluggableRenderContext<N, E>(model.getNetwork());
-    renderer = new BasicRenderer<N, E>();
+    renderContext = new PluggableRenderContext<>(model.getNetwork());
+    renderer = new BasicRenderer<>();
+    createSpatialStuctures(model, renderContext);
     model.addChangeListener(this);
+    model.addLayoutChangeListener(this);
     setDoubleBuffered(false);
     this.addComponentListener(new VisualizationListener(this));
 
-    setPickSupport(new ShapePickSupport<N, E>(this));
-    setPickedVertexState(new MultiPickedState<N>());
-    setPickedEdgeState(new MultiPickedState<E>());
+    setPickSupport(new ShapePickSupport<>(this));
+    setPickedNodeState(new MultiPickedState<>());
+    setPickedEdgeState(new MultiPickedState<>());
 
-    renderContext.setEdgeDrawPaintTransformer(
-        new PickableEdgePaintTransformer<E>(getPickedEdgeState(), Color.black, Color.cyan));
-    renderContext.setVertexFillPaintTransformer(
-        new PickableVertexPaintTransformer<N>(getPickedVertexState(), Color.red, Color.yellow));
+    renderContext.setEdgeDrawPaintFunction(
+        new PickableEdgePaintFunction<>(getPickedEdgeState(), Color.black, Color.cyan));
+    renderContext.setNodeFillPaintFunction(
+        new PickableNodePaintFunction<>(getPickedNodeState(), Color.red, Color.yellow));
 
     setPreferredSize(preferredSize);
     renderingHints.put(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
     renderContext.getMultiLayerTransformer().addChangeListener(this);
+    try {
+      VisualizationViewerUI.getInstance(this).parse();
+    } catch (IOException e) {
+      log.debug("Unable to read property files. Using defaults.");
+    }
+  }
+
+  private void createSpatialStuctures(VisualizationModel model, RenderContext renderContext) {
+    setNodeSpatial(
+        new SpatialRTree.Nodes<N>(
+            model,
+            new BoundingRectangleCollector.Nodes<>(renderContext, model),
+            SplitterContext.of(new RStarLeafSplitter(), new RStarSplitter())));
+    setEdgeSpatial(
+        new SpatialRTree.Edges<>(
+            model,
+            new BoundingRectangleCollector.Edges<E>(renderContext, model),
+            SplitterContext.of(new QuadraticLeafSplitter<>(), new QuadraticSplitter<>())));
+  }
+
+  public Spatial<N> getNodeSpatial() {
+    return nodeSpatial;
+  }
+
+  public void setNodeSpatial(Spatial<N> spatial) {
+
+    if (this.nodeSpatial != null) {
+      disconnectListeners(this.nodeSpatial);
+    }
+    this.nodeSpatial = spatial;
+
+    boolean layoutModelRelaxing = model.getLayoutModel().isRelaxing();
+    nodeSpatial.setActive(!layoutModelRelaxing);
+    if (!layoutModelRelaxing) {
+      nodeSpatial.recalculate();
+    }
+    connectListeners(spatial);
+  }
+
+  public Spatial<E> getEdgeSpatial() {
+    return edgeSpatial;
+  }
+
+  public void setEdgeSpatial(Spatial<E> spatial) {
+
+    if (this.edgeSpatial != null) {
+      disconnectListeners(this.edgeSpatial);
+    }
+    this.edgeSpatial = spatial;
+
+    boolean layoutModelRelaxing = model.getLayoutModel().isRelaxing();
+    edgeSpatial.setActive(!layoutModelRelaxing);
+    if (!layoutModelRelaxing) {
+      edgeSpatial.recalculate();
+    }
+    connectListeners(edgeSpatial);
+  }
+
+  /**
+   * hook up events so that when the VisualizationModel gets an event from the LayoutModel and fires
+   * it, the Spatial will get the same event and know to update or recalculate its space
+   *
+   * @param spatial
+   */
+  private void connectListeners(Spatial<?> spatial) {
+    if (model instanceof LayoutEventSupport && spatial instanceof LayoutChangeListener) {
+      if (spatial instanceof LayoutChangeListener) {
+        model.addLayoutChangeListener((LayoutChangeListener) spatial);
+      }
+    }
+    if (model.getLayoutModel() instanceof LayoutModel.ChangeSupport
+        && spatial instanceof LayoutModel.ChangeListener) {
+      if (spatial instanceof LayoutModel.ChangeListener) {
+        ((LayoutModel.ChangeSupport) model.getLayoutModel())
+            .addChangeListener((LayoutModel.ChangeListener) spatial);
+      }
+    }
+    // this one toggles active/inactive as the opposite of the LayoutModel's active/inactive state
+    model.getLayoutModel().getLayoutStateChangeSupport().addLayoutStateChangeListener(spatial);
+  }
+
+  /**
+   * disconnect listeners that will no longer be used
+   *
+   * @param spatial
+   */
+  private void disconnectListeners(Spatial<?> spatial) {
+    if (model instanceof LayoutEventSupport) {
+      if (spatial instanceof LayoutChangeListener) {
+        model.removeLayoutChangeListener((LayoutChangeListener) spatial);
+      }
+    }
+    if (model.getLayoutModel() instanceof LayoutEventSupport) {
+      ((LayoutEventSupport) model.getLayoutModel())
+          .removeLayoutChangeListener((LayoutChangeListener) spatial);
+    }
+    if (model.getLayoutModel() instanceof LayoutModel.ChangeSupport) {
+      if (spatial instanceof LayoutModel.ChangeListener) {
+        ((LayoutModel.ChangeSupport) model.getLayoutModel())
+            .removeChangeListener((LayoutModel.ChangeListener) spatial);
+      }
+    }
+    model.getLayoutModel().getLayoutStateChangeSupport().removeLayoutStateChangeListener(spatial);
   }
 
   @Override
@@ -216,11 +318,11 @@ public class BasicVisualizationServer<N, E> extends JPanel
     }
   }
 
-  public VisualizationModel<N, E, Point2D> getModel() {
+  public VisualizationModel<N, E> getModel() {
     return model;
   }
 
-  public void setModel(VisualizationModel<N, E, Point2D> model) {
+  public void setModel(VisualizationModel<N, E> model) {
     this.model = model;
   }
 
@@ -302,13 +404,12 @@ public class BasicVisualizationServer<N, E> extends JPanel
 
     g2d.setTransform(newXform);
 
-    Spatial spatial = model.getSpatial();
-
     AnnotationPaintable lowerAnnotationPaintable = null;
 
     if (log.isTraceEnabled()) {
       // when logging is set to trace, the grid will be drawn on the graph visualization
-      addSpatialAnnotations(spatial);
+      addSpatialAnnotations(this.nodeSpatial, Color.blue);
+      addSpatialAnnotations(this.edgeSpatial, Color.green);
     } else {
       removeSpatialAnnotations();
     }
@@ -332,7 +433,7 @@ public class BasicVisualizationServer<N, E> extends JPanel
       ((Caching) model).clear();
     }
 
-    renderer.render(renderContext, model, spatial);
+    renderer.render(renderContext, model, nodeSpatial, edgeSpatial);
 
     // if there are postRenderers set, do it
     for (Paintable paintable : postRenderers) {
@@ -346,6 +447,16 @@ public class BasicVisualizationServer<N, E> extends JPanel
       }
     }
     g2d.setTransform(oldXform);
+  }
+
+  @Override
+  public void layoutChanged(LayoutEvent<N> evt) {
+    repaint();
+  }
+
+  @Override
+  public void layoutChanged(LayoutNetworkEvent<N> evt) {
+    repaint();
   }
 
   /**
@@ -375,14 +486,14 @@ public class BasicVisualizationServer<N, E> extends JPanel
 
   public void addPreRenderPaintable(Paintable paintable) {
     if (preRenderers == null) {
-      preRenderers = new ArrayList<Paintable>();
+      preRenderers = new ArrayList<>();
     }
     preRenderers.add(paintable);
   }
 
   public void prependPreRenderPaintable(Paintable paintable) {
     if (preRenderers == null) {
-      preRenderers = new ArrayList<Paintable>();
+      preRenderers = new ArrayList<>();
     }
     preRenderers.add(0, paintable);
   }
@@ -395,14 +506,14 @@ public class BasicVisualizationServer<N, E> extends JPanel
 
   public void addPostRenderPaintable(Paintable paintable) {
     if (postRenderers == null) {
-      postRenderers = new ArrayList<Paintable>();
+      postRenderers = new ArrayList<>();
     }
     postRenderers.add(paintable);
   }
 
   public void prependPostRenderPaintable(Paintable paintable) {
     if (postRenderers == null) {
-      postRenderers = new ArrayList<Paintable>();
+      postRenderers = new ArrayList<>();
     }
     postRenderers.add(0, paintable);
   }
@@ -429,30 +540,24 @@ public class BasicVisualizationServer<N, E> extends JPanel
     changeSupport.fireStateChanged();
   }
 
-  public PickedState<N> getPickedVertexState() {
-    return pickedVertexState;
+  public PickedState<N> getPickedNodeState() {
+    return pickedNodeState;
   }
 
   public PickedState<E> getPickedEdgeState() {
     return pickedEdgeState;
   }
 
-  public void setPickedVertexState(PickedState<N> pickedVertexState) {
-    if (pickEventListener != null && this.pickedVertexState != null) {
-      this.pickedVertexState.removeItemListener(pickEventListener);
+  public void setPickedNodeState(PickedState<N> pickedNodeState) {
+    if (pickEventListener != null && this.pickedNodeState != null) {
+      this.pickedNodeState.removeItemListener(pickEventListener);
     }
-    this.pickedVertexState = pickedVertexState;
-    this.renderContext.setPickedVertexState(pickedVertexState);
+    this.pickedNodeState = pickedNodeState;
+    this.renderContext.setPickedNodeState(pickedNodeState);
     if (pickEventListener == null) {
-      pickEventListener =
-          new ItemListener() {
-
-            public void itemStateChanged(ItemEvent e) {
-              repaint();
-            }
-          };
+      pickEventListener = e -> repaint();
     }
-    pickedVertexState.addItemListener(pickEventListener);
+    pickedNodeState.addItemListener(pickEventListener);
   }
 
   public void setPickedEdgeState(PickedState<E> pickedEdgeState) {
@@ -477,7 +582,7 @@ public class BasicVisualizationServer<N, E> extends JPanel
 
   public Point2D getCenter() {
     Dimension d = getSize();
-    return new Point2D.Float(d.width / 2, d.height / 2);
+    return new Point2D.Double(d.width / 2, d.height / 2);
   }
 
   public RenderContext<N, E> getRenderContext() {
@@ -488,181 +593,61 @@ public class BasicVisualizationServer<N, E> extends JPanel
     this.renderContext = renderContext;
   }
 
-  private void addSpatialAnnotations(Spatial spatial) {
+  private void addSpatialAnnotations(Spatial spatial, Color color) {
     if (spatial != null) {
-      if (spatial instanceof SpatialQuadTree) {
-        addPreRenderPaintable(new QuadTreeGridPaintable((SpatialQuadTree) spatial));
-      } else if (spatial instanceof SpatialGrid) {
-        addPreRenderPaintable(new SpatialGridPaintable((SpatialGrid) spatial));
-      }
+      addPreRenderPaintable(new SpatialPaintable(spatial, color));
     }
   }
 
   private void removeSpatialAnnotations() {
     for (Iterator<Paintable> iterator = preRenderers.iterator(); iterator.hasNext(); ) {
       Paintable paintable = iterator.next();
-      if (paintable instanceof BasicVisualizationServer.QuadTreeGridPaintable) {
-        iterator.remove();
-      }
-      if (paintable instanceof BasicVisualizationServer.SpatialGridPaintable) {
+      if (paintable instanceof BasicVisualizationServer.SpatialPaintable) {
         iterator.remove();
       }
     }
   }
 
-  class SpatialGridPaintable implements VisualizationServer.Paintable {
-    SpatialGrid<N> spatialGrid;
-
-    public SpatialGridPaintable(SpatialGrid<N> spatialGrid) {
-      this.spatialGrid = spatialGrid;
-    }
-
-    public boolean useTransform() {
-      return true;
-    }
-
-    public void paint(Graphics g) {
-      Graphics2D g2d = (Graphics2D) g;
-      Color oldColor = g2d.getColor();
-
-      List<Rectangle2D> grid = Lists.newArrayList();
-      grid = SpatialGrid.getGrid(grid, (SpatialGrid) spatialGrid);
-      MultiLayerTransformer multiLayerTransformer = getRenderContext().getMultiLayerTransformer();
-
-      MutableTransformer viewTransformer = multiLayerTransformer.getTransformer(Layer.VIEW);
-      MutableTransformer layoutTransformer = multiLayerTransformer.getTransformer(Layer.LAYOUT);
-
-      int num = 0;
-      g2d.setColor(Color.blue);
-
-      for (Rectangle2D r : grid) {
-        Point2D p =
-            getRenderContext()
-                .getMultiLayerTransformer()
-                .inverseTransform(new Point2D.Double(r.getX(), r.getY()));
-        String label = num + ":" + ((SpatialGrid) spatialGrid).getMap().get(num);
-        int stringWidth = g2d.getFontMetrics().stringWidth(label);
-        Shape shape = r;
-        if (viewTransformer instanceof LensTransformer) {
-          shape = multiLayerTransformer.transform(shape);
-        } else if (layoutTransformer instanceof LensTransformer) {
-          LayoutModel<N, Point2D> layoutModel = model.getLayoutModel();
-          Dimension d = new Dimension(layoutModel.getWidth(), layoutModel.getHeight());
-
-          HyperbolicShapeTransformer shapeChanger =
-              new HyperbolicShapeTransformer(d, viewTransformer);
-          LensTransformer lensTransformer = (LensTransformer) layoutTransformer;
-          shapeChanger.getLens().setLensShape(lensTransformer.getLens().getLensShape());
-          MutableTransformer layoutDelegate =
-              ((MutableTransformerDecorator) layoutTransformer).getDelegate();
-          shape = shapeChanger.transform(layoutDelegate.transform(shape));
-        } else {
-          shape = getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, shape);
-        }
-        g2d.draw(shape);
-        Rectangle bounds = shape.getBounds();
-        Point2D center =
-            new Point2D.Double(
-                bounds.getX() + (bounds.getWidth() - stringWidth) / 2,
-                bounds.getY() + bounds.getHeight() / 2);
-
-        g2d.drawString(label, (int) center.getX(), (int) center.getY());
-        num++;
-      }
-
-      g2d.setColor(Color.red);
-      for (Shape pickShape : spatialGrid.getPickShapes()) {
-        Shape shape = pickShape;
-
-        if (viewTransformer instanceof LensTransformer) {
-          shape = multiLayerTransformer.transform(shape);
-        } else if (layoutTransformer instanceof LensTransformer) {
-          LayoutModel<N, Point2D> layoutModel = model.getLayoutModel();
-          Dimension d = new Dimension(layoutModel.getWidth(), layoutModel.getHeight());
-          HyperbolicShapeTransformer shapeChanger =
-              new HyperbolicShapeTransformer(d, viewTransformer);
-          LensTransformer lensTransformer = (LensTransformer) layoutTransformer;
-          shapeChanger.getLens().setLensShape(lensTransformer.getLens().getLensShape());
-          MutableTransformer layoutDelegate =
-              ((MutableTransformerDecorator) layoutTransformer).getDelegate();
-          shape = shapeChanger.transform(layoutDelegate.transform(shape));
-        } else {
-          shape = getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, shape);
-        }
-        g2d.draw(shape);
-      }
-      g2d.setColor(oldColor);
-    }
+  public TransformSupport<N, E> getTransformSupport() {
+    return transformSupport;
   }
 
-  class QuadTreeGridPaintable implements VisualizationServer.Paintable {
+  public void setTransformSupport(TransformSupport<N, E> transformSupport) {
+    this.transformSupport = transformSupport;
+  }
 
-    SpatialQuadTree<N> quadTree;
+  class SpatialPaintable<T> implements VisualizationServer.Paintable {
 
-    public QuadTreeGridPaintable(SpatialQuadTree<N> quadTree) {
+    Spatial<T> quadTree;
+    Color color;
+
+    public SpatialPaintable(Spatial<T> quadTree, Color color) {
       this.quadTree = quadTree;
+      this.color = color;
     }
 
     public boolean useTransform() {
-      return true;
+      return false;
     }
 
     public void paint(Graphics g) {
       Graphics2D g2d = (Graphics2D) g;
       Color oldColor = g2d.getColor();
       //gather all the grid shapes
-      List<SpatialQuadTree<N>> grid = Lists.newArrayList();
-      grid = SpatialQuadTree.getNodes(grid, quadTree);
-      MultiLayerTransformer multiLayerTransformer = getRenderContext().getMultiLayerTransformer();
+      List<Shape> grid = Lists.newArrayList();
+      grid = quadTree.getGrid();
 
-      MutableTransformer viewTransformer = multiLayerTransformer.getTransformer(Layer.VIEW);
-      MutableTransformer layoutTransformer = multiLayerTransformer.getTransformer(Layer.LAYOUT);
-
-      g2d.setColor(Color.blue);
-      for (SpatialQuadTree r : grid) {
-        Shape area = r.getLayoutArea();
-
-        Shape shape = area;
-
-        if (viewTransformer instanceof LensTransformer) {
-          shape = multiLayerTransformer.transform(shape);
-        } else if (layoutTransformer instanceof LensTransformer) {
-          LayoutModel<N, Point2D> layoutModel = model.getLayoutModel();
-          Dimension d = new Dimension(layoutModel.getWidth(), layoutModel.getHeight());
-          HyperbolicShapeTransformer shapeChanger =
-              new HyperbolicShapeTransformer(d, viewTransformer);
-          LensTransformer lensTransformer = (LensTransformer) layoutTransformer;
-          shapeChanger.getLens().setLensShape(lensTransformer.getLens().getLensShape());
-          MutableTransformer layoutDelegate =
-              ((MutableTransformerDecorator) layoutTransformer).getDelegate();
-          shape = shapeChanger.transform(layoutDelegate.transform(shape));
-        } else {
-          shape = getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, shape);
-        }
-
+      g2d.setColor(color);
+      for (Shape r : grid) {
+        Shape shape = transformSupport.transform(BasicVisualizationServer.this, r);
         g2d.draw(shape);
       }
       g2d.setColor(Color.red);
 
       for (Shape pickShape : quadTree.getPickShapes()) {
         if (pickShape != null) {
-          Shape shape = pickShape;
+          Shape shape = transformSupport.transform(BasicVisualizationServer.this, pickShape);
 
-          if (viewTransformer instanceof LensTransformer) {
-            shape = multiLayerTransformer.transform(shape);
-          } else if (layoutTransformer instanceof LensTransformer) {
-            LayoutModel<N, Point2D> layoutModel = model.getLayoutModel();
-            Dimension d = new Dimension(layoutModel.getWidth(), layoutModel.getHeight());
-            HyperbolicShapeTransformer shapeChanger =
-                new HyperbolicShapeTransformer(d, viewTransformer);
-            LensTransformer lensTransformer = (LensTransformer) layoutTransformer;
-            shapeChanger.getLens().setLensShape(lensTransformer.getLens().getLensShape());
-            MutableTransformer layoutDelegate =
-                ((MutableTransformerDecorator) layoutTransformer).getDelegate();
-            shape = shapeChanger.transform(layoutDelegate.transform(shape));
-          } else {
-            shape = getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, shape);
-          }
           g2d.draw(shape);
         }
       }

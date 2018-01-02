@@ -1,24 +1,24 @@
 package edu.uci.ics.jung.layout.util;
 
 import com.google.common.graph.Network;
+import edu.uci.ics.jung.layout.model.Point;
 
 /**
  * An LayoutEvent that also includes a reference to the Network
  *
  * @author Tom Nelson
  * @param <N>
- * @param <P>
  */
-public class LayoutNetworkEvent<N, P> extends LayoutEvent<N, P> {
+public class LayoutNetworkEvent<N> extends LayoutEvent<N> {
 
   final Network<N, ?> network;
 
-  public LayoutNetworkEvent(N vertex, Network<N, ?> network, P location) {
-    super(vertex, location);
+  public LayoutNetworkEvent(N node, Network<N, ?> network, Point location) {
+    super(node, location);
     this.network = network;
   }
 
-  public LayoutNetworkEvent(LayoutEvent<N, P> layoutEvent, Network<N, ?> network) {
+  public LayoutNetworkEvent(LayoutEvent<N> layoutEvent, Network<N, ?> network) {
     super(layoutEvent.getNode(), layoutEvent.location);
     this.network = network;
   }

@@ -24,14 +24,14 @@ import java.util.Set;
 /**
  * Methods for creating a "folded" graph based on an input graph.graph or a hypergraph.
  *
- * <p>A "folded" graph is derived from a k-partite graph by identifying a partition of vertices
- * which will become the vertices of the new graph, copying these vertices into the new graph, and
- * then connecting those vertices whose original analogues were connected indirectly through
- * elements of other partitions.
+ * <p>A "folded" graph is derived from a k-partite graph by identifying a partition of nodes which
+ * will become the nodes of the new graph, copying these nodes into the new graph, and then
+ * connecting those nodes whose original analogues were connected indirectly through elements of
+ * other partitions.
  *
- * <p>A "folded" graph is derived from a hypergraph by creating vertices based on either the
- * vertices or the hyperedges of the original graph, and connecting vertices in the new graph if
- * their corresponding vertices/hyperedges share a connection with a common hyperedge/vertex.
+ * <p>A "folded" graph is derived from a hypergraph by creating nodes based on either the nodes or
+ * the hyperedges of the original graph, and connecting nodes in the new graph if their
+ * corresponding nodes/hyperedges share a connection with a common hyperedge/node.
  *
  * @author Danyel Fisher
  * @author Joshua O'Madadhain
@@ -40,21 +40,20 @@ import java.util.Set;
 // see JUNG 2.1 source for this file for concepts:
 // * nodes -> nodes, replace hyperedges by k-cliques on incident nodes
 // * hyperedges -> nodes, (a,b) exists in new graph if a and b share a node
-public class FoldingTransformer<V, E> {
+public class FoldingTransformer<N, E> {
 
   /**
-   * Converts <code>g</code> into a unipartite graph whose vertex set is the vertices of <code>g
-   * </code>'s partition <code>p</code>. For vertices <code>a</code> and <code>b</code> in this
+   * Converts <code>g</code> into a unipartite graph whose node set is the nodes of <code>g
+   * </code>'s partition <code>p</code>. For nodes <code>a</code> and <code>b</code> in this
    * partition, the resultant graph will include the edge <code>(a,b)</code> if the original graph
-   * contains edges <code>(a,c)</code> and <code>(c,b)</code> for at least one vertex <code>c</code>
-   * .
+   * contains edges <code>(a,c)</code> and <code>(c,b)</code> for at least one node <code>c</code> .
    *
-   * <p>The vertices of the new graph are the same as the vertices of the appropriate partition in
-   * the old graph.
+   * <p>The nodes of the new graph are the same as the nodes of the appropriate partition in the old
+   * graph.
    *
    * <p>This function will not create self-loops.
    *
-   * @param <N> vertex type
+   * @param <N> node type
    * @param <E> input edge type
    * @param g input graph
    * @param nodes input node set
@@ -80,19 +79,18 @@ public class FoldingTransformer<V, E> {
   }
 
   /**
-   * Converts <code>g</code> into a unipartite graph whose vertex set is the vertices of <code>g
-   * </code>'s partition <code>p</code>. For vertices <code>a</code> and <code>b</code> in this
+   * Converts <code>g</code> into a unipartite graph whose node set is the nodes of <code>g
+   * </code>'s partition <code>p</code>. For nodes <code>a</code> and <code>b</code> in this
    * partition, the resultant graph will include the edge <code>(a,b)</code> if the original graph
-   * contains edges <code>(a,c)</code> and <code>(c,b)</code> for at least one vertex <code>c</code>
-   * .
+   * contains edges <code>(a,c)</code> and <code>(c,b)</code> for at least one node <code>c</code> .
    *
-   * <p>The vertices of the new graph are the same as the vertices of the appropriate partition in
-   * the input graph. The edge values are the sets of nodes that connected the edge's endpoints in
-   * the input graph.
+   * <p>The nodes of the new graph are the same as the nodes of the appropriate partition in the
+   * input graph. The edge values are the sets of nodes that connected the edge's endpoints in the
+   * input graph.
    *
    * <p>This function will not create self-loops.
    *
-   * @param <N> vertex type
+   * @param <N> node type
    * @param <E> input edge type
    * @param g input graph
    * @param nodes input node set

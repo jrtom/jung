@@ -42,12 +42,12 @@ public class TestLattice2D {
     this.topology = topology;
   }
 
-  protected Supplier<String> vertexFactory;
+  protected Supplier<String> nodeFactory;
   protected Supplier<Integer> edgeFactory;
 
   @Before
   public void setUp() {
-    vertexFactory =
+    nodeFactory =
         new Supplier<String>() {
           int count;
 
@@ -84,7 +84,7 @@ public class TestLattice2D {
         Lattice2DGenerator<String, Integer> generator =
             new Lattice2DGenerator<>(rowCount, colCount, toroidal());
         Network<String, Integer> graph =
-            generator.generateNetwork(directed(), vertexFactory, edgeFactory);
+            generator.generateNetwork(directed(), nodeFactory, edgeFactory);
         assertEquals(graph.nodes().size(), rowCount * colCount);
 
         int boundary_adjustment = (toroidal() ? 0 : 1);

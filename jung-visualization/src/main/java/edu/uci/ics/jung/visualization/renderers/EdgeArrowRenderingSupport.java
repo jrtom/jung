@@ -5,55 +5,55 @@ import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
 
-public interface EdgeArrowRenderingSupport<V, E> {
+public interface EdgeArrowRenderingSupport<N, E> {
 
   /**
    * Returns a transform to position the arrowhead on this edge shape at the point where it
-   * intersects the passed vertex shape.
+   * intersects the passed node shape.
    *
    * @param rc the rendering context used for rendering the arrow
    * @param edgeShape the shape used to draw the edge
-   * @param vertexShape the shape used to draw the vertex
-   * @return a transform used for positioning the arrowhead for this vertex and edge
+   * @param nodeShape the shape used to draw the node
+   * @return a transform used for positioning the arrowhead for this node and edge
    */
-  AffineTransform getArrowTransform(RenderContext<V, E> rc, Shape edgeShape, Shape vertexShape);
+  AffineTransform getArrowTransform(RenderContext<N, E> rc, Shape edgeShape, Shape nodeShape);
 
   /**
    * Returns a transform to position the arrowhead on this edge shape at the point where it
-   * intersects the passed vertex shape.
+   * intersects the passed node shape.
    *
    * @param rc the rendering context used for rendering the arrow
    * @param edgeShape the shape used to draw the edge
-   * @param vertexShape the shape used to draw the vertex
-   * @return a transform used for positioning the arrowhead for this vertex and edge
+   * @param nodeShape the shape used to draw the node
+   * @return a transform used for positioning the arrowhead for this node and edge
    */
   AffineTransform getReverseArrowTransform(
-      RenderContext<V, E> rc, Shape edgeShape, Shape vertexShape);
+      RenderContext<N, E> rc, Shape edgeShape, Shape nodeShape);
 
   /**
    * Returns a transform to position the arrowhead on this edge shape at the point where it
-   * intersects the passed vertex shape.
+   * intersects the passed node shape.
    *
-   * <p>The Loop edge is a special case because its starting point is not inside the vertex. The
+   * <p>The Loop edge is a special case because its starting point is not inside the node. The
    * passedGo flag handles this case.
    *
    * @param rc the rendering context used for rendering the arrow
    * @param edgeShape the shape used to draw the edge
-   * @param vertexShape the shape used to draw the vertex
+   * @param nodeShape the shape used to draw the node
    * @param passedGo used for rendering loop edges
-   * @return a transform used for positioning the arrowhead for this vertex and edge
+   * @return a transform used for positioning the arrowhead for this node and edge
    */
   AffineTransform getReverseArrowTransform(
-      RenderContext<V, E> rc, Shape edgeShape, Shape vertexShape, boolean passedGo);
+      RenderContext<N, E> rc, Shape edgeShape, Shape nodeShape, boolean passedGo);
 
   /**
    * Returns a transform to position the arrowhead on this edge shape at the point where it
-   * intersects the passed vertex shape.
+   * intersects the passed node shape.
    *
    * @param rc the rendering context used for rendering the arrow
    * @param edgeShape the shape used to draw the edge
-   * @param vertexShape the shape used to draw the vertex
-   * @return a transform used for positioning the arrowhead for this vertex and edge
+   * @param nodeShape the shape used to draw the node
+   * @return a transform used for positioning the arrowhead for this node and edge
    */
-  AffineTransform getArrowTransform(RenderContext<V, E> rc, Line2D edgeShape, Shape vertexShape);
+  AffineTransform getArrowTransform(RenderContext<N, E> rc, Line2D edgeShape, Shape nodeShape);
 }

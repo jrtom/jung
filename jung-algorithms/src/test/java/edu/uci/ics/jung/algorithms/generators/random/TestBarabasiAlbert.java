@@ -19,10 +19,10 @@ import junit.framework.TestCase;
  * @author James Marchant
  */
 public class TestBarabasiAlbert extends TestCase {
-  protected Supplier<Integer> vertexFactory;
+  protected Supplier<Integer> nodeFactory;
   protected Supplier<Number> edgeFactory;
 
-  protected int init_vertices = 1;
+  protected int init_nodes = 1;
   protected int edges_to_add_per_timestep = 1;
   protected int random_seed = 0;
   protected int num_timesteps = 10;
@@ -30,7 +30,7 @@ public class TestBarabasiAlbert extends TestCase {
 
   @Override
   protected void setUp() {
-    vertexFactory =
+    nodeFactory =
         new Supplier<Integer>() {
           int count;
 
@@ -53,13 +53,13 @@ public class TestBarabasiAlbert extends TestCase {
   // * undirected edges
   // * ...
   public void testDirected() {
-    int init_vertices = 1;
+    int init_nodes = 1;
     int edges_to_add_per_timestep = 1;
     int random_seed = 0;
     int num_tests = 10;
     int num_timesteps = 10;
 
-    Supplier<Integer> vertexFactory =
+    Supplier<Integer> nodeFactory =
         new Supplier<Integer>() {
           int count;
 
@@ -79,15 +79,15 @@ public class TestBarabasiAlbert extends TestCase {
     BarabasiAlbertGenerator<Integer, Number> generator =
         new BarabasiAlbertGenerator<>(
             NetworkBuilder.directed(),
-            vertexFactory,
+            nodeFactory,
             edgeFactory,
-            init_vertices,
+            init_nodes,
             edges_to_add_per_timestep,
             random_seed);
     for (int i = 1; i <= num_tests; i++) {
       generator.evolveGraph(num_timesteps);
       Network<Integer, Number> graph = generator.get();
-      assertEquals(graph.nodes().size(), (i * num_timesteps) + init_vertices);
+      assertEquals(graph.nodes().size(), (i * num_timesteps) + init_nodes);
       assertEquals(graph.edges().size(), edges_to_add_per_timestep * (i * num_timesteps));
       ImmutableSet<Integer> seedNodes = generator.seedNodes();
 
@@ -111,12 +111,12 @@ public class TestBarabasiAlbert extends TestCase {
       BarabasiAlbertGenerator<Integer, Number> generator =
           new BarabasiAlbertGenerator<>(
               NetworkBuilder.directed(),
-              vertexFactory,
+              nodeFactory,
               edgeFactory,
-              0, // init_vertices
+              0, // init_nodes
               edges_to_add_per_timestep,
               random_seed);
-      fail("failed to reject init_vertices of <= 0");
+      fail("failed to reject init_nodes of <= 0");
     } catch (IllegalArgumentException e) {
       // TODO: assert that the exception message contains "seed"
     }
@@ -126,9 +126,9 @@ public class TestBarabasiAlbert extends TestCase {
       BarabasiAlbertGenerator<Integer, Number> generator =
           new BarabasiAlbertGenerator<>(
               NetworkBuilder.directed(),
-              vertexFactory,
+              nodeFactory,
               edgeFactory,
-              init_vertices,
+              init_nodes,
               0, // edges_to_add_per_timestep
               random_seed);
       fail("failed to reject edges_to_add_per_timestamp of <= 0");
@@ -137,18 +137,18 @@ public class TestBarabasiAlbert extends TestCase {
       // "Number of edges to attach at each time step must be positive"
     }
 
-    // test edges_to_add_per_timestep > init_vertices
+    // test edges_to_add_per_timestep > init_nodes
     try {
       int nodesToAdd = 5;
       BarabasiAlbertGenerator<Integer, Number> generator =
           new BarabasiAlbertGenerator<>(
               NetworkBuilder.directed(),
-              vertexFactory,
+              nodeFactory,
               edgeFactory,
-              nodesToAdd, // init_vertices
+              nodesToAdd, // init_nodes
               nodesToAdd + 1, // edges_to_add_per_timestep
               random_seed);
-      fail("failed to reject edges_to_add_per_timestamp of > init_vertices");
+      fail("failed to reject edges_to_add_per_timestamp of > init_nodes");
     } catch (IllegalArgumentException e) {
       // TODO: assert that the exception message is appropriate (see above)
     }

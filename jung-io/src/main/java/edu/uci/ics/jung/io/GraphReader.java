@@ -17,10 +17,10 @@ import com.google.common.graph.MutableNetwork;
  *
  * @author Nathan Mittler - nathan.mittler@gmail.com
  * @param <G> the graph type
- * @param <V> the vertex type the vertex type
- * @param <V> the edge type the edge type
+ * @param <N> the node type the node type
+ * @param <N> the edge type the edge type
  */
-public interface GraphReader<G extends MutableNetwork<V, E>, V, E> {
+public interface GraphReader<G extends MutableNetwork<N, E>, N, E> {
 
   /**
    * Reads a single graph object, if one is available.

@@ -31,8 +31,8 @@ import java.util.function.Function;
  * </ul>
  *
  * <p>Running time is: O(kmn) where k is the number of edges to remove, m is the total number of
- * edges, and n is the total number of vertices. For very sparse graphs the running time is closer
- * to O(kn^2) and for graphs with strong community structure, the complexity is even lower.
+ * edges, and n is the total number of nodes. For very sparse graphs the running time is closer to
+ * O(kn^2) and for graphs with strong community structure, the complexity is even lower.
  *
  * <p>This algorithm is a slight modification of the algorithm discussed below in that the number of
  * edges to be removed is parameterized.
@@ -42,7 +42,7 @@ import java.util.function.Function;
  * @author Joshua O'Madadhain (converted to common.graph)
  * @see "Community structure in social and biological networks by Michelle Girvan and Mark Newman"
  */
-public class EdgeBetweennessClusterer<V, E> implements Function<Network<V, E>, Set<Set<V>>> {
+public class EdgeBetweennessClusterer<N, E> implements Function<Network<N, E>, Set<Set<N>>> {
   private final int mNumEdgesToRemove;
   private LinkedHashSet<E> edgesRemoved;
 
@@ -64,17 +64,17 @@ public class EdgeBetweennessClusterer<V, E> implements Function<Network<V, E>, S
    *
    * @param graph the graph
    */
-  public Set<Set<V>> apply(Network<V, E> graph) {
+  public Set<Set<N>> apply(Network<N, E> graph) {
     Preconditions.checkArgument(
         mNumEdgesToRemove <= graph.edges().size(),
         "Number of edges to remove must be <= the number of edges in the graph");
     // TODO(jrtom): is there something smarter that we can do if we're removing
     // (almost) all the edges in the graph?
-    MutableNetwork<V, E> filtered = Graphs.copyOf(graph);
+    MutableNetwork<N, E> filtered = Graphs.copyOf(graph);
     edgesRemoved.clear();
 
     for (int k = 0; k < mNumEdgesToRemove; k++) {
-      BetweennessCentrality<V, E> bc = new BetweennessCentrality<V, E>(filtered);
+      BetweennessCentrality<N, E> bc = new BetweennessCentrality<N, E>(filtered);
       E to_remove = null;
       double score = 0;
       for (E e : filtered.edges()) {
@@ -87,8 +87,8 @@ public class EdgeBetweennessClusterer<V, E> implements Function<Network<V, E>, S
       filtered.removeEdge(to_remove);
     }
 
-    WeakComponentClusterer<V, E> wcSearch = new WeakComponentClusterer<V, E>();
-    Set<Set<V>> clusterSet = wcSearch.apply(filtered);
+    WeakComponentClusterer<N, E> wcSearch = new WeakComponentClusterer<N, E>();
+    Set<Set<N>> clusterSet = wcSearch.apply(filtered);
 
     return clusterSet;
   }

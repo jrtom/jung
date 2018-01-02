@@ -8,16 +8,16 @@ import java.awt.geom.Point2D;
  * is a sample implementation
  *
  * @author Tom Nelson
- * @param <V> the vertex type
- * @param <V> the edge type
+ * @param <N> the node type
+ * @param <N> the edge type
  */
-public interface EdgeSupport<V, E> {
+public interface EdgeSupport<N, E> {
 
-  void startEdgeCreate(BasicVisualizationServer<V, E> vv, V startVertex, Point2D startPoint);
+  void startEdgeCreate(BasicVisualizationServer<N, E> vv, N startNode, Point2D startPoint);
 
-  void midEdgeCreate(BasicVisualizationServer<V, E> vv, Point2D midPoint);
+  void midEdgeCreate(BasicVisualizationServer<N, E> vv, Point2D midPoint);
 
-  void endEdgeCreate(BasicVisualizationServer<V, E> vv, V endVertex);
+  void endEdgeCreate(BasicVisualizationServer<N, E> vv, N endNode);
 
-  void abort(BasicVisualizationServer<V, E> vv);
+  void abort(BasicVisualizationServer<N, E> vv);
 }

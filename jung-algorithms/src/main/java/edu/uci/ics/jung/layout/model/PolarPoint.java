@@ -15,7 +15,7 @@ package edu.uci.ics.jung.layout.model;
  *
  * @author Tom Nelson
  */
-public class PolarPoint<P> {
+public class PolarPoint {
   double theta;
   double radius;
 
@@ -57,8 +57,8 @@ public class PolarPoint<P> {
    * @param polar the input location to convert
    * @return the result of converting <code>polar</code> to Cartesian coordinates.
    */
-  public static <P> P polarToCartesian(PointModel<P> pointModel, PolarPoint polar) {
-    return polarToCartesian(pointModel, polar.getTheta(), polar.getRadius());
+  public static Point polarToCartesian(PolarPoint polar) {
+    return polarToCartesian(polar.getTheta(), polar.getRadius());
   }
 
   /**
@@ -66,16 +66,16 @@ public class PolarPoint<P> {
    * @param radius the distance from the origin of the input location
    * @return the result of converting <code>(theta, radius)</code> to Cartesian coordinates.
    */
-  public static <P> P polarToCartesian(PointModel<P> pointModel, double theta, double radius) {
-    return pointModel.newPoint(radius * Math.cos(theta), radius * Math.sin(theta));
+  public static Point polarToCartesian(double theta, double radius) {
+    return new Point(radius * Math.cos(theta), radius * Math.sin(theta));
   }
 
   /**
    * @param point the input location
    * @return the result of converting <code>point</code> to polar coordinates.
    */
-  public static <P> PolarPoint cartesianToPolar(PointModel<P> pointModel, P point) {
-    return cartesianToPolar(pointModel, pointModel.getX(point), pointModel.getY(point));
+  public static PolarPoint cartesianToPolar(Point point) {
+    return cartesianToPolar(point.x, point.y);
   }
 
   /**
@@ -83,7 +83,7 @@ public class PolarPoint<P> {
    * @param y the y coordinate of the input location
    * @return the result of converting <code>(x, y)</code> to polar coordinates.
    */
-  public static <P> PolarPoint cartesianToPolar(PointModel<P> pointModel, double x, double y) {
+  public static PolarPoint cartesianToPolar(double x, double y) {
     double theta = Math.atan2(y, x);
     double radius = Math.sqrt(x * x + y * y);
     return new PolarPoint(theta, radius);

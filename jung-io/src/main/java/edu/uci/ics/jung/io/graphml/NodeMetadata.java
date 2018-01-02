@@ -23,7 +23,7 @@ public class NodeMetadata extends AbstractMetadata {
 
   private String id;
   private String description;
-  private Object vertex;
+  private Object node;
   private final List<PortMetadata> ports = new ArrayList<PortMetadata>();
 
   public String getId() {
@@ -50,12 +50,12 @@ public class NodeMetadata extends AbstractMetadata {
     return ports;
   }
 
-  public Object getVertex() {
-    return vertex;
+  public Object getNode() {
+    return node;
   }
 
-  public void setVertex(Object vertex) {
-    this.vertex = vertex;
+  public void setNode(Object node) {
+    this.node = node;
   }
 
   public MetadataType getMetadataType() {

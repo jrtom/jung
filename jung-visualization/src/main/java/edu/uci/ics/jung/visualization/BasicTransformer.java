@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
  * A basic implementation of the MultiLayerTransformer interface that provides two Layers: VIEW and
  * LAYOUT. It also provides ChangeEventSupport
  *
- * @author Tom Nelson - tomnelson@dev.java.net
+ * @author Tom Nelson
  */
 public class BasicTransformer
     implements MultiLayerTransformer, ShapeTransformer, ChangeListener, ChangeEventSupport {

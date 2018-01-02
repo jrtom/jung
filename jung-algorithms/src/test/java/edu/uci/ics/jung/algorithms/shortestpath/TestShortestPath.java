@@ -456,7 +456,7 @@ public class TestShortestPath extends TestCase {
 
   private Function<Integer, Number> nev;
 
-  private Supplier<String> vertexFactoryDG =
+  private Supplier<String> nodeFactoryDG =
       new Supplier<String>() {
         int count = 0;
 
@@ -464,7 +464,7 @@ public class TestShortestPath extends TestCase {
           return "V" + count++;
         }
       };
-  private Supplier<String> vertexFactoryUG =
+  private Supplier<String> nodeFactoryUG =
       new Supplier<String>() {
         int count = 0;
 
@@ -482,7 +482,7 @@ public class TestShortestPath extends TestCase {
     nev = edgeWeights::get;
     dg = NetworkBuilder.directed().allowsParallelEdges(true).allowsSelfLoops(true).build();
     for (int i = 0; i < dg_distances.length; i++) {
-      dg.addNode(vertexFactoryDG.get());
+      dg.addNode(nodeFactoryDG.get());
     }
     did = Indexer.create(dg.nodes(), 1);
     Integer[] dgArray = new Integer[edges.length];
@@ -490,7 +490,7 @@ public class TestShortestPath extends TestCase {
 
     ug = NetworkBuilder.undirected().allowsParallelEdges(true).allowsSelfLoops(true).build();
     for (int i = 0; i < ug_distances.length; i++) {
-      ug.addNode(vertexFactoryUG.get());
+      ug.addNode(nodeFactoryUG.get());
     }
     uid = Indexer.create(ug.nodes(), 1);
     Integer[] ugArray = new Integer[edges.length];
@@ -514,53 +514,53 @@ public class TestShortestPath extends TestCase {
 
     try {
       dsp.getDistance(start, v);
-      fail("getDistance(): illegal destination vertex");
+      fail("getDistance(): illegal destination node");
     } catch (IllegalArgumentException iae) {
     }
     try {
       dsp.getDistance(v, start);
-      fail("getDistance(): illegal source vertex");
+      fail("getDistance(): illegal source node");
     } catch (IllegalArgumentException iae) {
     }
     try {
       dsp.getDistanceMap(v, 1);
-      fail("getDistanceMap(): illegal source vertex");
+      fail("getDistanceMap(): illegal source node");
     } catch (IllegalArgumentException iae) {
     }
     try {
       dsp.getDistanceMap(start, 0);
-      fail("getDistanceMap(): too few vertices requested");
+      fail("getDistanceMap(): too few nodes requested");
     } catch (IllegalArgumentException iae) {
     }
     try {
       dsp.getDistanceMap(start, g.nodes().size() + 1);
-      fail("getDistanceMap(): too many vertices requested");
+      fail("getDistanceMap(): too many nodes requested");
     } catch (IllegalArgumentException iae) {
     }
 
     try {
       dsp.getIncomingEdge(start, v);
-      fail("getIncomingEdge(): illegal destination vertex");
+      fail("getIncomingEdge(): illegal destination node");
     } catch (IllegalArgumentException iae) {
     }
     try {
       dsp.getIncomingEdge(v, start);
-      fail("getIncomingEdge(): illegal source vertex");
+      fail("getIncomingEdge(): illegal source node");
     } catch (IllegalArgumentException iae) {
     }
     try {
       dsp.getIncomingEdgeMap(v, 1);
-      fail("getIncomingEdgeMap(): illegal source vertex");
+      fail("getIncomingEdgeMap(): illegal source node");
     } catch (IllegalArgumentException iae) {
     }
     try {
       dsp.getIncomingEdgeMap(start, 0);
-      fail("getIncomingEdgeMap(): too few vertices requested");
+      fail("getIncomingEdgeMap(): too few nodes requested");
     } catch (IllegalArgumentException iae) {
     }
     try {
       dsp.getDistanceMap(start, g.nodes().size() + 1);
-      fail("getIncomingEdgeMap(): too many vertices requested");
+      fail("getIncomingEdgeMap(): too many nodes requested");
     } catch (IllegalArgumentException iae) {
     }
 
@@ -693,7 +693,7 @@ public class TestShortestPath extends TestCase {
       assertEquals(distances1[i - 1], dCur, .001);
       reachable.add(cur);
     }
-    // make sure that non-reachable vertices have no entries
+    // make sure that non-reachable nodes have no entries
     for (String v : g.nodes()) {
       assertEquals(reachable.contains(v), distances.keySet().contains(v));
     }

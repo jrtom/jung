@@ -25,51 +25,50 @@ import java.util.function.Supplier;
  * @author Scott White
  * @see "A Steady State Model for Graph Power Law by David Eppstein and Joseph Wang"
  */
-public class EppsteinPowerLawGenerator<V> {
+public class EppsteinPowerLawGenerator<N> {
   private int nodeCount;
   private int edgeCount;
   private int mNumIterations;
   private double mMaxDegree;
   private Random mRandom;
-  private Supplier<V> vertexFactory;
-  private List<V> nodes;
+  private Supplier<N> nodeFactory;
+  private List<N> nodes;
 
   /**
    * Creates an instance with the specified factories and specifications.
    *
-   * @param vertexFactory the Supplier to use to create vertices
-   * @param numVertices the number of vertices for the generated graph
-   * @param numEdges the number of edges the generated graph will have, should be Theta(numVertices)
+   * @param nodeFactory the Supplier to use to create nodes
+   * @param numNodes the number of nodes for the generated graph
+   * @param numEdges the number of edges the generated graph will have, should be Theta(numNodes)
    * @param r the number of iterations to use; the larger the value the better the graph's degree
    *     distribution will approximate a power-law
    */
-  public EppsteinPowerLawGenerator(
-      Supplier<V> vertexFactory, int numVertices, int numEdges, int r) {
-    this.vertexFactory = vertexFactory;
-    nodeCount = numVertices;
+  public EppsteinPowerLawGenerator(Supplier<N> nodeFactory, int numNodes, int numEdges, int r) {
+    this.nodeFactory = nodeFactory;
+    nodeCount = numNodes;
     edgeCount = numEdges;
     mNumIterations = r;
     mRandom = new Random();
   }
 
-  protected MutableGraph<V> initializeGraph() {
-    MutableGraph<V> graph = GraphBuilder.undirected().build();
-    nodes = new ArrayList<V>(nodeCount);
+  protected MutableGraph<N> initializeGraph() {
+    MutableGraph<N> graph = GraphBuilder.undirected().build();
+    nodes = new ArrayList<N>(nodeCount);
     for (int i = 0; i < nodeCount; i++) {
-      V node = vertexFactory.get();
+      N node = nodeFactory.get();
       graph.addNode(node);
       nodes.add(node);
     }
     while (graph.edges().size() < edgeCount) {
-      V u = nodes.get((int) (mRandom.nextDouble() * nodeCount));
-      V v = nodes.get((int) (mRandom.nextDouble() * nodeCount));
+      N u = nodes.get((int) (mRandom.nextDouble() * nodeCount));
+      N v = nodes.get((int) (mRandom.nextDouble() * nodeCount));
       if (!u.equals(v)) { // no self-loops
         graph.putEdge(u, v);
       }
     }
 
     double maxDegree = 0;
-    for (V v : graph.nodes()) {
+    for (N v : graph.nodes()) {
       maxDegree = Math.max(graph.degree(v), maxDegree);
     }
     mMaxDegree = maxDegree;
@@ -82,21 +81,21 @@ public class EppsteinPowerLawGenerator<V> {
    *
    * @return the generated graph
    */
-  public Graph<V> get() {
-    MutableGraph<V> graph = initializeGraph();
+  public Graph<N> get() {
+    MutableGraph<N> graph = initializeGraph();
 
     for (int rIdx = 0; rIdx < mNumIterations; rIdx++) {
 
-      V v = null;
+      N v = null;
       do {
         v = nodes.get((int) (mRandom.nextDouble() * nodeCount));
       } while (graph.degree(v) == 0);
 
-      Set<V> neighbors = graph.adjacentNodes(v);
+      Set<N> neighbors = graph.adjacentNodes(v);
       int neighborIndex = (int) (mRandom.nextDouble() * neighbors.size());
       int i = 0;
-      V w = null;
-      for (V neighbor : graph.adjacentNodes(v)) {
+      N w = null;
+      for (N neighbor : graph.adjacentNodes(v)) {
         if (i++ == neighborIndex) {
           w = neighbor;
           break;
@@ -106,8 +105,8 @@ public class EppsteinPowerLawGenerator<V> {
       // FIXME: use WeightedChoice (see BarabasiAlbert) for a more efficient impl
       // for finding an edge
 
-      V x = nodes.get((int) (mRandom.nextDouble() * nodeCount));
-      V y = null;
+      N x = nodes.get((int) (mRandom.nextDouble() * nodeCount));
+      N y = null;
       do {
         y = nodes.get((int) (mRandom.nextDouble() * nodeCount));
       } while (mRandom.nextDouble() > ((graph.degree(y) + 1) / mMaxDegree));

@@ -10,6 +10,11 @@ import java.awt.geom.Point2D;
 public interface MultiLayerTransformer
     extends BidirectionalTransformer, ShapeTransformer, ChangeEventSupport {
 
+  enum Layer {
+    LAYOUT,
+    VIEW
+  }
+
   void setTransformer(Layer layer, MutableTransformer Function);
 
   MutableTransformer getTransformer(Layer layer);

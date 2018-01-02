@@ -8,8 +8,7 @@
  */
 package edu.uci.ics.jung.visualization.transform;
 
-import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
-
+import edu.uci.ics.jung.layout.model.Point;
 import edu.uci.ics.jung.layout.model.PolarPoint;
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
@@ -89,9 +88,9 @@ public class HyperbolicTransformer extends LensTransformer implements MutableTra
     double dy = viewPoint.getY() - viewCenter.getY();
     // factor out ellipse
     dx *= ratio;
-    Point2D pointFromCenter = new Point2D.Double(dx, dy);
+    Point pointFromCenter = new Point(dx, dy);
 
-    PolarPoint polar = PolarPoint.cartesianToPolar(POINT_MODEL, pointFromCenter);
+    PolarPoint polar = PolarPoint.cartesianToPolar(pointFromCenter);
     double theta = polar.getTheta();
     double radius = polar.getRadius();
     if (radius > viewRadius) {
@@ -109,11 +108,11 @@ public class HyperbolicTransformer extends LensTransformer implements MutableTra
     radius *= Math.PI / 2;
     radius = Math.abs(Math.atan(radius));
     radius *= viewRadius;
-    Point2D projectedPoint = PolarPoint.polarToCartesian(POINT_MODEL, theta, radius);
-    projectedPoint.setLocation(projectedPoint.getX() / ratio, projectedPoint.getY());
+    Point projectedPoint = PolarPoint.polarToCartesian(theta, radius);
+    projectedPoint = new Point(projectedPoint.x / ratio, projectedPoint.y);
     Point2D translatedBack =
         new Point2D.Double(
-            projectedPoint.getX() + viewCenter.getX(), projectedPoint.getY() + viewCenter.getY());
+            projectedPoint.x + viewCenter.getX(), projectedPoint.y + viewCenter.getY());
     return translatedBack;
   }
 
@@ -135,9 +134,9 @@ public class HyperbolicTransformer extends LensTransformer implements MutableTra
     // factor out ellipse
     dx *= ratio;
 
-    Point2D pointFromCenter = new Point2D.Double(dx, dy);
+    Point pointFromCenter = new Point(dx, dy);
 
-    PolarPoint polar = PolarPoint.cartesianToPolar(POINT_MODEL, pointFromCenter);
+    PolarPoint polar = PolarPoint.cartesianToPolar(pointFromCenter);
 
     double radius = polar.getRadius();
     if (radius > viewRadius) {
@@ -157,11 +156,11 @@ public class HyperbolicTransformer extends LensTransformer implements MutableTra
     double mag = Math.tan(Math.PI / 2 * lens.getMagnification());
     radius /= mag;
     polar.setRadius(radius);
-    Point2D projectedPoint = PolarPoint.polarToCartesian(POINT_MODEL, polar);
-    projectedPoint.setLocation(projectedPoint.getX() / ratio, projectedPoint.getY());
+    Point projectedPoint = PolarPoint.polarToCartesian(polar);
+    projectedPoint = new Point(projectedPoint.x / ratio, projectedPoint.y);
     Point2D translatedBack =
         new Point2D.Double(
-            projectedPoint.getX() + viewCenter.getX(), projectedPoint.getY() + viewCenter.getY());
+            projectedPoint.x + viewCenter.getX(), projectedPoint.y + viewCenter.getY());
     return delegate.inverseTransform(translatedBack);
   }
 }

@@ -13,70 +13,63 @@ import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.VisualizationModel;
 import edu.uci.ics.jung.visualization.spatial.Spatial;
 import java.awt.Dimension;
-import java.awt.geom.Point2D;
 
 /**
- * The interface for drawing vertices, edges, and their labels. Implementations of this class can
- * set specific renderers for each element, allowing custom control of each.
+ * The interface for drawing nodes, edges, and their labels. Implementations of this class can set
+ * specific renderers for each element, allowing custom control of each.
  */
 public interface Renderer<N, E> {
 
   void render(
       RenderContext<N, E> rc,
-      VisualizationModel<N, E, Point2D> visualizationModel,
-      Spatial<N> spatial);
+      VisualizationModel<N, E> visualizationModel,
+      Spatial<N> nodeSpatial,
+      Spatial<E> edgeSpatial);
 
-  void render(
-      RenderContext<N, E> renderContext, VisualizationModel<N, E, Point2D> visualizationModel);
+  void render(RenderContext<N, E> renderContext, VisualizationModel<N, E> visualizationModel);
 
-  void renderVertex(
-      RenderContext<N, E> renderContext, VisualizationModel<N, E, Point2D> visualizationModel, N v);
+  void renderNode(
+      RenderContext<N, E> renderContext, VisualizationModel<N, E> visualizationModel, N v);
 
-  void renderVertexLabel(
-      RenderContext<N, E> renderContext, VisualizationModel<N, E, Point2D> visualizationModel, N v);
+  void renderNodeLabel(
+      RenderContext<N, E> renderContext, VisualizationModel<N, E> visualizationModel, N v);
 
   void renderEdge(
-      RenderContext<N, E> renderContext, VisualizationModel<N, E, Point2D> visualizationModel, E e);
+      RenderContext<N, E> renderContext, VisualizationModel<N, E> visualizationModel, E e);
 
   void renderEdgeLabel(
-      RenderContext<N, E> renderContext, VisualizationModel<N, E, Point2D> visualizationModel, E e);
+      RenderContext<N, E> renderContext, VisualizationModel<N, E> visualizationModel, E e);
 
-  void setVertexRenderer(Renderer.Vertex<N, E> r);
+  void setNodeRenderer(Node<N, E> r);
 
   void setEdgeRenderer(Renderer.Edge<N, E> r);
 
-  void setVertexLabelRenderer(Renderer.VertexLabel<N, E> r);
+  void setNodeLabelRenderer(NodeLabel<N, E> r);
 
   void setEdgeLabelRenderer(Renderer.EdgeLabel<N, E> r);
 
-  Renderer.VertexLabel<N, E> getVertexLabelRenderer();
+  NodeLabel<N, E> getNodeLabelRenderer();
 
-  Renderer.Vertex<N, E> getVertexRenderer();
+  Node<N, E> getNodeRenderer();
 
   Renderer.Edge<N, E> getEdgeRenderer();
 
   Renderer.EdgeLabel<N, E> getEdgeLabelRenderer();
 
-  interface Vertex<N, E> {
-    void paintVertex(
-        RenderContext<N, E> renderContext,
-        VisualizationModel<N, E, Point2D> visualizationModel,
-        N v);
+  interface Node<N, E> {
+    void paintNode(
+        RenderContext<N, E> renderContext, VisualizationModel<N, E> visualizationModel, N v);
 
     @SuppressWarnings("rawtypes")
-    class NOOP<N, E> implements Vertex<N, E> {
-      public void paintVertex(
-          RenderContext<N, E> renderContext,
-          VisualizationModel<N, E, Point2D> visualizationModel,
-          N v) {}
+    class NOOP<N, E> implements Node<N, E> {
+      public void paintNode(
+          RenderContext<N, E> renderContext, VisualizationModel<N, E> visualizationModel, N v) {}
     };
   }
 
   interface Edge<N, E> {
     void paintEdge(
-        RenderContext<N, E> renderContext,
-        VisualizationModel<N, E, Point2D> visualizationModel,
-        E e);
+        RenderContext<N, E> renderContext, VisualizationModel<N, E> visualizationModel, E e);
 
     EdgeArrowRenderingSupport<N, E> getEdgeArrowRenderingSupport();
 
@@ -85,9 +78,7 @@ public interface Renderer<N, E> {
     @SuppressWarnings("rawtypes")
     class NOOP<N, E> implements Edge<N, E> {
       public void paintEdge(
-          RenderContext<N, E> renderContext,
-          VisualizationModel<N, E, Point2D> visualizationModel,
-          E e) {}
+          RenderContext<N, E> renderContext, VisualizationModel<N, E> visualizationModel, E e) {}
 
       public EdgeArrowRenderingSupport getEdgeArrowRenderingSupport() {
         return null;
@@ -98,10 +89,10 @@ public interface Renderer<N, E> {
     }
   }
 
-  interface VertexLabel<N, E> {
-    void labelVertex(
+  interface NodeLabel<N, E> {
+    void labelNode(
         RenderContext<N, E> renderContext,
-        VisualizationModel<N, E, Point2D> visualizationModel,
+        VisualizationModel<N, E> visualizationModel,
         N v,
         String label);
 
@@ -114,10 +105,10 @@ public interface Renderer<N, E> {
     Positioner getPositioner();
 
     @SuppressWarnings("rawtypes")
-    class NOOP<N, E> implements VertexLabel<N, E> {
-      public void labelVertex(
+    class NOOP<N, E> implements NodeLabel<N, E> {
+      public void labelNode(
           RenderContext<N, E> renderContext,
-          VisualizationModel<N, E, Point2D> visualizationModel,
+          VisualizationModel<N, E> visualizationModel,
           N v,
           String label) {}
 
@@ -159,7 +150,7 @@ public interface Renderer<N, E> {
   interface EdgeLabel<N, E> {
     void labelEdge(
         RenderContext<N, E> renderContext,
-        VisualizationModel<N, E, Point2D> visualizationModel,
+        VisualizationModel<N, E> visualizationModel,
         E e,
         String label);
 
@@ -167,7 +158,7 @@ public interface Renderer<N, E> {
     class NOOP<N, E> implements EdgeLabel<N, E> {
       public void labelEdge(
           RenderContext<N, E> renderContext,
-          VisualizationModel<N, E, Point2D> visualizationModel,
+          VisualizationModel<N, E> visualizationModel,
           E e,
           String label) {}
     }

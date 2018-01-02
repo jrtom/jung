@@ -21,7 +21,7 @@ import java.util.function.Function;
  *
  * @author Tom Nelson - tomnelson@dev.java.net
  * @author Joshua O'Madadhain
- * @param <N> the vertex type
+ * @param <N> the node type
  * @param <E> the edge type
  */
 public class MinimumSpanningTree<N, E> {

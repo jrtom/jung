@@ -14,24 +14,24 @@ package edu.uci.ics.jung.algorithms.scoring.util;
 import com.google.common.base.Preconditions;
 
 /**
- * Convenience class for associating a vertex and an edge. Used, for example, in contexts in which
- * it is necessary to know the origin for an edge traversal (that is, the direction in which an
+ * Convenience class for associating a node and an edge. Used, for example, in contexts in which it
+ * is necessary to know the origin for an edge traversal (that is, the direction in which an
  * (undirected) edge is being traversed).
  *
- * @param <V> the vertex type
+ * @param <N> the node type
  * @param <E> the edge type
  */
-public class VEPair<V, E> {
-  private V v;
+public class VEPair<N, E> {
+  private N v;
   private E e;
 
   /**
-   * Creates an instance with the specified vertex and edge
+   * Creates an instance with the specified node and edge
    *
-   * @param v the vertex to add
+   * @param v the node to add
    * @param e the edge to add
    */
-  public VEPair(V v, E e) {
+  public VEPair(N v, E e) {
     Preconditions.checkNotNull(v);
     Preconditions.checkNotNull(e);
 
@@ -39,8 +39,8 @@ public class VEPair<V, E> {
     this.e = e;
   }
 
-  /** @return the vertex of this pair */
-  public V getV() {
+  /** @return the node of this pair */
+  public N getV() {
     return v;
   }
 

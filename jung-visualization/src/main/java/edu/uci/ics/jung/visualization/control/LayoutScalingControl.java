@@ -11,14 +11,14 @@
  */
 package edu.uci.ics.jung.visualization.control;
 
-import edu.uci.ics.jung.visualization.Layer;
+import edu.uci.ics.jung.visualization.MultiLayerTransformer.Layer;
 import edu.uci.ics.jung.visualization.VisualizationServer;
 import edu.uci.ics.jung.visualization.transform.MutableTransformer;
 import java.awt.geom.Point2D;
 
 /**
- * LayoutScalingControl applies a scaling transformation to the graph layout. The Vertices get
- * closer or farther apart, but do not themselves change layoutSize. ScalingGraphMouse uses
+ * LayoutScalingControl applies a scaling transformation to the graph layout. The Nodes get closer
+ * or farther apart, but do not themselves change layoutSize. ScalingGraphMouse uses
  * MouseWheelEvents to apply the scaling.
  *
  * @author Tom Nelson

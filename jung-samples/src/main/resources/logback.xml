@@ -11,6 +11,8 @@
 
   <Logger name="edu.uci.ics.jung.visualization.spatial" level="info"/>
 
+  <Logger name="edu.uci.ics.jung.visualization.spatial.rtree" level="info"/>
+
   <Logger name="edu.uci.ics.jung.visualization.BasicVisualizationServer" level="info"/>
 
   <Logger name="edu.uci.ics.jung.visualization.picking" level="info"/>

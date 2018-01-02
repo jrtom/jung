@@ -49,8 +49,8 @@ public class TestKStepMarkov extends TestCase {
 
     for (int i = 0; i < 10; i++) {
       //            System.out.println(ranker.getIterations());
-      //	        for (Number n : mGraph.getVertices())
-      //	        	System.out.println(n + ": " + ranker.getVertexScore(n));
+      //	        for (Number n : mGraph.getNodes())
+      //	        	System.out.println(n + ": " + ranker.getNodeScore(n));
       ranker.step();
     }
     //        List<Ranking<?>> rankings = ranker.getRankings();
