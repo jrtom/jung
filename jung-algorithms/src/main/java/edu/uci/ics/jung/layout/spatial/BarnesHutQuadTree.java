@@ -68,13 +68,6 @@ public class BarnesHutQuadTree<T> {
       this.iterator = forceObjects.iterator();
     }
 
-    //    private ForceObject<T> getNextForceObjectFor(ForceObject<T> node) {
-    //      if (tree.root != null && tree.root.forceObject != node) {
-    //        return tree.root.getNextForceObjectFor(node);
-    //      }
-    //      return null;
-    //    }
-
     @Override
     public boolean hasNext() {
       return this.iterator.hasNext();

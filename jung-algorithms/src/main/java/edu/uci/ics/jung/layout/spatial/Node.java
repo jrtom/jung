@@ -160,40 +160,6 @@ public class Node<T> {
     }
   }
 
-  //  public ForceObject<T> getNextForceObjectFor(ForceObject<T> target) {
-  //    if (this.forceObject == null || target.equals(this.forceObject)) {
-  //      return target;
-  //    }
-  //
-  //    if (isLeaf()) {
-  //      return this.forceObject;
-  //    } else {
-  //      // not a leaf
-  //      //  this node is an internal node
-  //      //  calculate s/d
-  //      double s = this.area.width;
-  //      //      distance between the incoming node's position and
-  //      //      the center of mass for this node
-  //      double d = this.forceObject.p.distance(target.p);
-  //      if (s / d < THETA) {
-  //        // this node is sufficiently far away
-  //        // just use this node's forces
-  //        return this.forceObject;
-  //      } else {
-  //        // down the tree we go
-  //        ForceObject<T> got = NW.getNextForceObjectFor(target);
-  //        if (got != null) return got;
-  //        got = NE.getNextForceObjectFor(target);
-  //        if (got != null) return got;
-  //        got = SW.getNextForceObjectFor(target);
-  //        if (got != null) return got;
-  //        got = SE.getNextForceObjectFor(target);
-  //        return got;
-  //      }
-  //    }
-  //
-  //  }
-
   public Set<ForceObject<T>> getForceObjectsFor(
       Set<ForceObject<T>> forceObjects, ForceObject<T> target) {
     if (this.forceObject == null || target.equals(this.forceObject)) {

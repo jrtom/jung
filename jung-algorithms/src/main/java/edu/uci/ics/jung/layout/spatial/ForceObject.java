@@ -59,10 +59,10 @@ public class ForceObject<T> {
       log.error("got a zero distance comparing {} with {}", this, other);
     }
     double force = (this.mass * other.mass * GRAVITY) / (dist * dist + EPS * EPS);
-    log.info("force on {} from {} is {}, distance is {}", this.element, other.element, force, dist);
+    log.trace(
+        "force on {} from {} is {}, distance is {}", this.element, other.element, force, dist);
 
     this.f = f.add(force * dx / dist, force * dy / dist);
-    //    log.info("force vector added  {}", Point.of(force * dx / dist, force * dy / dist));
   }
 
   public ForceObject add(ForceObject other) {
@@ -73,7 +73,6 @@ public class ForceObject<T> {
             (this.p.y * this.mass + other.p.y * other.mass) / totalMass);
 
     ForceObject<String> forceObject = new ForceObject<>("force", p, totalMass);
-    //    forceObject.addForceFrom(other);
     return forceObject;
   }
 
