@@ -257,8 +257,10 @@ public class FRBHLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
     Iterator<ForceObject<N>> forceObjectIterator =
         new BarnesHutQuadTree.ForceObjectIterator<>(tree, nodeForceObject);
     try {
+      int count = 0;
       while (forceObjectIterator.hasNext()) {
         ForceObject<N> nextForceObject = forceObjectIterator.next();
+        count++;
         if (nextForceObject != null && !nextForceObject.equals(nodeForceObject)) {
           fvd1 = getFRData(node1);
           Point p1 = nodeForceObject.p;
@@ -278,6 +280,12 @@ public class FRBHLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
           frNodeData.put(
               node1, fvd1.add((xDelta / deltaLength) * force, (yDelta / deltaLength) * force));
         }
+      }
+      if (log.isTraceEnabled()) {
+        log.trace(
+            "considered {} comparisons instead of {}",
+            count,
+            layoutModel.getGraph().nodes().size());
       }
 
     } catch (ConcurrentModificationException cme) {

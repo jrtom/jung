@@ -33,6 +33,11 @@ import javax.swing.JPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Draws a Barnes-Hut Quad Tree.
+ *
+ * @author Tom Nelson
+ */
 public class BarnesHutVisualizer extends JPanel {
 
   private static final Logger log = LoggerFactory.getLogger(BarnesHutVisualizer.class);

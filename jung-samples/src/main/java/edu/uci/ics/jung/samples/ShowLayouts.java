@@ -99,7 +99,7 @@ public class ShowLayouts extends JPanel {
     public void actionPerformed(ActionEvent arg0) {
       Layouts layoutType = (Layouts) jcb.getSelectedItem();
       LayoutAlgorithm layoutAlgorithm = createLayout(layoutType);
-      SwingUtilities.invokeLater(() -> LayoutAlgorithmTransition.apply(vv, layoutAlgorithm));
+      SwingUtilities.invokeLater(() -> LayoutAlgorithmTransition.animate(vv, layoutAlgorithm));
     }
   }
 
