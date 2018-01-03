@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,10 +40,9 @@ public interface Node<T> extends TreeNode, Bounded {
 
   int count();
 
-  Collection<LeafNode<T>> getContainingLeafs(
-      Collection<LeafNode<T>> containingLeafs, double x, double y);
+  Set<LeafNode<T>> getContainingLeafs(Set<LeafNode<T>> containingLeafs, double x, double y);
 
-  Collection<LeafNode<T>> getContainingLeafs(Collection<LeafNode<T>> containingLeafs, Point2D p);
+  Set<LeafNode<T>> getContainingLeafs(Set<LeafNode<T>> containingLeafs, Point2D p);
 
   LeafNode<T> getContainingLeaf(T element);
 
@@ -52,7 +52,7 @@ public interface Node<T> extends TreeNode, Bounded {
 
   Collection<Shape> collectGrids(Collection<Shape> list);
 
-  Collection<T> getVisibleElements(Collection<T> visibleElements, Shape shape);
+  Set<T> getVisibleElements(Set<T> visibleElements, Shape shape);
 
   static String asString(List<Shape> rectangles) {
     StringBuilder sb = new StringBuilder();

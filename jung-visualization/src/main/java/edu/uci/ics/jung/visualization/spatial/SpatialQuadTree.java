@@ -243,7 +243,7 @@ public class SpatialQuadTree<N> extends AbstractSpatial<N, N>
   /*
    * Return all objects that are within the passed rectangle
    */
-  protected Collection<N> retrieve(Collection<N> returnObjects, Rectangle2D r) {
+  protected Set<N> retrieve(Set<N> returnObjects, Rectangle2D r) {
     if (children == null) {
       // i am a leaf, add any nodes i have
       returnObjects.addAll(nodes);
@@ -262,7 +262,7 @@ public class SpatialQuadTree<N> extends AbstractSpatial<N, N>
    * Return all objects that are within the passed shape This is needed when the layout is
    * rotated/skewed and the shape edges are no longer parallel to the grid edges.
    */
-  protected Collection<N> retrieve(Collection<N> returnObjects, Shape shape) {
+  protected Set<N> retrieve(Set<N> returnObjects, Shape shape) {
     if (children == null) {
       // i am a leaf, add any nodes i have
       returnObjects.addAll(nodes);
@@ -319,15 +319,15 @@ public class SpatialQuadTree<N> extends AbstractSpatial<N, N>
    * @return the nodes that are in the quadtree cells that intersect with the passed shape
    */
   @Override
-  public Collection<N> getVisibleElements(Shape shape) {
+  public Set<N> getVisibleElements(Shape shape) {
     if (!isActive()) {
       log.trace("not active so getting from the graph");
       return layoutModel.getGraph().nodes();
     }
 
     pickShapes.add(shape);
-    Set<N> list = Sets.newHashSet();
-    Collection<N> visibleNodes = this.retrieve(list, shape);
+    Set<N> set = Sets.newHashSet();
+    Set<N> visibleNodes = this.retrieve(set, shape);
     if (log.isDebugEnabled()) {
       log.debug("visibleNodes:{}", visibleNodes);
     }
@@ -339,14 +339,14 @@ public class SpatialQuadTree<N> extends AbstractSpatial<N, N>
    * @param r
    * @return the nodes that are in the quadtree cells that intersect with the passed rectangle
    */
-  public Collection<N> getVisibleNodes(Rectangle2D r) {
+  public Set<N> getVisibleNodes(Rectangle2D r) {
     if (!isActive()) {
       log.trace("not active so getting from the graph");
       return layoutModel.getGraph().nodes();
     }
 
-    Set<N> list = Sets.newHashSet();
-    Collection<N> visibleNodes = this.retrieve(list, r);
+    Set<N> set = Sets.newHashSet();
+    Set<N> visibleNodes = this.retrieve(set, r);
     if (log.isDebugEnabled()) {
       log.debug("visibleNodes:{}", visibleNodes);
     }
@@ -409,11 +409,11 @@ public class SpatialQuadTree<N> extends AbstractSpatial<N, N>
     return null;
   }
 
-  public Collection<SpatialQuadTree<N>> getContainingLeafs(Point2D p) {
+  public Set<SpatialQuadTree<N>> getContainingLeafs(Point2D p) {
     return Collections.singleton(getContainingQuadTreeLeaf(p));
   }
 
-  public Collection<SpatialQuadTree<N>> getContainingLeafs(double x, double y) {
+  public Set<SpatialQuadTree<N>> getContainingLeafs(double x, double y) {
     return Collections.singleton(getContainingQuadTreeLeaf(x, y));
   }
 
@@ -587,10 +587,4 @@ public class SpatialQuadTree<N> extends AbstractSpatial<N, N>
         + children
         + '}';
   }
-
-  //  @Override
-  //  public void layoutStateChanged(LayoutModel.LayoutStateChangeEvent evt) {
-  //    // if the layoutmodel is not active, then it is safe to activate this
-  //    setActive(!evt.active);
-  //  }
 }
