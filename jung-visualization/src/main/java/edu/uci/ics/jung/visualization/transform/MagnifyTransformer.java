@@ -75,8 +75,8 @@ public class MagnifyTransformer extends LensTransformer implements MutableTransf
     Point pointFromCenter = Point.of(dx, dy);
 
     PolarPoint polar = PolarPoint.cartesianToPolar(pointFromCenter);
-    double theta = polar.getTheta();
-    double radius = polar.getRadius();
+    double theta = polar.theta;
+    double radius = polar.radius;
     if (radius > viewRadius) {
       return viewPoint;
     }
@@ -108,14 +108,14 @@ public class MagnifyTransformer extends LensTransformer implements MutableTransf
 
     PolarPoint polar = PolarPoint.cartesianToPolar(pointFromCenter);
 
-    double radius = polar.getRadius();
+    double radius = polar.radius;
     if (radius > viewRadius) {
       return delegate.inverseTransform(viewPoint);
     }
 
     double mag = lens.getMagnification();
     radius /= mag;
-    polar = polar.setRadius(radius);
+    polar = polar.newRadius(radius);
     Point projectedPoint = PolarPoint.polarToCartesian(polar);
     projectedPoint = Point.of(projectedPoint.x / ratio, projectedPoint.y);
     Point2D translatedBack =
@@ -146,8 +146,8 @@ public class MagnifyTransformer extends LensTransformer implements MutableTransf
     Point pointFromCenter = Point.of(dx, dy);
 
     PolarPoint polar = PolarPoint.cartesianToPolar(pointFromCenter);
-    double theta = polar.getTheta();
-    double radius = polar.getRadius();
+    double theta = polar.theta;
+    double radius = polar.radius;
 
     double mag = lens.getMagnification();
     radius *= mag;

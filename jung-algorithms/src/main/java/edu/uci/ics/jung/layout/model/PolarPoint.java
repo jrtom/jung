@@ -16,8 +16,8 @@ package edu.uci.ics.jung.layout.model;
  * @author Tom Nelson
  */
 public class PolarPoint {
-  private final double theta;
-  private final double radius;
+  public final double theta;
+  public final double radius;
 
   public static PolarPoint ORIGIN = new PolarPoint();
 
@@ -41,17 +41,7 @@ public class PolarPoint {
     this.radius = radius;
   }
 
-  /** @return the angle for this point */
-  public double getTheta() {
-    return theta;
-  }
-
-  /** @return the radius for this point */
-  public double getRadius() {
-    return radius;
-  }
-
-  public PolarPoint setRadius(double radius) {
+  public PolarPoint newRadius(double radius) {
     return PolarPoint.of(theta, radius);
   }
 
@@ -60,7 +50,7 @@ public class PolarPoint {
    * @return the result of converting <code>polar</code> to Cartesian coordinates.
    */
   public static Point polarToCartesian(PolarPoint polar) {
-    return polarToCartesian(polar.getTheta(), polar.getRadius());
+    return polarToCartesian(polar.theta, polar.radius);
   }
 
   /**

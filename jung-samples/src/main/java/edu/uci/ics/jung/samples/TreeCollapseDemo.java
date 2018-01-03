@@ -193,7 +193,7 @@ public class TreeCollapseDemo extends JPanel {
       Map<Object, PolarPoint> polarLocations = radialLayoutAlgorithm.getPolarLocations();
       for (Object v : graph.nodes()) {
         PolarPoint pp = polarLocations.get(v);
-        depths.add(pp.getRadius());
+        depths.add(pp.radius);
       }
       return depths;
     }

@@ -178,8 +178,8 @@ public class HyperbolicShapeTransformer extends HyperbolicTransformer
     Point pointFromCenter = Point.of(dx, dy);
 
     PolarPoint polar = PolarPoint.cartesianToPolar(pointFromCenter);
-    double theta = polar.getTheta();
-    double radius = polar.getRadius();
+    double theta = polar.theta;
+    double radius = polar.radius;
     if (radius > viewRadius) {
       return viewPoint;
     }
@@ -216,7 +216,7 @@ public class HyperbolicShapeTransformer extends HyperbolicTransformer
 
     PolarPoint polar = PolarPoint.cartesianToPolar(pointFromCenter);
 
-    double radius = polar.getRadius();
+    double radius = polar.radius;
     if (radius > viewRadius) {
       return viewPoint;
     }
@@ -227,7 +227,7 @@ public class HyperbolicShapeTransformer extends HyperbolicTransformer
     radius *= viewRadius;
     double mag = Math.tan(Math.PI / 2 * lens.getMagnification());
     radius /= mag;
-    polar = polar.setRadius(radius);
+    polar = polar.newRadius(radius);
     Point projectedPoint = PolarPoint.polarToCartesian(polar);
     projectedPoint = Point.of(projectedPoint.x / ratio, projectedPoint.y);
     Point2D translatedBack =

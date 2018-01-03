@@ -141,7 +141,7 @@ public class TreeLayoutDemo extends JPanel {
       Map<String, PolarPoint> polarLocations = radialLayoutAlgorithm.getPolarLocations();
       for (String v : graph.nodes()) {
         PolarPoint pp = polarLocations.get(v);
-        depths.add(pp.getRadius());
+        depths.add(pp.radius);
       }
       return depths;
     }
