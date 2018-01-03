@@ -11,18 +11,21 @@ import edu.uci.ics.jung.layout.spatial.BarnesHutQuadTree;
 import edu.uci.ics.jung.layout.spatial.ForceObject;
 import edu.uci.ics.jung.layout.spatial.Node;
 import edu.uci.ics.jung.layout.spatial.Rectangle;
+import edu.uci.ics.jung.layout.util.RadiusNetworkNodeAccessor;
 import edu.uci.ics.jung.layout.util.RandomLocationTransformer;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Shape;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 import javax.swing.JButton;
@@ -38,6 +41,10 @@ public class BarnesHutVisualizer extends JPanel {
   LayoutModel<String> layoutModel;
   MutableNetwork<String, Number> network;
   BarnesHutQuadTree<String> tree;
+
+  RadiusNetworkNodeAccessor<String> accessor;
+
+  Collection<Shape> stuffToDraw = Sets.newHashSet();
 
   public BarnesHutVisualizer() {
     setLayout(new BorderLayout());
@@ -61,6 +68,8 @@ public class BarnesHutVisualizer extends JPanel {
     layoutModel.set("C", Point.of(100, 100));
     layoutModel.set("D", Point.of(500, 100));
 
+    accessor = new RadiusNetworkNodeAccessor<>(graph);
+
     tree = new BarnesHutQuadTree<>(layoutModel);
     tree.rebuild();
 
@@ -73,20 +82,42 @@ public class BarnesHutVisualizer extends JPanel {
 
           @Override
           public void paint(Graphics g) {
-            log.info("paint");
             super.paint(g);
             Graphics2D g2d = (Graphics2D) g;
             draw(g2d, tree.getRoot());
+            for (Shape shape : stuffToDraw) {
+              g2d.draw(shape);
+            }
           }
         };
     add(drawingPanel);
     drawingPanel.addMouseListener(
         new MouseAdapter() {
           @Override
-          public void mouseClicked(MouseEvent e) {
-            super.mouseClicked(e);
+          public void mousePressed(MouseEvent e) {
+            super.mousePressed(e);
+            Point2D p = e.getPoint();
+            String got = getNodeAt(p);
+            if (got != null) {
+              ForceObject<String> forceObject = new ForceObject<>(got, layoutModel.apply(got));
+              BarnesHutQuadTree.ForceObjectIterator<String> iterator =
+                  new BarnesHutQuadTree.ForceObjectIterator<>(tree, forceObject);
+              while (iterator.hasNext()) {
+                ForceObject<String> next = iterator.next();
+                if (next != null) {
+                  Ellipse2D ellipse = new Ellipse2D.Double(next.p.x - 15, next.p.y - 15, 30, 30);
+                  stuffToDraw.add(ellipse);
+                }
+              }
+            } else {
+              addShapeAt(p);
+            }
+            repaint();
+          }
 
-            addShapeAt(e.getPoint());
+          @Override
+          public void mouseReleased(MouseEvent e) {
+            stuffToDraw.clear();
             repaint();
           }
         });
@@ -131,6 +162,16 @@ public class BarnesHutVisualizer extends JPanel {
     repaint();
   }
 
+  private String getNodeAt(Point2D p) {
+    for (String node : layoutModel.getGraph().nodes()) {
+      Point loc = layoutModel.get(node);
+      if (loc.distanceSquared(p.getX(), p.getY()) < 20) {
+        return node;
+      }
+    }
+    return null;
+  }
+
   private void draw(Graphics2D g, Node node) {
     Rectangle bounds = node.getBounds();
     Rectangle2D r = new Rectangle2D.Double(bounds.x, bounds.y, bounds.width, bounds.height);
@@ -149,23 +190,18 @@ public class BarnesHutVisualizer extends JPanel {
       g.setColor(oldColor);
     }
     if (node.getNW() != null) {
-      log.info("draw NW:{}", node.getNW());
       draw(g, node.getNW());
     }
     if (node.getNE() != null) {
-      log.info("draw NE:{}", node.getNE());
       draw(g, node.getNE());
     }
     if (node.getSW() != null) {
-      log.info("draw SW:{}", node.getSW());
       draw(g, node.getSW());
     }
     if (node.getSE() != null) {
-      log.info("draw SE:{}", node.getSE());
       draw(g, node.getSE());
     }
     if (forceObject != null) {
-      log.info("draw forceObject:{}", forceObject);
       Point p = forceObject.p;
       Ellipse2D circle = new Ellipse2D.Double(p.x - 2, p.y - 2, 4, 4);
       g.fill(circle);
@@ -174,7 +210,6 @@ public class BarnesHutVisualizer extends JPanel {
   }
 
   public static void main(String[] args) {
-
     JFrame frame = new JFrame();
     frame.getContentPane().add(new BarnesHutVisualizer());
     frame.pack();
