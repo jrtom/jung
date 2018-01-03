@@ -11,7 +11,6 @@ import edu.uci.ics.jung.layout.spatial.BarnesHutQuadTree;
 import edu.uci.ics.jung.layout.spatial.ForceObject;
 import edu.uci.ics.jung.layout.spatial.Node;
 import edu.uci.ics.jung.layout.spatial.Rectangle;
-import edu.uci.ics.jung.layout.util.RadiusNetworkNodeAccessor;
 import edu.uci.ics.jung.layout.util.RandomLocationTransformer;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -42,8 +41,6 @@ public class BarnesHutVisualizer extends JPanel {
   MutableNetwork<String, Number> network;
   BarnesHutQuadTree<String> tree;
 
-  RadiusNetworkNodeAccessor<String> accessor;
-
   Collection<Shape> stuffToDraw = Sets.newHashSet();
 
   public BarnesHutVisualizer() {
@@ -67,8 +64,6 @@ public class BarnesHutVisualizer extends JPanel {
     layoutModel.set("B", Point.of(100, 200));
     layoutModel.set("C", Point.of(100, 100));
     layoutModel.set("D", Point.of(500, 100));
-
-    accessor = new RadiusNetworkNodeAccessor<>(graph);
 
     tree = new BarnesHutQuadTree<>(layoutModel);
     tree.rebuild();
@@ -94,8 +89,9 @@ public class BarnesHutVisualizer extends JPanel {
     drawingPanel.addMouseListener(
         new MouseAdapter() {
           @Override
-          public void mousePressed(MouseEvent e) {
-            super.mousePressed(e);
+          public void mouseClicked(MouseEvent e) {
+            super.mouseClicked(e);
+            stuffToDraw.clear();
             Point2D p = e.getPoint();
             String got = getNodeAt(p);
             if (got != null) {
@@ -112,12 +108,6 @@ public class BarnesHutVisualizer extends JPanel {
             } else {
               addShapeAt(p);
             }
-            repaint();
-          }
-
-          @Override
-          public void mouseReleased(MouseEvent e) {
-            stuffToDraw.clear();
             repaint();
           }
         });
