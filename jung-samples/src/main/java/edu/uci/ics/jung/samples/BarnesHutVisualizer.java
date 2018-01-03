@@ -12,15 +12,22 @@ import edu.uci.ics.jung.layout.spatial.ForceObject;
 import edu.uci.ics.jung.layout.spatial.Node;
 import edu.uci.ics.jung.layout.spatial.Rectangle;
 import edu.uci.ics.jung.layout.util.RandomLocationTransformer;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.util.Iterator;
 import java.util.Set;
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,8 +99,12 @@ public class BarnesHutVisualizer extends JPanel {
           for (String node : graph.nodes()) {
             Point p = layoutModel.apply(node);
             ForceObject<String> fo = new ForceObject(node, p);
-            fo = tree.calculateForce(fo);
-            log.info("got force {} for node {}", fo, node);
+            Iterator<ForceObject<String>> foiter =
+                new BarnesHutQuadTree.ForceObjectIterator<>(tree, fo);
+            while (foiter.hasNext()) {
+              ForceObject<String> next = foiter.next();
+              log.info("for node {}, next force object is {}", node, next);
+            }
           }
         });
     JPanel controls = new JPanel();

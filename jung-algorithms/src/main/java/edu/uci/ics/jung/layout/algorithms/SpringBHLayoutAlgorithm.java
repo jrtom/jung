@@ -13,8 +13,12 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Graph;
 import edu.uci.ics.jung.algorithms.util.IterativeContext;
+import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.layout.model.Point;
+import edu.uci.ics.jung.layout.spatial.BarnesHutQuadTree;
+import edu.uci.ics.jung.layout.spatial.ForceObject;
 import java.util.ConcurrentModificationException;
+import java.util.Iterator;
 import java.util.function.Function;
 
 /**
@@ -26,7 +30,7 @@ import java.util.function.Function;
  * @author Joshua O'Madadhain
  * @author Tom Nelson
  */
-public class SpringLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
+public class SpringBHLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
     implements IterativeContext {
 
   protected double stretch = 0.70;
@@ -34,15 +38,24 @@ public class SpringLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N
   protected int repulsion_range_sq = 100 * 100;
   protected double force_multiplier = 1.0 / 3.0;
 
+  private BarnesHutQuadTree<N> tree;
+
   protected LoadingCache<N, SpringNodeData> springNodeData =
       CacheBuilder.newBuilder().build(CacheLoader.from(() -> new SpringNodeData()));
 
-  public SpringLayoutAlgorithm() {
+  public SpringBHLayoutAlgorithm() {
     this(n -> 30);
   }
 
-  public SpringLayoutAlgorithm(Function<? super EndpointPair<N>, Integer> length_function) {
+  public SpringBHLayoutAlgorithm(Function<? super EndpointPair<N>, Integer> length_function) {
     this.lengthFunction = length_function;
+  }
+
+  @Override
+  public void visit(LayoutModel<N> layoutModel) {
+    super.visit(layoutModel);
+    tree = new BarnesHutQuadTree(layoutModel);
+    tree.rebuild();
   }
 
   /** @return the current value for the stretch parameter */
@@ -152,12 +165,16 @@ public class SpringLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N
         }
         double dx = 0, dy = 0;
 
-        for (N node2 : graph.nodes()) {
-          if (node == node2) {
+        ForceObject<N> nodeForceObject = new ForceObject<>(node, layoutModel.apply(node));
+        Iterator<ForceObject<N>> forceObjectIterator =
+            new BarnesHutQuadTree.ForceObjectIterator<>(tree, nodeForceObject);
+        while (forceObjectIterator.hasNext()) {
+          ForceObject<N> nextForceObject = forceObjectIterator.next();
+          if (nextForceObject == null || node == nextForceObject.getElement()) {
             continue;
           }
-          Point p = layoutModel.apply(node);
-          Point p2 = layoutModel.apply(node2);
+          Point p = nodeForceObject.p;
+          Point p2 = nextForceObject.p;
           if (p == null || p2 == null) {
             continue;
           }

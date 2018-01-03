@@ -1,7 +1,11 @@
 package edu.uci.ics.jung.layout.spatial;
 
+import com.google.common.collect.Sets;
 import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.layout.model.Point;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,11 +39,51 @@ public class BarnesHutQuadTree<T> {
     root.clear();
   }
 
-  public ForceObject<T> calculateForce(ForceObject<T> node) {
+  public void updateForce(ForceObject<T> node) {
     if (root != null && root.forceObject != node) {
-      return root.calculateForce(node);
+      root.updateForce(node);
     }
-    return node;
+  }
+
+  public Set<ForceObject<T>> getForceObjectsFor(
+      Set<ForceObject<T>> forceObjects, ForceObject<T> target) {
+    if (root != null && root.forceObject != target) {
+      return root.getForceObjectsFor(forceObjects, target);
+    } else {
+      return Collections.emptySet();
+    }
+  }
+
+  public static class ForceObjectIterator<T> implements Iterator<ForceObject<T>> {
+    private BarnesHutQuadTree<T> tree;
+    private ForceObject<T> target;
+    private ForceObject<T> next;
+    private Set<ForceObject<T>> forceObjects;
+    private Iterator<ForceObject<T>> iterator;
+
+    public ForceObjectIterator(BarnesHutQuadTree<T> tree, ForceObject<T> target) {
+      this.tree = tree;
+      this.target = target;
+      this.forceObjects = tree.getForceObjectsFor(Sets.newHashSet(), target);
+      this.iterator = forceObjects.iterator();
+    }
+
+    //    private ForceObject<T> getNextForceObjectFor(ForceObject<T> node) {
+    //      if (tree.root != null && tree.root.forceObject != node) {
+    //        return tree.root.getNextForceObjectFor(node);
+    //      }
+    //      return null;
+    //    }
+
+    @Override
+    public boolean hasNext() {
+      return this.iterator.hasNext();
+    }
+
+    @Override
+    public ForceObject<T> next() {
+      return this.iterator.next();
+    }
   }
 
   /*
@@ -54,7 +98,8 @@ public class BarnesHutQuadTree<T> {
     clear();
     for (T node : layoutModel.getGraph().nodes()) {
       Point p = layoutModel.apply(node);
-      insert(new ForceObject(node, p));
+      ForceObject<T> forceObject = new ForceObject<T>(node, p);
+      insert(forceObject);
     }
   }
 }

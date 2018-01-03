@@ -1,5 +1,6 @@
 package edu.uci.ics.jung.layout.spatial;
 
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,7 +86,7 @@ public class Node<T> {
       }
       // we're already split, update the forceElement for this new element
       forceObject = forceObject.add(element);
-      // ///and follow down the tree to insert
+      //and follow down the tree to insert
       insertForceObject(element);
     }
   }
@@ -130,38 +131,98 @@ public class Node<T> {
     SE = new Node(x + width, y + height, width, height);
   }
 
-  /**
-   * update the force vector for the passed ForceObject with this node and all child nodes
-   *
-   * @param fo
-   * @return
-   */
-  public ForceObject<T> calculateForce(ForceObject<T> fo) {
-    if (this.forceObject == null || fo == this.forceObject) {
-      return fo;
+  public void updateForce(ForceObject<T> target) {
+    if (this.forceObject == null || target.equals(this.forceObject)) {
+      return;
     }
+
     if (isLeaf()) {
-      return fo.add(this.forceObject);
+      target.addForceFrom(this.forceObject);
     } else {
+      // not a leaf
       //  this node is an internal node
       //  calculate s/d
       double s = this.area.width;
       //      distance between the incoming node's position and
       //      the center of mass for this node
-      double d = fo.p.distance(this.forceObject.p);
+      double d = this.forceObject.p.distance(target.p);
       if (s / d < THETA) {
         // this node is sufficiently far away
         // just use this node's forces
-        return fo.add(this.forceObject);
+        target.addForceFrom(this.forceObject);
       } else {
         // down the tree we go
-        fo = NW.calculateForce(fo);
-        fo = NE.calculateForce(fo);
-        fo = SW.calculateForce(fo);
-        fo = SE.calculateForce(fo);
-        return fo;
+        NW.updateForce(target);
+        NE.updateForce(target);
+        SW.updateForce(target);
+        SE.updateForce(target);
       }
     }
+  }
+
+  //  public ForceObject<T> getNextForceObjectFor(ForceObject<T> target) {
+  //    if (this.forceObject == null || target.equals(this.forceObject)) {
+  //      return target;
+  //    }
+  //
+  //    if (isLeaf()) {
+  //      return this.forceObject;
+  //    } else {
+  //      // not a leaf
+  //      //  this node is an internal node
+  //      //  calculate s/d
+  //      double s = this.area.width;
+  //      //      distance between the incoming node's position and
+  //      //      the center of mass for this node
+  //      double d = this.forceObject.p.distance(target.p);
+  //      if (s / d < THETA) {
+  //        // this node is sufficiently far away
+  //        // just use this node's forces
+  //        return this.forceObject;
+  //      } else {
+  //        // down the tree we go
+  //        ForceObject<T> got = NW.getNextForceObjectFor(target);
+  //        if (got != null) return got;
+  //        got = NE.getNextForceObjectFor(target);
+  //        if (got != null) return got;
+  //        got = SW.getNextForceObjectFor(target);
+  //        if (got != null) return got;
+  //        got = SE.getNextForceObjectFor(target);
+  //        return got;
+  //      }
+  //    }
+  //
+  //  }
+
+  public Set<ForceObject<T>> getForceObjectsFor(
+      Set<ForceObject<T>> forceObjects, ForceObject<T> target) {
+    if (this.forceObject == null || target.equals(this.forceObject)) {
+      forceObjects.add(target);
+    }
+
+    if (isLeaf()) {
+      forceObjects.add(this.forceObject);
+    } else {
+      // not a leaf
+      //  this node is an internal node
+      //  calculate s/d
+      double s = this.area.width;
+      //      distance between the incoming node's position and
+      //      the center of mass for this node
+      double d = this.forceObject.p.distance(target.p);
+      if (s / d < THETA) {
+        // this node is sufficiently far away
+        // just use this node's forces
+        forceObjects.add(this.forceObject);
+      } else {
+        // down the tree we go
+        NW.getForceObjectsFor(forceObjects, target);
+        NE.getForceObjectsFor(forceObjects, target);
+        SW.getForceObjectsFor(forceObjects, target);
+        SE.getForceObjectsFor(forceObjects, target);
+      }
+    }
+    return forceObjects;
   }
 
   static String asString(Rectangle r) {

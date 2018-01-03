@@ -7,15 +7,18 @@
  */
 package edu.uci.ics.jung.samples;
 
+import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
 import edu.uci.ics.jung.algorithms.generators.random.BarabasiAlbertGenerator;
 import edu.uci.ics.jung.graph.util.TestGraphs;
 import edu.uci.ics.jung.layout.algorithms.CircleLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.FRBHLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.FRLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.ISOMLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.KKLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.SpringBHLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.SpringLayoutAlgorithm;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
@@ -24,19 +27,11 @@ import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.PickableNodePaintFunction;
 import edu.uci.ics.jung.visualization.layout.LayoutAlgorithmTransition;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.GridLayout;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.function.Supplier;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
-import javax.swing.WindowConstants;
+import javax.swing.*;
 
 /**
  * Demonstrates several of the graph layout algorithms. Allows the user to interactively select one
@@ -57,7 +52,8 @@ public class ShowLayouts extends JPanel {
     "Miscellaneous multicomponent graph",
     "One component graph",
     "Chain+isolate graph",
-    "Trivial (disconnected) graph"
+    "Trivial (disconnected) graph",
+    "Little Graph"
   };
 
   enum Layouts {
@@ -65,7 +61,9 @@ public class ShowLayouts extends JPanel {
     FRUCHTERMAN_REINGOLD,
     CIRCLE,
     SPRING,
-    SELF_ORGANIZING_MAP
+    SELF_ORGANIZING_MAP,
+    FRUCHTERMAN_REINGOLD_BARNES_HUT,
+    SPRING_BARNES_HUT
   }
 
   public static class GraphChooser implements ActionListener {
@@ -101,7 +99,7 @@ public class ShowLayouts extends JPanel {
     public void actionPerformed(ActionEvent arg0) {
       Layouts layoutType = (Layouts) jcb.getSelectedItem();
       LayoutAlgorithm layoutAlgorithm = createLayout(layoutType);
-      LayoutAlgorithmTransition.animate(vv, layoutAlgorithm);
+      SwingUtilities.invokeLater(() -> LayoutAlgorithmTransition.apply(vv, layoutAlgorithm));
     }
   }
 
@@ -136,6 +134,11 @@ public class ShowLayouts extends JPanel {
     g_array[3] = TestGraphs.getOneComponentGraph();
     g_array[4] = TestGraphs.createChainPlusIsolates(18, 5);
     g_array[5] = TestGraphs.createChainPlusIsolates(0, 20);
+    MutableNetwork network = NetworkBuilder.directed().allowsParallelEdges(true).build();
+    network.addEdge("A", "B", 1);
+    network.addEdge("A", "C", 2);
+
+    g_array[6] = network;
 
     Network g = g_array[3]; // initial graph
 
@@ -218,6 +221,10 @@ public class ShowLayouts extends JPanel {
         return new ISOMLayoutAlgorithm();
       case SPRING:
         return new SpringLayoutAlgorithm();
+      case FRUCHTERMAN_REINGOLD_BARNES_HUT:
+        return new FRBHLayoutAlgorithm();
+      case SPRING_BARNES_HUT:
+        return new SpringBHLayoutAlgorithm();
       default:
         throw new IllegalArgumentException("Unrecognized layout type");
     }

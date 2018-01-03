@@ -33,7 +33,7 @@ public class ForceObject<T> {
   }
 
   public ForceObject(T element, double x, double y) {
-    this(element, Point.of(x, y), 1000);
+    this(element, Point.of(x, y), 1);
   }
 
   public ForceObject(T element, double x, double y, double mass) {
@@ -46,13 +46,23 @@ public class ForceObject<T> {
     return f;
   }
 
-  private void addForceFrom(ForceObject other) {
+  public void resetForce() {
+    this.f = Point.ORIGIN;
+  }
+
+  void addForceFrom(ForceObject other) {
     double EPS = 3E4; // softening parameter
-    double dx = other.p.x - p.x;
-    double dy = other.p.y - p.y;
+    double dx = other.p.x - this.p.x;
+    double dy = other.p.y - this.p.y;
     double dist = Math.sqrt(dx * dx + dy * dy);
-    double force = (mass * other.mass * GRAVITY) / (dist * dist + EPS * EPS);
+    if (dist == 0) {
+      log.error("got a zero distance comparing {} with {}", this, other);
+    }
+    double force = (this.mass * other.mass * GRAVITY) / (dist * dist + EPS * EPS);
+    log.info("force on {} from {} is {}, distance is {}", this.element, other.element, force, dist);
+
     this.f = f.add(force * dx / dist, force * dy / dist);
+    //    log.info("force vector added  {}", Point.of(force * dx / dist, force * dy / dist));
   }
 
   public ForceObject add(ForceObject other) {
@@ -63,12 +73,35 @@ public class ForceObject<T> {
             (this.p.y * this.mass + other.p.y * other.mass) / totalMass);
 
     ForceObject<String> forceObject = new ForceObject<>("force", p, totalMass);
-    forceObject.addForceFrom(other);
+    //    forceObject.addForceFrom(other);
     return forceObject;
   }
 
   public T getElement() {
     return element;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    ForceObject<?> that = (ForceObject<?>) o;
+
+    if (Double.compare(that.mass, mass) != 0) return false;
+    if (p != null ? !p.equals(that.p) : that.p != null) return false;
+    return element != null ? element.equals(that.element) : that.element == null;
+  }
+
+  @Override
+  public int hashCode() {
+    int result;
+    long temp;
+    result = p != null ? p.hashCode() : 0;
+    temp = Double.doubleToLongBits(mass);
+    result = 31 * result + (int) (temp ^ (temp >>> 32));
+    result = 31 * result + (element != null ? element.hashCode() : 0);
+    return result;
   }
 
   @Override
