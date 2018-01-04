@@ -67,6 +67,10 @@ public class AffineTransformer implements BidirectionalTransformer, ShapeTransfo
     return getInverse().transform(p, null);
   }
 
+  public Point2D inverseTransform(double x, double y) {
+    return inverseTransform(new Point2D.Double(x, y));
+  }
+
   public AffineTransform getInverse() {
     if (inverse == null) {
       try {
@@ -126,6 +130,10 @@ public class AffineTransformer implements BidirectionalTransformer, ShapeTransfo
     return transform.transform(p, null);
   }
 
+  public Point2D transform(double x, double y) {
+    return transform(new Point2D.Double(x, y));
+  }
+
   /**
    * Transform the supplied shape from graph (layout) to screen (view) coordinates.
    *
@@ -140,25 +148,25 @@ public class AffineTransformer implements BidirectionalTransformer, ShapeTransfo
       int type = iterator.currentSegment(coords);
       switch (type) {
         case PathIterator.SEG_MOVETO:
-          Point2D p = transform(new Point2D.Float(coords[0], coords[1]));
+          Point2D p = transform(coords[0], coords[1]);
           newPath.moveTo((float) p.getX(), (float) p.getY());
           break;
 
         case PathIterator.SEG_LINETO:
-          p = transform(new Point2D.Float(coords[0], coords[1]));
+          p = transform(coords[0], coords[1]);
           newPath.lineTo((float) p.getX(), (float) p.getY());
           break;
 
         case PathIterator.SEG_QUADTO:
-          p = transform(new Point2D.Float(coords[0], coords[1]));
-          Point2D q = transform(new Point2D.Float(coords[2], coords[3]));
+          p = transform(coords[0], coords[1]);
+          Point2D q = transform(coords[2], coords[3]);
           newPath.quadTo((float) p.getX(), (float) p.getY(), (float) q.getX(), (float) q.getY());
           break;
 
         case PathIterator.SEG_CUBICTO:
-          p = transform(new Point2D.Float(coords[0], coords[1]));
-          q = transform(new Point2D.Float(coords[2], coords[3]));
-          Point2D r = transform(new Point2D.Float(coords[4], coords[5]));
+          p = transform(coords[0], coords[1]);
+          q = transform(coords[2], coords[3]);
+          Point2D r = transform(coords[4], coords[5]);
           newPath.curveTo(
               (float) p.getX(),
               (float) p.getY(),
@@ -190,25 +198,25 @@ public class AffineTransformer implements BidirectionalTransformer, ShapeTransfo
       int type = iterator.currentSegment(coords);
       switch (type) {
         case PathIterator.SEG_MOVETO:
-          Point2D p = inverseTransform(new Point2D.Float(coords[0], coords[1]));
+          Point2D p = inverseTransform(coords[0], coords[1]);
           newPath.moveTo((float) p.getX(), (float) p.getY());
           break;
 
         case PathIterator.SEG_LINETO:
-          p = inverseTransform(new Point2D.Float(coords[0], coords[1]));
+          p = inverseTransform(coords[0], coords[1]);
           newPath.lineTo((float) p.getX(), (float) p.getY());
           break;
 
         case PathIterator.SEG_QUADTO:
-          p = inverseTransform(new Point2D.Float(coords[0], coords[1]));
-          Point2D q = inverseTransform(new Point2D.Float(coords[2], coords[3]));
+          p = inverseTransform(coords[0], coords[1]);
+          Point2D q = inverseTransform(coords[2], coords[3]);
           newPath.quadTo((float) p.getX(), (float) p.getY(), (float) q.getX(), (float) q.getY());
           break;
 
         case PathIterator.SEG_CUBICTO:
-          p = inverseTransform(new Point2D.Float(coords[0], coords[1]));
-          q = inverseTransform(new Point2D.Float(coords[2], coords[3]));
-          Point2D r = inverseTransform(new Point2D.Float(coords[4], coords[5]));
+          p = inverseTransform(coords[0], coords[1]);
+          q = inverseTransform(coords[2], coords[3]);
+          Point2D r = inverseTransform(coords[4], coords[5]);
           newPath.curveTo(
               (float) p.getX(),
               (float) p.getY(),

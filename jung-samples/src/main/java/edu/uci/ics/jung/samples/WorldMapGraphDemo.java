@@ -245,7 +245,7 @@ public class WorldMapGraphDemo extends JPanel {
         longitude = d.width / 2 + longitude;
       }
 
-      return new Point(longitude, latitude);
+      return Point.of(longitude, latitude);
     }
   }
 

@@ -102,7 +102,7 @@ public class SpatialGrid<N> extends AbstractSpatial<N, N> implements Spatial<N>,
   }
 
   @Override
-  public Collection<TreeNode> getContainingLeafs(Point2D p) {
+  public Set<TreeNode> getContainingLeafs(Point2D p) {
     int boxNumber = this.getBoxNumberFromLocation(p.getX(), p.getY());
     Rectangle2D r = (Rectangle2D) this.gridCache.get(boxNumber);
     SpatialGrid grid = new SpatialGrid(layoutModel, r, 1, 1);
@@ -110,7 +110,7 @@ public class SpatialGrid<N> extends AbstractSpatial<N, N> implements Spatial<N>,
   }
 
   @Override
-  public Collection<TreeNode> getContainingLeafs(double x, double y) {
+  public Set<TreeNode> getContainingLeafs(double x, double y) {
     return getContainingLeafs(new Point2D.Double(x, y));
   }
 
@@ -407,7 +407,7 @@ public class SpatialGrid<N> extends AbstractSpatial<N, N> implements Spatial<N>,
    * @return the nodes that should be visible
    */
   @Override
-  public Collection<N> getVisibleElements(Shape visibleArea) {
+  public Set<N> getVisibleElements(Shape visibleArea) {
     if (!isActive()) {
       log.trace("not active so getting from the graph");
       return layoutModel.getGraph().nodes();
@@ -419,7 +419,7 @@ public class SpatialGrid<N> extends AbstractSpatial<N, N> implements Spatial<N>,
     if (log.isTraceEnabled()) {
       log.trace("map is {}", map);
     }
-    Collection<N> visibleNodes = Sets.newHashSet();
+    Set<N> visibleNodes = Sets.newHashSet();
     Collection<Integer> tiles = getVisibleTiles(area);
     for (Integer index : tiles) {
       Collection<N> toAdd = this.map.get(index);

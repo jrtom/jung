@@ -12,6 +12,7 @@ import java.awt.geom.Rectangle2D;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Basic interface for Spatial data
@@ -60,21 +61,13 @@ public interface Spatial<T> extends LayoutModel.LayoutStateChangeListener {
    * @return a new rectangle
    */
   default Rectangle2D getUnion(Rectangle2D rect, Point2D p) {
-    double left = Math.min(p.getX(), rect.getX());
-    double top = Math.min(p.getY(), rect.getY());
-    double right = Math.max(p.getX(), rect.getX() + rect.getWidth());
-    double bottom = Math.max(p.getY(), rect.getY() + rect.getHeight());
-
-    return new Rectangle2D.Double(left, top, right - left, bottom - top);
+    rect.add(p);
+    return rect;
   }
 
   default Rectangle2D getUnion(Rectangle2D rect, double x, double y) {
-    double left = Math.min(x, rect.getX());
-    double top = Math.min(y, rect.getY());
-    double right = Math.max(x, rect.getX() + rect.getWidth());
-    double bottom = Math.max(y, rect.getY() + rect.getHeight());
-
-    return new Rectangle2D.Double(left, top, right - left, bottom - top);
+    rect.add(x, y);
+    return rect;
   }
 
   /**
@@ -89,14 +82,14 @@ public interface Spatial<T> extends LayoutModel.LayoutStateChangeListener {
    * @param p a point to search in the spatial structure
    * @return all leaf nodes that contain the passed point
    */
-  Collection<? extends TreeNode> getContainingLeafs(Point2D p);
+  Set<? extends TreeNode> getContainingLeafs(Point2D p);
 
   /**
    * @param x the x location to search for
    * @param y the y location to search for
    * @return all leaf nodes that contain the passed coordinates
    */
-  Collection<? extends TreeNode> getContainingLeafs(double x, double y);
+  Set<? extends TreeNode> getContainingLeafs(double x, double y);
 
   /**
    * @param element element to search for
@@ -108,7 +101,7 @@ public interface Spatial<T> extends LayoutModel.LayoutStateChangeListener {
    * @param shape a shape to filter the spatial structure's elements
    * @return all elements that are contained in the passed shape
    */
-  Collection<T> getVisibleElements(Shape shape);
+  Set<T> getVisibleElements(Shape shape);
 
   /**
    * @param p a point to search in the spatial structure
@@ -196,7 +189,7 @@ public interface Spatial<T> extends LayoutModel.LayoutStateChangeListener {
      * @return the single element that contains everything
      */
     @Override
-    public Collection<? extends TreeNode> getContainingLeafs(Point2D p) {
+    public Set<? extends TreeNode> getContainingLeafs(Point2D p) {
       return Collections.singleton(this.treeNode);
     }
 
@@ -206,7 +199,7 @@ public interface Spatial<T> extends LayoutModel.LayoutStateChangeListener {
      * @return the single element that contains everything
      */
     @Override
-    public Collection<? extends TreeNode> getContainingLeafs(double x, double y) {
+    public Set<? extends TreeNode> getContainingLeafs(double x, double y) {
       return Collections.singleton(this.treeNode);
     }
 
@@ -242,7 +235,7 @@ public interface Spatial<T> extends LayoutModel.LayoutStateChangeListener {
        * @return
        */
       @Override
-      public Collection<? extends TreeNode> getChildren() {
+      public List<? extends TreeNode> getChildren() {
         return Collections.emptyList();
       }
     }
@@ -257,7 +250,7 @@ public interface Spatial<T> extends LayoutModel.LayoutStateChangeListener {
       }
 
       @Override
-      public Collection<N> getVisibleElements(Shape shape) {
+      public Set<N> getVisibleElements(Shape shape) {
         return Sets.newHashSet(layoutModel.getGraph().nodes());
       }
 
@@ -289,7 +282,7 @@ public interface Spatial<T> extends LayoutModel.LayoutStateChangeListener {
       }
 
       @Override
-      public Collection<E> getVisibleElements(Shape shape) {
+      public Set<E> getVisibleElements(Shape shape) {
         return Sets.newHashSet(visualizationModel.getNetwork().edges());
       }
 

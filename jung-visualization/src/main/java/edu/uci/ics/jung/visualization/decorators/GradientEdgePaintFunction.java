@@ -56,8 +56,8 @@ public class GradientEdgePaintFunction<N, E> implements Function<E, Paint> {
     N f = endpoints.nodeV();
     Point pb = layoutModel.apply(b);
     Point pf = layoutModel.apply(f);
-    Point2D p2db = transformer.transform(new Point2D.Double(pb.x, pb.y));
-    Point2D p2df = transformer.transform(new Point2D.Double(pf.x, pf.y));
+    Point2D p2db = transformer.transform(pb.x, pb.y);
+    Point2D p2df = transformer.transform(pf.x, pf.y);
     float xB = (float) p2db.getX();
     float yB = (float) p2db.getY();
     float xF = (float) p2df.getX();

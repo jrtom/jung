@@ -99,7 +99,7 @@ public class AnimatedPickingGraphMousePlugin<N, E> extends AbstractGraphMousePlu
         // they did not pick a node to center, so
         // just center the graph
         Point2D center = vv.getCenter();
-        newCenter = new Point(center.getX(), center.getY());
+        newCenter = Point.of(center.getX(), center.getY());
       }
       Point2D lvc =
           vv.getRenderContext().getMultiLayerTransformer().inverseTransform(vv.getCenter());

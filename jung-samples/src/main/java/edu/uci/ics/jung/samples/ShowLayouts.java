@@ -7,15 +7,19 @@
  */
 package edu.uci.ics.jung.samples;
 
+import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
 import edu.uci.ics.jung.algorithms.generators.random.BarabasiAlbertGenerator;
 import edu.uci.ics.jung.graph.util.TestGraphs;
 import edu.uci.ics.jung.layout.algorithms.CircleLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.FRBHLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.FRBHVisitorLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.FRLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.ISOMLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.KKLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.SpringBHLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.SpringLayoutAlgorithm;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
@@ -49,7 +53,8 @@ public class ShowLayouts extends JPanel {
     "Miscellaneous multicomponent graph",
     "One component graph",
     "Chain+isolate graph",
-    "Trivial (disconnected) graph"
+    "Trivial (disconnected) graph",
+    "Little Graph"
   };
 
   enum Layouts {
@@ -57,7 +62,10 @@ public class ShowLayouts extends JPanel {
     FRUCHTERMAN_REINGOLD,
     CIRCLE,
     SPRING,
-    SELF_ORGANIZING_MAP
+    SELF_ORGANIZING_MAP,
+    FRUCHTERMAN_REINGOLD_BARNES_HUT,
+    FRUCHTERMAN_REINGOLD_BARNES_HUT_VISITOR,
+    SPRING_BARNES_HUT
   }
 
   public static class GraphChooser implements ActionListener {
@@ -68,14 +76,11 @@ public class ShowLayouts extends JPanel {
     }
 
     public void actionPerformed(ActionEvent e) {
-      SwingUtilities.invokeLater(
-          () -> {
-            JComboBox<?> cb = (JComboBox<?>) e.getSource();
-            graph_index = cb.getSelectedIndex();
-            vv.getNodeSpatial().clear();
-            vv.getEdgeSpatial().clear();
-            vv.getModel().setNetwork(g_array[graph_index]);
-          });
+      JComboBox<?> cb = (JComboBox<?>) e.getSource();
+      graph_index = cb.getSelectedIndex();
+      vv.getNodeSpatial().clear();
+      vv.getEdgeSpatial().clear();
+      vv.getModel().setNetwork(g_array[graph_index]);
     }
   }
 
@@ -128,6 +133,11 @@ public class ShowLayouts extends JPanel {
     g_array[3] = TestGraphs.getOneComponentGraph();
     g_array[4] = TestGraphs.createChainPlusIsolates(18, 5);
     g_array[5] = TestGraphs.createChainPlusIsolates(0, 20);
+    MutableNetwork network = NetworkBuilder.directed().allowsParallelEdges(true).build();
+    network.addEdge("A", "B", 1);
+    network.addEdge("A", "C", 2);
+
+    g_array[6] = network;
 
     Network g = g_array[3]; // initial graph
 
@@ -210,6 +220,12 @@ public class ShowLayouts extends JPanel {
         return new ISOMLayoutAlgorithm();
       case SPRING:
         return new SpringLayoutAlgorithm();
+      case FRUCHTERMAN_REINGOLD_BARNES_HUT:
+        return new FRBHLayoutAlgorithm();
+      case FRUCHTERMAN_REINGOLD_BARNES_HUT_VISITOR:
+        return new FRBHVisitorLayoutAlgorithm();
+      case SPRING_BARNES_HUT:
+        return new SpringBHLayoutAlgorithm();
       default:
         throw new IllegalArgumentException("Unrecognized layout type");
     }

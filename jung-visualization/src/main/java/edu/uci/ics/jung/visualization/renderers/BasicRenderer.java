@@ -13,7 +13,6 @@ import edu.uci.ics.jung.visualization.VisualizationModel;
 import edu.uci.ics.jung.visualization.VisualizationServer;
 import edu.uci.ics.jung.visualization.spatial.Spatial;
 import java.util.ConcurrentModificationException;
-import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,20 +41,18 @@ public class BasicRenderer<N, E> implements Renderer<N, E> {
       render(renderContext, visualizationModel);
       return;
     }
-    Set<N> visibleNodes = null;
-    Set<E> visibleEdges = null;
+    Iterable<N> visibleNodes = null;
+    Iterable<E> visibleEdges = null;
 
     try {
       visibleNodes =
-          (Set)
-              nodeSpatial.getVisibleElements(
-                  ((VisualizationServer) renderContext.getScreenDevice()).viewOnLayout());
+          nodeSpatial.getVisibleElements(
+              ((VisualizationServer) renderContext.getScreenDevice()).viewOnLayout());
 
       if (edgeSpatial != null) {
         visibleEdges =
-            (Set)
-                edgeSpatial.getVisibleElements(
-                    ((VisualizationServer) renderContext.getScreenDevice()).viewOnLayout());
+            edgeSpatial.getVisibleElements(
+                ((VisualizationServer) renderContext.getScreenDevice()).viewOnLayout());
       } else {
         visibleEdges = visualizationModel.getNetwork().edges();
       }

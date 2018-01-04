@@ -9,6 +9,8 @@
  */
 package edu.uci.ics.jung.layout.model;
 
+import java.util.Objects;
+
 /**
  * Represents a point in polar coordinates: distance and angle from the origin. Includes conversions
  * between polar and Cartesian coordinates (Point2D).
@@ -16,11 +18,17 @@ package edu.uci.ics.jung.layout.model;
  * @author Tom Nelson
  */
 public class PolarPoint {
-  double theta;
-  double radius;
+  public final double theta;
+  public final double radius;
+
+  public static PolarPoint ORIGIN = new PolarPoint();
+
+  public static PolarPoint of(double theta, double radius) {
+    return new PolarPoint(theta, radius);
+  }
 
   /** Creates a new instance with radius and angle each 0. */
-  public PolarPoint() {
+  private PolarPoint() {
     this(0, 0);
   }
 
@@ -30,27 +38,32 @@ public class PolarPoint {
    * @param theta the angle of the point to create
    * @param radius the distance from the origin of the point to create
    */
-  public PolarPoint(double theta, double radius) {
+  private PolarPoint(double theta, double radius) {
     this.theta = theta;
     this.radius = radius;
   }
 
-  /** @return the angle for this point */
-  public double getTheta() {
-    return theta;
+  public PolarPoint newRadius(double radius) {
+    return PolarPoint.of(theta, radius);
   }
 
-  /** @return the radius for this point */
-  public double getRadius() {
-    return radius;
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof PolarPoint)) {
+      return false;
+    }
+
+    PolarPoint other = (PolarPoint) o;
+
+    return (Double.compare(other.theta, theta) == 0 && Double.compare(other.radius, radius) == 0);
   }
 
-  public void setTheta(double theta) {
-    this.theta = theta;
-  }
-
-  public void setRadius(double radius) {
-    this.radius = radius;
+  @Override
+  public int hashCode() {
+    return Objects.hash(theta, radius);
   }
 
   /**
@@ -58,7 +71,7 @@ public class PolarPoint {
    * @return the result of converting <code>polar</code> to Cartesian coordinates.
    */
   public static Point polarToCartesian(PolarPoint polar) {
-    return polarToCartesian(polar.getTheta(), polar.getRadius());
+    return polarToCartesian(polar.theta, polar.radius);
   }
 
   /**
@@ -67,7 +80,7 @@ public class PolarPoint {
    * @return the result of converting <code>(theta, radius)</code> to Cartesian coordinates.
    */
   public static Point polarToCartesian(double theta, double radius) {
-    return new Point(radius * Math.cos(theta), radius * Math.sin(theta));
+    return Point.of(radius * Math.cos(theta), radius * Math.sin(theta));
   }
 
   /**
@@ -92,15 +105,5 @@ public class PolarPoint {
   @Override
   public String toString() {
     return "PolarPoint[" + radius + "," + theta + "]";
-  }
-
-  /**
-   * Sets the angle and radius of this point to those of {@code p}.
-   *
-   * @param p the point whose location is copied into this instance
-   */
-  public void setLocation(PolarPoint p) {
-    this.theta = p.getTheta();
-    this.radius = p.getRadius();
   }
 }

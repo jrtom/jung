@@ -228,7 +228,7 @@ public class KKLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
 
     for (int i = 0; i < 100; i++) {
       double[] dxy = calcDeltaXY(pm);
-      xydata[pm] = new Point(xydata[pm].x + dxy[0], xydata[pm].y + dxy[1]);
+      xydata[pm] = Point.of(xydata[pm].x + dxy[0], xydata[pm].y + dxy[1]);
       double deltam = calcDeltaM(pm);
       if (deltam < EPSILON) {
         break;
@@ -253,8 +253,8 @@ public class KKLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
           if (energy > xenergy) {
             double sx = xydata[i].x;
             double sy = xydata[i].y;
-            xydata[i] = new Point(xydata[j].x, xydata[j].y);
-            xydata[j] = new Point(sx, sy);
+            xydata[i] = Point.of(xydata[j].x, xydata[j].y);
+            xydata[j] = Point.of(sx, sy);
             return;
           }
         }
@@ -277,7 +277,7 @@ public class KKLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
     double diffx = width / 2 - gx;
     double diffy = height / 2 - gy;
     for (int i = 0; i < xydata.length; i++) {
-      xydata[i] = new Point(xydata[i].x + diffx, xydata[i].y + diffy);
+      xydata[i] = xydata[i].add(diffx, diffy);
       layoutModel.set(nodes[i], xydata[i]);
     }
   }

@@ -337,7 +337,7 @@ public class SubLayoutDemo extends JPanel {
                       new RandomLocationTransformer<>(subLayoutSize.width, subLayoutSize.height, 0))
                   .build();
 
-          clusteringLayoutModel.put(newLayoutModel, new Point(center.getX(), center.getY()));
+          clusteringLayoutModel.put(newLayoutModel, Point.of(center.getX(), center.getY()));
           newLayoutModel.accept(subLayoutAlgorithm);
           vv.repaint();
 

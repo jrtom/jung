@@ -109,7 +109,7 @@ public abstract class SpatialRTree<T, NT> extends AbstractSpatial<T, NT> impleme
    * @return a collection of the RTree LeafNodes that would contain the passed point
    */
   @Override
-  public Collection<LeafNode<T>> getContainingLeafs(double x, double y) {
+  public Set<LeafNode<T>> getContainingLeafs(double x, double y) {
     if (!isActive() || !rtree.getRoot().isPresent()) {
       return Collections.emptySet();
     }
@@ -119,7 +119,7 @@ public abstract class SpatialRTree<T, NT> extends AbstractSpatial<T, NT> impleme
   }
 
   @Override
-  public Collection<LeafNode<T>> getContainingLeafs(Point2D p) {
+  public Set<LeafNode<T>> getContainingLeafs(Point2D p) {
     return getContainingLeafs(p.getX(), p.getY());
   }
 
@@ -174,7 +174,7 @@ public abstract class SpatialRTree<T, NT> extends AbstractSpatial<T, NT> impleme
      * @return all nodes that are contained within the passed Shape
      */
     @Override
-    public Collection<N> getVisibleElements(Shape shape) {
+    public Set<N> getVisibleElements(Shape shape) {
       if (!isActive() || !rtree.getRoot().isPresent()) {
         return layoutModel.getGraph().nodes();
       }
@@ -182,7 +182,7 @@ public abstract class SpatialRTree<T, NT> extends AbstractSpatial<T, NT> impleme
 
       Node<N> root = rtree.getRoot().get();
       log.trace("out of nodes {}", layoutModel.getGraph().nodes());
-      Collection<N> visibleElements = Sets.newHashSet();
+      Set<N> visibleElements = Sets.newHashSet();
       return root.getVisibleElements(visibleElements, shape);
     }
 
@@ -267,7 +267,6 @@ public abstract class SpatialRTree<T, NT> extends AbstractSpatial<T, NT> impleme
         // double the search area size and try again
         radius *= 2;
       }
-      //      log.info("returning {}", closest);
       return closest;
     }
 
@@ -336,14 +335,14 @@ public abstract class SpatialRTree<T, NT> extends AbstractSpatial<T, NT> impleme
      * @return all nodes that are contained within the passed Shape
      */
     @Override
-    public Collection<E> getVisibleElements(Shape shape) {
+    public Set<E> getVisibleElements(Shape shape) {
       if (!isActive() || !rtree.getRoot().isPresent()) {
         log.trace("not relaxing so getting from the network");
         return visualizationModel.getNetwork().edges();
       }
       pickShapes.add(shape);
       Node<E> root = rtree.getRoot().get();
-      Collection<E> visibleElements = Sets.newHashSet();
+      Set<E> visibleElements = Sets.newHashSet();
       return root.getVisibleElements(visibleElements, shape);
     }
 

@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -221,8 +222,7 @@ public class InnerNode<T> extends RTreeNode<T> implements Node<T> {
    * @return Collection of the LeafNodes that would contain the passed point
    */
   @Override
-  public Collection<LeafNode<T>> getContainingLeafs(
-      Collection<LeafNode<T>> containingLeafs, Point2D p) {
+  public Set<LeafNode<T>> getContainingLeafs(Set<LeafNode<T>> containingLeafs, Point2D p) {
     return getContainingLeafs(containingLeafs, p.getX(), p.getY());
   }
 
@@ -232,8 +232,7 @@ public class InnerNode<T> extends RTreeNode<T> implements Node<T> {
    * @return Collection of the LeafNodes that would contain the passed coordinates
    */
   @Override
-  public Collection<LeafNode<T>> getContainingLeafs(
-      Collection<LeafNode<T>> containingLeafs, double x, double y) {
+  public Set<LeafNode<T>> getContainingLeafs(Set<LeafNode<T>> containingLeafs, double x, double y) {
     if (getBounds().contains(x, y)) {
       int size = children.size();
       for (int i = 0; i < size; i++) {
@@ -393,7 +392,7 @@ public class InnerNode<T> extends RTreeNode<T> implements Node<T> {
    * @return a collection of all elements that intersect with the passed shape
    */
   @Override
-  public Collection<T> getVisibleElements(Collection<T> visibleElements, Shape shape) {
+  public Set<T> getVisibleElements(Set<T> visibleElements, Shape shape) {
     if (shape.intersects(getBounds())) {
       int size = children.size();
       for (int i = 0; i < size; i++) {

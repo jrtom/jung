@@ -40,7 +40,7 @@ public class RadialTreeLayoutAlgorithm<N> extends TreeLayoutAlgorithm<N> {
 
   public RadialTreeLayoutAlgorithm(int distx, int disty) {
     super(distx, disty);
-    this.polarLocations = new HashMap<N, PolarPoint>();
+    this.polarLocations = new HashMap<>();
   }
 
   @Override
@@ -60,13 +60,13 @@ public class RadialTreeLayoutAlgorithm<N> extends TreeLayoutAlgorithm<N> {
   @Override
   protected void setLocation(LayoutModel<N> layoutModel, N node, Point location) {
     Point c = getCenter(layoutModel);
-    Point pv = new Point(location.x - c.x, location.y - c.y);
+    Point pv = location.add(-c.x, -c.y);
     PolarPoint newLocation = PolarPoint.cartesianToPolar(pv);
     PolarPoint currentLocation = polarLocations.get(node);
     if (currentLocation == null) {
       polarLocations.put(node, newLocation);
     } else {
-      currentLocation.setLocation(newLocation);
+      polarLocations.put(node, newLocation);
     }
   }
 
@@ -80,7 +80,7 @@ public class RadialTreeLayoutAlgorithm<N> extends TreeLayoutAlgorithm<N> {
     double centerX = layoutModel.getWidth() / 2;
     double centerY = layoutModel.getHeight() / 2;
     Point cartesian = PolarPoint.polarToCartesian(pp);
-    cartesian = new Point(cartesian.x + centerX, cartesian.y + centerY);
+    cartesian = cartesian.add(centerX, centerY);
     return cartesian;
   }
 
@@ -93,7 +93,7 @@ public class RadialTreeLayoutAlgorithm<N> extends TreeLayoutAlgorithm<N> {
       maxx = Math.max(maxx, location.x);
       maxy = Math.max(maxy, location.y);
     }
-    return new Point(maxx, maxy);
+    return Point.of(maxx, maxy);
   }
 
   private void setRadialLocations(LayoutModel<N> layoutModel) {
@@ -108,7 +108,7 @@ public class RadialTreeLayoutAlgorithm<N> extends TreeLayoutAlgorithm<N> {
     for (N node : layoutModel.getGraph().nodes()) {
       Point p = layoutModel.get(node);
 
-      PolarPoint polarPoint = new PolarPoint(p.x * theta, (p.y - this.distY) * deltaRadius);
+      PolarPoint polarPoint = PolarPoint.of(p.x * theta, (p.y - this.distY) * deltaRadius);
       polarLocations.put(node, polarPoint);
     }
   }

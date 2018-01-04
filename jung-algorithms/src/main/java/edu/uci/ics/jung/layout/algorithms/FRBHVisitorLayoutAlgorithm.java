@@ -16,6 +16,8 @@ import com.google.common.graph.Graph;
 import edu.uci.ics.jung.algorithms.util.IterativeContext;
 import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.layout.model.Point;
+import edu.uci.ics.jung.layout.spatial.BarnesHutQuadTree;
+import edu.uci.ics.jung.layout.spatial.ForceObject;
 import java.util.ConcurrentModificationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,10 +40,10 @@ import org.slf4j.LoggerFactory;
  *     "http://i11www.ilkd.uni-karlsruhe.de/teaching/SS_04/visualisierung/papers/fruchterman91graph.pdf"
  * @author Scott White, Yan-Biao Boey, Danyel Fisher, Tom Nelson
  */
-public class FRLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
+public class FRBHVisitorLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
     implements IterativeContext {
 
-  private static final Logger log = LoggerFactory.getLogger(FRLayoutAlgorithm.class);
+  private static final Logger log = LoggerFactory.getLogger(FRBHVisitorLayoutAlgorithm.class);
 
   private double forceConstant;
 
@@ -65,7 +67,9 @@ public class FRLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
 
   private boolean initialized = false;
 
-  public FRLayoutAlgorithm() {
+  private BarnesHutQuadTree<N> tree;
+
+  public FRBHVisitorLayoutAlgorithm() {
     this.frNodeData =
         CacheBuilder.newBuilder()
             .build(
@@ -78,8 +82,6 @@ public class FRLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
 
   @Override
   public void visit(LayoutModel<N> layoutModel) {
-    log.trace("visiting " + layoutModel);
-
     super.visit(layoutModel);
     max_dimension = Math.max(layoutModel.getWidth(), layoutModel.getHeight());
     initialize();
@@ -113,6 +115,8 @@ public class FRLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
       attraction_constant = attraction_multiplier * forceConstant;
       repulsion_constant = repulsion_multiplier * forceConstant;
       initialized = true;
+      tree = new BarnesHutQuadTree(layoutModel);
+      tree.rebuild();
     }
   }
 
@@ -128,7 +132,7 @@ public class FRLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
     }
     Graph<N> graph = layoutModel.getGraph();
     currentIteration++;
-
+    tree.rebuild();
     /** Calculate repulsion */
     while (true) {
 
@@ -245,34 +249,11 @@ public class FRLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
     }
     frNodeData.put(node1, Point.ORIGIN);
 
-    try {
-      for (N node2 : layoutModel.getGraph().nodes()) {
+    ForceObject<N> nodeForceObject = new ForceObject<>(node1, layoutModel.apply(node1));
 
-        if (node1 != node2) {
-          fvd1 = getFRData(node1);
-          Point p1 = layoutModel.apply(node1);
-          Point p2 = layoutModel.apply(node2);
-          if (p1 == null || p2 == null) {
-            continue;
-          }
-          double xDelta = p1.x - p2.x;
-          double yDelta = p1.y - p2.y;
+    tree.visit(repulsion_constant, nodeForceObject);
 
-          double deltaLength = Math.max(EPSILON, Math.sqrt((xDelta * xDelta) + (yDelta * yDelta)));
-
-          double force = (repulsion_constant * repulsion_constant) / deltaLength;
-
-          if (Double.isNaN(force)) {
-            throw new RuntimeException(
-                "Unexpected mathematical result in FRLayout:calcPositions [repulsion]");
-          }
-          frNodeData.put(
-              node1, fvd1.add((xDelta / deltaLength) * force, (yDelta / deltaLength) * force));
-        }
-      }
-    } catch (ConcurrentModificationException cme) {
-      calcRepulsion(node1);
-    }
+    frNodeData.put(node1, fvd1.add(nodeForceObject.getForce().x, nodeForceObject.getForce().y));
   }
 
   private void cool() {
