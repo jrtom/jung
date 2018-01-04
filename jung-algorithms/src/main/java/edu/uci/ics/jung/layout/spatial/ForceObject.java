@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 public class ForceObject<T> {
 
   private static final Logger log = LoggerFactory.getLogger(ForceObject.class);
-  private static final double GRAVITY = 6.67e-11f;
+  private static final double GRAVITATIONAL_CONSTANT = 6.67e-11f;
 
   /** location of p */
   public final Point p;
@@ -58,7 +58,7 @@ public class ForceObject<T> {
     if (dist == 0) {
       log.error("got a zero distance comparing {} with {}", this, other);
     }
-    double force = (this.mass * other.mass * GRAVITY) / (dist * dist + EPS * EPS);
+    double force = (this.mass * other.mass * GRAVITATIONAL_CONSTANT) / (dist * dist + EPS * EPS);
     log.trace(
         "force on {} from {} is {}, distance is {}", this.element, other.element, force, dist);
 

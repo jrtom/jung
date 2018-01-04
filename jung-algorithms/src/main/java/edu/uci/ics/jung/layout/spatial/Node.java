@@ -100,8 +100,6 @@ public class Node<T> {
       SE.insert(forceObject);
     } else if (SW.area.contains(forceObject.p)) {
       SW.insert(forceObject);
-    } else {
-      throw new IllegalStateException("forceObject {} is not in one of the child areas");
     }
   }
 

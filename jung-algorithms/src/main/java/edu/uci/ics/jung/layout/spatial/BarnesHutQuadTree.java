@@ -26,6 +26,8 @@ public class BarnesHutQuadTree<T> {
 
   protected LayoutModel<T> layoutModel;
 
+  private Object lock = new Object();
+
   /** @param layoutModel */
   public BarnesHutQuadTree(LayoutModel<T> layoutModel) {
     this.layoutModel = layoutModel;
@@ -84,15 +86,19 @@ public class BarnesHutQuadTree<T> {
    * will split and add all objects to their corresponding nodes.
    */
   protected void insert(ForceObject node) {
-    root.insert(node);
+    synchronized (lock) {
+      root.insert(node);
+    }
   }
 
   public void rebuild() {
     clear();
-    for (T node : layoutModel.getGraph().nodes()) {
-      Point p = layoutModel.apply(node);
-      ForceObject<T> forceObject = new ForceObject<T>(node, p);
-      insert(forceObject);
+    synchronized (lock) {
+      for (T node : layoutModel.getGraph().nodes()) {
+        Point p = layoutModel.apply(node);
+        ForceObject<T> forceObject = new ForceObject<T>(node, p);
+        insert(forceObject);
+      }
     }
   }
 }

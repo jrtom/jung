@@ -74,14 +74,11 @@ public class ShowLayouts extends JPanel {
     }
 
     public void actionPerformed(ActionEvent e) {
-      SwingUtilities.invokeLater(
-          () -> {
-            JComboBox<?> cb = (JComboBox<?>) e.getSource();
-            graph_index = cb.getSelectedIndex();
-            vv.getNodeSpatial().clear();
-            vv.getEdgeSpatial().clear();
-            vv.getModel().setNetwork(g_array[graph_index]);
-          });
+      JComboBox<?> cb = (JComboBox<?>) e.getSource();
+      graph_index = cb.getSelectedIndex();
+      vv.getNodeSpatial().clear();
+      vv.getEdgeSpatial().clear();
+      vv.getModel().setNetwork(g_array[graph_index]);
     }
   }
 
@@ -99,7 +96,7 @@ public class ShowLayouts extends JPanel {
     public void actionPerformed(ActionEvent arg0) {
       Layouts layoutType = (Layouts) jcb.getSelectedItem();
       LayoutAlgorithm layoutAlgorithm = createLayout(layoutType);
-      SwingUtilities.invokeLater(() -> LayoutAlgorithmTransition.animate(vv, layoutAlgorithm));
+      LayoutAlgorithmTransition.animate(vv, layoutAlgorithm);
     }
   }
 
