@@ -14,6 +14,7 @@ import edu.uci.ics.jung.algorithms.generators.random.BarabasiAlbertGenerator;
 import edu.uci.ics.jung.graph.util.TestGraphs;
 import edu.uci.ics.jung.layout.algorithms.CircleLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.FRBHLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.FRBHVisitorLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.FRLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.ISOMLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.KKLayoutAlgorithm;
@@ -63,6 +64,7 @@ public class ShowLayouts extends JPanel {
     SPRING,
     SELF_ORGANIZING_MAP,
     FRUCHTERMAN_REINGOLD_BARNES_HUT,
+    FRUCHTERMAN_REINGOLD_BARNES_HUT_VISITOR,
     SPRING_BARNES_HUT
   }
 
@@ -220,6 +222,8 @@ public class ShowLayouts extends JPanel {
         return new SpringLayoutAlgorithm();
       case FRUCHTERMAN_REINGOLD_BARNES_HUT:
         return new FRBHLayoutAlgorithm();
+      case FRUCHTERMAN_REINGOLD_BARNES_HUT_VISITOR:
+        return new FRBHVisitorLayoutAlgorithm();
       case SPRING_BARNES_HUT:
         return new SpringBHLayoutAlgorithm();
       default:

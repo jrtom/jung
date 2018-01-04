@@ -19,7 +19,6 @@ import edu.uci.ics.jung.layout.model.Point;
 import edu.uci.ics.jung.layout.spatial.BarnesHutQuadTree;
 import edu.uci.ics.jung.layout.spatial.ForceObject;
 import java.util.ConcurrentModificationException;
-import java.util.Iterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,10 +40,10 @@ import org.slf4j.LoggerFactory;
  *     "http://i11www.ilkd.uni-karlsruhe.de/teaching/SS_04/visualisierung/papers/fruchterman91graph.pdf"
  * @author Scott White, Yan-Biao Boey, Danyel Fisher, Tom Nelson
  */
-public class FRBHLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
+public class FRBHVisitorLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
     implements IterativeContext {
 
-  private static final Logger log = LoggerFactory.getLogger(FRBHLayoutAlgorithm.class);
+  private static final Logger log = LoggerFactory.getLogger(FRBHVisitorLayoutAlgorithm.class);
 
   private double forceConstant;
 
@@ -70,7 +69,7 @@ public class FRBHLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
 
   private BarnesHutQuadTree<N> tree;
 
-  public FRBHLayoutAlgorithm() {
+  public FRBHVisitorLayoutAlgorithm() {
     this.frNodeData =
         CacheBuilder.newBuilder()
             .build(
@@ -83,8 +82,6 @@ public class FRBHLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
 
   @Override
   public void visit(LayoutModel<N> layoutModel) {
-    log.trace("visiting " + layoutModel);
-
     super.visit(layoutModel);
     max_dimension = Math.max(layoutModel.getWidth(), layoutModel.getHeight());
     initialize();
@@ -251,34 +248,12 @@ public class FRBHLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
       return;
     }
     frNodeData.put(node1, Point.ORIGIN);
-    ForceObject<N> nodeForceObject = new ForceObject<>(node1, layoutModel.apply(node1));
-    Iterator<ForceObject<N>> forceObjectIterator =
-        new BarnesHutQuadTree.ForceObjectIterator<>(tree, nodeForceObject);
-    try {
-      while (forceObjectIterator.hasNext()) {
-        ForceObject<N> nextForceObject = forceObjectIterator.next();
-        if (nextForceObject != null && !nextForceObject.equals(nodeForceObject)) {
-          Point p1 = nodeForceObject.p;
-          Point p2 = nextForceObject.p;
-          if (p1 == null || p2 == null) {
-            continue;
-          }
-          double xDelta = p1.x - p2.x;
-          double yDelta = p1.y - p2.y;
 
-          double deltaLength = Math.max(EPSILON, Math.sqrt((xDelta * xDelta) + (yDelta * yDelta)));
-          double force = (repulsion_constant * repulsion_constant) / deltaLength;
-          if (Double.isNaN(force)) {
-            throw new RuntimeException(
-                "Unexpected mathematical result in FRLayout:calcPositions [repulsion]");
-          }
-          frNodeData.put(
-              node1, fvd1.add((xDelta / deltaLength) * force, (yDelta / deltaLength) * force));
-        }
-      }
-    } catch (ConcurrentModificationException cme) {
-      calcRepulsion(node1);
-    }
+    ForceObject<N> nodeForceObject = new ForceObject<>(node1, layoutModel.apply(node1));
+
+    tree.visit(repulsion_constant, nodeForceObject);
+
+    frNodeData.put(node1, fvd1.add(nodeForceObject.getForce().x, nodeForceObject.getForce().y));
   }
 
   private void cool() {

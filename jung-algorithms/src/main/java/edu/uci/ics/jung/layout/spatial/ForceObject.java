@@ -8,10 +8,10 @@ import org.slf4j.LoggerFactory;
 public class ForceObject<T> {
 
   private static final Logger log = LoggerFactory.getLogger(ForceObject.class);
-  private static final double GRAVITATIONAL_CONSTANT = 6.67e-11f;
 
+  private double EPSILON = 0.000001D;
   /** location of p */
-  public final Point p;
+  public Point p;
 
   /** force vector */
   protected Point f;
@@ -50,19 +50,14 @@ public class ForceObject<T> {
     this.f = Point.ORIGIN;
   }
 
-  void addForceFrom(ForceObject other) {
-    double EPS = 3E4; // softening parameter
-    double dx = other.p.x - this.p.x;
-    double dy = other.p.y - this.p.y;
+  void addForceFrom(double forceConstant, ForceObject other) {
+    double dx = this.p.x - other.p.x;
+    double dy = this.p.y - other.p.y;
     double dist = Math.sqrt(dx * dx + dy * dy);
-    if (dist == 0) {
-      log.error("got a zero distance comparing {} with {}", this, other);
-    }
-    double force = (this.mass * other.mass * GRAVITATIONAL_CONSTANT) / (dist * dist + EPS * EPS);
-    log.trace(
-        "force on {} from {} is {}, distance is {}", this.element, other.element, force, dist);
+    dist = Math.max(EPSILON, dist);
 
-    this.f = f.add(force * dx / dist, force * dy / dist);
+    double force = (forceConstant * forceConstant) / dist;
+    this.f = f.add(force * (dx / dist), force * (dy / dist));
   }
 
   public ForceObject add(ForceObject other) {

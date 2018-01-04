@@ -267,7 +267,6 @@ public abstract class SpatialRTree<T, NT> extends AbstractSpatial<T, NT> impleme
         // double the search area size and try again
         radius *= 2;
       }
-      //      log.info("returning {}", closest);
       return closest;
     }
 

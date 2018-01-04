@@ -9,6 +9,8 @@
  */
 package edu.uci.ics.jung.layout.model;
 
+import java.util.Objects;
+
 /**
  * Represents a point in polar coordinates: distance and angle from the origin. Includes conversions
  * between polar and Cartesian coordinates (Point2D).
@@ -43,6 +45,25 @@ public class PolarPoint {
 
   public PolarPoint newRadius(double radius) {
     return PolarPoint.of(theta, radius);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof PolarPoint)) {
+      return false;
+    }
+
+    PolarPoint other = (PolarPoint) o;
+
+    return (Double.compare(other.theta, theta) == 0 && Double.compare(other.radius, radius) == 0);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(theta, radius);
   }
 
   /**

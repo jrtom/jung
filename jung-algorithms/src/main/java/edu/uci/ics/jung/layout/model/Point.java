@@ -2,6 +2,7 @@ package edu.uci.ics.jung.layout.model;
 
 import edu.uci.ics.jung.layout.spatial.Circle;
 import edu.uci.ics.jung.layout.spatial.Rectangle;
+import java.util.Objects;
 
 /** @author Tom Nelson */
 public class Point {
@@ -62,6 +63,25 @@ public class Point {
 
   public double distance(Point other) {
     return Math.sqrt(distanceSquared(other));
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof Point)) {
+      return false;
+    }
+
+    Point other = (Point) o;
+
+    return (Double.compare(other.x, x) == 0 && Double.compare(other.y, y) == 0);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(x, y);
   }
 
   @Override

@@ -9,7 +9,14 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** @author Tom Nelson */
+/**
+ * A QuadTree that can gather combined forces from visited nodes. Inspired by
+ * http://arborjs.org/docs/barnes-hut
+ * http://www.cs.princeton.edu/courses/archive/fall03/cs126/assignments/barnes-hut.html
+ * https://github.com/chindesaurus/BarnesHut-N-Body
+ *
+ * @author Tom Nelson
+ */
 public class BarnesHutQuadTree<T> {
 
   private static final Logger log = LoggerFactory.getLogger(BarnesHutQuadTree.class);
@@ -41,9 +48,16 @@ public class BarnesHutQuadTree<T> {
     root.clear();
   }
 
-  public void updateForce(ForceObject<T> node) {
+  /**
+   * visit nodes in the quad tree and accumulate the forces to apply to the element for the passed
+   * node
+   *
+   * @param forceConstant
+   * @param node
+   */
+  public void visit(double forceConstant, ForceObject<T> node) {
     if (root != null && root.forceObject != node) {
-      root.updateForce(node);
+      root.visit(forceConstant, node);
     }
   }
 

@@ -229,7 +229,7 @@ public class SpatialLensLargeGraphDemo extends JPanel {
             ctx.getLogger("edu.uci.ics.jung.visualization.spatial.rtree").setLevel(Level.DEBUG);
             ctx.getLogger("edu.uci.ics.jung.visualization.BasicVisualizationServer")
                 .setLevel(Level.TRACE);
-            ctx.getLogger("edu.uci.ics.jung.visualization.picking").setLevel(Level.TRACE);
+            //            ctx.getLogger("edu.uci.ics.jung.visualization.picking").setLevel(Level.TRACE);
             repaint();
 
           } else if (e.getStateChange() == ItemEvent.DESELECTED) {

@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 public class Node<T> {
 
   private static final Logger log = LoggerFactory.getLogger(Node.class);
-  private static final double G = 6.67e-11;
   public static final double THETA = 0.5f;
 
   // a node contains a ForceObject and possibly 4 Nodes
@@ -129,13 +128,13 @@ public class Node<T> {
     SE = new Node(x + width, y + height, width, height);
   }
 
-  public void updateForce(ForceObject<T> target) {
-    if (this.forceObject == null || target.equals(this.forceObject)) {
+  public void visit(double forceConstant, ForceObject<T> target) {
+    if (this.forceObject == null || target.element.equals(this.forceObject.element)) {
       return;
     }
 
     if (isLeaf()) {
-      target.addForceFrom(this.forceObject);
+      target.addForceFrom(forceConstant, this.forceObject);
     } else {
       // not a leaf
       //  this node is an internal node
@@ -147,13 +146,13 @@ public class Node<T> {
       if (s / d < THETA) {
         // this node is sufficiently far away
         // just use this node's forces
-        target.addForceFrom(this.forceObject);
+        target.addForceFrom(forceConstant, this.forceObject);
       } else {
         // down the tree we go
-        NW.updateForce(target);
-        NE.updateForce(target);
-        SW.updateForce(target);
-        SE.updateForce(target);
+        NW.visit(forceConstant, target);
+        NE.visit(forceConstant, target);
+        SW.visit(forceConstant, target);
+        SE.visit(forceConstant, target);
       }
     }
   }
