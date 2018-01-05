@@ -1,5 +1,6 @@
 package edu.uci.ics.jung.graph;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.Collections.synchronizedList;
 
 import com.google.common.collect.ImmutableList;
@@ -18,11 +19,12 @@ import java.util.Set;
  *
  * @author Joshua O'Madadhain
  */
+// TODO: Add tests in similar fashion to CTreeTest and AbstractCTreeTest
 public class ObservableNetwork<N, E> implements MutableNetwork<N, E> {
 
-  List<NetworkEventListener<N, E>> listenerList =
+  private List<NetworkEventListener<N, E>> listenerList =
       synchronizedList(new ArrayList<NetworkEventListener<N, E>>());
-  MutableNetwork<N, E> delegate;
+  private MutableNetwork<N, E> delegate;
 
   /**
    * Creates a new instance based on the provided {@code delegate}.
@@ -30,7 +32,7 @@ public class ObservableNetwork<N, E> implements MutableNetwork<N, E> {
    * @param delegate the graph on which this class operates
    */
   public ObservableNetwork(MutableNetwork<N, E> delegate) {
-    this.delegate = delegate;
+    this.delegate = checkNotNull(delegate, "delegate");
   }
 
   /**
@@ -39,7 +41,7 @@ public class ObservableNetwork<N, E> implements MutableNetwork<N, E> {
    * @param l the listener to add
    */
   public void addGraphEventListener(NetworkEventListener<N, E> l) {
-    listenerList.add(l);
+    listenerList.add(checkNotNull(l, "l"));
   }
 
   /**
@@ -48,21 +50,24 @@ public class ObservableNetwork<N, E> implements MutableNetwork<N, E> {
    * @param l the listener to remove
    */
   public void removeGraphEventListener(NetworkEventListener<N, E> l) {
-    listenerList.remove(l);
+    listenerList.remove(checkNotNull(l, "l"));
   }
 
   protected void fireGraphEvent(NetworkEvent<N, E> evt) {
+    checkNotNull(evt, "evt");
     for (NetworkEventListener<N, E> listener : listenerList) {
       listener.handleGraphEvent(evt);
     }
   }
 
   @Override
-  public boolean addEdge(N v1, N v2, E e) {
-    boolean state = delegate.addEdge(v1, v2, e);
+  public boolean addEdge(N n1, N n2, E e) {
+    checkNotNull(n1, "n1");
+    checkNotNull(n2, "n2");
+    checkNotNull(e, "e");
+    boolean state = delegate.addEdge(n1, n2, e);
     if (state) {
-      NetworkEvent<N, E> evt =
-          new NetworkEvent.Edge<N, E>(delegate, NetworkEvent.Type.EDGE_ADDED, e);
+      NetworkEvent<N, E> evt = new NetworkEvent.Edge<>(delegate, NetworkEvent.Type.EDGE_ADDED, e);
       fireGraphEvent(evt);
     }
     return state;
@@ -70,6 +75,7 @@ public class ObservableNetwork<N, E> implements MutableNetwork<N, E> {
 
   @Override
   public boolean addNode(N node) {
+    checkNotNull(node, "node");
     boolean state = delegate.addNode(node);
     if (state) {
       NetworkEvent<N, E> evt =
@@ -81,10 +87,11 @@ public class ObservableNetwork<N, E> implements MutableNetwork<N, E> {
 
   @Override
   public boolean removeEdge(E edge) {
+    checkNotNull(edge, "edge");
     boolean state = delegate.removeEdge(edge);
     if (state) {
       NetworkEvent<N, E> evt =
-          new NetworkEvent.Edge<N, E>(delegate, NetworkEvent.Type.EDGE_REMOVED, (E) edge);
+          new NetworkEvent.Edge<>(delegate, NetworkEvent.Type.EDGE_REMOVED, edge);
       fireGraphEvent(evt);
     }
     return state;
@@ -92,19 +99,20 @@ public class ObservableNetwork<N, E> implements MutableNetwork<N, E> {
 
   @Override
   public boolean removeNode(N node) {
+    checkNotNull(node, "node");
     // remove all incident edges first, so that the appropriate events will
     // be fired (otherwise they'll be removed inside {@code
     // delegate.removeNode}
     // and the events will not be fired)
-    List<E> incident_edges = ImmutableList.copyOf(delegate.incidentEdges(node));
-    for (E e : incident_edges) {
+    List<E> incidentEdges = ImmutableList.copyOf(delegate.incidentEdges(node));
+    for (E e : incidentEdges) {
       this.removeEdge(e);
     }
 
     boolean state = delegate.removeNode(node);
     if (state) {
       NetworkEvent<N, E> evt =
-          new NetworkEvent.Node<N, E>(delegate, NetworkEvent.Type.NODE_REMOVED, (N) node);
+          new NetworkEvent.Node<>(delegate, NetworkEvent.Type.NODE_REMOVED, node);
       fireGraphEvent(evt);
     }
     return state;
@@ -112,11 +120,13 @@ public class ObservableNetwork<N, E> implements MutableNetwork<N, E> {
 
   @Override
   public Set<E> adjacentEdges(E edge) {
+    checkNotNull(edge, "edge");
     return delegate.adjacentEdges(edge);
   }
 
   @Override
   public Set<N> adjacentNodes(N node) {
+    checkNotNull(node, "node");
     return delegate.adjacentNodes(node);
   }
 
@@ -137,6 +147,7 @@ public class ObservableNetwork<N, E> implements MutableNetwork<N, E> {
 
   @Override
   public int degree(N node) {
+    checkNotNull(node, "node");
     return delegate.degree(node);
   }
 
@@ -152,26 +163,32 @@ public class ObservableNetwork<N, E> implements MutableNetwork<N, E> {
 
   @Override
   public Set<E> edgesConnecting(N nodeU, N nodeV) {
+    checkNotNull(nodeU, "nodeU");
+    checkNotNull(nodeV, "nodeV");
     return delegate.edgesConnecting(nodeU, nodeV);
   }
 
   @Override
   public int inDegree(N node) {
+    checkNotNull(node, "node");
     return delegate.inDegree(node);
   }
 
   @Override
   public Set<E> inEdges(N node) {
+    checkNotNull(node, "node");
     return delegate.inEdges(node);
   }
 
   @Override
   public Set<E> incidentEdges(N node) {
+    checkNotNull(node, "node");
     return delegate.incidentEdges(node);
   }
 
   @Override
   public EndpointPair<N> incidentNodes(E edge) {
+    checkNotNull(edge, "edge");
     return delegate.incidentNodes(edge);
   }
 
@@ -192,21 +209,25 @@ public class ObservableNetwork<N, E> implements MutableNetwork<N, E> {
 
   @Override
   public int outDegree(N node) {
+    checkNotNull(node, "node");
     return delegate.outDegree(node);
   }
 
   @Override
   public Set<E> outEdges(N node) {
+    checkNotNull(node, "node");
     return delegate.outEdges(node);
   }
 
   @Override
   public Set<N> predecessors(N node) {
+    checkNotNull(node, "node");
     return delegate.predecessors(node);
   }
 
   @Override
   public Set<N> successors(N node) {
+    checkNotNull(node, "node");
     return delegate.successors(node);
   }
 }

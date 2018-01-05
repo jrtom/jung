@@ -11,8 +11,12 @@
  */
 package edu.uci.ics.jung.graph;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
+
 import com.google.common.collect.Iterables;
+import com.google.common.graph.AbstractGraph;
 import com.google.common.graph.ElementOrder;
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Graphs;
@@ -24,18 +28,16 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-class DelegateCTree<N> implements MutableCTree<N> {
+class DelegateCTree<N> extends AbstractGraph<N> implements MutableCTree<N> {
   private final MutableGraph<N> delegate;
   private final Map<N, Integer> depths;
   private Optional<Integer> height;
   private Optional<N> root;
 
   DelegateCTree(MutableGraph<N> graph, Optional<N> root) {
-    this.delegate = graph;
-    this.depths = new HashMap<N, Integer>();
-    if (root.isPresent()) {
-      this.addNode(root.get());
-    }
+    this.delegate = checkNotNull(graph, "graph");
+    this.depths = new HashMap<>();
+    setRoot(checkNotNull(root, "root"));
   }
 
   @Override
@@ -45,16 +47,18 @@ class DelegateCTree<N> implements MutableCTree<N> {
 
   @Override
   public Optional<N> predecessor(N node) {
+    checkNotNull(node, "node");
     Set<N> predecessors = delegate.predecessors(node);
-    Preconditions.checkState(predecessors.size() <= 1);
+    checkState(predecessors.size() <= 1);
     return predecessors.isEmpty()
-        ? Optional.<N>empty()
+        ? Optional.empty()
         : Optional.of(Iterables.getOnlyElement(predecessors));
   }
 
   @Override
   public int depth(N node) {
-    Preconditions.checkArgument(delegate.nodes().contains(node));
+    checkNotNull(node, "node");
+    checkArgument(delegate.nodes().contains(node), NODE_NOT_IN_TREE, node);
     return depths.get(node);
   }
 
@@ -82,16 +86,22 @@ class DelegateCTree<N> implements MutableCTree<N> {
 
   @Override
   public Set<N> adjacentNodes(N node) {
+    checkNotNull(node, "node");
+    checkArgument(delegate.nodes().contains(node), NODE_NOT_IN_TREE, node);
     return delegate.adjacentNodes(node);
   }
 
   @Override
   public int degree(N node) {
+    checkNotNull(node, "node");
+    checkArgument(delegate.nodes().contains(node), NODE_NOT_IN_TREE, node);
     return delegate.degree(node);
   }
 
   @Override
   public int inDegree(N node) {
+    checkNotNull(node, "node");
+    checkArgument(delegate.nodes().contains(node), NODE_NOT_IN_TREE, node);
     return delegate.inDegree(node);
   }
 
@@ -107,16 +117,22 @@ class DelegateCTree<N> implements MutableCTree<N> {
 
   @Override
   public int outDegree(N node) {
+    checkNotNull(node, "node");
+    checkArgument(delegate.nodes().contains(node), NODE_NOT_IN_TREE, node);
     return delegate.outDegree(node);
   }
 
   @Override
   public Set<N> predecessors(N node) {
+    checkNotNull(node, "node");
+    checkArgument(delegate.nodes().contains(node), NODE_NOT_IN_TREE, node);
     return delegate.predecessors(node);
   }
 
   @Override
   public Set<N> successors(N node) {
+    checkNotNull(node, "node");
+    checkArgument(delegate.nodes().contains(node), NODE_NOT_IN_TREE, node);
     return delegate.successors(node);
   }
 
@@ -127,27 +143,30 @@ class DelegateCTree<N> implements MutableCTree<N> {
 
   @Override
   public boolean addNode(N node) {
-    if (root().equals(node)) {
+    checkNotNull(node, "node");
+    if (root.isPresent()) {
+      N rootValue = root.get();
+      checkArgument(rootValue.equals(node), NODE_ROOT_OF_TREE, node, rootValue);
       return false;
     }
-    Preconditions.checkArgument(nodes().isEmpty());
-    delegate.addNode(node);
-    this.root = Optional.of(node);
-    setDepth(node, null);
+    setRoot(Optional.of(node));
     return true;
   }
 
   @Override
   public boolean putEdge(N nodeU, N nodeV) {
-    if (nodes().isEmpty()) {
-      this.addNode(nodeU); // set the root
+    checkNotNull(nodeU, "nodeU");
+    checkNotNull(nodeV, "nodeV");
+    checkArgument(!nodeU.equals(nodeV), SELF_LOOP_NOT_ALLOWED, nodeU);
+    if (!root.isPresent()) {
+      setRoot(Optional.of(nodeU));
     } else {
-      Preconditions.checkArgument(nodes().contains(nodeU));
+      checkArgument(nodes().contains(nodeU), NODEU_NOT_IN_TREE, nodeU, nodeV, nodeU);
       if (successors(nodeU).contains(nodeV)) {
         return false; // edge is already present; no-op
       }
       // verify that nodeV is not in the tree
-      Preconditions.checkArgument(!nodes().contains(nodeV));
+      checkArgument(!nodes().contains(nodeV), NODEV_IN_TREE, nodeU, nodeV, nodeV);
     }
     setDepth(nodeV, nodeU);
     return delegate.putEdge(nodeU, nodeV);
@@ -158,30 +177,31 @@ class DelegateCTree<N> implements MutableCTree<N> {
       depths.put(node, 0);
       height = Optional.of(0);
     } else {
+      depths.putIfAbsent(parent, 0);
       int nodeDepth = depths.get(parent) + 1;
-      height = Optional.of(Math.max(nodeDepth, height.get()));
+      height = Optional.of(Math.max(nodeDepth, height.orElseThrow(AssertionError::new)));
     }
   }
 
-  private int calculateHeight() {
+  private void calculateHeight() {
     // This method is only called when the root is present, so we don't need to check for that.
     int currentHeight = 0;
-    List<N> currentLevel = new ArrayList<N>();
+    List<N> currentLevel = new ArrayList<>(successors(root.orElseThrow(AssertionError::new)));
     List<N> nextLevel;
-    currentLevel.addAll(successors(root.get()));
     while (!currentLevel.isEmpty()) {
-      nextLevel = new ArrayList<N>();
+      nextLevel = new ArrayList<>();
       currentHeight++; // there's at least one node in the current level
       for (N node : currentLevel) {
         nextLevel.addAll(successors(node));
       }
       currentLevel = nextLevel;
     }
-    return currentHeight;
+    height = Optional.of(currentHeight);
   }
 
   @Override
   public boolean removeNode(N node) {
+    checkNotNull(node, "node");
     if (!nodes().contains(node)) {
       return false;
     }
@@ -189,14 +209,42 @@ class DelegateCTree<N> implements MutableCTree<N> {
       delegate.removeNode(nodeToRemove);
       depths.remove(nodeToRemove);
     }
+    if (root.isPresent() && root.get().equals(node)) {
+      setRoot(Optional.empty());
+    }
     // Reset the height, since we don't know how it was affected by removing the subtree.
-    this.height = Optional.empty();
+    height = Optional.empty();
     return true;
+  }
+
+  private void setRoot(Optional<N> root) {
+    this.root = root;
+    this.root.ifPresent(
+        node -> {
+          this.delegate.addNode(node);
+          setDepth(node, null);
+        });
   }
 
   @Override
   public boolean removeEdge(N nodeU, N nodeV) {
+    checkNotNull(nodeU, "nodeU");
+    checkNotNull(nodeV, "nodeV");
     delegate.removeEdge(nodeU, nodeV);
-    return this.removeNode(nodeV);
+    return removeNode(nodeV);
   }
+
+  // TODO: Externalise these constants into a separate class, so that both DelegateCTree and
+  // DelegateCTreeNetwork can access them.
+  private static final String TO_STRING_FORMAT =
+      "isDirected: %s, allowsSelfLoops: %s, nodes: %s, edges: %s";
+  private static final String NODE_NOT_IN_TREE = "Node %s is not an element of this tree.";
+  private static final String NODE_ROOT_OF_TREE =
+      "Cannot add node %s, as node %s is already the root of this tree.";
+  private static final String SELF_LOOP_NOT_ALLOWED =
+      "Cannot add self-loop edge on node %s, as self-loops are not allowed.";
+  private static final String NODEU_NOT_IN_TREE =
+      "Cannot add edge from nodeU %s to nodeV %s, as nodeU %s is not an element of this tree.";
+  private static final String NODEV_IN_TREE =
+      "Cannot add edge from nodeU %s to nodeV %s, as nodeV %s is an element of this tree.";
 }
