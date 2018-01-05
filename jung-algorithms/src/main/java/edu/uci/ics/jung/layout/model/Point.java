@@ -20,6 +20,10 @@ public class Point {
     this.y = y;
   }
 
+  public Point add(Point other) {
+    return add(other.x, other.y);
+  }
+
   public Point add(double dx, double dy) {
     return new Point(x + dx, y + dy);
   }

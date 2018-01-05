@@ -21,15 +21,10 @@ public class PolarPoint {
   public final double theta;
   public final double radius;
 
-  public static PolarPoint ORIGIN = new PolarPoint();
+  public static PolarPoint ORIGIN = new PolarPoint(0, 0);
 
   public static PolarPoint of(double theta, double radius) {
     return new PolarPoint(theta, radius);
-  }
-
-  /** Creates a new instance with radius and angle each 0. */
-  private PolarPoint() {
-    this(0, 0);
   }
 
   /**

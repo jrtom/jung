@@ -17,6 +17,7 @@ import edu.uci.ics.jung.algorithms.util.IterativeContext;
 import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.layout.model.Point;
 import java.util.ConcurrentModificationException;
+import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,6 +66,8 @@ public class FRLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
 
   private boolean initialized = false;
 
+  private Random random = new Random();
+
   public FRLayoutAlgorithm() {
     this.frNodeData =
         CacheBuilder.newBuilder()
@@ -78,11 +81,16 @@ public class FRLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
 
   @Override
   public void visit(LayoutModel<N> layoutModel) {
-    log.trace("visiting " + layoutModel);
-
+    if (log.isTraceEnabled()) {
+      log.trace("visiting " + layoutModel);
+    }
     super.visit(layoutModel);
     max_dimension = Math.max(layoutModel.getWidth(), layoutModel.getHeight());
     initialize();
+  }
+
+  public void setRandomSeed(long randomSeed) {
+    this.random = new Random(randomSeed);
   }
 
   public void setAttractionMultiplier(double attraction) {
@@ -185,17 +193,16 @@ public class FRLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
     positionY += newYDisp;
 
     double borderWidth = layoutModel.getWidth() / 50.0;
-
     if (positionX < borderWidth) {
-      positionX = borderWidth + Math.random() * borderWidth * 2.0;
+      positionX = borderWidth + random.nextDouble() * borderWidth * 2.0;
     } else if (positionX > layoutModel.getWidth() - borderWidth * 2) {
-      positionX = layoutModel.getWidth() - borderWidth - Math.random() * borderWidth * 2.0;
+      positionX = layoutModel.getWidth() - borderWidth - random.nextDouble() * borderWidth * 2.0;
     }
 
     if (positionY < borderWidth) {
-      positionY = borderWidth + Math.random() * borderWidth * 2.0;
+      positionY = borderWidth + random.nextDouble() * borderWidth * 2.0;
     } else if (positionY > layoutModel.getWidth() - borderWidth * 2) {
-      positionY = layoutModel.getWidth() - borderWidth - Math.random() * borderWidth * 2.0;
+      positionY = layoutModel.getWidth() - borderWidth - random.nextDouble() * borderWidth * 2.0;
     }
 
     layoutModel.set(node, positionX, positionY);
@@ -266,8 +273,8 @@ public class FRLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
             throw new RuntimeException(
                 "Unexpected mathematical result in FRLayout:calcPositions [repulsion]");
           }
-          frNodeData.put(
-              node1, fvd1.add((xDelta / deltaLength) * force, (yDelta / deltaLength) * force));
+          fvd1 = fvd1.add((xDelta / deltaLength) * force, (yDelta / deltaLength) * force);
+          frNodeData.put(node1, fvd1);
         }
       }
     } catch (ConcurrentModificationException cme) {

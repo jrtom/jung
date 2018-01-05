@@ -134,7 +134,16 @@ public class Node<T> {
     }
 
     if (isLeaf()) {
+      if (log.isTraceEnabled()) {
+        log.trace(
+            "isLeaf, Node {} at {} visiting {} at {}",
+            this.forceObject.getElement(),
+            this.forceObject.p,
+            target.getElement(),
+            target.p);
+      }
       target.addForceFrom(forceConstant, this.forceObject);
+      log.trace("added force from {} so its now {}", this.forceObject, target);
     } else {
       // not a leaf
       //  this node is an internal node
@@ -146,7 +155,17 @@ public class Node<T> {
       if (s / d < THETA) {
         // this node is sufficiently far away
         // just use this node's forces
+        if (log.isTraceEnabled()) {
+          log.trace(
+              "Node {} at {} visiting {} at {}",
+              this.forceObject.getElement(),
+              this.forceObject.p,
+              target.getElement(),
+              target.p);
+        }
         target.addForceFrom(forceConstant, this.forceObject);
+        log.trace("added force from {} so its now {}", this.forceObject, target);
+
       } else {
         // down the tree we go
         NW.visit(forceConstant, target);
@@ -194,6 +213,7 @@ public class Node<T> {
 
   static String asString(Node node, String margin) {
     StringBuilder s = new StringBuilder();
+    s.append("\n");
     s.append(margin);
     s.append("bounds=");
     s.append(asString(node.getBounds()));
