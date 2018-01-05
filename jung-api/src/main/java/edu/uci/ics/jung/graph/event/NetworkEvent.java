@@ -1,5 +1,7 @@
 package edu.uci.ics.jung.graph.event;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.graph.Network;
 
 /**
@@ -20,8 +22,8 @@ public abstract class NetworkEvent<N, E> {
    * @param type the type of event this is
    */
   public NetworkEvent(Network<N, E> source, Type type) {
-    this.source = source;
-    this.type = type;
+    this.source = checkNotNull(source, "source");
+    this.type = checkNotNull(type, "type");
   }
 
   /** Types of graph events. */
@@ -45,7 +47,7 @@ public abstract class NetworkEvent<N, E> {
      */
     public Node(Network<N, E> source, Type type, N node) {
       super(source, type);
-      this.node = node;
+      this.node = checkNotNull(node, "node");
     }
 
     /** @return the node associated with this event */
@@ -72,7 +74,7 @@ public abstract class NetworkEvent<N, E> {
      */
     public Edge(Network<N, E> source, Type type, E edge) {
       super(source, type);
-      this.edge = edge;
+      this.edge = checkNotNull(edge, "edge");
     }
 
     /** @return the edge associated with this event. */
