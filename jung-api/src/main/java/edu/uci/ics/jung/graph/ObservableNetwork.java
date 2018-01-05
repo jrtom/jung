@@ -63,9 +63,6 @@ public class ObservableNetwork<V, E>
 
   @Override
   public boolean addEdge(V v1, V v2, E e) {
-    checkNotNull(v1, "v1");
-    checkNotNull(v2, "v2");
-    checkNotNull(e, "e");
     boolean state = delegate.addEdge(v1, v2, e);
     if (state) {
       NetworkEvent<V, E> evt = new NetworkEvent.Edge<>(delegate, NetworkEvent.Type.EDGE_ADDED, e);
@@ -76,7 +73,6 @@ public class ObservableNetwork<V, E>
 
   @Override
   public boolean addNode(V vertex) {
-    checkNotNull(vertex, "vertex");
     boolean state = delegate.addNode(vertex);
     if (state) {
       NetworkEvent<V, E> evt =
@@ -88,7 +84,6 @@ public class ObservableNetwork<V, E>
 
   @Override
   public boolean removeEdge(E edge) {
-    checkNotNull(edge, "edge");
     boolean state = delegate.removeEdge(edge);
     if (state) {
       NetworkEvent<V, E> evt =
@@ -100,7 +95,6 @@ public class ObservableNetwork<V, E>
 
   @Override
   public boolean removeNode(V vertex) {
-    checkNotNull(vertex, "vertex");
     // remove all incident edges first, so that the appropriate events will
     // be fired (otherwise they'll be removed inside {@code
     // delegate.removeNode}
@@ -121,13 +115,11 @@ public class ObservableNetwork<V, E>
 
   @Override
   public Set<E> adjacentEdges(E edge) {
-    checkNotNull(edge, "edge");
     return delegate.adjacentEdges(edge);
   }
 
   @Override
   public Set<V> adjacentNodes(V node) {
-    checkNotNull(node, "node");
     return delegate.adjacentNodes(node);
   }
 
@@ -148,7 +140,6 @@ public class ObservableNetwork<V, E>
 
   @Override
   public int degree(V node) {
-    checkNotNull(node, "node");
     return delegate.degree(node);
   }
 
@@ -164,32 +155,26 @@ public class ObservableNetwork<V, E>
 
   @Override
   public Set<E> edgesConnecting(V nodeU, V nodeV) {
-    checkNotNull(nodeU, "nodeU");
-    checkNotNull(nodeV, "nodeV");
     return delegate.edgesConnecting(nodeU, nodeV);
   }
 
   @Override
   public int inDegree(V node) {
-    checkNotNull(node, "node");
     return delegate.inDegree(node);
   }
 
   @Override
   public Set<E> inEdges(V node) {
-    checkNotNull(node, "node");
     return delegate.inEdges(node);
   }
 
   @Override
   public Set<E> incidentEdges(V node) {
-    checkNotNull(node, "node");
     return delegate.incidentEdges(node);
   }
 
   @Override
   public EndpointPair<V> incidentNodes(E edge) {
-    checkNotNull(edge, "edge");
     return delegate.incidentNodes(edge);
   }
 
@@ -210,25 +195,21 @@ public class ObservableNetwork<V, E>
 
   @Override
   public int outDegree(V node) {
-    checkNotNull(node, "node");
     return delegate.outDegree(node);
   }
 
   @Override
   public Set<E> outEdges(V node) {
-    checkNotNull(node, "node");
     return delegate.outEdges(node);
   }
 
   @Override
   public Set<V> predecessors(V node) {
-    checkNotNull(node, "node");
     return delegate.predecessors(node);
   }
 
   @Override
   public Set<V> successors(V node) {
-    checkNotNull(node, "node");
     return delegate.successors(node);
   }
 }
