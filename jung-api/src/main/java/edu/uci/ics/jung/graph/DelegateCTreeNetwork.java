@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.collect.Iterables;
+import com.google.common.graph.AbstractNetwork;
 import com.google.common.graph.ElementOrder;
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Graph;
@@ -18,16 +19,17 @@ import java.util.Optional;
 import java.util.Set;
 
 // TODO: Add tests in similar fashion to CTreeTest and AbstractCTreeTest
-class DelegateCTreeNetwork<N, E> implements MutableCTreeNetwork<N, E> {
+class DelegateCTreeNetwork<N, E> extends AbstractNetwork<N, E>
+    implements MutableCTreeNetwork<N, E> {
   private final MutableNetwork<N, E> delegate;
   private final Map<N, Integer> depths;
   private Optional<Integer> height;
-  private Optional<N> root = Optional.empty();
+  private Optional<N> root;
 
   DelegateCTreeNetwork(MutableNetwork<N, E> graph, Optional<N> root) {
     this.delegate = checkNotNull(graph, "graph");
     this.depths = new HashMap<>();
-    root.ifPresent(this::addNode);
+    setRoot(checkNotNull(root, "root"));
   }
 
   @Override
@@ -48,7 +50,7 @@ class DelegateCTreeNetwork<N, E> implements MutableCTreeNetwork<N, E> {
   @Override
   public int depth(N node) {
     checkNotNull(node, "node");
-    checkArgument(delegate.nodes().contains(node));
+    checkArgument(delegate.nodes().contains(node), NODE_NOT_IN_TREE, node);
     return depths.get(node);
   }
 
@@ -77,18 +79,21 @@ class DelegateCTreeNetwork<N, E> implements MutableCTreeNetwork<N, E> {
   @Override
   public Set<N> adjacentNodes(N node) {
     checkNotNull(node, "node");
+    checkArgument(delegate.nodes().contains(node), NODE_NOT_IN_TREE, node);
     return delegate.adjacentNodes(node);
   }
 
   @Override
   public int degree(N node) {
     checkNotNull(node, "node");
+    checkArgument(delegate.nodes().contains(node), NODE_NOT_IN_TREE, node);
     return delegate.degree(node);
   }
 
   @Override
   public int inDegree(N node) {
     checkNotNull(node, "node");
+    checkArgument(delegate.nodes().contains(node), NODE_NOT_IN_TREE, node);
     return delegate.inDegree(node);
   }
 
@@ -105,18 +110,21 @@ class DelegateCTreeNetwork<N, E> implements MutableCTreeNetwork<N, E> {
   @Override
   public int outDegree(N node) {
     checkNotNull(node, "node");
+    checkArgument(delegate.nodes().contains(node), NODE_NOT_IN_TREE, node);
     return delegate.outDegree(node);
   }
 
   @Override
   public Set<N> predecessors(N node) {
     checkNotNull(node, "node");
+    checkArgument(delegate.nodes().contains(node), NODE_NOT_IN_TREE, node);
     return delegate.predecessors(node);
   }
 
   @Override
   public Set<N> successors(N node) {
     checkNotNull(node, "node");
+    checkArgument(delegate.nodes().contains(node), NODE_NOT_IN_TREE, node);
     return delegate.successors(node);
   }
 
@@ -150,43 +158,48 @@ class DelegateCTreeNetwork<N, E> implements MutableCTreeNetwork<N, E> {
   public Set<E> edgesConnecting(N nodeU, N nodeV) {
     checkNotNull(nodeU, "nodeU");
     checkNotNull(nodeV, "nodeV");
+    checkArgument(delegate.nodes().contains(nodeU), NODE_NOT_IN_TREE, nodeU);
+    checkArgument(delegate.nodes().contains(nodeV), NODE_NOT_IN_TREE, nodeV);
     return delegate.edgesConnecting(nodeU, nodeV);
   }
 
   @Override
   public Set<E> inEdges(N node) {
     checkNotNull(node, "node");
+    checkArgument(delegate.nodes().contains(node), NODE_NOT_IN_TREE, node);
     return delegate.inEdges(node);
   }
 
   @Override
   public Set<E> incidentEdges(N node) {
     checkNotNull(node, "node");
+    checkArgument(delegate.nodes().contains(node), NODE_NOT_IN_TREE, node);
     return delegate.incidentEdges(node);
   }
 
   @Override
   public EndpointPair<N> incidentNodes(E edge) {
     checkNotNull(edge, "edge");
+    checkArgument(delegate.edges().contains(edge), EDGE_NOT_IN_TREE, edge);
     return delegate.incidentNodes(edge);
   }
 
   @Override
   public Set<E> outEdges(N node) {
     checkNotNull(node, "node");
+    checkArgument(delegate.nodes().contains(node), NODE_NOT_IN_TREE, node);
     return delegate.outEdges(node);
   }
 
   @Override
   public boolean addNode(N node) {
     checkNotNull(node, "node");
-    if (root.isPresent() && root.get().equals(node)) {
+    if (root.isPresent()) {
+      N rootValue = root.get();
+      checkArgument(rootValue.equals(node), NODE_ROOT_OF_TREE, node, rootValue);
       return false;
     }
-    checkArgument(nodes().isEmpty());
-    delegate.addNode(node);
-    this.root = Optional.of(node);
-    setDepth(node, null);
+    setRoot(Optional.of(node));
     return true;
   }
 
@@ -195,15 +208,16 @@ class DelegateCTreeNetwork<N, E> implements MutableCTreeNetwork<N, E> {
     checkNotNull(nodeU, "nodeU");
     checkNotNull(nodeV, "nodeV");
     checkNotNull(edge, "edge");
-    if (nodes().isEmpty()) {
-      this.addNode(nodeU); // set the root
+    checkArgument(!nodeU.equals(nodeV), SELF_LOOP_NOT_ALLOWED, nodeU);
+    if (!root.isPresent()) {
+      setRoot(Optional.of(nodeU));
     } else {
-      checkArgument(nodes().contains(nodeU));
+      checkArgument(nodes().contains(nodeU), NODEU_NOT_IN_TREE, nodeU, nodeV, nodeU);
       if (successors(nodeU).contains(nodeV)) {
         return false; // edge is already present; no-op
       }
       // verify that nodeV is not in the tree
-      checkArgument(!nodes().contains(nodeV));
+      checkArgument(!nodes().contains(nodeV), NODEV_IN_TREE, nodeU, nodeV, nodeV);
     }
     setDepth(nodeV, nodeU);
     return delegate.addEdge(nodeU, nodeV, edge);
@@ -214,9 +228,9 @@ class DelegateCTreeNetwork<N, E> implements MutableCTreeNetwork<N, E> {
       depths.put(node, 0);
       height = Optional.of(0);
     } else {
+      depths.putIfAbsent(parent, 0);
       int nodeDepth = depths.get(parent) + 1;
-      height = Optional.of(Math.max(nodeDepth, height.orElse(0)));
-      depths.put(node, nodeDepth);
+      height = Optional.of(Math.max(nodeDepth, height.orElseThrow(AssertionError::new)));
     }
   }
 
@@ -246,9 +260,21 @@ class DelegateCTreeNetwork<N, E> implements MutableCTreeNetwork<N, E> {
       delegate.removeNode(nodeToRemove);
       depths.remove(nodeToRemove);
     }
+    if (root.isPresent() && root.get().equals(node)) {
+      setRoot(Optional.empty());
+    }
     // Reset the height, since we don't know how it was affected by removing the subtree.
     this.height = Optional.empty();
     return true;
+  }
+
+  private void setRoot(Optional<N> root) {
+    this.root = root;
+    this.root.ifPresent(
+        node -> {
+          this.delegate.addNode(node);
+          setDepth(node, null);
+        });
   }
 
   @Override
@@ -256,6 +282,19 @@ class DelegateCTreeNetwork<N, E> implements MutableCTreeNetwork<N, E> {
     checkNotNull(edge, "edge");
     delegate.removeEdge(edge);
     // remove the subtree rooted at this edge's target
-    return this.removeNode(delegate.incidentNodes(edge).target());
+    return removeNode(delegate.incidentNodes(edge).target());
   }
+
+  // TODO: Externalise these constants into a separate class, so that both DelegateCTree and
+  // DelegateCTreeNetwork can access them.
+  private static final String NODE_NOT_IN_TREE = "Node %s is not an element of this tree.";
+  private static final String NODE_ROOT_OF_TREE =
+      "Cannot add node %s, as node %s is already the root of this tree.";
+  private static final String SELF_LOOP_NOT_ALLOWED =
+      "Cannot add self-loop edge on node %s, as self-loops are not allowed.";
+  private static final String EDGE_NOT_IN_TREE = "Edge %s is not an element of this tree.";
+  private static final String NODEU_NOT_IN_TREE =
+      "Cannot add edge from nodeU %s to nodeV %s, as nodeU %s is not an element of this tree.";
+  private static final String NODEV_IN_TREE =
+      "Cannot add edge from nodeU %s to nodeV %s, as nodeV %s is an element of this tree.";
 }

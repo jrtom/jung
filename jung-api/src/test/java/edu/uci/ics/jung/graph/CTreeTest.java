@@ -17,7 +17,6 @@
 package edu.uci.ics.jung.graph;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.Set;
@@ -67,9 +66,9 @@ public class CTreeTest extends AbstractCTreeTest {
       predecessors.add(N1);
       fail(ERROR_MODIFIABLE_SET);
     } catch (UnsupportedOperationException e) {
-      // putting an edge like `putEdge(N1, N2)`, which would be used to check that N2's predecessors
-      // gets updated, cannot be done because CTree#putEdge cannot be used to implicitly update the
-      // root of a tree.
+      // putting an edge like `putEdge(N1, N2)`, which would have been used to check that N2's
+      // predecessors gets updated, cannot be done because CTree#putEdge cannot be used to
+      // implicitly update the root of a tree.
     }
   }
 

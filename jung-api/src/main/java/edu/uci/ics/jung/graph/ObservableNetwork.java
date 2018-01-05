@@ -88,6 +88,7 @@ public class ObservableNetwork<V, E>
 
   @Override
   public boolean removeEdge(E edge) {
+    checkNotNull(edge, "edge");
     boolean state = delegate.removeEdge(edge);
     if (state) {
       NetworkEvent<V, E> evt =
@@ -99,12 +100,13 @@ public class ObservableNetwork<V, E>
 
   @Override
   public boolean removeNode(V vertex) {
+    checkNotNull(vertex, "vertex");
     // remove all incident edges first, so that the appropriate events will
     // be fired (otherwise they'll be removed inside {@code
     // delegate.removeNode}
     // and the events will not be fired)
-    List<E> incident_edges = ImmutableList.copyOf(delegate.incidentEdges(vertex));
-    for (E e : incident_edges) {
+    List<E> incidentEdges = ImmutableList.copyOf(delegate.incidentEdges(vertex));
+    for (E e : incidentEdges) {
       this.removeEdge(e);
     }
 

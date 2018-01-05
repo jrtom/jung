@@ -23,8 +23,8 @@ import java.util.Map;
  * to be the collection of edges that are returned by <code>graph.edgesConnecting(v, w)</code> for
  * some <code>v</code> and <code>w</code>.
  *
- * <p>At this time, users are responsible for resetting the indices (by calling
- * <code>reset()</code>) if changes to the graph make it appropriate.
+ * <p>At this time, users are responsible for resetting the indices (by calling <code>reset()</code>
+ * ) if changes to the graph make it appropriate.
  *
  * @author Joshua O'Madadhain
  * @author Tom Nelson

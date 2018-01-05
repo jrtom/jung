@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 
 import edu.uci.ics.jung.graph.MutableCTreeNetwork;
 import edu.uci.ics.jung.graph.TreeNetworkBuilder;
-import org.junit.Assert;
 import org.junit.Test;
 
 /** @author Tom Nelson */

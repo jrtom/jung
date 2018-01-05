@@ -146,24 +146,11 @@ class DelegateCTree<N> extends AbstractGraph<N> implements MutableCTree<N> {
     checkNotNull(node, "node");
     if (root.isPresent()) {
       N rootValue = root.get();
-      if (rootValue.equals(node)) {
-        return false;
-      }
-      throw new IllegalArgumentException(
-          String.format(
-              "Cannot add node %s; %s is already the root of this tree", node, rootValue));
+      checkArgument(rootValue.equals(node), NODE_ROOT_OF_TREE, node, rootValue);
+      return false;
     }
     setRoot(Optional.of(node));
     return true;
-  }
-
-  private void setRoot(Optional<N> root) {
-    this.root = root;
-    this.root.ifPresent(
-        node -> {
-          delegate.addNode(node);
-          setDepth(node, null);
-        });
   }
 
   @Override
@@ -171,17 +158,15 @@ class DelegateCTree<N> extends AbstractGraph<N> implements MutableCTree<N> {
     checkNotNull(nodeU, "nodeU");
     checkNotNull(nodeV, "nodeV");
     checkArgument(!nodeU.equals(nodeV), SELF_LOOP_NOT_ALLOWED, nodeU);
-    if (nodes().isEmpty()) {
-      addNode(nodeU); // set the root
+    if (!root.isPresent()) {
+      setRoot(Optional.of(nodeU));
     } else {
-      // TODO: Amend this check to throw an appropriate message. Add a test for it.
-      checkArgument(nodes().contains(nodeU));
+      checkArgument(nodes().contains(nodeU), NODEU_NOT_IN_TREE, nodeU, nodeV, nodeU);
       if (successors(nodeU).contains(nodeV)) {
         return false; // edge is already present; no-op
       }
       // verify that nodeV is not in the tree
-      // TODO: Amend this check to throw an appropriate message. Add a test for it.
-      checkArgument(!nodes().contains(nodeV));
+      checkArgument(!nodes().contains(nodeV), NODEV_IN_TREE, nodeU, nodeV, nodeV);
     }
     setDepth(nodeV, nodeU);
     return delegate.putEdge(nodeU, nodeV);
@@ -232,22 +217,39 @@ class DelegateCTree<N> extends AbstractGraph<N> implements MutableCTree<N> {
     return true;
   }
 
+  private void setRoot(Optional<N> root) {
+    this.root = root;
+    this.root.ifPresent(
+        node -> {
+          this.delegate.addNode(node);
+          setDepth(node, null);
+        });
+  }
+
   @Override
   public boolean removeEdge(N nodeU, N nodeV) {
     checkNotNull(nodeU, "nodeU");
     checkNotNull(nodeV, "nodeV");
     delegate.removeEdge(nodeU, nodeV);
-    return this.removeNode(nodeV);
+    return removeNode(nodeV);
   }
 
-  @Override
-  public String toString() {
-    return String.format(TO_STRING_FORMAT, isDirected(), allowsSelfLoops(), nodes(), edges());
-  }
+  //  @Override
+  //  public String toString() {
+  //    return String.format(TO_STRING_FORMAT, isDirected(), allowsSelfLoops(), nodes(), edges());
+  //  }
 
+  // TODO: Externalise these constants into a separate class, so that both DelegateCTree and
+  // DelegateCTreeNetwork can access them.
   private static final String TO_STRING_FORMAT =
       "isDirected: %s, allowsSelfLoops: %s, nodes: %s, edges: %s";
   private static final String NODE_NOT_IN_TREE = "Node %s is not an element of this tree.";
+  private static final String NODE_ROOT_OF_TREE =
+      "Cannot add node %s, as node %s is already the root of this tree.";
   private static final String SELF_LOOP_NOT_ALLOWED =
       "Cannot add self-loop edge on node %s, as self-loops are not allowed.";
+  private static final String NODEU_NOT_IN_TREE =
+      "Cannot add edge from nodeU %s to nodeV %s, as nodeU %s is not an element of this tree.";
+  private static final String NODEV_IN_TREE =
+      "Cannot add edge from nodeU %s to nodeV %s, as nodeV %s is an element of this tree.";
 }

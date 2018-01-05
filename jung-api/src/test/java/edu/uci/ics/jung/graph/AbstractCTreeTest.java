@@ -17,15 +17,21 @@
 package edu.uci.ics.jung.graph;
 
 import static com.google.common.truth.Truth.assertThat;
-import static edu.uci.ics.jung.graph.TestUtil.ERROR_NODE_NOT_IN_TREE;
-import static edu.uci.ics.jung.graph.TestUtil.ERROR_TREE_ALREADY_HAS_NODE;
+import static edu.uci.ics.jung.graph.TestUtil.FAIL_ERROR_ELEMENT_NOT_IN_TREE;
+import static edu.uci.ics.jung.graph.TestUtil.FAIL_ERROR_NODEU_NOT_IN_TREE;
+import static edu.uci.ics.jung.graph.TestUtil.FAIL_ERROR_NODEV_IN_TREE;
+import static edu.uci.ics.jung.graph.TestUtil.FAIL_ERROR_TREE_HAS_ROOT;
 import static edu.uci.ics.jung.graph.TestUtil.assertNodeNotInTreeErrorMessage;
+import static edu.uci.ics.jung.graph.TestUtil.assertNodeUNotInTreeErrorMessage;
+import static edu.uci.ics.jung.graph.TestUtil.assertNodeVAlreadyElementOfTreeErrorMessage;
+import static edu.uci.ics.jung.graph.TestUtil.assertStronglyEquivalent;
 import static edu.uci.ics.jung.graph.TestUtil.assertTreeAlreadyHasRootErrorMessage;
 import static edu.uci.ics.jung.graph.TestUtil.sanityCheckSet;
 import static org.junit.Assert.fail;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.graph.EndpointPair;
+import com.google.common.graph.Graphs;
 import com.google.common.truth.Truth8;
 import java.util.HashSet;
 import java.util.Set;
@@ -81,8 +87,8 @@ public abstract class AbstractCTreeTest {
   }
 
   static <N> void validateTree(CTree<N> tree) {
-    // TODO: Uncomment line below if we introduce TreeUtils.copyOf or similar
-    // TestUtil.assertStronglyEquivalent(tree, TreeUtils.copyOf(tree));
+    // TODO: Replace Graphs#copyOf with a tree-specific copyOf method if it ever turns up
+    assertStronglyEquivalent(tree, Graphs.copyOf(tree));
 
     String treeString = tree.toString();
     assertThat(treeString).contains("isDirected: true");
@@ -183,7 +189,7 @@ public abstract class AbstractCTreeTest {
   public void adjacentNodes_nodeNotInTree() {
     try {
       tree.adjacentNodes(NODE_NOT_IN_TREE);
-      fail(ERROR_NODE_NOT_IN_TREE);
+      fail(FAIL_ERROR_ELEMENT_NOT_IN_TREE);
     } catch (IllegalArgumentException e) {
       assertNodeNotInTreeErrorMessage(e);
     }
@@ -199,7 +205,7 @@ public abstract class AbstractCTreeTest {
   public void predecessors_nodeNotInTree() {
     try {
       tree.predecessors(NODE_NOT_IN_TREE);
-      fail(ERROR_NODE_NOT_IN_TREE);
+      fail(FAIL_ERROR_ELEMENT_NOT_IN_TREE);
     } catch (IllegalArgumentException e) {
       assertNodeNotInTreeErrorMessage(e);
     }
@@ -215,7 +221,7 @@ public abstract class AbstractCTreeTest {
   public void successors_nodeNotInTree() {
     try {
       tree.successors(NODE_NOT_IN_TREE);
-      fail(TestUtil.ERROR_NODE_NOT_IN_TREE);
+      fail(TestUtil.FAIL_ERROR_ELEMENT_NOT_IN_TREE);
     } catch (IllegalArgumentException e) {
       assertNodeNotInTreeErrorMessage(e);
     }
@@ -238,7 +244,7 @@ public abstract class AbstractCTreeTest {
   public void degree_nodeNotInTree() {
     try {
       tree.degree(NODE_NOT_IN_TREE);
-      fail(ERROR_NODE_NOT_IN_TREE);
+      fail(FAIL_ERROR_ELEMENT_NOT_IN_TREE);
     } catch (IllegalArgumentException e) {
       assertNodeNotInTreeErrorMessage(e);
     }
@@ -254,7 +260,7 @@ public abstract class AbstractCTreeTest {
   public void inDegree_nodeNotInTree() {
     try {
       tree.inDegree(NODE_NOT_IN_TREE);
-      fail(ERROR_NODE_NOT_IN_TREE);
+      fail(FAIL_ERROR_ELEMENT_NOT_IN_TREE);
     } catch (IllegalArgumentException e) {
       assertNodeNotInTreeErrorMessage(e);
     }
@@ -270,7 +276,7 @@ public abstract class AbstractCTreeTest {
   public void outDegree_nodeNotInTree() {
     try {
       tree.outDegree(NODE_NOT_IN_TREE);
-      fail(ERROR_NODE_NOT_IN_TREE);
+      fail(FAIL_ERROR_ELEMENT_NOT_IN_TREE);
     } catch (IllegalArgumentException e) {
       assertNodeNotInTreeErrorMessage(e);
     }
@@ -329,7 +335,7 @@ public abstract class AbstractCTreeTest {
     addNode(N1);
     try {
       addNode(N2);
-      fail(ERROR_TREE_ALREADY_HAS_NODE);
+      fail(FAIL_ERROR_TREE_HAS_ROOT);
     } catch (IllegalArgumentException e) {
       assertTreeAlreadyHasRootErrorMessage(e);
     }
@@ -340,7 +346,7 @@ public abstract class AbstractCTreeTest {
     putEdge(N1, N2);
     try {
       addNode(N3);
-      fail(ERROR_TREE_ALREADY_HAS_NODE);
+      fail(FAIL_ERROR_TREE_HAS_ROOT);
     } catch (IllegalArgumentException e) {
       assertTreeAlreadyHasRootErrorMessage(e);
     }
@@ -373,42 +379,10 @@ public abstract class AbstractCTreeTest {
     assertThat(tree.removeNode(N1)).isTrue();
     try {
       tree.adjacentNodes(N1);
-      fail(ERROR_NODE_NOT_IN_TREE);
+      fail(FAIL_ERROR_ELEMENT_NOT_IN_TREE);
     } catch (IllegalArgumentException e) {
       assertNodeNotInTreeErrorMessage(e);
     }
-  }
-
-  @Test
-  public void removeEdge_existingEdge() {
-    putEdge(N1, N2);
-    assertThat(tree.successors(N1)).containsExactly(N2);
-    assertThat(tree.predecessors(N2)).containsExactly(N1);
-    assertThat(tree.removeEdge(N1, N2)).isTrue();
-    assertThat(tree.removeEdge(N1, N2)).isFalse();
-    assertThat(tree.successors(N1)).isEmpty();
-    try {
-      tree.predecessors(N2);
-      fail(ERROR_NODE_NOT_IN_TREE);
-    } catch (IllegalArgumentException e) {
-      assertNodeNotInTreeErrorMessage(e);
-    }
-  }
-
-  @Test
-  public void removeEdge_oneOfMany() {
-    putEdge(N1, N2);
-    putEdge(N1, N3);
-    putEdge(N1, N4);
-    assertThat(tree.removeEdge(N1, N3)).isTrue();
-    assertThat(tree.adjacentNodes(N1)).containsExactly(N2, N4);
-  }
-
-  @Test
-  public void removeEdge_nodeNotPresent() {
-    putEdge(N1, N2);
-    assertThat(tree.removeEdge(N1, NODE_NOT_IN_TREE)).isFalse();
-    assertThat(tree.successors(N1)).contains(N2);
   }
 
   @Test
@@ -443,9 +417,20 @@ public abstract class AbstractCTreeTest {
     putEdge(N1, N2);
     try {
       putEdge(N2, N1);
-      fail(ERROR_ADDED_SELF_LOOP);
+      fail(FAIL_ERROR_NODEV_IN_TREE);
     } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessageThat().contains(ERROR_SELF_LOOP);
+      assertNodeVAlreadyElementOfTreeErrorMessage(e, N1);
+    }
+  }
+
+  @Test
+  public void addEdge_disconnectedEdges() {
+    putEdge(N1, N2);
+    try {
+      putEdge(N3, N4);
+      fail(FAIL_ERROR_NODEU_NOT_IN_TREE);
+    } catch (IllegalArgumentException e) {
+      assertNodeUNotInTreeErrorMessage(e, N3);
     }
   }
 
@@ -481,5 +466,37 @@ public abstract class AbstractCTreeTest {
     putEdge(N1, N2); // N1 is set as the root initially
     putEdge(N3, N1); // But now N3 should be the new root
     Truth8.assertThat(tree.root()).hasValue(N3);
+  }
+
+  @Test
+  public void removeEdge_existingEdge() {
+    putEdge(N1, N2);
+    assertThat(tree.successors(N1)).containsExactly(N2);
+    assertThat(tree.predecessors(N2)).containsExactly(N1);
+    assertThat(tree.removeEdge(N1, N2)).isTrue();
+    assertThat(tree.removeEdge(N1, N2)).isFalse();
+    assertThat(tree.successors(N1)).isEmpty();
+    try {
+      tree.predecessors(N2);
+      fail(FAIL_ERROR_ELEMENT_NOT_IN_TREE);
+    } catch (IllegalArgumentException e) {
+      assertNodeNotInTreeErrorMessage(e);
+    }
+  }
+
+  @Test
+  public void removeEdge_oneOfMany() {
+    putEdge(N1, N2);
+    putEdge(N1, N3);
+    putEdge(N1, N4);
+    assertThat(tree.removeEdge(N1, N3)).isTrue();
+    assertThat(tree.adjacentNodes(N1)).containsExactly(N2, N4);
+  }
+
+  @Test
+  public void removeEdge_nodeNotPresent() {
+    putEdge(N1, N2);
+    assertThat(tree.removeEdge(N1, NODE_NOT_IN_TREE)).isFalse();
+    assertThat(tree.successors(N1)).contains(N2);
   }
 }

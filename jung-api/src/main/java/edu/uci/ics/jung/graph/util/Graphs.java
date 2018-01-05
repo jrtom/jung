@@ -23,8 +23,6 @@ public class Graphs {
 
   public static boolean isSelfLoop(EndpointPair<?> endpoints) {
     checkNotNull(endpoints, "endpoints");
-    checkNotNull(endpoints.nodeU(), "endpoints.nodeU()");
-    checkNotNull(endpoints.nodeV(), "endpoints.nodeV()");
     return endpoints.nodeU().equals(endpoints.nodeV());
   }
 
@@ -34,8 +32,8 @@ public class Graphs {
     return isSelfLoop(network.incidentNodes(edge));
   }
 
-  public static <N, E> MutableNetwork<N, E> synchronizedNetwork(MutableNetwork<N, E> network) {
-    return new SynchronizedNetwork<>(network);
+  public static <N, E> MutableNetwork<N, E> synchronizedNetwork(MutableNetwork<N, E> delegate) {
+    return new SynchronizedNetwork<>(delegate);
   }
 
   private static class SynchronizedNetwork<N, E> extends AbstractNetwork<N, E>

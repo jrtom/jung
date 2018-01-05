@@ -15,7 +15,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.graph.Graph;
 import com.google.common.graph.Graphs;
@@ -121,9 +120,7 @@ public class TreeUtils {
     checkNotNull(subTree, "subTree");
     checkNotNull(subTreeParent, "subTreeParent");
     checkNotNull(connectingEdge, "connectingEdge");
-    checkArgument(
-        tree.nodes().contains(subTreeParent),
-        "'tree' does not contain 'subTreeParent'");
+    checkArgument(tree.nodes().contains(subTreeParent), "'tree' does not contain 'subTreeParent'");
     if (!subTree.root().isPresent()) {
       // empty subtree; nothing to do
       return;
