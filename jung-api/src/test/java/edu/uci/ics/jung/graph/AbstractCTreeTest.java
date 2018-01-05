@@ -32,6 +32,7 @@ import static org.junit.Assert.fail;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Graphs;
+import com.google.common.graph.ImmutableGraph;
 import com.google.common.truth.Truth8;
 import java.util.HashSet;
 import java.util.Set;
@@ -89,6 +90,7 @@ public abstract class AbstractCTreeTest {
   static <N> void validateTree(CTree<N> tree) {
     // TODO: Replace Graphs#copyOf with a tree-specific copyOf method if it ever turns up
     assertStronglyEquivalent(tree, Graphs.copyOf(tree));
+    assertStronglyEquivalent(tree, ImmutableGraph.copyOf(tree));
 
     String treeString = tree.toString();
     assertThat(treeString).contains("isDirected: true");
