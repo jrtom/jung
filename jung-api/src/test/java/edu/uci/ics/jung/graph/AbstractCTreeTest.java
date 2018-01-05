@@ -462,14 +462,6 @@ public abstract class AbstractCTreeTest {
     assertThat(tree.predecessors(N6)).containsExactly(N3);
   }
 
-  @Ignore("Enable if https://github.com/jrtom/jung/issues/169 is accepted, otherwise remove")
-  @Test
-  public void addEdge_rootChangedIndirectly() {
-    putEdge(N1, N2); // N1 is set as the root initially
-    putEdge(N3, N1); // But now N3 should be the new root
-    Truth8.assertThat(tree.root()).hasValue(N3);
-  }
-
   @Test
   public void removeEdge_existingEdge() {
     putEdge(N1, N2);
