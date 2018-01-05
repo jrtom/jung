@@ -19,6 +19,7 @@ import edu.uci.ics.jung.layout.model.Point;
 import edu.uci.ics.jung.layout.spatial.BarnesHutQuadTree;
 import edu.uci.ics.jung.layout.spatial.ForceObject;
 import java.util.ConcurrentModificationException;
+import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,6 +70,8 @@ public class FRBHVisitorLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgori
 
   private BarnesHutQuadTree<N> tree;
 
+  private Random random = new Random();
+
   public FRBHVisitorLayoutAlgorithm() {
     this.frNodeData =
         CacheBuilder.newBuilder()
@@ -85,6 +88,10 @@ public class FRBHVisitorLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgori
     super.visit(layoutModel);
     max_dimension = Math.max(layoutModel.getWidth(), layoutModel.getHeight());
     initialize();
+  }
+
+  public void setRandomSeed(long randomSeed) {
+    this.random = new Random(randomSeed);
   }
 
   public void setAttractionMultiplier(double attraction) {
@@ -116,7 +123,6 @@ public class FRBHVisitorLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgori
       repulsion_constant = repulsion_multiplier * forceConstant;
       initialized = true;
       tree = new BarnesHutQuadTree(layoutModel);
-      tree.rebuild();
     }
   }
 
@@ -132,7 +138,13 @@ public class FRBHVisitorLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgori
     }
     Graph<N> graph = layoutModel.getGraph();
     currentIteration++;
+
+    // the cost of building the tree each time is less than the O(n^2) cost in the repulsion part
     tree.rebuild();
+    if (log.isTraceEnabled()) {
+      log.trace("tree: {}", tree);
+    }
+
     /** Calculate repulsion */
     while (true) {
 
@@ -191,15 +203,15 @@ public class FRBHVisitorLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgori
     double borderWidth = layoutModel.getWidth() / 50.0;
 
     if (positionX < borderWidth) {
-      positionX = borderWidth + Math.random() * borderWidth * 2.0;
+      positionX = borderWidth + random.nextDouble() * borderWidth * 2.0;
     } else if (positionX > layoutModel.getWidth() - borderWidth * 2) {
-      positionX = layoutModel.getWidth() - borderWidth - Math.random() * borderWidth * 2.0;
+      positionX = layoutModel.getWidth() - borderWidth - random.nextDouble() * borderWidth * 2.0;
     }
 
     if (positionY < borderWidth) {
-      positionY = borderWidth + Math.random() * borderWidth * 2.0;
+      positionY = borderWidth + random.nextDouble() * borderWidth * 2.0;
     } else if (positionY > layoutModel.getWidth() - borderWidth * 2) {
-      positionY = layoutModel.getWidth() - borderWidth - Math.random() * borderWidth * 2.0;
+      positionY = layoutModel.getWidth() - borderWidth - random.nextDouble() * borderWidth * 2.0;
     }
 
     layoutModel.set(node, positionX, positionY);

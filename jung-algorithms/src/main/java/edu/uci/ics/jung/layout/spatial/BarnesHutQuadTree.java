@@ -80,7 +80,10 @@ public class BarnesHutQuadTree<T> {
     public ForceObjectIterator(BarnesHutQuadTree<T> tree, ForceObject<T> target) {
       this.tree = tree;
       this.target = target;
-      this.forceObjects = tree.getForceObjectsFor(Sets.newHashSet(), target);
+      this.forceObjects = tree.getForceObjectsFor(Sets.newLinkedHashSet(), target);
+      if (log.isTraceEnabled()) {
+        log.trace("forceObjects for Iterator are {}", forceObjects);
+      }
       this.iterator = forceObjects.iterator();
     }
 
@@ -114,5 +117,10 @@ public class BarnesHutQuadTree<T> {
         insert(forceObject);
       }
     }
+  }
+
+  @Override
+  public String toString() {
+    return "Tree:" + root;
   }
 }

@@ -20,6 +20,7 @@ import edu.uci.ics.jung.layout.spatial.BarnesHutQuadTree;
 import edu.uci.ics.jung.layout.spatial.ForceObject;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
+import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,6 +71,8 @@ public class FRBHLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
 
   private BarnesHutQuadTree<N> tree;
 
+  private Random random = new Random();
+
   public FRBHLayoutAlgorithm() {
     this.frNodeData =
         CacheBuilder.newBuilder()
@@ -83,11 +86,16 @@ public class FRBHLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
 
   @Override
   public void visit(LayoutModel<N> layoutModel) {
-    log.trace("visiting " + layoutModel);
-
+    if (log.isTraceEnabled()) {
+      log.trace("visiting " + layoutModel);
+    }
     super.visit(layoutModel);
     max_dimension = Math.max(layoutModel.getWidth(), layoutModel.getHeight());
     initialize();
+  }
+
+  public void setRandomSeed(long randomSeed) {
+    this.random = new Random(randomSeed);
   }
 
   public void setAttractionMultiplier(double attraction) {
@@ -119,7 +127,6 @@ public class FRBHLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
       repulsion_constant = repulsion_multiplier * forceConstant;
       initialized = true;
       tree = new BarnesHutQuadTree(layoutModel);
-      tree.rebuild();
     }
   }
 
@@ -135,7 +142,12 @@ public class FRBHLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
     }
     Graph<N> graph = layoutModel.getGraph();
     currentIteration++;
+    // the cost of building the tree each time is less than the O(n^2) cost in the repulsion part
     tree.rebuild();
+    if (log.isTraceEnabled()) {
+      log.trace("tree: {}", tree);
+    }
+
     /** Calculate repulsion */
     while (true) {
 
@@ -194,15 +206,15 @@ public class FRBHLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
     double borderWidth = layoutModel.getWidth() / 50.0;
 
     if (positionX < borderWidth) {
-      positionX = borderWidth + Math.random() * borderWidth * 2.0;
+      positionX = borderWidth + random.nextDouble() * borderWidth * 2.0;
     } else if (positionX > layoutModel.getWidth() - borderWidth * 2) {
-      positionX = layoutModel.getWidth() - borderWidth - Math.random() * borderWidth * 2.0;
+      positionX = layoutModel.getWidth() - borderWidth - random.nextDouble() * borderWidth * 2.0;
     }
 
     if (positionY < borderWidth) {
-      positionY = borderWidth + Math.random() * borderWidth * 2.0;
+      positionY = borderWidth + random.nextDouble() * borderWidth * 2.0;
     } else if (positionY > layoutModel.getWidth() - borderWidth * 2) {
-      positionY = layoutModel.getWidth() - borderWidth - Math.random() * borderWidth * 2.0;
+      positionY = layoutModel.getWidth() - borderWidth - random.nextDouble() * borderWidth * 2.0;
     }
 
     layoutModel.set(node, positionX, positionY);
@@ -250,6 +262,7 @@ public class FRBHLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
     if (fvd1 == null) {
       return;
     }
+    log.trace("fvd1 for {} starts as {}", node1, fvd1);
     frNodeData.put(node1, Point.ORIGIN);
     ForceObject<N> nodeForceObject = new ForceObject<>(node1, layoutModel.apply(node1));
     Iterator<ForceObject<N>> forceObjectIterator =
@@ -258,6 +271,14 @@ public class FRBHLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
       while (forceObjectIterator.hasNext()) {
         ForceObject<N> nextForceObject = forceObjectIterator.next();
         if (nextForceObject != null && !nextForceObject.equals(nodeForceObject)) {
+          if (log.isTraceEnabled()) {
+            log.trace(
+                "Iter {} at {} visiting {} at {}",
+                nextForceObject.getElement(),
+                nextForceObject.p,
+                nodeForceObject.getElement(),
+                nodeForceObject.p);
+          }
           Point p1 = nodeForceObject.p;
           Point p2 = nextForceObject.p;
           if (p1 == null || p2 == null) {
@@ -265,15 +286,24 @@ public class FRBHLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
           }
           double xDelta = p1.x - p2.x;
           double yDelta = p1.y - p2.y;
+          log.trace("xDelta,yDelta:{},{}", xDelta, yDelta);
 
           double deltaLength = Math.max(EPSILON, Math.sqrt((xDelta * xDelta) + (yDelta * yDelta)));
+          log.trace("deltaLength:{}", deltaLength);
+
           double force = (repulsion_constant * repulsion_constant) / deltaLength;
+          log.trace("force:{}", force);
+
           if (Double.isNaN(force)) {
             throw new RuntimeException(
                 "Unexpected mathematical result in FRLayout:calcPositions [repulsion]");
           }
-          frNodeData.put(
-              node1, fvd1.add((xDelta / deltaLength) * force, (yDelta / deltaLength) * force));
+          if (log.isTraceEnabled()) {
+            log.trace("frNodeData for {} went from {}...", node1, frNodeData.getUnchecked(node1));
+          }
+          fvd1 = fvd1.add((xDelta / deltaLength) * force, (yDelta / deltaLength) * force);
+          frNodeData.put(node1, fvd1);
+          log.trace("...to {}", frNodeData.getUnchecked(node1));
         }
       }
     } catch (ConcurrentModificationException cme) {
