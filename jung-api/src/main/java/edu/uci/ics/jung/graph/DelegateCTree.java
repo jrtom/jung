@@ -234,11 +234,6 @@ class DelegateCTree<N> extends AbstractGraph<N> implements MutableCTree<N> {
     return removeNode(nodeV);
   }
 
-  //  @Override
-  //  public String toString() {
-  //    return String.format(TO_STRING_FORMAT, isDirected(), allowsSelfLoops(), nodes(), edges());
-  //  }
-
   // TODO: Externalise these constants into a separate class, so that both DelegateCTree and
   // DelegateCTreeNetwork can access them.
   private static final String TO_STRING_FORMAT =
