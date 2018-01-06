@@ -14,8 +14,8 @@ public class ForceObject<T> {
   public Point p;
 
   /** force vector */
-  protected Point f;
-
+  public Point f;
+  //  public Point fvd;
   /** mass */
   protected double mass;
 
@@ -42,27 +42,16 @@ public class ForceObject<T> {
     this.mass = mass;
   }
 
-  public Point getForce() {
-    return f;
-  }
-
-  public void resetForce() {
-    this.f = Point.ORIGIN;
-  }
-
-  void addForceFrom(double forceConstant, ForceObject other) {
+  void addForceFrom(ForceObject<T> other, double forceConstant) {
     double dx = this.p.x - other.p.x;
     double dy = this.p.y - other.p.y;
     log.trace("dx, dy:{},{}", dx, dy);
     double dist = Math.sqrt(dx * dx + dy * dy);
     dist = Math.max(EPSILON, dist);
     log.trace("dist:{}", dist);
-
     double force = (forceConstant * forceConstant) / dist;
     log.trace("force:{}", force);
-    log.trace("force for {} went from p:{}, f:{}...", this.element, this.p, this.f);
-    this.f = f.add(force * (dx / dist), force * (dy / dist));
-    log.trace("...to p:{}, f:{}", this.p, this.f);
+    f = f.add(force * (dx / dist), force * (dy / dist));
   }
 
   public ForceObject add(ForceObject other) {

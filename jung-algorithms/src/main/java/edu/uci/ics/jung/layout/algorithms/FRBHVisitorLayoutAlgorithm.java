@@ -262,10 +262,8 @@ public class FRBHVisitorLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgori
     frNodeData.put(node1, Point.ORIGIN);
 
     ForceObject<N> nodeForceObject = new ForceObject<>(node1, layoutModel.apply(node1));
-
-    tree.visit(repulsion_constant, nodeForceObject);
-
-    frNodeData.put(node1, fvd1.add(nodeForceObject.getForce().x, nodeForceObject.getForce().y));
+    tree.visit(nodeForceObject, repulsion_constant);
+    frNodeData.put(node1, nodeForceObject.f);
   }
 
   private void cool() {

@@ -279,6 +279,8 @@ public class FRBHLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
                 nodeForceObject.getElement(),
                 nodeForceObject.p);
           }
+          fvd1 = getFRData(node1);
+
           Point p1 = nodeForceObject.p;
           Point p2 = nextForceObject.p;
           if (p1 == null || p2 == null) {

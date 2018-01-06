@@ -52,12 +52,12 @@ public class BarnesHutQuadTree<T> {
    * visit nodes in the quad tree and accumulate the forces to apply to the element for the passed
    * node
    *
-   * @param forceConstant
    * @param node
+   * @param forceConstant
    */
-  public void visit(double forceConstant, ForceObject<T> node) {
+  public void visit(ForceObject<T> node, double forceConstant) {
     if (root != null && root.forceObject != node) {
-      root.visit(forceConstant, node);
+      root.visit(node, forceConstant);
     }
   }
 

@@ -128,7 +128,7 @@ public class Node<T> {
     SE = new Node(x + width, y + height, width, height);
   }
 
-  public void visit(double forceConstant, ForceObject<T> target) {
+  public void visit(ForceObject<T> target, double forceConstant) {
     if (this.forceObject == null || target.element.equals(this.forceObject.element)) {
       return;
     }
@@ -142,7 +142,7 @@ public class Node<T> {
             target.getElement(),
             target.p);
       }
-      target.addForceFrom(forceConstant, this.forceObject);
+      target.addForceFrom(this.forceObject, forceConstant);
       log.trace("added force from {} so its now {}", this.forceObject, target);
     } else {
       // not a leaf
@@ -163,15 +163,15 @@ public class Node<T> {
               target.getElement(),
               target.p);
         }
-        target.addForceFrom(forceConstant, this.forceObject);
+        target.addForceFrom(this.forceObject, forceConstant);
         log.trace("added force from {} so its now {}", this.forceObject, target);
 
       } else {
         // down the tree we go
-        NW.visit(forceConstant, target);
-        NE.visit(forceConstant, target);
-        SW.visit(forceConstant, target);
-        SE.visit(forceConstant, target);
+        NW.visit(target, forceConstant);
+        NE.visit(target, forceConstant);
+        SW.visit(target, forceConstant);
+        SE.visit(target, forceConstant);
       }
     }
   }
