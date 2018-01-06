@@ -66,6 +66,7 @@ public class RTreeTest {
     rTree = rTree.add(splitterContext, "D", new Rectangle2D.Double(400, 120, 100, 100));
     rTree = rTree.add(splitterContext, "E", new Rectangle2D.Double(20, 500, 10, 100));
     rTree = rTree.add(splitterContext, "F", new Rectangle2D.Double(5, 40, 100, 100));
+    log.info("tree {} initial size is {}", rTree, rTree.count());
     for (int i = 0; i < 100; i++) {
       double x = Math.random() * 500;
       double y = Math.random() * 500;
@@ -73,22 +74,22 @@ public class RTreeTest {
       double height = Math.random() * 50 + 50;
       Rectangle2D r = new Rectangle2D.Double(x, y, width, height);
       rTree = rTree.add(splitterContext, "N" + i, r);
-      log.info("tree:" + rTree);
+      log.trace("tree:" + rTree);
     }
-    log.info("root:{}");
+    log.trace("root:{}");
     testAreas(rTree);
 
-    log.info("tree size is {}", rTree.count());
+    log.info("after adding 100 'N' nodes, tree size is {}", rTree.count());
 
     for (int i = 0; i < 100; i++) {
       String element = "N" + i;
       rTree = rTree.remove(element);
-      //      Node<String> got  = rTree.getRoot().get().remove(element, new Rectangle2D.Double());
-      //      LeafNode<String> containingLeaf = rTree.getRoot().get().getContainingLeaf(element);
-      //      rTree = rTree.remove(element, containingLeaf.getBoundsFor(element));
-      log.info("tree size:{}", rTree.count());
+      log.trace("tree size:{}", rTree.count());
     }
-    log.info("size {} tree {}", rTree.count(), rTree);
+    log.info(
+        "after removing all 'N' nodes, tree {} size is back to initial size of {}",
+        rTree,
+        rTree.count());
   }
 
   @Test
@@ -169,21 +170,21 @@ public class RTreeTest {
   @Test
   public void testAddEight() {
     rTree = rTree.add(splitterContext, "A", r1);
-    log.info("rtree:{}", rTree);
+    log.trace("rtree:{}", rTree);
     rTree = rTree.add(splitterContext, "B", r2);
-    log.info("rtree:{}", rTree);
+    log.trace("rtree:{}", rTree);
     rTree = rTree.add(splitterContext, "C", r3);
-    log.info("rtree:{}", rTree);
+    log.trace("rtree:{}", rTree);
     rTree = rTree.add(splitterContext, "D", r4);
-    log.info("rtree:{}", rTree);
+    log.trace("rtree:{}", rTree);
     rTree = rTree.add(splitterContext, "E", r5);
-    log.info("rtree:{}", rTree);
+    log.trace("rtree:{}", rTree);
     rTree = rTree.add(splitterContext, "F", r6);
-    log.info("rtree:{}", rTree);
+    log.trace("rtree:{}", rTree);
     rTree = rTree.add(splitterContext, "G", r7);
-    log.info("rtree:{}", rTree);
+    log.trace("rtree:{}", rTree);
     rTree = rTree.add(splitterContext, "H", r8);
-    log.info("rtree:{}", rTree);
+    log.trace("rtree:{}", rTree);
 
     testAreas(rTree);
   }

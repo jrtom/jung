@@ -6,7 +6,7 @@ import edu.uci.ics.jung.layout.algorithms.FRBHLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.FRBHVisitorLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.FRLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
-import edu.uci.ics.jung.layout.model.LayoutModel;
+import edu.uci.ics.jung.layout.model.AbstractLayoutModel;
 import edu.uci.ics.jung.layout.model.LoadingCacheLayoutModel;
 import edu.uci.ics.jung.layout.util.RandomLocationTransformer;
 import org.junit.Before;
@@ -31,7 +31,7 @@ public class FRLayoutsTimingTest {
 
   private static final Logger log = LoggerFactory.getLogger(FRLayoutsTimingTest.class);
   Graph<String> graph;
-  LayoutModel<String> layoutModel;
+  AbstractLayoutModel<String> layoutModel;
 
   /**
    * this runs again before each test. Build a simple graph, build a custom layout model (see below)
@@ -74,23 +74,10 @@ public class FRLayoutsTimingTest {
   }
 
   private void doTest(LayoutAlgorithm<String> layoutAlgorithm) {
-    layoutModel
-        .getLayoutStateChangeSupport()
-        .addLayoutStateChangeListener(
-            new LayoutModel.LayoutStateChangeListener() {
-              long time = System.currentTimeMillis();
-
-              @Override
-              public void layoutStateChanged(LayoutModel.LayoutStateChangeEvent evt) {
-                if (evt.active == false) {
-                  long endTime = System.currentTimeMillis();
-                  log.info(
-                      "elapsed time for {} was {}",
-                      layoutAlgorithm.getClass().getName(),
-                      endTime - time);
-                }
-              }
-            });
+    long startTime = System.currentTimeMillis();
     layoutModel.accept(layoutAlgorithm);
+    layoutModel
+        .getTheFuture()
+        .thenRun(() -> log.info("elapsed time {}", System.currentTimeMillis() - startTime));
   }
 }
