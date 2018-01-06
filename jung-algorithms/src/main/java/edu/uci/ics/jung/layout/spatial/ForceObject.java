@@ -15,7 +15,7 @@ public class ForceObject<T> {
 
   /** force vector */
   public Point f;
-  //  public Point fvd;
+
   /** mass */
   protected double mass;
 
