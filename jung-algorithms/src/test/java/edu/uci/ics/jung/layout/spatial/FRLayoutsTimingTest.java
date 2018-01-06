@@ -74,6 +74,12 @@ public class FRLayoutsTimingTest {
     layoutModel.accept(layoutAlgorithm);
     layoutModel
         .getTheFuture()
-        .thenRun(() -> log.info("elapsed time {}", System.currentTimeMillis() - startTime));
+        .thenRun(
+            () ->
+                log.info(
+                    "elapsed time for {} was {}",
+                    layoutAlgorithm.getClass().getName(),
+                    System.currentTimeMillis() - startTime))
+        .join();
   }
 }
