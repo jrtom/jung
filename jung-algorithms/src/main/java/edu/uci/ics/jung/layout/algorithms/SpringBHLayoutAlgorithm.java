@@ -20,6 +20,8 @@ import edu.uci.ics.jung.layout.spatial.ForceObject;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.function.Function;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The SpringLayout package represents a visualization of a set of nodes. The SpringLayout, which is
@@ -33,6 +35,7 @@ import java.util.function.Function;
 public class SpringBHLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
     implements IterativeContext {
 
+  private static final Logger log = LoggerFactory.getLogger(SpringBHLayoutAlgorithm.class);
   protected double stretch = 0.70;
   protected Function<? super EndpointPair<N>, Integer> lengthFunction;
   protected int repulsion_range_sq = 100 * 100;
@@ -139,7 +142,6 @@ public class SpringBHLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm
         SpringNodeData v1D, v2D;
         v1D = springNodeData.getUnchecked(node1);
         v2D = springNodeData.getUnchecked(node2);
-
         v1D.edgedx += dx;
         v1D.edgedy += dy;
         v2D.edgedx += -dx;
@@ -182,8 +184,8 @@ public class SpringBHLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm
           double vy = p.y - p2.y;
           double distanceSq = p.distanceSquared(p2);
           if (distanceSq == 0) {
-            dx += Math.random();
-            dy += Math.random();
+            dx += random.nextDouble();
+            dy += random.nextDouble();
           } else if (distanceSq < repulsion_range_sq) {
             double factor = 1;
             dx += factor * vx / distanceSq;
@@ -260,6 +262,20 @@ public class SpringBHLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm
 
     /** movement speed, y */
     protected double dy;
+
+    @Override
+    public String toString() {
+      return "{"
+          + "edge="
+          + Point.of(edgedx, edgedy)
+          + ", rep="
+          + Point.of(repulsiondx, repulsiondy)
+          + ", dx="
+          + dx
+          + ", dy="
+          + dy
+          + '}';
+    }
   }
 
   /** @return true */

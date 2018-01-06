@@ -1,6 +1,7 @@
 package edu.uci.ics.jung.layout.algorithms;
 
 import edu.uci.ics.jung.layout.model.LayoutModel;
+import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +24,12 @@ public abstract class AbstractIterativeLayoutAlgorithm<N> implements IterativeLa
   // both of these can be set at instance creation time
   protected boolean shouldPreRelax = true;
   protected int preRelaxDurationMs = 500; // how long should the prerelax phase last?
+
+  protected Random random = new Random();
+
+  public void setRandomSeed(long randomSeed) {
+    this.random = new Random(randomSeed);
+  }
 
   // returns true iff prerelaxing happened
   public final boolean preRelax() {

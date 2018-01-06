@@ -13,8 +13,12 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Graph;
 import edu.uci.ics.jung.algorithms.util.IterativeContext;
+import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.layout.model.Point;
+import edu.uci.ics.jung.layout.spatial.BarnesHutQuadTree;
+import edu.uci.ics.jung.layout.spatial.ForceObject;
 import java.util.ConcurrentModificationException;
+import java.util.Optional;
 import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,24 +32,33 @@ import org.slf4j.LoggerFactory;
  * @author Joshua O'Madadhain
  * @author Tom Nelson
  */
-public class SpringLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
+public class SpringBHVisitorLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
     implements IterativeContext {
 
-  private static final Logger log = LoggerFactory.getLogger(SpringBHLayoutAlgorithm.class);
+  private static final Logger log = LoggerFactory.getLogger(SpringBHVisitorLayoutAlgorithm.class);
   protected double stretch = 0.70;
   protected Function<? super EndpointPair<N>, Integer> lengthFunction;
   protected int repulsion_range_sq = 100 * 100;
   protected double force_multiplier = 1.0 / 3.0;
 
+  private BarnesHutQuadTree<N> tree;
+
   protected LoadingCache<N, SpringNodeData> springNodeData =
       CacheBuilder.newBuilder().build(CacheLoader.from(() -> new SpringNodeData()));
 
-  public SpringLayoutAlgorithm() {
+  public SpringBHVisitorLayoutAlgorithm() {
     this(n -> 30);
   }
 
-  public SpringLayoutAlgorithm(Function<? super EndpointPair<N>, Integer> length_function) {
+  public SpringBHVisitorLayoutAlgorithm(
+      Function<? super EndpointPair<N>, Integer> length_function) {
     this.lengthFunction = length_function;
+  }
+
+  @Override
+  public void visit(LayoutModel<N> layoutModel) {
+    super.visit(layoutModel);
+    tree = new BarnesHutQuadTree(layoutModel);
   }
 
   /** @return the current value for the stretch parameter */
@@ -76,6 +89,9 @@ public class SpringLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N
   public void initialize() {}
 
   public void step() {
+
+    tree.rebuild();
+
     Graph<N> graph = layoutModel.getGraph();
     try {
       for (N node : graph.nodes()) {
@@ -119,6 +135,7 @@ public class SpringLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N
         len = (len == 0) ? .0001 : len;
 
         double f = force_multiplier * (desiredLen - len) / len;
+
         f = f * Math.pow(stretch, (graph.degree(node1) + graph.degree(node2) - 2));
 
         // the actual movement distance 'dx' is the force multiplied by the
@@ -143,6 +160,7 @@ public class SpringLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N
 
     try {
       for (N node : graph.nodes()) {
+
         if (layoutModel.isLocked(node)) {
           continue;
         }
@@ -151,34 +169,37 @@ public class SpringLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N
         if (svd == null) {
           continue;
         }
-        double dx = 0, dy = 0;
+        ForceObject<N> nodeForceObject =
+            new ForceObject(node, layoutModel.apply(node)) {
+              @Override
+              protected void addForceFrom(ForceObject other, Optional userData) {
 
-        for (N node2 : graph.nodes()) {
-          if (node == node2) {
-            continue;
-          }
-          Point p = layoutModel.apply(node);
-          Point p2 = layoutModel.apply(node2);
-          if (p == null || p2 == null) {
-            continue;
-          }
-          double vx = p.x - p2.x;
-          double vy = p.y - p2.y;
-          double distanceSq = p.distanceSquared(p2);
-          if (distanceSq == 0) {
-            dx += random.nextDouble();
-            dy += random.nextDouble();
-          } else if (distanceSq < repulsion_range_sq) {
-            double factor = 1;
-            dx += factor * vx / distanceSq;
-            dy += factor * vy / distanceSq;
-          }
-        }
-        double dlen = dx * dx + dy * dy;
+                if (other == null || node == other.getElement()) {
+                  return;
+                }
+                Point p = this.p;
+                Point p2 = other.p;
+                if (p == null || p2 == null) {
+                  return;
+                }
+                double vx = p.x - p2.x;
+                double vy = p.y - p2.y;
+                double distanceSq = p.distanceSquared(p2);
+                if (distanceSq == 0) {
+                  f = f.add(random.nextDouble(), random.nextDouble());
+                } else if (distanceSq < repulsion_range_sq) {
+                  double factor = 1;
+                  f = f.add(factor * vx / distanceSq, factor * vy / distanceSq);
+                }
+              }
+            };
+        tree.visit(nodeForceObject, Optional.empty());
+        Point f = nodeForceObject.f;
+        double dlen = f.x * f.x + f.y * f.y;
         if (dlen > 0) {
           dlen = Math.sqrt(dlen) / 2;
-          svd.repulsiondx += dx / dlen;
-          svd.repulsiondy += dy / dlen;
+          svd.repulsiondx += f.x / dlen;
+          svd.repulsiondy += f.y / dlen;
         }
       }
     } catch (ConcurrentModificationException cme) {
@@ -205,6 +226,7 @@ public class SpringLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N
 
           vd.dx += vd.repulsiondx + vd.edgedx;
           vd.dy += vd.repulsiondy + vd.edgedy;
+
           // keeps nodes from moving any faster than 5 per time unit
           posX = posX + Math.max(-5, Math.min(5, vd.dx));
           posY = posY + Math.max(-5, Math.min(5, vd.dy));

@@ -1,5 +1,6 @@
 package edu.uci.ics.jung.layout.spatial;
 
+import java.util.Optional;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -128,7 +129,7 @@ public class Node<T> {
     SE = new Node(x + width, y + height, width, height);
   }
 
-  public void visit(ForceObject<T> target, double forceConstant) {
+  public void visit(ForceObject<T> target, Optional userData) {
     if (this.forceObject == null || target.element.equals(this.forceObject.element)) {
       return;
     }
@@ -142,7 +143,7 @@ public class Node<T> {
             target.getElement(),
             target.p);
       }
-      target.addForceFrom(this.forceObject, forceConstant);
+      target.addForceFrom(this.forceObject, userData);
       log.trace("added force from {} so its now {}", this.forceObject, target);
     } else {
       // not a leaf
@@ -163,15 +164,15 @@ public class Node<T> {
               target.getElement(),
               target.p);
         }
-        target.addForceFrom(this.forceObject, forceConstant);
+        target.addForceFrom(this.forceObject, userData);
         log.trace("added force from {} so its now {}", this.forceObject, target);
 
       } else {
         // down the tree we go
-        NW.visit(target, forceConstant);
-        NE.visit(target, forceConstant);
-        SW.visit(target, forceConstant);
-        SE.visit(target, forceConstant);
+        NW.visit(target, userData);
+        NE.visit(target, userData);
+        SW.visit(target, userData);
+        SE.visit(target, userData);
       }
     }
   }

@@ -17,7 +17,6 @@ import edu.uci.ics.jung.algorithms.util.IterativeContext;
 import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.layout.model.Point;
 import java.util.ConcurrentModificationException;
-import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,8 +65,6 @@ public class FRLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
 
   private boolean initialized = false;
 
-  private Random random = new Random();
-
   public FRLayoutAlgorithm() {
     this.frNodeData =
         CacheBuilder.newBuilder()
@@ -87,10 +84,6 @@ public class FRLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
     super.visit(layoutModel);
     max_dimension = Math.max(layoutModel.getWidth(), layoutModel.getHeight());
     initialize();
-  }
-
-  public void setRandomSeed(long randomSeed) {
-    this.random = new Random(randomSeed);
   }
 
   public void setAttractionMultiplier(double attraction) {

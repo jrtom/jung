@@ -5,6 +5,7 @@ import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.layout.model.Point;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.Optional;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,11 +54,11 @@ public class BarnesHutQuadTree<T> {
    * node
    *
    * @param node
-   * @param forceConstant
+   * @param userData
    */
-  public void visit(ForceObject<T> node, double forceConstant) {
+  public void visit(ForceObject<T> node, Optional userData) {
     if (root != null && root.forceObject != node) {
-      root.visit(node, forceConstant);
+      root.visit(node, userData);
     }
   }
 

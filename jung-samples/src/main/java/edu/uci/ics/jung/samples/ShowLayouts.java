@@ -12,15 +12,7 @@ import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
 import edu.uci.ics.jung.algorithms.generators.random.BarabasiAlbertGenerator;
 import edu.uci.ics.jung.graph.util.TestGraphs;
-import edu.uci.ics.jung.layout.algorithms.CircleLayoutAlgorithm;
-import edu.uci.ics.jung.layout.algorithms.FRBHLayoutAlgorithm;
-import edu.uci.ics.jung.layout.algorithms.FRBHVisitorLayoutAlgorithm;
-import edu.uci.ics.jung.layout.algorithms.FRLayoutAlgorithm;
-import edu.uci.ics.jung.layout.algorithms.ISOMLayoutAlgorithm;
-import edu.uci.ics.jung.layout.algorithms.KKLayoutAlgorithm;
-import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
-import edu.uci.ics.jung.layout.algorithms.SpringBHLayoutAlgorithm;
-import edu.uci.ics.jung.layout.algorithms.SpringLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.*;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
@@ -59,13 +51,14 @@ public class ShowLayouts extends JPanel {
 
   enum Layouts {
     KAMADA_KAWAI,
-    FRUCHTERMAN_REINGOLD,
     CIRCLE,
-    SPRING,
     SELF_ORGANIZING_MAP,
-    FRUCHTERMAN_REINGOLD_BARNES_HUT,
+    FRUCHTERMAN_REINGOLD,
+    FRUCHTERMAN_REINGOLD_BARNES_HUT_ITERATOR,
     FRUCHTERMAN_REINGOLD_BARNES_HUT_VISITOR,
-    SPRING_BARNES_HUT
+    SPRING,
+    SPRING_BARNES_HUT_ITERATOR,
+    SPRING_BARNES_HUT_VISITOR
   }
 
   public static class GraphChooser implements ActionListener {
@@ -220,12 +213,14 @@ public class ShowLayouts extends JPanel {
         return new ISOMLayoutAlgorithm();
       case SPRING:
         return new SpringLayoutAlgorithm();
-      case FRUCHTERMAN_REINGOLD_BARNES_HUT:
+      case FRUCHTERMAN_REINGOLD_BARNES_HUT_ITERATOR:
         return new FRBHLayoutAlgorithm();
       case FRUCHTERMAN_REINGOLD_BARNES_HUT_VISITOR:
         return new FRBHVisitorLayoutAlgorithm();
-      case SPRING_BARNES_HUT:
+      case SPRING_BARNES_HUT_ITERATOR:
         return new SpringBHLayoutAlgorithm();
+      case SPRING_BARNES_HUT_VISITOR:
+        return new SpringBHVisitorLayoutAlgorithm();
       default:
         throw new IllegalArgumentException("Unrecognized layout type");
     }

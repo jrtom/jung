@@ -1,6 +1,7 @@
 package edu.uci.ics.jung.layout.spatial;
 
 import edu.uci.ics.jung.layout.model.Point;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,16 +43,8 @@ public class ForceObject<T> {
     this.mass = mass;
   }
 
-  void addForceFrom(ForceObject<T> other, double forceConstant) {
-    double dx = this.p.x - other.p.x;
-    double dy = this.p.y - other.p.y;
-    log.trace("dx, dy:{},{}", dx, dy);
-    double dist = Math.sqrt(dx * dx + dy * dy);
-    dist = Math.max(EPSILON, dist);
-    log.trace("dist:{}", dist);
-    double force = (forceConstant * forceConstant) / dist;
-    log.trace("force:{}", force);
-    f = f.add(force * (dx / dist), force * (dy / dist));
+  protected void addForceFrom(ForceObject<T> other, Optional userData) {
+    // no op
   }
 
   public ForceObject add(ForceObject other) {

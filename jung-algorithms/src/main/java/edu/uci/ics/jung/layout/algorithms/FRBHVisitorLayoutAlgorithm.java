@@ -19,7 +19,7 @@ import edu.uci.ics.jung.layout.model.Point;
 import edu.uci.ics.jung.layout.spatial.BarnesHutQuadTree;
 import edu.uci.ics.jung.layout.spatial.ForceObject;
 import java.util.ConcurrentModificationException;
-import java.util.Random;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,8 +70,6 @@ public class FRBHVisitorLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgori
 
   private BarnesHutQuadTree<N> tree;
 
-  private Random random = new Random();
-
   public FRBHVisitorLayoutAlgorithm() {
     this.frNodeData =
         CacheBuilder.newBuilder()
@@ -88,10 +86,6 @@ public class FRBHVisitorLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgori
     super.visit(layoutModel);
     max_dimension = Math.max(layoutModel.getWidth(), layoutModel.getHeight());
     initialize();
-  }
-
-  public void setRandomSeed(long randomSeed) {
-    this.random = new Random(randomSeed);
   }
 
   public void setAttractionMultiplier(double attraction) {
@@ -261,8 +255,22 @@ public class FRBHVisitorLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgori
     }
     frNodeData.put(node1, Point.ORIGIN);
 
-    ForceObject<N> nodeForceObject = new ForceObject<>(node1, layoutModel.apply(node1));
-    tree.visit(nodeForceObject, repulsion_constant);
+    ForceObject<N> nodeForceObject =
+        new ForceObject(node1, layoutModel.apply(node1)) {
+          @Override
+          protected void addForceFrom(ForceObject other, Optional userData) {
+            double dx = this.p.x - other.p.x;
+            double dy = this.p.y - other.p.y;
+            log.trace("dx, dy:{},{}", dx, dy);
+            double dist = Math.sqrt(dx * dx + dy * dy);
+            dist = Math.max(EPSILON, dist);
+            log.trace("dist:{}", dist);
+            double force = (repulsion_constant * repulsion_constant) / dist;
+            log.trace("force:{}", force);
+            f = f.add(force * (dx / dist), force * (dy / dist));
+          }
+        };
+    tree.visit(nodeForceObject, Optional.empty());
     frNodeData.put(node1, nodeForceObject.f);
   }
 

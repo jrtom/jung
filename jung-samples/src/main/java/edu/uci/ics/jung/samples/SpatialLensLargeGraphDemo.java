@@ -13,7 +13,7 @@ import ch.qos.logback.classic.LoggerContext;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
-import edu.uci.ics.jung.layout.algorithms.FRBHLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.FRBHVisitorLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
 import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.visualization.BaseVisualizationModel;
@@ -79,7 +79,7 @@ public class SpatialLensLargeGraphDemo extends JPanel {
     setLayout(new BorderLayout());
     graph = SpatialLensLargeGraphDemo.getGraph();
 
-    graphLayoutAlgorithm = new FRBHLayoutAlgorithm<>();
+    graphLayoutAlgorithm = new FRBHVisitorLayoutAlgorithm<>();
 
     Dimension preferredSize = new Dimension(800, 800);
     Dimension viewPreferredSize = new Dimension(800, 800);
