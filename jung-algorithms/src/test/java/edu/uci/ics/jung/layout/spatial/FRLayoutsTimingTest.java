@@ -59,10 +59,6 @@ public class FRLayoutsTimingTest {
     // using the same random seed each time for repeatable results from each test.
     layoutAlgorithmTwo.setRandomSeed(0);
     doTest(layoutAlgorithmTwo);
-    try {
-      Thread.sleep(1000);
-    } catch (InterruptedException ex) {
-    }
   }
 
   @Test
