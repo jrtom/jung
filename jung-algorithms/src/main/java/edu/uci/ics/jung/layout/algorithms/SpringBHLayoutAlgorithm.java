@@ -58,7 +58,6 @@ public class SpringBHLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm
   public void visit(LayoutModel<N> layoutModel) {
     super.visit(layoutModel);
     tree = new BarnesHutQuadTree(layoutModel);
-    tree.rebuild();
   }
 
   /** @return the current value for the stretch parameter */
@@ -89,6 +88,7 @@ public class SpringBHLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm
   public void initialize() {}
 
   public void step() {
+    tree.rebuild();
     Graph<N> graph = layoutModel.getGraph();
     try {
       for (N node : graph.nodes()) {
@@ -192,6 +192,7 @@ public class SpringBHLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm
             dy += factor * vy / distanceSq;
           }
         }
+
         double dlen = dx * dx + dy * dy;
         if (dlen > 0) {
           dlen = Math.sqrt(dlen) / 2;

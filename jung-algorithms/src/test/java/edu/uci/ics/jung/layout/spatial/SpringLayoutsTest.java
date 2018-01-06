@@ -65,7 +65,7 @@ public class SpringLayoutsTest {
 
     layoutModel =
         new TestLayoutModel<String>(
-            LoadingCacheLayoutModel.<String>builder().setGraph(graph).setSize(500, 500), 3);
+            LoadingCacheLayoutModel.<String>builder().setGraph(graph).setSize(500, 500), 30);
     layoutModel.set("A", Point.of(200, 100));
     layoutModel.set("B", Point.of(100, 200));
     layoutModel.set("C", Point.of(100, 100));
