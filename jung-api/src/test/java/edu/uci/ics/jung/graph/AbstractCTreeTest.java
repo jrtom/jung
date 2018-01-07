@@ -17,6 +17,8 @@
 package edu.uci.ics.jung.graph;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth8.assertThat;
+import static edu.uci.ics.jung.graph.TestUtil.ERROR_ELEMENT_NOT_IN_TREE;
 import static edu.uci.ics.jung.graph.TestUtil.FAIL_ERROR_ELEMENT_NOT_IN_TREE;
 import static edu.uci.ics.jung.graph.TestUtil.FAIL_ERROR_NODEU_NOT_IN_TREE;
 import static edu.uci.ics.jung.graph.TestUtil.FAIL_ERROR_NODEV_IN_TREE;
@@ -33,15 +35,12 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Graphs;
 import com.google.common.graph.ImmutableGraph;
-import com.google.common.truth.Truth8;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
-// TODO: Test CTree#root, CTree#depth and CTree#height
 public abstract class AbstractCTreeTest {
   MutableCTree<Integer> tree;
   static final Integer N1 = 1;
@@ -314,6 +313,106 @@ public abstract class AbstractCTreeTest {
     assertThat(tree.outDegree(N1)).isEqualTo(1);
     // Edge direction handled correctly
     assertThat(tree.outDegree(N2)).isEqualTo(0);
+  }
+
+  @Test
+  public void root_oneNode() {
+    addNode(N1);
+    assertThat(tree.root()).hasValue(N1);
+  }
+
+  @Test
+  public void root_noNodes() {
+    assertThat(tree.root()).isEmpty();
+  }
+
+  @Test
+  public void root_oneEdge() {
+    putEdge(N1, N2);
+    assertThat(tree.root()).hasValue(N1);
+  }
+
+  @Test
+  public void root_multipleEdges() {
+    buildTreeWithMultipleEdges();
+    assertThat(tree.root()).hasValue(N1);
+  }
+
+  @Test
+  public void depth_oneNode() {
+    addNode(N1);
+    assertThat(tree.depth(N1)).isEqualTo(0);
+    try {
+      tree.depth(N2);
+      fail(FAIL_ERROR_ELEMENT_NOT_IN_TREE);
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessageThat().contains(ERROR_ELEMENT_NOT_IN_TREE);
+    }
+  }
+
+  @Test
+  public void depth_noNodes() {
+    try {
+      tree.depth(N1);
+      fail(FAIL_ERROR_ELEMENT_NOT_IN_TREE);
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessageThat().contains(ERROR_ELEMENT_NOT_IN_TREE);
+    }
+  }
+
+  @Test
+  public void depth_oneEdge() {
+    putEdge(N1, N2);
+    assertThat(tree.depth(N1)).isEqualTo(0);
+    assertThat(tree.depth(N2)).isEqualTo(1);
+    try {
+      tree.depth(N3);
+      fail(FAIL_ERROR_ELEMENT_NOT_IN_TREE);
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessageThat().contains(ERROR_ELEMENT_NOT_IN_TREE);
+    }
+  }
+
+  @Test
+  public void depth_multipleEdges() {
+    buildTreeWithMultipleEdges();
+    assertThat(tree.depth(N1)).named("tree.depth(%s)", N1).isEqualTo(0);
+    assertThat(tree.depth(N2)).named("tree.depth(%s)", N2).isEqualTo(1);
+    assertThat(tree.depth(N3)).named("tree.depth(%s)", N3).isEqualTo(1);
+    assertThat(tree.depth(N4)).named("tree.depth(%s)", N4).isEqualTo(2);
+    assertThat(tree.depth(N5)).named("tree.depth(%s)", N5).isEqualTo(2);
+    assertThat(tree.depth(N6)).named("tree.depth(%s)", N6).isEqualTo(3);
+  }
+
+  @Test
+  public void height_oneNode() {
+    addNode(N1);
+    assertThat(tree.height()).hasValue(0);
+  }
+
+  @Test
+  public void height_noNodes() {
+    assertThat(tree.height()).isEmpty();
+  }
+
+  @Test
+  public void height_oneEdge() {
+    putEdge(N1, N2);
+    assertThat(tree.height()).hasValue(1);
+  }
+
+  @Test
+  public void height_multipleEdges() {
+    buildTreeWithMultipleEdges();
+    assertThat(tree.height()).hasValue(3);
+  }
+
+  private void buildTreeWithMultipleEdges() {
+    putEdge(N1, N2);
+    putEdge(N1, N3);
+    putEdge(N3, N4);
+    putEdge(N2, N5);
+    putEdge(N5, N6);
   }
 
   // Element Mutation
