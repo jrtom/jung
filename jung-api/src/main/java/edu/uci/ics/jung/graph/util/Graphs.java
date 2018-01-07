@@ -1,11 +1,21 @@
 package edu.uci.ics.jung.graph.util;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
+import static java.util.stream.Collectors.toCollection;
+
+import com.google.common.collect.AbstractIterator;
 import com.google.common.graph.AbstractNetwork;
 import com.google.common.graph.ElementOrder;
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Graph;
+import com.google.common.graph.MutableGraph;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
+import java.util.AbstractSet;
+import java.util.ArrayDeque;
+import java.util.Iterator;
+import java.util.Queue;
 import java.util.Set;
 
 /**
@@ -25,6 +35,58 @@ public class Graphs {
 
   public static <E> boolean isSelfLoop(Network<?, E> network, E edge) {
     return isSelfLoop(network.incidentNodes(edge));
+  }
+
+  public static <N> Set<N> topologicallySortedNodes(Graph<N> graph) {
+    checkNotNull(graph, "graph");
+    // TODO: Do we want this method to be lazy or eager?
+    return new AbstractSet<N>() {
+      @Override
+      public Iterator<N> iterator() {
+        return new TopologicalOrderIterator<>(graph);
+      }
+
+      @Override
+      public int size() {
+        return graph.nodes().size();
+      }
+    };
+  }
+
+  private static class TopologicalOrderIterator<N> extends AbstractIterator<N> {
+    private final Graph<N> graph;
+    private final Queue<N> roots;
+    private final MutableGraph<N> edgesRemaining;
+
+    private TopologicalOrderIterator(Graph<N> graph) {
+      this.graph = checkNotNull(graph, "graph");
+      this.roots =
+          graph
+              .nodes()
+              .stream()
+              .filter(node -> graph.inDegree(node) == 0)
+              .collect(toCollection(ArrayDeque::new));
+      // TODO: Can we reduce the memory impact of copying the entire input graph here?
+      this.edgesRemaining = com.google.common.graph.Graphs.copyOf(graph);
+    }
+
+    @Override
+    protected N computeNext() {
+      // based on Kahn's algorithm: https://en.wikipedia.org/wiki/Topological_sorting
+      if (!roots.isEmpty()) {
+        N next = roots.remove();
+        for (N successor : graph.successors(next)) {
+          edgesRemaining.removeEdge(next, successor);
+          if (edgesRemaining.inDegree(successor) == 0) {
+            roots.add(successor);
+          }
+        }
+        return next;
+      } else {
+        checkState(edgesRemaining.edges().isEmpty(), "graph has at least one cycle");
+        return endOfData();
+      }
+    }
   }
 
   public static <N, E> MutableNetwork<N, E> synchronizedNetwork(MutableNetwork<N, E> network) {
