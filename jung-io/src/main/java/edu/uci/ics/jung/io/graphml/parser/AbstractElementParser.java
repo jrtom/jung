@@ -21,16 +21,16 @@ import javax.xml.stream.events.StartElement;
  *
  * @author Nathan Mittler - nathan.mittler@gmail.com
  */
-public abstract class AbstractElementParser<G extends MutableNetwork<V, E>, V, E>
+public abstract class AbstractElementParser<G extends MutableNetwork<N, E>, N, E>
     implements ElementParser {
 
-  private final ParserContext<G, V, E> parserContext;
+  private final ParserContext<G, N, E> parserContext;
 
-  protected AbstractElementParser(ParserContext<G, V, E> parserContext) {
+  protected AbstractElementParser(ParserContext<G, N, E> parserContext) {
     this.parserContext = parserContext;
   }
 
-  public ParserContext<G, V, E> getParserContext() {
+  public ParserContext<G, N, E> getParserContext() {
     return this.parserContext;
   }
 

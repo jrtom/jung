@@ -59,11 +59,11 @@ public class TestVoltageScore extends TestCase {
   }
 
   private static final void checkVoltages(VoltageScorer<Number, Number> vr, double[] voltages) {
-    assertEquals(vr.vertexScores().size(), voltages.length);
-    System.out.println("scores: " + vr.vertexScores());
+    assertEquals(vr.nodeScores().size(), voltages.length);
+    System.out.println("scores: " + vr.nodeScores());
     System.out.println("voltages: " + voltages.toString());
     for (int i = 0; i < voltages.length; i++) {
-      assertEquals(vr.getVertexScore(i), voltages[i], 0.01);
+      assertEquals(vr.getNodeScore(i), voltages[i], 0.01);
     }
   }
 }

@@ -26,7 +26,7 @@ import java.util.Set;
  * @author Joshua O'Madadhain
  */
 public class MultiPickedState<T> extends AbstractPickedState<T> implements PickedState<T> {
-  /** the 'picked' vertices */
+  /** the 'picked' nodes */
   protected Set<T> picked = new LinkedHashSet<T>();
 
   public boolean pick(T v, boolean state) {

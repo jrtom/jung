@@ -13,20 +13,19 @@ import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.NetworkBuilder;
 import edu.uci.ics.jung.graph.ObservableNetwork;
 import edu.uci.ics.jung.graph.util.Graphs;
-import edu.uci.ics.jung.layout.algorithms.AbstractLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.FRLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.SpringLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.StaticLayoutAlgorithm;
-import edu.uci.ics.jung.layout.model.PointModel;
-import edu.uci.ics.jung.layout.util.LayoutAlgorithmTransition;
+import edu.uci.ics.jung.layout.model.LayoutModel;
+import edu.uci.ics.jung.visualization.VisualizationModel;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
-import edu.uci.ics.jung.visualization.layout.AWTPointModel;
+import edu.uci.ics.jung.visualization.layout.LayoutAlgorithmTransition;
+import edu.uci.ics.jung.visualization.renderers.Renderer;
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.awt.geom.Point2D;
 import java.util.Timer;
 import java.util.TimerTask;
 import javax.swing.*;
@@ -42,15 +41,13 @@ public class AddNodeDemo extends JPanel {
 
   private static final Logger log = LoggerFactory.getLogger(AddNodeDemo.class);
 
-  private static final PointModel<Point2D> POINT_MODEL = new AWTPointModel();
-
   private static final long serialVersionUID = -5345319851341875800L;
 
   private MutableNetwork<Number, Number> g = null;
 
   private VisualizationViewer<Number, Number> vv = null;
 
-  private AbstractLayoutAlgorithm<Number, Point2D> layoutAlgorithm = null;
+  private LayoutAlgorithm<Number> layoutAlgorithm = null;
 
   Timer timer;
 
@@ -72,10 +69,9 @@ public class AddNodeDemo extends JPanel {
 
     this.g = og;
 
-    layoutAlgorithm = new FRLayoutAlgorithm<>(POINT_MODEL);
+    layoutAlgorithm = new FRLayoutAlgorithm<>();
 
-    LayoutAlgorithm<Number, Point2D> staticLayoutAlgorithm =
-        new StaticLayoutAlgorithm<>(POINT_MODEL);
+    LayoutAlgorithm<Number> staticLayoutAlgorithm = new StaticLayoutAlgorithm<>();
 
     vv = new VisualizationViewer<>(ig, staticLayoutAlgorithm, new Dimension(600, 600));
 
@@ -85,42 +81,47 @@ public class AddNodeDemo extends JPanel {
 
     vv.setGraphMouse(new DefaultModalGraphMouse<Number, Number>());
 
-    vv.getRenderer()
-        .getVertexLabelRenderer()
-        .setPosition(edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position.CNTR);
-    vv.getRenderContext().setVertexLabelTransformer(Object::toString);
+    vv.getRenderer().getNodeLabelRenderer().setPosition(Renderer.NodeLabel.Position.CNTR);
+    vv.getRenderContext().setNodeLabelFunction(Object::toString);
     vv.setForeground(Color.white);
 
+    this.add(vv);
+
+    // add listener to change layout size and restart layoutalgorithm when
+    // the view is resized
     vv.addComponentListener(
         new ComponentAdapter() {
-
           /**
-           * @see java.awt.event.ComponentAdapter#componentResized(java.awt.event.ComponentEvent)
+           * Invoked when the component's size changes.
+           *
+           * @param e
            */
           @Override
-          public void componentResized(ComponentEvent arg0) {
-            super.componentResized(arg0);
-            log.debug("resized");
-            vv.getModel().setLayoutSize(arg0.getComponent().getSize());
+          public void componentResized(ComponentEvent e) {
+            super.componentResized(e);
+            VisualizationViewer vv = (VisualizationViewer) e.getComponent();
+            VisualizationModel model = vv.getModel();
+            LayoutModel layoutModel = model.getLayoutModel();
+            layoutModel.setSize(vv.getWidth(), vv.getHeight());
+            layoutModel.accept(model.getLayoutAlgorithm());
           }
         });
 
-    this.add(vv);
     final JRadioButton animateChange = new JRadioButton("Animate Layout Change");
     switchLayout = new JButton("Switch to SpringLayout");
     switchLayout.addActionListener(
         ae -> {
           if (switchLayout.getText().indexOf("Spring") > 0) {
             switchLayout.setText("Switch to FRLayout");
-            layoutAlgorithm = new SpringLayoutAlgorithm<>(POINT_MODEL, e -> EDGE_LENGTH);
+            layoutAlgorithm = new SpringLayoutAlgorithm<>(e -> EDGE_LENGTH);
           } else {
             switchLayout.setText("Switch to SpringLayout");
-            layoutAlgorithm = new FRLayoutAlgorithm<>(POINT_MODEL);
+            layoutAlgorithm = new FRLayoutAlgorithm<>();
           }
           if (animateChange.isSelected()) {
-            LayoutAlgorithmTransition.animate(vv.getModel(), layoutAlgorithm);
+            LayoutAlgorithmTransition.animate(vv, layoutAlgorithm);
           } else {
-            LayoutAlgorithmTransition.apply(vv.getModel(), layoutAlgorithm);
+            LayoutAlgorithmTransition.apply(vv, layoutAlgorithm);
           }
         });
 
@@ -139,23 +140,23 @@ public class AddNodeDemo extends JPanel {
 
   public void process() {
 
-    vv.getRenderContext().getPickedVertexState().clear();
+    vv.getRenderContext().getPickedNodeState().clear();
     vv.getRenderContext().getPickedEdgeState().clear();
     try {
 
       if (g.nodes().size() < 100) {
-        //add a vertex
+        //add a node
         Integer v1 = g.nodes().size();
 
         g.addNode(v1);
-        vv.getRenderContext().getPickedVertexState().pick(v1, true);
+        vv.getRenderContext().getPickedNodeState().pick(v1, true);
 
         // wire it to some edges
         if (v_prev != null) {
           Integer edge = g.edges().size();
           vv.getRenderContext().getPickedEdgeState().pick(edge, true);
           g.addEdge(v_prev, v1, edge);
-          // let's connect to a random vertex, too!
+          // let's connect to a random node, too!
           int rand = (int) (Math.random() * g.nodes().size());
           edge = g.edges().size();
           vv.getRenderContext().getPickedEdgeState().pick(edge, true);

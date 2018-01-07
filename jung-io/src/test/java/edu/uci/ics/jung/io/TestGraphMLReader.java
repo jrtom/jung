@@ -34,7 +34,7 @@ import org.xml.sax.SAXException;
 public class TestGraphMLReader extends TestCase {
 
   Supplier<MutableNetwork<Number, Number>> graphFactory;
-  Supplier<Number> vertexFactory;
+  Supplier<Number> nodeFactory;
   Supplier<Number> edgeFactory;
   GraphMLReader<MutableNetwork<Number, Number>, Number, Number> gmlreader;
 
@@ -53,7 +53,7 @@ public class TestGraphMLReader extends TestCase {
                 .build();
           }
         };
-    vertexFactory =
+    nodeFactory =
         new Supplier<Number>() {
           int n = 0;
 
@@ -70,8 +70,7 @@ public class TestGraphMLReader extends TestCase {
           }
         };
     gmlreader =
-        new GraphMLReader<MutableNetwork<Number, Number>, Number, Number>(
-            vertexFactory, edgeFactory);
+        new GraphMLReader<MutableNetwork<Number, Number>, Number, Number>(nodeFactory, edgeFactory);
   }
 
   public void testLoad() throws IOException {
@@ -82,18 +81,18 @@ public class TestGraphMLReader extends TestCase {
     Assert.assertEquals(graph.nodes().size(), 3);
     Assert.assertEquals(graph.edges().size(), 3);
 
-    BiMap<Number, String> vertex_ids = gmlreader.getVertexIDs();
+    BiMap<Number, String> node_ids = gmlreader.getNodeIDs();
 
-    Number joe = vertex_ids.inverse().get("1");
-    Number bob = vertex_ids.inverse().get("2");
-    Number sue = vertex_ids.inverse().get("3");
+    Number joe = node_ids.inverse().get("1");
+    Number bob = node_ids.inverse().get("2");
+    Number sue = node_ids.inverse().get("3");
 
     Assert.assertNotNull(joe);
     Assert.assertNotNull(bob);
     Assert.assertNotNull(sue);
 
-    Map<String, GraphMLMetadata<Number>> vertex_metadata = gmlreader.getVertexMetadata();
-    Function<Number, String> name = vertex_metadata.get("name").transformer;
+    Map<String, GraphMLMetadata<Number>> node_metadata = gmlreader.getNodeMetadata();
+    Function<Number, String> name = node_metadata.get("name").transformer;
     Assert.assertEquals(name.apply(joe), "Joe");
     Assert.assertEquals(name.apply(bob), "Bob");
     Assert.assertEquals(name.apply(sue), "Sue");
@@ -117,9 +116,9 @@ public class TestGraphMLReader extends TestCase {
     Assert.assertEquals(graph.nodes().size(), 6);
     Assert.assertEquals(graph.edges().size(), 7);
 
-    // test vertex IDs
-    BiMap<Number, String> vertex_ids = gmlreader.getVertexIDs();
-    for (Map.Entry<Number, String> entry : vertex_ids.entrySet()) {
+    // test node IDs
+    BiMap<Number, String> node_ids = gmlreader.getNodeIDs();
+    for (Map.Entry<Number, String> entry : node_ids.entrySet()) {
       Assert.assertEquals(entry.getValue().charAt(0), 'n');
       Assert.assertEquals(
           Integer.parseInt(entry.getValue().substring(1)), entry.getKey().intValue());
@@ -134,22 +133,22 @@ public class TestGraphMLReader extends TestCase {
     }
 
     // test data
-    //        Map<String, SettableTransformer<Number, String>> vertex_data = gmlreader
-    //                .getVertexData();
+    //        Map<String, SettableTransformer<Number, String>> node_data = gmlreader
+    //                .getNodeData();
     //        Map<String, SettableTransformer<Number, String>> edge_data = gmlreader
     //                .getEdgeData();
-    Map<String, GraphMLMetadata<Number>> vertex_metadata = gmlreader.getVertexMetadata();
+    Map<String, GraphMLMetadata<Number>> node_metadata = gmlreader.getNodeMetadata();
     Map<String, GraphMLMetadata<Number>> edge_metadata = gmlreader.getEdgeMetadata();
 
-    // test vertex colors
-    //        Transformer<Number, String> vertex_color = vertex_data.get("d0");
-    Function<Number, String> vertex_color = vertex_metadata.get("d0").transformer;
-    Assert.assertEquals(vertex_color.apply(0), "green");
-    Assert.assertEquals(vertex_color.apply(1), "yellow");
-    Assert.assertEquals(vertex_color.apply(2), "blue");
-    Assert.assertEquals(vertex_color.apply(3), "red");
-    Assert.assertEquals(vertex_color.apply(4), "yellow");
-    Assert.assertEquals(vertex_color.apply(5), "turquoise");
+    // test node colors
+    //        Transformer<Number, String> node_color = node_data.get("d0");
+    Function<Number, String> node_color = node_metadata.get("d0").transformer;
+    Assert.assertEquals(node_color.apply(0), "green");
+    Assert.assertEquals(node_color.apply(1), "yellow");
+    Assert.assertEquals(node_color.apply(2), "blue");
+    Assert.assertEquals(node_color.apply(3), "red");
+    Assert.assertEquals(node_color.apply(4), "yellow");
+    Assert.assertEquals(node_color.apply(5), "turquoise");
 
     // test edge weights
     //        Transformer<Number, String> edge_weight = edge_data.get("d1");

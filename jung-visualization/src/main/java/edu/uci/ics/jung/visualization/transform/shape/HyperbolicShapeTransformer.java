@@ -8,46 +8,49 @@
  */
 package edu.uci.ics.jung.visualization.transform.shape;
 
-import edu.uci.ics.jung.layout.model.PointModel;
+import edu.uci.ics.jung.layout.model.Point;
 import edu.uci.ics.jung.layout.model.PolarPoint;
-import edu.uci.ics.jung.visualization.layout.AWTPointModel;
 import edu.uci.ics.jung.visualization.transform.HyperbolicTransformer;
+import edu.uci.ics.jung.visualization.transform.Lens;
 import edu.uci.ics.jung.visualization.transform.MutableTransformer;
-import java.awt.Component;
-import java.awt.Shape;
+import java.awt.*;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * HyperbolicShapeTransformer extends HyperbolicTransformer and adds implementations for methods in
- * ShapeFlatnessTransformer. It modifies the shapes (Vertex, Edge, and Arrowheads) so that they are
+ * ShapeFlatnessTransformer. It modifies the shapes (Node, Edge, and Arrowheads) so that they are
  * distorted by the hyperbolic transformation
  *
  * @author Tom Nelson
  */
 public class HyperbolicShapeTransformer extends HyperbolicTransformer
     implements ShapeFlatnessTransformer {
-  PointModel<Point2D> pointModel = new AWTPointModel();
+  private static final Logger log = LoggerFactory.getLogger(HyperbolicShapeTransformer.class);
+
   /**
    * Create an instance, setting values from the passed component and registering to listen for
    * layoutSize changes on the component.
    *
-   * @param component the component in which rendering takes place
+   * @param lens
+   * @param delegate
    */
-  public HyperbolicShapeTransformer(Component component) {
-    this(component, null);
+  public HyperbolicShapeTransformer(Lens lens, MutableTransformer delegate) {
+    super(lens, delegate);
   }
 
   /**
    * Create an instance, setting values from the passed component and registering to listen for
    * layoutSize changes on the component, with a possibly shared transform <code>delegate</code>.
    *
-   * @param component the component in which rendering takes place
+   * @param d the size for the lens
    * @param delegate the transformer to use
    */
-  public HyperbolicShapeTransformer(Component component, MutableTransformer delegate) {
-    super(component, delegate);
+  public HyperbolicShapeTransformer(Dimension d, MutableTransformer delegate) {
+    super(d, delegate);
   }
 
   /**
@@ -62,6 +65,9 @@ public class HyperbolicShapeTransformer extends HyperbolicTransformer
   }
 
   public Shape transform(Shape shape, float flatness) {
+    if (log.isTraceEnabled()) {
+      log.trace("transforming {}", shape);
+    }
     GeneralPath newPath = new GeneralPath();
     float[] coords = new float[6];
     PathIterator iterator = null;
@@ -159,9 +165,9 @@ public class HyperbolicShapeTransformer extends HyperbolicTransformer
     if (graphPoint == null) {
       return null;
     }
-    Point2D viewCenter = getViewCenter();
-    double viewRadius = getViewRadius();
-    double ratio = getRatio();
+    Point2D viewCenter = lens.getCenter();
+    double viewRadius = lens.getRadius();
+    double ratio = lens.getRatio();
     // transform the point from the graph to the view
     Point2D viewPoint = graphPoint; //delegate.transform(graphPoint);
     // calculate point from center
@@ -169,16 +175,16 @@ public class HyperbolicShapeTransformer extends HyperbolicTransformer
     double dy = viewPoint.getY() - viewCenter.getY();
     // factor out ellipse
     dx *= ratio;
-    Point2D pointFromCenter = new Point2D.Double(dx, dy);
+    Point pointFromCenter = Point.of(dx, dy);
 
-    PolarPoint polar = PolarPoint.cartesianToPolar(pointModel, pointFromCenter);
-    double theta = polar.getTheta();
-    double radius = polar.getRadius();
+    PolarPoint polar = PolarPoint.cartesianToPolar(pointFromCenter);
+    double theta = polar.theta;
+    double radius = polar.radius;
     if (radius > viewRadius) {
       return viewPoint;
     }
 
-    double mag = Math.tan(Math.PI / 2 * magnification);
+    double mag = Math.tan(Math.PI / 2 * lens.getMagnification());
     radius *= mag;
 
     radius = Math.min(radius, viewRadius);
@@ -186,11 +192,11 @@ public class HyperbolicShapeTransformer extends HyperbolicTransformer
     radius *= Math.PI / 2;
     radius = Math.abs(Math.atan(radius));
     radius *= viewRadius;
-    Point2D projectedPoint = PolarPoint.polarToCartesian(pointModel, theta, radius);
-    projectedPoint.setLocation(projectedPoint.getX() / ratio, projectedPoint.getY());
+    Point projectedPoint = PolarPoint.polarToCartesian(theta, radius);
+    projectedPoint = Point.of(projectedPoint.x / ratio, projectedPoint.y);
     Point2D translatedBack =
         new Point2D.Double(
-            projectedPoint.getX() + viewCenter.getX(), projectedPoint.getY() + viewCenter.getY());
+            projectedPoint.x + viewCenter.getX(), projectedPoint.y + viewCenter.getY());
     return translatedBack;
   }
 
@@ -198,36 +204,35 @@ public class HyperbolicShapeTransformer extends HyperbolicTransformer
   private Point2D _inverseTransform(Point2D viewPoint) {
 
     viewPoint = delegate.inverseTransform(viewPoint);
-    Point2D viewCenter = getViewCenter();
-    double viewRadius = getViewRadius();
-    double ratio = getRatio();
+    Point2D viewCenter = lens.getCenter();
+    double viewRadius = lens.getRadius();
+    double ratio = lens.getRatio();
     double dx = viewPoint.getX() - viewCenter.getX();
     double dy = viewPoint.getY() - viewCenter.getY();
     // factor out ellipse
     dx *= ratio;
 
-    Point2D pointFromCenter = new Point2D.Double(dx, dy);
+    Point pointFromCenter = Point.of(dx, dy);
 
-    PolarPoint polar = PolarPoint.cartesianToPolar(pointModel, pointFromCenter);
+    PolarPoint polar = PolarPoint.cartesianToPolar(pointFromCenter);
 
-    double radius = polar.getRadius();
+    double radius = polar.radius;
     if (radius > viewRadius) {
-      return viewPoint; //elegate.inverseTransform(viewPoint);
+      return viewPoint;
     }
 
     radius /= viewRadius;
     radius = Math.abs(Math.tan(radius));
     radius /= Math.PI / 2;
     radius *= viewRadius;
-    double mag = Math.tan(Math.PI / 2 * magnification);
+    double mag = Math.tan(Math.PI / 2 * lens.getMagnification());
     radius /= mag;
-    polar.setRadius(radius);
-    Point2D projectedPoint = PolarPoint.polarToCartesian(pointModel, polar);
-    projectedPoint.setLocation(projectedPoint.getX() / ratio, projectedPoint.getY());
+    polar = polar.newRadius(radius);
+    Point projectedPoint = PolarPoint.polarToCartesian(polar);
+    projectedPoint = Point.of(projectedPoint.x / ratio, projectedPoint.y);
     Point2D translatedBack =
         new Point2D.Double(
-            projectedPoint.getX() + viewCenter.getX(), projectedPoint.getY() + viewCenter.getY());
+            projectedPoint.x + viewCenter.getX(), projectedPoint.y + viewCenter.getY());
     return translatedBack;
-    //delegate.inverseTransform(translatedBack);
   }
 }

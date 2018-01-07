@@ -12,19 +12,12 @@ import com.google.common.graph.Network;
 import edu.uci.ics.jung.graph.util.TestGraphs;
 import edu.uci.ics.jung.layout.algorithms.ISOMLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
-import edu.uci.ics.jung.layout.model.PointModel;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
-import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
-import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
-import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
+import edu.uci.ics.jung.visualization.control.*;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
-import edu.uci.ics.jung.visualization.control.SatelliteVisualizationViewer;
-import edu.uci.ics.jung.visualization.control.ScalingControl;
-import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
-import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
-import edu.uci.ics.jung.visualization.layout.AWTPointModel;
+import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintFunction;
+import edu.uci.ics.jung.visualization.decorators.PickableNodePaintFunction;
 import java.awt.*;
-import java.awt.geom.Point2D;
 import javax.swing.*;
 
 /**
@@ -33,8 +26,6 @@ import javax.swing.*;
  * @author Tom Nelson
  */
 public class InternalFrameSatelliteViewDemo {
-
-  private static final PointModel<Point2D> POINT_MODEL = new AWTPointModel();
 
   static final String instructions =
       "<html>"
@@ -49,13 +40,13 @@ public class InternalFrameSatelliteViewDemo {
           + "</ul>"
           + "<b>Picking Mode:</b>"
           + "<ul>"
-          + "<li>Mouse1 on a Vertex selects the vertex"
-          + "<li>Mouse1 elsewhere unselects all Vertices"
-          + "<li>Mouse1+Shift on a Vertex adds/removes Vertex selection"
-          + "<li>Mouse1+drag on a Vertex moves all selected Vertices"
-          + "<li>Mouse1+drag elsewhere selects Vertices in a region"
-          + "<li>Mouse1+Shift+drag adds selection of Vertices in a new region"
-          + "<li>Mouse1+CTRL on a Vertex selects the vertex and centers the display on it"
+          + "<li>Mouse1 on a Node selects the node"
+          + "<li>Mouse1 elsewhere unselects all Nodes"
+          + "<li>Mouse1+Shift on a Node adds/removes Node selection"
+          + "<li>Mouse1+drag on a Node moves all selected Nodes"
+          + "<li>Mouse1+drag elsewhere selects Nodes in a region"
+          + "<li>Mouse1+Shift+drag adds selection of Nodes in a new region"
+          + "<li>Mouse1+CTRL on a Node selects the node and centers the display on it"
           + "</ul>"
           + "<b>Both Modes:</b>"
           + "<ul>"
@@ -79,33 +70,32 @@ public class InternalFrameSatelliteViewDemo {
     // create a simple graph for the demo
     graph = TestGraphs.getOneComponentGraph();
 
-    LayoutAlgorithm<String, Point2D> layout = new ISOMLayoutAlgorithm<>(POINT_MODEL);
+    LayoutAlgorithm<String> layout = new ISOMLayoutAlgorithm<>();
 
     vv = new VisualizationViewer<>(graph, layout, new Dimension(600, 600));
     vv.getRenderContext()
-        .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer<>(vv.getPickedEdgeState(), Color.black, Color.cyan));
+        .setEdgeDrawPaintFunction(
+            new PickableEdgePaintFunction<>(vv.getPickedEdgeState(), Color.black, Color.cyan));
     vv.getRenderContext()
-        .setVertexFillPaintTransformer(
-            new PickableVertexPaintTransformer<>(
-                vv.getPickedVertexState(), Color.red, Color.yellow));
+        .setNodeFillPaintFunction(
+            new PickableNodePaintFunction<>(vv.getPickedNodeState(), Color.red, Color.yellow));
 
     // add my listener for ToolTips
-    vv.setVertexToolTipTransformer(Object::toString);
+    vv.setNodeToolTipFunction(Object::toString);
     final DefaultModalGraphMouse<String, Number> graphMouse = new DefaultModalGraphMouse<>();
     vv.setGraphMouse(graphMouse);
 
     satellite = new SatelliteVisualizationViewer<>(vv, new Dimension(200, 200));
     satellite
         .getRenderContext()
-        .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer<>(
+        .setEdgeDrawPaintFunction(
+            new PickableEdgePaintFunction<>(
                 satellite.getPickedEdgeState(), Color.black, Color.cyan));
     satellite
         .getRenderContext()
-        .setVertexFillPaintTransformer(
-            new PickableVertexPaintTransformer<>(
-                satellite.getPickedVertexState(), Color.red, Color.yellow));
+        .setNodeFillPaintFunction(
+            new PickableNodePaintFunction<>(
+                satellite.getPickedNodeState(), Color.red, Color.yellow));
 
     ScalingControl satelliteScaler = new CrossoverScalingControl();
     satellite.scaleToLayout(satelliteScaler);

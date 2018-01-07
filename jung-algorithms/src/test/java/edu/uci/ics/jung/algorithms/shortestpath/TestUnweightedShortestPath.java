@@ -16,7 +16,7 @@ import junit.framework.TestSuite;
 
 /** @author Scott White */
 public class TestUnweightedShortestPath extends TestCase {
-  private Supplier<String> vertexFactory =
+  private Supplier<String> nodeFactory =
       new Supplier<String>() {
         int count = 0;
 
@@ -37,11 +37,11 @@ public class TestUnweightedShortestPath extends TestCase {
   public void testUndirected() {
     MutableGraph<String> ug = GraphBuilder.undirected().allowsSelfLoops(true).build();
     for (int i = 0; i < 5; i++) {
-      ug.addNode(vertexFactory.get());
+      ug.addNode(nodeFactory.get());
     }
     id = Indexer.<String>create(ug.nodes());
 
-    //		GraphUtils.addVertices(ug,5);
+    //		GraphUtils.addNodes(ug,5);
     //		Indexer id = Indexer.getIndexer(ug);
     ug.putEdge(id.inverse().get(0), id.inverse().get(1));
     ug.putEdge(id.inverse().get(1), id.inverse().get(2));
@@ -60,7 +60,7 @@ public class TestUnweightedShortestPath extends TestCase {
   public void testDirected() {
     MutableGraph<String> dg = GraphBuilder.directed().allowsSelfLoops(true).build();
     for (int i = 0; i < 5; i++) {
-      dg.addNode(vertexFactory.get());
+      dg.addNode(nodeFactory.get());
     }
     id = Indexer.<String>create(dg.nodes());
     dg.putEdge(id.inverse().get(0), id.inverse().get(1));

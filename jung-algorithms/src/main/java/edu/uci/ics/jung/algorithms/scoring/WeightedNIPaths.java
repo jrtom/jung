@@ -43,7 +43,7 @@ import java.util.function.Supplier;
 // TODO: this takes in a MutableNetwork and factories as a hack; there's got to be a better way; options include:
 // (1) create a delegate class that pretends that the extra node/edge are there
 // (2) refactor the internal logic so that we can emulate the presence of that node/edge
-public class WeightedNIPaths<N, E> implements VertexScorer<N, Double> {
+public class WeightedNIPaths<N, E> implements NodeScorer<N, Double> {
   private final MutableNetwork<N, E> graph;
   private final double alpha;
   private final int maxDepth;
@@ -52,22 +52,22 @@ public class WeightedNIPaths<N, E> implements VertexScorer<N, Double> {
   private final Map<Object, N> roots = new HashMap<Object, N>();
   private final Map<N, Set<Number>> pathsSeenMap = new HashMap<N, Set<Number>>();
   private final Map<N, Double> nodeScores = new LinkedHashMap<>();
-  private final Supplier<N> vertexFactory;
+  private final Supplier<N> nodeFactory;
   private final Supplier<E> edgeFactory;
 
   /**
    * Constructs and initializes the algorithm.
    *
    * @param graph the graph whose nodes are being measured for their importance
-   * @param vertexFactory used to generate instances of V
+   * @param nodeFactory used to generate instances of V
    * @param edgeFactory used to generate instances of E
    * @param alpha the path decay coefficient (&ge;1); 2 is recommended
    * @param maxDepth the maximal depth to search out from the root set
-   * @param priors the root set (starting vertices)
+   * @param priors the root set (starting nodes)
    */
   public WeightedNIPaths(
       MutableNetwork<N, E> graph,
-      Supplier<N> vertexFactory,
+      Supplier<N> nodeFactory,
       Supplier<E> edgeFactory,
       double alpha,
       int maxDepth,
@@ -75,7 +75,7 @@ public class WeightedNIPaths<N, E> implements VertexScorer<N, Double> {
     // TODO: is this actually restricted to only work on directed graphs?
     Preconditions.checkArgument(graph.isDirected(), "Input graph must be directed");
     this.graph = graph;
-    this.vertexFactory = vertexFactory;
+    this.nodeFactory = nodeFactory;
     this.edgeFactory = edgeFactory;
     this.alpha = alpha;
     this.maxDepth = maxDepth;
@@ -94,13 +94,13 @@ public class WeightedNIPaths<N, E> implements VertexScorer<N, Double> {
     for (E e : graph.outEdges(root)) {
       this.pathIndices.put(e, pathIdx);
       this.roots.put(e, root);
-      newVertexEncountered(pathIdx, graph.incidentNodes(e).target(), root);
+      newNodeEncountered(pathIdx, graph.incidentNodes(e).target(), root);
       pathIdx++;
     }
 
     List<E> edges = new ArrayList<E>();
 
-    N virtualNode = vertexFactory.get();
+    N virtualNode = nodeFactory.get();
     graph.addNode(virtualNode);
     E virtualSinkEdge = edgeFactory.get();
 
@@ -125,8 +125,8 @@ public class WeightedNIPaths<N, E> implements VertexScorer<N, Double> {
 
         // from the currentSourceEdge, get its opposite end
         // then iterate over the out edges of that opposite end
-        N newDestVertex = graph.incidentNodes(currentSourceEdge).target();
-        for (E currentDestEdge : graph.outEdges(newDestVertex)) {
+        N newDestNode = graph.incidentNodes(currentSourceEdge).target();
+        for (E currentDestEdge : graph.outEdges(newDestNode)) {
           N destEdgeRoot = this.roots.get(currentDestEdge);
           N destEdgeDest = graph.incidentNodes(currentDestEdge).target();
 
@@ -143,7 +143,7 @@ public class WeightedNIPaths<N, E> implements VertexScorer<N, Double> {
           Set<Number> pathsSeen = this.pathsSeenMap.get(destEdgeDest);
 
           if (pathsSeen == null) {
-            newVertexEncountered(sourcePathIndex.intValue(), destEdgeDest, root);
+            newNodeEncountered(sourcePathIndex.intValue(), destEdgeDest, root);
           } else if (roots.get(destEdgeDest) != root) {
             roots.put(destEdgeDest, root);
             pathsSeen.clear();
@@ -167,7 +167,7 @@ public class WeightedNIPaths<N, E> implements VertexScorer<N, Double> {
     graph.removeNode(virtualNode);
   }
 
-  private void newVertexEncountered(int sourcePathIndex, N dest, N root) {
+  private void newNodeEncountered(int sourcePathIndex, N dest, N root) {
     Set<Number> pathsSeen = new HashSet<Number>();
     pathsSeen.add(sourcePathIndex);
     this.pathsSeenMap.put(dest, pathsSeen);
@@ -195,12 +195,12 @@ public class WeightedNIPaths<N, E> implements VertexScorer<N, Double> {
   }
 
   @Override
-  public Double getVertexScore(N v) {
+  public Double getNodeScore(N v) {
     return nodeScores.get(v);
   }
 
   @Override
-  public Map<N, Double> vertexScores() {
+  public Map<N, Double> nodeScores() {
     return Collections.unmodifiableMap(nodeScores);
   }
 }

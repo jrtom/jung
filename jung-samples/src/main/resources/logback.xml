@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration>
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <Logger name="edu.uci.ics.jung.visualization.renderers" level="info" />
+
+  <Logger name="edu.uci.ics.jung.visualization.spatial" level="info"/>
+
+  <Logger name="edu.uci.ics.jung.visualization.spatial.rtree" level="info"/>
+
+  <Logger name="edu.uci.ics.jung.visualization.BasicVisualizationServer" level="info"/>
+
+  <Logger name="edu.uci.ics.jung.visualization.picking" level="info"/>
+
+  <Logger name="edu.uci.ics.jung.layout.spatial" level="info"/>
+
+  <Logger name="edu.uci.ics.jung.layout.algorithms" level="info"/>
+
+
+  <Logger name="ch.qos.logback" level="WARN" />
+
+  <root level="DEBUG">
+    <appender-ref ref="STDOUT" />
+  </root>  
+  
+</configuration>

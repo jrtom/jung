@@ -10,10 +10,8 @@ package edu.uci.ics.jung.samples;
 
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.NetworkBuilder;
-import edu.uci.ics.jung.graph.util.ParallelEdgeIndexFunction;
-import edu.uci.ics.jung.layout.algorithms.AbstractLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.StaticLayoutAlgorithm;
-import edu.uci.ics.jung.layout.model.PointModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.annotations.AnnotationControls;
@@ -22,10 +20,9 @@ import edu.uci.ics.jung.visualization.control.EditingModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
-import edu.uci.ics.jung.visualization.layout.AWTPointModel;
+import edu.uci.ics.jung.visualization.util.ParallelEdgeIndexFunction;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.awt.print.Printable;
 import java.awt.print.PrinterJob;
@@ -42,17 +39,15 @@ import javax.swing.*;
  *
  * @author Tom Nelson
  */
-public class GraphEditorDemo extends JApplet implements Printable {
+public class GraphEditorDemo extends JPanel implements Printable {
 
   /** */
   private static final long serialVersionUID = -2023243689258876709L;
 
-  private static PointModel<Point2D> pointModel = new AWTPointModel();
-
   /** the graph */
   MutableNetwork<Number, Number> graph;
 
-  AbstractLayoutAlgorithm<Number, Point2D> layoutAlgorithm;
+  LayoutAlgorithm<Number> layoutAlgorithm;
 
   /** the visual component and renderer for the graph */
   VisualizationViewer<Number, Number> vv;
@@ -61,9 +56,9 @@ public class GraphEditorDemo extends JApplet implements Printable {
       "<html>"
           + "<h3>All Modes:</h3>"
           + "<ul>"
-          + "<li>Right-click an empty area for <b>Create Vertex</b> popup"
-          + "<li>Right-click on a Vertex for <b>Delete Vertex</b> popup"
-          + "<li>Right-click on a Vertex for <b>Add Edge</b> menus <br>(if there are selected Vertices)"
+          + "<li>Right-click an empty area for <b>Create Node</b> popup"
+          + "<li>Right-click on a Node for <b>Delete Node</b> popup"
+          + "<li>Right-click on a Node for <b>Add Edge</b> menus <br>(if there are selected Nodes)"
           + "<li>Right-click on an Edge for <b>Delete Edge</b> popup"
           + "<li>Mousewheel scales with a crossover value of 1.0.<p>"
           + "     - scales the graph layout when the combined scale is greater than 1<p>"
@@ -71,27 +66,27 @@ public class GraphEditorDemo extends JApplet implements Printable {
           + "</ul>"
           + "<h3>Editing Mode:</h3>"
           + "<ul>"
-          + "<li>Left-click an empty area to create a new Vertex"
-          + "<li>Left-click on a Vertex and drag to another Vertex to create an Undirected Edge"
-          + "<li>Shift+Left-click on a Vertex and drag to another Vertex to create a Directed Edge"
+          + "<li>Left-click an empty area to create a new Node"
+          + "<li>Left-click on a Node and drag to another Node to create an Undirected Edge"
+          + "<li>Shift+Left-click on a Node and drag to another Node to create a Directed Edge"
           + "</ul>"
           + "<h3>Picking Mode:</h3>"
           + "<ul>"
-          + "<li>Mouse1 on a Vertex selects the vertex"
-          + "<li>Mouse1 elsewhere unselects all Vertices"
-          + "<li>Mouse1+Shift on a Vertex adds/removes Vertex selection"
-          + "<li>Mouse1+drag on a Vertex moves all selected Vertices"
-          + "<li>Mouse1+drag elsewhere selects Vertices in a region"
-          + "<li>Mouse1+Shift+drag adds selection of Vertices in a new region"
-          + "<li>Mouse1+CTRL on a Vertex selects the vertex and centers the display on it"
-          + "<li>Mouse1 double-click on a vertex or edge allows you to edit the label"
+          + "<li>Mouse1 on a Node selects the node"
+          + "<li>Mouse1 elsewhere unselects all Nodes"
+          + "<li>Mouse1+Shift on a Node adds/removes Node selection"
+          + "<li>Mouse1+drag on a Node moves all selected Nodes"
+          + "<li>Mouse1+drag elsewhere selects Nodes in a region"
+          + "<li>Mouse1+Shift+drag adds selection of Nodes in a new region"
+          + "<li>Mouse1+CTRL on a Node selects the node and centers the display on it"
+          + "<li>Mouse1 double-click on a node or edge allows you to edit the label"
           + "</ul>"
           + "<h3>Transforming Mode:</h3>"
           + "<ul>"
           + "<li>Mouse1+drag pans the graph"
           + "<li>Mouse1+Shift+drag rotates the graph"
           + "<li>Mouse1+CTRL(or Command)+drag shears the graph"
-          + "<li>Mouse1 double-click on a vertex or edge allows you to edit the label"
+          + "<li>Mouse1 double-click on a node or edge allows you to edit the label"
           + "</ul>"
           + "<h3>Annotation Mode:</h3>"
           + "<ul>"
@@ -109,32 +104,32 @@ public class GraphEditorDemo extends JApplet implements Printable {
   /** create an instance of a simple graph with popup controls to create a graph. */
   public GraphEditorDemo() {
 
+    setLayout(new BorderLayout());
     // create a simple graph for the demo
     graph = NetworkBuilder.directed().allowsParallelEdges(true).allowsSelfLoops(true).build();
 
-    this.layoutAlgorithm = new StaticLayoutAlgorithm<>(pointModel); //, new Dimension(600, 600));
+    this.layoutAlgorithm = new StaticLayoutAlgorithm<>(); //, new Dimension(600, 600));
 
     vv = new VisualizationViewer<>(graph, layoutAlgorithm, new Dimension(600, 600));
     vv.setBackground(Color.white);
 
     Function<Object, String> labeller = Object::toString;
-    vv.getRenderContext().setVertexLabelTransformer(labeller);
-    vv.getRenderContext().setEdgeLabelTransformer(labeller);
-    vv.getRenderContext().setParallelEdgeIndexFunction(new ParallelEdgeIndexFunction<>(graph));
+    vv.getRenderContext().setNodeLabelFunction(labeller);
+    vv.getRenderContext().setEdgeLabelFunction(labeller);
+    vv.getRenderContext().setParallelEdgeIndexFunction(new ParallelEdgeIndexFunction<>());
 
-    vv.setVertexToolTipTransformer(vv.getRenderContext().getVertexLabelTransformer());
+    vv.setNodeToolTipFunction(vv.getRenderContext().getNodeLabelFunction());
 
-    Container content = getContentPane();
     final GraphZoomScrollPane panel = new GraphZoomScrollPane(vv);
-    content.add(panel);
-    Supplier<Number> vertexFactory = new VertexFactory();
+    add(panel);
+    Supplier<Number> nodeFactory = new NodeFactory();
     Supplier<Number> edgeFactory = new EdgeFactory();
 
     final EditingModalGraphMouse<Number, Number> graphMouse =
-        new EditingModalGraphMouse<>(vv.getRenderContext(), vertexFactory, edgeFactory);
+        new EditingModalGraphMouse<>(vv.getRenderContext(), nodeFactory, edgeFactory);
 
     // the EditingGraphMouse will pass mouse event coordinates to the
-    // vertexLocations function to set the locations of the vertices as
+    // nodeLocations function to set the locations of the nodes as
     // they are created
     vv.setGraphMouse(graphMouse);
     vv.addKeyListener(graphMouse.getModeKeyListener());
@@ -160,7 +155,7 @@ public class GraphEditorDemo extends JApplet implements Printable {
     controls.add(modeBox);
     controls.add(annotationControls.getAnnotationsToolBar());
     controls.add(help);
-    content.add(controls, BorderLayout.SOUTH);
+    add(controls, BorderLayout.SOUTH);
   }
 
   /**
@@ -200,7 +195,7 @@ public class GraphEditorDemo extends JApplet implements Printable {
     }
   }
 
-  class VertexFactory implements Supplier<Number> {
+  class NodeFactory implements Supplier<Number> {
 
     int i = 0;
 

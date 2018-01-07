@@ -14,7 +14,6 @@ package edu.uci.ics.jung.layout.algorithms;
 
 import com.google.common.base.Preconditions;
 import edu.uci.ics.jung.layout.model.LayoutModel;
-import edu.uci.ics.jung.layout.model.PointModel;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -28,15 +27,12 @@ import org.slf4j.LoggerFactory;
  * @author Masanori Harada
  * @author Tom Nelson - adapted to an algorithm
  */
-public class CircleLayoutAlgorithm<N, P> extends AbstractLayoutAlgorithm<N, P> {
+public class CircleLayoutAlgorithm<N> implements LayoutAlgorithm<N> {
 
   private static final Logger log = LoggerFactory.getLogger(CircleLayoutAlgorithm.class);
   private double radius;
   private List<N> node_ordered_list;
 
-  public CircleLayoutAlgorithm(PointModel<P> pointModel) {
-    super(pointModel);
-  }
   /** @return the radius of the circle. */
   public double getRadius() {
     return radius;
@@ -57,7 +53,7 @@ public class CircleLayoutAlgorithm<N, P> extends AbstractLayoutAlgorithm<N, P> {
    *
    * @param comparator the comparator to use to order the nodes
    */
-  public void setNodeOrder(LayoutModel<N, P> layoutModel, Comparator<N> comparator) {
+  public void setNodeOrder(LayoutModel<N> layoutModel, Comparator<N> comparator) {
     if (node_ordered_list == null) {
       node_ordered_list = new ArrayList<N>(layoutModel.getGraph().nodes());
     }
@@ -69,7 +65,7 @@ public class CircleLayoutAlgorithm<N, P> extends AbstractLayoutAlgorithm<N, P> {
    *
    * @param node_list a list specifying the ordering of the nodes
    */
-  public void setNodeOrder(LayoutModel<N, P> layoutModel, List<N> node_list) {
+  public void setNodeOrder(LayoutModel<N> layoutModel, List<N> node_list) {
     Preconditions.checkArgument(
         node_list.containsAll(layoutModel.getGraph().nodes()),
         "Supplied list must include all nodes of the graph");
@@ -78,8 +74,8 @@ public class CircleLayoutAlgorithm<N, P> extends AbstractLayoutAlgorithm<N, P> {
 
   public void reset() {}
 
-  public void visit(LayoutModel<N, P> layoutModel) {
-
+  public void visit(LayoutModel<N> layoutModel) {
+    //    super.visit(layoutModel);
     log.trace("visiting " + layoutModel);
     if (layoutModel != null) {
       setNodeOrder(layoutModel, new ArrayList<N>(layoutModel.getGraph().nodes()));
@@ -93,13 +89,10 @@ public class CircleLayoutAlgorithm<N, P> extends AbstractLayoutAlgorithm<N, P> {
 
       int i = 0;
       for (N node : node_ordered_list) {
-        P coord = layoutModel.apply(node);
+        //        Point coord = layoutModel.apply(node);
 
         double angle = (2 * Math.PI * i) / node_ordered_list.size();
 
-        //        P location =
-        //            pointModel.newPoint(
-        //                Math.cos(angle) * radius + width / 2, Math.sin(angle) * radius + height / 2);
         double posX = Math.cos(angle) * radius + width / 2;
         double posY = Math.sin(angle) * radius + height / 2;
         layoutModel.set(node, posX, posY);

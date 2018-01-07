@@ -12,34 +12,29 @@ import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
 import edu.uci.ics.jung.layout.algorithms.FRLayoutAlgorithm;
-import edu.uci.ics.jung.layout.model.PointModel;
 import edu.uci.ics.jung.samples.util.ControlHelpers;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
-import edu.uci.ics.jung.visualization.decorators.EllipseVertexShapeTransformer;
-import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
-import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
-import edu.uci.ics.jung.visualization.decorators.VertexIconShapeTransformer;
-import edu.uci.ics.jung.visualization.layout.AWTPointModel;
+import edu.uci.ics.jung.visualization.decorators.EllipseNodeShapeFunction;
+import edu.uci.ics.jung.visualization.decorators.NodeIconShapeFunction;
+import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintFunction;
+import edu.uci.ics.jung.visualization.decorators.PickableNodePaintFunction;
 import edu.uci.ics.jung.visualization.renderers.DefaultEdgeLabelRenderer;
-import edu.uci.ics.jung.visualization.renderers.DefaultVertexLabelRenderer;
+import edu.uci.ics.jung.visualization.renderers.DefaultNodeLabelRenderer;
 import java.awt.*;
 import java.awt.event.ItemEvent;
-import java.awt.geom.Point2D;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 import javax.swing.*;
 
 /**
- * A demo that shows flag images as vertices, and uses unicode to render vertex labels.
+ * A demo that shows flag images as nodes, and uses unicode to render node labels.
  *
  * @author Tom Nelson
  */
 public class UnicodeLabelDemo {
-
-  private static final PointModel<Point2D> POINT_MODEL = new AWTPointModel();
 
   Network<Integer, Number> graph;
 
@@ -53,30 +48,28 @@ public class UnicodeLabelDemo {
     graph = createGraph();
     Map<Integer, Icon> iconMap = new HashMap<>();
 
-    vv = new VisualizationViewer<>(graph, new FRLayoutAlgorithm<>(POINT_MODEL));
-    vv.getRenderContext().setVertexLabelTransformer(new UnicodeVertexStringer());
-    vv.getRenderContext().setVertexLabelRenderer(new DefaultVertexLabelRenderer(Color.cyan));
+    vv = new VisualizationViewer<>(graph, new FRLayoutAlgorithm<>(), new Dimension(700, 700));
+    vv.getRenderContext().setNodeLabelFunction(new UnicodeNodeStringer());
+    vv.getRenderContext().setNodeLabelRenderer(new DefaultNodeLabelRenderer(Color.cyan));
     vv.getRenderContext().setEdgeLabelRenderer(new DefaultEdgeLabelRenderer(Color.cyan));
-    VertexIconShapeTransformer<Integer> vertexIconShapeFunction =
-        new VertexIconShapeTransformer<>(new EllipseVertexShapeTransformer<>());
-    Function<Integer, Icon> vertexIconFunction = iconMap::get;
-    vv.getRenderContext().setVertexShapeTransformer(vertexIconShapeFunction);
-    vv.getRenderContext().setVertexIconTransformer(vertexIconFunction);
+    NodeIconShapeFunction<Integer> nodeIconShapeFunction =
+        new NodeIconShapeFunction<>(new EllipseNodeShapeFunction<>());
+    Function<Integer, Icon> nodeIconFunction = iconMap::get;
+    vv.getRenderContext().setNodeShapeFunction(nodeIconShapeFunction);
+    vv.getRenderContext().setNodeIconFunction(nodeIconFunction);
     loadImages(iconMap);
-    vertexIconShapeFunction.setIconMap(iconMap);
+    nodeIconShapeFunction.setIconMap(iconMap);
     vv.getRenderContext()
-        .setVertexFillPaintTransformer(
-            new PickableVertexPaintTransformer<>(
-                vv.getPickedVertexState(), Color.white, Color.yellow));
+        .setNodeFillPaintFunction(
+            new PickableNodePaintFunction<>(vv.getPickedNodeState(), Color.white, Color.yellow));
     vv.getRenderContext()
-        .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer<>(
-                vv.getPickedEdgeState(), Color.black, Color.lightGray));
+        .setEdgeDrawPaintFunction(
+            new PickableEdgePaintFunction<>(vv.getPickedEdgeState(), Color.black, Color.lightGray));
 
     vv.setBackground(Color.white);
 
     // add my listener for ToolTips
-    vv.setVertexToolTipTransformer(Object::toString);
+    vv.setNodeToolTipFunction(Object::toString);
 
     // create a frome to hold the graph
     final JFrame frame = new JFrame();
@@ -106,7 +99,7 @@ public class UnicodeLabelDemo {
     frame.setVisible(true);
   }
 
-  class UnicodeVertexStringer implements Function<Integer, String> {
+  class UnicodeNodeStringer implements Function<Integer, String> {
 
     Map<Integer, String> map = new HashMap<>();
     String[] labels = {
@@ -120,7 +113,7 @@ public class UnicodeLabelDemo {
       "\u0042\u0069\u0065\u006E\u0076\u0065\u006E\u0069\u0064\u0061\u0020\u0061\u0020JUNG\u0021"
     };
 
-    public UnicodeVertexStringer() {
+    public UnicodeNodeStringer() {
       for (Integer node : graph.nodes()) {
         map.put(node, labels[node % labels.length]);
       }

@@ -16,11 +16,11 @@ import com.google.common.graph.Network;
 import java.util.Map;
 
 /**
- * Assigns a score to each vertex equal to its degree.
+ * Assigns a score to each node equal to its degree.
  *
- * @param <N> the vertex type
+ * @param <N> the node type
  */
-public class DegreeScorer<N> implements VertexScorer<N, Integer> {
+public class DegreeScorer<N> implements NodeScorer<N, Integer> {
   // TODO: Graph and Network degree are different, so we either need to
   // provide separate constructors or separate classes
   /** The graph for which scores are to be generated. */
@@ -36,15 +36,15 @@ public class DegreeScorer<N> implements VertexScorer<N, Integer> {
   }
 
   /**
-   * Returns the degree of the vertex.
+   * Returns the degree of the node.
    *
-   * @return the degree of the vertex
+   * @return the degree of the node
    */
-  public Integer getVertexScore(N node) {
+  public Integer getNodeScore(N node) {
     return graph.degree(node);
   }
 
-  public Map<N, Integer> vertexScores() {
+  public Map<N, Integer> nodeScores() {
     return Maps.asMap(graph.nodes(), node -> graph.degree(node));
   }
 }

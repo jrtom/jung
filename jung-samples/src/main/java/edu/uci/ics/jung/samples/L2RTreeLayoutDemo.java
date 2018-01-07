@@ -14,11 +14,10 @@ import edu.uci.ics.jung.graph.TreeNetworkBuilder;
 import edu.uci.ics.jung.layout.algorithms.RadialTreeLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.TreeLayoutAlgorithm;
 import edu.uci.ics.jung.layout.model.LayoutModel;
-import edu.uci.ics.jung.layout.model.PointModel;
+import edu.uci.ics.jung.layout.model.Point;
 import edu.uci.ics.jung.layout.model.PolarPoint;
-import edu.uci.ics.jung.layout.util.LayoutAlgorithmTransition;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
-import edu.uci.ics.jung.visualization.Layer;
+import edu.uci.ics.jung.visualization.MultiLayerTransformer.Layer;
 import edu.uci.ics.jung.visualization.VisualizationServer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
@@ -27,7 +26,7 @@ import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.EdgeShape;
-import edu.uci.ics.jung.visualization.layout.AWTPointModel;
+import edu.uci.ics.jung.visualization.layout.LayoutAlgorithmTransition;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.geom.Ellipse2D;
@@ -44,9 +43,7 @@ import javax.swing.*;
  * @author Tom Nelson
  */
 @SuppressWarnings("serial")
-public class L2RTreeLayoutDemo extends JApplet {
-
-  private static final PointModel<Point2D> POINT_MODEL = new AWTPointModel();
+public class L2RTreeLayoutDemo extends JPanel {
 
   /** the graph */
   CTreeNetwork<String, Integer> graph;
@@ -56,31 +53,31 @@ public class L2RTreeLayoutDemo extends JApplet {
 
   VisualizationServer.Paintable rings;
 
-  TreeLayoutAlgorithm<String, Point2D> treeLayoutAlgorithm;
+  TreeLayoutAlgorithm<String> treeLayoutAlgorithm;
 
-  RadialTreeLayoutAlgorithm<String, Point2D> radialLayoutAlgorithm;
+  RadialTreeLayoutAlgorithm<String> radialLayoutAlgorithm;
 
   public L2RTreeLayoutDemo() {
+
+    setLayout(new BorderLayout());
 
     // create a simple graph for the demo
     graph = createTree();
 
-    treeLayoutAlgorithm = new TreeLayoutAlgorithm<>(POINT_MODEL);
-    radialLayoutAlgorithm = new RadialTreeLayoutAlgorithm<>(POINT_MODEL);
+    treeLayoutAlgorithm = new TreeLayoutAlgorithm<>();
+    radialLayoutAlgorithm = new RadialTreeLayoutAlgorithm<>();
     vv = new VisualizationViewer<>(graph, treeLayoutAlgorithm, new Dimension(600, 600));
     vv.setBackground(Color.white);
-    vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.quadCurve());
-    vv.getRenderContext().setVertexLabelTransformer(Object::toString);
+    vv.getRenderContext().setEdgeShapeFunction(EdgeShape.line());
+    vv.getRenderContext().setNodeLabelFunction(Object::toString);
     // add a listener for ToolTips
-    vv.setVertexToolTipTransformer(Object::toString);
-    vv.getRenderContext().setArrowFillPaintTransformer(a -> Color.lightGray);
-    //    rings = new Rings(vv.getModel().getLayoutModel());
+    vv.setNodeToolTipFunction(Object::toString);
+    vv.getRenderContext().setArrowFillPaintFunction(a -> Color.lightGray);
 
     setLtoR(vv);
 
-    Container content = getContentPane();
     final GraphZoomScrollPane panel = new GraphZoomScrollPane(vv);
-    content.add(panel);
+    add(panel);
 
     final DefaultModalGraphMouse<String, Integer> graphMouse = new DefaultModalGraphMouse<>();
 
@@ -102,14 +99,14 @@ public class L2RTreeLayoutDemo extends JApplet {
     radial.addItemListener(
         e -> {
           if (e.getStateChange() == ItemEvent.SELECTED) {
-            LayoutAlgorithmTransition.animate(vv.getModel(), radialLayoutAlgorithm);
+            LayoutAlgorithmTransition.animate(vv, radialLayoutAlgorithm);
             vv.getRenderContext().getMultiLayerTransformer().setToIdentity();
             if (rings == null) {
               rings = new Rings(vv.getModel().getLayoutModel());
             }
             vv.addPreRenderPaintable(rings);
           } else {
-            LayoutAlgorithmTransition.animate(vv.getModel(), treeLayoutAlgorithm);
+            LayoutAlgorithmTransition.animate(vv, treeLayoutAlgorithm);
             vv.getRenderContext().getMultiLayerTransformer().setToIdentity();
             setLtoR(vv);
             vv.removePreRenderPaintable(rings);
@@ -128,11 +125,10 @@ public class L2RTreeLayoutDemo extends JApplet {
     controls.add(scaleGrid);
     controls.add(modeBox);
 
-    content.add(controls, BorderLayout.SOUTH);
+    add(controls, BorderLayout.SOUTH);
   }
 
   private void setLtoR(VisualizationViewer<String, Integer> vv) {
-    //    LayoutModel<String, Point2D> layoutModel = vv.getModel().getLayoutModel();
     Dimension d = vv.getModel().getLayoutSize();
     Point2D center = new Point2D.Double(d.width / 2, d.height / 2);
     vv.getRenderContext()
@@ -144,9 +140,9 @@ public class L2RTreeLayoutDemo extends JApplet {
   class Rings implements VisualizationServer.Paintable {
 
     Collection<Double> depths;
-    LayoutModel<String, Point2D> layoutModel;
+    LayoutModel<String> layoutModel;
 
-    public Rings(LayoutModel<String, Point2D> layoutModel) {
+    public Rings(LayoutModel<String> layoutModel) {
       this.layoutModel = layoutModel;
       depths = getDepths();
     }
@@ -156,7 +152,7 @@ public class L2RTreeLayoutDemo extends JApplet {
       Map<String, PolarPoint> polarLocations = radialLayoutAlgorithm.getPolarLocations();
       for (String v : graph.nodes()) {
         PolarPoint pp = polarLocations.get(v);
-        depths.add(pp.getRadius());
+        depths.add(pp.radius);
       }
       return depths;
     }
@@ -165,12 +161,11 @@ public class L2RTreeLayoutDemo extends JApplet {
       g.setColor(Color.lightGray);
 
       Graphics2D g2d = (Graphics2D) g;
-      Point2D center = radialLayoutAlgorithm.getCenter(layoutModel);
+      Point center = radialLayoutAlgorithm.getCenter(layoutModel);
 
       Ellipse2D ellipse = new Ellipse2D.Double();
       for (double d : depths) {
-        ellipse.setFrameFromDiagonal(
-            center.getX() - d, center.getY() - d, center.getX() + d, center.getY() + d);
+        ellipse.setFrameFromDiagonal(center.x - d, center.y - d, center.x + d, center.y + d);
         Shape shape =
             vv.getRenderContext()
                 .getMultiLayerTransformer()

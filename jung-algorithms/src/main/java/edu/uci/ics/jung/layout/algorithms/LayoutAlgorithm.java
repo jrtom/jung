@@ -8,14 +8,14 @@ import edu.uci.ics.jung.layout.model.LayoutModel;
  *
  * @author Tom Nelson.
  */
-public interface LayoutAlgorithm<N, P> {
+public interface LayoutAlgorithm<N> {
 
   /**
    * visit the passed layoutModel and set its locations
    *
    * @param layoutModel
    */
-  void visit(LayoutModel<N, P> layoutModel);
+  void visit(LayoutModel<N> layoutModel);
 
   void reset(); // remove?
 }

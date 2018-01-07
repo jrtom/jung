@@ -24,13 +24,13 @@ import java.awt.geom.RectangularShape;
  *
  * @author Tom Nelson
  */
-public abstract class AbstractLensSupport<V, E> implements LensSupport {
+public abstract class AbstractLensSupport<N, E> implements LensSupport {
 
-  protected VisualizationViewer<V, E> vv;
+  protected VisualizationViewer<N, E> vv;
   protected VisualizationViewer.GraphMouse graphMouse;
   protected LensTransformer lensTransformer;
   protected ModalGraphMouse lensGraphMouse;
-  protected Lens lens;
+  protected LensPaintable lensPaintable;
   protected LensControls lensControls;
   protected String defaultToolTipText;
 
@@ -45,7 +45,7 @@ public abstract class AbstractLensSupport<V, E> implements LensSupport {
    * @param vv the VisualizationViewer to work on
    * @param lensGraphMouse the GraphMouse instance to use for the lens
    */
-  public AbstractLensSupport(VisualizationViewer<V, E> vv, ModalGraphMouse lensGraphMouse) {
+  public AbstractLensSupport(VisualizationViewer<N, E> vv, ModalGraphMouse lensGraphMouse) {
     this.vv = vv;
     this.graphMouse = vv.getGraphMouse();
     this.defaultToolTipText = vv.getToolTipText();
@@ -74,14 +74,12 @@ public abstract class AbstractLensSupport<V, E> implements LensSupport {
    *
    * @author Tom Nelson
    */
-  public static class Lens implements VisualizationServer.Paintable {
-    LensTransformer lensTransformer;
+  public static class LensPaintable implements VisualizationServer.Paintable {
     RectangularShape lensShape;
     Paint paint = Color.decode("0xdddddd");
 
-    public Lens(LensTransformer lensTransformer) {
-      this.lensTransformer = lensTransformer;
-      this.lensShape = lensTransformer.getLensShape();
+    public LensPaintable(LensTransformer lensTransformer) {
+      this.lensShape = lensTransformer.getLens().getLensShape();
     }
 
     /** @return the paint */
@@ -111,13 +109,11 @@ public abstract class AbstractLensSupport<V, E> implements LensSupport {
    * @author Tom Nelson
    */
   public static class LensControls implements VisualizationServer.Paintable {
-    LensTransformer lensTransformer;
     RectangularShape lensShape;
     Paint paint = Color.gray;
 
     public LensControls(LensTransformer lensTransformer) {
-      this.lensTransformer = lensTransformer;
-      this.lensShape = lensTransformer.getLensShape();
+      this.lensShape = lensTransformer.getLens().getLensShape();
     }
 
     /** @return the paint */
@@ -145,14 +141,14 @@ public abstract class AbstractLensSupport<V, E> implements LensSupport {
     }
   }
 
-  /** @return the lens */
-  public Lens getLens() {
-    return lens;
+  /** @return the lensPaintable */
+  public LensPaintable getLensPaintable() {
+    return lensPaintable;
   }
 
-  /** @param lens the lens to set */
-  public void setLens(Lens lens) {
-    this.lens = lens;
+  /** @param lensPaintable the lens to set */
+  public void setLensPaintable(LensPaintable lensPaintable) {
+    this.lensPaintable = lensPaintable;
   }
 
   /** @return the lensControls */

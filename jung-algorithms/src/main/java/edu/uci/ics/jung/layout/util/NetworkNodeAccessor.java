@@ -11,6 +11,7 @@
 package edu.uci.ics.jung.layout.util;
 
 import edu.uci.ics.jung.layout.model.LayoutModel;
+import edu.uci.ics.jung.layout.model.Point;
 
 /**
  * Interface for coordinate-based selection of graph nodes.
@@ -18,23 +19,31 @@ import edu.uci.ics.jung.layout.model.LayoutModel;
  * @author Tom Nelson
  * @author Joshua O'Madadhain
  */
-public interface NetworkNodeAccessor<N, P> {
+public interface NetworkNodeAccessor<N> {
+
   /**
-   * Returns the node, if any, associated with (x, y).
-   *
-   * @param x the x coordinate of the pick point
-   * @param y the y coordinate of the pick point
-   * @return the node associated with (x, y)
+   * @param layoutModel
+   * @param p the pick point
+   * @return the node associated with the pick point
    */
-  N getNode(LayoutModel<N, P> layoutModel, double x, double y);
+  N getNode(LayoutModel<N> layoutModel, Point p);
 
   /**
    * Returns the node, if any, associated with (x, y).
    *
    * @param x the x coordinate of the pick point
    * @param y the y coordinate of the pick point
-   * @param z the z coordinate of the pick point
    * @return the node associated with (x, y)
    */
-  N getNode(LayoutModel<N, P> layoutModel, double x, double y, double z);
+  N getNode(LayoutModel<N> layoutModel, double x, double y);
+
+  //  /**
+  //   * Returns the node, if any, associated with (x, y).
+  //   *
+  //   * @param x the x coordinate of the pick point
+  //   * @param y the y coordinate of the pick point
+  //   * @param z the z coordinate of the pick point
+  //   * @return the node associated with (x, y)
+  //   */
+  //  N getNode(LayoutModel<N> layoutModel, double x, double y, double z);
 }

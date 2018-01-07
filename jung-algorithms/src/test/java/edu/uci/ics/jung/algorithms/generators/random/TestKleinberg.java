@@ -14,12 +14,12 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class TestKleinberg {
 
-  protected Supplier<String> vertexFactory;
+  protected Supplier<String> nodeFactory;
   protected Supplier<Integer> edgeFactory;
 
   @Before
   public void setUp() {
-    vertexFactory =
+    nodeFactory =
         new Supplier<String>() {
           int count;
 
@@ -42,7 +42,7 @@ public class TestKleinberg {
     Lattice2DGenerator<String, Integer> generator =
         new Lattice2DGenerator<>(4, 4, true /* toroidal */);
     MutableNetwork<String, Integer> graph =
-        generator.generateNetwork(true /* directed */, vertexFactory, edgeFactory);
+        generator.generateNetwork(true /* directed */, nodeFactory, edgeFactory);
     final int connectionCount = 2;
 
     KleinbergSmallWorld<String, Integer> ksw =

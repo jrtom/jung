@@ -1,18 +1,19 @@
 package edu.uci.ics.jung.layout.util;
 
+import edu.uci.ics.jung.layout.model.Point;
+
 /**
  * an event with information about a node and its (new?) location
  *
  * @author Tom Nelson
  * @param <N>
- * @param <P>
  */
-public class LayoutEvent<N, P> {
+public class LayoutEvent<N> {
 
   final N node;
-  final P location;
+  final Point location;
 
-  public LayoutEvent(N node, P location) {
+  public LayoutEvent(N node, Point location) {
     this.node = node;
     this.location = location;
   }
@@ -21,7 +22,7 @@ public class LayoutEvent<N, P> {
     return node;
   }
 
-  public P getLocation() {
+  public Point getLocation() {
     return location;
   }
 }

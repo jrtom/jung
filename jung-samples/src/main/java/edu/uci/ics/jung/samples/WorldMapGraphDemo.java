@@ -13,21 +13,17 @@ import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.StaticLayoutAlgorithm;
-import edu.uci.ics.jung.layout.model.PointModel;
-import edu.uci.ics.jung.visualization.BaseVisualizationModel;
-import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
-import edu.uci.ics.jung.visualization.Layer;
-import edu.uci.ics.jung.visualization.VisualizationModel;
-import edu.uci.ics.jung.visualization.VisualizationViewer;
+import edu.uci.ics.jung.layout.model.Point;
+import edu.uci.ics.jung.visualization.*;
 import edu.uci.ics.jung.visualization.control.AbstractModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
-import edu.uci.ics.jung.visualization.layout.AWTPointModel;
-import edu.uci.ics.jung.visualization.renderers.*;
+import edu.uci.ics.jung.visualization.renderers.BasicNodeLabelRenderer;
+import edu.uci.ics.jung.visualization.renderers.GradientNodeRenderer;
+import edu.uci.ics.jung.visualization.renderers.Renderer;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -42,9 +38,7 @@ import javax.swing.*;
  * @author Tom Nelson
  */
 @SuppressWarnings("serial")
-public class WorldMapGraphDemo extends JApplet {
-
-  private static final PointModel<Point2D> POINT_MODEL = new AWTPointModel();
+public class WorldMapGraphDemo extends JPanel {
 
   /** the graph */
   Network<String, Number> graph;
@@ -74,11 +68,11 @@ public class WorldMapGraphDemo extends JApplet {
     }
     final ImageIcon icon = mapIcon;
 
-    LayoutAlgorithm<String, Point2D> layoutAlgorithm = new StaticLayoutAlgorithm<>(POINT_MODEL);
+    LayoutAlgorithm<String> layoutAlgorithm = new StaticLayoutAlgorithm<>();
 
-    Function<String, Point2D> initializer =
+    Function<String, Point> initializer =
         new CityTransformer(map).andThen(new LatLonPixelTransformer(new Dimension(2000, 1000)));
-    VisualizationModel<String, Number, Point2D> model =
+    VisualizationModel<String, Number> model =
         new BaseVisualizationModel<>(
             graph, layoutAlgorithm, initializer, new Dimension(2000, 1000));
 
@@ -93,12 +87,12 @@ public class WorldMapGraphDemo extends JApplet {
               AffineTransform lat =
                   vv.getRenderContext()
                       .getMultiLayerTransformer()
-                      .getTransformer(Layer.LAYOUT)
+                      .getTransformer(MultiLayerTransformer.Layer.LAYOUT)
                       .getTransform();
               AffineTransform vat =
                   vv.getRenderContext()
                       .getMultiLayerTransformer()
-                      .getTransformer(Layer.VIEW)
+                      .getTransformer(MultiLayerTransformer.Layer.VIEW)
                       .getTransform();
               AffineTransform at = new AffineTransform();
               at.concatenate(g2d.getTransform());
@@ -116,21 +110,18 @@ public class WorldMapGraphDemo extends JApplet {
     }
 
     vv.getRenderer()
-        .setVertexRenderer(
-            new GradientVertexRenderer<>(
-                vv, Color.white, Color.red, Color.white, Color.blue, false));
+        .setNodeRenderer(
+            new GradientNodeRenderer<>(vv, Color.white, Color.red, Color.white, Color.blue, false));
 
     // add my listeners for ToolTips
-    vv.setVertexToolTipTransformer(n -> n);
-    vv.setEdgeToolTipTransformer(edge -> "E" + graph.incidentNodes(edge).toString());
+    vv.setNodeToolTipFunction(n -> n);
+    vv.setEdgeToolTipFunction(edge -> "E" + graph.incidentNodes(edge).toString());
 
-    vv.getRenderContext().setVertexLabelTransformer(n -> n);
+    vv.getRenderContext().setNodeLabelFunction(n -> n);
     vv.getRenderer()
-        .getVertexLabelRenderer()
-        .setPositioner(new BasicVertexLabelRenderer.InsidePositioner());
-    vv.getRenderer()
-        .getVertexLabelRenderer()
-        .setPosition(edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position.AUTO);
+        .getNodeLabelRenderer()
+        .setPositioner(new BasicNodeLabelRenderer.InsidePositioner());
+    vv.getRenderer().getNodeLabelRenderer().setPosition(Renderer.NodeLabel.Position.AUTO);
 
     final GraphZoomScrollPane panel = new GraphZoomScrollPane(vv);
     add(panel);
@@ -153,11 +144,11 @@ public class WorldMapGraphDemo extends JApplet {
         e -> {
           vv.getRenderContext()
               .getMultiLayerTransformer()
-              .getTransformer(Layer.LAYOUT)
+              .getTransformer(MultiLayerTransformer.Layer.LAYOUT)
               .setToIdentity();
           vv.getRenderContext()
               .getMultiLayerTransformer()
-              .getTransformer(Layer.VIEW)
+              .getTransformer(MultiLayerTransformer.Layer.VIEW)
               .setToIdentity();
         });
 
@@ -226,14 +217,14 @@ public class WorldMapGraphDemo extends JApplet {
     }
   }
 
-  static class LatLonPixelTransformer implements Function<String[], Point2D> {
+  static class LatLonPixelTransformer implements Function<String[], Point> {
     Dimension d;
 
     public LatLonPixelTransformer(Dimension d) {
       this.d = d;
     }
     /** transform a lat */
-    public Point2D apply(String[] latlon) {
+    public Point apply(String[] latlon) {
       String[] lat = latlon[0].split(" ");
       String[] lon = latlon[1].split(" ");
       double latitude = Integer.parseInt(lat[0]) + Integer.parseInt(lat[1]) / 60f;
@@ -254,7 +245,7 @@ public class WorldMapGraphDemo extends JApplet {
         longitude = d.width / 2 + longitude;
       }
 
-      return new Point2D.Double(longitude, latitude);
+      return Point.of(longitude, latitude);
     }
   }
 

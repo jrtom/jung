@@ -9,7 +9,7 @@
  */
 package edu.uci.ics.jung.visualization.annotations;
 
-import edu.uci.ics.jung.visualization.Layer;
+import edu.uci.ics.jung.visualization.MultiLayerTransformer.Layer;
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.transform.AffineTransformer;
 import edu.uci.ics.jung.visualization.transform.LensTransformer;

@@ -5,7 +5,7 @@ import edu.uci.ics.jung.graph.util.TestGraphs;
 import edu.uci.ics.jung.layout.algorithms.FRLayoutAlgorithm;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 import edu.uci.ics.jung.visualization.VisualizationServer;
-import edu.uci.ics.jung.visualization.layout.AWTPointModel;
+import java.awt.*;
 import java.awt.geom.Point2D;
 import junit.framework.TestCase;
 
@@ -22,7 +22,7 @@ public class TestCrossoverScalingControl extends TestCase {
   public void setUp() {
     sc = new CrossoverScalingControl();
     Network<?, ?> network = TestGraphs.getDemoGraph();
-    vv = new BasicVisualizationServer(network, new FRLayoutAlgorithm(new AWTPointModel()));
+    vv = new BasicVisualizationServer(network, new FRLayoutAlgorithm(), new Dimension(600, 600));
   }
 
   public void testCrossover() {

@@ -39,16 +39,16 @@ import javax.swing.plaf.basic.BasicIconFactory;
 /**
  * a graph mouse that supplies an annotations mode
  *
- * @author Tom Nelson - tomnelson@dev.java.net
- * @param <V> the vertex type
+ * @author Tom Nelson
+ * @param <N> the node type
  * @param <E> the edge type
  */
-public class AnnotatingModalGraphMouse<V, E> extends AbstractModalGraphMouse
+public class AnnotatingModalGraphMouse<N, E> extends AbstractModalGraphMouse
     implements ModalGraphMouse, ItemSelectable {
 
-  protected AnnotatingGraphMousePlugin<V, E> annotatingPlugin;
+  protected AnnotatingGraphMousePlugin<N, E> annotatingPlugin;
   protected MultiLayerTransformer basicTransformer;
-  protected RenderContext<V, E> rc;
+  protected RenderContext<N, E> rc;
 
   /**
    * Create an instance with default values for scale in (1.1) and scale out (1/1.1).
@@ -57,7 +57,7 @@ public class AnnotatingModalGraphMouse<V, E> extends AbstractModalGraphMouse
    * @param annotatingPlugin the plugin used by this class for annotating
    */
   public AnnotatingModalGraphMouse(
-      RenderContext<V, E> rc, AnnotatingGraphMousePlugin<V, E> annotatingPlugin) {
+      RenderContext<N, E> rc, AnnotatingGraphMousePlugin<N, E> annotatingPlugin) {
     this(rc, annotatingPlugin, 1.1f, 1 / 1.1f);
   }
 
@@ -70,8 +70,8 @@ public class AnnotatingModalGraphMouse<V, E> extends AbstractModalGraphMouse
    * @param out override value for scale out
    */
   public AnnotatingModalGraphMouse(
-      RenderContext<V, E> rc,
-      AnnotatingGraphMousePlugin<V, E> annotatingPlugin,
+      RenderContext<N, E> rc,
+      AnnotatingGraphMousePlugin<N, E> annotatingPlugin,
       float in,
       float out) {
     super(in, out);
@@ -85,8 +85,8 @@ public class AnnotatingModalGraphMouse<V, E> extends AbstractModalGraphMouse
   /** create the plugins, and load the plugins for TRANSFORMING mode */
   @Override
   protected void loadPlugins() {
-    this.pickingPlugin = new PickingGraphMousePlugin<V, E>();
-    this.animatedPickingPlugin = new AnimatedPickingGraphMousePlugin<V, E>();
+    this.pickingPlugin = new PickingGraphMousePlugin<N, E>();
+    this.animatedPickingPlugin = new AnimatedPickingGraphMousePlugin<N, E>();
     this.translatingPlugin = new TranslatingGraphMousePlugin(InputEvent.BUTTON1_MASK);
     this.scalingPlugin = new ScalingGraphMousePlugin(new CrossoverScalingControl(), 0, in, out);
     this.rotatingPlugin = new RotatingGraphMousePlugin();

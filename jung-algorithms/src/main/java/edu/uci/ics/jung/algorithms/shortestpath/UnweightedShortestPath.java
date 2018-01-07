@@ -74,23 +74,23 @@ public class UnweightedShortestPath<N> implements Distance<N> {
     Map<N, Integer> currentSourceSPMap = new HashMap<N, Integer>();
     Map<N, N> currentSourcePredMap = new HashMap<N, N>();
 
-    for (N vertex : mGraph.nodes()) {
+    for (N node : mGraph.nodes()) {
 
-      Integer distanceVal = distances.get(vertex);
-      // BFSDistanceLabeler uses -1 to indicate unreachable vertices;
-      // don't bother to store unreachable vertices
+      Integer distanceVal = distances.get(node);
+      // BFSDistanceLabeler uses -1 to indicate unreachable nodes;
+      // don't bother to store unreachable nodes
       if (distanceVal != null && distanceVal.intValue() >= 0) {
-        currentSourceSPMap.put(vertex, distanceVal);
+        currentSourceSPMap.put(node, distanceVal);
         int minDistance = distanceVal.intValue();
-        for (N predecessor : mGraph.predecessors(vertex)) {
-          if (predecessor.equals(vertex)) {
+        for (N predecessor : mGraph.predecessors(node)) {
+          if (predecessor.equals(node)) {
             continue;
           }
 
           Integer predDistance = distances.get(predecessor);
           if (predDistance < minDistance && predDistance >= 0) {
             minDistance = predDistance.intValue();
-            currentSourcePredMap.put(vertex, predecessor);
+            currentSourcePredMap.put(node, predecessor);
           }
         }
       }
@@ -112,11 +112,11 @@ public class UnweightedShortestPath<N> implements Distance<N> {
   }
 
   /**
-   * Clears all stored distances for the specified source vertex <code>source</code>. Should be
-   * called whenever the stored distances from this vertex are invalidated by changes to the graph.
+   * Clears all stored distances for the specified source node <code>source</code>. Should be called
+   * whenever the stored distances from this node are invalidated by changes to the graph.
    *
    * @see #reset()
-   * @param v the vertex for which distances should be cleared
+   * @param v the node for which distances should be cleared
    */
   public void reset(N v) {
     mDistanceMap.remove(v);

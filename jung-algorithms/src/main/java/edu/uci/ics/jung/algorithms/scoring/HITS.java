@@ -16,16 +16,16 @@ import edu.uci.ics.jung.algorithms.scoring.util.ScoringUtils;
 import java.util.function.Function;
 
 /**
- * Assigns hub and authority scores to each vertex depending on the topology of the network. The
- * essential idea is that a vertex is a hub to the extent that it links to authoritative vertices,
- * and is an authority to the extent that it links to 'hub' vertices.
+ * Assigns hub and authority scores to each node depending on the topology of the network. The
+ * essential idea is that a node is a hub to the extent that it links to authoritative nodes, and is
+ * an authority to the extent that it links to 'hub' nodes.
  *
  * <p>The classic HITS algorithm essentially proceeds as follows:
  *
  * <pre>
- * assign equal initial hub and authority values to each vertex
+ * assign equal initial hub and authority values to each node
  * repeat
- *   for each vertex w:
+ *   for each node w:
  *     w.hub = sum over successors x of x.authority
  *     w.authority = sum over predecessors v of v.hub
  *   normalize hub and authority scores so that the sum of the squares of each = 1
@@ -38,7 +38,7 @@ import java.util.function.Function;
  * <ul>
  *   <li>there are two mutually recursive scores being calculated, rather than a single value
  *   <li>the edge weights are effectively all 1, i.e., they can't be interpreted as transition
- *       probabilities. This means that the more inlinks and outlinks that a vertex has, the better,
+ *       probabilities. This means that the more inlinks and outlinks that a node has, the better,
  *       since adding an inlink (or outlink) does not dilute the influence of the other inlinks (or
  *       outlinks) as in random walk-based algorithms.
  *   <li>the scores cannot be interpreted as posterior probabilities (due to the different
@@ -55,19 +55,19 @@ import java.util.function.Function;
  *       uniform distribution. The default value for this parameter is 0 (no random jumps possible).
  *   <li>the edge weights can be set to anything the user likes, and in particular they can be set
  *       up (e.g. using <code>UniformDegreeWeight</code>) so that the weights of the relevant edges
- *       incident to a vertex sum to 1.
- *   <li>The vertex score normalization has been factored into its own method so that it can be
- *       overridden by a subclass. Thus, for example, since the vertices' values are set to sum to 1
- *       initially, if the weights of the relevant edges incident to a vertex sum to 1, then the
- *       vertices' values will continue to sum to 1 if the "sum-of-squares" normalization code is
+ *       incident to a node sum to 1.
+ *   <li>The node score normalization has been factored into its own method so that it can be
+ *       overridden by a subclass. Thus, for example, since the nodes' values are set to sum to 1
+ *       initially, if the weights of the relevant edges incident to a node sum to 1, then the
+ *       nodes' values will continue to sum to 1 if the "sum-of-squares" normalization code is
  *       overridden to a no-op. (Other normalization methods may also be employed.)
  * </ul>
  *
- * @param <V> the vertex type
+ * @param <N> the node type
  * @param <E> the edge type
  * @see "'Authoritative sources in a hyperlinked environment' by Jon Kleinberg, 1997"
  */
-public class HITS<V, E> extends HITSWithPriors<V, E> {
+public class HITS<N, E> extends HITSWithPriors<N, E> {
 
   /**
    * Creates an instance for the specified graph, edge weights, and alpha (random jump probability)
@@ -75,10 +75,10 @@ public class HITS<V, E> extends HITSWithPriors<V, E> {
    *
    * @param g the input graph
    * @param edge_weights the weights to use for each edge
-   * @param alpha the probability of a hub giving some authority to all vertices, and of an
-   *     authority increasing the score of all hubs (not just those connected via links)
+   * @param alpha the probability of a hub giving some authority to all nodes, and of an authority
+   *     increasing the score of all hubs (not just those connected via links)
    */
-  public HITS(Network<V, E> g, Function<E, Double> edge_weights, double alpha) {
+  public HITS(Network<N, E> g, Function<E, Double> edge_weights, double alpha) {
     super(g, edge_weights, ScoringUtils.getHITSUniformRootPrior(g.nodes()), alpha);
   }
 
@@ -87,10 +87,10 @@ public class HITS<V, E> extends HITSWithPriors<V, E> {
    * edge weights are all set to 1.
    *
    * @param g the input graph
-   * @param alpha the probability of a hub giving some authority to all vertices, and of an
-   *     authority increasing the score of all hubs (not just those connected via links)
+   * @param alpha the probability of a hub giving some authority to all nodes, and of an authority
+   *     increasing the score of all hubs (not just those connected via links)
    */
-  public HITS(Network<V, E> g, double alpha) {
+  public HITS(Network<N, E> g, double alpha) {
     super(g, ScoringUtils.getHITSUniformRootPrior(g.nodes()), alpha);
   }
 
@@ -100,16 +100,16 @@ public class HITS<V, E> extends HITSWithPriors<V, E> {
    *
    * @param g the input graph
    */
-  public HITS(Network<V, E> g) {
+  public HITS(Network<N, E> g) {
     this(g, 0.0);
   }
 
-  /** Maintains hub and authority score information for a vertex. */
+  /** Maintains hub and authority score information for a node. */
   public static class Scores {
-    /** The hub score for a vertex. */
+    /** The hub score for a node. */
     public double hub;
 
-    /** The authority score for a vertex. */
+    /** The authority score for a node. */
     public double authority;
 
     /**

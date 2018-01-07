@@ -15,7 +15,7 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.graph.Graph;
 import edu.uci.ics.jung.algorithms.util.IterativeContext;
 import edu.uci.ics.jung.layout.model.LayoutModel;
-import edu.uci.ics.jung.layout.model.PointModel;
+import edu.uci.ics.jung.layout.model.Point;
 import edu.uci.ics.jung.layout.util.NetworkNodeAccessor;
 import edu.uci.ics.jung.layout.util.RadiusNetworkNodeAccessor;
 import edu.uci.ics.jung.layout.util.RandomLocationTransformer;
@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Yan Biao Boey
  */
-public class ISOMLayoutAlgorithm<N, P> extends AbstractIterativeLayoutAlgorithm<N, P>
+public class ISOMLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
     implements IterativeContext {
 
   private static final Logger log = LoggerFactory.getLogger(ISOMLayoutAlgorithm.class);
@@ -57,7 +57,7 @@ public class ISOMLayoutAlgorithm<N, P> extends AbstractIterativeLayoutAlgorithm<
   private double initialAdaption;
   private double minAdaption;
 
-  private NetworkNodeAccessor<N, P> elementAccessor;
+  private NetworkNodeAccessor<N> elementAccessor;
 
   private double coolingFactor;
 
@@ -69,25 +69,20 @@ public class ISOMLayoutAlgorithm<N, P> extends AbstractIterativeLayoutAlgorithm<
     return status;
   }
 
-  public ISOMLayoutAlgorithm(PointModel<P> pointModel) {
-    super(pointModel);
-  }
-
   @Override
-  public void visit(LayoutModel<N, P> layoutModel) {
+  public void visit(LayoutModel<N> layoutModel) {
     if (log.isTraceEnabled()) {
       log.trace("visiting {}", layoutModel);
     }
 
     super.visit(layoutModel);
-    this.elementAccessor = new RadiusNetworkNodeAccessor<N, P>(layoutModel.getGraph(), pointModel);
+    this.elementAccessor = new RadiusNetworkNodeAccessor<N>(layoutModel.getGraph());
     initialize();
   }
 
   public void initialize() {
     layoutModel.setInitializer(
-        new RandomLocationTransformer<N, P>(
-            pointModel, layoutModel.getWidth(), layoutModel.getHeight(), layoutModel.getDepth()));
+        new RandomLocationTransformer<N>(layoutModel.getWidth(), layoutModel.getHeight()));
 
     maxEpoch = 2000;
     epoch = 1;
@@ -128,14 +123,11 @@ public class ISOMLayoutAlgorithm<N, P> extends AbstractIterativeLayoutAlgorithm<
     double width = layoutModel.getWidth();
     double height = layoutModel.getHeight();
     //Generate random position in graph space
-    P tempXYD = pointModel.newPoint(0, 0);
-
     // creates a new XY data location
-    pointModel.setLocation(tempXYD, 10 + Math.random() * width, 10 + Math.random() * height);
+    Point tempXYD = Point.of(10 + Math.random() * width, 10 + Math.random() * height);
 
     //Get closest node to random position
-    N winner =
-        elementAccessor.getNode(layoutModel, pointModel.getX(tempXYD), pointModel.getY(tempXYD));
+    N winner = elementAccessor.getNode(layoutModel, tempXYD.x, tempXYD.y);
 
     while (true) {
       try {
@@ -162,7 +154,7 @@ public class ISOMLayoutAlgorithm<N, P> extends AbstractIterativeLayoutAlgorithm<
     }
   }
 
-  private synchronized void adjustNode(N node, P tempXYD) {
+  private synchronized void adjustNode(N node, Point tempXYD) {
     Graph<N> graph = layoutModel.getGraph();
     queue.clear();
     ISOMNodeData ivd = getISOMNodeData(node);
@@ -174,17 +166,13 @@ public class ISOMLayoutAlgorithm<N, P> extends AbstractIterativeLayoutAlgorithm<
     while (!queue.isEmpty()) {
       current = queue.remove(0);
       ISOMNodeData currData = getISOMNodeData(current);
-      P currXYData = layoutModel.apply(current);
+      Point currXYData = layoutModel.apply(current);
 
-      double dx = pointModel.getX(tempXYD) - pointModel.getX(currXYData);
-      double dy = pointModel.getY(tempXYD) - pointModel.getY(currXYData);
+      double dx = tempXYD.x - currXYData.x;
+      double dy = tempXYD.y - currXYData.y;
       double factor = adaption / Math.pow(2, currData.distance);
 
-      pointModel.setLocation(
-          currXYData,
-          pointModel.getX(currXYData) + (factor * dx),
-          pointModel.getY(currXYData) + (factor * dy));
-      layoutModel.set(current, currXYData);
+      layoutModel.set(current, currXYData.x + (factor * dx), currXYData.y + (factor * dy));
 
       if (currData.distance < radius) {
         Collection<N> s = graph.adjacentNodes(current);

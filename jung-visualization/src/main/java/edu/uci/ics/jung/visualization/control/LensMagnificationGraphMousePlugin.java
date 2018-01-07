@@ -11,8 +11,9 @@
  */
 package edu.uci.ics.jung.visualization.control;
 
-import edu.uci.ics.jung.visualization.Layer;
+import edu.uci.ics.jung.visualization.MultiLayerTransformer.Layer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
+import edu.uci.ics.jung.visualization.transform.Lens;
 import edu.uci.ics.jung.visualization.transform.LensTransformer;
 import edu.uci.ics.jung.visualization.transform.MutableTransformer;
 import java.awt.event.MouseEvent;
@@ -58,7 +59,7 @@ public class LensMagnificationGraphMousePlugin extends AbstractGraphMousePlugin
    * @param modifiers the mouse event modifiers to specify
    */
   public LensMagnificationGraphMousePlugin(int modifiers) {
-    this(modifiers, 1.0f, 4.0f, .2f);
+    this(modifiers, 0.5f, 4.0f, .2f);
   }
 
   /**
@@ -81,22 +82,20 @@ public class LensMagnificationGraphMousePlugin extends AbstractGraphMousePlugin
     return (e.getModifiers() & modifiers) != 0;
   }
 
-  private void changeMagnification(MutableTransformer transformer, float delta) {
-    if (transformer instanceof LensTransformer) {
-      LensTransformer ht = (LensTransformer) transformer;
-      float magnification = ht.getMagnification() + delta;
-      magnification = Math.max(floor, magnification);
-      magnification = Math.min(magnification, ceiling);
-      ht.setMagnification(magnification);
-    }
+  private void changeMagnification(Lens lens, float delta) {
+    float magnification = lens.getMagnification() + delta;
+    magnification = Math.max(floor, magnification);
+    magnification = Math.min(magnification, ceiling);
+    lens.setMagnification(magnification);
   }
-  /** zoom the display in or out, depending on the direction of the mouse wheel motion. */
+
+  /** change magnification of the lens, depending on the direction of the mouse wheel motion. */
   public void mouseWheelMoved(MouseWheelEvent e) {
     boolean accepted = checkModifiers(e);
     float delta = this.delta;
     if (accepted == true) {
       VisualizationViewer<?, ?> vv = (VisualizationViewer<?, ?>) e.getSource();
-      MutableTransformer modelTransformer =
+      MutableTransformer layoutTransformer =
           vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT);
       MutableTransformer viewTransformer =
           vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.VIEW);
@@ -104,8 +103,15 @@ public class LensMagnificationGraphMousePlugin extends AbstractGraphMousePlugin
       if (amount < 0) {
         delta = -delta;
       }
-      changeMagnification(modelTransformer, delta);
-      changeMagnification(viewTransformer, delta);
+      Lens lens =
+          (layoutTransformer instanceof LensTransformer)
+              ? ((LensTransformer) layoutTransformer).getLens()
+              : (viewTransformer instanceof LensTransformer)
+                  ? ((LensTransformer) viewTransformer).getLens()
+                  : null;
+      if (lens != null) {
+        changeMagnification(lens, delta);
+      }
       vv.repaint();
       e.consume();
     }

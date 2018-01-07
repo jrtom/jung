@@ -70,7 +70,7 @@ public class TestPageRankWithPriors extends TestCase {
 
     double score_sum = 0;
     for (int i = 0; i < graph.nodes().size(); i++) {
-      double score = pr.getVertexScore(i);
+      double score = pr.getNodeScore(i);
       Assert.assertEquals(expected_score[i], score, pr.getTolerance());
       score_sum += score;
     }

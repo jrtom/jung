@@ -14,7 +14,7 @@ package edu.uci.ics.jung.layout.algorithms;
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Graph;
 import edu.uci.ics.jung.layout.model.LayoutModel;
-import edu.uci.ics.jung.layout.model.PointModel;
+import edu.uci.ics.jung.layout.model.Point;
 import java.util.HashMap;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author John Yesberg
  */
-public class DAGLayoutAlgorithm<N, P> extends SpringLayoutAlgorithm<N, P> {
+public class DAGLayoutAlgorithm<N> extends SpringLayoutAlgorithm<N> {
 
   private static final Logger log = LoggerFactory.getLogger(DAGLayoutAlgorithm.class);
   /**
@@ -65,12 +65,8 @@ public class DAGLayoutAlgorithm<N, P> extends SpringLayoutAlgorithm<N, P> {
   int incrementsLeft;
   final int COOL_DOWN_INCREMENTS = 200;
 
-  public DAGLayoutAlgorithm(PointModel<P> pointModel) {
-    super(pointModel);
-  }
-
   @Override
-  public void visit(LayoutModel<N, P> layoutModel) {
+  public void visit(LayoutModel<N> layoutModel) {
     super.visit(layoutModel);
     initialize();
   }
@@ -82,6 +78,7 @@ public class DAGLayoutAlgorithm<N, P> extends SpringLayoutAlgorithm<N, P> {
   public void setRoot() {
     Graph<N> graph = layoutModel.getGraph();
     numRoots = 0;
+    //    Network<N, E> g = network;
     for (N node : graph.nodes()) {
       if (graph.successors(node).isEmpty()) {
         setRoot(node);
@@ -134,7 +131,7 @@ public class DAGLayoutAlgorithm<N, P> extends SpringLayoutAlgorithm<N, P> {
    * @param node the node whose position is to be set
    * @param coord the coordinates of the node once the position has been set
    */
-  private void initializeLocation(N node, P coord, int width, int height) {
+  private void initializeLocation(N node, Point coord, int width, int height) {
 
     int level = minLevels.get(node).intValue();
     int minY = (int) (level * height / (graphHeight * SPACEFACTOR));
@@ -169,7 +166,7 @@ public class DAGLayoutAlgorithm<N, P> extends SpringLayoutAlgorithm<N, P> {
           continue;
         }
         SpringNodeData vd = springNodeData.getUnchecked(node);
-        P xyd = layoutModel.apply(node);
+        Point xyd = layoutModel.apply(node);
 
         // (JY addition: three lines are new)
         int level = minLevels.get(node).intValue();
@@ -182,7 +179,7 @@ public class DAGLayoutAlgorithm<N, P> extends SpringLayoutAlgorithm<N, P> {
 
         // JY Addition: Attract the node towards it's minimumLevel
         // height.
-        double delta = pointModel.getY(xyd) - minY;
+        double delta = xyd.y - minY;
         vd.dy -= delta * LEVELATTRACTIONRATE;
         if (level == 0) {
           vd.dy -= delta * LEVELATTRACTIONRATE;
@@ -192,8 +189,8 @@ public class DAGLayoutAlgorithm<N, P> extends SpringLayoutAlgorithm<N, P> {
         // JY addition:
         meanSquareVel += (vd.dx * vd.dx + vd.dy * vd.dy);
 
-        double posX = pointModel.getX(xyd) + Math.max(-5, Math.min(5, vd.dx));
-        double posY = pointModel.getY(xyd) + Math.max(-5, Math.min(5, vd.dy));
+        double posX = xyd.x + Math.max(-5, Math.min(5, vd.dx));
+        double posY = xyd.y + Math.max(-5, Math.min(5, vd.dy));
 
         if (posX < 0) {
           posX = 0;
@@ -205,38 +202,16 @@ public class DAGLayoutAlgorithm<N, P> extends SpringLayoutAlgorithm<N, P> {
         } else if (posY > height) {
           posY = height;
         }
-        // keeps nodes from moving any faster than 5 per time unit
-        //        pointModel.setLocation(
-        //            xyd,
-        //            pointModel.getX(xyd) + Math.max(-5, Math.min(5, vd.dx)),
-        //            pointModel.getY(xyd) + Math.max(-5, Math.min(5, vd.dy)));
-        //
-        //        if (pointModel.getX(xyd) < 0) {
-        //          pointModel.setLocation(xyd, 0, pointModel.getY(xyd));
-        //        } else if (pointModel.getX(xyd) > width) {
-        //          pointModel.setLocation(xyd, width, pointModel.getY(xyd));
-        //        }
-
-        // (JY addition: These two lines replaced 0 with minY)
-        //        if (pointModel.getY(xyd) < minY) {
-        //          pointModel.setLocation(xyd, pointModel.getX(xyd), minY);
-        //           (JY addition: replace height with maxY)
-        //        } else if (pointModel.getY(xyd) > maxY) {
-        //          pointModel.setLocation(xyd, pointModel.getX(xyd), maxY);
-        //        }
 
         // (JY addition: if there's only one root, anchor it in the
         // middle-top of the screen)
         if (numRoots == 1 && level == 0) {
-          //          pointModel.setLocation(xyd, width / 2, pointModel.getY(xyd));
           posX = width / 2;
         }
-        //        setLocation(node, xyd);
         setLocation(node, posX, posY);
-        //        layoutModel.set(node, xyd);
       }
     }
-
+    //System.out.println("MeanSquareAccel="+meanSquareVel);
     if (!stoppingIncrements && Math.abs(meanSquareVel - oldMSV) < MSV_THRESHOLD) {
       stoppingIncrements = true;
       incrementsLeft = COOL_DOWN_INCREMENTS;
@@ -265,9 +240,8 @@ public class DAGLayoutAlgorithm<N, P> extends SpringLayoutAlgorithm<N, P> {
    * @param x the x coordinate of the location to set
    * @param y the y coordinate of the location to set
    */
-  //  @Override
   public void setLocation(N picked, double x, double y) {
-    P coord = layoutModel.apply(picked);
+    Point coord = layoutModel.apply(picked);
     layoutModel.set(picked, coord);
     stoppingIncrements = false;
   }
@@ -278,9 +252,8 @@ public class DAGLayoutAlgorithm<N, P> extends SpringLayoutAlgorithm<N, P> {
    * @param picked the node whose location is to be set
    * @param p the location to set
    */
-  //  @Override
-  public void setLocation(N picked, P p) {
-    setLocation(picked, pointModel.getX(p), pointModel.getY(p));
+  public void setLocation(N picked, Point p) {
+    setLocation(picked, p.x, p.y);
   }
 
   /**
@@ -293,10 +266,10 @@ public class DAGLayoutAlgorithm<N, P> extends SpringLayoutAlgorithm<N, P> {
       N node1 = endpoints.nodeU();
       N node2 = endpoints.nodeV();
 
-      P p1 = layoutModel.apply(node1);
-      P p2 = layoutModel.apply(node2);
-      double vx = pointModel.getX(p1) - pointModel.getX(p2);
-      double vy = pointModel.getY(p1) - pointModel.getY(p2);
+      Point p1 = layoutModel.apply(node1);
+      Point p2 = layoutModel.apply(node2);
+      double vx = p1.x - p2.x;
+      double vy = p1.y - p2.y;
       double len = Math.sqrt(vx * vx + vy * vy);
 
       // JY addition.

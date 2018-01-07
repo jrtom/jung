@@ -13,7 +13,6 @@ import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
 import edu.uci.ics.jung.layout.algorithms.CircleLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
-import edu.uci.ics.jung.layout.model.PointModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
@@ -21,17 +20,12 @@ import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.EdgeShape;
-import edu.uci.ics.jung.visualization.decorators.ParallelEdgeShapeTransformer;
-import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
-import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
-import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
-import edu.uci.ics.jung.visualization.layout.AWTPointModel;
+import edu.uci.ics.jung.visualization.decorators.ParallelEdgeShapeFunction;
 import edu.uci.ics.jung.visualization.renderers.EdgeLabelRenderer;
-import edu.uci.ics.jung.visualization.renderers.VertexLabelRenderer;
+import edu.uci.ics.jung.visualization.renderers.NodeLabelRenderer;
 import edu.uci.ics.jung.visualization.util.Context;
 import java.awt.*;
 import java.awt.event.ItemEvent;
-import java.awt.geom.Point2D;
 import java.util.function.Function;
 import javax.swing.*;
 
@@ -41,10 +35,8 @@ import javax.swing.*;
  *
  * @author Tom Nelson
  */
-public class EdgeLabelDemo extends JApplet {
+public class EdgeLabelDemo extends JPanel {
   private static final long serialVersionUID = -6077157664507049647L;
-
-  private static final PointModel<Point2D> POINT_MODEL = new AWTPointModel();
 
   /** the graph */
   Network<Integer, Number> graph;
@@ -53,7 +45,7 @@ public class EdgeLabelDemo extends JApplet {
   VisualizationViewer<Integer, Number> vv;
 
   /** */
-  VertexLabelRenderer vertexLabelRenderer;
+  NodeLabelRenderer nodeLabelRenderer;
 
   EdgeLabelRenderer edgeLabelRenderer;
 
@@ -63,39 +55,33 @@ public class EdgeLabelDemo extends JApplet {
   @SuppressWarnings("serial")
   public EdgeLabelDemo() {
 
+    setLayout(new BorderLayout());
     // create a simple graph for the demo
     graph = buildGraph();
 
-    LayoutAlgorithm<Integer, Point2D> layoutAlgorithm = new CircleLayoutAlgorithm<>(POINT_MODEL);
+    LayoutAlgorithm<Integer> layoutAlgorithm = new CircleLayoutAlgorithm<>();
     vv = new VisualizationViewer<>(graph, layoutAlgorithm, new Dimension(600, 400));
     vv.setBackground(Color.white);
 
-    vertexLabelRenderer = vv.getRenderContext().getVertexLabelRenderer();
+    nodeLabelRenderer = vv.getRenderContext().getNodeLabelRenderer();
     edgeLabelRenderer = vv.getRenderContext().getEdgeLabelRenderer();
 
     Function<Number, String> stringer = e -> "Edge:" + graph.incidentNodes(e).toString();
 
-    vv.getRenderContext().setEdgeLabelTransformer(stringer);
+    vv.getRenderContext().setEdgeLabelFunction(stringer);
     vv.getRenderContext()
-        .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer<>(vv.getPickedEdgeState(), Color.black, Color.cyan));
+        .setEdgeDrawPaintFunction(
+            v -> vv.getPickedEdgeState().isPicked(v) ? Color.cyan : Color.black);
     vv.getRenderContext()
-        .setVertexFillPaintTransformer(
-            new PickableVertexPaintTransformer<>(
-                vv.getPickedVertexState(), Color.red, Color.yellow));
+        .setNodeFillPaintFunction(
+            v -> vv.getPickedNodeState().isPicked(v) ? Color.yellow : Color.red);
+
     // add my listener for ToolTips
-    vv.setVertexToolTipTransformer(
-        new ToStringLabeller() {
-          @Override
-          public String apply(Object o) {
-            return super.apply(o) + " " + vv.getModel().getLayoutModel().apply((Integer) o);
-          }
-        });
+    vv.setNodeToolTipFunction(o -> o + " " + vv.getModel().getLayoutModel().apply(o));
 
     // create a frome to hold the graph
     final GraphZoomScrollPane panel = new GraphZoomScrollPane(vv);
-    Container content = getContentPane();
-    content.add(panel);
+    add(panel);
 
     final DefaultModalGraphMouse<Integer, Number> graphMouse = new DefaultModalGraphMouse<>();
     vv.setGraphMouse(graphMouse);
@@ -111,7 +97,7 @@ public class EdgeLabelDemo extends JApplet {
     lineButton.addItemListener(
         e -> {
           if (e.getStateChange() == ItemEvent.SELECTED) {
-            vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.line());
+            vv.getRenderContext().setEdgeShapeFunction(EdgeShape.line());
             vv.repaint();
           }
         });
@@ -120,7 +106,7 @@ public class EdgeLabelDemo extends JApplet {
     quadButton.addItemListener(
         e -> {
           if (e.getStateChange() == ItemEvent.SELECTED) {
-            vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.quadCurve());
+            vv.getRenderContext().setEdgeShapeFunction(EdgeShape.quadCurve());
             vv.repaint();
           }
         });
@@ -129,7 +115,7 @@ public class EdgeLabelDemo extends JApplet {
     cubicButton.addItemListener(
         e -> {
           if (e.getStateChange() == ItemEvent.SELECTED) {
-            vv.getRenderContext().setEdgeShapeTransformer(EdgeShape.cubicCurve());
+            vv.getRenderContext().setEdgeShapeFunction(EdgeShape.cubicCurve());
             vv.repaint();
           }
         });
@@ -170,11 +156,10 @@ public class EdgeLabelDemo extends JApplet {
     edgeOffsetSlider.addChangeListener(
         e -> {
           JSlider s = (JSlider) e.getSource();
-          Function<Context<Network, Number>, Shape> edgeShapeFunction =
-              vv.getRenderContext().getEdgeShapeTransformer();
-          if (edgeShapeFunction instanceof ParallelEdgeShapeTransformer) {
-            ((ParallelEdgeShapeTransformer) edgeShapeFunction)
-                .setControlOffsetIncrement(s.getValue());
+          Function<Context<Network<Integer, Number>, Number>, Shape> edgeShapeFunction =
+              vv.getRenderContext().getEdgeShapeFunction();
+          if (edgeShapeFunction instanceof ParallelEdgeShapeFunction) {
+            ((ParallelEdgeShapeFunction) edgeShapeFunction).setControlOffsetIncrement(s.getValue());
             vv.repaint();
           }
         });
@@ -187,7 +172,7 @@ public class EdgeLabelDemo extends JApplet {
     zoomPanel.add(minus);
 
     JPanel edgePanel = new JPanel(new GridLayout(0, 1));
-    edgePanel.setBorder(BorderFactory.createTitledBorder("EdgeType Type"));
+    edgePanel.setBorder(BorderFactory.createTitledBorder("Edge Shape"));
     edgePanel.add(lineButton);
     edgePanel.add(quadButton);
     edgePanel.add(cubicButton);
@@ -218,7 +203,7 @@ public class EdgeLabelDemo extends JApplet {
     controls.add(edgePanel);
     controls.add(labelPanel);
     controls.add(modePanel);
-    content.add(controls, BorderLayout.SOUTH);
+    add(controls, BorderLayout.SOUTH);
     quadButton.setSelected(true);
   }
 

@@ -20,7 +20,7 @@ import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.SpringLayoutAlgorithm;
 import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.layout.model.LoadingCacheLayoutModel;
-import edu.uci.ics.jung.layout.model.PointModel;
+import edu.uci.ics.jung.layout.model.Point;
 import edu.uci.ics.jung.layout.util.RandomLocationTransformer;
 import edu.uci.ics.jung.samples.util.ControlHelpers;
 import edu.uci.ics.jung.visualization.BaseVisualizationModel;
@@ -29,9 +29,8 @@ import edu.uci.ics.jung.visualization.VisualizationModel;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
-import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
-import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
-import edu.uci.ics.jung.visualization.layout.AWTPointModel;
+import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintFunction;
+import edu.uci.ics.jung.visualization.decorators.PickableNodePaintFunction;
 import edu.uci.ics.jung.visualization.layout.AggregateLayoutModel;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import java.awt.*;
@@ -42,16 +41,14 @@ import java.util.Collection;
 import javax.swing.*;
 
 /**
- * Demonstrates the AggregateLayout class. In this demo, vertices are visually clustered as they are
+ * Demonstrates the AggregateLayout class. In this demo, nodes are visually clustered as they are
  * selected. The cluster is formed in a new Layout centered at the middle locations of the selected
- * vertices. The layoutSize and layout algorithm for each new cluster is selectable.
+ * nodes. The layoutSize and layout algorithm for each new cluster is selectable.
  *
  * @author Tom Nelson
  */
 @SuppressWarnings("serial")
-public class SubLayoutDemo extends JApplet {
-
-  private static final PointModel<Point2D> POINT_MODEL = new AWTPointModel();
+public class SubLayoutDemo extends JPanel {
 
   String instructions =
       "<html>"
@@ -60,9 +57,9 @@ public class SubLayoutDemo extends JApplet {
           + "<p>Use the SubLayout combobox to select "
           + "<p>the type of layout for any clusters you create."
           + "<p>To create clusters, use the mouse to select "
-          + "<p>multiple vertices, either by dragging a region, "
-          + "<p>or by shift-clicking on multiple vertices."
-          + "<p>After you select vertices, use the "
+          + "<p>multiple nodes, either by dragging a region, "
+          + "<p>or by shift-clicking on multiple nodes."
+          + "<p>After you select nodes, use the "
           + "<p>Cluster Picked button to cluster them using the "
           + "<p>layout and layoutSize specified in the Sublayout comboboxen."
           + "<p>Use the Uncluster All button to remove all"
@@ -84,7 +81,7 @@ public class SubLayoutDemo extends JApplet {
   /** the visual component and renderer for the graph */
   VisualizationViewer<String, Number> vv;
 
-  AggregateLayoutModel<String, Point2D> clusteringLayoutModel;
+  AggregateLayoutModel<String> clusteringLayoutModel;
 
   Dimension subLayoutSize;
 
@@ -93,50 +90,51 @@ public class SubLayoutDemo extends JApplet {
   @SuppressWarnings("rawtypes")
   Class<CircleLayoutAlgorithm> subLayoutType = CircleLayoutAlgorithm.class;
 
-  /** create an instance of a simple graph with controls to demo the zoomand hyperbolic features. */
   public SubLayoutDemo() {
 
+    setLayout(new BorderLayout());
     // create a simple graph for the demo
     graph = TestGraphs.getOneComponentGraph();
 
     // ClusteringLayout is a decorator class that delegates
     // to another layout, but can also separately manage the
-    // layout of sub-sets of vertices in circular clusters.
+    // layout of sub-sets of nodes in circular clusters.
     Dimension preferredSize = new Dimension(600, 600);
 
-    LayoutAlgorithm<String, Point2D> layoutAlgorithm = new FRLayoutAlgorithm(POINT_MODEL);
+    LayoutAlgorithm<String> layoutAlgorithm = new FRLayoutAlgorithm();
     clusteringLayoutModel =
         new AggregateLayoutModel<>(
-            new LoadingCacheLayoutModel<>(
-                graph.asGraph(), POINT_MODEL, preferredSize.width, preferredSize.height));
+            LoadingCacheLayoutModel.<String>builder()
+                .setGraph(graph.asGraph())
+                .setSize(preferredSize.width, preferredSize.height)
+                .build());
+
     clusteringLayoutModel.accept(layoutAlgorithm);
 
-    final VisualizationModel<String, Number, Point2D> visualizationModel =
+    final VisualizationModel<String, Number> visualizationModel =
         new BaseVisualizationModel<>(graph, clusteringLayoutModel, layoutAlgorithm);
 
     vv = new VisualizationViewer<>(visualizationModel, preferredSize);
 
-    ps = vv.getPickedVertexState();
+    ps = vv.getPickedNodeState();
     vv.getRenderContext()
-        .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer<>(vv.getPickedEdgeState(), Color.black, Color.red));
+        .setEdgeDrawPaintFunction(
+            new PickableEdgePaintFunction<>(vv.getPickedEdgeState(), Color.black, Color.red));
     vv.getRenderContext()
-        .setVertexFillPaintTransformer(
-            new PickableVertexPaintTransformer<>(
-                vv.getPickedVertexState(), Color.red, Color.yellow));
+        .setNodeFillPaintFunction(
+            new PickableNodePaintFunction<>(vv.getPickedNodeState(), Color.red, Color.yellow));
     vv.setBackground(Color.white);
 
     // add a listener for ToolTips
-    vv.setVertexToolTipTransformer(Object::toString);
+    vv.setNodeToolTipFunction(Object::toString);
 
     /** the regular graph mouse for the normal view */
     final DefaultModalGraphMouse<?, ?> graphMouse = new DefaultModalGraphMouse<>();
 
     vv.setGraphMouse(graphMouse);
 
-    Container content = getContentPane();
     GraphZoomScrollPane gzsp = new GraphZoomScrollPane(vv);
-    content.add(gzsp);
+    add(gzsp);
 
     JComboBox<?> modeBox = graphMouse.getModeComboBox();
     modeBox.addItemListener(graphMouse.getModeListener());
@@ -273,7 +271,7 @@ public class SubLayoutDemo extends JApplet {
 
     controls.add(help);
     controls.add(Box.createVerticalGlue());
-    content.add(controls, BorderLayout.EAST);
+    add(controls, BorderLayout.EAST);
   }
 
   private void heightConstrain(Component component) {
@@ -282,12 +280,10 @@ public class SubLayoutDemo extends JApplet {
     component.setMaximumSize(d);
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked"})
-  // TODO: needs refactoring to create the layout; see VertexCollapseDemoWithLayouts
-  private LayoutAlgorithm<String, Point2D> getLayoutAlgorithmFor(
-      Class<CircleLayoutAlgorithm> layoutClass) throws Exception {
-    Constructor<CircleLayoutAlgorithm> constructor = layoutClass.getConstructor(PointModel.class);
-    return constructor.newInstance(new AWTPointModel());
+  private LayoutAlgorithm<String> getLayoutAlgorithmFor(Class<CircleLayoutAlgorithm> layoutClass)
+      throws Exception {
+    Constructor<CircleLayoutAlgorithm> constructor = layoutClass.getConstructor();
+    return constructor.newInstance();
   }
 
   private void clusterPicked() {
@@ -300,16 +296,16 @@ public class SubLayoutDemo extends JApplet {
 
   private void cluster(boolean state) {
     if (state) {
-      // put the picked vertices into a new sublayout
+      // put the picked nodes into a new sublayout
       Collection<String> picked = ps.getPicked();
       if (picked.size() > 1) {
         Point2D center = new Point2D.Double();
         double x = 0;
         double y = 0;
-        for (String vertex : picked) {
-          Point2D p = clusteringLayoutModel.apply(vertex);
-          x += p.getX();
-          y += p.getY();
+        for (String node : picked) {
+          Point p = clusteringLayoutModel.apply(node);
+          x += p.x;
+          y += p.y;
         }
         x /= picked.size();
         y /= picked.size();
@@ -318,9 +314,9 @@ public class SubLayoutDemo extends JApplet {
         MutableNetwork<String, Number> subGraph;
         try {
           subGraph = NetworkBuilder.from(graph).build();
-          for (String vertex : picked) {
-            subGraph.addNode(vertex);
-            for (Number edge : graph.incidentEdges(vertex)) {
+          for (String node : picked) {
+            subGraph.addNode(node);
+            for (Number edge : graph.incidentEdges(node)) {
               EndpointPair<String> endpoints = graph.incidentNodes(edge);
               String nodeU = endpoints.nodeU();
               String nodeV = endpoints.nodeV();
@@ -331,26 +327,17 @@ public class SubLayoutDemo extends JApplet {
             }
           }
 
-          LayoutAlgorithm<String, Point2D> subLayoutAlgorithm =
-              getLayoutAlgorithmFor(subLayoutType);
-          //          subLayoutAlgorithm.setInitializer(new RandomLocationTransformer<String>(subLayoutSize));
-          //          subLayout.setSize(subLayoutSize);
-          //          clusteringLayoutModel.put(subLayoutAlgorithm, center);
-          LayoutModel<String, Point2D> newLayoutModel =
-              new LoadingCacheLayoutModel<>(
-                  subGraph.asGraph(),
-                  POINT_MODEL,
-                  subLayoutSize.width,
-                  subLayoutSize.height,
-                  0,
-                  new RandomLocationTransformer<>(
-                      POINT_MODEL, subLayoutSize.width, subLayoutSize.height, 0));
+          LayoutAlgorithm<String> subLayoutAlgorithm = getLayoutAlgorithmFor(subLayoutType);
 
-          //          VisualizationModel newModel =
-          //              new BaseVisualizationModel(subGraph, subLayoutAlgorithm, subLayoutSize);
-          //          newModel.getLayout().setInitializer(new RandomLocationTransformer<String,Point2D>(subLayoutSize));
-          clusteringLayoutModel.put(newLayoutModel, center);
-          //          vv.setModel(clusteringLayoutModel);
+          LayoutModel<String> newLayoutModel =
+              LoadingCacheLayoutModel.<String>builder()
+                  .setGraph(subGraph.asGraph())
+                  .setSize(subLayoutSize.width, subLayoutSize.height)
+                  .setInitializer(
+                      new RandomLocationTransformer<>(subLayoutSize.width, subLayoutSize.height, 0))
+                  .build();
+
+          clusteringLayoutModel.put(newLayoutModel, Point.of(center.getX(), center.getY()));
           newLayoutModel.accept(subLayoutAlgorithm);
           vv.repaint();
 
@@ -362,7 +349,6 @@ public class SubLayoutDemo extends JApplet {
       // remove all sublayouts
       this.clusteringLayoutModel.removeAll();
       vv.repaint();
-      //      vv.setModel(clusteringLayoutModel);
     }
   }
 

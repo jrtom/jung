@@ -15,8 +15,9 @@ import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Graph;
 import edu.uci.ics.jung.algorithms.util.IterativeContext;
 import edu.uci.ics.jung.layout.model.LayoutModel;
-import edu.uci.ics.jung.layout.model.PointModel;
+import edu.uci.ics.jung.layout.model.Point;
 import java.util.ConcurrentModificationException;
+import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +39,7 @@ import org.slf4j.LoggerFactory;
  *     "http://i11www.ilkd.uni-karlsruhe.de/teaching/SS_04/visualisierung/papers/fruchterman91graph.pdf"
  * @author Scott White, Yan-Biao Boey, Danyel Fisher, Tom Nelson
  */
-public class FRLayoutAlgorithm<N, P> extends AbstractIterativeLayoutAlgorithm<N, P>
+public class FRLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
     implements IterativeContext {
 
   private static final Logger log = LoggerFactory.getLogger(FRLayoutAlgorithm.class);
@@ -51,7 +52,7 @@ public class FRLayoutAlgorithm<N, P> extends AbstractIterativeLayoutAlgorithm<N,
 
   private int mMaxIterations = 700;
 
-  protected LoadingCache<N, P> frNodeData;
+  protected LoadingCache<N, Point> frNodeData;
 
   private double attraction_multiplier = 0.75;
 
@@ -65,25 +66,31 @@ public class FRLayoutAlgorithm<N, P> extends AbstractIterativeLayoutAlgorithm<N,
 
   private boolean initialized = false;
 
-  public FRLayoutAlgorithm(PointModel<P> pointModel) {
-    super(pointModel);
+  private Random random = new Random();
+
+  public FRLayoutAlgorithm() {
     this.frNodeData =
         CacheBuilder.newBuilder()
             .build(
-                new CacheLoader<N, P>() {
-                  public P load(N node) {
-                    return pointModel.newPoint(0, 0);
+                new CacheLoader<N, Point>() {
+                  public Point load(N node) {
+                    return Point.ORIGIN;
                   }
                 });
   }
 
   @Override
-  public void visit(LayoutModel<N, P> layoutModel) {
-    log.trace("visiting " + layoutModel);
-
+  public void visit(LayoutModel<N> layoutModel) {
+    if (log.isTraceEnabled()) {
+      log.trace("visiting " + layoutModel);
+    }
     super.visit(layoutModel);
     max_dimension = Math.max(layoutModel.getWidth(), layoutModel.getHeight());
     initialize();
+  }
+
+  public void setRandomSeed(long randomSeed) {
+    this.random = new Random(randomSeed);
   }
 
   public void setAttractionMultiplier(double attraction) {
@@ -170,37 +177,35 @@ public class FRLayoutAlgorithm<N, P> extends AbstractIterativeLayoutAlgorithm<N,
 
   protected synchronized void calcPositions(N node) {
 
-    P fvd = getFRData(node);
+    Point fvd = getFRData(node);
     if (fvd == null) {
       return;
     }
-    P xyd = layoutModel.apply(node);
-    double deltaLength = Math.max(EPSILON, pointModel.distance(fvd));
+    Point xyd = layoutModel.apply(node);
+    double deltaLength = Math.max(EPSILON, fvd.length());
 
-    double positionX = pointModel.getX(xyd);
-    double positionY = pointModel.getY(xyd);
-    double newXDisp = pointModel.getX(fvd) / deltaLength * Math.min(deltaLength, temperature);
-    double newYDisp = pointModel.getY(fvd) / deltaLength * Math.min(deltaLength, temperature);
+    double positionX = xyd.x;
+    double positionY = xyd.y;
+    double newXDisp = fvd.x / deltaLength * Math.min(deltaLength, temperature);
+    double newYDisp = fvd.y / deltaLength * Math.min(deltaLength, temperature);
 
     positionX += newXDisp;
     positionY += newYDisp;
 
     double borderWidth = layoutModel.getWidth() / 50.0;
-
     if (positionX < borderWidth) {
-      positionX = borderWidth + Math.random() * borderWidth * 2.0;
+      positionX = borderWidth + random.nextDouble() * borderWidth * 2.0;
     } else if (positionX > layoutModel.getWidth() - borderWidth * 2) {
-      positionX = layoutModel.getWidth() - borderWidth - Math.random() * borderWidth * 2.0;
+      positionX = layoutModel.getWidth() - borderWidth - random.nextDouble() * borderWidth * 2.0;
     }
 
     if (positionY < borderWidth) {
-      positionY = borderWidth + Math.random() * borderWidth * 2.0;
+      positionY = borderWidth + random.nextDouble() * borderWidth * 2.0;
     } else if (positionY > layoutModel.getWidth() - borderWidth * 2) {
-      positionY = layoutModel.getWidth() - borderWidth - Math.random() * borderWidth * 2.0;
+      positionY = layoutModel.getWidth() - borderWidth - random.nextDouble() * borderWidth * 2.0;
     }
 
-    pointModel.setLocation(xyd, positionX, positionY);
-    layoutModel.set(node, xyd);
+    layoutModel.set(node, positionX, positionY);
   }
 
   protected void calcAttraction(EndpointPair<N> endpoints) {
@@ -213,13 +218,13 @@ public class FRLayoutAlgorithm<N, P> extends AbstractIterativeLayoutAlgorithm<N,
       // both locked, do nothing
       return;
     }
-    P p1 = layoutModel.apply(node1);
-    P p2 = layoutModel.apply(node2);
+    Point p1 = layoutModel.apply(node1);
+    Point p2 = layoutModel.apply(node2);
     if (p1 == null || p2 == null) {
       return;
     }
-    double xDelta = pointModel.getX(p1) - pointModel.getX(p2);
-    double yDelta = pointModel.getY(p1) - pointModel.getY(p2);
+    double xDelta = p1.x - p2.x;
+    double yDelta = p1.y - p2.y;
 
     double deltaLength = Math.max(EPSILON, Math.sqrt((xDelta * xDelta) + (yDelta * yDelta)));
 
@@ -231,34 +236,34 @@ public class FRLayoutAlgorithm<N, P> extends AbstractIterativeLayoutAlgorithm<N,
     double dx = (xDelta / deltaLength) * force;
     double dy = (yDelta / deltaLength) * force;
     if (v1_locked == false) {
-      P fvd1 = getFRData(node1);
-      pointModel.offset(fvd1, -dx, -dy);
+      Point fvd1 = getFRData(node1);
+      frNodeData.put(node1, fvd1.add(-dx, -dy));
     }
     if (v2_locked == false) {
-      P fvd2 = getFRData(node2);
-      pointModel.offset(fvd2, dx, dy);
+      Point fvd2 = getFRData(node2);
+      frNodeData.put(node2, fvd2.add(dx, dy));
     }
   }
 
   protected void calcRepulsion(N node1) {
-    P fvd1 = getFRData(node1);
+    Point fvd1 = getFRData(node1);
     if (fvd1 == null) {
       return;
     }
-    pointModel.setLocation(fvd1, 0, 0);
+    frNodeData.put(node1, Point.ORIGIN);
 
     try {
       for (N node2 : layoutModel.getGraph().nodes()) {
 
-        //                        if (layoutModel.isLocked(node2)) continue;
         if (node1 != node2) {
-          P p1 = layoutModel.apply(node1);
-          P p2 = layoutModel.apply(node2);
+          fvd1 = getFRData(node1);
+          Point p1 = layoutModel.apply(node1);
+          Point p2 = layoutModel.apply(node2);
           if (p1 == null || p2 == null) {
             continue;
           }
-          double xDelta = pointModel.getX(p1) - pointModel.getX(p2);
-          double yDelta = pointModel.getY(p1) - pointModel.getY(p2);
+          double xDelta = p1.x - p2.x;
+          double yDelta = p1.y - p2.y;
 
           double deltaLength = Math.max(EPSILON, Math.sqrt((xDelta * xDelta) + (yDelta * yDelta)));
 
@@ -268,8 +273,8 @@ public class FRLayoutAlgorithm<N, P> extends AbstractIterativeLayoutAlgorithm<N,
             throw new RuntimeException(
                 "Unexpected mathematical result in FRLayout:calcPositions [repulsion]");
           }
-
-          pointModel.offset(fvd1, (xDelta / deltaLength) * force, (yDelta / deltaLength) * force);
+          fvd1 = fvd1.add((xDelta / deltaLength) * force, (yDelta / deltaLength) * force);
+          frNodeData.put(node1, fvd1);
         }
       }
     } catch (ConcurrentModificationException cme) {
@@ -285,7 +290,7 @@ public class FRLayoutAlgorithm<N, P> extends AbstractIterativeLayoutAlgorithm<N,
     mMaxIterations = maxIterations;
   }
 
-  protected P getFRData(N node) {
+  protected Point getFRData(N node) {
     return frNodeData.getUnchecked(node);
   }
 

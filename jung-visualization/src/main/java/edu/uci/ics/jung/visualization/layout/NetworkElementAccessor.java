@@ -11,6 +11,7 @@
 package edu.uci.ics.jung.visualization.layout;
 
 import edu.uci.ics.jung.layout.model.LayoutModel;
+import edu.uci.ics.jung.layout.util.NetworkNodeAccessor;
 import java.awt.Shape;
 import java.awt.geom.Point2D;
 import java.util.Collection;
@@ -28,22 +29,14 @@ import java.util.Collection;
  * @param <N>
  * @param <E>
  */
-public interface NetworkElementAccessor<N, E> {
-  /**
-   * Returns the node, if any, associated with (x, y).
-   *
-   * @param x the x coordinate of the pick point
-   * @param y the y coordinate of the pick point
-   * @return the node associated with (x, y)
-   */
-  N getNode(LayoutModel<N, Point2D> layoutModel, double x, double y);
+public interface NetworkElementAccessor<N, E> extends NetworkNodeAccessor<N> {
 
   /**
    * @param rectangle the region in which the returned nodes are located
    * @return the nodes whose locations given by {@code layout} are contained within {@code
    *     rectangle}
    */
-  Collection<N> getNodes(LayoutModel<N, Point2D> layoutModel, Shape rectangle);
+  Collection<N> getNodes(LayoutModel<N> layoutModel, Shape rectangle);
 
   /**
    * @param x the x coordinate of the location
@@ -51,5 +44,12 @@ public interface NetworkElementAccessor<N, E> {
    * @return an edge which is associated with the location {@code (x,y)} as given by {@code layout},
    *     generally by reference to the edge's endpoints
    */
-  E getEdge(LayoutModel<N, Point2D> layoutModel, double x, double y);
+  E getEdge(LayoutModel<N> layoutModel, double x, double y);
+
+  /**
+   * @param layoutModel
+   * @param p the pick location
+   * @return an edge associated with the pick location
+   */
+  E getEdge(LayoutModel<N> layoutModel, Point2D p);
 }

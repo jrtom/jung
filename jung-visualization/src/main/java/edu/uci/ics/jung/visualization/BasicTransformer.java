@@ -10,15 +10,19 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A basic implementation of the MultiLayerTransformer interface that provides two Layers: VIEW and
  * LAYOUT. It also provides ChangeEventSupport
  *
- * @author Tom Nelson - tomnelson@dev.java.net
+ * @author Tom Nelson
  */
 public class BasicTransformer
     implements MultiLayerTransformer, ShapeTransformer, ChangeListener, ChangeEventSupport {
+
+  private static final Logger log = LoggerFactory.getLogger(BasicTransformer.class);
 
   protected ChangeEventSupport changeSupport = new DefaultChangeEventSupport(this);
 
@@ -62,6 +66,10 @@ public class BasicTransformer
     return inverseLayoutTransform(inverseViewTransform(p));
   }
 
+  public Point2D inverseTransform(double x, double y) {
+    return inverseTransform(new Point2D.Double(x, y));
+  }
+
   protected Point2D inverseViewTransform(Point2D p) {
     return viewTransformer.inverseTransform(p);
   }
@@ -72,6 +80,10 @@ public class BasicTransformer
 
   public Point2D transform(Point2D p) {
     return viewTransform(layoutTransform(p));
+  }
+
+  public Point2D transform(double x, double y) {
+    return transform(new Point2D.Double(x, y));
   }
 
   protected Point2D viewTransform(Point2D p) {
@@ -151,6 +163,11 @@ public class BasicTransformer
     return null;
   }
 
+  @Override
+  public Point2D inverseTransform(Layer layer, double x, double y) {
+    return inverseTransform(layer, new Point2D.Double(x, y));
+  }
+
   public void setTransformer(Layer layer, MutableTransformer Function) {
     if (layer == Layer.LAYOUT) {
       setLayoutTransformer(Function);
@@ -170,7 +187,15 @@ public class BasicTransformer
     return null;
   }
 
+  @Override
+  public Point2D transform(Layer layer, double x, double y) {
+    return transform(layer, new Point2D.Double(x, y));
+  }
+
   public Shape transform(Layer layer, Shape shape) {
+    if (log.isTraceEnabled()) {
+      log.trace("transform {} {}", layer, shape);
+    }
     if (layer == Layer.LAYOUT) {
       return layoutTransform(shape);
     }
@@ -181,6 +206,9 @@ public class BasicTransformer
   }
 
   public Shape inverseTransform(Layer layer, Shape shape) {
+    if (log.isTraceEnabled()) {
+      log.trace("inverseTransform {} {}", layer, shape);
+    }
     if (layer == Layer.LAYOUT) {
       return inverseLayoutTransform(shape);
     }

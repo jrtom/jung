@@ -9,7 +9,7 @@ public class VisRunnable implements Runnable {
 
   private static final Logger log = LoggerFactory.getLogger(VisRunnable.class);
   private final IterativeContext iterativeContext;
-  private long sleepTime = 100;
+  private long sleepTime = 10;
   private boolean stop = false;
 
   public VisRunnable(IterativeContext iterativeContext) {

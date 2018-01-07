@@ -11,8 +11,9 @@
 package edu.uci.ics.jung.visualization.control;
 
 import edu.uci.ics.jung.layout.model.LayoutModel;
-import edu.uci.ics.jung.visualization.Layer;
+import edu.uci.ics.jung.visualization.MultiLayerTransformer.Layer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
+import edu.uci.ics.jung.visualization.spatial.Spatial;
 import edu.uci.ics.jung.visualization.transform.MutableAffineTransformer;
 import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
 import edu.uci.ics.jung.visualization.transform.shape.ShapeTransformer;
@@ -22,7 +23,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Point2D;
 
 /**
  * A VisualizationViewer that can act as a satellite view for another (master) VisualizationViewer.
@@ -74,8 +74,10 @@ public class SatelliteVisualizationViewer<N, E> extends VisualizationViewer<N, E
     master.addChangeListener(this);
 
     // share the picked state of the master
-    setPickedVertexState(master.getPickedVertexState());
+    setPickedNodeState(master.getPickedNodeState());
     setPickedEdgeState(master.getPickedEdgeState());
+    setNodeSpatial(new Spatial.NoOp.Node(model.getLayoutModel()));
+    setEdgeSpatial(new Spatial.NoOp.Edge(model));
   }
 
   /**
@@ -91,7 +93,7 @@ public class SatelliteVisualizationViewer<N, E> extends VisualizationViewer<N, E
       renderContext.getGraphicsContext().setDelegate(g2d);
     }
     renderContext.setScreenDevice(this);
-    LayoutModel<N, Point2D> layoutModel = getModel().getLayoutModel();
+    LayoutModel<N> layoutModel = getModel().getLayoutModel();
 
     g2d.setRenderingHints(renderingHints);
 

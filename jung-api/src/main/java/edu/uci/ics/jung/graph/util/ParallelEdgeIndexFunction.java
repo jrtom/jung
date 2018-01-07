@@ -29,12 +29,12 @@ import java.util.Map;
  * @author Joshua O'Madadhain
  * @author Tom Nelson
  */
-public class ParallelEdgeIndexFunction<V, E> implements EdgeIndexFunction<E> {
-  protected Map<E, Integer> edgeIndex = new HashMap<>();
-  protected Network<V, E> graph;
+public class ParallelEdgeIndexFunction<N, E> implements EdgeIndexFunction<E> {
+  protected Map<E, Integer> edgeIndex = new HashMap<E, Integer>();
+  protected Network<N, E> graph;
 
   /** @param graph the graph for which this index function is defined */
-  public ParallelEdgeIndexFunction(Network<V, E> graph) {
+  public ParallelEdgeIndexFunction(Network<N, E> graph) {
     this.graph = checkNotNull(graph, "graph");
   }
 
@@ -42,9 +42,9 @@ public class ParallelEdgeIndexFunction<V, E> implements EdgeIndexFunction<E> {
     checkNotNull(edge, "edge");
     Integer index = edgeIndex.get(edge);
     if (index == null) {
-      EndpointPair<V> endpoints = graph.incidentNodes(edge);
-      V u = endpoints.nodeU();
-      V v = endpoints.nodeV();
+      EndpointPair<N> endpoints = graph.incidentNodes(edge);
+      N u = endpoints.nodeU();
+      N v = endpoints.nodeV();
       int count = 0;
       for (E connectingEdge : graph.edgesConnecting(u, v)) {
         edgeIndex.put(connectingEdge, count++);

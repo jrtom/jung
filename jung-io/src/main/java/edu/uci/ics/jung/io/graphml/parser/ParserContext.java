@@ -22,34 +22,34 @@ import java.util.function.Function;
  *
  * @author Nathan Mittler - nathan.mittler@gmail.com
  * @param <G> The graph type
- * @param <V> The vertex type
+ * @param <N> The node type
  * @param <E> The edge type
  */
-public class ParserContext<G extends MutableNetwork<V, E>, V, E> {
+public class ParserContext<G extends MutableNetwork<N, E>, N, E> {
 
   private final KeyMap keyMap;
-  private final ElementParserRegistry<G, V, E> elementParserRegistry;
+  private final ElementParserRegistry<G, N, E> elementParserRegistry;
   private final Function<GraphMetadata, G> graphTransformer;
-  private final Function<NodeMetadata, V> vertexTransformer;
+  private final Function<NodeMetadata, N> nodeTransformer;
   private final Function<EdgeMetadata, E> edgeTransformer;
   //    private final Function<HyperEdgeMetadata, E> hyperEdgeTransformer;
 
   public ParserContext(
-      ElementParserRegistry<G, V, E> elementParserRegistry,
+      ElementParserRegistry<G, N, E> elementParserRegistry,
       KeyMap keyMap,
       Function<GraphMetadata, G> graphTransformer,
-      Function<NodeMetadata, V> vertexTransformer,
+      Function<NodeMetadata, N> nodeTransformer,
       Function<EdgeMetadata, E> edgeTransformer) {
     //            Function<HyperEdgeMetadata, E> hyperEdgeTransformer ) {
     this.elementParserRegistry = elementParserRegistry;
     this.keyMap = keyMap;
     this.graphTransformer = graphTransformer;
-    this.vertexTransformer = vertexTransformer;
+    this.nodeTransformer = nodeTransformer;
     this.edgeTransformer = edgeTransformer;
     //        this.hyperEdgeTransformer = hyperEdgeTransformer;
   }
 
-  public ElementParserRegistry<G, V, E> getElementParserRegistry() {
+  public ElementParserRegistry<G, N, E> getElementParserRegistry() {
     return elementParserRegistry;
   }
 
@@ -61,8 +61,8 @@ public class ParserContext<G extends MutableNetwork<V, E>, V, E> {
     return graphTransformer.apply(metadata);
   }
 
-  public V createVertex(NodeMetadata metadata) {
-    return vertexTransformer.apply(metadata);
+  public N createNode(NodeMetadata metadata) {
+    return nodeTransformer.apply(metadata);
   }
 
   public E createEdge(EdgeMetadata metadata) {

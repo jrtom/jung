@@ -12,7 +12,7 @@ package edu.uci.ics.jung.layout.util;
 
 import com.google.common.graph.Graph;
 import edu.uci.ics.jung.layout.model.LayoutModel;
-import edu.uci.ics.jung.layout.model.PointModel;
+import edu.uci.ics.jung.layout.model.Point;
 import java.util.ConcurrentModificationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,15 +27,14 @@ import org.slf4j.LoggerFactory;
  * @author Tom Nelson
  * @author Joshua O'Madadhain
  */
-public class RadiusNetworkNodeAccessor<N, P> implements NetworkNodeAccessor<N, P> {
+public class RadiusNetworkNodeAccessor<N> implements NetworkNodeAccessor<N> {
 
   private static final Logger log = LoggerFactory.getLogger(RadiusNetworkNodeAccessor.class);
   protected final Graph<N> graph;
   protected double maxDistance;
-  protected PointModel<P> pointModel;
   /** Creates an instance with an effectively infinite default maximum distance. */
-  public RadiusNetworkNodeAccessor(Graph<N> graph, PointModel<P> pointModel) {
-    this(graph, pointModel, Math.sqrt(Double.MAX_VALUE - 1000));
+  public RadiusNetworkNodeAccessor(Graph<N> graph) {
+    this(graph, Math.sqrt(Double.MAX_VALUE - 1000));
   }
 
   /**
@@ -44,15 +43,19 @@ public class RadiusNetworkNodeAccessor<N, P> implements NetworkNodeAccessor<N, P
    * @param maxDistance the maximum distance at which any element can be from a specified location
    *     and still be returned
    */
-  public RadiusNetworkNodeAccessor(Graph<N> graph, PointModel<P> pointModel, double maxDistance) {
+  public RadiusNetworkNodeAccessor(Graph<N> graph, double maxDistance) {
     this.graph = graph;
-    this.pointModel = pointModel;
     this.maxDistance = maxDistance;
   }
 
+  /**
+   * @param layoutModel
+   * @param p the pick point
+   * @return the node associated with location p
+   */
   @Override
-  public N getNode(LayoutModel<N, P> layoutModel, double x, double y) {
-    return getNode(layoutModel, x, y, 0);
+  public N getNode(LayoutModel<N> layoutModel, Point p) {
+    return getNode(layoutModel, p.x, p.y);
   }
 
   /**
@@ -65,7 +68,7 @@ public class RadiusNetworkNodeAccessor<N, P> implements NetworkNodeAccessor<N, P
    * @return a node which is associated with the location {@code (x,y)} as given by {@code layout}
    */
   @Override
-  public N getNode(LayoutModel<N, P> layoutModel, double x, double y, double z) {
+  public N getNode(LayoutModel<N> layoutModel, double x, double y) {
     //    long time = System.currentTimeMillis();
     double minDistance = maxDistance * maxDistance * maxDistance;
     N closest = null;
@@ -73,11 +76,10 @@ public class RadiusNetworkNodeAccessor<N, P> implements NetworkNodeAccessor<N, P
       try {
         for (N node : graph.nodes()) {
 
-          P p = layoutModel.apply(node);
-          double dx = pointModel.getX(p) - x;
-          double dy = pointModel.getY(p) - y;
-          double dz = pointModel.getZ(p) - z;
-          double dist = dx * dx + dy * dy + dz * dz;
+          Point p = layoutModel.apply(node);
+          double dx = p.x - x;
+          double dy = p.y - y;
+          double dist = dx * dx + dy * dy;
           if (dist < minDistance) {
             minDistance = dist;
             closest = node;

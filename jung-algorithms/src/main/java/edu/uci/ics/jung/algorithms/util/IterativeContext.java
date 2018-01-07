@@ -11,6 +11,9 @@ package edu.uci.ics.jung.algorithms.util;
 
 /** An interface for algorithms that proceed iteratively. */
 public interface IterativeContext {
+
+  interface WithPreRelax extends IterativeContext {}
+
   /** Advances one step. */
   void step();
 

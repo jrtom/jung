@@ -1,7 +1,6 @@
 package edu.uci.ics.jung.layout.algorithms;
 
 import edu.uci.ics.jung.layout.model.LayoutModel;
-import edu.uci.ics.jung.layout.model.PointModel;
 
 /**
  * StaticLayout leaves the nodes in the locations specified in the LayoutModel, and has no other
@@ -9,13 +8,9 @@ import edu.uci.ics.jung.layout.model.PointModel;
  *
  * @author Tom Nelson
  */
-public class StaticLayoutAlgorithm<N, P> extends AbstractLayoutAlgorithm<N, P> {
+public class StaticLayoutAlgorithm<N> implements LayoutAlgorithm<N> {
 
-  public StaticLayoutAlgorithm(PointModel<P> pointModel) {
-    super(pointModel);
-  }
-
-  public void visit(LayoutModel<N, P> layoutModel) {}
+  public void visit(LayoutModel<N> layoutModel) {}
 
   public void initialize() {}
 

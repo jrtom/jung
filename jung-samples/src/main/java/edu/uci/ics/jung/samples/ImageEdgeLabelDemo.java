@@ -12,19 +12,16 @@ import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
 import edu.uci.ics.jung.layout.algorithms.FRLayoutAlgorithm;
-import edu.uci.ics.jung.layout.model.PointModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
-import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
-import edu.uci.ics.jung.visualization.layout.AWTPointModel;
+import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintFunction;
 import edu.uci.ics.jung.visualization.renderers.DefaultEdgeLabelRenderer;
-import edu.uci.ics.jung.visualization.renderers.DefaultVertexLabelRenderer;
+import edu.uci.ics.jung.visualization.renderers.DefaultNodeLabelRenderer;
 import java.awt.*;
-import java.awt.geom.Point2D;
 import java.net.URL;
 import java.util.function.Function;
 import javax.swing.*;
@@ -34,14 +31,12 @@ import javax.swing.*;
  *
  * @author Tom Nelson
  */
-public class ImageEdgeLabelDemo extends JApplet {
-
-  private static final PointModel<Point2D> POINT_MODEL = new AWTPointModel();
+public class ImageEdgeLabelDemo extends JPanel {
 
   /** */
   private static final long serialVersionUID = -4332663871914930864L;
 
-  private static final int VERTEX_COUNT = 11;
+  private static final int NODE_COUNT = 11;
 
   /** the graph */
   Network<Number, Number> graph;
@@ -51,23 +46,24 @@ public class ImageEdgeLabelDemo extends JApplet {
 
   public ImageEdgeLabelDemo() {
 
+    setLayout(new BorderLayout());
     // create a simple graph for the demo
-    graph = createGraph(VERTEX_COUNT);
+    graph = createGraph(NODE_COUNT);
 
-    FRLayoutAlgorithm<Number, Point2D> layoutAlgorithm = new FRLayoutAlgorithm<>(POINT_MODEL);
+    FRLayoutAlgorithm<Number> layoutAlgorithm = new FRLayoutAlgorithm<>();
     layoutAlgorithm.setMaxIterations(100);
     vv = new VisualizationViewer<>(graph, layoutAlgorithm, new Dimension(400, 400));
 
     vv.getRenderContext()
-        .setEdgeDrawPaintTransformer(
-            new PickableEdgePaintTransformer<>(vv.getPickedEdgeState(), Color.black, Color.cyan));
+        .setEdgeDrawPaintFunction(
+            new PickableEdgePaintFunction<>(vv.getPickedEdgeState(), Color.black, Color.cyan));
 
     vv.setBackground(Color.white);
 
-    vv.getRenderContext().setVertexLabelRenderer(new DefaultVertexLabelRenderer(Color.cyan));
+    vv.getRenderContext().setNodeLabelRenderer(new DefaultNodeLabelRenderer(Color.cyan));
     vv.getRenderContext().setEdgeLabelRenderer(new DefaultEdgeLabelRenderer(Color.cyan));
     vv.getRenderContext()
-        .setEdgeLabelTransformer(
+        .setEdgeLabelFunction(
             new Function<Number, String>() {
               URL url = getClass().getResource("/images/lightning-s.gif");
 
@@ -77,11 +73,10 @@ public class ImageEdgeLabelDemo extends JApplet {
             });
 
     // add a listener for ToolTips
-    vv.setVertexToolTipTransformer(Object::toString);
-    vv.setEdgeToolTipTransformer(Object::toString);
-    Container content = getContentPane();
+    vv.setNodeToolTipFunction(Object::toString);
+    vv.setEdgeToolTipFunction(Object::toString);
     final GraphZoomScrollPane panel = new GraphZoomScrollPane(vv);
-    content.add(panel);
+    add(panel);
 
     final DefaultModalGraphMouse<Number, Number> graphMouse = new DefaultModalGraphMouse<>();
     vv.setGraphMouse(graphMouse);
@@ -105,18 +100,18 @@ public class ImageEdgeLabelDemo extends JApplet {
     scaleGrid.add(minus);
     controls.add(scaleGrid);
     controls.add(modePanel);
-    content.add(controls, BorderLayout.SOUTH);
+    add(controls, BorderLayout.SOUTH);
   }
 
   /**
-   * create some vertices
+   * create some nodes
    *
-   * @param vertexCount how many to create
-   * @return the Vertices in an array
+   * @param nodeCount how many to create
+   * @return the Nodes in an array
    */
-  private Network<Number, Number> createGraph(int vertexCount) {
+  private Network<Number, Number> createGraph(int nodeCount) {
     MutableNetwork<Number, Number> graph = NetworkBuilder.directed().build();
-    for (int i = 0; i < vertexCount; i++) {
+    for (int i = 0; i < nodeCount; i++) {
       graph.addNode(i);
     }
     int j = 0;

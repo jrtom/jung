@@ -8,11 +8,12 @@
  */
 package edu.uci.ics.jung.visualization.transform;
 
-import edu.uci.ics.jung.layout.model.PointModel;
+import edu.uci.ics.jung.layout.model.Point;
 import edu.uci.ics.jung.layout.model.PolarPoint;
-import edu.uci.ics.jung.visualization.layout.AWTPointModel;
-import java.awt.Component;
+import java.awt.*;
 import java.awt.geom.Point2D;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * MagnifyTransformer wraps a MutableAffineTransformer and modifies the transform and
@@ -26,26 +27,34 @@ import java.awt.geom.Point2D;
  */
 public class MagnifyTransformer extends LensTransformer implements MutableTransformer {
 
-  protected PointModel<Point2D> pointModel = new AWTPointModel();
+  private static final Logger log = LoggerFactory.getLogger(MagnifyTransformer.class);
+
   /**
    * Create an instance, setting values from the passed component and registering to listen for
    * layoutSize changes on the component.
    *
-   * @param component the component used for rendering
+   * @param d the size used for the lens
    */
-  public MagnifyTransformer(Component component) {
-    this(component, new MutableAffineTransformer());
+  public MagnifyTransformer(Dimension d) {
+    this(d, new MutableAffineTransformer());
+  }
+
+  public MagnifyTransformer(Lens lens) {
+    this(lens, new MutableAffineTransformer());
   }
 
   /**
    * Create an instance with a possibly shared transform.
    *
-   * @param component the component used for rendering
+   * @param d the size used for the lens
    * @param delegate the transformer to use
    */
-  public MagnifyTransformer(Component component, MutableTransformer delegate) {
-    super(component, delegate);
-    this.magnification = 3.f;
+  public MagnifyTransformer(Dimension d, MutableTransformer delegate) {
+    super(d, delegate);
+  }
+
+  public MagnifyTransformer(Lens lens, MutableTransformer delegate) {
+    super(lens, delegate);
   }
 
   /** override base class transform to project the fisheye effect */
@@ -53,9 +62,9 @@ public class MagnifyTransformer extends LensTransformer implements MutableTransf
     if (graphPoint == null) {
       return null;
     }
-    Point2D viewCenter = getViewCenter();
-    double viewRadius = getViewRadius();
-    double ratio = getRatio();
+    Point2D viewCenter = lens.getCenter();
+    double viewRadius = lens.getRadius();
+    double ratio = lens.getRatio();
     // transform the point from the graph to the view
     Point2D viewPoint = delegate.transform(graphPoint);
     // calculate point from center
@@ -63,55 +72,55 @@ public class MagnifyTransformer extends LensTransformer implements MutableTransf
     double dy = viewPoint.getY() - viewCenter.getY();
     // factor out ellipse
     dx *= ratio;
-    Point2D pointFromCenter = new Point2D.Double(dx, dy);
+    Point pointFromCenter = Point.of(dx, dy);
 
-    PolarPoint polar = PolarPoint.cartesianToPolar(pointModel, pointFromCenter);
-    double theta = polar.getTheta();
-    double radius = polar.getRadius();
+    PolarPoint polar = PolarPoint.cartesianToPolar(pointFromCenter);
+    double theta = polar.theta;
+    double radius = polar.radius;
     if (radius > viewRadius) {
       return viewPoint;
     }
 
-    double mag = magnification;
+    double mag = lens.getMagnification();
     radius *= mag;
 
     radius = Math.min(radius, viewRadius);
-    Point2D projectedPoint = PolarPoint.polarToCartesian(pointModel, theta, radius);
-    projectedPoint.setLocation(projectedPoint.getX() / ratio, projectedPoint.getY());
+    Point projectedPoint = PolarPoint.polarToCartesian(theta, radius);
+    projectedPoint = Point.of(projectedPoint.x / ratio, projectedPoint.y);
     Point2D translatedBack =
         new Point2D.Double(
-            projectedPoint.getX() + viewCenter.getX(), projectedPoint.getY() + viewCenter.getY());
+            projectedPoint.x + viewCenter.getX(), projectedPoint.y + viewCenter.getY());
     return translatedBack;
   }
 
   /** override base class to un-project the fisheye effect */
   public Point2D inverseTransform(Point2D viewPoint) {
 
-    Point2D viewCenter = getViewCenter();
-    double viewRadius = getViewRadius();
-    double ratio = getRatio();
+    Point2D viewCenter = lens.getCenter();
+    double viewRadius = lens.getRadius();
+    double ratio = lens.getRatio();
     double dx = viewPoint.getX() - viewCenter.getX();
     double dy = viewPoint.getY() - viewCenter.getY();
     // factor out ellipse
     dx *= ratio;
 
-    Point2D pointFromCenter = new Point2D.Double(dx, dy);
+    Point pointFromCenter = Point.of(dx, dy);
 
-    PolarPoint polar = PolarPoint.cartesianToPolar(pointModel, pointFromCenter);
+    PolarPoint polar = PolarPoint.cartesianToPolar(pointFromCenter);
 
-    double radius = polar.getRadius();
+    double radius = polar.radius;
     if (radius > viewRadius) {
       return delegate.inverseTransform(viewPoint);
     }
 
-    double mag = magnification;
+    double mag = lens.getMagnification();
     radius /= mag;
-    polar.setRadius(radius);
-    Point2D projectedPoint = PolarPoint.polarToCartesian(pointModel, polar);
-    projectedPoint.setLocation(projectedPoint.getX() / ratio, projectedPoint.getY());
+    polar = polar.newRadius(radius);
+    Point projectedPoint = PolarPoint.polarToCartesian(polar);
+    projectedPoint = Point.of(projectedPoint.x / ratio, projectedPoint.y);
     Point2D translatedBack =
         new Point2D.Double(
-            projectedPoint.getX() + viewCenter.getX(), projectedPoint.getY() + viewCenter.getY());
+            projectedPoint.x + viewCenter.getX(), projectedPoint.y + viewCenter.getY());
     return delegate.inverseTransform(translatedBack);
   }
 
@@ -125,8 +134,8 @@ public class MagnifyTransformer extends LensTransformer implements MutableTransf
     if (graphPoint == null) {
       return null;
     }
-    Point2D viewCenter = getViewCenter();
-    double ratio = getRatio();
+    Point2D viewCenter = lens.getCenter();
+    double ratio = lens.getRatio();
     // transform the point from the graph to the view
     Point2D viewPoint = graphPoint;
     // calculate point from center
@@ -134,21 +143,21 @@ public class MagnifyTransformer extends LensTransformer implements MutableTransf
     double dy = viewPoint.getY() - viewCenter.getY();
     // factor out ellipse
     dx *= ratio;
-    Point2D pointFromCenter = new Point2D.Double(dx, dy);
+    Point pointFromCenter = Point.of(dx, dy);
 
-    PolarPoint polar = PolarPoint.cartesianToPolar(pointModel, pointFromCenter);
-    double theta = polar.getTheta();
-    double radius = polar.getRadius();
+    PolarPoint polar = PolarPoint.cartesianToPolar(pointFromCenter);
+    double theta = polar.theta;
+    double radius = polar.radius;
 
-    double mag = magnification;
+    double mag = lens.getMagnification();
     radius *= mag;
 
     //        radius = Math.min(radius, viewRadius);
-    Point2D projectedPoint = PolarPoint.polarToCartesian(pointModel, theta, radius);
-    projectedPoint.setLocation(projectedPoint.getX() / ratio, projectedPoint.getY());
+    Point projectedPoint = PolarPoint.polarToCartesian(theta, radius);
+    projectedPoint = Point.of(projectedPoint.x / ratio, projectedPoint.y);
     Point2D translatedBack =
         new Point2D.Double(
-            projectedPoint.getX() + viewCenter.getX(), projectedPoint.getY() + viewCenter.getY());
+            projectedPoint.x + viewCenter.getX(), projectedPoint.y + viewCenter.getY());
     return translatedBack;
   }
 }

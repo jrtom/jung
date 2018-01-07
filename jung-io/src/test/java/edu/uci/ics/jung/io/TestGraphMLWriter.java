@@ -41,13 +41,13 @@ public class TestGraphMLWriter extends TestCase {
           }
         };
 
-    Function<String, String> vertex_name = Function.identity();
+    Function<String, String> node_name = Function.identity();
     //TransformerUtils.nopTransformer();
 
     gmlw.addEdgeData("weight", "integer value for the edge", Integer.toString(-1), edge_weight);
-    gmlw.addVertexData("name", "identifier for the vertex", null, vertex_name);
+    gmlw.addNodeData("name", "identifier for the node", null, node_name);
     gmlw.setEdgeIDs(edge_weight);
-    gmlw.setVertexIDs(vertex_name);
+    gmlw.setNodeIDs(node_name);
     gmlw.save(g, new FileWriter("src/test/resources/testbasicwrite.graphml"));
 
     // TODO: now read it back in and compare the graph connectivity
@@ -70,11 +70,11 @@ public class TestGraphMLWriter extends TestCase {
       Function<Number, String> edge_weight,
       Function<Object, String> edge_weight2) {
     Assert.assertEquals(g2.edges().size(), g.edges().size());
-    List<T> g_vertices = new ArrayList<T>(g.nodes());
-    List<T> g2_vertices = new ArrayList<T>(g2.nodes());
-    Collections.sort(g_vertices);
-    Collections.sort(g2_vertices);
-    Assert.assertEquals(g_vertices, g2_vertices);
+    List<T> g_nodes = new ArrayList<T>(g.nodes());
+    List<T> g2_nodes = new ArrayList<T>(g2.nodes());
+    Collections.sort(g_nodes);
+    Collections.sort(g2_nodes);
+    Assert.assertEquals(g_nodes, g2_nodes);
 
     Set<String> g_edges = new HashSet<String>();
     for (Number n : g.edges()) {

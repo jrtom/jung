@@ -15,20 +15,20 @@ import java.util.function.Function;
  * An edge weight function that assigns weights as uniform transition probabilities:
  *
  * <ul>
- *   <li>for undirected edges, returns 1/degree(v) (where 'v' is the vertex in the VEPair)
+ *   <li>for undirected edges, returns 1/degree(v) (where 'v' is the node in the VEPair)
  *   <li>for directed edges, returns 1/outdegree(source(e)) (where 'e' is the edge in the VEPair)
  */
-public class UniformDegreeWeight<V, E> implements Function<VEPair<V, E>, Double> {
-  private Network<V, E> graph;
+public class UniformDegreeWeight<N, E> implements Function<VEPair<N, E>, Double> {
+  private Network<N, E> graph;
 
   /** @param graph the graph for which an instance is being created */
-  public UniformDegreeWeight(Network<V, E> graph) {
+  public UniformDegreeWeight(Network<N, E> graph) {
     this.graph = graph;
   }
 
-  public Double apply(VEPair<V, E> ve_pair) {
+  public Double apply(VEPair<N, E> ve_pair) {
     E e = ve_pair.getE();
-    V v = ve_pair.getV();
+    N v = ve_pair.getV();
     return graph.isDirected()
         ? 1.0 / graph.outDegree(graph.incidentNodes(e).source())
         : 1.0 / graph.degree(v);

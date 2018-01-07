@@ -24,10 +24,10 @@ import javax.xml.stream.events.XMLEvent;
  *
  * @author Nathan Mittler - nathan.mittler@gmail.com
  */
-public class StringElementParser<G extends MutableNetwork<V, E>, V, E>
-    extends AbstractElementParser<G, V, E> {
+public class StringElementParser<G extends MutableNetwork<N, E>, N, E>
+    extends AbstractElementParser<G, N, E> {
 
-  public StringElementParser(ParserContext<G, V, E> parserContext) {
+  public StringElementParser(ParserContext<G, N, E> parserContext) {
     super(parserContext);
   }
 

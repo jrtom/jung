@@ -18,7 +18,7 @@ import junit.framework.TestSuite;
 
 /** @author Scott White */
 public class TestEppsteinPowerLawGenerator extends TestCase {
-  Supplier<Integer> vertexFactory;
+  Supplier<Integer> nodeFactory;
 
   public static Test suite() {
     return new TestSuite(TestEppsteinPowerLawGenerator.class);
@@ -26,7 +26,7 @@ public class TestEppsteinPowerLawGenerator extends TestCase {
 
   @Override
   protected void setUp() {
-    vertexFactory =
+    nodeFactory =
         new Supplier<Integer>() {
           int count;
 
@@ -40,7 +40,7 @@ public class TestEppsteinPowerLawGenerator extends TestCase {
 
     for (int r = 0; r < 10; r++) {
       EppsteinPowerLawGenerator<Integer> generator =
-          new EppsteinPowerLawGenerator<Integer>(vertexFactory, 10, 40, r);
+          new EppsteinPowerLawGenerator<Integer>(nodeFactory, 10, 40, r);
       generator.setSeed(2);
 
       Graph<Integer> graph = generator.get();
@@ -53,14 +53,14 @@ public class TestEppsteinPowerLawGenerator extends TestCase {
   //    public void testPowerLawProperties() {
   //
   //        //long start = System.currentTimeMillis();
-  //        EppsteinPowerLawGenerator generator = new EppsteinPowerLawGenerator(vertexFactory, edgeFactory,
+  //        EppsteinPowerLawGenerator generator = new EppsteinPowerLawGenerator(nodeFactory, edgeFactory,
   //        		500,1500,100000);
   //        generator.setSeed(5);
   //        Graph graph = (Graph) generator.generateGraph();
   //        //long stop = System.currentTimeMillis();
   //        //System.out.println((stop-start)/1000l);
   //
-  //        DoubleArrayList degreeList = DegreeDistributions.getOutdegreeValues(graph.getVertices());
+  //        DoubleArrayList degreeList = DegreeDistributions.getOutdegreeValues(graph.getNodes());
   //        int maxDegree = (int) Descriptive.max(degreeList);
   //        Histogram degreeHistogram = GraphStatistics.createHistogram(degreeList,0,maxDegree,1);
   //        //for (int index=0;index<maxDegree;index++) {
@@ -71,7 +71,7 @@ public class TestEppsteinPowerLawGenerator extends TestCase {
   //
   //        generator = new EppsteinPowerLawGenerator(500,1500,0);
   //        graph = (Graph) generator.generateGraph();
-  //        degreeList = DegreeDistributions.getOutdegreeValues(graph.getVertices());
+  //        degreeList = DegreeDistributions.getOutdegreeValues(graph.getNodes());
   //        maxDegree = (int) Descriptive.max(degreeList);
   //        degreeHistogram = GraphStatistics.createHistogram(degreeList,0,maxDegree,1);
   //        //for (int index=0;index<maxDegree;index++) {

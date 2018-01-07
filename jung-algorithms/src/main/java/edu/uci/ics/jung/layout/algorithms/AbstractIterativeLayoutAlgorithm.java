@@ -1,8 +1,6 @@
 package edu.uci.ics.jung.layout.algorithms;
 
-import edu.uci.ics.jung.algorithms.util.IterativeContext;
 import edu.uci.ics.jung.layout.model.LayoutModel;
-import edu.uci.ics.jung.layout.model.PointModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,30 +11,36 @@ import org.slf4j.LoggerFactory;
  *
  * @author Tom Nelson
  */
-public abstract class AbstractIterativeLayoutAlgorithm<N, P> extends AbstractLayoutAlgorithm<N, P>
-    implements LayoutAlgorithm<N, P>, IterativeContext {
+public abstract class AbstractIterativeLayoutAlgorithm<N> implements IterativeLayoutAlgorithm<N> {
 
   private static final Logger log = LoggerFactory.getLogger(AbstractIterativeLayoutAlgorithm.class);
   /**
    * because the IterativeLayoutAlgorithms use multithreading to continuously update node positions,
    * the layoutModel state is saved (during the visit method) so that it can be used continuously
    */
-  protected LayoutModel<N, P> layoutModel;
+  protected LayoutModel<N> layoutModel;
 
-  /**
-   * create an instance with the passed pointModel
-   *
-   * @param pointModel
-   */
-  protected AbstractIterativeLayoutAlgorithm(PointModel<P> pointModel) {
-    super(pointModel);
+  // both of these can be set at instance creation time
+  protected boolean shouldPreRelax = true;
+  protected int preRelaxDurationMs = 500; // how long should the prerelax phase last?
+
+  // returns true iff prerelaxing happened
+  public final boolean preRelax() {
+    if (!shouldPreRelax) {
+      return false;
+    }
+    long timeNow = System.currentTimeMillis();
+    while (System.currentTimeMillis() - timeNow < preRelaxDurationMs && !done()) {
+      step();
+    }
+    return true;
   }
 
   /**
    * because the IterativeLayoutAlgorithms use multithreading to continuously update node positions,
    * the layoutModel state is saved (during the visit method) so that it can be used continuously
    */
-  public void visit(LayoutModel<N, P> layoutModel) {
+  public void visit(LayoutModel<N> layoutModel) {
     log.trace("visiting " + layoutModel);
     this.layoutModel = layoutModel;
   }

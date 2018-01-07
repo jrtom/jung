@@ -15,21 +15,21 @@
 
 <p>Interfaces for the JUNG graph types, and some representative implementations.
 
-<P>A graph consists of a set of vertices set and a set of edges which connect the
-vertices.  The base interface is <code>Hypergraph</code>, which defines the most
+<P>A graph consists of a set of nodes set and a set of edges which connect the
+nodes.  The base interface is <code>Hypergraph</code>, which defines the most
 general type of graph; other interfaces (<code>Graph</code>, <code>DirectedGraph</code>, etc.)
 define more restrictive graph types.
-<p>Vertex and edge types are specified at compile type using Java 1.5 generics.  
+<p>Node and edge types are specified at compile type using Java 1.5 generics.
 
 <p>Types of graphs which are supported include (but are not limited to)
 <ul>
 <li>edges (these have have exactly two endpoints, which may or may not be distinct)
-<li>self-loops (edges which connect exactly one vertex)
+<li>self-loops (edges which connect exactly one node)
 <li> directed and undirected edges
-<li> vertices and edges with attributes (for example, weighted edges)
-<li> vertices and edges with different constraints or properties (examples: trees, bipartite 
+<li> nodes and edges with attributes (for example, weighted edges)
+<li> nodes and edges with different constraints or properties (examples: trees, bipartite
      graphs, or multimodal)
-<li> parallel edges (multiple edges which connect a single set of vertices)
+<li> parallel edges (multiple edges which connect a single set of nodes)
 <li> internal representations as matrices or as adjacency lists or adjacency maps
 <li>internal representations that order their elements according to insertion time,
 natural ordering, or a specified <code>Comparator</code>
@@ -42,7 +42,7 @@ may enforce or disallow any or all of these variations.
 should be treated in general as if read-only.  While they are not contractually 
 guaranteed (or required) to be immutable,
 these interfaces do not define the outcome if they are mutated.
-Mutations should be done via <code>{add,remove}{Edge,Vertex}</code>, or
+Mutations should be done via <code>{add,remove}{Edge,Node}</code>, or
 in the constructor.
 <li> "Wrapper" graphs are available through <code>GraphDecorator</code>; these are useful
 if you want to create a graph implementation that uses another implementation to do the work,
