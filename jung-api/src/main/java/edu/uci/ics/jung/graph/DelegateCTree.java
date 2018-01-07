@@ -178,8 +178,9 @@ class DelegateCTree<N> extends AbstractGraph<N> implements MutableCTree<N> {
       height = Optional.of(0);
     } else {
       depths.putIfAbsent(parent, 0);
-      int nodeDepth = depths.get(parent) + 1;
-      height = Optional.of(Math.max(nodeDepth, height.orElseThrow(AssertionError::new)));
+      int nodeDepth = Math.max(depths.get(parent) + 1, height.orElseThrow(AssertionError::new));
+      depths.put(node, nodeDepth);
+      height = Optional.of(nodeDepth);
     }
   }
 
