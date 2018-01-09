@@ -11,6 +11,7 @@ package edu.uci.ics.jung.layout.model;
 
 import com.google.common.graph.Graph;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 /** two or three dimensional layoutmodel */
@@ -39,6 +40,13 @@ public interface LayoutModel<N> extends Function<N, Point> {
    * @return relaxing
    */
   boolean isRelaxing();
+
+  /**
+   * a handle to the relaxer thread
+   *
+   * @return
+   */
+  CompletableFuture getTheFuture();
 
   /**
    * @param node the node whose locked state is being queried

@@ -6,7 +6,7 @@ import edu.uci.ics.jung.layout.algorithms.FRBHIteratorLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.FRBHVisitorLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.FRLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
-import edu.uci.ics.jung.layout.model.AbstractLayoutModel;
+import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.layout.model.LoadingCacheLayoutModel;
 import edu.uci.ics.jung.layout.util.RandomLocationTransformer;
 import org.junit.Before;
@@ -31,7 +31,7 @@ public class FRLayoutsTimingTest {
 
   private static final Logger log = LoggerFactory.getLogger(FRLayoutsTimingTest.class);
   Graph<String> graph;
-  AbstractLayoutModel<String> layoutModel;
+  LayoutModel<String> layoutModel;
 
   /**
    * this runs again before each test. Build a simple graph, build a custom layout model (see below)

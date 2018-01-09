@@ -17,6 +17,7 @@ import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.layout.model.Point;
 import java.awt.geom.AffineTransform;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,6 +92,11 @@ public class AggregateLayoutModel<N> implements LayoutModel<N> {
   @Override
   public boolean isRelaxing() {
     return delegate.isRelaxing();
+  }
+
+  @Override
+  public CompletableFuture getTheFuture() {
+    return delegate.getTheFuture();
   }
 
   @Override
