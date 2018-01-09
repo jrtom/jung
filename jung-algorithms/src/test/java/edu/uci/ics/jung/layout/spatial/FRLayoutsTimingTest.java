@@ -2,7 +2,7 @@ package edu.uci.ics.jung.layout.spatial;
 
 import com.google.common.graph.Graph;
 import edu.uci.ics.jung.graph.util.TestGraphs;
-import edu.uci.ics.jung.layout.algorithms.FRBHLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.FRBHIteratorLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.FRBHVisitorLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.FRLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
@@ -55,7 +55,7 @@ public class FRLayoutsTimingTest {
 
   @Test
   public void testFRBH() {
-    FRBHLayoutAlgorithm layoutAlgorithmTwo = new FRBHLayoutAlgorithm();
+    FRBHIteratorLayoutAlgorithm layoutAlgorithmTwo = new FRBHIteratorLayoutAlgorithm();
     // using the same random seed each time for repeatable results from each test.
     layoutAlgorithmTwo.setRandomSeed(0);
     doTest(layoutAlgorithmTwo);
@@ -70,23 +70,16 @@ public class FRLayoutsTimingTest {
   }
 
   private void doTest(LayoutAlgorithm<String> layoutAlgorithm) {
-    layoutModel
-        .getLayoutStateChangeSupport()
-        .addLayoutStateChangeListener(
-            new LayoutModel.LayoutStateChangeListener() {
-              long time = System.currentTimeMillis();
-
-              @Override
-              public void layoutStateChanged(LayoutModel.LayoutStateChangeEvent evt) {
-                if (evt.active == false) {
-                  long endTime = System.currentTimeMillis();
-                  log.info(
-                      "elapsed time for {} was {}",
-                      layoutAlgorithm.getClass().getName(),
-                      endTime - time);
-                }
-              }
-            });
+    long startTime = System.currentTimeMillis();
     layoutModel.accept(layoutAlgorithm);
+    layoutModel
+        .getTheFuture()
+        .thenRun(
+            () ->
+                log.info(
+                    "elapsed time for {} was {}",
+                    layoutAlgorithm.getClass().getName(),
+                    System.currentTimeMillis() - startTime))
+        .join();
   }
 }

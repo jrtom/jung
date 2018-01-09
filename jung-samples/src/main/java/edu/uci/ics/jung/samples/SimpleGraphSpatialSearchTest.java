@@ -151,7 +151,7 @@ public class SimpleGraphSpatialSearchTest extends JPanel {
       // use the quadtree
       String winnerTwo = tree.getClosestElement(x, y);
 
-      log.info("{} and {} should be the same...", winnerOne, winnerTwo);
+      log.trace("{} and {} should be the same...", winnerOne, winnerTwo);
 
       if (!winnerOne.equals(winnerTwo)) {
         log.info(

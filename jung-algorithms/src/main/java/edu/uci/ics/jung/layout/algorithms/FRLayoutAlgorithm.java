@@ -17,7 +17,6 @@ import edu.uci.ics.jung.algorithms.util.IterativeContext;
 import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.layout.model.Point;
 import java.util.ConcurrentModificationException;
-import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,13 +59,11 @@ public class FRLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
 
   private double repulsion_multiplier = 0.75;
 
-  private double repulsion_constant;
+  protected double repulsion_constant;
 
   private double max_dimension;
 
   private boolean initialized = false;
-
-  private Random random = new Random();
 
   public FRLayoutAlgorithm() {
     this.frNodeData =
@@ -87,10 +84,6 @@ public class FRLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
     super.visit(layoutModel);
     max_dimension = Math.max(layoutModel.getWidth(), layoutModel.getHeight());
     initialize();
-  }
-
-  public void setRandomSeed(long randomSeed) {
-    this.random = new Random(randomSeed);
   }
 
   public void setAttractionMultiplier(double attraction) {
@@ -124,7 +117,7 @@ public class FRLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
     }
   }
 
-  private double EPSILON = 0.000001D;
+  protected double EPSILON = 0.000001D;
 
   /**
    * Moves the iteration forward one notch, calculation attraction and repulsion between nodes and

@@ -4,22 +4,25 @@ import edu.uci.ics.jung.layout.model.Point;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** @author Tom Nelson */
+/**
+ * An instance used to gather forces while visiting the BarnesHut QuadTree.
+ *
+ * @author Tom Nelson
+ */
 public class ForceObject<T> {
 
   private static final Logger log = LoggerFactory.getLogger(ForceObject.class);
 
-  private double EPSILON = 0.000001D;
   /** location of p */
-  public Point p;
+  public final Point p;
 
   /** force vector */
-  protected Point f;
+  public Point f;
 
   /** mass */
   protected double mass;
 
-  T element;
+  private final T element;
 
   public ForceObject(T element, Point p, double mass) {
     this.element = element;
@@ -42,38 +45,24 @@ public class ForceObject<T> {
     this.mass = mass;
   }
 
-  public Point getForce() {
-    return f;
+  /**
+   * override in the layoutAlgorithm to apply forces in a way that is consistent with the chosen
+   * implementation. See FRBHVisitorLayoutAlgorithm and SpringVisitorLayoutAlgorithm.
+   *
+   * @param other the ForceObject (a node or a force vector) to apply force from
+   */
+  protected <S> void addForceFrom(ForceObject<T> other) {
+    // no op
   }
 
-  public void resetForce() {
-    this.f = Point.ORIGIN;
-  }
-
-  void addForceFrom(double forceConstant, ForceObject other) {
-    double dx = this.p.x - other.p.x;
-    double dy = this.p.y - other.p.y;
-    log.trace("dx, dy:{},{}", dx, dy);
-    double dist = Math.sqrt(dx * dx + dy * dy);
-    dist = Math.max(EPSILON, dist);
-    log.trace("dist:{}", dist);
-
-    double force = (forceConstant * forceConstant) / dist;
-    log.trace("force:{}", force);
-    log.trace("force for {} went from p:{}, f:{}...", this.element, this.p, this.f);
-    this.f = f.add(force * (dx / dist), force * (dy / dist));
-    log.trace("...to p:{}, f:{}", this.p, this.f);
-  }
-
-  public ForceObject add(ForceObject other) {
+  public ForceObject add(ForceObject<T> other) {
     double totalMass = this.mass + other.mass;
     Point p =
         Point.of(
             (this.p.x * this.mass + other.p.x * other.mass) / totalMass,
             (this.p.y * this.mass + other.p.y * other.mass) / totalMass);
 
-    ForceObject<String> forceObject = new ForceObject<>("force", p, totalMass);
-    return forceObject;
+    return new ForceObject<>("force", p, totalMass);
   }
 
   public T getElement() {

@@ -3,11 +3,11 @@ package edu.uci.ics.jung.layout.spatial;
 import com.google.common.collect.Maps;
 import com.google.common.graph.GraphBuilder;
 import com.google.common.graph.MutableGraph;
-import edu.uci.ics.jung.layout.algorithms.FRBHIteratorLayoutAlgorithm;
-import edu.uci.ics.jung.layout.algorithms.FRBHVisitorLayoutAlgorithm;
-import edu.uci.ics.jung.layout.algorithms.FRLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.IterativeLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.SpringBHIteratorLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.SpringBHVisitorLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.SpringLayoutAlgorithm;
 import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.layout.model.LoadingCacheLayoutModel;
 import edu.uci.ics.jung.layout.model.Point;
@@ -24,11 +24,11 @@ import org.slf4j.LoggerFactory;
  * a version of FRLayout.
  *
  * <ul>
- *   <li>FRLayoutAlgorithm - the JUNG legacy version
- *   <li>FRBHLayoutAlgorithm - modified to use a BarnesHutQuadTree to reduce the number of repulsion
- *       comparisons with a custom Iterator
- *   <li>FRBHVisitorLayoutAlgorithm - modified to use the BarnesHutQuadTree as a visitor during the
- *       repulsion step.
+ *   <li>SpringLayoutAlgorithm - the JUNG legacy version
+ *   <li>SpringBHLayoutAlgorithm - modified to use a BarnesHutQuadTree to reduce the number of
+ *       repulsion comparisons with a custom Iterator
+ *   <li>SpringBHVisitorLayoutAlgorithm - modified to use the BarnesHutQuadTree as a visitor during
+ *       the repulsion step.
  * </ul>
  *
  * <p>The LayoutModel is subclassed so that no relax thread is started. A total of 200 steps of the
@@ -42,9 +42,9 @@ import org.slf4j.LoggerFactory;
  *
  * @author Tom Nelson
  */
-public class FRLayoutsTest {
+public class SpringLayoutsTest {
 
-  private static final Logger log = LoggerFactory.getLogger(FRLayoutsTest.class);
+  private static final Logger log = LoggerFactory.getLogger(SpringLayoutsTest.class);
   MutableGraph<String> graph;
   LayoutModel<String> layoutModel;
   static Map<String, Point> mapOne = Maps.newHashMap();
@@ -65,7 +65,7 @@ public class FRLayoutsTest {
 
     layoutModel =
         new TestLayoutModel<String>(
-            LoadingCacheLayoutModel.<String>builder().setGraph(graph).setSize(500, 500), 200);
+            LoadingCacheLayoutModel.<String>builder().setGraph(graph).setSize(500, 500), 30);
     layoutModel.set("A", Point.of(200, 100));
     layoutModel.set("B", Point.of(100, 200));
     layoutModel.set("C", Point.of(100, 100));
@@ -76,24 +76,24 @@ public class FRLayoutsTest {
   }
 
   @Test
-  public void testFRLayouts() {
-    FRLayoutAlgorithm layoutAlgorithmOne = new FRLayoutAlgorithm();
+  public void testSpringLayoutAlgorithm() {
+    SpringLayoutAlgorithm layoutAlgorithmOne = new SpringLayoutAlgorithm();
     // using the same random seed each time for repeatable results from each test.
     layoutAlgorithmOne.setRandomSeed(0);
     doTest(layoutAlgorithmOne, mapOne);
   }
 
   @Test
-  public void testFRBH() {
-    FRBHIteratorLayoutAlgorithm layoutAlgorithmTwo = new FRBHIteratorLayoutAlgorithm();
+  public void testSpringBHLayoutAlgorithm() {
+    SpringBHIteratorLayoutAlgorithm layoutAlgorithmTwo = new SpringBHIteratorLayoutAlgorithm();
     // using the same random seed each time for repeatable results from each test.
     layoutAlgorithmTwo.setRandomSeed(0);
     doTest(layoutAlgorithmTwo, mapTwo);
   }
 
   @Test
-  public void testFRBHVisitor() {
-    FRBHVisitorLayoutAlgorithm layoutAlgorithmThree = new FRBHVisitorLayoutAlgorithm();
+  public void testSpringBHVisitorLayoutAlgorithm() {
+    SpringBHVisitorLayoutAlgorithm layoutAlgorithmThree = new SpringBHVisitorLayoutAlgorithm();
     // using the same random seed each time for repeatable results from each test.
     layoutAlgorithmThree.setRandomSeed(0);
     doTest(layoutAlgorithmThree, mapThree);

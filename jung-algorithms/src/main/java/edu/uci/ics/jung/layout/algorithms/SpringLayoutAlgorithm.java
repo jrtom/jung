@@ -16,6 +16,8 @@ import edu.uci.ics.jung.algorithms.util.IterativeContext;
 import edu.uci.ics.jung.layout.model.Point;
 import java.util.ConcurrentModificationException;
 import java.util.function.Function;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The SpringLayout package represents a visualization of a set of nodes. The SpringLayout, which is
@@ -29,6 +31,7 @@ import java.util.function.Function;
 public class SpringLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
     implements IterativeContext {
 
+  private static final Logger log = LoggerFactory.getLogger(SpringLayoutAlgorithm.class);
   protected double stretch = 0.70;
   protected Function<? super EndpointPair<N>, Integer> lengthFunction;
   protected int repulsion_range_sq = 100 * 100;
@@ -116,7 +119,6 @@ public class SpringLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N
         len = (len == 0) ? .0001 : len;
 
         double f = force_multiplier * (desiredLen - len) / len;
-
         f = f * Math.pow(stretch, (graph.degree(node1) + graph.degree(node2) - 2));
 
         // the actual movement distance 'dx' is the force multiplied by the
@@ -126,7 +128,6 @@ public class SpringLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N
         SpringNodeData v1D, v2D;
         v1D = springNodeData.getUnchecked(node1);
         v2D = springNodeData.getUnchecked(node2);
-
         v1D.edgedx += dx;
         v1D.edgedy += dy;
         v2D.edgedx += -dx;
@@ -165,8 +166,8 @@ public class SpringLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N
           double vy = p.y - p2.y;
           double distanceSq = p.distanceSquared(p2);
           if (distanceSq == 0) {
-            dx += Math.random();
-            dy += Math.random();
+            dx += random.nextDouble();
+            dy += random.nextDouble();
           } else if (distanceSq < repulsion_range_sq) {
             double factor = 1;
             dx += factor * vx / distanceSq;
@@ -204,7 +205,6 @@ public class SpringLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N
 
           vd.dx += vd.repulsiondx + vd.edgedx;
           vd.dy += vd.repulsiondy + vd.edgedy;
-
           // keeps nodes from moving any faster than 5 per time unit
           posX = posX + Math.max(-5, Math.min(5, vd.dx));
           posY = posY + Math.max(-5, Math.min(5, vd.dy));
@@ -243,6 +243,20 @@ public class SpringLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N
 
     /** movement speed, y */
     protected double dy;
+
+    @Override
+    public String toString() {
+      return "{"
+          + "edge="
+          + Point.of(edgedx, edgedy)
+          + ", rep="
+          + Point.of(repulsiondx, repulsiondy)
+          + ", dx="
+          + dx
+          + ", dy="
+          + dy
+          + '}';
+    }
   }
 
   /** @return true */

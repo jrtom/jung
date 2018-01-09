@@ -59,6 +59,10 @@ public abstract class AbstractLayoutModel<N>
     setRelaxing(false);
   }
 
+  public CompletableFuture getTheFuture() {
+    return theFuture;
+  }
+
   /**
    * accept the visit of a LayoutAlgorithm. If it is an IterativeContext, create a VisRunner to run
    * its relaxer in a new Thread. If there is a current VisRunner, stop it first.

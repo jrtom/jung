@@ -4,7 +4,13 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** @author Tom Nelson */
+/**
+ * A Node in the BarnesHutQuadTree. Has a rectangular dimension and a ForceObject that may be either
+ * a graph node or a representation of the combined forces of the child nodes. May have 4 child
+ * nodes.
+ *
+ * @author Tom Nelson
+ */
 public class Node<T> {
 
   private static final Logger log = LoggerFactory.getLogger(Node.class);
@@ -128,8 +134,8 @@ public class Node<T> {
     SE = new Node(x + width, y + height, width, height);
   }
 
-  public void visit(double forceConstant, ForceObject<T> target) {
-    if (this.forceObject == null || target.element.equals(this.forceObject.element)) {
+  public void visit(ForceObject<T> target) {
+    if (this.forceObject == null || target.getElement().equals(this.forceObject.getElement())) {
       return;
     }
 
@@ -142,7 +148,7 @@ public class Node<T> {
             target.getElement(),
             target.p);
       }
-      target.addForceFrom(forceConstant, this.forceObject);
+      target.addForceFrom(this.forceObject);
       log.trace("added force from {} so its now {}", this.forceObject, target);
     } else {
       // not a leaf
@@ -163,15 +169,15 @@ public class Node<T> {
               target.getElement(),
               target.p);
         }
-        target.addForceFrom(forceConstant, this.forceObject);
+        target.addForceFrom(this.forceObject);
         log.trace("added force from {} so its now {}", this.forceObject, target);
 
       } else {
         // down the tree we go
-        NW.visit(forceConstant, target);
-        NE.visit(forceConstant, target);
-        SW.visit(forceConstant, target);
-        SE.visit(forceConstant, target);
+        NW.visit(target);
+        NE.visit(target);
+        SW.visit(target);
+        SE.visit(target);
       }
     }
   }
@@ -211,7 +217,7 @@ public class Node<T> {
     return "[" + (int) r.x + "," + (int) r.y + "," + (int) r.width + "," + (int) r.height + "]";
   }
 
-  static String asString(Node node, String margin) {
+  static <T> String asString(Node<T> node, String margin) {
     StringBuilder s = new StringBuilder();
     s.append("\n");
     s.append(margin);
