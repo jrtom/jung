@@ -1,24 +1,17 @@
 /*
- * Copyright (C) 2014 The Guava Authors
+ * Copyright (c) 2018, The JUNG Authors
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * All rights reserved.
  *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * This software is open-source under the BSD license; see either
+ * "license.txt" or
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  */
 
 package edu.uci.ics.jung.graph;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth8.assertThat;
-import static edu.uci.ics.jung.graph.TestUtil.ERROR_ELEMENT_NOT_IN_TREE;
 import static edu.uci.ics.jung.graph.TestUtil.FAIL_ERROR_ELEMENT_NOT_IN_TREE;
 import static edu.uci.ics.jung.graph.TestUtil.FAIL_ERROR_NODEU_NOT_IN_TREE;
 import static edu.uci.ics.jung.graph.TestUtil.FAIL_ERROR_NODEV_IN_TREE;
@@ -346,7 +339,7 @@ public abstract class AbstractCTreeTest {
       tree.depth(N2);
       fail(FAIL_ERROR_ELEMENT_NOT_IN_TREE);
     } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessageThat().contains(ERROR_ELEMENT_NOT_IN_TREE);
+      assertNodeNotInTreeErrorMessage(e);
     }
   }
 
@@ -356,7 +349,7 @@ public abstract class AbstractCTreeTest {
       tree.depth(N1);
       fail(FAIL_ERROR_ELEMENT_NOT_IN_TREE);
     } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessageThat().contains(ERROR_ELEMENT_NOT_IN_TREE);
+      assertNodeNotInTreeErrorMessage(e);
     }
   }
 
@@ -369,7 +362,7 @@ public abstract class AbstractCTreeTest {
       tree.depth(N3);
       fail(FAIL_ERROR_ELEMENT_NOT_IN_TREE);
     } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessageThat().contains(ERROR_ELEMENT_NOT_IN_TREE);
+      assertNodeNotInTreeErrorMessage(e);
     }
   }
 
