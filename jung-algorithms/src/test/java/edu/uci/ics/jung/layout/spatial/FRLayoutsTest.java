@@ -3,7 +3,7 @@ package edu.uci.ics.jung.layout.spatial;
 import com.google.common.collect.Maps;
 import com.google.common.graph.GraphBuilder;
 import com.google.common.graph.MutableGraph;
-import edu.uci.ics.jung.layout.algorithms.FRBHLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.FRBHIteratorLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.FRBHVisitorLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.FRLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.IterativeLayoutAlgorithm;
@@ -85,7 +85,7 @@ public class FRLayoutsTest {
 
   @Test
   public void testFRBH() {
-    FRBHLayoutAlgorithm layoutAlgorithmTwo = new FRBHLayoutAlgorithm();
+    FRBHIteratorLayoutAlgorithm layoutAlgorithmTwo = new FRBHIteratorLayoutAlgorithm();
     // using the same random seed each time for repeatable results from each test.
     layoutAlgorithmTwo.setRandomSeed(0);
     doTest(layoutAlgorithmTwo, mapTwo);

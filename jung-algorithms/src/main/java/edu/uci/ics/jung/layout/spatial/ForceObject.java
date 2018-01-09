@@ -1,7 +1,6 @@
 package edu.uci.ics.jung.layout.spatial;
 
 import edu.uci.ics.jung.layout.model.Point;
-import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,11 +42,11 @@ public class ForceObject<T> {
     this.mass = mass;
   }
 
-  protected void addForceFrom(ForceObject<T> other, Optional userData) {
+  protected void addForceFrom(ForceObject<T> other) {
     // no op
   }
 
-  public ForceObject add(ForceObject other) {
+  public ForceObject add(ForceObject<T> other) {
     double totalMass = this.mass + other.mass;
     Point p =
         Point.of(

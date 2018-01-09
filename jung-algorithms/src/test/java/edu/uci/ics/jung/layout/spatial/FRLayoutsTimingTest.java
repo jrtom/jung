@@ -2,7 +2,7 @@ package edu.uci.ics.jung.layout.spatial;
 
 import com.google.common.graph.Graph;
 import edu.uci.ics.jung.graph.util.TestGraphs;
-import edu.uci.ics.jung.layout.algorithms.FRBHLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.FRBHIteratorLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.FRBHVisitorLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.FRLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
@@ -55,7 +55,7 @@ public class FRLayoutsTimingTest {
 
   @Test
   public void testFRBH() {
-    FRBHLayoutAlgorithm layoutAlgorithmTwo = new FRBHLayoutAlgorithm();
+    FRBHIteratorLayoutAlgorithm layoutAlgorithmTwo = new FRBHIteratorLayoutAlgorithm();
     // using the same random seed each time for repeatable results from each test.
     layoutAlgorithmTwo.setRandomSeed(0);
     doTest(layoutAlgorithmTwo);

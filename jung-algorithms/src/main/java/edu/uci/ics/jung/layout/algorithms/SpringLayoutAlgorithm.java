@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 public class SpringLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
     implements IterativeContext {
 
-  private static final Logger log = LoggerFactory.getLogger(SpringBHLayoutAlgorithm.class);
+  private static final Logger log = LoggerFactory.getLogger(SpringLayoutAlgorithm.class);
   protected double stretch = 0.70;
   protected Function<? super EndpointPair<N>, Integer> lengthFunction;
   protected int repulsion_range_sq = 100 * 100;

@@ -5,7 +5,7 @@ import com.google.common.graph.GraphBuilder;
 import com.google.common.graph.MutableGraph;
 import edu.uci.ics.jung.layout.algorithms.IterativeLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
-import edu.uci.ics.jung.layout.algorithms.SpringBHLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.SpringBHIteratorLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.SpringBHVisitorLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.SpringLayoutAlgorithm;
 import edu.uci.ics.jung.layout.model.LayoutModel;
@@ -85,7 +85,7 @@ public class SpringLayoutsTest {
 
   @Test
   public void testSpringBHLayoutAlgorithm() {
-    SpringBHLayoutAlgorithm layoutAlgorithmTwo = new SpringBHLayoutAlgorithm();
+    SpringBHIteratorLayoutAlgorithm layoutAlgorithmTwo = new SpringBHIteratorLayoutAlgorithm();
     // using the same random seed each time for repeatable results from each test.
     layoutAlgorithmTwo.setRandomSeed(0);
     doTest(layoutAlgorithmTwo, mapTwo);

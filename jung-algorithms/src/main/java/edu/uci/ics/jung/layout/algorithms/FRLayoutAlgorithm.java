@@ -59,7 +59,7 @@ public class FRLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
 
   private double repulsion_multiplier = 0.75;
 
-  private double repulsion_constant;
+  protected double repulsion_constant;
 
   private double max_dimension;
 
@@ -117,7 +117,7 @@ public class FRLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
     }
   }
 
-  private double EPSILON = 0.000001D;
+  protected double EPSILON = 0.000001D;
 
   /**
    * Moves the iteration forward one notch, calculation attraction and repulsion between nodes and

@@ -50,15 +50,24 @@ public class ShowLayouts extends JPanel {
   };
 
   enum Layouts {
-    KAMADA_KAWAI,
-    CIRCLE,
-    SELF_ORGANIZING_MAP,
-    FRUCHTERMAN_REINGOLD,
-    FRUCHTERMAN_REINGOLD_BARNES_HUT_ITERATOR,
-    FRUCHTERMAN_REINGOLD_BARNES_HUT_VISITOR,
-    SPRING,
-    SPRING_BARNES_HUT_ITERATOR,
-    SPRING_BARNES_HUT_VISITOR
+    KK("Kamada Kawai"),
+    CIRCLE("Circle"),
+    SELF_ORGANIZING_MAP("Self Organizing Map"),
+    FR("Fruchterman Reingold (FR)"),
+    FR_BH_VISITOR("FR with Barnes-Hut as Visitor"),
+    SPRING("Spring"),
+    SPRING_BH_VISITOR("Spring with Barnes-Hut as Visitor");
+
+    Layouts(String name) {
+      this.name = name;
+    }
+
+    private final String name;
+
+    @Override
+    public String toString() {
+      return name;
+    }
   }
 
   public static class GraphChooser implements ActionListener {
@@ -74,24 +83,6 @@ public class ShowLayouts extends JPanel {
       vv.getNodeSpatial().clear();
       vv.getEdgeSpatial().clear();
       vv.getModel().setNetwork(g_array[graph_index]);
-    }
-  }
-
-  /** @author danyelf */
-  private static final class LayoutChooser implements ActionListener {
-    private final JComboBox<?> jcb;
-    private final VisualizationViewer<Integer, Number> vv;
-
-    private LayoutChooser(JComboBox<?> jcb, VisualizationViewer<Integer, Number> vv) {
-      super();
-      this.jcb = jcb;
-      this.vv = vv;
-    }
-
-    public void actionPerformed(ActionEvent arg0) {
-      Layouts layoutType = (Layouts) jcb.getSelectedItem();
-      LayoutAlgorithm layoutAlgorithm = createLayout(layoutType);
-      LayoutAlgorithmTransition.apply(vv, layoutAlgorithm);
     }
   }
 
@@ -167,18 +158,21 @@ public class ShowLayouts extends JPanel {
     jp.setLayout(new BorderLayout());
     jp.add(vv, BorderLayout.CENTER);
     Layouts[] combos = getCombos();
+    final JRadioButton animateLayoutTransition = new JRadioButton("Animate Layout Transition");
+
     final JComboBox jcb = new JComboBox(combos);
-    // use a renderer to shorten the layout name presentation
-    //        jcb.setRenderer(new DefaultListCellRenderer() {
-    //            public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-    //                String valueString = value.toString();
-    //                valueString = valueString.substring(valueString.lastIndexOf('.')+1);
-    //                return super.getListCellRendererComponent(list, valueString, index, isSelected,
-    //                        cellHasFocus);
-    //            }
-    //        });
-    jcb.addActionListener(new LayoutChooser(jcb, vv));
-    jcb.setSelectedItem(Layouts.FRUCHTERMAN_REINGOLD);
+    jcb.addActionListener(
+        e -> {
+          Layouts layoutType = (Layouts) jcb.getSelectedItem();
+          LayoutAlgorithm layoutAlgorithm = createLayout(layoutType);
+          if (animateLayoutTransition.isSelected()) {
+            LayoutAlgorithmTransition.animate(vv, layoutAlgorithm);
+          } else {
+            LayoutAlgorithmTransition.apply(vv, layoutAlgorithm);
+          }
+        });
+
+    jcb.setSelectedItem(Layouts.FR);
 
     JPanel control_panel = new JPanel(new GridLayout(2, 1));
     JPanel topControls = new JPanel();
@@ -195,6 +189,7 @@ public class ShowLayouts extends JPanel {
 
     topControls.add(jcb);
     topControls.add(graph_chooser);
+    bottomControls.add(animateLayoutTransition);
     bottomControls.add(plus);
     bottomControls.add(minus);
     bottomControls.add(modeBox);
@@ -205,21 +200,17 @@ public class ShowLayouts extends JPanel {
     switch (layoutType) {
       case CIRCLE:
         return new CircleLayoutAlgorithm();
-      case FRUCHTERMAN_REINGOLD:
+      case FR:
         return new FRLayoutAlgorithm();
-      case KAMADA_KAWAI:
+      case KK:
         return new KKLayoutAlgorithm();
       case SELF_ORGANIZING_MAP:
         return new ISOMLayoutAlgorithm();
       case SPRING:
         return new SpringLayoutAlgorithm();
-      case FRUCHTERMAN_REINGOLD_BARNES_HUT_ITERATOR:
-        return new FRBHLayoutAlgorithm();
-      case FRUCHTERMAN_REINGOLD_BARNES_HUT_VISITOR:
+      case FR_BH_VISITOR:
         return new FRBHVisitorLayoutAlgorithm();
-      case SPRING_BARNES_HUT_ITERATOR:
-        return new SpringBHLayoutAlgorithm();
-      case SPRING_BARNES_HUT_VISITOR:
+      case SPRING_BH_VISITOR:
         return new SpringBHVisitorLayoutAlgorithm();
       default:
         throw new IllegalArgumentException("Unrecognized layout type");
