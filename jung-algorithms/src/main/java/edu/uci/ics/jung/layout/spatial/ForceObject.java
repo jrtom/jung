@@ -4,14 +4,17 @@ import edu.uci.ics.jung.layout.model.Point;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** @author Tom Nelson */
+/**
+ * An instance used to gather forces while visiting the BarnesHut QuadTree.
+ *
+ * @author Tom Nelson
+ */
 public class ForceObject<T> {
 
   private static final Logger log = LoggerFactory.getLogger(ForceObject.class);
 
-  private double EPSILON = 0.000001D;
   /** location of p */
-  public Point p;
+  public final Point p;
 
   /** force vector */
   public Point f;
@@ -19,7 +22,7 @@ public class ForceObject<T> {
   /** mass */
   protected double mass;
 
-  T element;
+  private final T element;
 
   public ForceObject(T element, Point p, double mass) {
     this.element = element;
@@ -42,7 +45,13 @@ public class ForceObject<T> {
     this.mass = mass;
   }
 
-  protected void addForceFrom(ForceObject<T> other) {
+  /**
+   * override in the layoutAlgorithm to apply forces in a way that is consistent with the chosen
+   * implementation. See FRBHVisitorLayoutAlgorithm and SpringVisitorLayoutAlgorithm.
+   *
+   * @param other the ForceObject (a node or a force vector) to apply force from
+   */
+  protected <S> void addForceFrom(ForceObject<T> other) {
     // no op
   }
 
@@ -53,8 +62,7 @@ public class ForceObject<T> {
             (this.p.x * this.mass + other.p.x * other.mass) / totalMass,
             (this.p.y * this.mass + other.p.y * other.mass) / totalMass);
 
-    ForceObject<String> forceObject = new ForceObject<>("force", p, totalMass);
-    return forceObject;
+    return new ForceObject<>("force", p, totalMass);
   }
 
   public T getElement() {
