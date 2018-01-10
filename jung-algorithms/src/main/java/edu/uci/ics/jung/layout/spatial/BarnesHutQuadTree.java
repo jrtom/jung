@@ -1,6 +1,7 @@
 package edu.uci.ics.jung.layout.spatial;
 
 import com.google.common.collect.Sets;
+import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.layout.model.Point;
 import java.util.Collection;
 import java.util.Collections;
@@ -117,6 +118,10 @@ public class BarnesHutQuadTree<T> {
         insert(forceObject);
       }
     }
+  }
+
+  public void rebuild(LayoutModel<T> layoutModel) {
+    rebuild(layoutModel.getGraph().nodes(), layoutModel);
   }
 
   @Override

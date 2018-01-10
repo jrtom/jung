@@ -40,7 +40,7 @@ public class FRBHIteratorLayoutAlgorithm<N> extends FRLayoutAlgorithm<N>
 
   @Override
   public synchronized void step() {
-    tree.rebuild(layoutModel.getGraph().nodes(), layoutModel);
+    tree.rebuild(layoutModel);
     super.step();
   }
 

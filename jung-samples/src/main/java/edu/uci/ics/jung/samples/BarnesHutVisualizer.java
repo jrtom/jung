@@ -71,7 +71,7 @@ public class BarnesHutVisualizer extends JPanel {
     layoutModel.set("D", Point.of(500, 100));
 
     tree = new BarnesHutQuadTree<>(layoutModel.getWidth(), layoutModel.getHeight());
-    tree.rebuild(layoutModel.getGraph().nodes(), layoutModel);
+    tree.rebuild(layoutModel);
 
     JPanel drawingPanel =
         new JPanel() {
@@ -145,7 +145,7 @@ public class BarnesHutVisualizer extends JPanel {
       network.removeNode(node);
     }
     tree.clear();
-    tree.rebuild(layoutModel.getGraph().nodes(), layoutModel);
+    tree.rebuild(layoutModel);
     repaint();
   }
 
@@ -153,7 +153,7 @@ public class BarnesHutVisualizer extends JPanel {
     String n = "N" + network.nodes().size();
     layoutModel.set(n, p.getX(), p.getY());
     network.addNode(n);
-    tree.rebuild(layoutModel.getGraph().nodes(), layoutModel);
+    tree.rebuild(layoutModel);
     repaint();
   }
 
