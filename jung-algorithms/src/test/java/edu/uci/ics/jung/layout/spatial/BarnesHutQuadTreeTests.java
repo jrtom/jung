@@ -58,7 +58,6 @@ public class BarnesHutQuadTreeTests {
     Node<String> root = tree.getRoot();
     Assert.assertTrue(root.isLeaf() == false);
     Node<String> NW = root.NW;
-    Point q = forceObjectA.add(forceObjectB).add(forceObjectC).p;
     Assert.assertTrue(NW.forceObject.equals(forceObjectA.add(forceObjectB).add(forceObjectC)));
     Assert.assertTrue(NW.isLeaf() == false);
     Assert.assertTrue(NW.NW.forceObject.equals(forceObjectC));

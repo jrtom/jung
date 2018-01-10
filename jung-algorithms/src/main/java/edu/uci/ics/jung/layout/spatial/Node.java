@@ -85,7 +85,7 @@ public class Node<T> {
       } else {
         // there already is a forceObject and location is different, so split
         split();
-        // put the current resident and the new one into the correct quardrants
+        // put the current resident and the new one into the correct quadrants
         insertForceObject(this.forceObject);
         insertForceObject(element);
         // update the centerOfMass, Mass, and Force on this node
