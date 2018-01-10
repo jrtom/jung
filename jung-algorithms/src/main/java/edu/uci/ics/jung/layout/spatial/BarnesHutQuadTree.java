@@ -109,7 +109,13 @@ public class BarnesHutQuadTree<T> {
     }
   }
 
-  public void rebuild(Collection<T> nodes, Function<T, Point> function) {
+  /**
+   * package level for unit test use
+   *
+   * @param nodes
+   * @param function
+   */
+  void rebuild(Collection<T> nodes, Function<T, Point> function) {
     clear();
     synchronized (lock) {
       for (T node : nodes) {
