@@ -1,11 +1,12 @@
 package edu.uci.ics.jung.layout.spatial;
 
 import com.google.common.collect.Sets;
-import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.layout.model.Point;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,14 +32,14 @@ public class BarnesHutQuadTree<T> {
     return root;
   }
 
-  protected LayoutModel<T> layoutModel;
-
   private Object lock = new Object();
 
-  /** @param layoutModel */
-  public BarnesHutQuadTree(LayoutModel<T> layoutModel) {
-    this.layoutModel = layoutModel;
-    this.root = new Node(new Rectangle(0, 0, layoutModel.getWidth(), layoutModel.getHeight()));
+  public BarnesHutQuadTree(double width, double height) {
+    this.root = new Node(new Rectangle(0, 0, width, height));
+  }
+
+  public BarnesHutQuadTree(Rectangle r) {
+    this.root = new Node(r);
   }
 
   /*
@@ -107,11 +108,11 @@ public class BarnesHutQuadTree<T> {
     }
   }
 
-  public void rebuild() {
+  public void rebuild(Collection<T> nodes, Function<T, Point> function) {
     clear();
     synchronized (lock) {
-      for (T node : layoutModel.getGraph().nodes()) {
-        Point p = layoutModel.apply(node);
+      for (T node : nodes) {
+        Point p = function.apply(node);
         ForceObject<T> forceObject = new ForceObject<T>(node, p);
         insert(forceObject);
       }
