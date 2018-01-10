@@ -24,7 +24,7 @@ public class Node<T> {
   Node SE;
   Node SW;
 
-  private Rectangle area;
+  protected Rectangle area;
 
   public Node(double x, double y, double width, double height) {
     this(new Rectangle(x, y, width, height));
@@ -77,14 +77,20 @@ public class Node<T> {
       return;
     }
     if (isLeaf()) {
-      // there already is a forceObject, so split
-      split();
-      // put the current resident and the new one into the correct quardrants
-      insertForceObject(this.forceObject);
-      insertForceObject(element);
-      // update the centerOfMass, Mass, and Force on this node
-      this.forceObject = this.forceObject.add(element);
-
+      if (this.forceObject.p.equals(element.p)) {
+        // compare points for special case where the 2 elements are at the same location
+        // this would cause an infinite attempt to split and re-insert
+        // just add the new mass
+        this.forceObject = this.forceObject.add(element);
+      } else {
+        // there already is a forceObject and location is different, so split
+        split();
+        // put the current resident and the new one into the correct quadrants
+        insertForceObject(this.forceObject);
+        insertForceObject(element);
+        // update the centerOfMass, Mass, and Force on this node
+        this.forceObject = this.forceObject.add(element);
+      }
     } else {
       if (forceObject == element) {
         log.error("can't insert {} into {}", element, this.forceObject);
@@ -217,10 +223,11 @@ public class Node<T> {
     return "[" + (int) r.x + "," + (int) r.y + "," + (int) r.width + "," + (int) r.height + "]";
   }
 
-  static <T> String asString(Node<T> node, String margin) {
+  static <T> String asString(String label, Node<T> node, String margin) {
     StringBuilder s = new StringBuilder();
     s.append("\n");
     s.append(margin);
+    s.append(label);
     s.append("bounds=");
     s.append(asString(node.getBounds()));
     ForceObject forceObject = node.getForceObject();
@@ -228,10 +235,10 @@ public class Node<T> {
       s.append(", forceObject:=");
       s.append(forceObject.toString());
     }
-    if (node.NW != null) s.append(asString(node.NW, margin + marginIncrement));
-    if (node.NE != null) s.append(asString(node.NE, margin + marginIncrement));
-    if (node.SW != null) s.append(asString(node.SW, margin + marginIncrement));
-    if (node.SE != null) s.append(asString(node.SE, margin + marginIncrement));
+    if (node.NW != null) s.append(asString("NW:", node.NW, margin + marginIncrement));
+    if (node.NE != null) s.append(asString("NE:", node.NE, margin + marginIncrement));
+    if (node.SW != null) s.append(asString("SW:", node.SW, margin + marginIncrement));
+    if (node.SE != null) s.append(asString("SE:", node.SE, margin + marginIncrement));
 
     return s.toString();
   }
@@ -240,6 +247,6 @@ public class Node<T> {
 
   @Override
   public String toString() {
-    return asString(this, "");
+    return asString("", this, "");
   }
 }

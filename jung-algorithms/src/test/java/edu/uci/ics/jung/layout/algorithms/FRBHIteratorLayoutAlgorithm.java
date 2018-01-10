@@ -35,12 +35,12 @@ public class FRBHIteratorLayoutAlgorithm<N> extends FRLayoutAlgorithm<N>
   @Override
   public void visit(LayoutModel<N> layoutModel) {
     super.visit(layoutModel);
-    tree = new BarnesHutQuadTree(layoutModel);
+    tree = new BarnesHutQuadTree(layoutModel.getWidth(), layoutModel.getHeight());
   }
 
   @Override
   public synchronized void step() {
-    tree.rebuild();
+    tree.rebuild(layoutModel);
     super.step();
   }
 
