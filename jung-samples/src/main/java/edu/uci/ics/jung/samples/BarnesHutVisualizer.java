@@ -25,7 +25,6 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Set;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -34,7 +33,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Draws a Barnes-Hut Quad Tree.
+ * Draws a Barnes-Hut Quad Tree. Mouse clicks on empty space add a new forceObject. Mouse clicks on
+ * an existing object will highlight the other forces that will act on the clicked object
  *
  * @author Tom Nelson
  */
@@ -100,16 +100,19 @@ public class BarnesHutVisualizer extends JPanel {
             Point2D p = e.getPoint();
             String got = getNodeAt(p);
             if (got != null) {
-              ForceObject<String> forceObject = new ForceObject<>(got, layoutModel.apply(got));
-              BarnesHutQuadTree.ForceObjectIterator<String> iterator =
-                  new BarnesHutQuadTree.ForceObjectIterator<>(tree, forceObject);
-              while (iterator.hasNext()) {
-                ForceObject<String> next = iterator.next();
-                if (next != null) {
-                  Ellipse2D ellipse = new Ellipse2D.Double(next.p.x - 15, next.p.y - 15, 30, 30);
-                  stuffToDraw.add(ellipse);
-                }
-              }
+              ForceObject<String> nodeForceObject =
+                  new ForceObject(got, layoutModel.apply(got)) {
+                    @Override
+                    protected void addForceFrom(ForceObject other) {
+                      log.info("adding force from {}", other);
+                      Ellipse2D ellipse =
+                          new Ellipse2D.Double(other.p.x - 15, other.p.y - 15, 30, 30);
+                      stuffToDraw.add(ellipse);
+                      Line2D line = new Line2D.Double(this.p.x, this.p.y, other.p.x, other.p.y);
+                      stuffToDraw.add(line);
+                    }
+                  };
+              tree.acceptVisitor(nodeForceObject);
             } else {
               addShapeAt(p);
             }
@@ -119,18 +122,19 @@ public class BarnesHutVisualizer extends JPanel {
 
     JButton clear = new JButton("clear");
     clear.addActionListener(e -> clearNetwork());
-    JButton go = new JButton("go");
+    JButton go = new JButton("Log all forces");
     go.addActionListener(
         e -> {
           for (String node : graph.nodes()) {
-            Point p = layoutModel.apply(node);
-            ForceObject<String> fo = new ForceObject(node, p);
-            Iterator<ForceObject<String>> foiter =
-                new BarnesHutQuadTree.ForceObjectIterator<>(tree, fo);
-            while (foiter.hasNext()) {
-              ForceObject<String> next = foiter.next();
-              log.info("for node {}, next force object is {}", node, next);
-            }
+            ForceObject<String> nodeForceObject =
+                new ForceObject(node, layoutModel.apply(node)) {
+                  @Override
+                  protected void addForceFrom(ForceObject other) {
+
+                    log.info("for node {}, next force object is {}", node, other);
+                  }
+                };
+            tree.acceptVisitor(nodeForceObject);
           }
         });
     JPanel controls = new JPanel();

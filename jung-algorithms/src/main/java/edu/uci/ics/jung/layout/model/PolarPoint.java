@@ -12,8 +12,8 @@ package edu.uci.ics.jung.layout.model;
 import java.util.Objects;
 
 /**
- * Represents a point in polar coordinates: distance and angle from the origin. Includes conversions
- * between polar and Cartesian coordinates (Point2D).
+ * Immutable Point Represents a point in polar coordinates: distance and angle from the origin.
+ * Includes conversions between polar and Cartesian coordinates (Point2D).
  *
  * @author Tom Nelson
  */

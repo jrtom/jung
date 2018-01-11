@@ -17,7 +17,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * This subclass of FRLayoutAlgorithm applies a Barnes-Hut QuadTree optimization during the
- * calculation of node repulsion
+ * calculation of node repulsion. The purpose of the Barnes-Hut optimization is to reduce the n-body
+ * problem during the calculateRepulsion method from O(n^2) to O(nlog(n))
  *
  * @author Tom Nelson
  */
@@ -26,20 +27,35 @@ public class FRBHVisitorLayoutAlgorithm<N> extends FRLayoutAlgorithm<N>
 
   private static final Logger log = LoggerFactory.getLogger(FRBHVisitorLayoutAlgorithm.class);
 
+  /** Used for optimization of the calculation of repulsion forces between Nodes */
   private BarnesHutQuadTree<N> tree;
 
+  /**
+   * Override to create the BarnesHutQuadTree
+   *
+   * @param layoutModel
+   */
   @Override
   public void visit(LayoutModel<N> layoutModel) {
     super.visit(layoutModel);
     tree = new BarnesHutQuadTree(layoutModel.getWidth(), layoutModel.getHeight());
   }
 
+  /**
+   * Override to rebuild the tree during each step, as every node has been moved. Building of the
+   * QuadTree is an O(nlog(n)) operation.
+   */
   @Override
   public synchronized void step() {
     tree.rebuild(layoutModel);
     super.step();
   }
 
+  /**
+   * Instead of visiting every other Node (n), visit the QuadTree (log(n)) to gather the forces
+   * applied to each Node.
+   */
+  @Override
   protected void calcRepulsion(N node1) {
     Point fvd1 = getFRData(node1);
     if (fvd1 == null) {
@@ -62,7 +78,7 @@ public class FRBHVisitorLayoutAlgorithm<N> extends FRLayoutAlgorithm<N>
             f = f.add(force * (dx / dist), force * (dy / dist));
           }
         };
-    tree.visit(nodeForceObject);
+    tree.acceptVisitor(nodeForceObject);
     frNodeData.put(node1, nodeForceObject.f);
   }
 }

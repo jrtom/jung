@@ -21,7 +21,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * This subclass of SpringLayoutAlgorithm applies a Barnes-Hut QuadTree optimization during the
- * calculation of node repulsion
+ * calculation of node repulsion. The purpose of the Barnes-Hut optimization is to reduce the n-body
+ * problem during the calculateRepulsion method from O(n^2) to O(nlog(n))
  *
  * @author Tom Nelson
  */
@@ -30,6 +31,7 @@ public class SpringBHVisitorLayoutAlgorithm<N> extends SpringLayoutAlgorithm<N>
 
   private static final Logger log = LoggerFactory.getLogger(SpringBHVisitorLayoutAlgorithm.class);
 
+  /** Used for optimization of the calculation of repulsion forces between Nodes */
   private BarnesHutQuadTree<N> tree;
 
   public SpringBHVisitorLayoutAlgorithm() {}
@@ -39,18 +41,32 @@ public class SpringBHVisitorLayoutAlgorithm<N> extends SpringLayoutAlgorithm<N>
     super(length_function);
   }
 
+  /**
+   * Override to create the BarnesHutQuadTree
+   *
+   * @param layoutModel
+   */
   @Override
   public void visit(LayoutModel<N> layoutModel) {
     super.visit(layoutModel);
     tree = new BarnesHutQuadTree(layoutModel.getWidth(), layoutModel.getHeight());
   }
 
+  /**
+   * Override to rebuild the tree during each step, as every node has been moved. Building of the
+   * QuadTree is an O(nlog(n)) operation.
+   */
   @Override
   public void step() {
     tree.rebuild(layoutModel);
     super.step();
   }
 
+  /**
+   * Instead of visiting every other Node (n), visit the QuadTree (log(n)) to gather the forces
+   * applied to each Node.
+   */
+  @Override
   protected void calculateRepulsion() {
     Graph<N> graph = layoutModel.getGraph();
 
@@ -89,7 +105,7 @@ public class SpringBHVisitorLayoutAlgorithm<N> extends SpringLayoutAlgorithm<N>
                 }
               }
             };
-        tree.visit(nodeForceObject);
+        tree.acceptVisitor(nodeForceObject);
         Point f = nodeForceObject.f;
         double dlen = f.x * f.x + f.y * f.y;
         if (dlen > 0) {

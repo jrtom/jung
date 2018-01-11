@@ -115,11 +115,6 @@ public class KKLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
     this.maxIterations = maxIterations;
   }
 
-  /** @return true */
-  public boolean isIncremental() {
-    return true;
-  }
-
   /** @return true if the current iteration has passed the maximum count. */
   public boolean done() {
     if (currentIteration > maxIterations) {
@@ -189,6 +184,7 @@ public class KKLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
     }
   }
 
+  @Override
   public void step() {
     Graph<N> graph = layoutModel.getGraph();
     currentIteration++;
@@ -407,9 +403,5 @@ public class KKLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
       }
     }
     return energy;
-  }
-
-  public void reset() {
-    currentIteration = 0;
   }
 }

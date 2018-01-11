@@ -36,14 +36,4 @@ public interface NetworkNodeAccessor<N> {
    * @return the node associated with (x, y)
    */
   N getNode(LayoutModel<N> layoutModel, double x, double y);
-
-  //  /**
-  //   * Returns the node, if any, associated with (x, y).
-  //   *
-  //   * @param x the x coordinate of the pick point
-  //   * @param y the y coordinate of the pick point
-  //   * @param z the z coordinate of the pick point
-  //   * @return the node associated with (x, y)
-  //   */
-  //  N getNode(LayoutModel<N> layoutModel, double x, double y, double z);
 }

@@ -52,8 +52,7 @@ public class FRBHIteratorLayoutAlgorithm<N> extends FRLayoutAlgorithm<N>
     log.trace("fvd1 for {} starts as {}", node1, fvd1);
     frNodeData.put(node1, Point.ORIGIN);
     ForceObject<N> nodeForceObject = new ForceObject<>(node1, layoutModel.apply(node1));
-    Iterator<ForceObject<N>> forceObjectIterator =
-        new BarnesHutQuadTree.ForceObjectIterator<>(tree, nodeForceObject);
+    Iterator<ForceObject<N>> forceObjectIterator = new ForceObjectIterator<>(tree, nodeForceObject);
     try {
       while (forceObjectIterator.hasNext()) {
         ForceObject<N> nextForceObject = forceObjectIterator.next();
