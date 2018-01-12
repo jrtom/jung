@@ -1,9 +1,7 @@
 package edu.uci.ics.jung.layout.spatial;
 
-import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.layout.model.Point;
-import java.util.Collection;
-import java.util.function.Function;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,29 +73,18 @@ public class BarnesHutQuadTree<T> {
   }
 
   /**
-   * package level for unit test use
+   * rebuild the quad tree with the nodes and location mappings of the passed LayoutModel
    *
-   * @param nodes
-   * @param function
+   * @param locations - mapping of elements to locations
    */
-  void rebuild(Collection<T> nodes, Function<T, Point> function) {
+  public void rebuild(Map<T, Point> locations) {
     clear();
     synchronized (lock) {
-      for (T node : nodes) {
-        Point p = function.apply(node);
-        ForceObject<T> forceObject = new ForceObject<T>(node, p);
+      for (Map.Entry<T, Point> entry : locations.entrySet()) {
+        ForceObject<T> forceObject = new ForceObject<T>(entry.getKey(), entry.getValue());
         insert(forceObject);
       }
     }
-  }
-
-  /**
-   * rebuild the quad tree with the nodes and location mappings of the passed LayoutModel
-   *
-   * @param layoutModel
-   */
-  public void rebuild(LayoutModel<T> layoutModel) {
-    rebuild(layoutModel.getGraph().nodes(), layoutModel);
   }
 
   @Override

@@ -11,6 +11,7 @@ package edu.uci.ics.jung.layout.model;
 
 import com.google.common.graph.Graph;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
@@ -29,6 +30,13 @@ public interface LayoutModel<N> extends Function<N, Point> {
    * @param layoutAlgorithm the algorithm to apply to this model's Points
    */
   void accept(LayoutAlgorithm<N> layoutAlgorithm);
+
+  /**
+   * return a mapping of Nodes to Point locations
+   *
+   * @return
+   */
+  Map<N, Point> getLocations();
 
   /**
    * @param width to set

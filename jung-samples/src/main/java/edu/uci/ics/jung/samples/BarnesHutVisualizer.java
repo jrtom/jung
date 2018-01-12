@@ -1,17 +1,12 @@
 package edu.uci.ics.jung.samples;
 
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.google.common.graph.Graph;
-import com.google.common.graph.MutableNetwork;
-import com.google.common.graph.NetworkBuilder;
-import edu.uci.ics.jung.layout.model.LayoutModel;
-import edu.uci.ics.jung.layout.model.LoadingCacheLayoutModel;
 import edu.uci.ics.jung.layout.model.Point;
 import edu.uci.ics.jung.layout.spatial.BarnesHutQuadTree;
 import edu.uci.ics.jung.layout.spatial.ForceObject;
 import edu.uci.ics.jung.layout.spatial.Node;
 import edu.uci.ics.jung.layout.spatial.Rectangle;
-import edu.uci.ics.jung.layout.util.RandomLocationTransformer;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -25,7 +20,7 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.Collection;
-import java.util.Set;
+import java.util.Map;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -42,36 +37,22 @@ public class BarnesHutVisualizer extends JPanel {
 
   private static final Logger log = LoggerFactory.getLogger(BarnesHutVisualizer.class);
 
-  LayoutModel<String> layoutModel;
-  MutableNetwork<String, Number> network;
   BarnesHutQuadTree<String> tree;
+
+  Map<String, Point> elements = Maps.newHashMap();
 
   Collection<Shape> stuffToDraw = Sets.newHashSet();
 
   public BarnesHutVisualizer() {
     setLayout(new BorderLayout());
 
-    network = NetworkBuilder.undirected().allowsParallelEdges(true).build();
-    network.addNode("A");
-    network.addNode("B");
-    network.addNode("C");
-    network.addNode("D");
+    elements.put("A", Point.of(200, 100));
+    elements.put("B", Point.of(100, 200));
+    elements.put("C", Point.of(100, 100));
+    elements.put("D", Point.of(500, 100));
 
-    Graph<String> graph = network.asGraph();
-
-    layoutModel =
-        LoadingCacheLayoutModel.<String>builder()
-            .setGraph(graph)
-            .setSize(600, 600)
-            .setInitializer(new RandomLocationTransformer<>(600, 600, System.currentTimeMillis()))
-            .build();
-    layoutModel.set("A", Point.of(200, 100));
-    layoutModel.set("B", Point.of(100, 200));
-    layoutModel.set("C", Point.of(100, 100));
-    layoutModel.set("D", Point.of(500, 100));
-
-    tree = new BarnesHutQuadTree<>(layoutModel.getWidth(), layoutModel.getHeight());
-    tree.rebuild(layoutModel);
+    tree = new BarnesHutQuadTree<>(600, 600);
+    tree.rebuild(elements);
 
     JPanel drawingPanel =
         new JPanel() {
@@ -101,7 +82,7 @@ public class BarnesHutVisualizer extends JPanel {
             String got = getNodeAt(p);
             if (got != null) {
               ForceObject<String> nodeForceObject =
-                  new ForceObject(got, layoutModel.apply(got)) {
+                  new ForceObject(got, elements.get(got)) {
                     @Override
                     protected void addForceFrom(ForceObject other) {
                       log.info("adding force from {}", other);
@@ -125,9 +106,9 @@ public class BarnesHutVisualizer extends JPanel {
     JButton go = new JButton("Log all forces");
     go.addActionListener(
         e -> {
-          for (String node : graph.nodes()) {
+          for (String node : elements.keySet()) {
             ForceObject<String> nodeForceObject =
-                new ForceObject(node, layoutModel.apply(node)) {
+                new ForceObject(node, elements.get(node)) {
                   @Override
                   protected void addForceFrom(ForceObject other) {
 
@@ -144,26 +125,22 @@ public class BarnesHutVisualizer extends JPanel {
   }
 
   private void clearNetwork() {
-    Set<String> nodes = Sets.newHashSet(network.nodes());
-    for (String node : nodes) {
-      network.removeNode(node);
-    }
+    elements.clear();
     tree.clear();
-    tree.rebuild(layoutModel);
+    tree.rebuild(elements);
     repaint();
   }
 
   private void addShapeAt(Point2D p) {
-    String n = "N" + network.nodes().size();
-    layoutModel.set(n, p.getX(), p.getY());
-    network.addNode(n);
-    tree.rebuild(layoutModel);
+    String n = "N" + elements.size();
+    elements.put(n, Point.of(p.getX(), p.getY()));
+    tree.rebuild(elements);
     repaint();
   }
 
   private String getNodeAt(Point2D p) {
-    for (String node : layoutModel.getGraph().nodes()) {
-      Point loc = layoutModel.get(node);
+    for (String node : elements.keySet()) {
+      Point loc = elements.get(node);
       if (loc.distanceSquared(p.getX(), p.getY()) < 20) {
         return node;
       }

@@ -47,7 +47,7 @@ public class FRBHVisitorLayoutAlgorithm<N> extends FRLayoutAlgorithm<N>
    */
   @Override
   public synchronized void step() {
-    tree.rebuild(layoutModel);
+    tree.rebuild(layoutModel.getLocations());
     super.step();
   }
 

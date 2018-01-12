@@ -121,6 +121,7 @@ public class LoadingCacheLayoutModel<N> extends AbstractLayoutModel<N>
     this.locations = CacheBuilder.newBuilder().build(CacheLoader.from(chain::apply));
   }
 
+  @Override
   public Map<N, Point> getLocations() {
     return locations.asMap();
   }

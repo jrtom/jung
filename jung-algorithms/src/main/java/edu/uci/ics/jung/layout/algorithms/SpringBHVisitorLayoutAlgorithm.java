@@ -58,7 +58,7 @@ public class SpringBHVisitorLayoutAlgorithm<N> extends SpringLayoutAlgorithm<N>
    */
   @Override
   public void step() {
-    tree.rebuild(layoutModel);
+    tree.rebuild(layoutModel.getLocations());
     super.step();
   }
 
