@@ -156,12 +156,11 @@ public class DAGLayoutAlgorithm<N> extends SpringLayoutAlgorithm<N> {
   protected void moveNodes() {
     int width = layoutModel.getWidth();
     int height = layoutModel.getHeight();
-    Graph<N> graph = layoutModel.getGraph();
     double oldMSV = meanSquareVel;
     meanSquareVel = 0;
 
     synchronized (layoutModel) {
-      for (N node : graph.nodes()) {
+      for (N node : layoutModel.getLocations().keySet()) {
         if (layoutModel.isLocked(node)) {
           continue;
         }

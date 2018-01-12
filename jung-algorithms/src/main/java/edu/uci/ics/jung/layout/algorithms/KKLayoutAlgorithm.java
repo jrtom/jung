@@ -186,21 +186,17 @@ public class KKLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
 
   @Override
   public void step() {
-    Graph<N> graph = layoutModel.getGraph();
     currentIteration++;
     double energy = calcEnergy();
     status =
         "Kamada-Kawai N="
-            + graph.nodes().size()
-            + "("
-            + graph.nodes().size()
-            + ")"
+            + layoutModel.getLocations().size()
             + " IT: "
             + currentIteration
             + " E="
             + energy;
 
-    int n = graph.nodes().size();
+    int n = layoutModel.getLocations().size();
     if (n == 0) {
       return;
     }

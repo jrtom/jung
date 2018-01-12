@@ -47,7 +47,7 @@ public class RadiusNetworkElementAccessor<N, E> extends RadiusNetworkNodeAccesso
    *     and still be returned
    */
   public RadiusNetworkElementAccessor(Network<N, E> network, double maxDistance) {
-    super(network.asGraph(), maxDistance);
+    super(maxDistance);
     this.network = network;
   }
 
@@ -127,19 +127,19 @@ public class RadiusNetworkElementAccessor<N, E> extends RadiusNetworkNodeAccesso
   }
 
   public Set<N> getNodes(LayoutModel<N> layoutModel, Shape rectangle) {
-    Set<N> pickednodes = new HashSet<N>();
+    Set<N> pickedNodes = new HashSet<N>();
     while (true) {
       try {
-        for (N node : graph.nodes()) {
+        for (N node : layoutModel.getLocations().keySet()) {
           Point p = layoutModel.apply(node);
           if (rectangle.contains(p.x, p.y)) {
-            pickednodes.add(node);
+            pickedNodes.add(node);
           }
         }
         break;
       } catch (ConcurrentModificationException cme) {
       }
     }
-    return pickednodes;
+    return pickedNodes;
   }
 }
