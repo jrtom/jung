@@ -169,37 +169,19 @@ public class Node<T> {
     }
 
     if (isLeaf()) {
-      if (log.isTraceEnabled()) {
-        log.trace(
-            "isLeaf, Node {} at {} visiting {} at {}",
-            this.forceObject.getElement(),
-            this.forceObject.p,
-            visitor.getElement(),
-            visitor.p);
-      }
+
       visitor.addForceFrom(this.forceObject);
-      log.trace("added force from {} so its now {}", this.forceObject, visitor);
+
     } else {
-      // not a leaf
-      //  this node is an internal node
+      // not a leaf. this node is an internal node
       //  calculate s/d
       double s = this.area.width;
       //      distance between the incoming node's position and
       //      the center of mass for this node
       double d = this.forceObject.p.distance(visitor.p);
       if (s / d < THETA) {
-        // this node is sufficiently far away
-        // just use this node's forces
-        if (log.isTraceEnabled()) {
-          log.trace(
-              "Node {} at {} visiting {} at {}",
-              this.forceObject.getElement(),
-              this.forceObject.p,
-              visitor.getElement(),
-              visitor.p);
-        }
+        // this node is sufficiently far away, just use this node's forces
         visitor.addForceFrom(this.forceObject);
-        log.trace("added force from {} so its now {}", this.forceObject, visitor);
 
       } else {
         // down the tree we go

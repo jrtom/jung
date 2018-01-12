@@ -48,14 +48,34 @@ public class AggregateLayoutModel<N> implements LayoutModel<N> {
    * Adds the passed layout as a sublayout, and specifies the center of where this sublayout should
    * appear.
    *
-   * @param layout the layout algorithm to use as a sublayout
-   * @param center the center of the coordinates for the sublayout
+   * @param layoutModel the layout model to use as a sublayout
+   * @param center the center of the coordinates for the sublayout model
    */
-  public void put(LayoutModel<N> layout, Point center) {
+  public void put(LayoutModel<N> layoutModel, Point center) {
     if (log.isTraceEnabled()) {
-      log.trace("put layout: {} at {}", layout, center);
+      log.trace("put layout: {} at {}", layoutModel, center);
     }
-    layouts.put(layout, center);
+    layouts.put(layoutModel, center);
+    connectListeners(layoutModel);
+  }
+
+  private void connectListeners(LayoutModel<N> newLayoutModel) {
+    for (LayoutStateChangeListener layoutStateChangeListener :
+        delegate.getLayoutStateChangeSupport().getLayoutStateChangeListeners()) {
+      newLayoutModel
+          .getLayoutStateChangeSupport()
+          .addLayoutStateChangeListener(layoutStateChangeListener);
+    }
+
+    for (LayoutModel.ChangeListener changeListener :
+        delegate.getChangeSupport().getChangeListeners()) {
+      newLayoutModel.getChangeSupport().addChangeListener(changeListener);
+    }
+  }
+
+  private void disconnectListeners(LayoutModel<N> newLayoutModel) {
+    newLayoutModel.getLayoutStateChangeSupport().getLayoutStateChangeListeners().clear();
+    newLayoutModel.getChangeSupport().getChangeListeners().clear();
   }
 
   /**
@@ -201,6 +221,11 @@ public class AggregateLayoutModel<N> implements LayoutModel<N> {
   @Override
   public LayoutStateChangeSupport getLayoutStateChangeSupport() {
     return delegate.getLayoutStateChangeSupport();
+  }
+
+  @Override
+  public ChangeSupport getChangeSupport() {
+    return delegate.getChangeSupport();
   }
 
   /**

@@ -26,7 +26,7 @@ public class Point {
 
   /**
    * @param other the Point with values to add
-   * @return a new Point with the sum of this Point and other other Point's values
+   * @return a new Point with the sum of this Point and other Point's values
    */
   public Point add(Point other) {
     return add(other.x, other.y);
@@ -92,7 +92,7 @@ public class Point {
    * @return true if this Point is within the passed rectangular space, false otherwise
    */
   public boolean inside(double minX, double minY, double maxX, double maxY) {
-    return x >= minX || maxX >= x || y >= minY || maxY >= y;
+    return x >= minX && maxX >= x && y >= minY && maxY >= y;
   }
 
   /** @return the distance between this Point and the origin. */

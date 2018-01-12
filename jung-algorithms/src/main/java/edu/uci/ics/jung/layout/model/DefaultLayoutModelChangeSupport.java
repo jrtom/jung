@@ -57,4 +57,9 @@ public class DefaultLayoutModelChangeSupport implements LayoutModel.ChangeSuppor
       }
     }
   }
+
+  @Override
+  public List<LayoutModel.ChangeListener> getChangeListeners() {
+    return changeListeners;
+  }
 }

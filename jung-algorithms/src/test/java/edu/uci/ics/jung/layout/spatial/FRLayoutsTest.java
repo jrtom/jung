@@ -11,13 +11,10 @@ import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
 import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.layout.model.LoadingCacheLayoutModel;
 import edu.uci.ics.jung.layout.model.Point;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.Map;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,15 +51,6 @@ public class FRLayoutsTest {
   static Map<String, Point> mapTwo = Maps.newHashMap();
   static Map<String, Point> mapThree = Maps.newHashMap();
 
-  @BeforeClass
-  public static void before() throws Exception {
-    Field theta = Node.class.getField("THETA");
-    theta.setAccessible(true);
-    Field modifiers = Field.class.getDeclaredField("modifiers");
-    modifiers.setAccessible(true);
-    modifiers.setInt(theta, theta.getModifiers() & ~Modifier.FINAL);
-    theta.set(null, 0.0);
-  }
   /**
    * this runs again before each test. Build a simple graph, build a custom layout model (see below)
    * initialize the locations to be the same each time.

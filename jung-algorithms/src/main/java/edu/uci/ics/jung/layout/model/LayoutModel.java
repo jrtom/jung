@@ -11,6 +11,8 @@ package edu.uci.ics.jung.layout.model;
 
 import com.google.common.graph.Graph;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
@@ -62,7 +64,7 @@ public interface LayoutModel<N> extends Function<N, Point> {
   boolean isRelaxing();
 
   /**
-   * a handle to the relaxer thread may be used to attach a process to run after relax is complete
+   * a handle to the relaxer thread; may be used to attach a process to run after relax is complete
    *
    * @return the CompletableFuture
    */
@@ -131,7 +133,11 @@ public interface LayoutModel<N> extends Function<N, Point> {
     void removeChangeListener(ChangeListener l);
 
     void fireChanged();
+
+    Collection<ChangeListener> getChangeListeners();
   }
+
+  ChangeSupport getChangeSupport();
 
   /** @return the support for LayoutStateChange events */
   LayoutStateChangeSupport getLayoutStateChangeSupport();
@@ -147,6 +153,8 @@ public interface LayoutModel<N> extends Function<N, Point> {
     void removeLayoutStateChangeListener(LayoutStateChangeListener l);
 
     void fireLayoutStateChanged(LayoutModel source, boolean state);
+
+    List<LayoutStateChangeListener> getLayoutStateChangeListeners();
   }
 
   /**

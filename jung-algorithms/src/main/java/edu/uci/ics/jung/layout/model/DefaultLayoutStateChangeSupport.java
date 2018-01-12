@@ -41,6 +41,11 @@ public class DefaultLayoutStateChangeSupport implements LayoutModel.LayoutStateC
   }
 
   @Override
+  public List<LayoutModel.LayoutStateChangeListener> getLayoutStateChangeListeners() {
+    return changeListeners;
+  }
+
+  @Override
   public void fireLayoutStateChanged(LayoutModel layoutModel, boolean state) {
     log.trace("fireLayoutStateChange to {}", state);
     if (changeListeners.size() > 0) {

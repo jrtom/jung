@@ -301,6 +301,11 @@ public abstract class AbstractLayoutModel<N>
   }
 
   @Override
+  public ChangeSupport getChangeSupport() {
+    return changeSupport;
+  }
+
+  @Override
   public void addLayoutChangeListener(LayoutChangeListener<N> listener) {
     layoutChangeListeners.add(listener);
   }
