@@ -32,7 +32,6 @@ import edu.uci.ics.jung.visualization.util.PredicatedParallelEdgeIndexFunction;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.geom.Point2D;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -168,9 +167,9 @@ public class NodeCollapseDemoWithLayouts extends JPanel {
             double sumx = 0;
             double sumy = 0;
             for (Object v : picked) {
-              Point2D p = (Point2D) layoutModel.apply(v);
-              sumx += p.getX();
-              sumy += p.getY();
+              Point p = (Point) layoutModel.apply(v);
+              sumx += p.x;
+              sumy += p.y;
             }
             Point cp = Point.of(sumx / picked.size(), sumy / picked.size());
             layoutModel.lock(false);
@@ -262,8 +261,12 @@ public class NodeCollapseDemoWithLayouts extends JPanel {
     collapseControls.add(expandEdges);
     collapseControls.add(reset);
     controls.add(collapseControls);
-    controls.add(modeBox);
-    controls.add(jcb);
+    JPanel modePanel = new JPanel();
+    modePanel.add(modeBox);
+    controls.add(modePanel);
+    JPanel jcbPanel = new JPanel();
+    jcbPanel.add(jcb);
+    controls.add(jcbPanel);
     controls.add(help);
     add(controls, BorderLayout.EAST);
   }

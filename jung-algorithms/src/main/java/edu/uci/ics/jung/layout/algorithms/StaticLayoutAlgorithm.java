@@ -10,9 +10,12 @@ import edu.uci.ics.jung.layout.model.LayoutModel;
  */
 public class StaticLayoutAlgorithm<N> implements LayoutAlgorithm<N> {
 
+  /**
+   * a no-op, as the Node locations are unchanged from where they are in the layoutModel
+   *
+   * @param layoutModel the mediator between the container for nodes (the Graph) and the mapping
+   *     from Node to Point
+   */
+  @Override
   public void visit(LayoutModel<N> layoutModel) {}
-
-  public void initialize() {}
-
-  public void reset() {}
 }

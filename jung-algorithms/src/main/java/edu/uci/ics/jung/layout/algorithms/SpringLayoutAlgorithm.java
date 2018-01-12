@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * The SpringLayout package represents a visualization of a set of nodes. The SpringLayout, which is
- * initialized with a Graph, assigns X/Y locations to each node. When called <code>relax()</code>,
+ * initialized with a Graph, assigns X/Y locations to each node. When called <code>step()</code>,
  * the SpringLayout moves the visualization forward one step.
  *
  * @author Danyel Fisher
@@ -259,16 +259,8 @@ public class SpringLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N
     }
   }
 
-  /** @return true */
-  public boolean isIncremental() {
-    return true;
-  }
-
   /** @return false */
   public boolean done() {
     return false;
   }
-
-  /** No effect. */
-  public void reset() {}
 }

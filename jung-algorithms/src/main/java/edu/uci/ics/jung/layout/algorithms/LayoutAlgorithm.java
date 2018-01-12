@@ -13,9 +13,8 @@ public interface LayoutAlgorithm<N> {
   /**
    * visit the passed layoutModel and set its locations
    *
-   * @param layoutModel
+   * @param layoutModel the mediator between the container for nodes (the Graph) and the mapping
+   *     from Node to Point
    */
   void visit(LayoutModel<N> layoutModel);
-
-  void reset(); // remove?
 }

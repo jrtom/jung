@@ -18,21 +18,19 @@ public class Circle {
   }
 
   public boolean contains(Point p) {
-    // fast-fail bounds check
-    if (!p.inside(center.x - radius, center.y - radius, center.x + radius, center.y + radius)) {
-      return false;
-    }
-    return center.distance(p) <= radius;
+    return p.inside(center.x - radius, center.y - radius, center.x + radius, center.y + radius)
+        && center.distance(p) <= radius;
   }
 
   public boolean intersects(Rectangle r) {
-    // quick fail with bounding box test
-    if (r.maxX < center.x - radius) return false;
-    if (r.maxY < center.y - radius) return false;
-    if (r.x > center.x + radius) return false;
-    if (r.y > center.y + radius) return false;
-    // more expensive test
-    return squaredDistance(center, r) < radius * radius;
+    // quick fail with bounding box test first
+    return r.maxX >= center.x - radius
+        && r.maxY >= center.y - radius
+        && r.x <= center.x + radius
+        && r.y <= center.y + radius
+        &&
+        // more expensive test last
+        squaredDistance(center, r) < radius * radius;
   }
 
   private double squaredDistance(Point p, Rectangle r) {

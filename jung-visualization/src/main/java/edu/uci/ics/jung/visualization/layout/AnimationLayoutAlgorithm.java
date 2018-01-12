@@ -46,11 +46,6 @@ public class AnimationLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorith
     transitionLayoutModel.accept(endLayoutAlgorithm);
   }
 
-  @Override
-  public void reset() {
-    // no op
-  }
-
   /**
    * each step of the animation moves every pouit 1/count of the distance from its old location to
    * its new location

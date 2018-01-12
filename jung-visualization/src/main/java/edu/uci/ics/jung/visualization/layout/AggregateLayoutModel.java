@@ -72,6 +72,11 @@ public class AggregateLayoutModel<N> implements LayoutModel<N> {
   }
 
   @Override
+  public Map<N, Point> getLocations() {
+    return delegate.getLocations();
+  }
+
+  @Override
   public void setSize(int width, int height) {
     delegate.setSize(width, height);
   }
