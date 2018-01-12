@@ -321,8 +321,8 @@ public class SpatialQuadTree<N> extends AbstractSpatial<N, N>
   @Override
   public Set<N> getVisibleElements(Shape shape) {
     if (!isActive()) {
-      log.trace("not active so getting from the layoutModel");
-      return layoutModel.getLocations().keySet();
+      log.trace("not active so getting from the graph");
+      return layoutModel.getGraph().nodes();
     }
 
     pickShapes.add(shape);
@@ -341,8 +341,8 @@ public class SpatialQuadTree<N> extends AbstractSpatial<N, N>
    */
   public Set<N> getVisibleNodes(Rectangle2D r) {
     if (!isActive()) {
-      log.trace("not active so getting from the layoutModel");
-      return layoutModel.getLocations().keySet();
+      log.trace("not active so getting from the graph");
+      return layoutModel.getGraph().nodes();
     }
 
     Set<N> set = Sets.newHashSet();
@@ -366,7 +366,7 @@ public class SpatialQuadTree<N> extends AbstractSpatial<N, N>
   @Override
   public void recalculate() {
     if (isActive()) {
-      recalculate(layoutModel.getLocations().keySet());
+      recalculate(layoutModel.getGraph().nodes());
     }
   }
 
@@ -487,7 +487,7 @@ public class SpatialQuadTree<N> extends AbstractSpatial<N, N>
       // if I have already considered all of the nodes in the graph
       // (in the spatialquadtree) there is no reason to enlarge the
       // area and try again
-      if (nodes.size() >= layoutModel.getLocations().size()) {
+      if (nodes.size() >= layoutModel.getGraph().nodes().size()) {
         break;
       }
       // double the search area size and try again
@@ -520,7 +520,7 @@ public class SpatialQuadTree<N> extends AbstractSpatial<N, N>
       if (!this.getLayoutArea().contains(location.x, location.y)) {
         log.trace(location + " outside of spatial " + this.getLayoutArea());
         this.setBounds(this.getUnion(this.getLayoutArea(), location.x, location.y));
-        this.recalculate(layoutModel.getLocations().keySet());
+        this.recalculate(layoutModel.getGraph().nodes());
       }
       Spatial locationContainingLeaf = getContainingQuadTreeLeaf(location.x, location.y);
       log.trace("leaf {} contains {}", locationContainingLeaf, location);
@@ -534,7 +534,7 @@ public class SpatialQuadTree<N> extends AbstractSpatial<N, N>
       }
       if (locationContainingLeaf != null && !locationContainingLeaf.equals(nodeContainingLeaf)) {
         log.trace("time to recalculate");
-        this.recalculate(layoutModel.getLocations().keySet());
+        this.recalculate(layoutModel.getGraph().nodes());
       }
       this.insert(node);
     }

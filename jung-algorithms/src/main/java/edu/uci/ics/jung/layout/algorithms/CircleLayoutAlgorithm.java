@@ -57,7 +57,7 @@ public class CircleLayoutAlgorithm<N> implements LayoutAlgorithm<N> {
    */
   public void setNodeOrder(LayoutModel<N> layoutModel, Comparator<N> comparator) {
     if (node_ordered_list == null) {
-      node_ordered_list = new ArrayList<N>(layoutModel.getLocations().keySet());
+      node_ordered_list = new ArrayList<N>(layoutModel.getGraph().nodes());
     }
     Collections.sort(node_ordered_list, comparator);
   }
@@ -69,7 +69,7 @@ public class CircleLayoutAlgorithm<N> implements LayoutAlgorithm<N> {
    */
   public void setNodeOrder(LayoutModel<N> layoutModel, List<N> node_list) {
     Preconditions.checkArgument(
-        node_list.containsAll(layoutModel.getLocations().keySet()),
+        node_list.containsAll(layoutModel.getGraph().nodes()),
         "Supplied list must include all nodes of the graph");
     this.node_ordered_list = node_list;
   }
@@ -77,7 +77,7 @@ public class CircleLayoutAlgorithm<N> implements LayoutAlgorithm<N> {
   @Override
   public void visit(LayoutModel<N> layoutModel) {
     if (layoutModel != null) {
-      setNodeOrder(layoutModel, new ArrayList<N>(layoutModel.getLocations().keySet()));
+      setNodeOrder(layoutModel, new ArrayList<N>(layoutModel.getGraph().nodes()));
 
       double height = layoutModel.getHeight();
       double width = layoutModel.getWidth();

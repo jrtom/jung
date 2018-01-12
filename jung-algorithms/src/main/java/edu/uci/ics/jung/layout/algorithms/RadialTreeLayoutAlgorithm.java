@@ -88,7 +88,7 @@ public class RadialTreeLayoutAlgorithm<N> extends TreeLayoutAlgorithm<N> {
   private Point getMaxXY(LayoutModel<N> layoutModel) {
     double maxx = 0;
     double maxy = 0;
-    Collection<N> nodes = layoutModel.getLocations().keySet();
+    Collection<N> nodes = layoutModel.getGraph().nodes();
     for (N node : nodes) {
       Point location = layoutModel.apply(node);
       maxx = Math.max(maxx, location.x);
@@ -106,7 +106,7 @@ public class RadialTreeLayoutAlgorithm<N> extends TreeLayoutAlgorithm<N> {
     double theta = 2 * Math.PI / maxx;
 
     double deltaRadius = width / 2 / maxy;
-    for (N node : layoutModel.getLocations().keySet()) {
+    for (N node : layoutModel.getGraph().nodes()) {
       Point p = layoutModel.get(node);
 
       PolarPoint polarPoint = PolarPoint.of(p.x * theta, (p.y - this.distY) * deltaRadius);

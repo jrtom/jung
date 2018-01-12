@@ -272,7 +272,7 @@ public class SpatialGrid<N> extends AbstractSpatial<N, N> implements Spatial<N>,
   @Override
   public void recalculate() {
     if (isActive()) {
-      recalculate(layoutModel.getLocations().keySet());
+      recalculate(layoutModel.getGraph().nodes());
     }
   }
 
@@ -311,7 +311,7 @@ public class SpatialGrid<N> extends AbstractSpatial<N, N> implements Spatial<N>,
       if (!this.getLayoutArea().contains(location.x, location.y)) {
         log.trace(location + " outside of spatial " + this.getLayoutArea());
         this.setBounds(this.getUnion(this.getLayoutArea(), location.x, location.y));
-        recalculate(layoutModel.getLocations().keySet());
+        recalculate(layoutModel.getGraph().nodes());
       }
 
       int rightBox = this.getBoxNumberFromLocation(layoutModel.apply(node));
@@ -368,7 +368,7 @@ public class SpatialGrid<N> extends AbstractSpatial<N, N> implements Spatial<N>,
         // if I have already considered all of the nodes in the graph
         // (in the spatialquadtree) there is no reason to enlarge the
         // area and try again
-        if (nodes.size() >= layoutModel.getLocations().size()) {
+        if (nodes.size() >= layoutModel.getGraph().nodes().size()) {
           break;
         }
         // double the search area size and try again
@@ -409,8 +409,8 @@ public class SpatialGrid<N> extends AbstractSpatial<N, N> implements Spatial<N>,
   @Override
   public Set<N> getVisibleElements(Shape visibleArea) {
     if (!isActive()) {
-      log.trace("not active so getting from the layoutModel");
-      return layoutModel.getLocations().keySet();
+      log.trace("not active so getting from the graph");
+      return layoutModel.getGraph().nodes();
     }
 
     pickShapes.add(visibleArea);

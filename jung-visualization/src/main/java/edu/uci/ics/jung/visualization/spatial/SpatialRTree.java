@@ -176,12 +176,12 @@ public abstract class SpatialRTree<T, NT> extends AbstractSpatial<T, NT> impleme
     @Override
     public Set<N> getVisibleElements(Shape shape) {
       if (!isActive() || !rtree.getRoot().isPresent()) {
-        return layoutModel.getLocations().keySet();
+        return layoutModel.getGraph().nodes();
       }
       pickShapes.add(shape);
 
       Node<N> root = rtree.getRoot().get();
-      log.trace("out of nodes {}", layoutModel.getLocations().keySet());
+      log.trace("out of nodes {}", layoutModel.getGraph().nodes());
       Set<N> visibleElements = Sets.newHashSet();
       return root.getVisibleElements(visibleElements, shape);
     }
@@ -261,7 +261,7 @@ public abstract class SpatialRTree<T, NT> extends AbstractSpatial<T, NT> impleme
         // if I have already considered all of the nodes in the graph
         // (in the spatialtree) there is no reason to enlarge the
         // area and try again
-        if (closest != null || nodes.size() >= layoutModel.getLocations().size()) {
+        if (closest != null || nodes.size() >= layoutModel.getGraph().nodes().size()) {
           break;
         }
         // double the search area size and try again
@@ -290,8 +290,8 @@ public abstract class SpatialRTree<T, NT> extends AbstractSpatial<T, NT> impleme
           isActive(),
           layoutModel.isRelaxing());
       if (isActive()) {
-        log.trace("recalculate for nodes: {}", layoutModel.getLocations().keySet());
-        recalculate(layoutModel.getLocations().keySet());
+        log.trace("recalculate for nodes: {}", layoutModel.getGraph().nodes());
+        recalculate(layoutModel.getGraph().nodes());
       } else {
         log.trace("no recalculate when active: {}", isActive());
       }
