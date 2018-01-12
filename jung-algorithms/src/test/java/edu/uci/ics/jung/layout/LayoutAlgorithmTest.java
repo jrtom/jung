@@ -56,7 +56,7 @@ public class LayoutAlgorithmTest {
 
   private void testUniqueLocations() {
     Set<Point> locations = Sets.newHashSet();
-    Collection<String> nodes = layoutModel.getGraph().nodes();
+    Collection<String> nodes = layoutModel.getLocations().keySet();
     for (String node : nodes) {
       Point p = layoutModel.get(node);
       locations.add(layoutModel.get(node));

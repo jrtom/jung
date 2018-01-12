@@ -251,7 +251,7 @@ public interface Spatial<T> extends LayoutModel.LayoutStateChangeListener {
 
       @Override
       public Set<N> getVisibleElements(Shape shape) {
-        return Sets.newHashSet(layoutModel.getGraph().nodes());
+        return Sets.newHashSet(layoutModel.getLocations().keySet());
       }
 
       @Override

@@ -243,7 +243,7 @@ public class FRLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
     frNodeData.put(node1, Point.ORIGIN);
 
     try {
-      for (N node2 : layoutModel.getGraph().nodes()) {
+      for (N node2 : layoutModel.getLocations().keySet()) {
 
         if (node1 != node2) {
           fvd1 = getFRData(node1);

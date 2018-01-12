@@ -51,7 +51,7 @@ public class AnimationLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorith
    * its new location
    */
   public void step() {
-    for (N v : layoutModel.getGraph().nodes()) {
+    for (N v : layoutModel.getLocations().keySet()) {
       Point tp = layoutModel.apply(v);
       Point fp = transitionLayoutModel.apply(v);
       double dx = (fp.x - tp.x) / (count - counter);

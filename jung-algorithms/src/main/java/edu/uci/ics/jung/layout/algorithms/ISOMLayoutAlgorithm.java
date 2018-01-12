@@ -132,7 +132,7 @@ public class ISOMLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
 
     while (true) {
       try {
-        for (N node : layoutModel.getGraph().nodes()) {
+        for (N node : layoutModel.getLocations().keySet()) {
           ISOMNodeData ivd = getISOMNodeData(node);
           ivd.distance = 0;
           ivd.visited = false;
