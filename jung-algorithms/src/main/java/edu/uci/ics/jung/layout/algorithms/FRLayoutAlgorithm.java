@@ -94,10 +94,6 @@ public class FRLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
     this.repulsion_multiplier = repulsion;
   }
 
-  public void reset() {
-    doInit();
-  }
-
   public void initialize() {
     doInit();
   }
@@ -123,6 +119,7 @@ public class FRLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
    * Moves the iteration forward one notch, calculation attraction and repulsion between nodes and
    * edges and cooling the temperature.
    */
+  @Override
   public synchronized void step() {
     if (!initialized) {
       doInit();
@@ -285,11 +282,6 @@ public class FRLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
 
   protected Point getFRData(N node) {
     return frNodeData.getUnchecked(node);
-  }
-
-  /** @return true */
-  public boolean isIncremental() {
-    return true;
   }
 
   /** @return true once the current iteration has passed the maximum count. */

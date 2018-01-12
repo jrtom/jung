@@ -4,7 +4,11 @@ import edu.uci.ics.jung.layout.spatial.Circle;
 import edu.uci.ics.jung.layout.spatial.Rectangle;
 import java.util.Objects;
 
-/** @author Tom Nelson */
+/**
+ * Simple, immutable Point class used for Graph layout
+ *
+ * @author Tom Nelson
+ */
 public class Point {
 
   public final double x;
@@ -20,51 +24,86 @@ public class Point {
     this.y = y;
   }
 
+  /**
+   * @param other the Point with values to add
+   * @return a new Point with the sum of this Point and other Point's values
+   */
   public Point add(Point other) {
     return add(other.x, other.y);
   }
 
+  /**
+   * @param dx change in x
+   * @param dy change in y
+   * @return a new Point with the sum of this Point and the passed values
+   */
   public Point add(double dx, double dy) {
     return new Point(x + dx, y + dy);
   }
 
+  /**
+   * @param other the Point to measure against
+   * @return the square of the distance between this Point and the passed Point
+   */
   public double distanceSquared(Point other) {
     return distanceSquared(other.x, other.y);
   }
 
+  /**
+   * @param ox coordinate of another location
+   * @param oy coordinate of another location
+   * @returnthe square of the distance between this Point and the passed location
+   */
   public double distanceSquared(double ox, double oy) {
     double dx = x - ox;
     double dy = y - oy;
     return dx * dx + dy * dy;
   }
 
+  /**
+   * @param c a Circle to compare against
+   * @return true if this Point is within the passed Circle, false otherwise
+   */
   public boolean inside(Circle c) {
-    // fast-fail bounds check
-    if (!inside(
-        c.center.x - c.radius,
-        c.center.y - c.radius,
-        c.center.x + c.radius,
-        c.center.y + c.radius)) {
-      return false;
-    }
-    return c.center.distance(this) <= c.radius;
+    // fast-fail bounds check first
+    return inside(
+            c.center.x - c.radius,
+            c.center.y - c.radius,
+            c.center.x + c.radius,
+            c.center.y + c.radius)
+        &&
+        // more expensive test last
+        c.center.distance(this) <= c.radius;
   }
 
+  /**
+   * @param r a Rectangle to compare against
+   * @return true if this Point is inside the passed Rectangle, false otherwise
+   */
   public boolean inside(Rectangle r) {
     return inside(r.x, r.y, r.maxX, r.maxY);
   }
 
+  /**
+   * @param minX min coordinate of a rectangular space
+   * @param minY min coordinate of a rectangular space
+   * @param maxX max coordinate of a rectangular space
+   * @param maxY max coordinate of a rectangular space
+   * @return true if this Point is within the passed rectangular space, false otherwise
+   */
   public boolean inside(double minX, double minY, double maxX, double maxY) {
-    if (x < minX || maxX < x || y < minY || maxY < y) {
-      return false;
-    }
-    return true;
+    return x >= minX && maxX >= x && y >= minY && maxY >= y;
   }
 
+  /** @return the distance between this Point and the origin. */
   public double length() {
     return Math.sqrt(x * x + y * y);
   }
 
+  /**
+   * @param other a Point to consider
+   * @return the distance between this Point and the passed Point
+   */
   public double distance(Point other) {
     return Math.sqrt(distanceSquared(other));
   }

@@ -79,6 +79,7 @@ public class TreeLayoutAlgorithm<N> implements LayoutAlgorithm<N> {
     this.currentX = this.currentY = 0;
   }
 
+  @Override
   public void visit(LayoutModel<N> layoutModel) {
     buildTree(layoutModel);
   }
@@ -198,8 +199,6 @@ public class TreeLayoutAlgorithm<N> implements LayoutAlgorithm<N> {
   }
 
   public void lock(N node, boolean state) {}
-
-  public void reset() {}
 
   public void setInitializer(Function<N, Point> initializer) {}
 

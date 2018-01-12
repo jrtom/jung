@@ -4,7 +4,12 @@ import edu.uci.ics.jung.algorithms.util.IterativeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** @author Tom Nelson */
+/**
+ * a {@code Runnable} object to pass to the {@code Thread} that will perform the relax function on a
+ * graph layout
+ *
+ * @author Tom Nelson
+ */
 public class VisRunnable implements Runnable {
 
   private static final Logger log = LoggerFactory.getLogger(VisRunnable.class);

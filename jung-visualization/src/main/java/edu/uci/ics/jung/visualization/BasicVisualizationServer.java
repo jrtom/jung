@@ -242,13 +242,6 @@ public class BasicVisualizationServer<N, E> extends JPanel
         model.addLayoutChangeListener((LayoutChangeListener) spatial);
       }
     }
-    if (model.getLayoutModel() instanceof LayoutModel.ChangeSupport
-        && spatial instanceof LayoutModel.ChangeListener) {
-      if (spatial instanceof LayoutModel.ChangeListener) {
-        ((LayoutModel.ChangeSupport) model.getLayoutModel())
-            .addChangeListener((LayoutModel.ChangeListener) spatial);
-      }
-    }
     // this one toggles active/inactive as the opposite of the LayoutModel's active/inactive state
     model.getLayoutModel().getLayoutStateChangeSupport().addLayoutStateChangeListener(spatial);
   }

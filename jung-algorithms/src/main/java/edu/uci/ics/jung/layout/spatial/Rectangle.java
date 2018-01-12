@@ -3,7 +3,11 @@ package edu.uci.ics.jung.layout.spatial;
 import com.google.common.base.Preconditions;
 import edu.uci.ics.jung.layout.model.Point;
 
-/** @author Tom Nelson */
+/**
+ * Simple, immutable Rectangle class used for spatial data structures.
+ *
+ * @author Tom Nelson
+ */
 public class Rectangle {
 
   public final double x;
@@ -38,20 +42,14 @@ public class Rectangle {
    * @return
    */
   public boolean intersects(Rectangle other) {
-    if (maxX < other.x || other.maxX < x || maxY < other.y || other.maxY < y) {
-      return false;
-    }
-    return true;
+    return maxX >= other.x && other.maxX >= x && maxY >= other.y && other.maxY >= y;
   }
 
   public boolean contains(Point p) {
     return contains(p.x, p.y);
   }
 
-  public boolean contains(double x, double y) {
-    if (x < this.x || x > maxX || y < this.y || y > maxY) {
-      return false;
-    }
-    return true;
+  public boolean contains(double ox, double oy) {
+    return ox >= this.x && ox <= maxX && oy >= this.y && oy <= maxY;
   }
 }

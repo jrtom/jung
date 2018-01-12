@@ -24,6 +24,8 @@ import org.slf4j.LoggerFactory;
 /**
  * A {@code Layout} implementation that positions nodes equally spaced on a regular circle.
  *
+ * <p>By default, no attempt is made to minimize the edge crossing number
+ *
  * @author Masanori Harada
  * @author Tom Nelson - adapted to an algorithm
  */
@@ -49,7 +51,7 @@ public class CircleLayoutAlgorithm<N> implements LayoutAlgorithm<N> {
 
   /**
    * Sets the order of the nodes in the layout according to the ordering specified by {@code
-   * comparator}.
+   * comparator}. An effective comparator could be used to reduce or minimize the crossing number
    *
    * @param comparator the comparator to use to order the nodes
    */
@@ -72,11 +74,8 @@ public class CircleLayoutAlgorithm<N> implements LayoutAlgorithm<N> {
     this.node_ordered_list = node_list;
   }
 
-  public void reset() {}
-
+  @Override
   public void visit(LayoutModel<N> layoutModel) {
-    //    super.visit(layoutModel);
-    log.trace("visiting " + layoutModel);
     if (layoutModel != null) {
       setNodeOrder(layoutModel, new ArrayList<N>(layoutModel.getGraph().nodes()));
 
@@ -89,7 +88,6 @@ public class CircleLayoutAlgorithm<N> implements LayoutAlgorithm<N> {
 
       int i = 0;
       for (N node : node_ordered_list) {
-        //        Point coord = layoutModel.apply(node);
 
         double angle = (2 * Math.PI * i) / node_ordered_list.size();
 

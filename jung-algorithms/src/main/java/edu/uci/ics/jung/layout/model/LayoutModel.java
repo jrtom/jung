@@ -11,20 +11,42 @@ package edu.uci.ics.jung.layout.model;
 
 import com.google.common.graph.Graph;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 /** two or three dimensional layoutmodel */
 public interface LayoutModel<N> extends Function<N, Point> {
 
+  /** @return the width of the layout area */
   int getWidth();
 
+  /** @return the height of the layout area */
   int getHeight();
 
+  /**
+   * allow the passed LayoutAlgorithm to operate on this LayoutModel
+   *
+   * @param layoutAlgorithm the algorithm to apply to this model's Points
+   */
   void accept(LayoutAlgorithm<N> layoutAlgorithm);
 
+  /**
+   * return a mapping of Nodes to Point locations
+   *
+   * @return
+   */
+  Map<N, Point> getLocations();
+
+  /**
+   * @param width to set
+   * @param helght to set
+   */
   void setSize(int width, int helght);
 
+  /** stop a relaxer Thread from continuing to operate */
   void stopRelaxer();
 
   /**
@@ -42,9 +64,9 @@ public interface LayoutModel<N> extends Function<N, Point> {
   boolean isRelaxing();
 
   /**
-   * a handle to the relaxer thread
+   * a handle to the relaxer thread; may be used to attach a process to run after relax is complete
    *
-   * @return
+   * @return the CompletableFuture
    */
   CompletableFuture getTheFuture();
 
@@ -62,12 +84,25 @@ public interface LayoutModel<N> extends Function<N, Point> {
    */
   void set(N node, Point location);
 
+  /**
+   * Changes the layout coordinates of {@code node} to {@code x, y}.
+   *
+   * @param node
+   * @param x
+   * @param y
+   */
   void set(N node, double x, double y);
 
+  /**
+   * @param node the node of interest
+   * @return the Point location for node
+   */
   Point get(N node);
 
+  /** @return the {@code Graph} that this model is mediating */
   Graph<N> getGraph();
 
+  /** @param graph the {@code Graph} to set */
   void setGraph(Graph<N> graph);
 
   void lock(N node, boolean locked);
@@ -84,25 +119,8 @@ public interface LayoutModel<N> extends Function<N, Point> {
 
   /**
    * This exists so that LayoutModel will not have dependencies on java awt or swing event classes
-   *
-   * @return
-   */
-  LayoutStateChangeSupport getLayoutStateChangeSupport();
-
-  interface LayoutStateChangeSupport {
-    boolean isFireEvents();
-
-    void setFireEvents(boolean fireEvents);
-
-    void addLayoutStateChangeListener(LayoutStateChangeListener l);
-
-    void removeLayoutStateChangeListener(LayoutStateChangeListener l);
-
-    void fireLayoutStateChanged(LayoutModel source, boolean state);
-  }
-
-  /**
-   * This exists so that LayoutModel will not have dependencies on java awt or swing event classes
+   * This event type tells the viewing system that it should re-draw itself to show the latest
+   * changes
    */
   interface ChangeSupport {
 
@@ -115,8 +133,36 @@ public interface LayoutModel<N> extends Function<N, Point> {
     void removeChangeListener(ChangeListener l);
 
     void fireChanged();
+
+    Collection<ChangeListener> getChangeListeners();
   }
 
+  ChangeSupport getChangeSupport();
+
+  /** @return the support for LayoutStateChange events */
+  LayoutStateChangeSupport getLayoutStateChangeSupport();
+
+  /** support for LayoutStateChangeEvents and their Listeners. */
+  interface LayoutStateChangeSupport {
+    boolean isFireEvents();
+
+    void setFireEvents(boolean fireEvents);
+
+    void addLayoutStateChangeListener(LayoutStateChangeListener l);
+
+    void removeLayoutStateChangeListener(LayoutStateChangeListener l);
+
+    void fireLayoutStateChanged(LayoutModel source, boolean state);
+
+    List<LayoutStateChangeListener> getLayoutStateChangeListeners();
+  }
+
+  /**
+   * This event type alerts listeners whether the LayoutModel is active or not. When the layout
+   * model is 'active', during the relax phase, a listener can choose not to update unit the layout
+   * model is inactive. The Spatial Data structures on the view side would waste a lot of competing
+   * compute cycles staying up to date with a changing layout model.
+   */
   class LayoutStateChangeEvent {
     public final LayoutModel layoutModel;
     public final boolean active;
@@ -132,6 +178,10 @@ public interface LayoutModel<N> extends Function<N, Point> {
     }
   }
 
+  /**
+   * a consumer for a LayoutStateChangeEvent most use-cases in JUNG are the view side spatial data
+   * structures
+   */
   interface LayoutStateChangeListener {
     void layoutStateChanged(LayoutStateChangeEvent evt);
   }
