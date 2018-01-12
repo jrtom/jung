@@ -145,9 +145,9 @@ public class NodeCollapseDemo extends JPanel {
             double sumx = 0;
             double sumy = 0;
             for (Object v : picked) {
-              Point2D p = (Point2D) layoutModel.apply(v);
-              sumx += p.getX();
-              sumy += p.getY();
+              Point p = (Point) layoutModel.apply(v);
+              sumx += p.x;
+              sumy += p.y;
             }
             Point cp = Point.of(sumx / picked.size(), sumy / picked.size());
             layoutModel.lock(false);

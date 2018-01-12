@@ -106,6 +106,7 @@ public class ISOMLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
   }
 
   /** Advances the current positions of the graph elements. */
+  @Override
   public void step() {
     status = "epoch: " + epoch + "; ";
     if (epoch < maxEpoch) {
@@ -196,15 +197,6 @@ public class ISOMLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
 
   protected ISOMNodeData getISOMNodeData(N node) {
     return isomNodeData.getUnchecked(node);
-  }
-
-  /**
-   * This one is an incremental visualization.
-   *
-   * @return <code>true</code> is the layout algorithm is incremental, <code>false</code> otherwise
-   */
-  public boolean isIncremental() {
-    return true;
   }
 
   /**

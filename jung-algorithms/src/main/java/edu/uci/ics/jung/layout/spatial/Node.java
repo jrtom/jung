@@ -1,6 +1,5 @@
 package edu.uci.ics.jung.layout.spatial;
 
-import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,30 +33,42 @@ public class Node<T> {
     area = r;
   }
 
+  /**
+   * if this is an inner node, the forceObject represents the combined force and mass of the child
+   * nodes.
+   *
+   * @return the forceObject for this node.
+   */
   public ForceObject<T> getForceObject() {
     return forceObject;
   }
 
+  /** @return true if this node has no child nodes, false otherwise */
   public boolean isLeaf() {
     return NW == null && NE == null && SE == null && SW == null;
   }
 
+  /** @return the northwest quadrdant node */
   public Node getNW() {
     return NW;
   }
 
+  /** @return the northeast quadrdant node */
   public Node getNE() {
     return NE;
   }
 
+  /** @return the southeast quadrdant node */
   public Node getSE() {
     return SE;
   }
 
+  /** @return the southwest quadrdant node */
   public Node getSW() {
     return SW;
   }
 
+  /** @return the rectangular area of this node */
   public Rectangle getArea() {
     return area;
   }
@@ -102,6 +113,11 @@ public class Node<T> {
     }
   }
 
+  /**
+   * insert into the correct quadrant of this inner node
+   *
+   * @param forceObject object to insert
+   */
   private void insertForceObject(ForceObject forceObject) {
     if (NW.area.contains(forceObject.p)) {
       NW.insert(forceObject);
@@ -114,10 +130,12 @@ public class Node<T> {
     }
   }
 
+  /** @return the rectangular bounds of this node */
   public Rectangle getBounds() {
     return area;
   }
 
+  /** remove all child nodes */
   public void clear() {
     forceObject = null;
     NW = NE = SW = SE = null;
@@ -140,8 +158,13 @@ public class Node<T> {
     SE = new Node(x + width, y + height, width, height);
   }
 
-  public void visit(ForceObject<T> target) {
-    if (this.forceObject == null || target.getElement().equals(this.forceObject.getElement())) {
+  /**
+   * accept a visit from the visitor force object, and add this node's forces to the visitor
+   *
+   * @param visitor the visitor
+   */
+  public void acceptVisitor(ForceObject<T> visitor) {
+    if (this.forceObject == null || visitor.getElement().equals(this.forceObject.getElement())) {
       return;
     }
 
@@ -151,11 +174,11 @@ public class Node<T> {
             "isLeaf, Node {} at {} visiting {} at {}",
             this.forceObject.getElement(),
             this.forceObject.p,
-            target.getElement(),
-            target.p);
+            visitor.getElement(),
+            visitor.p);
       }
-      target.addForceFrom(this.forceObject);
-      log.trace("added force from {} so its now {}", this.forceObject, target);
+      visitor.addForceFrom(this.forceObject);
+      log.trace("added force from {} so its now {}", this.forceObject, visitor);
     } else {
       // not a leaf
       //  this node is an internal node
@@ -163,7 +186,7 @@ public class Node<T> {
       double s = this.area.width;
       //      distance between the incoming node's position and
       //      the center of mass for this node
-      double d = this.forceObject.p.distance(target.p);
+      double d = this.forceObject.p.distance(visitor.p);
       if (s / d < THETA) {
         // this node is sufficiently far away
         // just use this node's forces
@@ -172,51 +195,20 @@ public class Node<T> {
               "Node {} at {} visiting {} at {}",
               this.forceObject.getElement(),
               this.forceObject.p,
-              target.getElement(),
-              target.p);
+              visitor.getElement(),
+              visitor.p);
         }
-        target.addForceFrom(this.forceObject);
-        log.trace("added force from {} so its now {}", this.forceObject, target);
+        visitor.addForceFrom(this.forceObject);
+        log.trace("added force from {} so its now {}", this.forceObject, visitor);
 
       } else {
         // down the tree we go
-        NW.visit(target);
-        NE.visit(target);
-        SW.visit(target);
-        SE.visit(target);
+        NW.acceptVisitor(visitor);
+        NE.acceptVisitor(visitor);
+        SW.acceptVisitor(visitor);
+        SE.acceptVisitor(visitor);
       }
     }
-  }
-
-  public Set<ForceObject<T>> getForceObjectsFor(
-      Set<ForceObject<T>> forceObjects, ForceObject<T> target) {
-    if (this.forceObject == null || target.equals(this.forceObject)) {
-      forceObjects.add(target);
-    }
-
-    if (isLeaf()) {
-      forceObjects.add(this.forceObject);
-    } else {
-      // not a leaf
-      //  this node is an internal node
-      //  calculate s/d
-      double s = this.area.width;
-      //      distance between the incoming node's position and
-      //      the center of mass for this node
-      double d = this.forceObject.p.distance(target.p);
-      if (s / d < THETA) {
-        // this node is sufficiently far away
-        // just use this node's forces
-        forceObjects.add(this.forceObject);
-      } else {
-        // down the tree we go
-        NW.getForceObjectsFor(forceObjects, target);
-        NE.getForceObjectsFor(forceObjects, target);
-        SW.getForceObjectsFor(forceObjects, target);
-        SE.getForceObjectsFor(forceObjects, target);
-      }
-    }
-    return forceObjects;
   }
 
   static String asString(Rectangle r) {

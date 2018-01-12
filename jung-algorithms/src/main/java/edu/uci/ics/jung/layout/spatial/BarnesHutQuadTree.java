@@ -1,13 +1,7 @@
 package edu.uci.ics.jung.layout.spatial;
 
-import com.google.common.collect.Sets;
-import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.layout.model.Point;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.function.Function;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,12 +17,19 @@ public class BarnesHutQuadTree<T> {
 
   private static final Logger log = LoggerFactory.getLogger(BarnesHutQuadTree.class);
 
+  /** the root node of the quad tree */
   private Node<T> root;
 
+  /**
+   * the bounds of this quad tree
+   *
+   * @return
+   */
   public Rectangle getBounds() {
     return root.getBounds();
   }
 
+  /** @return the root {@code Node} of this tree */
   public Node<T> getRoot() {
     return root;
   }
@@ -51,51 +52,13 @@ public class BarnesHutQuadTree<T> {
   }
 
   /**
-   * visit nodes in the quad tree and accumulate the forces to apply to the element for the passed
-   * node
+   * passed node will visit nodes in the quad tree and accumulate their forces
    *
    * @param node
    */
-  public void visit(ForceObject<T> node) {
+  public void acceptVisitor(ForceObject<T> node) {
     if (root != null && root.forceObject != node) {
-      root.visit(node);
-    }
-  }
-
-  public Set<ForceObject<T>> getForceObjectsFor(
-      Set<ForceObject<T>> forceObjects, ForceObject<T> target) {
-    if (root != null && root.forceObject != target) {
-      return root.getForceObjectsFor(forceObjects, target);
-    } else {
-      return Collections.emptySet();
-    }
-  }
-
-  public static class ForceObjectIterator<T> implements Iterator<ForceObject<T>> {
-    private BarnesHutQuadTree<T> tree;
-    private ForceObject<T> target;
-    private ForceObject<T> next;
-    private Set<ForceObject<T>> forceObjects;
-    private Iterator<ForceObject<T>> iterator;
-
-    public ForceObjectIterator(BarnesHutQuadTree<T> tree, ForceObject<T> target) {
-      this.tree = tree;
-      this.target = target;
-      this.forceObjects = tree.getForceObjectsFor(Sets.newLinkedHashSet(), target);
-      if (log.isTraceEnabled()) {
-        log.trace("forceObjects for Iterator are {}", forceObjects);
-      }
-      this.iterator = forceObjects.iterator();
-    }
-
-    @Override
-    public boolean hasNext() {
-      return this.iterator.hasNext();
-    }
-
-    @Override
-    public ForceObject<T> next() {
-      return this.iterator.next();
+      root.acceptVisitor(node);
     }
   }
 
@@ -110,24 +73,18 @@ public class BarnesHutQuadTree<T> {
   }
 
   /**
-   * package level for unit test use
+   * rebuild the quad tree with the nodes and location mappings of the passed LayoutModel
    *
-   * @param nodes
-   * @param function
+   * @param locations - mapping of elements to locations
    */
-  void rebuild(Collection<T> nodes, Function<T, Point> function) {
+  public void rebuild(Map<T, Point> locations) {
     clear();
     synchronized (lock) {
-      for (T node : nodes) {
-        Point p = function.apply(node);
-        ForceObject<T> forceObject = new ForceObject<T>(node, p);
+      for (Map.Entry<T, Point> entry : locations.entrySet()) {
+        ForceObject<T> forceObject = new ForceObject<T>(entry.getKey(), entry.getValue());
         insert(forceObject);
       }
     }
-  }
-
-  public void rebuild(LayoutModel<T> layoutModel) {
-    rebuild(layoutModel.getGraph().nodes(), layoutModel);
   }
 
   @Override
