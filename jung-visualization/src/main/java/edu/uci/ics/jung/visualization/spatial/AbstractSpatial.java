@@ -38,7 +38,7 @@ public abstract class AbstractSpatial<T, NT> implements Spatial<T> {
     if (layoutModel != null) {
       this.rectangle =
           new Rectangle2D.Double(0, 0, layoutModel.getWidth(), layoutModel.getHeight());
-      this.fallback = new RadiusNetworkNodeAccessor();
+      this.fallback = new RadiusNetworkNodeAccessor(layoutModel.getGraph());
     }
   }
 

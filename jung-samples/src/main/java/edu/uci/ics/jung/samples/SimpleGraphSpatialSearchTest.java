@@ -139,7 +139,8 @@ public class SimpleGraphSpatialSearchTest extends JPanel {
       LayoutModel<String> layoutModel,
       Spatial<String> tree) {
     vv.getPickedNodeState().clear();
-    NetworkNodeAccessor<String> slowWay = new RadiusNetworkNodeAccessor<>(Double.MAX_VALUE);
+    NetworkNodeAccessor<String> slowWay =
+        new RadiusNetworkNodeAccessor<>(graph.asGraph(), Double.MAX_VALUE);
 
     // look for nodes closest to 1000 random locations
     for (int i = 0; i < 1000; i++) {

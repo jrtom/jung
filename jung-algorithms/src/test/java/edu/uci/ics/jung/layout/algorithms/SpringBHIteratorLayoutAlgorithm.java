@@ -8,6 +8,7 @@
 package edu.uci.ics.jung.layout.algorithms;
 
 import com.google.common.graph.EndpointPair;
+import com.google.common.graph.Graph;
 import edu.uci.ics.jung.algorithms.util.IterativeContext;
 import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.layout.model.Point;
@@ -54,8 +55,10 @@ public class SpringBHIteratorLayoutAlgorithm<N> extends SpringLayoutAlgorithm<N>
   }
 
   protected void calculateRepulsion() {
+    Graph<N> graph = layoutModel.getGraph();
+
     try {
-      for (N node : layoutModel.getLocations().keySet()) {
+      for (N node : graph.nodes()) {
         if (layoutModel.isLocked(node)) {
           continue;
         }

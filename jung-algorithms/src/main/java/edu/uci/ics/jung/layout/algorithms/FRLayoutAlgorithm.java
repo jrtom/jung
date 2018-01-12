@@ -99,13 +99,13 @@ public class FRLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
   }
 
   private void doInit() {
-    if (layoutModel != null && layoutModel.getLocations().size() > 0) {
+    Graph<N> graph = layoutModel.getGraph();
+    if (graph != null && graph.nodes().size() > 0) {
       currentIteration = 0;
       temperature = layoutModel.getWidth() / 10;
 
       forceConstant =
-          Math.sqrt(
-              layoutModel.getHeight() * layoutModel.getWidth() / layoutModel.getLocations().size());
+          Math.sqrt(layoutModel.getHeight() * layoutModel.getWidth() / graph.nodes().size());
 
       attraction_constant = attraction_multiplier * forceConstant;
       repulsion_constant = repulsion_multiplier * forceConstant;

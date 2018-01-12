@@ -76,7 +76,7 @@ public class ISOMLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
     }
 
     super.visit(layoutModel);
-    this.elementAccessor = new RadiusNetworkNodeAccessor<N>();
+    this.elementAccessor = new RadiusNetworkNodeAccessor<N>(layoutModel.getGraph());
     initialize();
   }
 

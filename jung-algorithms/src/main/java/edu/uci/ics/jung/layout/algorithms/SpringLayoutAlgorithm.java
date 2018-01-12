@@ -76,8 +76,9 @@ public class SpringLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N
   public void initialize() {}
 
   public void step() {
+    Graph<N> graph = layoutModel.getGraph();
     try {
-      for (N node : layoutModel.getLocations().keySet()) {
+      for (N node : graph.nodes()) {
         SpringNodeData svd = springNodeData.getUnchecked(node);
         if (svd == null) {
           continue;
@@ -99,7 +100,7 @@ public class SpringLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N
   protected void relaxEdges() {
     Graph<N> graph = layoutModel.getGraph();
     try {
-      for (EndpointPair<N> endpoints : graph.edges()) {
+      for (EndpointPair<N> endpoints : layoutModel.getGraph().edges()) {
         N node1 = endpoints.nodeU();
         N node2 = endpoints.nodeV();
 
@@ -138,8 +139,10 @@ public class SpringLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N
   }
 
   protected void calculateRepulsion() {
+    Graph<N> graph = layoutModel.getGraph();
+
     try {
-      for (N node : layoutModel.getLocations().keySet()) {
+      for (N node : graph.nodes()) {
         if (layoutModel.isLocked(node)) {
           continue;
         }
@@ -150,7 +153,7 @@ public class SpringLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N
         }
         double dx = 0, dy = 0;
 
-        for (N node2 : layoutModel.getLocations().keySet()) {
+        for (N node2 : graph.nodes()) {
           if (node == node2) {
             continue;
           }
@@ -184,10 +187,11 @@ public class SpringLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N
   }
 
   protected void moveNodes() {
+    Graph<N> graph = layoutModel.getGraph();
 
     synchronized (layoutModel) {
       try {
-        for (N node : layoutModel.getLocations().keySet()) {
+        for (N node : graph.nodes()) {
           if (layoutModel.isLocked(node)) {
             continue;
           }

@@ -10,6 +10,7 @@
  */
 package edu.uci.ics.jung.layout.util;
 
+import com.google.common.graph.Graph;
 import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.layout.model.Point;
 import java.util.ConcurrentModificationException;
@@ -29,8 +30,12 @@ import org.slf4j.LoggerFactory;
 public class RadiusNetworkNodeAccessor<N> implements NetworkNodeAccessor<N> {
 
   private static final Logger log = LoggerFactory.getLogger(RadiusNetworkNodeAccessor.class);
-
+  protected final Graph<N> graph;
   protected double maxDistance;
+  /** Creates an instance with an effectively infinite default maximum distance. */
+  public RadiusNetworkNodeAccessor(Graph<N> graph) {
+    this(graph, Math.sqrt(Double.MAX_VALUE - 1000));
+  }
 
   /**
    * Creates an instance with the specified default maximum distance.
@@ -38,13 +43,9 @@ public class RadiusNetworkNodeAccessor<N> implements NetworkNodeAccessor<N> {
    * @param maxDistance the maximum distance at which any element can be from a specified location
    *     and still be returned
    */
-  public RadiusNetworkNodeAccessor(double maxDistance) {
+  public RadiusNetworkNodeAccessor(Graph<N> graph, double maxDistance) {
+    this.graph = graph;
     this.maxDistance = maxDistance;
-  }
-
-  /** Creates an instance with an effectively infinite default maximum distance. */
-  public RadiusNetworkNodeAccessor() {
-    this(Math.sqrt(Double.MAX_VALUE - 1000));
   }
 
   /**
@@ -73,7 +74,7 @@ public class RadiusNetworkNodeAccessor<N> implements NetworkNodeAccessor<N> {
     N closest = null;
     while (true) {
       try {
-        for (N node : layoutModel.getLocations().keySet()) {
+        for (N node : graph.nodes()) {
 
           Point p = layoutModel.apply(node);
           double dx = p.x - x;

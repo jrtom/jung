@@ -69,7 +69,7 @@ public class SpatialRTreeTest {
   @Test
   public void testClosestNodes() {
     final int COUNT = 10000;
-    NetworkNodeAccessor<String> slowWay = new RadiusNetworkNodeAccessor<>(Double.MAX_VALUE);
+    NetworkNodeAccessor<String> slowWay = new RadiusNetworkNodeAccessor<>(graph, Double.MAX_VALUE);
 
     // look for nodes closest to COUNT random locations
     for (int i = 0; i < COUNT; i++) {
@@ -113,7 +113,7 @@ public class SpatialRTreeTest {
   @Test
   public void comparePerformance() {
     final int COUNT = 1000;
-    NetworkNodeAccessor<String> slowWay = new RadiusNetworkNodeAccessor<>(Double.MAX_VALUE);
+    NetworkNodeAccessor<String> slowWay = new RadiusNetworkNodeAccessor<>(graph, Double.MAX_VALUE);
 
     // generate the points first so both tests use the same points
     double[] xs = new double[COUNT];

@@ -246,7 +246,7 @@ public interface Spatial<T> extends LayoutModel.LayoutStateChangeListener {
 
       public Node(LayoutModel<N> layoutModel) {
         super(layoutModel);
-        this.accessor = new RadiusNetworkNodeAccessor<>();
+        this.accessor = new RadiusNetworkNodeAccessor<>(layoutModel.getGraph());
       }
 
       @Override
