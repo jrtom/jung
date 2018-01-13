@@ -4,7 +4,6 @@ import com.google.common.collect.Maps;
 import edu.uci.ics.jung.visualization.spatial.TreeNode;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.util.Comparator;
 import java.util.Map;
 import java.util.Random;
 import org.junit.Assert;
@@ -228,8 +227,7 @@ public class RTreeTest {
     Rectangle2D rootBounds = rootNode.getBounds();
     if (rootNode instanceof InnerNode) {
       InnerNode innerNode = (InnerNode) rootNode;
-      Comparator<Rectangle2D> comparator = new CloseEnoughComparator();
-      Assert.assertTrue(comparator.compare(rootBounds, Node.union(innerNode.getChildren())) == 0);
+      Assert.assertTrue(closeEnough(rootBounds, Node.union(innerNode.getChildren())));
     }
 
     for (TreeNode rt : rootNode.getChildren()) {
@@ -237,25 +235,15 @@ public class RTreeTest {
     }
   }
 
-  class CloseEnoughComparator implements Comparator<Rectangle2D> {
+  private boolean closeEnough(Rectangle2D left, Rectangle2D right) {
+    return left.equals(right)
+        || (closeEnough(left.getMinX(), right.getMinX())
+            && closeEnough(left.getMinY(), right.getMinY())
+            && closeEnough(left.getMaxX(), right.getMaxX())
+            && closeEnough(left.getMaxY(), right.getMaxY()));
+  }
 
-    boolean closeEnough(double left, double right) {
-      return Math.abs(left - right) < 0.001;
-    }
-
-    @Override
-    public int compare(Rectangle2D left, Rectangle2D right) {
-      if (left.equals(right)) {
-        return 0;
-      }
-      log.info("Using the CloseEnoughComparator for {} and {}", left, right);
-      if (closeEnough(left.getMinX(), right.getMinX())
-          && closeEnough(left.getMinY(), right.getMinY())
-          && closeEnough(left.getMaxX(), right.getMaxX())
-          && closeEnough(left.getMaxY(), right.getMaxY())) {
-        return 0;
-      }
-      return -1;
-    }
+  private boolean closeEnough(double left, double right) {
+    return Math.abs(left - right) < 0.001;
   }
 }
