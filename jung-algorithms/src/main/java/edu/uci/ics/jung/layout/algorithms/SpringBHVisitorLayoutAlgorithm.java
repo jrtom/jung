@@ -105,7 +105,7 @@ public class SpringBHVisitorLayoutAlgorithm<N> extends SpringLayoutAlgorithm<N>
                 }
               }
             };
-        tree.acceptVisitor(nodeForceObject);
+        tree.applyForcesTo(nodeForceObject);
         Point f = nodeForceObject.f;
         double dlen = f.x * f.x + f.y * f.y;
         if (dlen > 0) {

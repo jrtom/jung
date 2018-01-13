@@ -1,7 +1,6 @@
 package edu.uci.ics.jung.layout.model;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.graph.Graph;
 import edu.uci.ics.jung.layout.algorithms.IterativeLayoutAlgorithm;
@@ -12,7 +11,6 @@ import edu.uci.ics.jung.layout.util.LayoutEventSupport;
 import edu.uci.ics.jung.layout.util.VisRunnable;
 import java.util.ConcurrentModificationException;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import org.slf4j.Logger;
@@ -48,10 +46,6 @@ public abstract class AbstractLayoutModel<N>
   protected AbstractLayoutModel(Graph<N> graph, int width, int height) {
     this.graph = graph;
     setSize(width, height);
-  }
-
-  public Map<N, Point> getLocations() {
-    return Maps.asMap(getGraph().nodes(), this);
   }
 
   /** stop any running Relaxer */

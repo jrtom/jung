@@ -1,5 +1,6 @@
 package edu.uci.ics.jung.layout.spatial;
 
+import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,22 +49,22 @@ public class Node<T> {
     return NW == null && NE == null && SE == null && SW == null;
   }
 
-  /** @return the northwest quadrdant node */
+  /** @return the northwest quadrant node */
   public Node getNW() {
     return NW;
   }
 
-  /** @return the northeast quadrdant node */
+  /** @return the northeast quadrant node */
   public Node getNE() {
     return NE;
   }
 
-  /** @return the southeast quadrdant node */
+  /** @return the southeast quadrant node */
   public Node getSE() {
     return SE;
   }
 
-  /** @return the southwest quadrdant node */
+  /** @return the southwest quadrant node */
   public Node getSW() {
     return SW;
   }
@@ -163,7 +164,8 @@ public class Node<T> {
    *
    * @param visitor the visitor
    */
-  public void acceptVisitor(ForceObject<T> visitor) {
+  public void applyForcesTo(ForceObject<T> visitor) {
+    Preconditions.checkArgument(visitor != null, "Cannot apply forces to a null ForceObject");
     if (this.forceObject == null || visitor.getElement().equals(this.forceObject.getElement())) {
       return;
     }
@@ -185,10 +187,10 @@ public class Node<T> {
 
       } else {
         // down the tree we go
-        NW.acceptVisitor(visitor);
-        NE.acceptVisitor(visitor);
-        SW.acceptVisitor(visitor);
-        SE.acceptVisitor(visitor);
+        NW.applyForcesTo(visitor);
+        NE.applyForcesTo(visitor);
+        SW.applyForcesTo(visitor);
+        SE.applyForcesTo(visitor);
       }
     }
   }

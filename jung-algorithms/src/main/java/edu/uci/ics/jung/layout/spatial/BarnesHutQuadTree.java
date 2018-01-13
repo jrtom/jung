@@ -1,5 +1,6 @@
 package edu.uci.ics.jung.layout.spatial;
 
+import com.google.common.base.Preconditions;
 import edu.uci.ics.jung.layout.model.Point;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -52,13 +53,14 @@ public class BarnesHutQuadTree<T> {
   }
 
   /**
-   * passed node will visit nodes in the quad tree and accumulate their forces
+   * passed {@code ForceObject} will visit nodes in the quad tree and accumulate their forces
    *
-   * @param node
+   * @param visitor
    */
-  public void acceptVisitor(ForceObject<T> node) {
-    if (root != null && root.forceObject != node) {
-      root.acceptVisitor(node);
+  public void applyForcesTo(ForceObject<T> visitor) {
+    Preconditions.checkArgument(visitor != null, "Cannot apply forces to a null ForceObject");
+    if (root != null && root.forceObject != visitor) {
+      root.applyForcesTo(visitor);
     }
   }
 

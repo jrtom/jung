@@ -9,17 +9,18 @@
  */
 package edu.uci.ics.jung.layout.model;
 
+import com.google.common.collect.Maps;
 import com.google.common.graph.Graph;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
-/** two or three dimensional layoutmodel */
-public interface LayoutModel<N>
-    extends Function<N, Point>, com.google.common.base.Function<N, Point> {
+/** two dimensional layoutmodel */
+public interface LayoutModel<N> extends Function<N, Point> {
 
   /** @return the width of the layout area */
   int getWidth();
@@ -34,19 +35,11 @@ public interface LayoutModel<N>
    */
   void accept(LayoutAlgorithm<N> layoutAlgorithm);
 
-  /**
-   * return a mapping of Nodes to Point locations
-   *
-   * @return
-   */
-  Map<N, Point> getLocations();
-  //  default Map<N, Point> getLocations() {
-  //    return Maps.asMap(getGraph().nodes(), com.google.common.base.Function::apply);
-  //  }
+  /** @return a mapping of Nodes to Point locations */
+  default Map<N, Point> getLocations() {
+    return Collections.unmodifiableMap(Maps.asMap(getGraph().nodes(), this::apply));
+  }
 
-  //  default Map<N, Point> getLocations() {
-  //    return getGraph().nodes().stream().collect(Function.identity(), LayoutModel::get);
-  //  }
   /**
    * @param width to set
    * @param helght to set
@@ -125,9 +118,9 @@ public interface LayoutModel<N>
   }
 
   /**
-   * This exists so that LayoutModel will not have dependencies on java awt or swing event classes
+   * This exists so that LayoutModel will not have dependencies on java awt or swing event classes.
    * This event type tells the viewing system that it should re-draw itself to show the latest
-   * changes
+   * changes.
    */
   interface ChangeSupport {
 
@@ -186,8 +179,10 @@ public interface LayoutModel<N>
   }
 
   /**
-   * a consumer for a LayoutStateChangeEvent most use-cases in JUNG are the view side spatial data
-   * structures
+   * a consumer for a LayoutStateChangeEvent. In jung-visualization, this event is consumed by the
+   * view side spatial data structures. This event stops them from recomputing the R-Trees while the
+   * GraphLayoutAlgorithm is relaxing, and tells the view side to build the R-Trees as soon as the
+   * relax work is complete.
    */
   interface LayoutStateChangeListener {
     void layoutStateChanged(LayoutStateChangeEvent evt);

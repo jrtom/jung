@@ -24,8 +24,6 @@ import org.slf4j.LoggerFactory;
 /**
  * A {@code Layout} implementation that positions nodes equally spaced on a regular circle.
  *
- * <p>By default, no attempt is made to minimize the edge crossing number
- *
  * @author Masanori Harada
  * @author Tom Nelson - adapted to an algorithm
  */
@@ -51,7 +49,7 @@ public class CircleLayoutAlgorithm<N> implements LayoutAlgorithm<N> {
 
   /**
    * Sets the order of the nodes in the layout according to the ordering specified by {@code
-   * comparator}. An effective comparator could be used to reduce or minimize the crossing number
+   * comparator}.
    *
    * @param comparator the comparator to use to order the nodes
    */

@@ -15,8 +15,6 @@ import edu.uci.ics.jung.layout.spatial.ForceObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
-
 /**
  * This subclass of FRLayoutAlgorithm applies a Barnes-Hut QuadTree optimization during the
  * calculation of node repulsion. The purpose of the Barnes-Hut optimization is to reduce the n-body
@@ -49,10 +47,6 @@ public class FRBHVisitorLayoutAlgorithm<N> extends FRLayoutAlgorithm<N>
    */
   @Override
   public synchronized void step() {
-    if (layoutModel.getLocations().size() != layoutModel.getGraph().nodes().size()) {
-      Map<N, Point> mapIgot = layoutModel.getLocations();
-      log.error("hey");
-    }
     tree.rebuild(layoutModel.getLocations());
     super.step();
   }
@@ -84,7 +78,7 @@ public class FRBHVisitorLayoutAlgorithm<N> extends FRLayoutAlgorithm<N>
             f = f.add(force * (dx / dist), force * (dy / dist));
           }
         };
-    tree.acceptVisitor(nodeForceObject);
+    tree.applyForcesTo(nodeForceObject);
     frNodeData.put(node1, nodeForceObject.f);
   }
 }

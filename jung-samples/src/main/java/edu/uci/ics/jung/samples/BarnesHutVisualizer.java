@@ -93,7 +93,7 @@ public class BarnesHutVisualizer extends JPanel {
                       stuffToDraw.add(line);
                     }
                   };
-              tree.acceptVisitor(nodeForceObject);
+              tree.applyForcesTo(nodeForceObject);
             } else {
               addShapeAt(p);
             }
@@ -115,7 +115,7 @@ public class BarnesHutVisualizer extends JPanel {
                     log.info("for node {}, next force object is {}", node, other);
                   }
                 };
-            tree.acceptVisitor(nodeForceObject);
+            tree.applyForcesTo(nodeForceObject);
           }
         });
     JPanel controls = new JPanel();

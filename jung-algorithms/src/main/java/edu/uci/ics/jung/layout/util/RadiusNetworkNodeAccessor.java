@@ -66,12 +66,12 @@ public class RadiusNetworkNodeAccessor<N> implements NetworkNodeAccessor<N> {
    */
   @Override
   public N getNode(LayoutModel<N> layoutModel, double x, double y) {
-    //    long time = System.currentTimeMillis();
+
     double minDistance = maxDistance * maxDistance * maxDistance;
     N closest = null;
     while (true) {
       try {
-        for (N node : layoutModel.getGraph().nodes()) {
+        for (N node : layoutModel.getLocations().keySet()) {
 
           Point p = layoutModel.apply(node);
           double dx = p.x - x;
