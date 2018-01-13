@@ -6,6 +6,8 @@ language: java
 
 dist: trusty
 
+# openjdk8 is currently used for tools/deploy_snapshots.sh; if we stop using that JDK here,
+# change the JDK version used in that script
 jdk:
   - oraclejdk8
   - openjdk8
