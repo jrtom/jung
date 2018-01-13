@@ -18,7 +18,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 /** two or three dimensional layoutmodel */
-public interface LayoutModel<N> extends Function<N, Point> {
+public interface LayoutModel<N>
+    extends Function<N, Point>, com.google.common.base.Function<N, Point> {
 
   /** @return the width of the layout area */
   int getWidth();
@@ -39,7 +40,13 @@ public interface LayoutModel<N> extends Function<N, Point> {
    * @return
    */
   Map<N, Point> getLocations();
+  //  default Map<N, Point> getLocations() {
+  //    return Maps.asMap(getGraph().nodes(), com.google.common.base.Function::apply);
+  //  }
 
+  //  default Map<N, Point> getLocations() {
+  //    return getGraph().nodes().stream().collect(Function.identity(), LayoutModel::get);
+  //  }
   /**
    * @param width to set
    * @param helght to set
