@@ -14,12 +14,6 @@
     <version.logback>1.2.3</version.logback>
   </properties>
   <dependencies>
-    <dependency>
-      <groupId>com.google.truth</groupId>
-      <artifactId>truth</artifactId>
-      <version>0.39</version>
-      <scope>test</scope>
-    </dependency>
      <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
