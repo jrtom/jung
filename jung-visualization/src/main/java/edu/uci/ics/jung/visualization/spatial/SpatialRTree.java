@@ -4,11 +4,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Network;
+import edu.uci.ics.jung.layout.event.LayoutNodePositionChange;
 import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.layout.model.Point;
-import edu.uci.ics.jung.layout.util.LayoutChangeListener;
-import edu.uci.ics.jung.layout.util.LayoutEvent;
-import edu.uci.ics.jung.layout.util.LayoutNetworkEvent;
 import edu.uci.ics.jung.visualization.VisualizationModel;
 import edu.uci.ics.jung.visualization.layout.BoundingRectangleCollector;
 import edu.uci.ics.jung.visualization.layout.NetworkElementAccessor;
@@ -151,7 +149,7 @@ public abstract class SpatialRTree<T, NT> extends AbstractSpatial<T, NT> impleme
   }
 
   public static class Nodes<N> extends SpatialRTree<N, N>
-      implements Spatial<N>, LayoutChangeListener<N> {
+      implements Spatial<N>, LayoutNodePositionChange.Listener<N> {
 
     private static final Logger log = LoggerFactory.getLogger(Nodes.class);
 
@@ -298,18 +296,18 @@ public abstract class SpatialRTree<T, NT> extends AbstractSpatial<T, NT> impleme
     }
 
     @Override
-    public void layoutChanged(LayoutEvent<N> evt) {
-      this.update(evt.getNode(), evt.getLocation());
+    public void layoutNodePositionChanged(LayoutNodePositionChange.NetworkEvent<N> evt) {
+      update(evt.node, evt.location);
     }
 
     @Override
-    public void layoutChanged(LayoutNetworkEvent<N> evt) {
-      update(evt.getNode(), evt.getLocation());
+    public void layoutNodePositionChanged(LayoutNodePositionChange.Event<N> evt) {
+      update(evt.node, evt.location);
     }
   }
 
   public static class Edges<E, N> extends SpatialRTree<E, N>
-      implements Spatial<E>, LayoutChangeListener<N> {
+      implements Spatial<E>, LayoutNodePositionChange.Listener<N> {
 
     private static final Logger log = LoggerFactory.getLogger(Edges.class);
 
@@ -401,10 +399,9 @@ public abstract class SpatialRTree<T, NT> extends AbstractSpatial<T, NT> impleme
     }
 
     @Override
-    public void layoutChanged(LayoutEvent<N> evt) {
-      // need to take care of edge changes
-      N node = evt.getNode();
-      Point p = evt.getLocation();
+    public void layoutNodePositionChanged(LayoutNodePositionChange.Event<N> evt) {
+      N node = evt.node;
+      Point p = evt.location;
       if (visualizationModel.getNetwork().nodes().contains(node)) {
         Set<E> edges = visualizationModel.getNetwork().incidentEdges(node);
         for (E edge : edges) {
@@ -414,9 +411,9 @@ public abstract class SpatialRTree<T, NT> extends AbstractSpatial<T, NT> impleme
     }
 
     @Override
-    public void layoutChanged(LayoutNetworkEvent<N> evt) {
-      N node = evt.getNode();
-      Point p = evt.getLocation();
+    public void layoutNodePositionChanged(LayoutNodePositionChange.NetworkEvent<N> evt) {
+      N node = evt.node;
+      Point p = evt.location;
       if (visualizationModel.getNetwork().nodes().contains(node)) {
         Set<E> edges = visualizationModel.getNetwork().incidentEdges(node);
         for (E edge : edges) {

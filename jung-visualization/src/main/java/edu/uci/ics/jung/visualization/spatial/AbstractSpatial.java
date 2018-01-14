@@ -1,6 +1,7 @@
 package edu.uci.ics.jung.visualization.spatial;
 
 import com.google.common.collect.EvictingQueue;
+import edu.uci.ics.jung.layout.event.LayoutStateChange;
 import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.layout.model.Point;
 import edu.uci.ics.jung.layout.util.RadiusNetworkNodeAccessor;
@@ -87,7 +88,7 @@ public abstract class AbstractSpatial<T, NT> implements Spatial<T> {
   }
 
   @Override
-  public void layoutStateChanged(LayoutModel.LayoutStateChangeEvent evt) {
+  public void layoutStateChanged(LayoutStateChange.Event evt) {
     // if the layoutmodel is not active, then it is safe to activate this
     log.trace("layoutStateChanged:{}", evt);
     setActive(!evt.active);
@@ -95,9 +96,7 @@ public abstract class AbstractSpatial<T, NT> implements Spatial<T> {
     if (!evt.active) {
       log.trace("will recalcluate");
       recalculate();
-      if (layoutModel instanceof LayoutModel.ChangeSupport) {
-        ((LayoutModel.ChangeSupport) layoutModel).fireChanged(); // this will cause a repaint
-      }
+      layoutModel.getLayoutChangeSupport().fireLayoutChanged(); // this will cause a repaint
     }
   }
 }

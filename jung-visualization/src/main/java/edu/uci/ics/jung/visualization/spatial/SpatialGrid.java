@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.Sets;
+import edu.uci.ics.jung.layout.event.LayoutNodePositionChange;
 import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.layout.model.Point;
 import java.awt.*;
@@ -33,7 +34,8 @@ import org.slf4j.LoggerFactory;
  *
  * @author Tom Nelson
  */
-public class SpatialGrid<N> extends AbstractSpatial<N, N> implements Spatial<N>, TreeNode {
+public class SpatialGrid<N> extends AbstractSpatial<N, N>
+    implements Spatial<N>, TreeNode, LayoutNodePositionChange.Listener<N> {
 
   private static final Logger log = LoggerFactory.getLogger(SpatialGrid.class);
 
@@ -450,5 +452,15 @@ public class SpatialGrid<N> extends AbstractSpatial<N, N> implements Spatial<N>,
   @Override
   public Collection<? extends TreeNode> getChildren() {
     return null;
+  }
+
+  @Override
+  public void layoutNodePositionChanged(LayoutNodePositionChange.Event<N> evt) {
+    update(evt.node, evt.location);
+  }
+
+  @Override
+  public void layoutNodePositionChanged(LayoutNodePositionChange.NetworkEvent<N> evt) {
+    update(evt.node, evt.location);
   }
 }
