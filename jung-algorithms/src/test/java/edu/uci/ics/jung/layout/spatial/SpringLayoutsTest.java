@@ -1,8 +1,11 @@
 package edu.uci.ics.jung.layout.spatial;
 
+import static com.google.common.truth.Truth.assertWithMessage;
+
 import com.google.common.collect.Maps;
 import com.google.common.graph.GraphBuilder;
 import com.google.common.graph.MutableGraph;
+import com.google.common.truth.Correspondence;
 import edu.uci.ics.jung.layout.algorithms.IterativeLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.SpringBHIteratorLayoutAlgorithm;
@@ -13,7 +16,6 @@ import edu.uci.ics.jung.layout.model.LoadingCacheLayoutModel;
 import edu.uci.ics.jung.layout.model.Point;
 import java.util.Map;
 import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -108,9 +110,11 @@ public class SpringLayoutsTest {
     log.debug("mapOne:{}", mapOne);
     log.debug("mapTwo:{}", mapTwo);
     log.debug("mapThree:{}", mapThree);
-    Assert.assertTrue(
-        "the compared maps are not close enough: mapTwo:" + mapTwo + ", mapThree:" + mapThree,
-        closeEnough(mapTwo, mapThree));
+    assertWithMessage(
+            "The compared maps are not close enough: mapTwo: %s, mapThree: %s", mapTwo, mapThree)
+        .that(mapTwo)
+        .comparingValuesUsing(Correspondence.tolerance(1.0E-4))
+        .equals(mapThree);
   }
 
   private void doTest(LayoutAlgorithm<String> layoutAlgorithm, Map<String, Point> map) {
@@ -120,19 +124,6 @@ public class SpringLayoutsTest {
       map.put(node, layoutModel.apply(node));
       log.debug("node {} placed at {}", node, layoutModel.apply(node));
     }
-  }
-
-  private static boolean closeEnough(Map<String, Point> left, Map<String, Point> right) {
-    if (left.keySet().equals(right.keySet())) {
-      for (String key : left.keySet()) {
-        Point leftPoint = left.get(key);
-        Point rightPoint = right.get(key);
-        if (Math.abs(leftPoint.x - rightPoint.x) > 0.001) return false;
-        if (Math.abs(leftPoint.y - rightPoint.y) > 0.001) return false;
-      }
-      return true;
-    }
-    return false;
   }
 
   /**
