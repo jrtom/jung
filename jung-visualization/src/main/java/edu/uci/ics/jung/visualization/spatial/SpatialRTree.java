@@ -317,7 +317,7 @@ public abstract class SpatialRTree<T, NT> extends AbstractSpatial<T, NT> impleme
     VisualizationModel<N, E> visualizationModel;
 
     public Edges(
-        VisualizationModel visualizationModel,
+        VisualizationModel<N, E> visualizationModel,
         BoundingRectangleCollector.Edges<E> boundingRectangleCollector,
         SplitterContext<E> splitterContext) {
       super(visualizationModel.getLayoutModel(), splitterContext);

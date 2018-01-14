@@ -4,6 +4,8 @@ import com.google.common.collect.Lists;
 import edu.uci.ics.jung.layout.model.LayoutModel;
 import java.util.Collections;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An event model to convey that the LayoutModel is either active (busy) or not. Consumers of this
@@ -38,6 +40,7 @@ public interface LayoutStateChange {
   /** implementations for a producer of this event model */
   class SupportImpl implements Support {
 
+    private static final Logger log = LoggerFactory.getLogger(LayoutStateChange.SupportImpl.class);
     /** to fire or not to fire.... */
     protected boolean fireEvents;
 
@@ -76,6 +79,7 @@ public interface LayoutStateChange {
         // make an event and fire it
         LayoutStateChange.Event evt = new LayoutStateChange.Event(layoutModel, state);
         for (LayoutStateChange.Listener listener : changeListeners) {
+          log.trace("telling {} that state is {}", listener.getClass(), state);
           listener.layoutStateChanged(evt);
         }
       }

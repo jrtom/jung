@@ -54,6 +54,7 @@ public abstract class AbstractSpatial<T, NT> implements Spatial<T> {
 
   @Override
   public void setActive(boolean active) {
+    log.trace("set active to {}", active);
     gridCache = null;
     this.active = active;
   }
@@ -90,8 +91,9 @@ public abstract class AbstractSpatial<T, NT> implements Spatial<T> {
   @Override
   public void layoutStateChanged(LayoutStateChange.Event evt) {
     // if the layoutmodel is not active, then it is safe to activate this
-    log.trace("layoutStateChanged:{}", evt);
     setActive(!evt.active);
+    log.trace("layoutStateChanged state is:{}, so this active becomes {}", evt.active, isActive());
+
     // if the layout model is finished, then rebuild the spatial data structure
     if (!evt.active) {
       log.trace("will recalcluate");

@@ -149,6 +149,7 @@ public class NodeCollapseDemo extends JPanel {
               sumy += p.y;
             }
             Point cp = Point.of(sumx / picked.size(), sumy / picked.size());
+            layoutModel.getLayoutStateChangeSupport().fireLayoutStateChanged(layoutModel, true);
             layoutModel.lock(false);
             layoutModel.set(clusterGraph, cp);
             log.info("put the cluster at " + cp);
@@ -159,6 +160,8 @@ public class NodeCollapseDemo extends JPanel {
             vv.getRenderContext().getParallelEdgeIndexFunction().reset();
             layoutModel.accept(vv.getModel().getLayoutAlgorithm());
             vv.getPickedNodeState().clear();
+            //            layoutModel.getLayoutStateChangeSupport().fireLayoutStateChanged(layoutModel, false);
+
             vv.repaint();
           }
         });

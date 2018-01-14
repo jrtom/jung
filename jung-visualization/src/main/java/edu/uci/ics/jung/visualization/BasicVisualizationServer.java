@@ -15,7 +15,6 @@ import com.google.common.collect.Lists;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
 import edu.uci.ics.jung.layout.event.LayoutNodePositionChange;
-import edu.uci.ics.jung.layout.event.LayoutStateChange;
 import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.layout.util.Caching;
 import edu.uci.ics.jung.visualization.annotations.AnnotationPaintable;
@@ -430,13 +429,14 @@ public class BasicVisualizationServer<N, E> extends JPanel implements Visualizat
     g2d.setTransform(oldXform);
   }
 
+  /** a LayoutChange.Event from the LayoutModel will trigger a repaint of the visualization */
   @Override
   public void layoutChanged() {
     repaint();
   }
 
-  @Override
-  public void layoutStateChanged(LayoutStateChange.Event evt) {}
+  //  @Override
+  //  public void layoutStateChanged(LayoutStateChange.Event evt) {}
 
   /**
    * VisualizationListener reacts to changes in the layoutSize of the VisualizationViewer. When the

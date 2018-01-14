@@ -16,7 +16,7 @@ import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
 import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.visualization.control.GraphMouseListener;
 import edu.uci.ics.jung.visualization.control.MouseListenerTranslator;
-import java.awt.Dimension;
+import java.awt.*;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -57,6 +57,21 @@ public class VisualizationViewer<N, E> extends BasicVisualizationServer<N, E> {
    */
   public VisualizationViewer(Network<N, E> network, Dimension size) {
     this(network, size, size);
+  }
+
+  @Override
+  protected void paintComponent(Graphics g) {
+    super.paintComponent(g);
+  }
+
+  @Override
+  public void paint(Graphics g) {
+    super.paint(g);
+  }
+
+  @Override
+  public void paintAll(Graphics g) {
+    super.paintAll(g);
   }
 
   /**

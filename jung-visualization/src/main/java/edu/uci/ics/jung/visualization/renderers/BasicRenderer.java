@@ -60,7 +60,12 @@ public class BasicRenderer<N, E> implements Renderer<N, E> {
       // skip rendering until graph node index is stable,
       // this can happen if the layout relax thread is changing locations while the
       // visualization is rendering
-      log.info("got {} so returning", ex);
+      log.info("got {} so returning", ex.toString());
+      log.info(
+          "layoutMode active: {}, edgeSpatial active {}, nodeSpatial active: {}",
+          visualizationModel.getLayoutModel().isRelaxing(),
+          edgeSpatial.isActive(),
+          nodeSpatial.isActive());
       return;
     }
 
