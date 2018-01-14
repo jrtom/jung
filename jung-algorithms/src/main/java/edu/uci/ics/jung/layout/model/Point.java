@@ -52,7 +52,7 @@ public class Point {
   /**
    * @param ox coordinate of another location
    * @param oy coordinate of another location
-   * @returnthe square of the distance between this Point and the passed location
+   * @return the square of the distance between this Point and the passed location
    */
   public double distanceSquared(double ox, double oy) {
     double dx = x - ox;

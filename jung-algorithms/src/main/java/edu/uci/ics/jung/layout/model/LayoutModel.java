@@ -87,9 +87,9 @@ public interface LayoutModel<N> extends Function<N, Point> {
   /**
    * Changes the layout coordinates of {@code node} to {@code x, y}.
    *
-   * @param node
-   * @param x
-   * @param y
+   * @param node the node to set location for
+   * @param x coordinate to set
+   * @param y coordinate to set
    */
   void set(N node, double x, double y);
 

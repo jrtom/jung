@@ -21,8 +21,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * This subclass of SpringLayoutAlgorithm applies a Barnes-Hut QuadTree optimization during the
- * calculation of node repulsion. The purpose of the Barnes-Hut optimization is to reduce the n-body
- * problem during the calculateRepulsion method from O(n^2) to O(nlog(n))
+ * calculation of node repulsion. The purpose of the Barnes-Hut optimization is to reduce the number
+ * of calculations during the calculateRepulsion method from O(n^2) to O(nlog(n))
  *
  * @author Tom Nelson
  */

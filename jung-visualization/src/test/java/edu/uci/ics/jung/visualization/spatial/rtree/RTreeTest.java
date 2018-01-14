@@ -243,7 +243,9 @@ public class RTreeTest {
             && closeEnough(left.getMaxY(), right.getMaxY()));
   }
 
+  private final double CLOSE_ENOUGH = 0.001;
+
   private boolean closeEnough(double left, double right) {
-    return Math.abs(left - right) < 0.001;
+    return Math.abs(left - right) < CLOSE_ENOUGH;
   }
 }
