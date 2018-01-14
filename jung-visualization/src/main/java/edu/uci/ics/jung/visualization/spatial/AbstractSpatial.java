@@ -28,7 +28,7 @@ public abstract class AbstractSpatial<T, NT> implements Spatial<T> {
   /** a memoization of the grid rectangles used for rendering as Paintables for debugging */
   protected List<Shape> gridCache;
 
-  /** the layoutModel that the stucture operates on */
+  /** the layoutModel that the structure operates on */
   protected LayoutModel<NT> layoutModel;
 
   RadiusNetworkNodeAccessor<NT> fallback;
@@ -38,7 +38,7 @@ public abstract class AbstractSpatial<T, NT> implements Spatial<T> {
     if (layoutModel != null) {
       this.rectangle =
           new Rectangle2D.Double(0, 0, layoutModel.getWidth(), layoutModel.getHeight());
-      this.fallback = new RadiusNetworkNodeAccessor(layoutModel.getGraph());
+      this.fallback = new RadiusNetworkNodeAccessor();
     }
   }
 

@@ -227,11 +227,25 @@ public class RTreeTest {
     Rectangle2D rootBounds = rootNode.getBounds();
     if (rootNode instanceof InnerNode) {
       InnerNode innerNode = (InnerNode) rootNode;
-      Assert.assertEquals(rootBounds, Node.union(innerNode.getChildren()));
+      Assert.assertTrue(closeEnough(rootBounds, Node.union(innerNode.getChildren())));
     }
 
     for (TreeNode rt : rootNode.getChildren()) {
       testAreas(rt);
     }
+  }
+
+  private boolean closeEnough(Rectangle2D left, Rectangle2D right) {
+    return left.equals(right)
+        || (closeEnough(left.getMinX(), right.getMinX())
+            && closeEnough(left.getMinY(), right.getMinY())
+            && closeEnough(left.getMaxX(), right.getMaxX())
+            && closeEnough(left.getMaxY(), right.getMaxY()));
+  }
+
+  private final double CLOSE_ENOUGH = 0.001;
+
+  private boolean closeEnough(double left, double right) {
+    return Math.abs(left - right) < CLOSE_ENOUGH;
   }
 }

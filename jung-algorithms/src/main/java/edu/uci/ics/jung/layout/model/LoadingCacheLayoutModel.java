@@ -5,7 +5,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.graph.Graph;
 import edu.uci.ics.jung.layout.util.Caching;
-import java.util.Map;
+import java.util.Collection;
 import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +23,11 @@ public class LoadingCacheLayoutModel<N> extends AbstractLayoutModel<N>
 
   protected LoadingCache<N, Point> locations =
       CacheBuilder.newBuilder().build(CacheLoader.from(() -> Point.ORIGIN));
+
+  @Override
+  public Collection<ChangeListener> getChangeListeners() {
+    return changeSupport.getChangeListeners();
+  }
 
   /**
    * a builder for LoadingCache instances
@@ -119,10 +124,6 @@ public class LoadingCacheLayoutModel<N> extends AbstractLayoutModel<N>
   public void setInitializer(Function<N, Point> initializer) {
     Function<N, Point> chain = initializer.andThen(p -> Point.of(p.x, p.y));
     this.locations = CacheBuilder.newBuilder().build(CacheLoader.from(chain::apply));
-  }
-
-  public Map<N, Point> getLocations() {
-    return locations.asMap();
   }
 
   @Override

@@ -108,6 +108,7 @@ public class FRLayoutsTest {
     log.debug("mapOne:{}", mapOne);
     log.debug("mapTwo:{}", mapTwo);
     log.debug("mapThree:{}", mapThree);
+
     Assert.assertTrue(
         "the compared maps are not close enough: mapTwo:" + mapTwo + ", mapThree:" + mapThree,
         closeEnough(mapTwo, mapThree));

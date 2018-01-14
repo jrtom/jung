@@ -72,11 +72,8 @@ public class CircleLayoutAlgorithm<N> implements LayoutAlgorithm<N> {
     this.node_ordered_list = node_list;
   }
 
-  public void reset() {}
-
+  @Override
   public void visit(LayoutModel<N> layoutModel) {
-    //    super.visit(layoutModel);
-    log.trace("visiting " + layoutModel);
     if (layoutModel != null) {
       setNodeOrder(layoutModel, new ArrayList<N>(layoutModel.getGraph().nodes()));
 
@@ -89,7 +86,6 @@ public class CircleLayoutAlgorithm<N> implements LayoutAlgorithm<N> {
 
       int i = 0;
       for (N node : node_ordered_list) {
-        //        Point coord = layoutModel.apply(node);
 
         double angle = (2 * Math.PI * i) / node_ordered_list.size();
 

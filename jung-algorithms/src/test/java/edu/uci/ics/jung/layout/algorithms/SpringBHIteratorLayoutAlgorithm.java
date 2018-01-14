@@ -50,7 +50,7 @@ public class SpringBHIteratorLayoutAlgorithm<N> extends SpringLayoutAlgorithm<N>
 
   @Override
   public void step() {
-    tree.rebuild(layoutModel);
+    tree.rebuild(layoutModel.getLocations());
     super.step();
   }
 
@@ -71,7 +71,7 @@ public class SpringBHIteratorLayoutAlgorithm<N> extends SpringLayoutAlgorithm<N>
 
         ForceObject<N> nodeForceObject = new ForceObject<>(node, layoutModel.apply(node));
         Iterator<ForceObject<N>> forceObjectIterator =
-            new BarnesHutQuadTree.ForceObjectIterator<>(tree, nodeForceObject);
+            new ForceObjectIterator<>(tree, nodeForceObject);
         while (forceObjectIterator.hasNext()) {
           ForceObject<N> nextForceObject = forceObjectIterator.next();
           if (nextForceObject == null || node == nextForceObject.getElement()) {

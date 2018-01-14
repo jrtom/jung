@@ -27,7 +27,6 @@ import edu.uci.ics.jung.visualization.decorators.EllipseNodeShapeFunction;
 import edu.uci.ics.jung.visualization.subLayout.GraphCollapser;
 import edu.uci.ics.jung.visualization.util.PredicatedParallelEdgeIndexFunction;
 import java.awt.*;
-import java.awt.geom.Point2D;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -145,9 +144,9 @@ public class NodeCollapseDemo extends JPanel {
             double sumx = 0;
             double sumy = 0;
             for (Object v : picked) {
-              Point2D p = (Point2D) layoutModel.apply(v);
-              sumx += p.getX();
-              sumy += p.getY();
+              Point p = (Point) layoutModel.apply(v);
+              sumx += p.x;
+              sumy += p.y;
             }
             Point cp = Point.of(sumx / picked.size(), sumy / picked.size());
             layoutModel.lock(false);
