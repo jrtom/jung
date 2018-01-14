@@ -1,11 +1,23 @@
 package edu.uci.ics.jung.graph.util;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
+import static java.util.stream.Collectors.toCollection;
+import static java.util.stream.Collectors.toMap;
+
+import com.google.common.collect.AbstractIterator;
 import com.google.common.graph.AbstractNetwork;
 import com.google.common.graph.ElementOrder;
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Graph;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
+import java.util.AbstractSet;
+import java.util.ArrayDeque;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 
 /**
@@ -25,6 +37,71 @@ public class Graphs {
 
   public static <E> boolean isSelfLoop(Network<?, E> network, E edge) {
     return isSelfLoop(network.incidentNodes(edge));
+  }
+
+  public static <N> Set<N> topologicallySortedNodes(Graph<N> graph) {
+    // TODO: Do we want this method to be lazy or eager?
+    return new TopologicallySortedNodes<>(graph);
+  }
+
+  private static class TopologicallySortedNodes<N> extends AbstractSet<N> {
+    private final Graph<N> graph;
+
+    private TopologicallySortedNodes(Graph<N> graph) {
+      this.graph = checkNotNull(graph, "graph");
+    }
+
+    @Override
+    public Iterator<N> iterator() {
+      return new TopologicalOrderIterator<>(graph);
+    }
+
+    @Override
+    public int size() {
+      return graph.nodes().size();
+    }
+  }
+
+  private static class TopologicalOrderIterator<N> extends AbstractIterator<N> {
+    private final Graph<N> graph;
+    private final Queue<N> roots;
+    private final Map<N, Integer> nonRootToInDegree;
+
+    private TopologicalOrderIterator(Graph<N> graph) {
+      this.graph = checkNotNull(graph, "graph");
+      this.roots =
+          graph
+              .nodes()
+              .stream()
+              .filter(node -> graph.inDegree(node) == 0)
+              .collect(toCollection(ArrayDeque::new));
+      this.nonRootToInDegree =
+          graph
+              .nodes()
+              .stream()
+              .filter(node -> graph.inDegree(node) > 0)
+              .collect(toMap(node -> node, graph::inDegree, (a, b) -> b, HashMap::new));
+    }
+
+    @Override
+    protected N computeNext() {
+      // based on Kahn's algorithm: https://en.wikipedia.org/wiki/Topological_sorting
+      if (!roots.isEmpty()) {
+        N next = roots.remove();
+        for (N successor : graph.successors(next)) {
+          int newInDegree = nonRootToInDegree.get(successor) - 1;
+          nonRootToInDegree.put(successor, newInDegree);
+          if (newInDegree == 0) {
+            nonRootToInDegree.remove(successor);
+            roots.add(successor);
+          }
+        }
+        return next;
+      } else {
+        checkState(nonRootToInDegree.isEmpty(), "graph has at least one cycle");
+        return endOfData();
+      }
+    }
   }
 
   public static <N, E> MutableNetwork<N, E> synchronizedNetwork(MutableNetwork<N, E> network) {
