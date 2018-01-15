@@ -59,21 +59,6 @@ public class VisualizationViewer<N, E> extends BasicVisualizationServer<N, E> {
     this(network, size, size);
   }
 
-  @Override
-  protected void paintComponent(Graphics g) {
-    super.paintComponent(g);
-  }
-
-  @Override
-  public void paint(Graphics g) {
-    super.paint(g);
-  }
-
-  @Override
-  public void paintAll(Graphics g) {
-    super.paintAll(g);
-  }
-
   /**
    * @param network the network to visualize
    * @param layoutSize the size of the layout area

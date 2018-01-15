@@ -160,7 +160,6 @@ public class NodeCollapseDemo extends JPanel {
             vv.getRenderContext().getParallelEdgeIndexFunction().reset();
             layoutModel.accept(vv.getModel().getLayoutAlgorithm());
             vv.getPickedNodeState().clear();
-            //            layoutModel.getLayoutStateChangeSupport().fireLayoutStateChanged(layoutModel, false);
 
             vv.repaint();
           }

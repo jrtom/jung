@@ -435,9 +435,6 @@ public class BasicVisualizationServer<N, E> extends JPanel implements Visualizat
     repaint();
   }
 
-  //  @Override
-  //  public void layoutStateChanged(LayoutStateChange.Event evt) {}
-
   /**
    * VisualizationListener reacts to changes in the layoutSize of the VisualizationViewer. When the
    * layoutSize changes, it ensures that the offscreen image is sized properly. If the layout is
