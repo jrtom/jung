@@ -19,7 +19,7 @@ public interface LayoutNodePositionChange {
    *
    * @param <N>
    */
-  interface HasSupport<N> {
+  interface Producer<N> {
     Support<N> getLayoutNodePositionSupport();
   }
 

@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 public interface LayoutStateChange {
 
   /** indicates that an implementor supports being a producer for this event model */
-  interface HasSupport {
+  interface Producer {
     Support getLayoutStateChangeSupport();
   }
 

@@ -18,7 +18,7 @@ import java.awt.*;
 /** */
 public interface VisualizationModel<N, E>
     extends LayoutChange.Listener, // can tell the view to repaint
-        LayoutChange.HasSupport {
+        LayoutChange.Producer {
 
   enum SpatialSupport {
     RTREE,

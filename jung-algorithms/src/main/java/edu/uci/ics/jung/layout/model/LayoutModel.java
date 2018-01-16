@@ -28,9 +28,9 @@ import java.util.function.Function;
  */
 public interface LayoutModel<N>
     extends Function<N, Point>,
-        LayoutChange.HasSupport,
-        LayoutNodePositionChange.HasSupport<N>,
-        LayoutStateChange.HasSupport {
+        LayoutChange.Producer,
+        LayoutNodePositionChange.Producer<N>,
+        LayoutStateChange.Producer {
 
   /** @return the width of the layout area */
   int getWidth();

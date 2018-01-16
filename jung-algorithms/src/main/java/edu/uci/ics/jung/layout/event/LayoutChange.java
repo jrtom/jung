@@ -14,7 +14,7 @@ import java.util.List;
 public interface LayoutChange {
 
   /** indicates support for this type of event dispatch */
-  interface HasSupport {
+  interface Producer {
     LayoutChange.Support getLayoutChangeSupport();
   }
 
@@ -73,10 +73,8 @@ public interface LayoutChange {
 
     @Override
     public void fireLayoutChanged() {
-      if (changeListeners.size() > 0) {
-        for (Listener layoutChangeListener : changeListeners) {
-          layoutChangeListener.layoutChanged();
-        }
+      for (Listener layoutChangeListener : changeListeners) {
+        layoutChangeListener.layoutChanged();
       }
     }
   }
