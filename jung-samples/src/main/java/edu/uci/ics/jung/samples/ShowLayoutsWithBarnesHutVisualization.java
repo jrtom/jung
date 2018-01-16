@@ -270,7 +270,7 @@ public class ShowLayoutsWithBarnesHutVisualization extends JPanel {
     ForceObject forceObject = node.getForceObject();
     if (forceObject != null) {
       Point center = node.getForceObject().p;
-      Ellipse2D forceCenter = new Ellipse2D.Double(center.x - 5, center.y - 5, 10, 10);
+      Ellipse2D forceCenter = new Ellipse2D.Double(center.x - 4, center.y - 4, 8, 8);
       Point2D centerOfNode = new Point2D.Double((r.getCenterX()), r.getCenterY());
       Point2D centerOfForce = new Point2D.Double(center.x, center.y);
       shapes.add(new Line2D.Double(centerOfNode, centerOfForce));
@@ -287,11 +287,6 @@ public class ShowLayoutsWithBarnesHutVisualization extends JPanel {
     }
     if (node.getSE() != null) {
       getShapes(shapes, node.getSE());
-    }
-    if (forceObject != null) {
-      Point p = forceObject.p;
-      Ellipse2D circle = new Ellipse2D.Double(p.x - 2, p.y - 2, 4, 4);
-      shapes.add(circle);
     }
   }
 
