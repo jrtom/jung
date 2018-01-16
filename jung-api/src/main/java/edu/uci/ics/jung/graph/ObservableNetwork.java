@@ -1,5 +1,6 @@
 package edu.uci.ics.jung.graph;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.Collections.synchronizedList;
 
 import com.google.common.collect.ImmutableList;
@@ -18,6 +19,7 @@ import java.util.Set;
  *
  * @author Joshua O'Madadhain
  */
+// TODO: Add tests in similar fashion to CTreeTest and AbstractCTreeTest
 public class ObservableNetwork<N, E> implements MutableNetwork<N, E> {
 
   List<NetworkEventListener<N, E>> listenerList =
@@ -30,7 +32,7 @@ public class ObservableNetwork<N, E> implements MutableNetwork<N, E> {
    * @param delegate the graph on which this class operates
    */
   public ObservableNetwork(MutableNetwork<N, E> delegate) {
-    this.delegate = delegate;
+    this.delegate = checkNotNull(delegate, "delegate");
   }
 
   /**
@@ -39,7 +41,7 @@ public class ObservableNetwork<N, E> implements MutableNetwork<N, E> {
    * @param l the listener to add
    */
   public void addGraphEventListener(NetworkEventListener<N, E> l) {
-    listenerList.add(l);
+    listenerList.add(checkNotNull(l, "l"));
   }
 
   /**
@@ -48,10 +50,11 @@ public class ObservableNetwork<N, E> implements MutableNetwork<N, E> {
    * @param l the listener to remove
    */
   public void removeGraphEventListener(NetworkEventListener<N, E> l) {
-    listenerList.remove(l);
+    listenerList.remove(checkNotNull(l, "l"));
   }
 
   protected void fireGraphEvent(NetworkEvent<N, E> evt) {
+    checkNotNull(evt, "evt");
     for (NetworkEventListener<N, E> listener : listenerList) {
       listener.handleGraphEvent(evt);
     }
