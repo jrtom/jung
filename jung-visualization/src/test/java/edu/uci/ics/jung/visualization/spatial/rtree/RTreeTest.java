@@ -1,5 +1,7 @@
 package edu.uci.ics.jung.visualization.spatial.rtree;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import com.google.common.collect.Maps;
 import edu.uci.ics.jung.visualization.spatial.TreeNode;
 import java.awt.geom.Point2D;
@@ -227,25 +229,15 @@ public class RTreeTest {
     Rectangle2D rootBounds = rootNode.getBounds();
     if (rootNode instanceof InnerNode) {
       InnerNode innerNode = (InnerNode) rootNode;
-      Assert.assertTrue(closeEnough(rootBounds, Node.union(innerNode.getChildren())));
+      Rectangle2D unionBounds = Node.union(innerNode.getChildren());
+      assertThat(rootBounds.getMinX()).isWithin(1.0E-3).of(unionBounds.getMinX());
+      assertThat(rootBounds.getMinY()).isWithin(1.0E-3).of(unionBounds.getMinY());
+      assertThat(rootBounds.getMaxX()).isWithin(1.0E-3).of(unionBounds.getMaxX());
+      assertThat(rootBounds.getMaxY()).isWithin(1.0E-3).of(unionBounds.getMaxY());
     }
 
     for (TreeNode rt : rootNode.getChildren()) {
       testAreas(rt);
     }
-  }
-
-  private boolean closeEnough(Rectangle2D left, Rectangle2D right) {
-    return left.equals(right)
-        || (closeEnough(left.getMinX(), right.getMinX())
-            && closeEnough(left.getMinY(), right.getMinY())
-            && closeEnough(left.getMaxX(), right.getMaxX())
-            && closeEnough(left.getMaxY(), right.getMaxY()));
-  }
-
-  private final double CLOSE_ENOUGH = 0.001;
-
-  private boolean closeEnough(double left, double right) {
-    return Math.abs(left - right) < CLOSE_ENOUGH;
   }
 }
