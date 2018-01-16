@@ -230,7 +230,7 @@ class DelegateCTreeNetwork<N, E> extends AbstractNetwork<N, E>
     } else {
       depths.putIfAbsent(parent, 0);
       int nodeDepth = depths.get(parent) + 1;
-      height = Optional.of(Math.max(nodeDepth, height.orElse(0))); //AssertionError::new)));
+      height = Optional.of(Math.max(nodeDepth, height.orElse(0)));
     }
   }
 

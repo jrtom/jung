@@ -1,5 +1,6 @@
 package edu.uci.ics.jung.visualization.sublayout;
 
+import com.google.common.collect.Sets;
 import edu.uci.ics.jung.graph.MutableCTreeNetwork;
 import edu.uci.ics.jung.graph.TreeNetworkBuilder;
 import edu.uci.ics.jung.visualization.subLayout.TreeCollapser;
@@ -31,8 +32,8 @@ public class TreeCollapserTest {
   public void testCollapseThenExpand() {
 
     log.info("original tree: {}", tree);
-    Collection originalNodes = tree.nodes();
-    Collection originalEdges = tree.edges();
+    Collection originalNodes = Sets.newHashSet(tree.nodes());
+    Collection originalEdges = Sets.newHashSet(tree.edges());
     MutableCTreeNetwork subTree = TreeCollapser.collapse(tree, "V2");
 
     log.info("tree is now {}", tree);
@@ -47,8 +48,8 @@ public class TreeCollapserTest {
   public void testCollapseThenExpandRoot() {
 
     log.info("original tree: {}", tree);
-    Collection originalNodes = tree.nodes();
-    Collection originalEdges = tree.edges();
+    Collection originalNodes = Sets.newHashSet(tree.nodes());
+    Collection originalEdges = Sets.newHashSet(tree.edges());
     MutableCTreeNetwork subTree = TreeCollapser.collapse(tree, "root");
 
     log.info("tree is now {}", tree);
