@@ -93,8 +93,8 @@ public class TreeLayoutAlgorithm<N> implements LayoutAlgorithm<N> {
     calculateDimensionX(layoutModel, roots);
     for (N node : roots) {
       calculateDimensionX(layoutModel, node);
-      double posX = this.basePositions.get(node) / 2 + this.distX;
-      buildTree(layoutModel, node, (int) posX);
+      currentX += (this.basePositions.get(node) / 2 + this.distX);
+      buildTree(layoutModel, node, (int)currentX);
     }
   }
 
