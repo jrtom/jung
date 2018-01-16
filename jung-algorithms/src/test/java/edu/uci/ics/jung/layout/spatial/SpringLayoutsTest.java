@@ -1,5 +1,7 @@
 package edu.uci.ics.jung.layout.spatial;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import com.google.common.collect.Maps;
 import com.google.common.graph.GraphBuilder;
 import com.google.common.graph.MutableGraph;
@@ -13,7 +15,6 @@ import edu.uci.ics.jung.layout.model.LoadingCacheLayoutModel;
 import edu.uci.ics.jung.layout.model.Point;
 import java.util.Map;
 import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -108,9 +109,14 @@ public class SpringLayoutsTest {
     log.debug("mapOne:{}", mapOne);
     log.debug("mapTwo:{}", mapTwo);
     log.debug("mapThree:{}", mapThree);
-    Assert.assertTrue(
-        "the compared maps are not close enough: mapTwo:" + mapTwo + ", mapThree:" + mapThree,
-        closeEnough(mapTwo, mapThree));
+    assertThat(mapTwo.keySet()).isEqualTo(mapThree.keySet());
+
+    for (String key : mapTwo.keySet()) {
+      Point p2 = mapTwo.get(key);
+      Point p3 = mapThree.get(key);
+      assertThat(p2.x).isWithin(1.0E-3).of(p3.x);
+      assertThat(p2.y).isWithin(1.0E-3).of(p3.y);
+    }
   }
 
   private void doTest(LayoutAlgorithm<String> layoutAlgorithm, Map<String, Point> map) {
@@ -120,19 +126,6 @@ public class SpringLayoutsTest {
       map.put(node, layoutModel.apply(node));
       log.debug("node {} placed at {}", node, layoutModel.apply(node));
     }
-  }
-
-  private static boolean closeEnough(Map<String, Point> left, Map<String, Point> right) {
-    if (left.keySet().equals(right.keySet())) {
-      for (String key : left.keySet()) {
-        Point leftPoint = left.get(key);
-        Point rightPoint = right.get(key);
-        if (Math.abs(leftPoint.x - rightPoint.x) > 0.001) return false;
-        if (Math.abs(leftPoint.y - rightPoint.y) > 0.001) return false;
-      }
-      return true;
-    }
-    return false;
   }
 
   /**
