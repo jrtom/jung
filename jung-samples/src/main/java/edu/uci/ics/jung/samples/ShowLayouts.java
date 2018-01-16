@@ -12,7 +12,14 @@ import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
 import edu.uci.ics.jung.algorithms.generators.random.BarabasiAlbertGenerator;
 import edu.uci.ics.jung.graph.util.TestGraphs;
-import edu.uci.ics.jung.layout.algorithms.*;
+import edu.uci.ics.jung.layout.algorithms.CircleLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.FRBHVisitorLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.FRLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.ISOMLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.KKLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.SpringBHVisitorLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.SpringLayoutAlgorithm;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
@@ -21,8 +28,6 @@ import edu.uci.ics.jung.visualization.decorators.PickableNodePaintFunction;
 import edu.uci.ics.jung.visualization.layout.LayoutAlgorithmTransition;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.function.Supplier;
 import javax.swing.*;
 
@@ -70,24 +75,8 @@ public class ShowLayouts extends JPanel {
     }
   }
 
-  public static class GraphChooser implements ActionListener {
-    private final VisualizationViewer<Integer, Number> vv;
+  public ShowLayouts() {
 
-    public GraphChooser(VisualizationViewer<Integer, Number> vv) {
-      this.vv = vv;
-    }
-
-    public void actionPerformed(ActionEvent e) {
-      JComboBox<?> cb = (JComboBox<?>) e.getSource();
-      graph_index = cb.getSelectedIndex();
-      vv.getNodeSpatial().clear();
-      vv.getEdgeSpatial().clear();
-      vv.getModel().setNetwork(g_array[graph_index]);
-    }
-  }
-
-  @SuppressWarnings({"rawtypes", "unchecked"})
-  private static JPanel getGraphPanel() {
     g_array = new Network[graph_names.length];
 
     Supplier<Integer> nodeFactory =
@@ -137,7 +126,6 @@ public class ShowLayouts extends JPanel {
     final DefaultModalGraphMouse<Integer, Number> graphMouse = new DefaultModalGraphMouse<>();
     vv.setGraphMouse(graphMouse);
 
-    // this reinforces that the generics (or lack of) declarations are correct
     vv.setNodeToolTipFunction(
         node ->
             node.toString() + ". with neighbors:" + vv.getModel().getNetwork().adjacentNodes(node));
@@ -153,10 +141,9 @@ public class ShowLayouts extends JPanel {
     modeBox.addItemListener(
         ((DefaultModalGraphMouse<Integer, Number>) vv.getGraphMouse()).getModeListener());
 
-    JPanel jp = new JPanel(new BorderLayout());
-    jp.setBackground(Color.WHITE);
-    jp.setLayout(new BorderLayout());
-    jp.add(vv, BorderLayout.CENTER);
+    vv.setBackground(Color.WHITE);
+    setLayout(new BorderLayout());
+    add(vv, BorderLayout.CENTER);
     Layouts[] combos = getCombos();
     final JRadioButton animateLayoutTransition = new JRadioButton("Animate Layout Transition");
 
@@ -179,13 +166,19 @@ public class ShowLayouts extends JPanel {
     JPanel bottomControls = new JPanel();
     control_panel.add(topControls);
     control_panel.add(bottomControls);
-    jp.add(control_panel, BorderLayout.NORTH);
+    add(control_panel, BorderLayout.NORTH);
 
     final JComboBox graph_chooser = new JComboBox(graph_names);
     // do this before adding the listener so there is no event fired
     graph_chooser.setSelectedIndex(3);
 
-    graph_chooser.addActionListener(new GraphChooser(vv));
+    graph_chooser.addActionListener(
+        e -> {
+          graph_index = graph_chooser.getSelectedIndex();
+          vv.getNodeSpatial().clear();
+          vv.getEdgeSpatial().clear();
+          vv.getModel().setNetwork(g_array[graph_index]);
+        });
 
     topControls.add(jcb);
     topControls.add(graph_chooser);
@@ -193,10 +186,9 @@ public class ShowLayouts extends JPanel {
     bottomControls.add(plus);
     bottomControls.add(minus);
     bottomControls.add(modeBox);
-    return jp;
   }
 
-  private static LayoutAlgorithm createLayout(Layouts layoutType) {
+  private LayoutAlgorithm createLayout(Layouts layoutType) {
     switch (layoutType) {
       case CIRCLE:
         return new CircleLayoutAlgorithm();
@@ -217,12 +209,12 @@ public class ShowLayouts extends JPanel {
     }
   }
 
-  private static Layouts[] getCombos() {
+  private Layouts[] getCombos() {
     return Layouts.values();
   }
 
   public static void main(String[] args) {
-    JPanel jp = getGraphPanel();
+    JPanel jp = new ShowLayouts();
 
     JFrame jf = new JFrame();
     jf.getContentPane().add(jp);

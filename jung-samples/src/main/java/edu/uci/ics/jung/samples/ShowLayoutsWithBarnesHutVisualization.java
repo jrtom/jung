@@ -193,6 +193,9 @@ public class ShowLayoutsWithBarnesHutVisualization extends JPanel {
     add(control_panel, BorderLayout.NORTH);
 
     final JComboBox graph_chooser = new JComboBox(graph_names);
+    // do this before adding the listener so there is no event fired
+    graph_chooser.setSelectedIndex(3);
+
     graph_chooser.addActionListener(
         e -> {
           graph_index = graph_chooser.getSelectedIndex();
@@ -200,8 +203,6 @@ public class ShowLayoutsWithBarnesHutVisualization extends JPanel {
           vv.getEdgeSpatial().clear();
           vv.getModel().setNetwork(g_array[graph_index]);
         });
-    // do this before adding the listener so there is no event fired
-    graph_chooser.setSelectedIndex(3);
 
     topControls.add(jcb);
     topControls.add(graph_chooser);
@@ -211,7 +212,7 @@ public class ShowLayoutsWithBarnesHutVisualization extends JPanel {
     bottomControls.add(modeBox);
   }
 
-  private static LayoutAlgorithm createLayout(Layouts layoutType) {
+  private LayoutAlgorithm createLayout(Layouts layoutType) {
     switch (layoutType) {
       case CIRCLE:
         return new CircleLayoutAlgorithm();
@@ -232,7 +233,7 @@ public class ShowLayoutsWithBarnesHutVisualization extends JPanel {
     }
   }
 
-  private static Layouts[] getCombos() {
+  private Layouts[] getCombos() {
     return Layouts.values();
   }
 
