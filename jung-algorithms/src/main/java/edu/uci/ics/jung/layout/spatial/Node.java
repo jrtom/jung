@@ -84,6 +84,11 @@ public class Node<T> {
     if (log.isTraceEnabled()) {
       log.trace("insert {} into {}", element, this);
     }
+    if (!this.getBounds().contains(element.p.x, element.p.y)) {
+      log.trace("{} outside of spatial bounds {}", element.p, this.getBounds());
+      this.area = area.add(element.p.x, element.p.y);
+    }
+
     if (forceObject == null) {
       forceObject = element;
       return;

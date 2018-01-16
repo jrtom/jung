@@ -9,6 +9,7 @@
  */
 package edu.uci.ics.jung.visualization;
 
+import edu.uci.ics.jung.layout.event.LayoutChange;
 import edu.uci.ics.jung.visualization.control.TransformSupport;
 import edu.uci.ics.jung.visualization.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.visualization.picking.PickedState;
@@ -27,7 +28,7 @@ import javax.swing.event.EventListenerList;
  * @param <N> the node type
  * @param <E> the edge type
  */
-public interface VisualizationServer<N, E> {
+public interface VisualizationServer<N, E> extends LayoutChange.Listener, ChangeListener {
 
   /**
    * Specify whether this class uses its offscreen image or not.
@@ -163,8 +164,8 @@ public interface VisualizationServer<N, E> {
 
   /** an interface for the preRender and postRender */
   interface Paintable {
-    public void paint(Graphics g);
+    void paint(Graphics g);
 
-    public boolean useTransform();
+    boolean useTransform();
   }
 }
