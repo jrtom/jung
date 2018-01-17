@@ -15,6 +15,7 @@ import com.google.common.collect.Sets;
 import edu.uci.ics.jung.graph.util.TreeUtils;
 import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.layout.model.Point;
+import java.awt.*;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -90,7 +91,13 @@ public class TreeLayoutAlgorithm<N> implements LayoutAlgorithm<N> {
     this.currentY = 20;
     Set<N> roots = TreeUtils.roots(layoutModel.getGraph());
     Preconditions.checkArgument(roots.size() > 0);
-    calculateDimensionX(layoutModel, roots);
+    int overallWidth = calculateDimensionX(layoutModel, roots);
+    overallWidth += (roots.size() + 1) * distX;
+    int overallHeight = calculateDimensionY(layoutModel, roots);
+    overallHeight += 2 * distY;
+    layoutModel.setSize(
+        Math.max(layoutModel.getWidth(), overallWidth),
+        Math.max(layoutModel.getHeight(), overallHeight));
     for (N node : roots) {
       calculateDimensionX(layoutModel, node);
       currentX += (this.basePositions.get(node) / 2 + this.distX);
@@ -99,13 +106,12 @@ public class TreeLayoutAlgorithm<N> implements LayoutAlgorithm<N> {
   }
 
   protected void buildTree(LayoutModel<N> layoutModel, N node, int x) {
-
     if (alreadyDone.add(node)) {
       //go one level further down
       double newY = this.currentY + this.distY;
       this.currentX = x;
       this.currentY = newY;
-      this.setCurrentPositionFor(layoutModel, node);
+      layoutModel.set(node, currentX, currentY);
 
       int sizeXofCurrent = basePositions.get(node);
 
@@ -152,53 +158,27 @@ public class TreeLayoutAlgorithm<N> implements LayoutAlgorithm<N> {
     return size;
   }
 
-  protected void setCurrentPositionFor(LayoutModel<N> layoutModel, N node) {
-    int width = layoutModel.getWidth();
-    int height = layoutModel.getHeight();
-    int x = (int) this.currentX;
-    int y = (int) this.currentY;
-    if (x < 0) {
-      width -= x;
-    }
+  private int calculateDimensionY(LayoutModel<N> layoutModel, N node) {
 
-    if (x >= width - distX) {
-      width = x + distX;
-    }
+    int size = 0;
+    int childrenNum = layoutModel.getGraph().successors(node).size();
 
-    if (y < 0) {
-      height -= y;
+    if (childrenNum != 0) {
+      for (N element : layoutModel.getGraph().successors(node)) {
+        size = Math.max(size, calculateDimensionY(layoutModel, element) + distX);
+      }
     }
-    if (y >= height - distY) {
-      height = y + distY;
-    }
-    if (layoutModel.getWidth() < width || layoutModel.getHeight() < height) {
-      layoutModel.setSize(width, height);
-    }
-
-    //    Point location = layoutModel.get(node);
-    setLocation(layoutModel, node, this.currentX, this.currentY);
+    return size;
   }
 
-  /**
-   * can be overridden to add behavior
-   *
-   * @param layoutModel
-   * @param node
-   * @param location
-   */
-  protected void setLocation(LayoutModel<N> layoutModel, N node, Point location) {
-    layoutModel.set(node, location);
-  }
+  private int calculateDimensionY(LayoutModel<N> layoutModel, Collection<N> roots) {
 
-  protected void setLocation(LayoutModel<N> layoutModel, N node, double x, double y) {
-    layoutModel.set(node, x, y);
+    int size = 0;
+    for (N node : roots) {
+      size += calculateDimensionY(layoutModel, node);
+    }
+    return size;
   }
-
-  public boolean isLocked(N node) {
-    return false;
-  }
-
-  public void lock(N node, boolean state) {}
 
   public void setInitializer(Function<N, Point> initializer) {}
 

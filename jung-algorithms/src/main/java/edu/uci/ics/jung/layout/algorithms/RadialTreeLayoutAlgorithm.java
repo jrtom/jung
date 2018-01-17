@@ -58,19 +58,6 @@ public class RadialTreeLayoutAlgorithm<N> extends TreeLayoutAlgorithm<N> {
     }
   }
 
-  @Override
-  protected void setLocation(LayoutModel<N> layoutModel, N node, Point location) {
-    Point c = getCenter(layoutModel);
-    Point pv = location.add(-c.x, -c.y);
-    PolarPoint newLocation = PolarPoint.cartesianToPolar(pv);
-    PolarPoint currentLocation = polarLocations.get(node);
-    if (currentLocation == null) {
-      polarLocations.put(node, newLocation);
-    } else {
-      polarLocations.put(node, newLocation);
-    }
-  }
-
   /** @return a map from nodes to their locations in polar coordinates. */
   public Map<N, PolarPoint> getPolarLocations() {
     return polarLocations;
