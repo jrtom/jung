@@ -39,7 +39,7 @@ public class TransformSupport<N, E> extends MutableAffineTransformer {
   }
 
   /**
-   * Overriden to perform lens effects when transforming from Layout to view. Used when projecting
+   * Overridden to perform lens effects when transforming from Layout to view. Used when projecting
    * the selection Lens (the rectangular area drawn with the mouse) back into the view.
    *
    * @param vv
@@ -48,7 +48,7 @@ public class TransformSupport<N, E> extends MutableAffineTransformer {
    */
   public Shape transform(VisualizationServer<N, E> vv, Shape shape) {
     MultiLayerTransformer multiLayerTransformer = vv.getRenderContext().getMultiLayerTransformer();
-    return multiLayerTransformer.transform(shape);
+    return multiLayerTransformer.transform(MultiLayerTransformer.Layer.LAYOUT, shape);
   }
 
   /**

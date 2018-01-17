@@ -88,7 +88,7 @@ public class TreeLayoutAlgorithm<N> implements LayoutAlgorithm<N> {
   protected void buildTree(LayoutModel<N> layoutModel) {
     alreadyDone = Sets.newHashSet();
     this.currentX = 0;
-    this.currentY = 20;
+    this.currentY = 0;
     Set<N> roots = TreeUtils.roots(layoutModel.getGraph());
     Preconditions.checkArgument(roots.size() > 0);
     int overallWidth = calculateDimensionX(layoutModel, roots);

@@ -37,6 +37,8 @@ import java.awt.event.ItemEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import javax.swing.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Demonstrates the visualization of a Tree using TreeLayout and BalloonLayout. An examiner lens
@@ -46,6 +48,8 @@ import javax.swing.*;
  */
 @SuppressWarnings("serial")
 public class BalloonLayoutDemo extends JPanel {
+
+  private static final Logger log = LoggerFactory.getLogger(BalloonLayoutDemo.class);
 
   CTreeNetwork<String, Integer> graph;
 

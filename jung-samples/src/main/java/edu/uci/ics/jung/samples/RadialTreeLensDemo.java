@@ -171,6 +171,7 @@ public class RadialTreeLensDemo extends JPanel {
     hyperLayout.addItemListener(
         e -> hyperbolicLayoutSupport.activate(e.getStateChange() == ItemEvent.SELECTED));
     final JRadioButton noLens = new JRadioButton("No Lens");
+    noLens.setSelected(true);
 
     ButtonGroup radio = new ButtonGroup();
     radio.add(hyperView);
