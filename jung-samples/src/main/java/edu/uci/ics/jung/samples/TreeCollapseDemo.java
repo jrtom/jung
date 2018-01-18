@@ -108,37 +108,40 @@ public class TreeCollapseDemo extends JPanel {
     JComboBox layoutComboBox = new JComboBox(Layouts.values());
     layoutComboBox.addItemListener(
         e -> {
-          if (e.getStateChange() == ItemEvent.SELECTED) {
-            if (e.getItem() == Layouts.RADIAL) {
-              LayoutAlgorithmTransition.animate(vv, radialLayoutAlgorithm);
+          SwingUtilities.invokeLater(
+              () -> {
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                  if (e.getItem() == Layouts.RADIAL) {
+                    LayoutAlgorithmTransition.animate(vv, radialLayoutAlgorithm);
 
-              vv.removePreRenderPaintable(balloonRings);
-              vv.getRenderContext().getMultiLayerTransformer().setToIdentity();
-              if (rings == null) {
-                rings = new Rings(vv.getModel().getLayoutModel());
-              }
-              vv.addPreRenderPaintable(rings);
+                    vv.removePreRenderPaintable(balloonRings);
+                    vv.getRenderContext().getMultiLayerTransformer().setToIdentity();
+                    if (rings == null) {
+                      rings = new Rings(vv.getModel().getLayoutModel());
+                    }
+                    vv.addPreRenderPaintable(rings);
 
-            } else if (e.getItem() == Layouts.BALLOON) {
-              LayoutAlgorithmTransition.animate(vv, balloonLayoutAlgorithm);
+                  } else if (e.getItem() == Layouts.BALLOON) {
+                    LayoutAlgorithmTransition.animate(vv, balloonLayoutAlgorithm);
 
-              vv.removePreRenderPaintable(rings);
-              vv.getRenderContext().getMultiLayerTransformer().setToIdentity();
-              if (balloonRings == null) {
-                balloonRings = new BalloonRings(balloonLayoutAlgorithm);
-              }
+                    vv.removePreRenderPaintable(rings);
+                    vv.getRenderContext().getMultiLayerTransformer().setToIdentity();
+                    if (balloonRings == null) {
+                      balloonRings = new BalloonRings(balloonLayoutAlgorithm);
+                    }
 
-              vv.addPreRenderPaintable(balloonRings);
+                    vv.addPreRenderPaintable(balloonRings);
 
-            } else {
-              LayoutAlgorithmTransition.animate(vv, layoutAlgorithm);
+                  } else {
+                    LayoutAlgorithmTransition.animate(vv, layoutAlgorithm);
 
-              vv.removePreRenderPaintable(rings);
-              vv.removePreRenderPaintable(balloonRings);
-              vv.getRenderContext().getMultiLayerTransformer().setToIdentity();
-            }
-            vv.repaint();
-          }
+                    vv.removePreRenderPaintable(rings);
+                    vv.removePreRenderPaintable(balloonRings);
+                    vv.getRenderContext().getMultiLayerTransformer().setToIdentity();
+                  }
+                  vv.repaint();
+                }
+              });
         });
 
     JButton collapse = new JButton("Collapse");
