@@ -86,9 +86,8 @@ public interface LayoutStateChange {
       if (changeListeners.size() > 0) {
         // make an event and fire it
         LayoutStateChange.Event evt = new LayoutStateChange.Event(layoutModel, state);
-        for (LayoutStateChange.Listener listener : changeListeners) {
-          log.trace("telling {} that state is {}", listener.getClass(), state);
-          listener.layoutStateChanged(evt);
+        for (int i = changeListeners.size() - 1; i >= 0; i--) {
+          changeListeners.get(i).layoutStateChanged(evt);
         }
       }
     }

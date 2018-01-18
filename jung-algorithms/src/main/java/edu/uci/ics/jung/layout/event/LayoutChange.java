@@ -80,8 +80,8 @@ public interface LayoutChange {
 
     @Override
     public void fireLayoutChanged() {
-      for (Listener layoutChangeListener : changeListeners) {
-        layoutChangeListener.layoutChanged();
+      for (int i = changeListeners.size() - 1; i >= 0; i--) {
+        changeListeners.get(i).layoutChanged();
       }
     }
   }

@@ -92,8 +92,8 @@ public interface LayoutNodePositionChange {
     public void fireLayoutNodePositionChanged(N node, Point location) {
       if (changeListeners.size() > 0) {
         Event<N> layoutEvent = new Event(node, location);
-        for (Listener layoutChangeListener : changeListeners) {
-          layoutChangeListener.layoutNodePositionChanged(layoutEvent);
+        for (int i = changeListeners.size() - 1; i >= 0; i--) {
+          changeListeners.get(i).layoutNodePositionChanged(layoutEvent);
         }
       }
     }
