@@ -20,6 +20,11 @@ public interface LayoutChange {
 
   /** method signatures to add/remove listeners and fire events */
   interface Support {
+
+    static Support create() {
+      return new SupportImpl();
+    }
+
     boolean isFireEvents();
 
     void setFireEvents(boolean fireEvents);
@@ -35,6 +40,8 @@ public interface LayoutChange {
 
   /** implementation of support. Manages a List of listeners */
   class SupportImpl implements Support {
+
+    private SupportImpl() {}
 
     /** to fire or not to fire.... */
     protected boolean fireEvents;

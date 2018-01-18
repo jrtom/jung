@@ -32,11 +32,11 @@ public class RadialTreeLayoutAlgorithm<N> extends TreeLayoutAlgorithm<N> {
   protected Map<N, PolarPoint> polarLocations;
 
   public RadialTreeLayoutAlgorithm() {
-    this(DEFAULT_DISTX, DEFAULT_DISTY);
+    this(DEFAULT_HORIZONTAL_NODE_SPACING, DEFAULT_VERTICAL_NODE_SPACING);
   }
 
   public RadialTreeLayoutAlgorithm(int distx) {
-    this(distx, DEFAULT_DISTY);
+    this(distx, DEFAULT_VERTICAL_NODE_SPACING);
   }
 
   public RadialTreeLayoutAlgorithm(int distx, int disty) {
@@ -96,7 +96,8 @@ public class RadialTreeLayoutAlgorithm<N> extends TreeLayoutAlgorithm<N> {
     for (N node : layoutModel.getGraph().nodes()) {
       Point p = layoutModel.get(node);
 
-      PolarPoint polarPoint = PolarPoint.of(p.x * theta, (p.y - this.distY) * deltaRadius);
+      PolarPoint polarPoint =
+          PolarPoint.of(p.x * theta, (p.y - this.verticalNodeSpacing) * deltaRadius);
       polarLocations.put(node, polarPoint);
     }
   }

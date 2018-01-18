@@ -24,6 +24,11 @@ public interface LayoutStateChange {
 
   /** required method signatures to be a producer for this event model */
   interface Support {
+
+    static Support create() {
+      return new SupportImpl();
+    }
+
     boolean isFireEvents();
 
     void setFireEvents(boolean fireEvents);
@@ -41,6 +46,9 @@ public interface LayoutStateChange {
   class SupportImpl implements Support {
 
     private static final Logger log = LoggerFactory.getLogger(LayoutStateChange.SupportImpl.class);
+
+    private SupportImpl() {}
+
     /** to fire or not to fire.... */
     protected boolean fireEvents;
 

@@ -34,7 +34,7 @@ public class BaseVisualizationModel<N, E> implements VisualizationModel<N, E> {
 
   protected LayoutAlgorithm<N> layoutAlgorithm;
 
-  protected LayoutChange.Support changeSupport = new LayoutChange.SupportImpl();
+  protected LayoutChange.Support changeSupport = LayoutChange.Support.create();
 
   public BaseVisualizationModel(VisualizationModel<N, E> other) {
     this(other.getNetwork(), other.getLayoutAlgorithm(), null, other.getLayoutSize());

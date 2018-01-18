@@ -36,10 +36,9 @@ public abstract class AbstractLayoutModel<N> implements LayoutModel<N> {
 
   protected CompletableFuture theFuture;
   protected LayoutNodePositionChange.Support layoutNodePositionSupport =
-      new LayoutNodePositionChange.SupportImpl();
-  protected LayoutStateChange.Support layoutStateChangeSupport =
-      new LayoutStateChange.SupportImpl();
-  protected LayoutChange.Support layoutChangeSupport = new LayoutChange.SupportImpl();
+      LayoutNodePositionChange.Support.create();
+  protected LayoutStateChange.Support layoutStateChangeSupport = LayoutStateChange.Support.create();
+  protected LayoutChange.Support layoutChangeSupport = LayoutChange.Support.create();
 
   protected AbstractLayoutModel(Graph<N> graph, int width, int height) {
     this.graph = graph;

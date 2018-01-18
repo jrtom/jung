@@ -29,6 +29,11 @@ public interface LayoutNodePositionChange {
    * @param <N>
    */
   interface Support<N> {
+
+    static Support create() {
+      return new SupportImpl();
+    }
+
     boolean isFireEvents();
 
     void setFireEvents(boolean fireEvents);
@@ -48,6 +53,8 @@ public interface LayoutNodePositionChange {
    * @param <N> the node type managed by the LayoutModel
    */
   class SupportImpl<N> implements Support<N> {
+
+    private SupportImpl() {}
 
     /** to fire or not to fire.... */
     protected boolean fireEvents;
