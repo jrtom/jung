@@ -71,7 +71,8 @@ public class TreeLayoutAlgorithm<N> implements LayoutAlgorithm<N> {
    * @param verticalNodeSpacing the vertical spacing between adjacent siblings
    */
   public TreeLayoutAlgorithm(int horizontalNodeSpacing, int verticalNodeSpacing) {
-    Preconditions.checkArgument(horizontalNodeSpacing >= 1, "horizontalNodeSpacing must be positive");
+    Preconditions.checkArgument(
+        horizontalNodeSpacing >= 1, "horizontalNodeSpacing must be positive");
     Preconditions.checkArgument(horizontalNodeSpacing >= 1, "verticalNodeSpacing must be positive");
     this.horizontalNodeSpacing = horizontalNodeSpacing;
     this.verticalNodeSpacing = verticalNodeSpacing;
