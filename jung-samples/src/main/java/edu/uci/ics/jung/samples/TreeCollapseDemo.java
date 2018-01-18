@@ -20,7 +20,6 @@ import edu.uci.ics.jung.layout.model.Point;
 import edu.uci.ics.jung.layout.model.PolarPoint;
 import edu.uci.ics.jung.samples.util.ControlHelpers;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
-import edu.uci.ics.jung.visualization.MultiLayerTransformer.Layer;
 import edu.uci.ics.jung.visualization.VisualizationServer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
@@ -29,8 +28,6 @@ import edu.uci.ics.jung.visualization.decorators.EdgeShape;
 import edu.uci.ics.jung.visualization.decorators.EllipseNodeShapeFunction;
 import edu.uci.ics.jung.visualization.layout.LayoutAlgorithmTransition;
 import edu.uci.ics.jung.visualization.subLayout.TreeCollapser;
-import edu.uci.ics.jung.visualization.transform.MutableTransformer;
-import edu.uci.ics.jung.visualization.transform.MutableTransformerDecorator;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.geom.AffineTransform;
@@ -210,17 +207,13 @@ public class TreeCollapseDemo extends JPanel {
       Ellipse2D ellipse = new Ellipse2D.Double();
       for (double d : depths) {
         ellipse.setFrameFromDiagonal(center.x - d, center.y - d, center.x + d, center.y + d);
-        Shape shape =
-            vv.getRenderContext()
-                .getMultiLayerTransformer()
-                .getTransformer(Layer.LAYOUT)
-                .transform(ellipse);
+        Shape shape = vv.getTransformSupport().transform(vv, ellipse);
         g2d.draw(shape);
       }
     }
 
     public boolean useTransform() {
-      return true;
+      return false;
     }
   }
 
@@ -247,22 +240,13 @@ public class TreeCollapseDemo extends JPanel {
         ellipse.setFrame(-radius, -radius, 2 * radius, 2 * radius);
         AffineTransform at = AffineTransform.getTranslateInstance(p.x, p.y);
         Shape shape = at.createTransformedShape(ellipse);
-
-        MutableTransformer viewTransformer =
-            vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.VIEW);
-
-        if (viewTransformer instanceof MutableTransformerDecorator) {
-          shape = vv.getRenderContext().getMultiLayerTransformer().transform(shape);
-        } else {
-          shape = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, shape);
-        }
-
+        shape = vv.getTransformSupport().transform(vv, shape);
         g2d.draw(shape);
       }
     }
 
     public boolean useTransform() {
-      return true;
+      return false;
     }
   }
 

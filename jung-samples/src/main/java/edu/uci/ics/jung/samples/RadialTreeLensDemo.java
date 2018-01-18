@@ -280,7 +280,7 @@ public class RadialTreeLensDemo extends JPanel {
     }
 
     public boolean useTransform() {
-      return true;
+      return false;
     }
   }
 

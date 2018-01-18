@@ -48,7 +48,7 @@ public class TransformSupport<N, E> extends MutableAffineTransformer {
    */
   public Shape transform(VisualizationServer<N, E> vv, Shape shape) {
     MultiLayerTransformer multiLayerTransformer = vv.getRenderContext().getMultiLayerTransformer();
-    return multiLayerTransformer.transform(MultiLayerTransformer.Layer.LAYOUT, shape);
+    return multiLayerTransformer.transform(shape);
   }
 
   /**
