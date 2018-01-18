@@ -294,10 +294,10 @@ public abstract class BoundingRectangleCollector<T> {
     }
 
     /**
-     * a zero width or height Rectangle2D will never intersect anything. A vertical or
-     * horizontal Line edge will have a bounding rectangle of zero width or height.
-     * Give any such bounding rectangles a non-zero volume so that contained edges are
-     * not lost
+     * a zero width or height Rectangle2D will never intersect anything. A vertical or horizontal
+     * Line edge will have a bounding rectangle of zero width or height. Give any such bounding
+     * rectangles a non-zero volume so that contained edges are not lost
+     *
      * @param r
      * @param delta
      * @return
