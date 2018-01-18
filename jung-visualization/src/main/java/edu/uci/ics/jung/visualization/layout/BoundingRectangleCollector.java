@@ -171,6 +171,9 @@ public abstract class BoundingRectangleCollector<T> {
   }
 
   public static class Edges<E> extends BoundingRectangleCollector<E> {
+
+    private static final double NON_EMPTY_DELTA = 0.001;
+
     public Edges(RenderContext rc, VisualizationModel visualizationModel) {
       super(rc, visualizationModel);
     }
@@ -208,7 +211,7 @@ public abstract class BoundingRectangleCollector<T> {
         xform.scale(dist, 1.0);
       }
       edgeShape = xform.createTransformedShape(edgeShape);
-      return edgeShape.getBounds2D();
+      return nonEmpty(edgeShape.getBounds2D(), NON_EMPTY_DELTA);
     }
 
     @Override
@@ -247,7 +250,7 @@ public abstract class BoundingRectangleCollector<T> {
         xform.scale(dist, 1.0);
       }
       edgeShape = xform.createTransformedShape(edgeShape);
-      return edgeShape.getBounds2D();
+      return nonEmpty(edgeShape.getBounds2D(), NON_EMPTY_DELTA);
     }
 
     public void compute() {
@@ -286,8 +289,27 @@ public abstract class BoundingRectangleCollector<T> {
           xform.scale(dist, 1.0);
         }
         edgeShape = xform.createTransformedShape(edgeShape);
-        rectangles.add(edgeShape.getBounds2D());
+        rectangles.add(nonEmpty(edgeShape.getBounds2D(), NON_EMPTY_DELTA));
       }
+    }
+
+    /**
+     * a zero width or height Rectangle2D will never intersect anything. A vertical or
+     * horizontal Line edge will have a bounding rectangle of zero width or height.
+     * Give any such bounding rectangles a non-zero volume so that contained edges are
+     * not lost
+     * @param r
+     * @param delta
+     * @return
+     */
+    private Rectangle2D nonEmpty(Rectangle2D r, double delta) {
+      if (r.getHeight() == 0) {
+        r.setFrame(r.getX(), r.getY(), r.getWidth(), delta);
+      }
+      if (r.getWidth() == 0) {
+        r.setFrame(r.getX(), r.getY(), delta, r.getHeight());
+      }
+      return r;
     }
   }
 
