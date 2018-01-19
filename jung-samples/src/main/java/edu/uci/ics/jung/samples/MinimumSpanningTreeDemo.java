@@ -58,7 +58,8 @@ public class MinimumSpanningTreeDemo extends JPanel {
   VisualizationViewer<String, Number> vv2;
 
   Dimension preferredSize = new Dimension(300, 300);
-  Dimension preferredSizeRect = new Dimension(800, 250);
+  Dimension preferredSizeRect = new Dimension(900, 300);
+  Dimension viewSizeRect = new Dimension(900, 300);
 
   /** create an instance of a simple graph in two views with controls to demo the zoom features. */
   public MinimumSpanningTreeDemo() {
@@ -87,8 +88,8 @@ public class MinimumSpanningTreeDemo extends JPanel {
     // create the two views, one for each model
     // they share the same renderer
     vv0 = new VisualizationViewer<>(vm0, preferredSize);
-    vv1 = new VisualizationViewer<>(vm1, preferredSizeRect);
-    vv2 = new VisualizationViewer<>(vm2, preferredSizeRect);
+    vv1 = new VisualizationViewer<>(vm1, viewSizeRect);
+    vv2 = new VisualizationViewer<>(vm2, viewSizeRect);
 
     vv1.getRenderContext()
         .setMultiLayerTransformer(vv0.getRenderContext().getMultiLayerTransformer());

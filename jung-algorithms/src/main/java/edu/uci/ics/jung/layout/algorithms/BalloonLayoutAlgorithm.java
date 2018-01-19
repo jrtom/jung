@@ -57,13 +57,6 @@ public class BalloonLayoutAlgorithm<N> extends TreeLayoutAlgorithm<N> {
     setRootPolars(layoutModel);
   }
 
-  private void putRadialPointsInModel(LayoutModel<N> layoutModel) {
-    for (Map.Entry<N, PolarPoint> entry : polarLocations.asMap().entrySet()) {
-      PolarPoint polar = entry.getValue();
-      layoutModel.set(entry.getKey(), getCartesian(layoutModel, entry.getKey()));
-    }
-  }
-
   protected void setRootPolars(LayoutModel<N> layoutModel) {
     Graph<N> graph = layoutModel.getGraph();
     Set<N> roots = TreeUtils.roots(graph);
@@ -72,10 +65,15 @@ public class BalloonLayoutAlgorithm<N> extends TreeLayoutAlgorithm<N> {
       // its a Tree
       N root = Iterables.getOnlyElement(roots);
       setRootPolar(layoutModel, root);
-      setPolars(layoutModel, graph.successors(root), getCenter(layoutModel), width / 2);
+      setPolars(
+          layoutModel,
+          graph.successors(root),
+          getCenter(layoutModel),
+          getCenter(layoutModel),
+          width / 2);
     } else if (roots.size() > 1) {
       // its a Network
-      setPolars(layoutModel, roots, getCenter(layoutModel), width / 2);
+      setPolars(layoutModel, roots, getCenter(layoutModel), getCenter(layoutModel), width / 2);
     }
   }
 
@@ -87,7 +85,11 @@ public class BalloonLayoutAlgorithm<N> extends TreeLayoutAlgorithm<N> {
   }
 
   protected void setPolars(
-      LayoutModel<N> layoutModel, Set<N> kids, Point parentLocation, double parentRadius) {
+      LayoutModel<N> layoutModel,
+      Set<N> kids,
+      Point parentLocation,
+      Point grandparentLocation,
+      double parentRadius) {
 
     int childCount = kids.size();
     if (childCount == 0) {
@@ -98,11 +100,27 @@ public class BalloonLayoutAlgorithm<N> extends TreeLayoutAlgorithm<N> {
     double childRadius = parentRadius * Math.cos(angle) / (1 + Math.cos(angle));
     double radius = parentRadius - childRadius;
 
-    double rand = Math.random();
+    double angleToParent =
+        Math.atan2(
+            parentLocation.y - grandparentLocation.y, grandparentLocation.x - parentLocation.x);
+
+    // the angle between the child nodes placed equally on a circle
+    double angleBetweenKids = 2 * Math.PI / childCount;
+    // how much to offset each angle to bisect the angle between 2 child nodes
+    double offset = angleBetweenKids / 2 - angleToParent;
 
     int i = 0;
     for (N child : kids) {
-      double theta = i++ * 2 * Math.PI / childCount + rand;
+
+      // increment for each child. include the offset to space edge to parent
+      // in between 2 edges to children
+      double theta = i++ * angleBetweenKids + offset;
+
+      // if there's only one child, offset for more pleasing effect
+      if (kids.size() == 1) {
+        theta += Math.PI / 4;
+      }
+
       radii.put(child, childRadius);
 
       PolarPoint pp = PolarPoint.of(theta, radius);
@@ -110,8 +128,10 @@ public class BalloonLayoutAlgorithm<N> extends TreeLayoutAlgorithm<N> {
 
       Point p = PolarPoint.polarToCartesian(pp);
       p = p.add(parentLocation.x, parentLocation.y);
+
       layoutModel.set(child, p);
-      setPolars(layoutModel, layoutModel.getGraph().successors(child), p, childRadius);
+      setPolars(
+          layoutModel, layoutModel.getGraph().successors(child), p, parentLocation, childRadius);
     }
   }
 
@@ -136,17 +156,6 @@ public class BalloonLayoutAlgorithm<N> extends TreeLayoutAlgorithm<N> {
     Point cartesian = PolarPoint.polarToCartesian(pp);
     cartesian = cartesian.add(centerX, centerY);
     return cartesian;
-  }
-
-  protected void setLocation(LayoutModel<N> layoutModel, N node, Point location) {
-    Point c = getCenter(layoutModel, node);
-    Point pv = location.add(-c.x, -c.y);
-    PolarPoint newLocation = PolarPoint.cartesianToPolar(pv.x, pv.y);
-    polarLocations.put(node, newLocation);
-
-    Point center = getCenter(layoutModel, node);
-    center = pv.add(center.x, center.y);
-    layoutModel.set(node, pv);
   }
 
   /** @return the radii */

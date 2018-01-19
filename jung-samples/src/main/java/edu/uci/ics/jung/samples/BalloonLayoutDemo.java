@@ -16,7 +16,6 @@ import edu.uci.ics.jung.layout.algorithms.TreeLayoutAlgorithm;
 import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.layout.model.Point;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
-import edu.uci.ics.jung.visualization.MultiLayerTransformer;
 import edu.uci.ics.jung.visualization.MultiLayerTransformer.Layer;
 import edu.uci.ics.jung.visualization.VisualizationServer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
@@ -31,9 +30,6 @@ import edu.uci.ics.jung.visualization.transform.HyperbolicTransformer;
 import edu.uci.ics.jung.visualization.transform.LayoutLensSupport;
 import edu.uci.ics.jung.visualization.transform.Lens;
 import edu.uci.ics.jung.visualization.transform.LensSupport;
-import edu.uci.ics.jung.visualization.transform.LensTransformer;
-import edu.uci.ics.jung.visualization.transform.MutableTransformer;
-import edu.uci.ics.jung.visualization.transform.MutableTransformerDecorator;
 import edu.uci.ics.jung.visualization.transform.shape.HyperbolicShapeTransformer;
 import edu.uci.ics.jung.visualization.transform.shape.ViewLensSupport;
 import java.awt.*;
@@ -41,6 +37,8 @@ import java.awt.event.ItemEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import javax.swing.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Demonstrates the visualization of a Tree using TreeLayout and BalloonLayout. An examiner lens
@@ -50,6 +48,8 @@ import javax.swing.*;
  */
 @SuppressWarnings("serial")
 public class BalloonLayoutDemo extends JPanel {
+
+  private static final Logger log = LoggerFactory.getLogger(BalloonLayoutDemo.class);
 
   CTreeNetwork<String, Integer> graph;
 
@@ -221,36 +221,13 @@ public class BalloonLayoutDemo extends JPanel {
         ellipse.setFrame(-radius, -radius, 2 * radius, 2 * radius);
         AffineTransform at = AffineTransform.getTranslateInstance(p.x, p.y);
         Shape shape = at.createTransformedShape(ellipse);
-
-        MultiLayerTransformer multiLayerTransformer =
-            vv.getRenderContext().getMultiLayerTransformer();
-
-        MutableTransformer viewTransformer = multiLayerTransformer.getTransformer(Layer.VIEW);
-        MutableTransformer layoutTransformer = multiLayerTransformer.getTransformer(Layer.LAYOUT);
-
-        if (viewTransformer instanceof LensTransformer) {
-          shape = multiLayerTransformer.transform(shape);
-        } else if (layoutTransformer instanceof LensTransformer) {
-          LayoutModel<String> layoutModel = vv.getModel().getLayoutModel();
-          Dimension d = new Dimension(layoutModel.getWidth(), layoutModel.getHeight());
-
-          HyperbolicShapeTransformer shapeChanger =
-              new HyperbolicShapeTransformer(d, viewTransformer);
-          LensTransformer lensTransformer = (LensTransformer) layoutTransformer;
-          shapeChanger.getLens().setLensShape(lensTransformer.getLens().getLensShape());
-          MutableTransformer layoutDelegate =
-              ((MutableTransformerDecorator) layoutTransformer).getDelegate();
-          shape = shapeChanger.transform(layoutDelegate.transform(shape));
-        } else {
-          shape = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, shape);
-        }
-
+        shape = vv.getTransformSupport().transform(vv, shape);
         g2d.draw(shape);
       }
     }
 
     public boolean useTransform() {
-      return true;
+      return false;
     }
   }
 

@@ -52,4 +52,30 @@ public class Rectangle {
   public boolean contains(double ox, double oy) {
     return ox >= this.x && ox <= maxX && oy >= this.y && oy <= maxY;
   }
+
+  public Rectangle add(double newX, double newY) {
+    double x1 = Math.min(x, newX);
+    double x2 = Math.max(maxX, newX);
+    double y1 = Math.min(y, newY);
+    double y2 = Math.max(maxY, newY);
+    return new Rectangle(x1, y1, x2 - x1, y2 - y1);
+  }
+
+  @Override
+  public String toString() {
+    return "Rectangle{"
+        + "x="
+        + x
+        + ", y="
+        + y
+        + ", width="
+        + width
+        + ", height="
+        + height
+        + ", maxX="
+        + maxX
+        + ", maxY="
+        + maxY
+        + '}';
+  }
 }

@@ -23,7 +23,7 @@ public class LensTransformSupport<N, E> extends TransformSupport<N, E> {
   private static final Logger log = LoggerFactory.getLogger(LensTransformSupport.class);
 
   /**
-   * Overriden to apply lens effects to the transformation from view to layout coordinates
+   * Overridden to apply lens effects to the transformation from view to layout coordinates
    *
    * @param vv
    * @param p
@@ -58,6 +58,7 @@ public class LensTransformSupport<N, E> extends TransformSupport<N, E> {
     return p;
   }
 
+  @Override
   public Shape transform(VisualizationServer<N, E> vv, Shape shape) {
     MultiLayerTransformer multiLayerTransformer = vv.getRenderContext().getMultiLayerTransformer();
     MutableTransformer viewTransformer = multiLayerTransformer.getTransformer(Layer.VIEW);
@@ -81,6 +82,7 @@ public class LensTransformSupport<N, E> extends TransformSupport<N, E> {
     return shape;
   }
 
+  @Override
   public Point2D transform(VisualizationServer<N, E> vv, Point2D p) {
     MultiLayerTransformer multiLayerTransformer = vv.getRenderContext().getMultiLayerTransformer();
     MutableTransformer viewTransformer = multiLayerTransformer.getTransformer(Layer.VIEW);

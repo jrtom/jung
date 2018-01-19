@@ -5,11 +5,9 @@ import static edu.uci.ics.jung.visualization.spatial.SpatialQuadTree.Quadrant.*;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import edu.uci.ics.jung.layout.event.LayoutNodePositionChange;
 import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.layout.model.Point;
-import edu.uci.ics.jung.layout.util.LayoutChangeListener;
-import edu.uci.ics.jung.layout.util.LayoutEvent;
-import edu.uci.ics.jung.layout.util.LayoutNetworkEvent;
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
@@ -26,7 +24,7 @@ import org.slf4j.LoggerFactory;
  * @param <N> the node type
  */
 public class SpatialQuadTree<N> extends AbstractSpatial<N, N>
-    implements TreeNode, Spatial<N>, LayoutChangeListener<N> {
+    implements TreeNode, Spatial<N>, LayoutNodePositionChange.Listener<N> {
 
   private static final Logger log = LoggerFactory.getLogger(SpatialQuadTree.class);
 
@@ -541,15 +539,13 @@ public class SpatialQuadTree<N> extends AbstractSpatial<N, N>
   }
 
   @Override
-  public void layoutChanged(LayoutEvent<N> evt) {
-    Point location = evt.getLocation();
-    N node = evt.getNode();
-    this.update(node, evt.getLocation());
+  public void layoutNodePositionChanged(LayoutNodePositionChange.Event<N> evt) {
+    this.update(evt.node, evt.location);
   }
 
   @Override
-  public void layoutChanged(LayoutNetworkEvent<N> evt) {
-    this.update(evt.getNode(), evt.getLocation());
+  public void layoutNodePositionChanged(LayoutNodePositionChange.NetworkEvent<N> evt) {
+    this.update(evt.node, evt.location);
   }
 
   @Override

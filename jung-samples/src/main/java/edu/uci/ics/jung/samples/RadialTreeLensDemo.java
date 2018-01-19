@@ -19,7 +19,6 @@ import edu.uci.ics.jung.layout.model.PolarPoint;
 import edu.uci.ics.jung.samples.util.ControlHelpers;
 import edu.uci.ics.jung.visualization.BaseVisualizationModel;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
-import edu.uci.ics.jung.visualization.MultiLayerTransformer;
 import edu.uci.ics.jung.visualization.MultiLayerTransformer.Layer;
 import edu.uci.ics.jung.visualization.VisualizationModel;
 import edu.uci.ics.jung.visualization.VisualizationServer;
@@ -35,9 +34,6 @@ import edu.uci.ics.jung.visualization.transform.HyperbolicTransformer;
 import edu.uci.ics.jung.visualization.transform.LayoutLensSupport;
 import edu.uci.ics.jung.visualization.transform.Lens;
 import edu.uci.ics.jung.visualization.transform.LensSupport;
-import edu.uci.ics.jung.visualization.transform.LensTransformer;
-import edu.uci.ics.jung.visualization.transform.MutableTransformer;
-import edu.uci.ics.jung.visualization.transform.MutableTransformerDecorator;
 import edu.uci.ics.jung.visualization.transform.shape.HyperbolicShapeTransformer;
 import edu.uci.ics.jung.visualization.transform.shape.ViewLensSupport;
 import java.awt.*;
@@ -175,6 +171,7 @@ public class RadialTreeLensDemo extends JPanel {
     hyperLayout.addItemListener(
         e -> hyperbolicLayoutSupport.activate(e.getStateChange() == ItemEvent.SELECTED));
     final JRadioButton noLens = new JRadioButton("No Lens");
+    noLens.setSelected(true);
 
     ButtonGroup radio = new ButtonGroup();
     radio.add(hyperView);
@@ -277,37 +274,13 @@ public class RadialTreeLensDemo extends JPanel {
       Ellipse2D ellipse = new Ellipse2D.Double();
       for (double d : depths) {
         ellipse.setFrameFromDiagonal(center.x - d, center.y - d, center.x + d, center.y + d);
-        Shape shape = ellipse;
-
-        MultiLayerTransformer multiLayerTransformer =
-            vv.getRenderContext().getMultiLayerTransformer();
-
-        MutableTransformer viewTransformer = multiLayerTransformer.getTransformer(Layer.VIEW);
-        MutableTransformer layoutTransformer = multiLayerTransformer.getTransformer(Layer.LAYOUT);
-
-        if (viewTransformer instanceof MutableTransformerDecorator) {
-          shape = multiLayerTransformer.transform(shape);
-        } else if (layoutTransformer instanceof LensTransformer) {
-          LayoutModel<String> layoutModel = vv.getModel().getLayoutModel();
-          Dimension dimension = new Dimension(layoutModel.getWidth(), layoutModel.getHeight());
-
-          HyperbolicShapeTransformer shapeChanger =
-              new HyperbolicShapeTransformer(dimension, viewTransformer);
-          LensTransformer lensTransformer = (LensTransformer) layoutTransformer;
-          shapeChanger.getLens().setLensShape(lensTransformer.getLens().getLensShape());
-          MutableTransformer layoutDelegate =
-              ((MutableTransformerDecorator) layoutTransformer).getDelegate();
-          shape = shapeChanger.transform(layoutDelegate.transform(shape));
-        } else {
-          shape = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, shape);
-        }
-
+        Shape shape = vv.getTransformSupport().transform(vv, ellipse);
         g2d.draw(shape);
       }
     }
 
     public boolean useTransform() {
-      return true;
+      return false;
     }
   }
 

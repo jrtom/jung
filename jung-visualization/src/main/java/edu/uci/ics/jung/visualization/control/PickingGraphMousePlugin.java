@@ -68,6 +68,12 @@ public class PickingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
 
   protected Point2D deltaDown;
 
+  /** on mouse press, record the current state of the nodeSpatial.isActive() */
+  protected boolean nodeSpatialActiveInitialState;
+
+  /** on mouse press, record the current state of the edgeSpatial.isActive() */
+  protected boolean edgeSpatialActiveInitialState;
+
   /** create an instance with default settings */
   public PickingGraphMousePlugin() {
     this(InputEvent.BUTTON1_MASK, InputEvent.BUTTON1_MASK | InputEvent.SHIFT_MASK);
@@ -132,6 +138,8 @@ public class PickingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
     log.trace("mouse pick at screen coords {}", e.getPoint());
     deltaDown = down;
     VisualizationViewer<N, E> vv = (VisualizationViewer<N, E>) e.getSource();
+    nodeSpatialActiveInitialState = vv.getNodeSpatial().isActive();
+    edgeSpatialActiveInitialState = vv.getEdgeSpatial().isActive();
     TransformSupport<N, E> transformSupport = vv.getTransformSupport();
     LayoutModel<N> layoutModel = vv.getModel().getLayoutModel();
     NetworkElementAccessor<N, E> pickSupport = vv.getPickSupport();
@@ -202,8 +210,14 @@ public class PickingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
     Point2D out = e.getPoint();
 
     VisualizationViewer<N, E> vv = (VisualizationViewer<N, E>) e.getSource();
-    vv.getNodeSpatial().setActive(true);
-    vv.getEdgeSpatial().setActive(true);
+    // if the nodeSpatial was active at mousePress (and deactivated during drag) reactivate it now
+    if (nodeSpatialActiveInitialState) {
+      vv.getNodeSpatial().setActive(nodeSpatialActiveInitialState);
+    }
+    // if the edgeSpatial was active at mousePress (and deactivated during drag) reactivate it now
+    if (edgeSpatialActiveInitialState) {
+      vv.getEdgeSpatial().setActive(nodeSpatialActiveInitialState);
+    }
     MultiLayerTransformer multiLayerTransformer = vv.getRenderContext().getMultiLayerTransformer();
 
     if (e.getModifiers() == modifiers) {
@@ -261,8 +275,14 @@ public class PickingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
   public void mouseDragged(MouseEvent e) {
     log.trace("mouseDragged");
     VisualizationViewer<N, E> vv = (VisualizationViewer<N, E>) e.getSource();
-    vv.getNodeSpatial().setActive(false);
-    vv.getEdgeSpatial().setActive(false);
+    // if the nodeSpatial was initially active at mousePress, deactivate it during the drag
+    if (nodeSpatialActiveInitialState) {
+      vv.getNodeSpatial().setActive(false);
+    }
+    // if the edgeSpatial was initially active at mousePress, deactivate it during the drag
+    if (edgeSpatialActiveInitialState) {
+      vv.getEdgeSpatial().setActive(false);
+    }
     if (locked == false) {
 
       MultiLayerTransformer multiLayerTransformer =
