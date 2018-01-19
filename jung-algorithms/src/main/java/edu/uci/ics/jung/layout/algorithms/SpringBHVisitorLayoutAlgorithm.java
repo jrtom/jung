@@ -14,6 +14,7 @@ import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.layout.model.Point;
 import edu.uci.ics.jung.layout.spatial.BarnesHutQuadTree;
 import edu.uci.ics.jung.layout.spatial.ForceObject;
+import edu.uci.ics.jung.layout.spatial.Node;
 import java.util.ConcurrentModificationException;
 import java.util.function.Function;
 import org.slf4j.Logger;
@@ -34,11 +35,21 @@ public class SpringBHVisitorLayoutAlgorithm<N> extends SpringLayoutAlgorithm<N>
   /** Used for optimization of the calculation of repulsion forces between Nodes */
   private BarnesHutQuadTree<N> tree;
 
+  private double theta = Node.DEFAULT_THETA;
+
   public SpringBHVisitorLayoutAlgorithm() {}
+
+  public SpringBHVisitorLayoutAlgorithm(double theta) {
+    this.theta = theta;
+  }
 
   public SpringBHVisitorLayoutAlgorithm(
       Function<? super EndpointPair<N>, Integer> length_function) {
     super(length_function);
+  }
+
+  public SpringBHVisitorLayoutAlgorithm(BarnesHutQuadTree<N> tree) {
+    this.tree = tree;
   }
 
   /**
@@ -49,7 +60,11 @@ public class SpringBHVisitorLayoutAlgorithm<N> extends SpringLayoutAlgorithm<N>
   @Override
   public void visit(LayoutModel<N> layoutModel) {
     super.visit(layoutModel);
-    tree = new BarnesHutQuadTree(layoutModel.getWidth(), layoutModel.getHeight());
+    tree =
+        BarnesHutQuadTree.builder()
+            .setBounds(layoutModel.getWidth(), layoutModel.getHeight())
+            .setTheta(theta)
+            .build();
   }
 
   /**

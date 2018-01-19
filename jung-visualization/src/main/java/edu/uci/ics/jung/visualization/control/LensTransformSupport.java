@@ -23,7 +23,7 @@ public class LensTransformSupport<N, E> extends TransformSupport<N, E> {
   private static final Logger log = LoggerFactory.getLogger(LensTransformSupport.class);
 
   /**
-   * Overriden to apply lens effects to the transformation from view to layout coordinates
+   * Overridden to apply lens effects to the transformation from view to layout coordinates
    *
    * @param vv
    * @param p
@@ -58,6 +58,7 @@ public class LensTransformSupport<N, E> extends TransformSupport<N, E> {
     return p;
   }
 
+  @Override
   public Shape transform(VisualizationServer<N, E> vv, Shape shape) {
     MultiLayerTransformer multiLayerTransformer = vv.getRenderContext().getMultiLayerTransformer();
     MutableTransformer viewTransformer = multiLayerTransformer.getTransformer(Layer.VIEW);
@@ -81,6 +82,31 @@ public class LensTransformSupport<N, E> extends TransformSupport<N, E> {
     return shape;
   }
 
+  @Override
+  public Shape transform(VisualizationServer<N, E> vv, Shape shape, Layer layer) {
+    MultiLayerTransformer multiLayerTransformer = vv.getRenderContext().getMultiLayerTransformer();
+    MutableTransformer viewTransformer = multiLayerTransformer.getTransformer(Layer.VIEW);
+    MutableTransformer layoutTransformer = multiLayerTransformer.getTransformer(Layer.LAYOUT);
+    VisualizationModel<N, E> model = vv.getModel();
+
+    if (viewTransformer instanceof LensTransformer) {
+      shape = multiLayerTransformer.transform(shape);
+    } else if (layoutTransformer instanceof LensTransformer) {
+      LayoutModel<N> layoutModel = model.getLayoutModel();
+      Dimension d = new Dimension(layoutModel.getWidth(), layoutModel.getHeight());
+      HyperbolicShapeTransformer shapeChanger = new HyperbolicShapeTransformer(d, viewTransformer);
+      LensTransformer lensTransformer = (LensTransformer) layoutTransformer;
+      shapeChanger.getLens().setLensShape(lensTransformer.getLens().getLensShape());
+      MutableTransformer layoutDelegate =
+          ((MutableTransformerDecorator) layoutTransformer).getDelegate();
+      shape = shapeChanger.transform(layoutDelegate.transform(shape));
+    } else {
+      shape = super.transform(vv, shape, layer); //multiLayerTransformer.transform(layer, shape);
+    }
+    return shape;
+  }
+
+  @Override
   public Point2D transform(VisualizationServer<N, E> vv, Point2D p) {
     MultiLayerTransformer multiLayerTransformer = vv.getRenderContext().getMultiLayerTransformer();
     MutableTransformer viewTransformer = multiLayerTransformer.getTransformer(Layer.VIEW);
@@ -107,8 +133,35 @@ public class LensTransformSupport<N, E> extends TransformSupport<N, E> {
     return p;
   }
 
+  @Override
+  public Point2D transform(VisualizationServer<N, E> vv, Point2D p, Layer layer) {
+    MultiLayerTransformer multiLayerTransformer = vv.getRenderContext().getMultiLayerTransformer();
+    MutableTransformer viewTransformer = multiLayerTransformer.getTransformer(Layer.VIEW);
+    MutableTransformer layoutTransformer = multiLayerTransformer.getTransformer(Layer.LAYOUT);
+    VisualizationModel<N, E> model = vv.getModel();
+
+    if (viewTransformer instanceof LensTransformer) {
+      // use all layers
+      p = multiLayerTransformer.transform(p);
+    } else if (layoutTransformer instanceof LensTransformer) {
+      // apply the shape changer
+      LayoutModel<N> layoutModel = model.getLayoutModel();
+      Dimension d = new Dimension(layoutModel.getWidth(), layoutModel.getHeight());
+      HyperbolicShapeTransformer shapeChanger = new HyperbolicShapeTransformer(d, viewTransformer);
+      LensTransformer lensTransformer = (LensTransformer) layoutTransformer;
+      shapeChanger.getLens().setLensShape(lensTransformer.getLens().getLensShape());
+      MutableTransformer layoutDelegate =
+          ((MutableTransformerDecorator) layoutTransformer).getDelegate();
+      p = shapeChanger.transform(layoutDelegate.transform(p));
+    } else {
+      // use the default
+      p = multiLayerTransformer.transform(layer, p);
+    }
+    return p;
+  }
+
   /**
-   * Overriden to perform lens effects when inverse transforming from view to layout.
+   * Overridden to perform lens effects when inverse transforming from view to layout.
    *
    * @param vv
    * @param shape

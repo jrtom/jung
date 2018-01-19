@@ -11,35 +11,20 @@
 package edu.uci.ics.jung.visualization;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
+import edu.uci.ics.jung.layout.event.LayoutChange;
 import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.layout.model.LoadingCacheLayoutModel;
 import edu.uci.ics.jung.layout.model.Point;
-import edu.uci.ics.jung.layout.util.LayoutChangeListener;
-import edu.uci.ics.jung.layout.util.LayoutEvent;
-import edu.uci.ics.jung.layout.util.LayoutEventSupport;
-import edu.uci.ics.jung.layout.util.LayoutNetworkEvent;
 import edu.uci.ics.jung.layout.util.RandomLocationTransformer;
-import edu.uci.ics.jung.visualization.util.ChangeEventSupport;
-import edu.uci.ics.jung.visualization.util.DefaultChangeEventSupport;
 import java.awt.Dimension;
-import java.util.List;
 import java.util.function.Function;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** @author Tom Nelson */
-public class BaseVisualizationModel<N, E>
-    implements VisualizationModel<N, E>,
-        ChangeEventSupport,
-        LayoutEventSupport<N>,
-        LayoutChangeListener<N>,
-        ChangeListener,
-        LayoutModel.ChangeListener {
+public class BaseVisualizationModel<N, E> implements VisualizationModel<N, E> {
 
   private static final Logger log = LoggerFactory.getLogger(BaseVisualizationModel.class);
 
@@ -49,8 +34,7 @@ public class BaseVisualizationModel<N, E>
 
   protected LayoutAlgorithm<N> layoutAlgorithm;
 
-  protected ChangeEventSupport changeSupport = new DefaultChangeEventSupport(this);
-  private List<LayoutChangeListener<N>> layoutChangeListeners = Lists.newArrayList();
+  protected LayoutChange.Support changeSupport = LayoutChange.Support.create();
 
   public BaseVisualizationModel(VisualizationModel<N, E> other) {
     this(other.getNetwork(), other.getLayoutAlgorithm(), null, other.getLayoutSize());
@@ -97,12 +81,6 @@ public class BaseVisualizationModel<N, E>
                     layoutSize.width, layoutSize.height, System.currentTimeMillis()))
             .build();
 
-    if (this.layoutModel instanceof LayoutModel.ChangeSupport) {
-      ((LayoutModel.ChangeSupport) layoutModel).addChangeListener(this);
-    }
-    if (layoutModel instanceof LayoutEventSupport) {
-      ((LayoutEventSupport) layoutModel).addLayoutChangeListener(this);
-    }
     this.network = network;
     if (initializer != null) {
       this.layoutModel.setInitializer(initializer);
@@ -116,8 +94,8 @@ public class BaseVisualizationModel<N, E>
     Preconditions.checkNotNull(network);
     Preconditions.checkNotNull(layoutModel);
     this.layoutModel = layoutModel;
-    if (this.layoutModel instanceof ChangeEventSupport) {
-      ((ChangeEventSupport) layoutModel).addChangeListener(this);
+    if (this.layoutModel instanceof LayoutChange.Support) {
+      ((LayoutChange.Support) layoutModel).addLayoutChangeListener(this);
     }
     this.network = network;
     this.layoutModel.accept(layoutAlgorithm);
@@ -168,7 +146,7 @@ public class BaseVisualizationModel<N, E>
       log.trace("will accept {}", layoutAlgorithm);
       layoutModel.accept(this.layoutAlgorithm);
       log.trace("will fire stateChanged");
-      changeSupport.fireStateChanged();
+      changeSupport.fireLayoutChanged();
       log.trace("fired stateChanged");
     }
   }
@@ -182,62 +160,12 @@ public class BaseVisualizationModel<N, E>
   }
 
   @Override
-  public void addChangeListener(ChangeListener l) {
-    this.changeSupport.addChangeListener(l);
+  public LayoutChange.Support getLayoutChangeSupport() {
+    return this.changeSupport;
   }
 
   @Override
-  public void removeChangeListener(ChangeListener l) {
-    this.changeSupport.removeChangeListener(l);
-  }
-
-  @Override
-  public ChangeListener[] getChangeListeners() {
-    return changeSupport.getChangeListeners();
-  }
-
-  @Override
-  public void fireStateChanged() {
-    this.changeSupport.fireStateChanged();
-  }
-
-  @Override
-  public void addLayoutChangeListener(LayoutChangeListener<N> listener) {
-    this.layoutChangeListeners.add(listener);
-  }
-
-  @Override
-  public void removeLayoutChangeListener(LayoutChangeListener<N> listener) {
-    this.layoutChangeListeners.remove(listener);
-  }
-
-  private void fireLayoutChanged(LayoutEvent<N> layoutEvent, Network<N, E> network) {
-    if (!layoutChangeListeners.isEmpty()) {
-      LayoutEvent<N> evt = new LayoutNetworkEvent<N>(layoutEvent, network);
-      for (LayoutChangeListener<N> listener : layoutChangeListeners) {
-        listener.layoutChanged(evt);
-      }
-    }
-  }
-
-  /** this is the event from the LayoutModel */
-  @Override
-  public void changed() {
-    this.fireStateChanged();
-  }
-
-  @Override
-  public void stateChanged(ChangeEvent e) {
-    this.fireStateChanged();
-  }
-
-  @Override
-  public void layoutChanged(LayoutEvent<N> evt) {
-    fireLayoutChanged(evt, network);
-  }
-
-  @Override
-  public void layoutChanged(LayoutNetworkEvent<N> evt) {
-    fireLayoutChanged(evt, network);
+  public void layoutChanged() {
+    getLayoutChangeSupport().fireLayoutChanged();
   }
 }

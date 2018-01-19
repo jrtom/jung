@@ -14,12 +14,9 @@ import static edu.uci.ics.jung.visualization.MultiLayerTransformer.Layer;
 import com.google.common.collect.Lists;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
+import edu.uci.ics.jung.layout.event.LayoutNodePositionChange;
 import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.layout.util.Caching;
-import edu.uci.ics.jung.layout.util.LayoutChangeListener;
-import edu.uci.ics.jung.layout.util.LayoutEvent;
-import edu.uci.ics.jung.layout.util.LayoutEventSupport;
-import edu.uci.ics.jung.layout.util.LayoutNetworkEvent;
 import edu.uci.ics.jung.visualization.annotations.AnnotationPaintable;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.control.TransformSupport;
@@ -74,11 +71,7 @@ import org.slf4j.LoggerFactory;
  * @author Danyel Fisher
  */
 @SuppressWarnings("serial")
-public class BasicVisualizationServer<N, E> extends JPanel
-    implements ChangeListener,
-        ChangeEventSupport,
-        VisualizationServer<N, E>,
-        LayoutChangeListener<N> {
+public class BasicVisualizationServer<N, E> extends JPanel implements VisualizationServer<N, E> {
 
   static Logger log = LoggerFactory.getLogger(BasicVisualizationServer.class);
 
@@ -154,8 +147,10 @@ public class BasicVisualizationServer<N, E> extends JPanel
     renderContext = new PluggableRenderContext<>(model.getNetwork());
     renderer = new BasicRenderer<>();
     createSpatialStuctures(model, renderContext);
-    model.addChangeListener(this);
-    model.addLayoutChangeListener(this);
+    model
+        .getLayoutModel()
+        .getLayoutChangeSupport()
+        .addLayoutChangeListener(this); // will cause a repaint
     setDoubleBuffered(false);
     this.addComponentListener(new VisualizationListener(this));
 
@@ -236,14 +231,14 @@ public class BasicVisualizationServer<N, E> extends JPanel
    *
    * @param spatial
    */
-  private void connectListeners(Spatial<?> spatial) {
-    if (model instanceof LayoutEventSupport && spatial instanceof LayoutChangeListener) {
-      if (spatial instanceof LayoutChangeListener) {
-        model.addLayoutChangeListener((LayoutChangeListener) spatial);
-      }
+  private void connectListeners(Spatial spatial) {
+    LayoutModel<N> layoutModel = model.getLayoutModel();
+    layoutModel.getLayoutStateChangeSupport().addLayoutStateChangeListener(spatial);
+    if (spatial instanceof LayoutNodePositionChange.Listener) {
+      layoutModel
+          .getLayoutNodePositionSupport()
+          .addLayoutNodePositionChangeListener((LayoutNodePositionChange.Listener) spatial);
     }
-    // this one toggles active/inactive as the opposite of the LayoutModel's active/inactive state
-    model.getLayoutModel().getLayoutStateChangeSupport().addLayoutStateChangeListener(spatial);
   }
 
   /**
@@ -251,23 +246,15 @@ public class BasicVisualizationServer<N, E> extends JPanel
    *
    * @param spatial
    */
-  private void disconnectListeners(Spatial<?> spatial) {
-    if (model instanceof LayoutEventSupport) {
-      if (spatial instanceof LayoutChangeListener) {
-        model.removeLayoutChangeListener((LayoutChangeListener) spatial);
-      }
+  private void disconnectListeners(Spatial spatial) {
+
+    LayoutModel<N> layoutModel = model.getLayoutModel();
+    layoutModel.getLayoutStateChangeSupport().removeLayoutStateChangeListener(spatial);
+    if (spatial instanceof LayoutNodePositionChange.Listener) {
+      layoutModel
+          .getLayoutNodePositionSupport()
+          .removeLayoutNodePositionChangeListener((LayoutNodePositionChange.Listener) spatial);
     }
-    if (model.getLayoutModel() instanceof LayoutEventSupport) {
-      ((LayoutEventSupport) model.getLayoutModel())
-          .removeLayoutChangeListener((LayoutChangeListener) spatial);
-    }
-    if (model.getLayoutModel() instanceof LayoutModel.ChangeSupport) {
-      if (spatial instanceof LayoutModel.ChangeListener) {
-        ((LayoutModel.ChangeSupport) model.getLayoutModel())
-            .removeChangeListener((LayoutModel.ChangeListener) spatial);
-      }
-    }
-    model.getLayoutModel().getLayoutStateChangeSupport().removeLayoutStateChangeListener(spatial);
   }
 
   @Override
@@ -442,13 +429,9 @@ public class BasicVisualizationServer<N, E> extends JPanel
     g2d.setTransform(oldXform);
   }
 
+  /** a LayoutChange.Event from the LayoutModel will trigger a repaint of the visualization */
   @Override
-  public void layoutChanged(LayoutEvent<N> evt) {
-    repaint();
-  }
-
-  @Override
-  public void layoutChanged(LayoutNetworkEvent<N> evt) {
+  public void layoutChanged() {
     repaint();
   }
 

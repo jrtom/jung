@@ -11,7 +11,6 @@ package edu.uci.ics.jung.samples;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.graph.CTreeNetwork;
 import edu.uci.ics.jung.graph.MutableCTreeNetwork;
-import edu.uci.ics.jung.graph.TreeNetworkBuilder;
 import edu.uci.ics.jung.layout.algorithms.BalloonLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.RadialTreeLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.TreeLayoutAlgorithm;
@@ -19,8 +18,9 @@ import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.layout.model.Point;
 import edu.uci.ics.jung.layout.model.PolarPoint;
 import edu.uci.ics.jung.samples.util.ControlHelpers;
+import edu.uci.ics.jung.samples.util.DemoTreeSupplier;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
-import edu.uci.ics.jung.visualization.MultiLayerTransformer.Layer;
+import edu.uci.ics.jung.visualization.MultiLayerTransformer;
 import edu.uci.ics.jung.visualization.VisualizationServer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
@@ -29,8 +29,6 @@ import edu.uci.ics.jung.visualization.decorators.EdgeShape;
 import edu.uci.ics.jung.visualization.decorators.EllipseNodeShapeFunction;
 import edu.uci.ics.jung.visualization.layout.LayoutAlgorithmTransition;
 import edu.uci.ics.jung.visualization.subLayout.TreeCollapser;
-import edu.uci.ics.jung.visualization.transform.MutableTransformer;
-import edu.uci.ics.jung.visualization.transform.MutableTransformerDecorator;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.geom.AffineTransform;
@@ -77,7 +75,7 @@ public class TreeCollapseDemo extends JPanel {
 
     setLayout(new BorderLayout());
     // create a simple graph for the demo
-    graph = createTree();
+    graph = DemoTreeSupplier.createGenericTreeOne();
 
     layoutAlgorithm = new TreeLayoutAlgorithm<>();
 
@@ -92,7 +90,7 @@ public class TreeCollapseDemo extends JPanel {
     vv.getRenderContext().setNodeShapeFunction(new ClusterNodeShapeFunction<>());
     // add a listener for ToolTips
     vv.setNodeToolTipFunction(Object::toString);
-    vv.getRenderContext().setArrowFillPaintFunction(n -> Color.lightGray);
+    vv.getRenderContext().setRenderEdgeArrow(false);
 
     final GraphZoomScrollPane panel = new GraphZoomScrollPane(vv);
     add(panel);
@@ -108,37 +106,40 @@ public class TreeCollapseDemo extends JPanel {
     JComboBox layoutComboBox = new JComboBox(Layouts.values());
     layoutComboBox.addItemListener(
         e -> {
-          if (e.getStateChange() == ItemEvent.SELECTED) {
-            if (e.getItem() == Layouts.RADIAL) {
-              LayoutAlgorithmTransition.animate(vv, radialLayoutAlgorithm);
+          SwingUtilities.invokeLater(
+              () -> {
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                  if (e.getItem() == Layouts.RADIAL) {
+                    LayoutAlgorithmTransition.animate(vv, radialLayoutAlgorithm);
 
-              vv.removePreRenderPaintable(balloonRings);
-              vv.getRenderContext().getMultiLayerTransformer().setToIdentity();
-              if (rings == null) {
-                rings = new Rings(vv.getModel().getLayoutModel());
-              }
-              vv.addPreRenderPaintable(rings);
+                    vv.removePreRenderPaintable(balloonRings);
+                    vv.getRenderContext().getMultiLayerTransformer().setToIdentity();
+                    if (rings == null) {
+                      rings = new Rings(vv.getModel().getLayoutModel());
+                    }
+                    vv.addPreRenderPaintable(rings);
 
-            } else if (e.getItem() == Layouts.BALLOON) {
-              LayoutAlgorithmTransition.animate(vv, balloonLayoutAlgorithm);
+                  } else if (e.getItem() == Layouts.BALLOON) {
+                    LayoutAlgorithmTransition.animate(vv, balloonLayoutAlgorithm);
 
-              vv.removePreRenderPaintable(rings);
-              vv.getRenderContext().getMultiLayerTransformer().setToIdentity();
-              if (balloonRings == null) {
-                balloonRings = new BalloonRings(balloonLayoutAlgorithm);
-              }
+                    vv.removePreRenderPaintable(rings);
+                    vv.getRenderContext().getMultiLayerTransformer().setToIdentity();
+                    if (balloonRings == null) {
+                      balloonRings = new BalloonRings(balloonLayoutAlgorithm);
+                    }
 
-              vv.addPreRenderPaintable(balloonRings);
+                    vv.addPreRenderPaintable(balloonRings);
 
-            } else {
-              LayoutAlgorithmTransition.animate(vv, layoutAlgorithm);
+                  } else {
+                    LayoutAlgorithmTransition.animate(vv, layoutAlgorithm);
 
-              vv.removePreRenderPaintable(rings);
-              vv.removePreRenderPaintable(balloonRings);
-              vv.getRenderContext().getMultiLayerTransformer().setToIdentity();
-            }
-            vv.repaint();
-          }
+                    vv.removePreRenderPaintable(rings);
+                    vv.removePreRenderPaintable(balloonRings);
+                    vv.getRenderContext().getMultiLayerTransformer().setToIdentity();
+                  }
+                  vv.repaint();
+                }
+              });
         });
 
     JButton collapse = new JButton("Collapse");
@@ -208,10 +209,7 @@ public class TreeCollapseDemo extends JPanel {
       for (double d : depths) {
         ellipse.setFrameFromDiagonal(center.x - d, center.y - d, center.x + d, center.y + d);
         Shape shape =
-            vv.getRenderContext()
-                .getMultiLayerTransformer()
-                .getTransformer(Layer.LAYOUT)
-                .transform(ellipse);
+            vv.getTransformSupport().transform(vv, ellipse, MultiLayerTransformer.Layer.LAYOUT);
         g2d.draw(shape);
       }
     }
@@ -244,16 +242,7 @@ public class TreeCollapseDemo extends JPanel {
         ellipse.setFrame(-radius, -radius, 2 * radius, 2 * radius);
         AffineTransform at = AffineTransform.getTranslateInstance(p.x, p.y);
         Shape shape = at.createTransformedShape(ellipse);
-
-        MutableTransformer viewTransformer =
-            vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.VIEW);
-
-        if (viewTransformer instanceof MutableTransformerDecorator) {
-          shape = vv.getRenderContext().getMultiLayerTransformer().transform(shape);
-        } else {
-          shape = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, shape);
-        }
-
+        shape = vv.getTransformSupport().transform(vv, shape, MultiLayerTransformer.Layer.LAYOUT);
         g2d.draw(shape);
       }
     }
@@ -261,45 +250,6 @@ public class TreeCollapseDemo extends JPanel {
     public boolean useTransform() {
       return true;
     }
-  }
-
-  /** */
-  private MutableCTreeNetwork<Object, Object> createTree() {
-    MutableCTreeNetwork<Object, Object> tree =
-        TreeNetworkBuilder.builder().expectedNodeCount(27).build();
-
-    tree.addNode("root");
-
-    int edgeId = 0;
-    tree.addEdge("root", "V0", edgeId++);
-    tree.addEdge("V0", "V1", edgeId++);
-    tree.addEdge("V0", "V2", edgeId++);
-    tree.addEdge("V1", "V4", edgeId++);
-    tree.addEdge("V2", "V3", edgeId++);
-    tree.addEdge("V2", "V5", edgeId++);
-    tree.addEdge("V4", "V6", edgeId++);
-    tree.addEdge("V4", "V7", edgeId++);
-    tree.addEdge("V3", "V8", edgeId++);
-    tree.addEdge("V6", "V9", edgeId++);
-    tree.addEdge("V4", "V10", edgeId++);
-
-    tree.addEdge("root", "A0", edgeId++);
-    tree.addEdge("A0", "A1", edgeId++);
-    tree.addEdge("A0", "A2", edgeId++);
-    tree.addEdge("A0", "A3", edgeId++);
-
-    tree.addEdge("root", "B0", edgeId++);
-    tree.addEdge("B0", "B1", edgeId++);
-    tree.addEdge("B0", "B2", edgeId++);
-    tree.addEdge("B1", "B4", edgeId++);
-    tree.addEdge("B2", "B3", edgeId++);
-    tree.addEdge("B2", "B5", edgeId++);
-    tree.addEdge("B4", "B6", edgeId++);
-    tree.addEdge("B4", "B7", edgeId++);
-    tree.addEdge("B3", "B8", edgeId++);
-    tree.addEdge("B6", "B9", edgeId++);
-
-    return tree;
   }
 
   /**
@@ -313,7 +263,7 @@ public class TreeCollapseDemo extends JPanel {
   class ClusterNodeShapeFunction<N> extends EllipseNodeShapeFunction<N> {
 
     ClusterNodeShapeFunction() {
-      setSizeTransformer(new ClusterNodeSizeFunction<>(20));
+      setSizeTransformer(new ClusterNodeSizeFunction<>(10));
     }
 
     @Override

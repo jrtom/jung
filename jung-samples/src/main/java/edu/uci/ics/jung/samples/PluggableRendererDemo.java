@@ -187,11 +187,6 @@ public class PluggableRendererDemo extends JPanel implements ActionListener {
 
   private Network<Integer, Number> graph;
 
-  //  public void start() {
-  //    setLayout(new BorderLayout());
-  //    add(startFunction());
-  //  }
-
   public static void main(String[] s) {
     JFrame jf = new JFrame();
     jf.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -206,9 +201,6 @@ public class PluggableRendererDemo extends JPanel implements ActionListener {
 
     LayoutAlgorithm<Integer> layoutAlgorithm = new FRLayoutAlgorithm<>();
     vv = new VisualizationViewer<>(graph, layoutAlgorithm, new Dimension(1000, 800));
-
-    //    vv.getRenderer().setNodeRenderer(new CachingNodeRenderer<Integer, Number>(vv));
-    //    vv.getRenderer().setEdgeRenderer(new CachingEdgeRenderer<Integer, Number>(vv));
 
     PickedState<Integer> picked_state = vv.getPickedNodeState();
 
@@ -597,15 +589,7 @@ public class PluggableRendererDemo extends JPanel implements ActionListener {
       if (source.isSelected()) {
         vv.getRenderContext().setEdgeShapeFunction(EdgeShape.wedge(10));
       }
-    }
-    //        else if (source == e_bent)
-    //        {
-    //            if(source.isSelected())
-    //            {
-    //                vv.getRenderContext().setEdgeShapeFunction(new EdgeShape.BentLine());
-    //            }
-    //        }
-    else if (source == e_quad) {
+    } else if (source == e_quad) {
       if (source.isSelected()) {
         vv.getRenderContext().setEdgeShapeFunction(EdgeShape.quadCurve());
       }
@@ -968,14 +952,5 @@ public class PluggableRendererDemo extends JPanel implements ActionListener {
     protected Color getColor2(E e) {
       return this.vv.getPickedEdgeState().isPicked(e) ? Color.CYAN : c2;
     }
-
-    //        public Paint getFillPaint(E e)
-    //        {
-    //            if (selfLoop.evaluateEdge(vv.getGraphLayout().getGraph(), e) || !fill_edge)
-    //                return null;
-    //            else
-    //                return getDrawPaint(e);
-    //        }
-
   }
 }

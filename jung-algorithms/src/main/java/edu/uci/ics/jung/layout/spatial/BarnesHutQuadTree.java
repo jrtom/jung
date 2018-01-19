@@ -21,6 +21,38 @@ public class BarnesHutQuadTree<T> {
   /** the root node of the quad tree */
   private Node<T> root;
 
+  public static class Builder<T> {
+    protected double theta = Node.DEFAULT_THETA;
+    protected Rectangle bounds;
+
+    public BarnesHutQuadTree.Builder setBounds(Rectangle bounds) {
+      this.bounds = bounds;
+      return this;
+    }
+
+    public BarnesHutQuadTree.Builder setBounds(double x, double y, double width, double height) {
+      setBounds(new Rectangle(x, y, width, height));
+      return this;
+    }
+
+    public BarnesHutQuadTree.Builder setBounds(double width, double height) {
+      setBounds(new Rectangle(0, 0, width, height));
+      return this;
+    }
+
+    public BarnesHutQuadTree.Builder setTheta(double theta) {
+      this.theta = theta;
+      return this;
+    }
+
+    public BarnesHutQuadTree<T> build() {
+      return new BarnesHutQuadTree(this);
+    }
+  }
+
+  public static <T> Builder<T> builder() {
+    return new Builder<>();
+  }
   /**
    * the bounds of this quad tree
    *
@@ -37,12 +69,8 @@ public class BarnesHutQuadTree<T> {
 
   private Object lock = new Object();
 
-  public BarnesHutQuadTree(double width, double height) {
-    this.root = new Node(new Rectangle(0, 0, width, height));
-  }
-
-  public BarnesHutQuadTree(Rectangle r) {
-    this.root = new Node(r);
+  private BarnesHutQuadTree(Builder<T> builder) {
+    this.root = Node.<T>builder().setArea(builder.bounds).setTheta(builder.theta).build();
   }
 
   /*

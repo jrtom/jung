@@ -92,7 +92,11 @@ public class Point {
    * @return true if this Point is within the passed rectangular space, false otherwise
    */
   public boolean inside(double minX, double minY, double maxX, double maxY) {
-    return x >= minX && maxX >= x && y >= minY && maxY >= y;
+    if (x < minX) return false;
+    if (x > maxX) return false;
+    if (y < minY) return false;
+    if (y > maxY) return false;
+    return true;
   }
 
   /** @return the distance between this Point and the origin. */

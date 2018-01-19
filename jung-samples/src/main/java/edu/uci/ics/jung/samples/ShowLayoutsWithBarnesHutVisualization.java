@@ -20,6 +20,12 @@ import edu.uci.ics.jung.layout.algorithms.KKLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.SpringBHVisitorLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.SpringLayoutAlgorithm;
+import edu.uci.ics.jung.layout.model.Point;
+import edu.uci.ics.jung.layout.spatial.BarnesHutQuadTree;
+import edu.uci.ics.jung.layout.spatial.ForceObject;
+import edu.uci.ics.jung.layout.spatial.Node;
+import edu.uci.ics.jung.layout.spatial.Rectangle;
+import edu.uci.ics.jung.visualization.VisualizationServer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
@@ -28,19 +34,27 @@ import edu.uci.ics.jung.visualization.decorators.PickableNodePaintFunction;
 import edu.uci.ics.jung.visualization.layout.LayoutAlgorithmTransition;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
 import java.awt.*;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
+import java.lang.reflect.Field;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Supplier;
 import javax.swing.*;
 
 /**
- * Demonstrates several of the graph layout algorithms. Allows the user to interactively select one
- * of several graphs, and one of several layouts, and visualizes the combination.
+ * This demo is adapted from ShowLayouts, but when a LayoutAlgorithm that uses the BarnesHutQuadTree
+ * is selected, the Barnes-Hut structure is drawn on the view under the Graph. For the most dramatic
+ * effect, choose the SpringBHVisitorLayoutAlgorithm, then, in picking mode, drag a node or nodes
+ * around to watch the Barnes Hut Tree rebuild itself.
  *
- * @author Danyel Fisher
- * @author Joshua O'Madadhain
- * @author Tom Nelson - extensive modification
+ * @author Tom Nelson
  */
 @SuppressWarnings("serial")
-public class ShowLayouts extends JPanel {
+public class ShowLayoutsWithBarnesHutVisualization extends JPanel {
 
   protected static Network[] g_array;
   protected static int graph_index;
@@ -75,7 +89,7 @@ public class ShowLayouts extends JPanel {
     }
   }
 
-  public ShowLayouts() {
+  public ShowLayoutsWithBarnesHutVisualization() {
 
     g_array = new Network[graph_names.length];
 
@@ -114,8 +128,17 @@ public class ShowLayouts extends JPanel {
 
     Network g = g_array[3]; // initial graph
 
-    final VisualizationViewer vv = new VisualizationViewer<>(g, new Dimension(600, 600));
+    VisualizationViewer vv =
+        new VisualizationViewer(g, new Dimension(600, 600)) {
 
+          @Override
+          public void paint(Graphics g) {
+            updatePaintables(this);
+            super.paint(g);
+          }
+        };
+
+    vv.setBackground(Color.white);
     vv.getRenderContext()
         .setNodeFillPaintFunction(
             new PickableNodePaintFunction<>(vv.getPickedNodeState(), Color.red, Color.yellow));
@@ -126,6 +149,7 @@ public class ShowLayouts extends JPanel {
     final DefaultModalGraphMouse<Integer, Number> graphMouse = new DefaultModalGraphMouse<>();
     vv.setGraphMouse(graphMouse);
 
+    // this reinforces that the generics (or lack of) declarations are correct
     vv.setNodeToolTipFunction(
         node ->
             node.toString() + ". with neighbors:" + vv.getModel().getNetwork().adjacentNodes(node));
@@ -141,7 +165,7 @@ public class ShowLayouts extends JPanel {
     modeBox.addItemListener(
         ((DefaultModalGraphMouse<Integer, Number>) vv.getGraphMouse()).getModeListener());
 
-    vv.setBackground(Color.WHITE);
+    setBackground(Color.WHITE);
     setLayout(new BorderLayout());
     add(vv, BorderLayout.CENTER);
     Layouts[] combos = getCombos();
@@ -213,8 +237,93 @@ public class ShowLayouts extends JPanel {
     return Layouts.values();
   }
 
+  // a hack because I do not want to expose the BH Tree in general
+  // but i need a reference to is for this demo
+  static BarnesHutQuadTree getBarnesHutQuadTreeFrom(LayoutAlgorithm layoutAlgorithm) {
+    if (layoutAlgorithm instanceof FRBHVisitorLayoutAlgorithm) {
+      try {
+        FRBHVisitorLayoutAlgorithm bhLayoutAlgorithm = (FRBHVisitorLayoutAlgorithm) layoutAlgorithm;
+        Field field = bhLayoutAlgorithm.getClass().getDeclaredField("tree");
+        field.setAccessible(true);
+        return (BarnesHutQuadTree) field.get(bhLayoutAlgorithm);
+      } catch (Exception ex) {
+        return null;
+      }
+    } else if (layoutAlgorithm instanceof SpringBHVisitorLayoutAlgorithm) {
+      try {
+        SpringBHVisitorLayoutAlgorithm bhLayoutAlgorithm =
+            (SpringBHVisitorLayoutAlgorithm) layoutAlgorithm;
+        Field field = bhLayoutAlgorithm.getClass().getDeclaredField("tree");
+        field.setAccessible(true);
+        return (BarnesHutQuadTree) field.get(bhLayoutAlgorithm);
+      } catch (Exception ex) {
+        return null;
+      }
+    }
+    return null;
+  }
+
+  private void getShapes(Collection<Shape> shapes, Node node) {
+    Rectangle bounds = node.getBounds();
+    Rectangle2D r = new Rectangle2D.Double(bounds.x, bounds.y, bounds.width, bounds.height);
+    shapes.add(r);
+    ForceObject forceObject = node.getForceObject();
+    if (forceObject != null) {
+      Point center = node.getForceObject().p;
+      Ellipse2D forceCenter = new Ellipse2D.Double(center.x - 4, center.y - 4, 8, 8);
+      Point2D centerOfNode = new Point2D.Double((r.getCenterX()), r.getCenterY());
+      Point2D centerOfForce = new Point2D.Double(center.x, center.y);
+      shapes.add(new Line2D.Double(centerOfNode, centerOfForce));
+      shapes.add(forceCenter);
+    }
+    if (node.getNW() != null) {
+      getShapes(shapes, node.getNW());
+    }
+    if (node.getNE() != null) {
+      getShapes(shapes, node.getNE());
+    }
+    if (node.getSW() != null) {
+      getShapes(shapes, node.getSW());
+    }
+    if (node.getSE() != null) {
+      getShapes(shapes, node.getSE());
+    }
+  }
+
+  // save off the paintable so I can remove and re-create it each time
+  VisualizationServer.Paintable paintable = null;
+
+  private void updatePaintables(VisualizationViewer vv) {
+    vv.removePreRenderPaintable(paintable);
+    BarnesHutQuadTree tree = getBarnesHutQuadTreeFrom(vv.getModel().getLayoutAlgorithm());
+    if (tree != null) {
+      Set<Shape> shapes = new HashSet<>();
+      getShapes(shapes, tree.getRoot());
+
+      paintable =
+          new VisualizationServer.Paintable() {
+
+            @Override
+            public void paint(Graphics g) {
+              for (Shape shape : shapes) {
+                shape = vv.getTransformSupport().transform(vv, shape);
+
+                g.setColor(Color.blue);
+                ((Graphics2D) g).draw(shape);
+              }
+            }
+
+            @Override
+            public boolean useTransform() {
+              return false;
+            }
+          };
+      vv.addPreRenderPaintable(paintable);
+    }
+  }
+
   public static void main(String[] args) {
-    JPanel jp = new ShowLayouts();
+    JPanel jp = new ShowLayoutsWithBarnesHutVisualization();
 
     JFrame jf = new JFrame();
     jf.getContentPane().add(jp);

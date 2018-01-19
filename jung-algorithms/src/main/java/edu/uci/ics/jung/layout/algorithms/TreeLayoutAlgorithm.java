@@ -20,7 +20,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,45 +36,46 @@ public class TreeLayoutAlgorithm<N> implements LayoutAlgorithm<N> {
   protected transient Set<N> alreadyDone = new HashSet<N>();
 
   /** The default horizontal node spacing. Initialized to 50. */
-  public static int DEFAULT_DISTX = 50;
+  public static int DEFAULT_HORIZONTAL_NODE_SPACING = 50;
 
   /** The default vertical node spacing. Initialized to 50. */
-  public static int DEFAULT_DISTY = 50;
+  public static int DEFAULT_VERTICAL_NODE_SPACING = 50;
 
-  /** The horizontal node spacing. Defaults to {@code DEFAULT_XDIST}. */
-  protected int distX = 50;
+  /** The horizontal node spacing. Defaults to {@code DEFAULT_HORIZONTAL_NODE_SPACING}. */
+  protected int horizontalNodeSpacing = 50;
 
-  /** The vertical node spacing. Defaults to {@code DEFAULT_YDIST}. */
-  protected int distY = 50;
+  /** The vertical node spacing. Defaults to {@code DEFAULT_VERTICAL_NODE_SPACING}. */
+  protected int verticalNodeSpacing = 50;
 
   protected double currentX;
   protected double currentY;
 
   /** Creates an instance for the specified graph with default X and Y distances. */
   public TreeLayoutAlgorithm() {
-    this(DEFAULT_DISTX, DEFAULT_DISTY);
+    this(DEFAULT_HORIZONTAL_NODE_SPACING, DEFAULT_VERTICAL_NODE_SPACING);
   }
 
   /**
    * Creates an instance for the specified graph and X distance with default Y distance.
    *
-   * @param distx the horizontal spacing between adjacent siblings
+   * @param horizontalNodeSpacing the horizontal spacing between adjacent siblings
    */
-  public TreeLayoutAlgorithm(int distx) {
-    this(distx, DEFAULT_DISTY);
+  public TreeLayoutAlgorithm(int horizontalNodeSpacing) {
+    this(horizontalNodeSpacing, DEFAULT_VERTICAL_NODE_SPACING);
   }
 
   /**
    * Creates an instance for the specified graph, X distance, and Y distance.
    *
-   * @param distx the horizontal spacing between adjacent siblings
-   * @param disty the vertical spacing between adjacent siblings
+   * @param horizontalNodeSpacing the horizontal spacing between adjacent siblings
+   * @param verticalNodeSpacing the vertical spacing between adjacent siblings
    */
-  public TreeLayoutAlgorithm(int distx, int disty) {
-    Preconditions.checkArgument(distx >= 1, "X distance must be positive");
-    Preconditions.checkArgument(disty >= 1, "Y distance must be positive");
-    this.distX = distx;
-    this.distY = disty;
+  public TreeLayoutAlgorithm(int horizontalNodeSpacing, int verticalNodeSpacing) {
+    Preconditions.checkArgument(
+        horizontalNodeSpacing >= 1, "horizontalNodeSpacing must be positive");
+    Preconditions.checkArgument(horizontalNodeSpacing >= 1, "verticalNodeSpacing must be positive");
+    this.horizontalNodeSpacing = horizontalNodeSpacing;
+    this.verticalNodeSpacing = verticalNodeSpacing;
     this.currentX = this.currentY = 0;
   }
 
@@ -87,25 +87,32 @@ public class TreeLayoutAlgorithm<N> implements LayoutAlgorithm<N> {
   protected void buildTree(LayoutModel<N> layoutModel) {
     alreadyDone = Sets.newHashSet();
     this.currentX = 0;
-    this.currentY = 20;
+    this.currentY = 0;
     Set<N> roots = TreeUtils.roots(layoutModel.getGraph());
     Preconditions.checkArgument(roots.size() > 0);
-    calculateDimensionX(layoutModel, roots);
+    // the width of the tree under 'roots'. Includes one 'horizontalNodeSpacing' per child node
+    int overallWidth = calculateWidth(layoutModel, roots);
+    // add one additional 'horizontalNodeSpacing' for each tree (each root)
+    overallWidth += (roots.size() + 1) * horizontalNodeSpacing;
+    int overallHeight = calculateHeight(layoutModel, roots);
+    overallHeight += 2 * verticalNodeSpacing;
+    layoutModel.setSize(
+        Math.max(layoutModel.getWidth(), overallWidth),
+        Math.max(layoutModel.getHeight(), overallHeight));
     for (N node : roots) {
-      calculateDimensionX(layoutModel, node);
-      double posX = this.basePositions.get(node) / 2 + this.distX;
-      buildTree(layoutModel, node, (int) posX);
+      calculateWidth(layoutModel, node);
+      currentX += (this.basePositions.get(node) / 2 + this.horizontalNodeSpacing);
+      buildTree(layoutModel, node, (int) currentX);
     }
   }
 
   protected void buildTree(LayoutModel<N> layoutModel, N node, int x) {
-
     if (alreadyDone.add(node)) {
       //go one level further down
-      double newY = this.currentY + this.distY;
+      double newY = this.currentY + this.verticalNodeSpacing;
       this.currentX = x;
       this.currentY = newY;
-      this.setCurrentPositionFor(layoutModel, node);
+      layoutModel.set(node, currentX, currentY);
 
       int sizeXofCurrent = basePositions.get(node);
 
@@ -119,88 +126,52 @@ public class TreeLayoutAlgorithm<N> implements LayoutAlgorithm<N> {
         startXofChild = lastX + sizeXofChild / 2;
         buildTree(layoutModel, element, startXofChild);
 
-        lastX = lastX + sizeXofChild + distX;
+        lastX = lastX + sizeXofChild + horizontalNodeSpacing;
       }
 
-      this.currentY -= this.distY;
+      this.currentY -= this.verticalNodeSpacing;
     }
   }
 
-  private int calculateDimensionX(LayoutModel<N> layoutModel, N node) {
+  private int calculateWidth(LayoutModel<N> layoutModel, N node) {
 
     int size = 0;
-    int childrenNum = layoutModel.getGraph().successors(node).size();
-
-    if (childrenNum != 0) {
-      for (N element : layoutModel.getGraph().successors(node)) {
-        size += calculateDimensionX(layoutModel, element) + distX;
-      }
+    for (N element : layoutModel.getGraph().successors(node)) {
+      size += calculateWidth(layoutModel, element) + horizontalNodeSpacing;
     }
-    size = Math.max(0, size - distX);
+    size = Math.max(0, size - horizontalNodeSpacing);
     basePositions.put(node, size);
 
     return size;
   }
 
-  private int calculateDimensionX(LayoutModel<N> layoutModel, Collection<N> roots) {
+  private int calculateWidth(LayoutModel<N> layoutModel, Collection<N> roots) {
 
     int size = 0;
     for (N node : roots) {
-      size += calculateDimensionX(layoutModel, node);
+      size += calculateWidth(layoutModel, node);
     }
 
     return size;
   }
 
-  protected void setCurrentPositionFor(LayoutModel<N> layoutModel, N node) {
-    int width = layoutModel.getWidth();
-    int height = layoutModel.getHeight();
-    int x = (int) this.currentX;
-    int y = (int) this.currentY;
-    if (x < 0) {
-      width -= x;
-    }
+  private int calculateHeight(LayoutModel<N> layoutModel, N node) {
 
-    if (x >= width - distX) {
-      width = x + distX;
+    int size = 0;
+    for (N element : layoutModel.getGraph().successors(node)) {
+      size = Math.max(size, calculateHeight(layoutModel, element) + verticalNodeSpacing);
     }
-
-    if (y < 0) {
-      height -= y;
-    }
-    if (y >= height - distY) {
-      height = y + distY;
-    }
-    if (layoutModel.getWidth() < width || layoutModel.getHeight() < height) {
-      layoutModel.setSize(width, height);
-    }
-
-    //    Point location = layoutModel.get(node);
-    setLocation(layoutModel, node, this.currentX, this.currentY);
+    return size;
   }
 
-  /**
-   * can be overridden to add behavior
-   *
-   * @param layoutModel
-   * @param node
-   * @param location
-   */
-  protected void setLocation(LayoutModel<N> layoutModel, N node, Point location) {
-    layoutModel.set(node, location);
+  private int calculateHeight(LayoutModel<N> layoutModel, Collection<N> roots) {
+
+    int size = 0;
+    for (N node : roots) {
+      size += calculateHeight(layoutModel, node);
+    }
+    return size;
   }
-
-  protected void setLocation(LayoutModel<N> layoutModel, N node, double x, double y) {
-    layoutModel.set(node, x, y);
-  }
-
-  public boolean isLocked(N node) {
-    return false;
-  }
-
-  public void lock(N node, boolean state) {}
-
-  public void setInitializer(Function<N, Point> initializer) {}
 
   /** @return the center of this layout's area. */
   public Point getCenter(LayoutModel<N> layoutModel) {

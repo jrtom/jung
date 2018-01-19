@@ -1,6 +1,7 @@
 package edu.uci.ics.jung.visualization.spatial;
 
 import com.google.common.collect.Sets;
+import edu.uci.ics.jung.layout.event.LayoutStateChange;
 import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.layout.model.Point;
 import edu.uci.ics.jung.layout.util.RadiusNetworkNodeAccessor;
@@ -19,7 +20,7 @@ import java.util.Set;
  *
  * @author Tom Nelson
  */
-public interface Spatial<T> extends LayoutModel.LayoutStateChangeListener {
+public interface Spatial<T> extends LayoutStateChange.Listener {
 
   /**
    * a flag to suggest whether or not the spatial structure should be used

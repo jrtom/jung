@@ -32,11 +32,11 @@ public class RadialTreeLayoutAlgorithm<N> extends TreeLayoutAlgorithm<N> {
   protected Map<N, PolarPoint> polarLocations;
 
   public RadialTreeLayoutAlgorithm() {
-    this(DEFAULT_DISTX, DEFAULT_DISTY);
+    this(DEFAULT_HORIZONTAL_NODE_SPACING, DEFAULT_VERTICAL_NODE_SPACING);
   }
 
   public RadialTreeLayoutAlgorithm(int distx) {
-    this(distx, DEFAULT_DISTY);
+    this(distx, DEFAULT_VERTICAL_NODE_SPACING);
   }
 
   public RadialTreeLayoutAlgorithm(int distx, int disty) {
@@ -55,19 +55,6 @@ public class RadialTreeLayoutAlgorithm<N> extends TreeLayoutAlgorithm<N> {
     for (Map.Entry<N, PolarPoint> entry : polarLocations.entrySet()) {
       PolarPoint polar = entry.getValue();
       layoutModel.set(entry.getKey(), getCartesian(layoutModel, entry.getKey()));
-    }
-  }
-
-  @Override
-  protected void setLocation(LayoutModel<N> layoutModel, N node, Point location) {
-    Point c = getCenter(layoutModel);
-    Point pv = location.add(-c.x, -c.y);
-    PolarPoint newLocation = PolarPoint.cartesianToPolar(pv);
-    PolarPoint currentLocation = polarLocations.get(node);
-    if (currentLocation == null) {
-      polarLocations.put(node, newLocation);
-    } else {
-      polarLocations.put(node, newLocation);
     }
   }
 
@@ -109,7 +96,8 @@ public class RadialTreeLayoutAlgorithm<N> extends TreeLayoutAlgorithm<N> {
     for (N node : layoutModel.getGraph().nodes()) {
       Point p = layoutModel.get(node);
 
-      PolarPoint polarPoint = PolarPoint.of(p.x * theta, (p.y - this.distY) * deltaRadius);
+      PolarPoint polarPoint =
+          PolarPoint.of(p.x * theta, (p.y - this.verticalNodeSpacing) * deltaRadius);
       polarLocations.put(node, polarPoint);
     }
   }

@@ -24,13 +24,11 @@ public class Circle {
 
   public boolean intersects(Rectangle r) {
     // quick fail with bounding box test first
-    return r.maxX >= center.x - radius
-        && r.maxY >= center.y - radius
-        && r.x <= center.x + radius
-        && r.y <= center.y + radius
-        &&
-        // more expensive test last
-        squaredDistance(center, r) < radius * radius;
+    if (r.x > center.x + radius) return false;
+    if (r.y > center.y + radius) return false;
+    if (r.maxX < center.x - radius) return false;
+    if (r.maxY < center.y - radius) return false;
+    return squaredDistance(center, r) < radius * radius;
   }
 
   private double squaredDistance(Point p, Rectangle r) {

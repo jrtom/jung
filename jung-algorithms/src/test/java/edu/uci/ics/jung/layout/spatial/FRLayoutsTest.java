@@ -1,5 +1,7 @@
 package edu.uci.ics.jung.layout.spatial;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import com.google.common.collect.Maps;
 import com.google.common.graph.GraphBuilder;
 import com.google.common.graph.MutableGraph;
@@ -13,7 +15,6 @@ import edu.uci.ics.jung.layout.model.LoadingCacheLayoutModel;
 import edu.uci.ics.jung.layout.model.Point;
 import java.util.Map;
 import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -50,6 +51,7 @@ public class FRLayoutsTest {
   static Map<String, Point> mapOne = Maps.newHashMap();
   static Map<String, Point> mapTwo = Maps.newHashMap();
   static Map<String, Point> mapThree = Maps.newHashMap();
+  static Map<String, Point> mapFour = Maps.newHashMap();
 
   /**
    * this runs again before each test. Build a simple graph, build a custom layout model (see below)
@@ -100,6 +102,19 @@ public class FRLayoutsTest {
   }
 
   /**
+   * a BarnesHutQuadTree with THETA = 0 will not use any inner node estimations in the force
+   * calculations. The values should be the same as would be produced by the same layout algorithm
+   * with no BarnesHut optimization.
+   */
+  @Test
+  public void testFRBHWithThetaZero() {
+    FRBHVisitorLayoutAlgorithm layoutAlgorithmFour = new FRBHVisitorLayoutAlgorithm(0.0);
+    // using the same random seed each time for repeatable results from each test.
+    layoutAlgorithmFour.setRandomSeed(0);
+    doTest(layoutAlgorithmFour, mapFour);
+  }
+
+  /**
    * check to see if mapTwo and mapThree (the ones that used the BarnesHut optimization) returned
    * similar results
    */
@@ -108,10 +123,23 @@ public class FRLayoutsTest {
     log.debug("mapOne:{}", mapOne);
     log.debug("mapTwo:{}", mapTwo);
     log.debug("mapThree:{}", mapThree);
+    log.debug("mapFour:{}", mapFour);
 
-    Assert.assertTrue(
-        "the compared maps are not close enough: mapTwo:" + mapTwo + ", mapThree:" + mapThree,
-        closeEnough(mapTwo, mapThree));
+    assertThat(mapTwo.keySet()).isEqualTo(mapThree.keySet());
+    for (String key : mapTwo.keySet()) {
+      Point p2 = mapTwo.get(key);
+      Point p3 = mapThree.get(key);
+      assertThat(p2.x).isWithin(1.0E-3).of(p3.x);
+      assertThat(p2.y).isWithin(1.0E-3).of(p3.y);
+    }
+
+    assertThat(mapOne.keySet()).isEqualTo(mapFour.keySet());
+    for (String key : mapOne.keySet()) {
+      Point p2 = mapOne.get(key);
+      Point p3 = mapFour.get(key);
+      assertThat(p2.x).isWithin(1.0E-3).of(p3.x);
+      assertThat(p2.y).isWithin(1.0E-3).of(p3.y);
+    }
   }
 
   private void doTest(LayoutAlgorithm<String> layoutAlgorithm, Map<String, Point> map) {
@@ -121,19 +149,6 @@ public class FRLayoutsTest {
       map.put(node, layoutModel.apply(node));
       log.debug("node {} placed at {}", node, layoutModel.apply(node));
     }
-  }
-
-  private static boolean closeEnough(Map<String, Point> left, Map<String, Point> right) {
-    if (left.keySet().equals(right.keySet())) {
-      for (String key : left.keySet()) {
-        Point leftPoint = left.get(key);
-        Point rightPoint = right.get(key);
-        if (Math.abs(leftPoint.x - rightPoint.x) > 0.001) return false;
-        if (Math.abs(leftPoint.y - rightPoint.y) > 0.001) return false;
-      }
-      return true;
-    }
-    return false;
   }
 
   /**
