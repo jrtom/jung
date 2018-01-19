@@ -300,7 +300,7 @@ public class TreeCollapseDemo extends JPanel {
   class ClusterNodeShapeFunction<N> extends EllipseNodeShapeFunction<N> {
 
     ClusterNodeShapeFunction() {
-      setSizeTransformer(new ClusterNodeSizeFunction<>(20));
+      setSizeTransformer(new ClusterNodeSizeFunction<>(10));
     }
 
     @Override

@@ -116,6 +116,11 @@ public class BalloonLayoutAlgorithm<N> extends TreeLayoutAlgorithm<N> {
       // in between 2 edges to children
       double theta = i++ * angleBetweenKids + offset;
 
+      // if there's only one child, offset for more pleasing effect
+      if (kids.size() == 1) {
+        theta += Math.PI / 4;
+      }
+
       radii.put(child, childRadius);
 
       PolarPoint pp = PolarPoint.of(theta, radius);
