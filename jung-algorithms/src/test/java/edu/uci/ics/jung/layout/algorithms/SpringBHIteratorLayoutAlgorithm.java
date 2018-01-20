@@ -45,7 +45,10 @@ public class SpringBHIteratorLayoutAlgorithm<N> extends SpringLayoutAlgorithm<N>
   @Override
   public void visit(LayoutModel<N> layoutModel) {
     super.visit(layoutModel);
-    tree = new BarnesHutQuadTree(layoutModel.getWidth(), layoutModel.getHeight());
+    tree =
+        BarnesHutQuadTree.builder()
+            .setBounds(layoutModel.getWidth(), layoutModel.getHeight())
+            .build();
   }
 
   @Override

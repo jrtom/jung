@@ -9,13 +9,12 @@
 package edu.uci.ics.jung.samples;
 
 import edu.uci.ics.jung.graph.CTreeNetwork;
-import edu.uci.ics.jung.graph.MutableCTreeNetwork;
-import edu.uci.ics.jung.graph.TreeNetworkBuilder;
 import edu.uci.ics.jung.layout.algorithms.RadialTreeLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.TreeLayoutAlgorithm;
 import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.layout.model.Point;
 import edu.uci.ics.jung.layout.model.PolarPoint;
+import edu.uci.ics.jung.samples.util.DemoTreeSupplier;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.MultiLayerTransformer.Layer;
 import edu.uci.ics.jung.visualization.VisualizationServer;
@@ -62,7 +61,7 @@ public class L2RTreeLayoutDemo extends JPanel {
     setLayout(new BorderLayout());
 
     // create a simple graph for the demo
-    graph = createTree();
+    graph = DemoTreeSupplier.createTreeOne();
 
     treeLayoutAlgorithm = new TreeLayoutAlgorithm<>();
     radialLayoutAlgorithm = new RadialTreeLayoutAlgorithm<>();
@@ -178,45 +177,6 @@ public class L2RTreeLayoutDemo extends JPanel {
     public boolean useTransform() {
       return true;
     }
-  }
-
-  /** */
-  private CTreeNetwork<String, Integer> createTree() {
-    MutableCTreeNetwork<String, Integer> tree =
-        TreeNetworkBuilder.builder().expectedNodeCount(27).build();
-
-    tree.addNode("root");
-
-    int edgeId = 0;
-    tree.addEdge("root", "V0", edgeId++);
-    tree.addEdge("V0", "V1", edgeId++);
-    tree.addEdge("V0", "V2", edgeId++);
-    tree.addEdge("V1", "V4", edgeId++);
-    tree.addEdge("V2", "V3", edgeId++);
-    tree.addEdge("V2", "V5", edgeId++);
-    tree.addEdge("V4", "V6", edgeId++);
-    tree.addEdge("V4", "V7", edgeId++);
-    tree.addEdge("V3", "V8", edgeId++);
-    tree.addEdge("V6", "V9", edgeId++);
-    tree.addEdge("V4", "V10", edgeId++);
-
-    tree.addEdge("root", "A0", edgeId++);
-    tree.addEdge("A0", "A1", edgeId++);
-    tree.addEdge("A0", "A2", edgeId++);
-    tree.addEdge("A0", "A3", edgeId++);
-
-    tree.addEdge("root", "B0", edgeId++);
-    tree.addEdge("B0", "B1", edgeId++);
-    tree.addEdge("B0", "B2", edgeId++);
-    tree.addEdge("B1", "B4", edgeId++);
-    tree.addEdge("B2", "B3", edgeId++);
-    tree.addEdge("B2", "B5", edgeId++);
-    tree.addEdge("B4", "B6", edgeId++);
-    tree.addEdge("B4", "B7", edgeId++);
-    tree.addEdge("B3", "B8", edgeId++);
-    tree.addEdge("B6", "B9", edgeId++);
-
-    return tree;
   }
 
   public static void main(String[] args) {

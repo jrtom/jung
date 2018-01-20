@@ -8,7 +8,7 @@
  */
 package edu.uci.ics.jung.samples;
 
-import edu.uci.ics.jung.graph.CTreeNetwork;
+import com.google.common.graph.Network;
 import edu.uci.ics.jung.layout.algorithms.BalloonLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.TreeLayoutAlgorithm;
 import edu.uci.ics.jung.layout.model.LayoutModel;
@@ -31,26 +31,41 @@ import edu.uci.ics.jung.visualization.transform.Lens;
 import edu.uci.ics.jung.visualization.transform.LensSupport;
 import edu.uci.ics.jung.visualization.transform.shape.HyperbolicShapeTransformer;
 import edu.uci.ics.jung.visualization.transform.shape.ViewLensSupport;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GridLayout;
+import java.awt.Shape;
 import java.awt.event.ItemEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JToggleButton;
+import javax.swing.WindowConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Demonstrates the visualization of a Tree using TreeLayout and BalloonLayout. An examiner lens
+ * Demonstrates the visualization of a Forest using TreeLayout and BalloonLayout. An examiner lens
  * performing a hyperbolic transformation of the view is also included.
  *
  * @author Tom Nelson
  */
 @SuppressWarnings("serial")
-public class BalloonLayoutDemo extends JPanel {
+public class BalloonLayoutForestDemo extends JPanel {
 
-  private static final Logger log = LoggerFactory.getLogger(BalloonLayoutDemo.class);
+  private static final Logger log = LoggerFactory.getLogger(BalloonLayoutForestDemo.class);
 
-  CTreeNetwork<String, Integer> graph;
+  Network<String, Integer> graph;
 
   VisualizationServer.Paintable rings;
 
@@ -66,10 +81,10 @@ public class BalloonLayoutDemo extends JPanel {
 
   LensSupport hyperbolicSupport;
 
-  public BalloonLayoutDemo() {
+  public BalloonLayoutForestDemo() {
     setLayout(new BorderLayout());
     // create a simple graph for the demo
-    graph = DemoTreeSupplier.createTreeTwo();
+    graph = DemoTreeSupplier.createForest();
 
     treeLayoutAlgorithm = new TreeLayoutAlgorithm<>();
     radialLayoutAlgorithm = new BalloonLayoutAlgorithm<>();
@@ -220,13 +235,13 @@ public class BalloonLayoutDemo extends JPanel {
         ellipse.setFrame(-radius, -radius, 2 * radius, 2 * radius);
         AffineTransform at = AffineTransform.getTranslateInstance(p.x, p.y);
         Shape shape = at.createTransformedShape(ellipse);
-        shape = vv.getTransformSupport().transform(vv, shape, Layer.LAYOUT);
+        shape = vv.getTransformSupport().transform(vv, shape);
         g2d.draw(shape);
       }
     }
 
     public boolean useTransform() {
-      return true;
+      return false;
     }
   }
 
@@ -235,7 +250,7 @@ public class BalloonLayoutDemo extends JPanel {
     Container content = frame.getContentPane();
     frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
-    content.add(new BalloonLayoutDemo());
+    content.add(new BalloonLayoutForestDemo());
     frame.pack();
     frame.setVisible(true);
   }

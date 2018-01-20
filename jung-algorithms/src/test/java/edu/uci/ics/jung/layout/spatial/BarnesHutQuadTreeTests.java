@@ -20,7 +20,7 @@ public class BarnesHutQuadTreeTests {
 
   @Before
   public void setup() {
-    tree = new BarnesHutQuadTree<>(500, 500);
+    tree = BarnesHutQuadTree.builder().setBounds(500, 500).build();
   }
 
   /**

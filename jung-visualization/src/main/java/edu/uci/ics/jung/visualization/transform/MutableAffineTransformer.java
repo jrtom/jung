@@ -43,10 +43,6 @@ public class MutableAffineTransformer extends AffineTransformer
     super(transform);
   }
 
-  public String toString() {
-    return "MutableAffineTransformer using " + transform;
-  }
-
   /**
    * setter for the scale fires a PropertyChangeEvent with the AffineTransforms representing the
    * previous and new values for scale and offset

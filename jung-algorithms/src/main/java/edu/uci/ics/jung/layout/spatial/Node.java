@@ -14,7 +14,15 @@ import org.slf4j.LoggerFactory;
 public class Node<T> {
 
   private static final Logger log = LoggerFactory.getLogger(Node.class);
-  public static final double THETA = 0.5f;
+
+  /**
+   * threshold value for determining whether to use the forces in an inner node as a summary value,
+   * or to descend the quad tree to another inner node or leaf node. theta should be between 0 and
+   * 1, with 0.5 as a commonly selected value. Note that a theta value of 0 will result in no
+   * optimization in the BarnesHutQuadTree and all force visitors will descend to a leaf node
+   * instead of using an inner node summary force vector.
+   */
+  public static final double DEFAULT_THETA = 0.5;
 
   // a node contains a ForceObject and possibly 4 Nodes
   protected ForceObject<T> forceObject;
@@ -24,14 +32,48 @@ public class Node<T> {
   Node SE;
   Node SW;
 
+  protected double theta = DEFAULT_THETA;
+
   protected Rectangle area;
 
-  public Node(double x, double y, double width, double height) {
-    this(new Rectangle(x, y, width, height));
+  public static class Builder<T> {
+    protected double theta = DEFAULT_THETA;
+    protected Rectangle area;
+
+    public Node.Builder<T> setArea(double x, double y, double width, double height) {
+      return setArea(new Rectangle(x, y, width, height));
+    }
+
+    public Node.Builder<T> setArea(Rectangle area) {
+      this.area = area;
+      return this;
+    }
+
+    public Node.Builder<T> setTheta(double theta) {
+      this.theta = theta;
+      return this;
+    }
+
+    public Node<T> build() {
+      return new Node(this);
+    }
   }
 
-  public Node(Rectangle r) {
+  public static <T> Builder<T> builder() {
+    return new Builder<>();
+  }
+
+  private Node(Node.Builder<T> builder) {
+    this(builder.area, builder.theta);
+  }
+
+  private Node(double x, double y, double width, double height, double theta) {
+    this(new Rectangle(x, y, width, height), theta);
+  }
+
+  private Node(Rectangle r, double theta) {
     area = r;
+    this.theta = theta;
   }
 
   /**
@@ -84,6 +126,11 @@ public class Node<T> {
     if (log.isTraceEnabled()) {
       log.trace("insert {} into {}", element, this);
     }
+    if (!this.getBounds().contains(element.p.x, element.p.y)) {
+      log.trace("{} outside of spatial bounds {}", element.p, this.getBounds());
+      this.area = area.add(element.p.x, element.p.y);
+    }
+
     if (forceObject == null) {
       forceObject = element;
       return;
@@ -153,10 +200,10 @@ public class Node<T> {
     double height = (area.height / 2);
     double x = area.x;
     double y = area.y;
-    NE = new Node(x + width, y, width, height);
-    NW = new Node(x, y, width, height);
-    SW = new Node(x, y + height, width, height);
-    SE = new Node(x + width, y + height, width, height);
+    NE = new Node(x + width, y, width, height, theta);
+    NW = new Node(x, y, width, height, theta);
+    SW = new Node(x, y + height, width, height, theta);
+    SE = new Node(x + width, y + height, width, height, theta);
   }
 
   /**
@@ -181,7 +228,7 @@ public class Node<T> {
       //      distance between the incoming node's position and
       //      the center of mass for this node
       double d = this.forceObject.p.distance(visitor.p);
-      if (s / d < THETA) {
+      if (s / d < theta) {
         // this node is sufficiently far away, just use this node's forces
         visitor.addForceFrom(this.forceObject);
 

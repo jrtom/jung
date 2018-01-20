@@ -12,6 +12,7 @@ import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.layout.model.Point;
 import edu.uci.ics.jung.layout.spatial.BarnesHutQuadTree;
 import edu.uci.ics.jung.layout.spatial.ForceObject;
+import edu.uci.ics.jung.layout.spatial.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +31,14 @@ public class FRBHVisitorLayoutAlgorithm<N> extends FRLayoutAlgorithm<N>
   /** Used for optimization of the calculation of repulsion forces between Nodes */
   private BarnesHutQuadTree<N> tree;
 
+  private double theta = Node.DEFAULT_THETA;
+
+  public FRBHVisitorLayoutAlgorithm() {}
+
+  public FRBHVisitorLayoutAlgorithm(double theta) {
+    this.theta = theta;
+  }
+
   /**
    * Override to create the BarnesHutQuadTree
    *
@@ -38,7 +47,11 @@ public class FRBHVisitorLayoutAlgorithm<N> extends FRLayoutAlgorithm<N>
   @Override
   public void visit(LayoutModel<N> layoutModel) {
     super.visit(layoutModel);
-    tree = new BarnesHutQuadTree(layoutModel.getWidth(), layoutModel.getHeight());
+    tree =
+        BarnesHutQuadTree.builder()
+            .setBounds(layoutModel.getWidth(), layoutModel.getHeight())
+            .setTheta(theta)
+            .build();
   }
 
   /**

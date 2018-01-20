@@ -13,6 +13,9 @@ package edu.uci.ics.jung.visualization.layout;
 import com.google.common.collect.Maps;
 import com.google.common.graph.Graph;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
+import edu.uci.ics.jung.layout.event.LayoutChange;
+import edu.uci.ics.jung.layout.event.LayoutNodePositionChange;
+import edu.uci.ics.jung.layout.event.LayoutStateChange;
 import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.layout.model.Point;
 import java.awt.geom.AffineTransform;
@@ -60,22 +63,22 @@ public class AggregateLayoutModel<N> implements LayoutModel<N> {
   }
 
   private void connectListeners(LayoutModel<N> newLayoutModel) {
-    for (LayoutStateChangeListener layoutStateChangeListener :
+    for (LayoutStateChange.Listener layoutStateChangeListener :
         delegate.getLayoutStateChangeSupport().getLayoutStateChangeListeners()) {
       newLayoutModel
           .getLayoutStateChangeSupport()
           .addLayoutStateChangeListener(layoutStateChangeListener);
     }
 
-    for (LayoutModel.ChangeListener changeListener :
-        delegate.getChangeSupport().getChangeListeners()) {
-      newLayoutModel.getChangeSupport().addChangeListener(changeListener);
+    for (LayoutChange.Listener changeListener :
+        delegate.getLayoutChangeSupport().getLayoutChangeListeners()) {
+      newLayoutModel.getLayoutChangeSupport().addLayoutChangeListener(changeListener);
     }
   }
 
   private void disconnectListeners(LayoutModel<N> newLayoutModel) {
     newLayoutModel.getLayoutStateChangeSupport().getLayoutStateChangeListeners().clear();
-    newLayoutModel.getChangeSupport().getChangeListeners().clear();
+    newLayoutModel.getLayoutChangeSupport().getLayoutChangeListeners().clear();
   }
 
   /**
@@ -219,13 +222,8 @@ public class AggregateLayoutModel<N> implements LayoutModel<N> {
   }
 
   @Override
-  public LayoutStateChangeSupport getLayoutStateChangeSupport() {
+  public LayoutStateChange.Support getLayoutStateChangeSupport() {
     return delegate.getLayoutStateChangeSupport();
-  }
-
-  @Override
-  public ChangeSupport getChangeSupport() {
-    return delegate.getChangeSupport();
   }
 
   /**
@@ -253,5 +251,15 @@ public class AggregateLayoutModel<N> implements LayoutModel<N> {
       }
     }
     return delegate.apply(node);
+  }
+
+  @Override
+  public LayoutChange.Support getLayoutChangeSupport() {
+    return delegate.getLayoutChangeSupport();
+  }
+
+  @Override
+  public LayoutNodePositionChange.Support<N> getLayoutNodePositionSupport() {
+    return delegate.getLayoutNodePositionSupport();
   }
 }

@@ -15,6 +15,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.graph.Graph;
 import com.google.common.graph.Graphs;
@@ -116,19 +117,23 @@ public class TreeUtils {
       CTreeNetwork<N, E> subTree,
       N subTreeParent,
       E connectingEdge) {
-    checkNotNull(tree, "tree");
-    checkNotNull(subTree, "subTree");
-    checkNotNull(subTreeParent, "subTreeParent");
-    checkNotNull(connectingEdge, "connectingEdge");
-    checkArgument(tree.nodes().contains(subTreeParent), "'tree' does not contain 'subTreeParent'");
+    Preconditions.checkNotNull(tree);
+    Preconditions.checkNotNull(subTree);
+    Preconditions.checkArgument(
+        subTreeParent == null || tree.nodes().contains(subTreeParent),
+        "'tree' does not contain 'subTreeParent'");
     if (!subTree.root().isPresent()) {
       // empty subtree; nothing to do
       return;
     }
 
     N subTreeRoot = subTree.root().get();
-    checkNotNull(connectingEdge);
-    tree.addEdge(subTreeParent, subTreeRoot, connectingEdge);
+    if (subTreeParent == null) {
+      Preconditions.checkArgument(tree.nodes().isEmpty());
+    } else {
+      Preconditions.checkNotNull(connectingEdge);
+      tree.addEdge(subTreeParent, subTreeRoot, connectingEdge);
+    }
     addFromSubTree(tree, subTree, subTreeRoot);
   }
 

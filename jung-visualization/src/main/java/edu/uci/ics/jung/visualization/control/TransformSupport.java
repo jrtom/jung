@@ -43,12 +43,40 @@ public class TransformSupport<N, E> extends MutableAffineTransformer {
    * the selection Lens (the rectangular area drawn with the mouse) back into the view.
    *
    * @param vv
+   * @param p
+   * @return
+   */
+  public Point2D transform(
+      VisualizationServer<N, E> vv, Point2D p, MultiLayerTransformer.Layer layer) {
+    MultiLayerTransformer multiLayerTransformer = vv.getRenderContext().getMultiLayerTransformer();
+    return multiLayerTransformer.transform(layer, p);
+  }
+
+  /**
+   * Overridden to perform lens effects when transforming from Layout to view. Used when projecting
+   * the selection Lens (the rectangular area drawn with the mouse) back into the view.
+   *
+   * @param vv
    * @param shape
    * @return
    */
   public Shape transform(VisualizationServer<N, E> vv, Shape shape) {
     MultiLayerTransformer multiLayerTransformer = vv.getRenderContext().getMultiLayerTransformer();
     return multiLayerTransformer.transform(shape);
+  }
+
+  /**
+   * Overridden to perform lens effects when transforming from Layout to view. Used when projecting
+   * the selection Lens (the rectangular area drawn with the mouse) back into the view.
+   *
+   * @param vv
+   * @param shape
+   * @return
+   */
+  public Shape transform(
+      VisualizationServer<N, E> vv, Shape shape, MultiLayerTransformer.Layer layer) {
+    MultiLayerTransformer multiLayerTransformer = vv.getRenderContext().getMultiLayerTransformer();
+    return multiLayerTransformer.transform(layer, shape);
   }
 
   /**
