@@ -11,12 +11,13 @@
  */
 package edu.uci.ics.jung.algorithms.shortestpath;
 
+import static java.util.Comparator.comparingDouble;
+
 import com.google.common.base.Preconditions;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.algorithms.util.MapBinaryHeap;
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -57,8 +58,8 @@ public class DijkstraDistance<N, E> implements Distance<N> {
   protected Function<? super E, ? extends Number> nev;
   protected Map<N, SourceData> sourceMap; // a map of source nodes to an instance of SourceData
   protected boolean cached;
-  protected double max_distance;
-  protected int max_targets;
+  protected double maxDistance;
+  protected int maxTargets;
 
   /**
    * Creates an instance of <code>DijkstraShortestPath</code> for the specified graph and the
@@ -73,10 +74,10 @@ public class DijkstraDistance<N, E> implements Distance<N> {
       Network<N, E> g, Function<? super E, ? extends Number> nev, boolean cached) {
     this.g = g;
     this.nev = nev;
-    this.sourceMap = new HashMap<N, SourceData>();
+    this.sourceMap = new HashMap<>();
     this.cached = cached;
-    this.max_distance = Double.POSITIVE_INFINITY;
-    this.max_targets = Integer.MAX_VALUE;
+    this.maxDistance = Double.POSITIVE_INFINITY;
+    this.maxTargets = Integer.MAX_VALUE;
   }
 
   /**
@@ -126,21 +127,21 @@ public class DijkstraDistance<N, E> implements Distance<N> {
    * </ul>
    *
    * @param source the node from which distances are to be measured
-   * @param numDests the number of distances to measure
+   * @param numDistances the number of distances to measure
    * @param targets the set of nodes to which distances are to be measured
    * @return a mapping from node to the shortest distance from the source to each target
    */
   protected LinkedHashMap<N, Number> singleSourceShortestPath(
-      N source, Collection<N> targets, int numDests) {
+      N source, Collection<N> targets, int numDistances) {
     SourceData sd = getSourceData(source);
 
-    Set<N> to_get = new HashSet<N>();
+    Set<N> toGet = new HashSet<>();
     if (targets != null) {
-      to_get.addAll(targets);
-      Set<N> existing_dists = sd.distances.keySet();
+      toGet.addAll(targets);
+      Set<N> existingDistances = sd.distances.keySet();
       for (N o : targets) {
-        if (existing_dists.contains(o)) {
-          to_get.remove(o);
+        if (existingDistances.contains(o)) {
+          toGet.remove(o);
         }
       }
     }
@@ -148,48 +149,47 @@ public class DijkstraDistance<N, E> implements Distance<N> {
     // if we've exceeded the max distance or max # of distances we're willing to calculate, or
     // if we already have all the distances we need,
     // terminate
-    if (sd.reached_max
-        || (targets != null && to_get.isEmpty())
-        || (sd.distances.size() >= numDests)) {
+    if (sd.reachedMax
+        || (targets != null && toGet.isEmpty())
+        || (sd.distances.size() >= numDistances)) {
       return sd.distances;
     }
 
-    while (!sd.unknownNodes.isEmpty() && (sd.distances.size() < numDests || !to_get.isEmpty())) {
+    while (!sd.unknownNodes.isEmpty() && (sd.distances.size() < numDistances || !toGet.isEmpty())) {
       Map.Entry<N, Number> p = sd.getNextNode();
       N v = p.getKey();
-      double v_dist = p.getValue().doubleValue();
-      to_get.remove(v);
-      if (v_dist > this.max_distance) {
+      double vDist = p.getValue().doubleValue();
+      toGet.remove(v);
+      if (vDist > this.maxDistance) {
         // we're done; put this node back in so that we're not including
         // a distance beyond what we specified
-        sd.restoreNode(v, v_dist);
-        sd.reached_max = true;
+        sd.restoreNode(v, vDist);
+        sd.reachedMax = true;
         break;
       }
-      sd.dist_reached = v_dist;
+      sd.distanceReached = vDist;
 
-      if (sd.distances.size() >= this.max_targets) {
-        sd.reached_max = true;
+      if (sd.distances.size() >= this.maxTargets) {
+        sd.reachedMax = true;
         break;
       }
 
       for (N w : g.successors(v)) {
         for (E e : g.edgesConnecting(v, w)) {
           if (!sd.distances.containsKey(w)) {
-            double edge_weight = nev.apply(e).doubleValue();
+            double edgeWeight = nev.apply(e).doubleValue();
             Preconditions.checkArgument(
-                edge_weight >= 0,
+                edgeWeight >= 0,
                 "encountered negative edge weight %s for edge %s",
                 nev.apply(e),
                 e);
-            double new_dist = v_dist + edge_weight;
+            double newDist = vDist + edgeWeight;
             if (!sd.estimatedDistances.containsKey(w)) {
-              sd.createRecord(w, e, new_dist);
+              sd.createRecord(w, e, newDist);
             } else {
-              double w_dist = ((Double) sd.estimatedDistances.get(w)).doubleValue();
-              if (new_dist < w_dist) // update tentative distance & path for w
-              {
-                sd.update(w, e, new_dist);
+              double wDist = (Double) sd.estimatedDistances.get(w);
+              if (newDist < wDist) { // update tentative distance & path for w
+                sd.update(w, e, newDist);
               }
             }
           }
@@ -224,7 +224,7 @@ public class DijkstraDistance<N, E> implements Distance<N> {
     Preconditions.checkArgument(
         g.nodes().contains(source), "Specified source node %s  is not part of graph %s", source, g);
 
-    Set<N> targets = new HashSet<N>();
+    Set<N> targets = new HashSet<>();
     targets.add(target);
     Map<N, Number> distanceMap = getDistanceMap(source, targets);
     return distanceMap.get(target);
@@ -242,13 +242,13 @@ public class DijkstraDistance<N, E> implements Distance<N> {
     Preconditions.checkArgument(
         g.nodes().contains(source), "Specified source node %s  is not part of graph %s", source, g);
     Preconditions.checkArgument(
-        targets.size() <= max_targets,
+        targets.size() <= maxTargets,
         "size of target set %d exceeds maximum number of targets allowed: %d",
         targets.size(),
-        this.max_targets);
+        this.maxTargets);
 
     Map<N, Number> distanceMap =
-        singleSourceShortestPath(source, targets, Math.min(g.nodes().size(), max_targets));
+        singleSourceShortestPath(source, targets, Math.min(g.nodes().size(), maxTargets));
     if (!cached) {
       reset(source);
     }
@@ -270,7 +270,7 @@ public class DijkstraDistance<N, E> implements Distance<N> {
    * @return a mapping from each node in the graph to its distance from {@code source}
    */
   public Map<N, Number> getDistanceMap(N source) {
-    return getDistanceMap(source, Math.min(g.nodes().size(), max_targets));
+    return getDistanceMap(source, Math.min(g.nodes().size(), maxTargets));
   }
 
   /**
@@ -292,17 +292,17 @@ public class DijkstraDistance<N, E> implements Distance<N> {
    */
   public LinkedHashMap<N, Number> getDistanceMap(N source, int numDests) {
     Preconditions.checkArgument(
-        g.nodes().contains(source), "Specified source node %s  is not part of graph %s", source, g);
+        g.nodes().contains(source), "Specified source node %s is not part of graph %s", source, g);
     Preconditions.checkArgument(
         numDests >= 1 && numDests <= g.nodes().size(),
         "number of destinations must be in [1, %d]",
         g.nodes().size());
 
     Preconditions.checkArgument(
-        numDests <= max_targets,
+        numDests <= maxTargets,
         "size of target set %d exceeds maximum number of targets allowed: %d",
         numDests,
-        this.max_targets);
+        this.maxTargets);
 
     LinkedHashMap<N, Number> distanceMap = singleSourceShortestPath(source, null, numDests);
 
@@ -317,25 +317,25 @@ public class DijkstraDistance<N, E> implements Distance<N> {
    * Allows the user to specify the maximum distance that this instance will calculate. Any nodes
    * past this distance will effectively be unreachable from the source, in the sense that the
    * algorithm will not calculate the distance to any nodes which are farther away than this
-   * distance. A negative value for <code>max_dist</code> will ensure that no further distances are
-   * calculated.
+   * distance. A negative value for <code>maxDistance</code> will ensure that no further distances
+   * are calculated.
    *
    * <p>This can be useful for limiting the amount of time and space used by this algorithm if the
    * graph is very large.
    *
-   * <p>Note: if this instance has already calculated distances greater than <code>max_dist</code>,
-   * and the results are cached, those results will still be valid and available; this limit applies
-   * only to subsequent distance calculations.
+   * <p>Note: if this instance has already calculated distances greater than <code>maxDistance
+   * </code>, and the results are cached, those results will still be valid and available; this
+   * limit applies only to subsequent distance calculations.
    *
-   * @param max_dist the maximum distance that this instance will calculate
+   * @param maxDistance the maximum distance that this instance will calculate
    * @see #setMaxTargets(int)
    */
-  public void setMaxDistance(double max_dist) {
-    this.max_distance = max_dist;
+  public void setMaxDistance(double maxDistance) {
+    this.maxDistance = maxDistance;
     for (N v : sourceMap.keySet()) {
       SourceData sd = sourceMap.get(v);
-      sd.reached_max =
-          (this.max_distance <= sd.dist_reached) || (sd.distances.size() >= max_targets);
+      sd.reachedMax =
+          (this.maxDistance <= sd.distanceReached) || (sd.distances.size() >= maxTargets);
     }
   }
 
@@ -343,26 +343,26 @@ public class DijkstraDistance<N, E> implements Distance<N> {
    * Allows the user to specify the maximum number of target nodes per source node for which this
    * instance will calculate distances. Once this threshold is reached, any further nodes will
    * effectively be unreachable from the source, in the sense that the algorithm will not calculate
-   * the distance to any more nodes. A negative value for <code>max_targets</code> will ensure that
+   * the distance to any more nodes. A negative value for <code>maxTargets</code> will ensure that
    * no further distances are calculated.
    *
    * <p>This can be useful for limiting the amount of time and space used by this algorithm if the
    * graph is very large.
    *
    * <p>Note: if this instance has already calculated distances to a greater number of targets than
-   * <code>max_targets</code>, and the results are cached, those results will still be valid and
+   * <code>maxTargets</code>, and the results are cached, those results will still be valid and
    * available; this limit applies only to subsequent distance calculations.
    *
-   * @param max_targets the maximum number of targets for which this instance will calculate
+   * @param maxTargets the maximum number of targets for which this instance will calculate
    *     distances
    * @see #setMaxDistance(double)
    */
-  public void setMaxTargets(int max_targets) {
-    this.max_targets = max_targets;
+  public void setMaxTargets(int maxTargets) {
+    this.maxTargets = maxTargets;
     for (N v : sourceMap.keySet()) {
       SourceData sd = sourceMap.get(v);
-      sd.reached_max =
-          (this.max_distance <= sd.dist_reached) || (sd.distances.size() >= max_targets);
+      sd.reachedMax =
+          (this.maxDistance <= sd.distanceReached) || (sd.distances.size() >= maxTargets);
     }
   }
 
@@ -374,7 +374,7 @@ public class DijkstraDistance<N, E> implements Distance<N> {
    * @see #reset(Object)
    */
   public void reset() {
-    sourceMap = new HashMap<N, SourceData>();
+    sourceMap = new HashMap<>();
   }
 
   /**
@@ -399,19 +399,6 @@ public class DijkstraDistance<N, E> implements Distance<N> {
     sourceMap.put(source, null);
   }
 
-  /** Compares according to distances, so that the BinaryHeap knows how to order the tree. */
-  protected static class NodeComparator<N> implements Comparator<N> {
-    private Map<N, Number> distances;
-
-    protected NodeComparator(Map<N, Number> distances) {
-      this.distances = distances;
-    }
-
-    public int compare(N o1, N o2) {
-      return ((Double) distances.get(o1)).compareTo((Double) distances.get(o2));
-    }
-  }
-
   /**
    * For a given source node, holds the estimated and final distances, tentative and final
    * assignments of incoming edges on the shortest path from the source node, and a priority queue
@@ -423,37 +410,38 @@ public class DijkstraDistance<N, E> implements Distance<N> {
     protected LinkedHashMap<N, Number> distances;
     protected Map<N, Number> estimatedDistances;
     protected MapBinaryHeap<N> unknownNodes;
-    protected boolean reached_max = false;
-    protected double dist_reached = 0;
+    protected boolean reachedMax = false;
+    protected double distanceReached = 0;
 
     protected SourceData(N source) {
-      distances = new LinkedHashMap<N, Number>();
-      estimatedDistances = new HashMap<N, Number>();
-      unknownNodes = new MapBinaryHeap<N>(new NodeComparator<N>(estimatedDistances));
+      distances = new LinkedHashMap<>();
+      estimatedDistances = new HashMap<>();
+      unknownNodes =
+          new MapBinaryHeap<>(comparingDouble(n -> estimatedDistances.get(n).doubleValue()));
 
       sourceMap.put(source, this);
 
       // initialize priority queue
-      estimatedDistances.put(source, new Double(0)); // distance from source to itself is 0
+      estimatedDistances.put(source, 0d); // distance from source to itself is 0
       unknownNodes.add(source);
-      reached_max = false;
-      dist_reached = 0;
+      reachedMax = false;
+      distanceReached = 0d;
     }
 
     protected Map.Entry<N, Number> getNextNode() {
       N v = unknownNodes.remove();
-      Double dist = (Double) estimatedDistances.remove(v);
+      Number dist = estimatedDistances.remove(v);
       distances.put(v, dist);
-      return new SimpleImmutableEntry<N, Number>(v, dist);
+      return new SimpleImmutableEntry<>(v, dist);
     }
 
-    protected void update(N dest, E tentative_edge, double new_dist) {
-      estimatedDistances.put(dest, new_dist);
+    protected void update(N dest, E tentativeEdge, double newDist) {
+      estimatedDistances.put(dest, newDist);
       unknownNodes.update(dest);
     }
 
-    protected void createRecord(N w, E e, double new_dist) {
-      estimatedDistances.put(w, new_dist);
+    protected void createRecord(N w, E e, double newDist) {
+      estimatedDistances.put(w, newDist);
       unknownNodes.add(w);
     }
 
