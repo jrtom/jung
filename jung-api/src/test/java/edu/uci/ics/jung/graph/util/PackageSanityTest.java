@@ -12,13 +12,17 @@ package edu.uci.ics.jung.graph.util;
 
 import com.google.common.testing.AbstractPackageSanityTests;
 
-public class PackageSanityTests extends AbstractPackageSanityTests {
-  public PackageSanityTests() {
+public class PackageSanityTest extends AbstractPackageSanityTests {
+  public PackageSanityTest() {
     super();
   }
 
   @Override
   public void testNulls() throws Exception {
     super.testNulls();
+  }
+
+  public void testEquals() throws Exception {
+    super.testEquals();
   }
 }
