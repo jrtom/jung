@@ -224,8 +224,8 @@ public class MapBinaryHeap<T> extends AbstractCollection<T> implements Queue<T> 
   }
 
   /**
-   * Comparator used if none is specified in the constructor. Used instead of
-   * {@link Comparator#naturalOrder()} or equivalent due to incompatible generics.
+   * Comparator used if none is specified in the constructor. Used instead of {@link
+   * Comparator#naturalOrder()} or equivalent due to incompatible generics.
    *
    * @author Joshua O'Madadhain
    */
