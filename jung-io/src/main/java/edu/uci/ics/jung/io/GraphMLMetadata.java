@@ -9,7 +9,6 @@
 package edu.uci.ics.jung.io;
 
 import edu.uci.ics.jung.io.graphml.AttributeType;
-
 import java.util.function.Function;
 
 /**

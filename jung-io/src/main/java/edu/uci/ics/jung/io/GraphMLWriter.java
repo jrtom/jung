@@ -14,8 +14,6 @@ package edu.uci.ics.jung.io;
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.io.graphml.AttributeType;
-
-import java.beans.XMLEncoder;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Writer;
@@ -215,9 +213,13 @@ public class GraphMLWriter<N, E> {
       String key, String type, GraphMLMetadata<?> ds, BufferedWriter bw) throws IOException {
     bw.write("<key id=\"" + key + "\" for=\"" + type + "\"");
 
-    if (null != ds.attributeName)
+    if (null != ds.attributeName) {
       bw.write(" attr.name=\"" + ds.attributeName.replace("\"", "&quot;") + "\"");
-    if (null != ds.attributeType) bw.write(" attr.type=\"" + ds.attributeType.getValue() + "\"");
+    }
+
+    if (null != ds.attributeType) {
+      bw.write(" attr.type=\"" + ds.attributeType.getValue() + "\"");
+    }
 
     boolean closed = false;
     // write out description if any
