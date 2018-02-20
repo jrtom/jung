@@ -13,6 +13,9 @@ package edu.uci.ics.jung.io;
 
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Network;
+import edu.uci.ics.jung.io.graphml.AttributeType;
+
+import java.beans.XMLEncoder;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Writer;
@@ -211,6 +214,11 @@ public class GraphMLWriter<N, E> {
   protected void writeKeySpecification(
       String key, String type, GraphMLMetadata<?> ds, BufferedWriter bw) throws IOException {
     bw.write("<key id=\"" + key + "\" for=\"" + type + "\"");
+
+    if (null != ds.attributeName)
+      bw.write(" attr.name=\"" + ds.attributeName.replace("\"", "&quot;") + "\"");
+    if (null != ds.attributeType) bw.write(" attr.type=\"" + ds.attributeType.getValue() + "\"");
+
     boolean closed = false;
     // write out description if any
     String desc = ds.description;
@@ -318,11 +326,24 @@ public class GraphMLWriter<N, E> {
    * @param node_transformer a mapping from nodes to their string representations
    */
   public void addNodeData(
-      String id, String description, String default_value, Function<N, String> node_transformer) {
+      String id,
+      String description,
+      String default_value,
+      Function<N, String> node_transformer,
+      String attributeName,
+      AttributeType attributeType) {
     if (node_data.equals(Collections.EMPTY_MAP)) {
       node_data = new HashMap<String, GraphMLMetadata<N>>();
     }
-    node_data.put(id, new GraphMLMetadata<N>(description, default_value, node_transformer));
+    node_data.put(
+        id,
+        new GraphMLMetadata<N>(
+            description, default_value, node_transformer, attributeName, attributeType));
+  }
+
+  public void addNodeData(
+      String id, String description, String default_value, Function<N, String> node_transformer) {
+    addNodeData(id, description, default_value, node_transformer, null, null);
   }
 
   /**
@@ -334,11 +355,24 @@ public class GraphMLWriter<N, E> {
    * @param edge_transformer a mapping from edges to their string representations
    */
   public void addEdgeData(
-      String id, String description, String default_value, Function<E, String> edge_transformer) {
+      String id,
+      String description,
+      String default_value,
+      Function<E, String> edge_transformer,
+      String attributeName,
+      AttributeType attributeType) {
     if (edge_data.equals(Collections.EMPTY_MAP)) {
       edge_data = new HashMap<String, GraphMLMetadata<E>>();
     }
-    edge_data.put(id, new GraphMLMetadata<E>(description, default_value, edge_transformer));
+    edge_data.put(
+        id,
+        new GraphMLMetadata<E>(
+            description, default_value, edge_transformer, attributeName, attributeType));
+  }
+
+  public void addEdgeData(
+      String id, String description, String default_value, Function<E, String> edge_transformer) {
+    addEdgeData(id, description, default_value, edge_transformer, null, null);
   }
 
   /**
