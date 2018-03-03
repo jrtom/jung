@@ -186,6 +186,15 @@
                       files consistent -->
           </java>
         </configuration>
+        <!-- Ensure that `spotless:check` auto-runs when `mvn verify` is executed -->
+        <executions>
+          <execution>
+            <phase>verify</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
