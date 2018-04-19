@@ -6,6 +6,7 @@ import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toMap;
 
 import com.google.common.collect.AbstractIterator;
+import com.google.common.collect.UnmodifiableIterator;
 import com.google.common.graph.AbstractNetwork;
 import com.google.common.graph.ElementOrder;
 import com.google.common.graph.EndpointPair;
@@ -15,7 +16,6 @@ import com.google.common.graph.Network;
 import java.util.AbstractSet;
 import java.util.ArrayDeque;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
@@ -28,6 +28,7 @@ import java.util.Set;
  * class objects provided to them are null.
  *
  * @author Tom Nelson
+ * @author Jonathan Bluett-Duncan
  */
 public class Graphs {
 
@@ -52,7 +53,7 @@ public class Graphs {
     }
 
     @Override
-    public Iterator<N> iterator() {
+    public UnmodifiableIterator<N> iterator() {
       return new TopologicalOrderIterator<>(graph);
     }
 
@@ -60,12 +61,17 @@ public class Graphs {
     public int size() {
       return graph.nodes().size();
     }
+
+    @Override
+    public boolean remove(Object o) {
+      throw new UnsupportedOperationException();
+    }
   }
 
   private static class TopologicalOrderIterator<N> extends AbstractIterator<N> {
     private final Graph<N> graph;
     private final Queue<N> roots;
-    private final Map<N, Integer> nonRootToInDegree;
+    private final Map<N, Integer> nonRootsToInDegree;
 
     private TopologicalOrderIterator(Graph<N> graph) {
       this.graph = checkNotNull(graph, "graph");
@@ -75,32 +81,31 @@ public class Graphs {
               .stream()
               .filter(node -> graph.inDegree(node) == 0)
               .collect(toCollection(ArrayDeque::new));
-      this.nonRootToInDegree =
+      this.nonRootsToInDegree =
           graph
               .nodes()
               .stream()
               .filter(node -> graph.inDegree(node) > 0)
-              .collect(toMap(node -> node, graph::inDegree, (a, b) -> b, HashMap::new));
+              .collect(toMap(node -> node, graph::inDegree, (a, b) -> a, HashMap::new));
     }
 
     @Override
     protected N computeNext() {
-      // based on Kahn's algorithm: https://en.wikipedia.org/wiki/Topological_sorting
+      // Kahn's algorithm
       if (!roots.isEmpty()) {
         N next = roots.remove();
         for (N successor : graph.successors(next)) {
-          int newInDegree = nonRootToInDegree.get(successor) - 1;
-          nonRootToInDegree.put(successor, newInDegree);
+          int newInDegree = nonRootsToInDegree.get(successor) - 1;
+          nonRootsToInDegree.put(successor, newInDegree);
           if (newInDegree == 0) {
-            nonRootToInDegree.remove(successor);
+            nonRootsToInDegree.remove(successor);
             roots.add(successor);
           }
         }
         return next;
-      } else {
-        checkState(nonRootToInDegree.isEmpty(), "graph has at least one cycle");
-        return endOfData();
       }
+      checkState(nonRootsToInDegree.isEmpty(), "graph has at least one cycle");
+      return endOfData();
     }
   }
 
