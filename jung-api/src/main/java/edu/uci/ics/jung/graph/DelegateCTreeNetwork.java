@@ -164,6 +164,21 @@ class DelegateCTreeNetwork<N, E> extends AbstractNetwork<N, E>
   }
 
   @Override
+  public Optional<E> edgeConnecting(N nodeU, N nodeV) {
+    return delegate.edgeConnecting(nodeU, nodeV);
+  }
+
+  @Override
+  public E edgeConnectingOrNull(N nodeU, N nodeV) {
+    return delegate.edgeConnectingOrNull(nodeU, nodeV);
+  }
+
+  @Override
+  public boolean hasEdgeConnecting(N nodeU, N nodeV) {
+    return delegate.hasEdgeConnecting(nodeU, nodeV);
+  }
+
+  @Override
   public Set<E> inEdges(N node) {
     checkNotNull(node, "node");
     checkArgument(delegate.nodes().contains(node), NODE_NOT_IN_TREE, node);

@@ -142,6 +142,16 @@ class DelegateCTree<N> extends AbstractGraph<N> implements MutableCTree<N> {
   }
 
   @Override
+  public Set<EndpointPair<N>> incidentEdges(N node) {
+    return delegate.incidentEdges(node);
+  }
+
+  @Override
+  public boolean hasEdgeConnecting(N nodeU, N nodeV) {
+    return false;
+  }
+
+  @Override
   public boolean addNode(N node) {
     checkNotNull(node, "node");
     if (root.isPresent()) {

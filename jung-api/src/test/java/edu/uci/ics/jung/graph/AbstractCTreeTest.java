@@ -110,15 +110,15 @@ public abstract class AbstractCTreeTest {
 
       for (N predecessor : sanityCheckSet(tree.predecessors(node))) {
         assertThat(tree.successors(predecessor)).contains(node);
-        // TODO: Uncomment line below when we target Guava 23.0+
-        // assertThat(tree.hasEdgeConnecting(predecessor, node)).isTrue();
+        assertThat(tree.hasEdgeConnecting(predecessor, node)).isTrue();
+        assertThat(tree.depth(predecessor)).isLessThan(tree.depth(node));
       }
 
       for (N successor : sanityCheckSet(tree.successors(node))) {
         allEndpointPairs.add(EndpointPair.ordered(node, successor));
         assertThat(tree.predecessors(successor)).contains(node);
-        // TODO: Uncomment line below when we target Guava 23.0+
-        // assertThat(tree.hasEdgeConnecting(node, successor)).isTrue();
+        assertThat(tree.hasEdgeConnecting(node, successor)).isTrue();
+        assertThat(tree.depth(successor)).isGreaterThan(tree.depth(node));
       }
     }
 
