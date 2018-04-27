@@ -1,5 +1,7 @@
 package edu.uci.ics.jung.graph;
 
+// TODO(jrtom): Consider making Guava's `common.graph.GraphConstants` public so that duplication
+// here can be reduced.
 final class GraphConstants {
   static final String NODE_NOT_IN_TREE = "Node %s is not an element of this tree.";
   static final String NODE_ROOT_OF_TREE =
