@@ -216,7 +216,9 @@ class DelegateCTree<N> extends AbstractGraph<N> implements MutableCTree<N> {
       delegate.removeNode(nodeToRemove);
       depths.remove(nodeToRemove);
     }
-    root.filter(value -> value.equals(node)).ifPresent(value -> setRoot(Optional.empty()));
+    if (root.isPresent() && root.get().equals(node)) {
+      setRoot(Optional.empty());
+    }
     // Reset the height, since we don't know how it was affected by removing the subtree.
     height = Optional.empty();
     return true;
