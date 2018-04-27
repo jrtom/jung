@@ -211,7 +211,6 @@ class DelegateCTree<N> extends AbstractGraph<N> implements MutableCTree<N> {
     if (!nodes().contains(node)) {
       return false;
     }
-    // TODO: Replace `Graphs.reachableNodes` with `Traverser.forTree.breadthFirst` for lazy eval?
     for (N nodeToRemove : Graphs.reachableNodes(delegate, node)) {
       delegate.removeNode(nodeToRemove);
       depths.remove(nodeToRemove);

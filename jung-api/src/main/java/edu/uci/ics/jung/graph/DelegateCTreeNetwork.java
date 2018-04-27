@@ -263,7 +263,6 @@ class DelegateCTreeNetwork<N, E> extends AbstractNetwork<N, E>
     if (!nodes().contains(node)) {
       return false;
     }
-    // TODO: Replace `Graphs.reachableNodes` with `Traverser.forTree.breadthFirst` for lazy eval?
     for (N nodeToRemove : Graphs.reachableNodes(delegate.asGraph(), node)) {
       delegate.removeNode(nodeToRemove);
       depths.remove(nodeToRemove);
