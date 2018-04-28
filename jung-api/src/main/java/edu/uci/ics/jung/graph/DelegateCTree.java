@@ -14,6 +14,11 @@ package edu.uci.ics.jung.graph;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static edu.uci.ics.jung.graph.GraphConstants.NODEU_NOT_IN_TREE;
+import static edu.uci.ics.jung.graph.GraphConstants.NODEV_IN_TREE;
+import static edu.uci.ics.jung.graph.GraphConstants.NODE_NOT_IN_TREE;
+import static edu.uci.ics.jung.graph.GraphConstants.NODE_ROOT_OF_TREE;
+import static edu.uci.ics.jung.graph.GraphConstants.SELF_LOOP_NOT_ALLOWED;
 
 import com.google.common.collect.Iterables;
 import com.google.common.graph.AbstractGraph;
@@ -234,18 +239,4 @@ class DelegateCTree<N> extends AbstractGraph<N> implements MutableCTree<N> {
     delegate.removeEdge(nodeU, nodeV);
     return removeNode(nodeV);
   }
-
-  // TODO: Externalise these constants into a separate class, so that both DelegateCTree and
-  // DelegateCTreeNetwork can access them.
-  private static final String TO_STRING_FORMAT =
-      "isDirected: %s, allowsSelfLoops: %s, nodes: %s, edges: %s";
-  private static final String NODE_NOT_IN_TREE = "Node %s is not an element of this tree.";
-  private static final String NODE_ROOT_OF_TREE =
-      "Cannot add node %s, as node %s is already the root of this tree.";
-  private static final String SELF_LOOP_NOT_ALLOWED =
-      "Cannot add self-loop edge on node %s, as self-loops are not allowed.";
-  private static final String NODEU_NOT_IN_TREE =
-      "Cannot add edge from nodeU %s to nodeV %s, as nodeU %s is not an element of this tree.";
-  private static final String NODEV_IN_TREE =
-      "Cannot add edge from nodeU %s to nodeV %s, as nodeV %s is an element of this tree.";
 }
