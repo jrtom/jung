@@ -114,9 +114,9 @@ public class MinimumSpanningTree<N, E> {
         tree.putEdgeValue(
             node,
             connectedNode,
-            graph.edgeValue(node, connectedNode)
-                .orElseThrow(
-                    () -> new IllegalStateException("this is a bug in JUNG")));
+            graph
+                .edgeValue(node, connectedNode)
+                .orElseThrow(() -> new IllegalStateException("this is a bug in JUNG")));
       }
       for (N adjacentNode : graph.adjacentNodes(node)) {
         if (!remainingNodes.contains(adjacentNode)) {
