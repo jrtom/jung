@@ -69,6 +69,7 @@ public class TreeCollapser {
     tree.addNode(root);
     // Connect each successively deeper node to its parent
     Iterable<N> insertionOrder =
+        // TODO: Migrate to Traverser when we use a version of Guava that has itg
         TreeTraverser.using(subTree::successors)
             .preOrderTraversal(root)
             .skip(1); // skip the root itself
