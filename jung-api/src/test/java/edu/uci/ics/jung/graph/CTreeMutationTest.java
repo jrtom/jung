@@ -152,6 +152,8 @@ public final class CTreeMutationTest {
       // We do it this way because CTrees cannot have more than one root at a any single time, so
       // adding edges randomly causes two or more independent roots to appear in the tree before
       // it's fully reconstructed.
+      //
+      // TODO: Consider just adding the edges in topological order.
       List<EndpointPair<Integer>> allEdgesRemoved =
           Lists.newArrayList(Iterables.concat(edgesRemoved1, edgesRemoved2, edgesRemoved3));
       Collections.shuffle(allEdgesRemoved, gen);
