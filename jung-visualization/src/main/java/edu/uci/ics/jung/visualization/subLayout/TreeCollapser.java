@@ -52,6 +52,10 @@ public class TreeCollapser {
             ? tree.inEdges(subTree).iterator().next() // THERE CAN BE ONLY ONE
             : null;
     tree.removeNode(subTree);
+    if (!subTree.root().isPresent()) {
+      // then the subTree is empty
+      return;
+    }
     if (parent.isPresent()) {
       TreeUtils.addSubTree(tree, subTree, parent.get(), parentEdge);
     } else {
@@ -60,21 +64,18 @@ public class TreeCollapser {
     }
   }
 
-  private static <N, E> void copyInto(MutableCTreeNetwork<N, E> to, CTreeNetwork<N, E> from) {
-    from.root()
-        .ifPresent(
-            root -> {
-              to.addNode(root);
-              // Connect each successively deeper node to its parent
-              Iterable<N> insertionOrder =
-                  TreeTraverser.using(from::successors)
-                      .preOrderTraversal(root)
-                      .skip(1); // skip the root itself
-              for (N current : insertionOrder) {
-                E inEdge = Iterables.getOnlyElement(from.inEdges(current));
-                EndpointPair<N> endpointPair = from.incidentNodes(inEdge);
-                to.addEdge(endpointPair.nodeU(), endpointPair.nodeV(), inEdge);
-              }
-            });
+  private static <N, E> void copyInto(MutableCTreeNetwork<N, E> tree, CTreeNetwork<N, E> subTree) {
+    N root = subTree.root().get(); // safe to use .get() as .root() is already known to be present
+    tree.addNode(root);
+    // Connect each successively deeper node to its parent
+    Iterable<N> insertionOrder =
+        TreeTraverser.using(subTree::successors)
+            .preOrderTraversal(root)
+            .skip(1); // skip the root itself
+    for (N current : insertionOrder) {
+      E inEdge = Iterables.getOnlyElement(subTree.inEdges(current));
+      EndpointPair<N> endpointPair = subTree.incidentNodes(inEdge);
+      tree.addEdge(endpointPair.nodeU(), endpointPair.nodeV(), inEdge);
+    }
   }
 }
