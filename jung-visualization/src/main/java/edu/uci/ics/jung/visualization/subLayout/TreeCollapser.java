@@ -28,6 +28,7 @@ public class TreeCollapser {
    */
   @SuppressWarnings({"unchecked", "rawtypes"})
   public static MutableCTreeNetwork collapse(MutableCTreeNetwork tree, Object subRoot) {
+    System.out.format("collapse: (1): tree: %s, subRoot: %s%n", tree, subRoot);
     // get the subtree rooted at subRoot
     MutableCTreeNetwork subTree = TreeUtils.getSubTree(tree, subRoot);
     Optional parent = tree.predecessor(subRoot);
@@ -41,29 +42,36 @@ public class TreeCollapser {
       tree.removeNode(subRoot);
       tree.addNode(subTree);
     }
+    System.out.format("collapse: (2): return: %s%n", subTree);
     return subTree;
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})
-  public static void expand(MutableCTreeNetwork tree, CTreeNetwork subTree) {
+  public static CTreeNetwork expand(MutableCTreeNetwork tree, CTreeNetwork subTree) {
+    System.out.format("expand: (1): tree: %s, subTree: %s%n", tree, subTree);
     Optional parent = tree.predecessor(subTree);
     Object parentEdge =
         parent.isPresent()
-            ? tree.inEdges(subTree).iterator().next() // THERE CAN BE ONLY ONE
+            ? Iterables.getOnlyElement(tree.inEdges(subTree)) // THERE CAN BE ONLY ONE
             : null;
     tree.removeNode(subTree);
     if (!subTree.root().isPresent()) {
-      // then the subTree is empty
-      return;
+      // then the subTree is empty, so just return the tree itself
+      System.out.format("expand: (2): return: %s%n", tree);
+      return tree;
     }
     if (parent.isPresent()) {
       TreeUtils.addSubTree(tree, subTree, parent.get(), parentEdge);
+      System.out.format("expand: (3): return: %s%n", tree);
+      return tree;
     } else {
-      // tree is empty, so just copy all of subTree into tree
-      copyInto(tree, subTree);
+      // then the tree is empty, so just return the subTree itself
+      System.out.format("expand: (2): return: %s%n", subTree);
+      return subTree;
     }
   }
 
+  // currently unused
   private static <N, E> void copyInto(MutableCTreeNetwork<N, E> tree, CTreeNetwork<N, E> subTree) {
     N root = subTree.root().get(); // safe to use .get() as .root() is already known to be present
     tree.addNode(root);

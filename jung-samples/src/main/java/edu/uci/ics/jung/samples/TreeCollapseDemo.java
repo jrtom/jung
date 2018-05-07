@@ -161,8 +161,10 @@ public class TreeCollapseDemo extends JPanel {
         e -> {
           for (Object v : vv.getPickedNodeState().getPicked()) {
             if (v instanceof CTreeNetwork) {
-              TreeCollapser.expand(graph, (CTreeNetwork) v);
-              vv.getModel().setNetwork(graph);
+              CTreeNetwork expandedTree = TreeCollapser.expand(graph, (CTreeNetwork) v);
+              LayoutModel<Object> objectLayoutModel = vv.getModel().getLayoutModel();
+              objectLayoutModel.set(expandedTree, objectLayoutModel.apply(v));
+              vv.getModel().setNetwork(graph, true);
             }
             vv.getPickedNodeState().clear();
             vv.repaint();
