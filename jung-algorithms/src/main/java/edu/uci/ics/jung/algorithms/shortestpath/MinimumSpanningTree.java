@@ -114,7 +114,9 @@ public class MinimumSpanningTree<N, E> {
         tree.putEdgeValue(
             node,
             connectedNode,
-            graph.edgeValue(node, connectedNode).orElseThrow(IllegalStateException::new));
+            graph.edgeValue(node, connectedNode)
+                .orElseThrow(
+                    () -> new IllegalStateException("this is a bug in JUNG")));
       }
       for (N adjacentNode : graph.adjacentNodes(node)) {
         if (!remainingNodes.contains(adjacentNode)) {
@@ -124,7 +126,7 @@ public class MinimumSpanningTree<N, E> {
         double connectingEdgeWeight =
             graph
                 .edgeValue(node, adjacentNode)
-                .orElseThrow(IllegalStateException::new)
+                .orElseThrow(() -> new IllegalStateException("this is a bug in JUNG"))
                 .doubleValue();
         if (connectingEdgeWeight < adjacentNodeData.cost) {
           adjacentNodeData.update(connectingEdgeWeight, node);
