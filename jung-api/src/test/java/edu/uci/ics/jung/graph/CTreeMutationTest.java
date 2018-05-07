@@ -19,9 +19,11 @@ import static java.util.stream.Collectors.toSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Streams;
 import com.google.common.collect.TreeTraverser;
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Graph;
+import com.google.common.graph.Traverser;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -231,12 +233,10 @@ public final class CTreeMutationTest {
 
   private static <N> List<EndpointPair<N>> descendantEdges(
       CTree<N> tree, EndpointPair<N> startingEdge) {
-    // TODO: Migrate to com.google.common.graph.Traverser when it is available.
-    TreeTraverser<EndpointPair<N>> traverser = TreeTraverser.using(edge -> outEdges(tree, edge));
-    return traverser
-        .breadthFirstTraversal(startingEdge)
+    Traverser<EndpointPair<N>> traverser = Traverser.forTree(edge -> outEdges(tree, edge));
+    return Streams.stream(traverser.breadthFirst(startingEdge))
         .skip(1) // skip the starting edge itself
-        .copyInto(new ArrayList<>());
+        .collect(toCollection(ArrayList::new));
   }
 
   private static <N> Set<EndpointPair<N>> outEdges(CTree<N> tree, EndpointPair<N> edge) {
