@@ -105,14 +105,11 @@ public class TreeUtils {
    *
    * @param <N> the node type
    * @param <E> the edge type
-   * @param tree the tree to which {@code subTree} is to be added; must contain no nodes if {@code
-   *     subTreeParent} is {@code null}
+   * @param tree the tree to which {@code subTree} is to be added
    * @param subTree the tree which is to be grafted on to {@code tree}
    * @param subTreeParent the parent of the root of {@code subTree} in its new position in {@code
-   *     tree}; can be {@code null} to represent "no parent" i.e. if {@code tree} contains no node;
-   *     must be {@code null} if {@code tree} contains no nodes
-   * @param connectingEdge the edge used to connect {@code subTreeParent} to {@code subtree}'s root;
-   *     must be {@code null} if {@code subTreeParent} is {@code null}
+   *     tree}
+   * @param connectingEdge the edge used to connect {@code subTreeParent} to {@code subtree}'s root
    */
   public static <N, E> void addSubTree(
       MutableCTreeNetwork<N, E> tree,
@@ -121,12 +118,9 @@ public class TreeUtils {
       E connectingEdge) {
     checkNotNull(tree, "tree");
     checkNotNull(subTree, "subTree");
-    checkArgument(
-        subTreeParent == null || tree.nodes().contains(subTreeParent),
-        "'tree' does not contain 'subTreeParent'");
-    if (subTreeParent != null) {
-      checkNotNull(connectingEdge, "connectingEdge");
-    }
+    checkNotNull(subTreeParent, "subTreeParent");
+    checkNotNull(connectingEdge, "connectingEdge");
+    checkArgument(tree.nodes().contains(subTreeParent), "'tree' does not contain 'subTreeParent'");
 
     if (!subTree.root().isPresent()) {
       // empty subtree; nothing to do
@@ -134,13 +128,7 @@ public class TreeUtils {
     }
 
     N subTreeRoot = subTree.root().get();
-    if (subTreeParent == null) {
-      checkArgument(
-          tree.nodes().isEmpty(),
-          "'tree' unexpectedly contains nodes, given that 'subTreeParent' is null");
-    } else {
-      tree.addEdge(subTreeParent, subTreeRoot, connectingEdge);
-    }
+    tree.addEdge(subTreeParent, subTreeRoot, connectingEdge);
     addFromSubTree(tree, subTree, subTreeRoot);
   }
 

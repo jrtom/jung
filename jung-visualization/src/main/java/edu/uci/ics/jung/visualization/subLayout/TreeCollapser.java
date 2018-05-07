@@ -9,6 +9,9 @@
  */
 package edu.uci.ics.jung.visualization.subLayout;
 
+import com.google.common.collect.Iterables;
+import com.google.common.collect.TreeTraverser;
+import com.google.common.graph.EndpointPair;
 import edu.uci.ics.jung.graph.CTreeNetwork;
 import edu.uci.ics.jung.graph.MutableCTreeNetwork;
 import edu.uci.ics.jung.graph.util.TreeUtils;
@@ -49,6 +52,29 @@ public class TreeCollapser {
             ? tree.inEdges(subTree).iterator().next() // THERE CAN BE ONLY ONE
             : null;
     tree.removeNode(subTree);
-    TreeUtils.addSubTree(tree, subTree, parent.orElse(null), parentEdge);
+    if (parent.isPresent()) {
+      TreeUtils.addSubTree(tree, subTree, parent.get(), parentEdge);
+    } else {
+      // tree is empty, so just copy all of subTree into tree
+      copyInto(tree, subTree);
+    }
+  }
+
+  private static <N, E> void copyInto(MutableCTreeNetwork<N, E> to, CTreeNetwork<N, E> from) {
+    from.root()
+        .ifPresent(
+            root -> {
+              to.addNode(root);
+              // Connect each successively deeper node to its parent
+              Iterable<N> insertionOrder =
+                  TreeTraverser.using(from::successors)
+                      .preOrderTraversal(root)
+                      .skip(1); // skip the root itself
+              for (N current : insertionOrder) {
+                E inEdge = Iterables.getOnlyElement(from.inEdges(current));
+                EndpointPair<N> endpointPair = from.incidentNodes(inEdge);
+                to.addEdge(endpointPair.nodeU(), endpointPair.nodeV(), inEdge);
+              }
+            });
   }
 }
