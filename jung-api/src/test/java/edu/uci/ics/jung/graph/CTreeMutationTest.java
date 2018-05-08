@@ -14,12 +14,10 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth8.assertThat;
 import static java.lang.Boolean.TRUE;
 import static java.util.stream.Collectors.toCollection;
-import static java.util.stream.Collectors.toSet;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Streams;
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Graph;
 import com.google.common.graph.Traverser;
@@ -29,7 +27,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 import org.junit.Test;
@@ -84,41 +81,39 @@ public final class CTreeMutationTest {
       assertThat(tree.edges()).hasSize(NUM_EDGES - numEdgesToRemove);
       AbstractCTreeTest.validateTree(tree);
 
-      // We take a random "leaf edge" from the tree. We then take a random edge that is connected to
-      // any of the predecessors of the leaf edge's source node - we call this edge the "predecessor
-      // edge".
-      // We then go on to assert that removing the predecessor edge succeeds, and that in the
-      // process of it being deleted, all the "descendant edges" of the predecessor edge were
-      // removed as well. (In this context, "descendant" has a very similar meaning to "reachable"
-      // in com.google.common.graph.Graphs#reachableNodes, except that we're talking in terms of
-      // edges instead of nodes, and the predecessor edge itself does not count as a descendant
-      // edge. Thus, the leaf edge counts as a descendant edge.)
+      // We take a random "leaf edge" from the tree. We then look at the predecessor of the leaf
+      // edge's source node, and call those pair of nodes the "predecessor edge".
+      //
+      // We then go on to assert that calling
+      // `tree.removeEdge(predecessorEdge.source(), precedessorEdge.target())` (i.e.,
+      // removing the predecessor edge's target node) succeeds.
+      //
+      // And in the process of the predecessor edge being deleted, we assert that the subtree rooted
+      // at the predecessor edge's target node (which includes the leaf edge) is also removed from
+      // the tree.
       Collections.shuffle(edgeList, gen);
       List<EndpointPair<Integer>> edgesRemoved2 = new ArrayList<>();
-      for (EndpointPair<Integer> potentialLeafEdge : edgeList) {
-        Optional<Integer> predecessorNode = tree.predecessor(potentialLeafEdge.source());
-        if (predecessorNode.isPresent()
-            && tree.root().equals(predecessorNode)
-            && isLeaf(tree, potentialLeafEdge.target())) {
+      for (EndpointPair<Integer> edge : edgeList) {
+        Optional<Integer> predecessorNode = tree.predecessor(edge.source());
+        if (predecessorNode.isPresent() && isLeaf(tree, edge.target())) {
 
-          EndpointPair<Integer> leafEdge = potentialLeafEdge;
+          EndpointPair<Integer> leafEdge = edge;
           EndpointPair<Integer> predecessorEdge =
               EndpointPair.ordered(predecessorNode.get(), leafEdge.source());
 
           assertThat(tree.edges()).contains(predecessorEdge); // sanity check
           assertThat(tree.edges()).contains(leafEdge); // sanity check
 
-          List<EndpointPair<Integer>> descendantEdges = descendantEdges(tree, predecessorEdge);
-          Collections.shuffle(descendantEdges, gen);
+          CTree<Integer> subTreeToBeRemoved = subTree(tree, leafEdge.source());
 
           assertThat(tree.removeEdge(predecessorEdge.source(), predecessorEdge.target())).isTrue();
-          assertThat(tree.edges().contains(leafEdge)).isFalse();
-          for (EndpointPair<Integer> descendantEdge : descendantEdges) {
-            assertThat(tree.edges().contains(descendantEdge)).isFalse();
-          }
-
           edgesRemoved2.add(predecessorEdge);
-          edgesRemoved2.addAll(descendantEdges); // the leaf edge is by definition a descendant edge
+          assertThat(tree.edges()).doesNotContain(leafEdge);
+          for (EndpointPair<Integer> removedEdge : subTreeToBeRemoved.edges()) {
+            assertThat(tree.edges()).doesNotContain(removedEdge);
+          }
+          edgesRemoved2.addAll(subTreeToBeRemoved.edges());
+          // the leaf edge is by definition in 'subTreeToBeRemoved', so no need to add it as well
 
           break;
         }
@@ -230,19 +225,16 @@ public final class CTreeMutationTest {
     return tree.successors(node).isEmpty();
   }
 
-  private static <N> List<EndpointPair<N>> descendantEdges(
-      CTree<N> tree, EndpointPair<N> startingEdge) {
-    Traverser<EndpointPair<N>> traverser = Traverser.forTree(edge -> outEdges(tree, edge));
-    return Streams.stream(traverser.breadthFirst(startingEdge))
-        .skip(1) // skip the starting edge itself
-        .collect(toCollection(ArrayList::new));
-  }
-
-  private static <N> Set<EndpointPair<N>> outEdges(CTree<N> tree, EndpointPair<N> edge) {
-    N origin = edge.target();
-    return tree.successors(origin)
-        .stream()
-        .map(successor -> EndpointPair.ordered(origin, successor))
-        .collect(toSet());
+  private static <N> CTree<N> subTree(CTree<N> tree, N subTreeRoot) {
+    MutableCTree<N> result = TreeBuilder.builder().build();
+    for (N node :
+        Iterables.skip(
+            Traverser.forTree(tree).breadthFirst(subTreeRoot),
+            // skip the subtree's root node, for it has no predecessor
+            1)) {
+      // connect every non-root node to its predecessor
+      result.putEdge(tree.predecessor(node).get(), node);
+    }
+    return result;
   }
 }
