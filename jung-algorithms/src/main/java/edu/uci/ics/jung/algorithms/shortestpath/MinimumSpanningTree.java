@@ -116,7 +116,10 @@ public class MinimumSpanningTree<N, E> {
             connectedNode,
             graph
                 .edgeValue(node, connectedNode)
-                .orElseThrow(() -> new IllegalStateException("this is a bug in JUNG")));
+                .orElseThrow(
+                    () ->
+                        new IllegalStateException(
+                            "unexpected exception caused by bug in graph data structures")));
       }
       for (N adjacentNode : graph.adjacentNodes(node)) {
         if (!remainingNodes.contains(adjacentNode)) {
@@ -126,7 +129,10 @@ public class MinimumSpanningTree<N, E> {
         double connectingEdgeWeight =
             graph
                 .edgeValue(node, adjacentNode)
-                .orElseThrow(() -> new IllegalStateException("this is a bug in JUNG"))
+                .orElseThrow(
+                    () ->
+                        new IllegalStateException(
+                            "unexpected exception caused by bug in graph data structures"))
                 .doubleValue();
         if (connectingEdgeWeight < adjacentNodeData.cost) {
           adjacentNodeData.update(connectingEdgeWeight, node);

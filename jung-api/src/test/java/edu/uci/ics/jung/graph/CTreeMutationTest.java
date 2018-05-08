@@ -230,8 +230,8 @@ public final class CTreeMutationTest {
     for (N node :
         Iterables.skip(
             Traverser.forTree(tree).breadthFirst(subTreeRoot),
-            // skip the subtree's root node, for it has no predecessor
-            1)) {
+            1)) { // skip the subtree's root node, for it has no predecessor
+
       // connect every non-root node to its predecessor
       result.putEdge(tree.predecessor(node).get(), node);
     }
