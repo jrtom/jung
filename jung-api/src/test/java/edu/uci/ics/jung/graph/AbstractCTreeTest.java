@@ -24,11 +24,14 @@ import static edu.uci.ics.jung.graph.TestUtil.assertTreeAlreadyHasRootErrorMessa
 import static edu.uci.ics.jung.graph.TestUtil.sanityCheckSet;
 import static org.junit.Assert.fail;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Graphs;
 import com.google.common.graph.ImmutableGraph;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import org.junit.After;
 import org.junit.Before;
@@ -306,6 +309,105 @@ public abstract class AbstractCTreeTest {
     assertThat(tree.outDegree(N1)).isEqualTo(1);
     // Edge direction handled correctly
     assertThat(tree.outDegree(N2)).isEqualTo(0);
+  }
+
+  @Test
+  public void edges_oneEdge() {
+    putEdge(N1, N2);
+    assertThat(tree.edges()).containsExactly(EndpointPair.ordered(N1, N2));
+  }
+
+  @Test
+  public void edges_noEdges() {
+    assertThat(tree.edges()).isEmpty();
+  }
+
+  @Test
+  public void incidentEdges_oneOutgoingEdge() {
+    putEdge(N1, N2);
+    assertThat(tree.incidentEdges(N1)).containsExactly(EndpointPair.ordered(N1, N2));
+  }
+
+  @Test
+  public void incidentEdges_oneIncomingEdge() {
+    putEdge(N1, N2);
+    assertThat(tree.incidentEdges(N2)).containsExactly(EndpointPair.ordered(N1, N2));
+  }
+
+  @Test
+  public void incidentEdges_noEdges() {
+    try {
+      tree.incidentEdges(NODE_NOT_IN_TREE);
+      fail(FAIL_ERROR_ELEMENT_NOT_IN_TREE);
+    } catch (IllegalArgumentException e) {
+      assertNodeNotInTreeErrorMessage(e);
+    }
+  }
+
+  @Test
+  public void incidentEdges_outgoingAndIncomingEdges() {
+    putEdge(N1, N2);
+    putEdge(N2, N3);
+    putEdge(N2, N4);
+    putEdge(N3, N5);
+    assertThat(tree.incidentEdges(N1)).containsExactly(EndpointPair.ordered(N1, N2));
+    assertThat(tree.incidentEdges(N2))
+        .containsExactly(
+            EndpointPair.ordered(N1, N2),
+            EndpointPair.ordered(N2, N3),
+            EndpointPair.ordered(N2, N4));
+    assertThat(tree.incidentEdges(N3))
+        .containsExactly(EndpointPair.ordered(N2, N3), EndpointPair.ordered(N3, N5));
+    assertThat(tree.incidentEdges(N4)).containsExactly(EndpointPair.ordered(N2, N4));
+    assertThat(tree.incidentEdges(N5)).containsExactly(EndpointPair.ordered(N3, N5));
+  }
+
+  @Test
+  public void hasEdgeConnecting_oneEdge() {
+    putEdge(N1, N2);
+    assertThat(tree.hasEdgeConnecting(N1, N2)).isTrue();
+    // Edge direction handled correctly
+    assertThat(tree.hasEdgeConnecting(N2, N1)).isFalse();
+  }
+
+  @Test
+  public void hasEdgeConnecting_noEdges() {
+    ImmutableSet<Integer> allPossibleNodes = ImmutableSet.of(N1, N2, N3, N4, N5, N6);
+    Set<List<Integer>> allPairs =
+        Sets.cartesianProduct(ImmutableList.of(allPossibleNodes, allPossibleNodes));
+    for (List<Integer> pair : allPairs) {
+      try {
+        tree.hasEdgeConnecting(pair.get(0), pair.get(1));
+      } catch (IllegalArgumentException e) {
+        assertNodeNotInTreeErrorMessage(e);
+      }
+    }
+  }
+
+  @Test
+  public void hasEdgeConnecting_multipleEdges() {
+    putEdge(N1, N2);
+    putEdge(N2, N3);
+    putEdge(N3, N4);
+    putEdge(N3, N5);
+
+    assertThat(tree.hasEdgeConnecting(N1, N2)).isTrue();
+    // Edge direction handled correctly
+    assertThat(tree.hasEdgeConnecting(N2, N1)).isFalse();
+
+    assertThat(tree.hasEdgeConnecting(N2, N3)).isTrue();
+    // Edge direction handled correctly
+    assertThat(tree.hasEdgeConnecting(N3, N2)).isFalse();
+
+    assertThat(tree.hasEdgeConnecting(N3, N4)).isTrue();
+    // Edge direction handled correctly
+    assertThat(tree.hasEdgeConnecting(N4, N3)).isFalse();
+    assertThat(tree.hasEdgeConnecting(N3, N5)).isTrue();
+    // Edge direction handled correctly
+    assertThat(tree.hasEdgeConnecting(N5, N3)).isFalse();
+
+    // Sanity check
+    assertThat(tree.hasEdgeConnecting(N5, N1)).isFalse();
   }
 
   @Test
