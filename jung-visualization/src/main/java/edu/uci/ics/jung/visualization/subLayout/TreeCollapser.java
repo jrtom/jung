@@ -10,8 +10,8 @@
 package edu.uci.ics.jung.visualization.subLayout;
 
 import com.google.common.collect.Iterables;
-import com.google.common.collect.TreeTraverser;
 import com.google.common.graph.EndpointPair;
+import com.google.common.graph.Traverser;
 import edu.uci.ics.jung.graph.CTreeNetwork;
 import edu.uci.ics.jung.graph.MutableCTreeNetwork;
 import edu.uci.ics.jung.graph.util.TreeUtils;
@@ -77,10 +77,9 @@ public class TreeCollapser {
     tree.addNode(root);
     // Connect each successively deeper node to its parent
     Iterable<N> insertionOrder =
-        // TODO: Migrate to Traverser when we use a version of Guava that has itg
-        TreeTraverser.using(subTree::successors)
-            .preOrderTraversal(root)
-            .skip(1); // skip the root itself
+        Iterables.skip(
+            Traverser.forTree(subTree).depthFirstPreOrder(root),
+            1); // skip the root itself
     for (N current : insertionOrder) {
       E inEdge = Iterables.getOnlyElement(subTree.inEdges(current));
       EndpointPair<N> endpointPair = subTree.incidentNodes(inEdge);
