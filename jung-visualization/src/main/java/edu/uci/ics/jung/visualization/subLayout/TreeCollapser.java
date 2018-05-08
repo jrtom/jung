@@ -78,8 +78,7 @@ public class TreeCollapser {
     // Connect each successively deeper node to its parent
     Iterable<N> insertionOrder =
         Iterables.skip(
-            Traverser.forTree(subTree).depthFirstPreOrder(root),
-            1); // skip the root itself
+            Traverser.forTree(subTree).depthFirstPreOrder(root), 1); // skip the root itself
     for (N current : insertionOrder) {
       E inEdge = Iterables.getOnlyElement(subTree.inEdges(current));
       EndpointPair<N> endpointPair = subTree.incidentNodes(inEdge);
