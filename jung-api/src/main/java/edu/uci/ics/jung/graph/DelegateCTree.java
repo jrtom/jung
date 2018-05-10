@@ -14,6 +14,11 @@ package edu.uci.ics.jung.graph;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static edu.uci.ics.jung.graph.GraphConstants.NODEU_NOT_IN_TREE;
+import static edu.uci.ics.jung.graph.GraphConstants.NODEV_IN_TREE;
+import static edu.uci.ics.jung.graph.GraphConstants.NODE_NOT_IN_TREE;
+import static edu.uci.ics.jung.graph.GraphConstants.NODE_ROOT_OF_TREE;
+import static edu.uci.ics.jung.graph.GraphConstants.SELF_LOOP_NOT_ALLOWED;
 
 import com.google.common.collect.Iterables;
 import com.google.common.graph.AbstractGraph;
@@ -142,6 +147,22 @@ class DelegateCTree<N> extends AbstractGraph<N> implements MutableCTree<N> {
   }
 
   @Override
+  public Set<EndpointPair<N>> incidentEdges(N node) {
+    checkNotNull(node, "node");
+    checkArgument(delegate.nodes().contains(node), NODE_NOT_IN_TREE, node);
+    return delegate.incidentEdges(node);
+  }
+
+  @Override
+  public boolean hasEdgeConnecting(N nodeU, N nodeV) {
+    checkNotNull(nodeU, "nodeU");
+    checkNotNull(nodeV, "nodeV");
+    checkArgument(delegate.nodes().contains(nodeU), NODE_NOT_IN_TREE, nodeU);
+    checkArgument(delegate.nodes().contains(nodeV), NODE_NOT_IN_TREE, nodeV);
+    return delegate.hasEdgeConnecting(nodeU, nodeV);
+  }
+
+  @Override
   public boolean addNode(N node) {
     checkNotNull(node, "node");
     if (root.isPresent()) {
@@ -178,7 +199,7 @@ class DelegateCTree<N> extends AbstractGraph<N> implements MutableCTree<N> {
       height = Optional.of(0);
     } else {
       depths.putIfAbsent(parent, 0);
-      int nodeDepth = Math.max(depths.get(parent) + 1, height.orElseThrow(AssertionError::new));
+      int nodeDepth = Math.max(depths.get(parent) + 1, height.orElse(0));
       depths.put(node, nodeDepth);
       height = Optional.of(nodeDepth);
     }
@@ -234,18 +255,4 @@ class DelegateCTree<N> extends AbstractGraph<N> implements MutableCTree<N> {
     delegate.removeEdge(nodeU, nodeV);
     return removeNode(nodeV);
   }
-
-  // TODO: Externalise these constants into a separate class, so that both DelegateCTree and
-  // DelegateCTreeNetwork can access them.
-  private static final String TO_STRING_FORMAT =
-      "isDirected: %s, allowsSelfLoops: %s, nodes: %s, edges: %s";
-  private static final String NODE_NOT_IN_TREE = "Node %s is not an element of this tree.";
-  private static final String NODE_ROOT_OF_TREE =
-      "Cannot add node %s, as node %s is already the root of this tree.";
-  private static final String SELF_LOOP_NOT_ALLOWED =
-      "Cannot add self-loop edge on node %s, as self-loops are not allowed.";
-  private static final String NODEU_NOT_IN_TREE =
-      "Cannot add edge from nodeU %s to nodeV %s, as nodeU %s is not an element of this tree.";
-  private static final String NODEV_IN_TREE =
-      "Cannot add edge from nodeU %s to nodeV %s, as nodeV %s is an element of this tree.";
 }
