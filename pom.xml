@@ -78,7 +78,7 @@
     <jxr.plugin.version>2.5</jxr.plugin.version>
     <pmd.plugin.version>3.8</pmd.plugin.version>
     <release.plugin.version>2.5.3</release.plugin.version>
-    <spotless.version>1.0.0.BETA4</spotless.version>
+    <spotless.version>1.0.0.BETA5</spotless.version>
     <surefire.plugin.version>2.19.1</surefire.plugin.version>
     <source.plugin.version>3.0.1</source.plugin.version>    
   </properties>
