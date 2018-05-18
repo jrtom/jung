@@ -388,7 +388,8 @@ public class PajekNetReader<G extends MutableNetwork<N, E>, N, E> {
     E e = edge_factory.get();
 
     // don't error-check this: let the graph implementation do whatever it's going to do
-    // (add the edge, replace the existing edge, throw an exception--depends on the graph implementation)
+    // (add the edge, replace the existing edge, throw an exception--depends on the graph
+    // implementation)
     g.addEdge(v1, v2, e);
     return e;
   }

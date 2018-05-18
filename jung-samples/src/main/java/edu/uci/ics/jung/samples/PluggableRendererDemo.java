@@ -405,9 +405,9 @@ public class PluggableRendererDemo extends JPanel implements ActionListener {
     ButtonGroup bg_grad = new ButtonGroup();
     bg_grad.add(no_gradient);
     bg_grad.add(gradient_relative);
-    //bg_grad.add(gradient_absolute);
+    // bg_grad.add(gradient_absolute);
     gradient_panel.add(no_gradient);
-    //gradientGrid.add(gradient_absolute);
+    // gradientGrid.add(gradient_absolute);
     gradient_panel.add(gradient_relative);
 
     JPanel shape_panel = new JPanel(new GridLayout(3, 2));
@@ -888,7 +888,7 @@ public class PluggableRendererDemo extends JPanel implements ActionListener {
       final LayoutModel<Integer> layoutModel = vv.getModel().getLayoutModel();
       Point2D p =
           e
-              .getPoint(); //vv.getRenderContext().getBasicTransformer().inverseViewTransform(e.getPoint());
+              .getPoint(); // vv.getRenderContext().getBasicTransformer().inverseViewTransform(e.getPoint());
 
       NetworkElementAccessor<Integer, Number> pickSupport = vv.getPickSupport();
       if (pickSupport != null) {
@@ -901,8 +901,10 @@ public class PluggableRendererDemo extends JPanel implements ActionListener {
                   Double value = Math.min(1, transparency.get(v).doubleValue() + 0.1);
                   transparency.put(v, value);
                   //                        	transparency.put(v, )transparency.get(v);
-                  //                            MutableDouble value = (MutableDouble)transparency.getNumber(v);
-                  //                            value.setDoubleValue(Math.min(1, value.doubleValue() + 0.1));
+                  //                            MutableDouble value =
+                  // (MutableDouble)transparency.getNumber(v);
+                  //                            value.setDoubleValue(Math.min(1, value.doubleValue()
+                  // + 0.1));
                   vv.repaint();
                 }
               });
@@ -911,8 +913,10 @@ public class PluggableRendererDemo extends JPanel implements ActionListener {
                 public void actionPerformed(ActionEvent e) {
                   Double value = Math.max(0, transparency.get(v).doubleValue() - 0.1);
                   transparency.put(v, value);
-                  //                            MutableDouble value = (MutableDouble)transparency.getNumber(v);
-                  //                            value.setDoubleValue(Math.max(0, value.doubleValue() - 0.1));
+                  //                            MutableDouble value =
+                  // (MutableDouble)transparency.getNumber(v);
+                  //                            value.setDoubleValue(Math.max(0, value.doubleValue()
+                  // - 0.1));
                   vv.repaint();
                 }
               });

@@ -152,7 +152,8 @@ public class DijkstraShortestPath<N, E> extends DijkstraDistance<N, E>
     Preconditions.checkArgument(
         g.nodes().contains(source), "Specified source node %s  is not part of graph %s", source, g);
 
-    // TODO: Consider replacing this with an `ArrayList` (http://errorprone.info/bugpattern/JdkObsolete)
+    // TODO: Consider replacing this with an `ArrayList`
+    // (http://errorprone.info/bugpattern/JdkObsolete)
     LinkedList<E> path = new LinkedList<E>();
 
     // collect path data; must use internal method rather than
