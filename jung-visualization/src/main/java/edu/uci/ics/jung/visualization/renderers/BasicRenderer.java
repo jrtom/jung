@@ -84,7 +84,7 @@ public class BasicRenderer<N, E> implements Renderer<N, E> {
 
       for (N v : visibleNodes) {
         renderNode(renderContext, visualizationModel, v);
-        if (v instanceof String) renderNodeLabel(renderContext, visualizationModel, v);
+        renderNodeLabel(renderContext, visualizationModel, v);
       }
     } catch (ConcurrentModificationException cme) {
       renderContext.getScreenDevice().repaint();

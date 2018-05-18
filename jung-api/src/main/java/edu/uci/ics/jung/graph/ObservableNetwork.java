@@ -12,6 +12,7 @@ import edu.uci.ics.jung.graph.event.NetworkEvent;
 import edu.uci.ics.jung.graph.event.NetworkEventListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -156,6 +157,21 @@ public class ObservableNetwork<N, E> implements MutableNetwork<N, E> {
   @Override
   public Set<E> edgesConnecting(N nodeU, N nodeV) {
     return delegate.edgesConnecting(nodeU, nodeV);
+  }
+
+  @Override
+  public Optional<E> edgeConnecting(N nodeU, N nodeV) {
+    return delegate.edgeConnecting(nodeU, nodeV);
+  }
+
+  @Override
+  public E edgeConnectingOrNull(N nodeU, N nodeV) {
+    return delegate.edgeConnectingOrNull(nodeU, nodeV);
+  }
+
+  @Override
+  public boolean hasEdgeConnecting(N nodeU, N nodeV) {
+    return delegate.hasEdgeConnecting(nodeU, nodeV);
   }
 
   @Override
