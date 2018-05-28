@@ -35,10 +35,10 @@ import java.util.Queue;
  * @author Joshua O'Madadhain
  */
 public class MapBinaryHeap<T> extends AbstractCollection<T> implements Queue<T> {
-  private List<T> heap = new ArrayList<T>(); // holds the heap as an implicit binary tree
-  private Map<T, Integer> object_indices =
-      new HashMap<T, Integer>(); // maps each object in the heap to its index in the heap
-  private Comparator<T> comp;
+  private List<T> heap = new ArrayList<>(); // holds the heap as an implicit binary tree
+  private Map<T, Integer> objectIndices =
+      new HashMap<>(); // maps each object in the heap to its index in the heap
+  private Comparator<? super T> comp;
   private static final int TOP = 0; // the index of the top of the heap
 
   /**
@@ -90,7 +90,7 @@ public class MapBinaryHeap<T> extends AbstractCollection<T> implements Queue<T> 
   /** @see Collection#clear() */
   @Override
   public void clear() {
-    object_indices.clear();
+    objectIndices.clear();
     heap.clear();
   }
 
@@ -121,7 +121,7 @@ public class MapBinaryHeap<T> extends AbstractCollection<T> implements Queue<T> 
     }
   }
 
-  /** @return the size of this heap */
+  /** Returns the size of the heap. */
   @Override
   public int size() {
     return heap.size();
@@ -138,14 +138,14 @@ public class MapBinaryHeap<T> extends AbstractCollection<T> implements Queue<T> 
     // decreased, we just percolate up followed by percolating down;
     // one of the two will have no effect.
 
-    int cur = object_indices.get(o); // current index
-    int new_idx = percolateUp(cur, o);
-    percolateDown(new_idx);
+    int cur = objectIndices.get(o); // current index
+    int newIdx = percolateUp(cur, o);
+    percolateDown(newIdx);
   }
 
   @Override
   public boolean contains(Object o) {
-    return object_indices.containsKey(o);
+    return objectIndices.containsKey(o);
   }
 
   /**
@@ -183,66 +183,49 @@ public class MapBinaryHeap<T> extends AbstractCollection<T> implements Queue<T> 
     while ((i > TOP) && (comp.compare(heap.get(parent(i)), o) > 0)) {
       T parentElt = heap.get(parent(i));
       heap.set(i, parentElt);
-      object_indices.put(parentElt, i); // reset index to i (new location)
+      objectIndices.put(parentElt, i); // reset index to i (new location)
       i = parent(i);
     }
 
     // place object in heap at appropriate place
-    object_indices.put(o, i);
+    objectIndices.put(o, i);
     heap.set(i, o);
 
     return i;
   }
 
-  /**
-   * Returns the index of the left child of the element at index <code>i</code> of the heap.
-   *
-   * @param i
-   * @return the index of the left child of the element at index <code>i</code> of the heap
-   */
+  /** Returns the index of the left child of the element at index <code>i</code> of the heap. */
   private int lChild(int i) {
     return (i << 1) + 1;
   }
 
-  /**
-   * Returns the index of the right child of the element at index <code>i</code> of the heap.
-   *
-   * @param i
-   * @return the index of the right child of the element at index <code>i</code> of the heap
-   */
+  /** Returns the index of the right child of the element at index <code>i</code> of the heap. */
   private int rChild(int i) {
     return (i << 1) + 2;
   }
 
-  /**
-   * Returns the index of the parent of the element at index <code>i</code> of the heap.
-   *
-   * @param i
-   * @return the index of the parent of the element at index i of the heap
-   */
+  /** Returns the index of the parent of the element at index <code>i</code> of the heap. */
   private int parent(int i) {
     return (i - 1) >> 1;
   }
 
   /**
    * Swaps the positions of the elements at indices <code>i</code> and <code>j</code> of the heap.
-   *
-   * @param i
-   * @param j
    */
   private void swap(int i, int j) {
     T iElt = heap.get(i);
     T jElt = heap.get(j);
 
     heap.set(i, jElt);
-    object_indices.put(jElt, i);
+    objectIndices.put(jElt, i);
 
     heap.set(j, iElt);
-    object_indices.put(iElt, j);
+    objectIndices.put(iElt, j);
   }
 
   /**
-   * Comparator used if none is specified in the constructor.
+   * Comparator used if none is specified in the constructor. Used instead of {@link
+   * Comparator#naturalOrder()} or equivalent due to incompatible generics.
    *
    * @author Joshua O'Madadhain
    */
@@ -257,28 +240,41 @@ public class MapBinaryHeap<T> extends AbstractCollection<T> implements Queue<T> 
   /** Returns an <code>Iterator</code> that does not support modification of the heap. */
   @Override
   public Iterator<T> iterator() {
-    return Iterators.<T>unmodifiableIterator(heap.iterator());
+    return Iterators.unmodifiableIterator(heap.iterator());
   }
 
-  /** This data structure does not support the removal of arbitrary elements. */
+  /**
+   * This data structure does not support the removal of arbitrary elements.
+   *
+   * @throws UnsupportedOperationException this operation is not supported
+   */
   @Override
   public boolean remove(Object o) {
     throw new UnsupportedOperationException();
   }
 
-  /** This data structure does not support the removal of arbitrary elements. */
+  /**
+   * This data structure does not support the removal of arbitrary elements.
+   *
+   * @throws UnsupportedOperationException this operation is not supported
+   */
   @Override
   public boolean removeAll(Collection<?> c) {
     throw new UnsupportedOperationException();
   }
 
-  /** This data structure does not support the removal of arbitrary elements. */
+  /**
+   * This data structure does not support the removal of arbitrary elements.
+   *
+   * @throws UnsupportedOperationException this operation is not supported
+   */
   @Override
   public boolean retainAll(Collection<?> c) {
     throw new UnsupportedOperationException();
   }
 
-  public T element() throws NoSuchElementException {
+  @Override
+  public T element() {
     T top = this.peek();
     if (top == null) {
       throw new NoSuchElementException();
@@ -290,24 +286,26 @@ public class MapBinaryHeap<T> extends AbstractCollection<T> implements Queue<T> 
     return add(o);
   }
 
+  @Override
   public T poll() {
     T top = this.peek();
     if (top != null) {
       int lastIndex = heap.size() - 1;
       T bottom_elt = heap.get(lastIndex);
       heap.set(TOP, bottom_elt);
-      object_indices.put(bottom_elt, TOP);
+      objectIndices.put(bottom_elt, TOP);
 
       heap.remove(lastIndex); // remove the last element
       if (heap.size() > 1) {
         percolateDown(TOP);
       }
 
-      object_indices.remove(top);
+      objectIndices.remove(top);
     }
     return top;
   }
 
+  @Override
   public T remove() {
     T top = this.poll();
     if (top == null) {
