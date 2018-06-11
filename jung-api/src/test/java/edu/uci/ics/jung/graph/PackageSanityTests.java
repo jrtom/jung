@@ -34,6 +34,7 @@ public class PackageSanityTests extends AbstractPackageSanityTests {
     ignoreClasses(clazz -> Objects.equals(clazz, TestUtil.class));
   }
 
+  @Override
   public void testNulls() throws Exception {
     try {
       super.testNulls();
@@ -44,6 +45,7 @@ public class PackageSanityTests extends AbstractPackageSanityTests {
     }
   }
 
+  @Override
   public void testEquals() throws Exception {
     super.testEquals();
   }
