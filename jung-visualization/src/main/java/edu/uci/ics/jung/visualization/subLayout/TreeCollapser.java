@@ -64,19 +64,4 @@ public class TreeCollapser {
       return subTree;
     }
   }
-
-  // currently unused
-  private static <N, E> void copyInto(MutableCTreeNetwork<N, E> tree, CTreeNetwork<N, E> subTree) {
-    N root = subTree.root().get(); // safe to use .get() as .root() is already known to be present
-    tree.addNode(root);
-    // Connect each successively deeper node to its parent
-    Iterable<N> insertionOrder =
-        Iterables.skip(
-            Traverser.forTree(subTree).depthFirstPreOrder(root), 1); // skip the root itself
-    for (N current : insertionOrder) {
-      E inEdge = Iterables.getOnlyElement(subTree.inEdges(current));
-      EndpointPair<N> endpointPair = subTree.incidentNodes(inEdge);
-      tree.addEdge(endpointPair.nodeU(), endpointPair.nodeV(), inEdge);
-    }
-  }
 }
