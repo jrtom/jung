@@ -28,13 +28,12 @@ public class TreeCollapser {
    */
   @SuppressWarnings({"unchecked", "rawtypes"})
   public static MutableCTreeNetwork collapse(MutableCTreeNetwork tree, Object subRoot) {
-    System.out.format("collapse: (1): tree: %s, subRoot: %s%n", tree, subRoot);
     // get the subtree rooted at subRoot
     MutableCTreeNetwork subTree = TreeUtils.getSubTree(tree, subRoot);
     Optional parent = tree.predecessor(subRoot);
     if (parent.isPresent()) {
       // subRoot has a parent, so attach its parent to subTree in its place
-      Object parentEdge = tree.inEdges(subRoot).iterator().next(); // THERE CAN BE ONLY ONE
+      Object parentEdge = Iterables.getOnlyElement(tree.inEdges(subRoot)); // THERE CAN BE ONLY ONE
       tree.removeNode(subRoot);
       tree.addEdge(parent.get(), subTree, parentEdge);
     } else {
@@ -42,13 +41,11 @@ public class TreeCollapser {
       tree.removeNode(subRoot);
       tree.addNode(subTree);
     }
-    System.out.format("collapse: (2): return: %s%n", subTree);
     return subTree;
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})
-  public static CTreeNetwork expand(MutableCTreeNetwork tree, CTreeNetwork subTree) {
-    System.out.format("expand: (1): tree: %s, subTree: %s%n", tree, subTree);
+  public static MutableCTreeNetwork expand(MutableCTreeNetwork tree, MutableCTreeNetwork subTree) {
     Optional parent = tree.predecessor(subTree);
     Object parentEdge =
         parent.isPresent()
@@ -57,16 +54,13 @@ public class TreeCollapser {
     tree.removeNode(subTree);
     if (!subTree.root().isPresent()) {
       // then the subTree is empty, so just return the tree itself
-      System.out.format("expand: (2): return: %s%n", tree);
       return tree;
     }
     if (parent.isPresent()) {
       TreeUtils.addSubTree(tree, subTree, parent.get(), parentEdge);
-      System.out.format("expand: (3): return: %s%n", tree);
       return tree;
     } else {
       // then the tree is empty, so just return the subTree itself
-      System.out.format("expand: (2): return: %s%n", subTree);
       return subTree;
     }
   }
