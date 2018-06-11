@@ -18,7 +18,7 @@ import com.google.common.testing.AbstractPackageSanityTests;
 import java.util.Objects;
 import java.util.Optional;
 
-public class PackageSanityTest extends AbstractPackageSanityTests {
+public class PackageSanityTests extends AbstractPackageSanityTests {
 
   private static final TreeBuilder<?> TREE_BUILDER_A = TreeBuilder.builder().expectedNodeCount(10);
   private static final TreeBuilder<?> TREE_BUILDER_B =
@@ -27,7 +27,7 @@ public class PackageSanityTest extends AbstractPackageSanityTests {
   private static final CTree TREE_A = TreeBuilder.builder().withRoot("A").build();
   private static final CTree TREE_B = TreeBuilder.builder().withRoot("B").build();
 
-  public PackageSanityTest() {
+  public PackageSanityTests() {
     setDistinctValues(TreeBuilder.class, TREE_BUILDER_A, TREE_BUILDER_B);
     setDistinctValues(CTree.class, TREE_A, TREE_B);
     setDefault(Optional.class, Optional.empty());

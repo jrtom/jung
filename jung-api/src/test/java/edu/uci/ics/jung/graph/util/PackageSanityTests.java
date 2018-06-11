@@ -12,8 +12,8 @@ package edu.uci.ics.jung.graph.util;
 
 import com.google.common.testing.AbstractPackageSanityTests;
 
-public class PackageSanityTest extends AbstractPackageSanityTests {
-  public PackageSanityTest() {
+public class PackageSanityTests extends AbstractPackageSanityTests {
+  public PackageSanityTests() {
     super();
   }
 
@@ -22,6 +22,7 @@ public class PackageSanityTest extends AbstractPackageSanityTests {
     super.testNulls();
   }
 
+  @Override
   public void testEquals() throws Exception {
     super.testEquals();
   }
