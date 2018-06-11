@@ -21,4 +21,9 @@ public class PackageSanityTests extends AbstractPackageSanityTests {
   public void testNulls() throws Exception {
     super.testNulls();
   }
+
+  @Override
+  public void testEquals() throws Exception {
+    super.testEquals();
+  }
 }

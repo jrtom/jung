@@ -15,8 +15,8 @@ import static edu.uci.ics.jung.graph.TestUtil.ERROR_ELEMENT_NOT_IN_TREE;
 
 import com.google.common.graph.ElementOrder;
 import com.google.common.testing.AbstractPackageSanityTests;
+import java.util.Objects;
 import java.util.Optional;
-import junit.framework.AssertionFailedError;
 
 public class PackageSanityTests extends AbstractPackageSanityTests {
 
@@ -31,16 +31,20 @@ public class PackageSanityTests extends AbstractPackageSanityTests {
     setDistinctValues(TreeBuilder.class, TREE_BUILDER_A, TREE_BUILDER_B);
     setDistinctValues(CTree.class, TREE_A, TREE_B);
     setDefault(Optional.class, Optional.empty());
+    ignoreClasses(clazz -> Objects.equals(clazz, TestUtil.class));
   }
 
-  @Override
   public void testNulls() throws Exception {
     try {
       super.testNulls();
-    } catch (AssertionFailedError e) {
+    } catch (AssertionError e) {
       assertWithMessage("Method did not throw null pointer OR element not in tree exception.")
           .that(e.getCause().getMessage())
           .contains(ERROR_ELEMENT_NOT_IN_TREE);
     }
+  }
+
+  public void testEquals() throws Exception {
+    super.testEquals();
   }
 }
