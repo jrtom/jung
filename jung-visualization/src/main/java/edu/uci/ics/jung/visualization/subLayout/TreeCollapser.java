@@ -10,9 +10,6 @@
 package edu.uci.ics.jung.visualization.subLayout;
 
 import com.google.common.collect.Iterables;
-import com.google.common.graph.EndpointPair;
-import com.google.common.graph.Traverser;
-import edu.uci.ics.jung.graph.CTreeNetwork;
 import edu.uci.ics.jung.graph.MutableCTreeNetwork;
 import edu.uci.ics.jung.graph.util.TreeUtils;
 import java.util.Optional;
