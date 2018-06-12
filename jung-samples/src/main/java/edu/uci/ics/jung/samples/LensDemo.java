@@ -119,7 +119,7 @@ public class LensDemo extends JPanel {
     final Function<? super String, Shape> squares = n -> new Rectangle2D.Float(-10, -10, 20, 20);
 
     // add a listener for ToolTips
-    vv.setNodeToolTipFunction(n -> n); //Object::toString);
+    vv.setNodeToolTipFunction(n -> n); // Object::toString);
 
     GraphZoomScrollPane gzsp = new GraphZoomScrollPane(vv);
     add(gzsp);

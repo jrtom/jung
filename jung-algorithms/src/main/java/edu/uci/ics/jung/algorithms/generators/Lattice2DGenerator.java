@@ -52,7 +52,8 @@ public class Lattice2DGenerator<N, E> {
    * @param toroidal
    */
   public Lattice2DGenerator(int rowCount, int colCount, boolean toroidal) {
-    // TODO: relax the row/col count restrictions to be >= 3 once we get the random selection mechanism
+    // TODO: relax the row/col count restrictions to be >= 3 once we get the random selection
+    // mechanism
     // in KleinbergSmallWorld to behave better
     Preconditions.checkArgument(rowCount >= 4, "row count must be >= 4");
     Preconditions.checkArgument(colCount >= 4, "column count must be >= 4");

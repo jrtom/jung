@@ -59,7 +59,8 @@ public class TestHITS extends TestCase {
       //            Assert.assertEquals(t.transform(1).hub,
       //            		ranker.getAuthScore(2) + 0.2*ranker.getAuthScore(4));
       //            Assert.assertEquals(t.transform(2).hub,
-      //            		0.5*ranker.getAuthScore(1) + ranker.getAuthScore(3) + 0.2*ranker.getAuthScore(4));
+      //            		0.5*ranker.getAuthScore(1) + ranker.getAuthScore(3) +
+      // 0.2*ranker.getAuthScore(4));
       //            Assert.assertEquals(t.transform(3).hub,
       //            		ranker.getAuthScore(0) + 0.2*ranker.getAuthScore(4));
       //            Assert.assertEquals(t.transform(4).hub,
@@ -69,7 +70,8 @@ public class TestHITS extends TestCase {
       //            Assert.assertEquals(t.transform(0).authority,
       //            		ranker.getNodeScore(3) + 0.2*ranker.getNodeScore(4));
       //            Assert.assertEquals(t.transform(1).authority,
-      //            		ranker.getNodeScore(0) + 0.5 * ranker.getNodeScore(2) + 0.2*ranker.getNodeScore(4));
+      //            		ranker.getNodeScore(0) + 0.5 * ranker.getNodeScore(2) +
+      // 0.2*ranker.getNodeScore(4));
       //            Assert.assertEquals(t.transform(2).authority,
       //            		ranker.getNodeScore(1) + 0.2*ranker.getNodeScore(4));
       //            Assert.assertEquals(t.transform(3).authority,

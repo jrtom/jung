@@ -626,7 +626,7 @@ public class BasicVisualizationServer<N, E> extends JPanel
     public void paint(Graphics g) {
       Graphics2D g2d = (Graphics2D) g;
       Color oldColor = g2d.getColor();
-      //gather all the grid shapes
+      // gather all the grid shapes
       List<Shape> grid = Lists.newArrayList();
       grid = quadTree.getGrid();
 

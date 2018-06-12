@@ -215,7 +215,7 @@ public abstract class AbstractLayoutModel<N>
     }
 
     if (oldWidth != 0 || oldHeight != 0) {
-      adjustLocations(oldWidth, oldHeight, width, height); //, size);
+      adjustLocations(oldWidth, oldHeight, width, height); // , size);
     }
     this.width = width;
     this.height = height;
