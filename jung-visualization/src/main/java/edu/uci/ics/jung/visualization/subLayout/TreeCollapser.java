@@ -9,7 +9,7 @@
  */
 package edu.uci.ics.jung.visualization.subLayout;
 
-import edu.uci.ics.jung.graph.CTreeNetwork;
+import com.google.common.collect.Iterables;
 import edu.uci.ics.jung.graph.MutableCTreeNetwork;
 import edu.uci.ics.jung.graph.util.TreeUtils;
 import java.util.Optional;
@@ -30,7 +30,7 @@ public class TreeCollapser {
     Optional parent = tree.predecessor(subRoot);
     if (parent.isPresent()) {
       // subRoot has a parent, so attach its parent to subTree in its place
-      Object parentEdge = tree.inEdges(subRoot).iterator().next(); // THERE CAN BE ONLY ONE
+      Object parentEdge = Iterables.getOnlyElement(tree.inEdges(subRoot)); // THERE CAN BE ONLY ONE
       tree.removeNode(subRoot);
       tree.addEdge(parent.get(), subTree, parentEdge);
     } else {
@@ -42,13 +42,23 @@ public class TreeCollapser {
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})
-  public static void expand(MutableCTreeNetwork tree, CTreeNetwork subTree) {
+  public static MutableCTreeNetwork expand(MutableCTreeNetwork tree, MutableCTreeNetwork subTree) {
     Optional parent = tree.predecessor(subTree);
     Object parentEdge =
         parent.isPresent()
-            ? tree.inEdges(subTree).iterator().next() // THERE CAN BE ONLY ONE
+            ? Iterables.getOnlyElement(tree.inEdges(subTree)) // THERE CAN BE ONLY ONE
             : null;
+    if (!subTree.root().isPresent()) {
+      // then the subTree is empty, so just return the tree itself
+      return tree;
+    }
     tree.removeNode(subTree);
-    TreeUtils.addSubTree(tree, subTree, parent.orElse(null), parentEdge);
+    if (parent.isPresent()) {
+      TreeUtils.addSubTree(tree, subTree, parent.get(), parentEdge);
+      return tree;
+    } else {
+      // then the tree is empty, so just return the subTree itself
+      return subTree;
+    }
   }
 }

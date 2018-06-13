@@ -160,9 +160,11 @@ public class TreeCollapseDemo extends JPanel {
     expand.addActionListener(
         e -> {
           for (Object v : vv.getPickedNodeState().getPicked()) {
-            if (v instanceof CTreeNetwork) {
-              TreeCollapser.expand(graph, (CTreeNetwork) v);
-              vv.getModel().setNetwork(graph);
+            if (v instanceof MutableCTreeNetwork) {
+              graph = TreeCollapser.expand(graph, (MutableCTreeNetwork) v);
+              LayoutModel<Object> objectLayoutModel = vv.getModel().getLayoutModel();
+              objectLayoutModel.set(graph, objectLayoutModel.apply(v));
+              vv.getModel().setNetwork(graph, true);
             }
             vv.getPickedNodeState().clear();
             vv.repaint();

@@ -121,13 +121,13 @@ public class TreeUtils {
     checkNotNull(subTreeParent, "subTreeParent");
     checkNotNull(connectingEdge, "connectingEdge");
     checkArgument(tree.nodes().contains(subTreeParent), "'tree' does not contain 'subTreeParent'");
+
     if (!subTree.root().isPresent()) {
       // empty subtree; nothing to do
       return;
     }
 
     N subTreeRoot = subTree.root().get();
-    checkNotNull(connectingEdge);
     tree.addEdge(subTreeParent, subTreeRoot, connectingEdge);
     addFromSubTree(tree, subTree, subTreeRoot);
   }
