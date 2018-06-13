@@ -48,11 +48,11 @@ public class TreeCollapser {
         parent.isPresent()
             ? Iterables.getOnlyElement(tree.inEdges(subTree)) // THERE CAN BE ONLY ONE
             : null;
-    tree.removeNode(subTree);
     if (!subTree.root().isPresent()) {
       // then the subTree is empty, so just return the tree itself
       return tree;
     }
+    tree.removeNode(subTree);
     if (parent.isPresent()) {
       TreeUtils.addSubTree(tree, subTree, parent.get(), parentEdge);
       return tree;
