@@ -10,23 +10,21 @@
  */
 package edu.uci.ics.jung.visualization;
 
-import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
-
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
 import edu.uci.ics.jung.layout.model.LayoutModel;
+import edu.uci.ics.jung.layout.model.LoadingCacheLayoutModel;
+import edu.uci.ics.jung.layout.model.Point;
 import edu.uci.ics.jung.layout.util.LayoutChangeListener;
 import edu.uci.ics.jung.layout.util.LayoutEvent;
 import edu.uci.ics.jung.layout.util.LayoutEventSupport;
 import edu.uci.ics.jung.layout.util.LayoutNetworkEvent;
-import edu.uci.ics.jung.visualization.layout.SpatialGridLayoutModel;
-import edu.uci.ics.jung.visualization.layout.SpatialQuadTreeLayoutModel;
-import edu.uci.ics.jung.visualization.spatial.Spatial;
+import edu.uci.ics.jung.layout.util.RandomLocationTransformer;
 import edu.uci.ics.jung.visualization.util.ChangeEventSupport;
 import edu.uci.ics.jung.visualization.util.DefaultChangeEventSupport;
 import java.awt.Dimension;
-import java.awt.geom.Point2D;
 import java.util.List;
 import java.util.function.Function;
 import javax.swing.event.ChangeEvent;
@@ -36,9 +34,10 @@ import org.slf4j.LoggerFactory;
 
 /** @author Tom Nelson */
 public class BaseVisualizationModel<N, E>
-    implements VisualizationModel<N, E, Point2D>,
+    implements VisualizationModel<N, E>,
         ChangeEventSupport,
-        LayoutEventSupport<N, Point2D>,
+        LayoutEventSupport<N>,
+        LayoutChangeListener<N>,
         ChangeListener,
         LayoutModel.ChangeListener {
 
@@ -46,33 +45,28 @@ public class BaseVisualizationModel<N, E>
 
   protected Network<N, E> network;
 
-  protected LayoutModel<N, Point2D> layoutModel;
+  protected LayoutModel<N> layoutModel;
 
-  protected LayoutAlgorithm<N, Point2D> layoutAlgorithm;
+  protected LayoutAlgorithm<N> layoutAlgorithm;
 
   protected ChangeEventSupport changeSupport = new DefaultChangeEventSupport(this);
-  private List<LayoutChangeListener<N, Point2D>> layoutChangeListeners = Lists.newArrayList();
+  private List<LayoutChangeListener<N>> layoutChangeListeners = Lists.newArrayList();
 
-  public BaseVisualizationModel(VisualizationModel<N, E, Point2D> other) {
+  public BaseVisualizationModel(VisualizationModel<N, E> other) {
     this(other.getNetwork(), other.getLayoutAlgorithm(), null, other.getLayoutSize());
   }
 
-  public BaseVisualizationModel(VisualizationModel<N, E, Point2D> other, Dimension layoutSize) {
+  public BaseVisualizationModel(VisualizationModel<N, E> other, Dimension layoutSize) {
     this(other.getNetwork(), other.getLayoutAlgorithm(), null, layoutSize);
   }
 
   /**
-   * Creates an instance for {@code graph} which does not initialize the node locations.
-   *
-   * @param network the graph on which the layout algorithm is to operate
+   * @param network the network to visualize
+   * @param layoutAlgorithm the algorithm to apply
+   * @param layoutSize the size of the layout area
    */
   public BaseVisualizationModel(
-      Network<N, E> network, LayoutAlgorithm<N, Point2D> layoutAlgorithm) {
-    this(network, layoutAlgorithm, null, VisualizationServer.DEFAULT_SIZE);
-  }
-
-  public BaseVisualizationModel(
-      Network<N, E> network, LayoutAlgorithm<N, Point2D> layoutAlgorithm, Dimension layoutSize) {
+      Network<N, E> network, LayoutAlgorithm<N> layoutAlgorithm, Dimension layoutSize) {
     this(network, layoutAlgorithm, null, layoutSize);
   }
 
@@ -86,80 +80,67 @@ public class BaseVisualizationModel<N, E>
    */
   public BaseVisualizationModel(
       Network<N, E> network,
-      LayoutAlgorithm<N, Point2D> layoutAlgorithm,
-      Function<N, Point2D> initializer,
+      LayoutAlgorithm<N> layoutAlgorithm,
+      Function<N, Point> initializer,
       Dimension layoutSize) {
-    //    Preconditions.checkNotNull(network);
-    //    Preconditions.checkNotNull(layoutAlgorithm);
-    //    Preconditions.checkNotNull(layoutSize);
+    Preconditions.checkNotNull(network);
+    Preconditions.checkNotNull(layoutSize);
+    Preconditions.checkArgument(layoutSize.width > 0, "width must be > 0");
+    Preconditions.checkArgument(layoutSize.height > 0, "height must be > 0");
     this.layoutAlgorithm = layoutAlgorithm;
     this.layoutModel =
-
-        // TODO: maybe make these choosable with a property
-        // spatialGrid
-        //                    SpatialGridLayoutModel.<N, Point2D>builder()
-        //                            .setGraph(network.asGraph())
-        //                            .setPointModel(POINT_MODEL)
-        //                            .setSize(layoutSize.width, layoutSize.height)
-        //                            .build();
-
-        //spatial quadtree
-        SpatialQuadTreeLayoutModel.<N, Point2D>builder()
+        LoadingCacheLayoutModel.<N>builder()
             .setGraph(network.asGraph())
-            .setPointModel(POINT_MODEL)
             .setSize(layoutSize.width, layoutSize.height)
+            .setInitializer(
+                new RandomLocationTransformer<N>(
+                    layoutSize.width, layoutSize.height, System.currentTimeMillis()))
             .build();
-
-    // no spatial layout features
-    //    LoadingCacheLayoutModel.<N, Point2D>builder()
-    //            .setGraph(network.asGraph())
-    //            .setPointModel(POINT_MODEL)
-    //            .setSize(layoutSize.width, layoutSize.height)
-    //            .build();
 
     if (this.layoutModel instanceof LayoutModel.ChangeSupport) {
       ((LayoutModel.ChangeSupport) layoutModel).addChangeListener(this);
+    }
+    if (layoutModel instanceof LayoutEventSupport) {
+      ((LayoutEventSupport) layoutModel).addLayoutChangeListener(this);
     }
     this.network = network;
     if (initializer != null) {
       this.layoutModel.setInitializer(initializer);
     }
 
-    if (layoutAlgorithm != null) {
-      this.layoutModel.accept(layoutAlgorithm);
-    }
+    this.layoutModel.accept(layoutAlgorithm);
   }
 
   public BaseVisualizationModel(
-      Network<N, E> network,
-      LayoutModel<N, Point2D> layoutModel,
-      LayoutAlgorithm<N, Point2D> layoutAlgorithm) {
+      Network<N, E> network, LayoutModel<N> layoutModel, LayoutAlgorithm<N> layoutAlgorithm) {
+    Preconditions.checkNotNull(network);
+    Preconditions.checkNotNull(layoutModel);
     this.layoutModel = layoutModel;
     if (this.layoutModel instanceof ChangeEventSupport) {
       ((ChangeEventSupport) layoutModel).addChangeListener(this);
     }
     this.network = network;
-    //    if (initializer != null) {
-    //      this.layoutModel.setInitializer(initializer);
-    //    }
     this.layoutModel.accept(layoutAlgorithm);
     this.layoutAlgorithm = layoutAlgorithm;
   }
 
-  public LayoutModel<N, Point2D> getLayoutModel() {
+  public LayoutModel<N> getLayoutModel() {
     log.trace("getting a layourModel " + layoutModel);
     return layoutModel;
   }
 
-  public void setLayoutModel(LayoutModel<N, Point2D> layoutModel) {
+  public void setLayoutModel(LayoutModel<N> layoutModel) {
     // stop any Relaxer threads before abandoning the previous LayoutModel
     if (this.layoutModel != null) {
       this.layoutModel.stopRelaxer();
     }
     this.layoutModel = layoutModel;
+    if (layoutAlgorithm != null) {
+      layoutModel.accept(layoutAlgorithm);
+    }
   }
 
-  public void setLayoutAlgorithm(LayoutAlgorithm<N, Point2D> layoutAlgorithm) {
+  public void setLayoutAlgorithm(LayoutAlgorithm<N> layoutAlgorithm) {
     this.layoutAlgorithm = layoutAlgorithm;
     log.trace("setLayoutAlgorithm to " + layoutAlgorithm);
     layoutModel.accept(layoutAlgorithm);
@@ -180,26 +161,19 @@ public class BaseVisualizationModel<N, E>
   }
 
   public void setNetwork(Network<N, E> network, boolean forceUpdate) {
+    log.trace("setNetwork to n:{} e:{}", network.nodes(), network.edges());
     this.network = network;
     this.layoutModel.setGraph(network.asGraph());
     if (forceUpdate && this.layoutAlgorithm != null) {
+      log.trace("will accept {}", layoutAlgorithm);
       layoutModel.accept(this.layoutAlgorithm);
+      log.trace("will fire stateChanged");
       changeSupport.fireStateChanged();
+      log.trace("fired stateChanged");
     }
   }
 
-  @Override
-  public Spatial<N> getSpatial() {
-    if (layoutModel instanceof SpatialGridLayoutModel) {
-      return ((SpatialGridLayoutModel) layoutModel).getSpatial();
-    }
-    if (layoutModel instanceof SpatialQuadTreeLayoutModel) {
-      return ((SpatialQuadTreeLayoutModel) layoutModel).getSpatial();
-    }
-    return null;
-  }
-
-  public LayoutAlgorithm<N, Point2D> getLayoutAlgorithm() {
+  public LayoutAlgorithm<N> getLayoutAlgorithm() {
     return layoutAlgorithm;
   }
 
@@ -228,19 +202,19 @@ public class BaseVisualizationModel<N, E>
   }
 
   @Override
-  public void addLayoutChangeListener(LayoutChangeListener<N, Point2D> listener) {
+  public void addLayoutChangeListener(LayoutChangeListener<N> listener) {
     this.layoutChangeListeners.add(listener);
   }
 
   @Override
-  public void removeLayoutChangeListener(LayoutChangeListener<N, Point2D> listener) {
+  public void removeLayoutChangeListener(LayoutChangeListener<N> listener) {
     this.layoutChangeListeners.remove(listener);
   }
 
-  private void fireLayoutChanged(LayoutEvent<N, Point2D> layoutEvent, Network<N, E> network) {
+  private void fireLayoutChanged(LayoutEvent<N> layoutEvent, Network<N, E> network) {
     if (!layoutChangeListeners.isEmpty()) {
-      LayoutEvent<N, Point2D> evt = new LayoutNetworkEvent<N, Point2D>(layoutEvent, network);
-      for (LayoutChangeListener<N, Point2D> listener : layoutChangeListeners) {
+      LayoutEvent<N> evt = new LayoutNetworkEvent<N>(layoutEvent, network);
+      for (LayoutChangeListener<N> listener : layoutChangeListeners) {
         listener.layoutChanged(evt);
       }
     }
@@ -255,5 +229,15 @@ public class BaseVisualizationModel<N, E>
   @Override
   public void stateChanged(ChangeEvent e) {
     this.fireStateChanged();
+  }
+
+  @Override
+  public void layoutChanged(LayoutEvent<N> evt) {
+    fireLayoutChanged(evt, network);
+  }
+
+  @Override
+  public void layoutChanged(LayoutNetworkEvent<N> evt) {
+    fireLayoutChanged(evt, network);
   }
 }

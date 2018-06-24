@@ -28,10 +28,10 @@ import javax.xml.stream.events.XMLEvent;
  *
  * @author Nathan Mittler - nathan.mittler@gmail.com
  */
-public class EdgeElementParser<G extends MutableNetwork<V, E>, V, E>
-    extends AbstractElementParser<G, V, E> {
+public class EdgeElementParser<G extends MutableNetwork<N, E>, N, E>
+    extends AbstractElementParser<G, N, E> {
 
-  public EdgeElementParser(ParserContext<G, V, E> parserContext) {
+  public EdgeElementParser(ParserContext<G, N, E> parserContext) {
     super(parserContext);
   }
 

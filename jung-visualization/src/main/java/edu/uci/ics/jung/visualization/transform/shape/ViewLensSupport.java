@@ -9,10 +9,12 @@
 package edu.uci.ics.jung.visualization.transform.shape;
 
 import edu.uci.ics.jung.layout.model.LayoutModel;
-import edu.uci.ics.jung.visualization.Layer;
+import edu.uci.ics.jung.visualization.MultiLayerTransformer.Layer;
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
+import edu.uci.ics.jung.visualization.control.LensTransformSupport;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
+import edu.uci.ics.jung.visualization.control.TransformSupport;
 import edu.uci.ics.jung.visualization.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
 import edu.uci.ics.jung.visualization.transform.AbstractLensSupport;
@@ -21,21 +23,21 @@ import edu.uci.ics.jung.visualization.transform.LensTransformer;
 import java.awt.*;
 
 /**
- * Uses a LensTransformer to use in the view transform. This one will distort Vertex shapes.
+ * Uses a LensTransformer to use in the view transform. This one will distort Node shapes.
  *
  * @author Tom Nelson
  */
-public class ViewLensSupport<V, E> extends AbstractLensSupport<V, E> implements LensSupport {
+public class ViewLensSupport<N, E> extends AbstractLensSupport<N, E> implements LensSupport {
 
-  protected RenderContext<V, E> renderContext;
+  protected RenderContext<N, E> renderContext;
   protected GraphicsDecorator lensGraphicsDecorator;
   protected GraphicsDecorator savedGraphicsDecorator;
-  protected NetworkElementAccessor<V, E> pickSupport;
-  protected Renderer.Edge<V, E> savedEdgeRenderer;
-  protected Renderer.Edge<V, E> reshapingEdgeRenderer;
+  protected NetworkElementAccessor<N, E> pickSupport;
+  protected Renderer.Edge<N, E> savedEdgeRenderer;
+  protected Renderer.Edge<N, E> reshapingEdgeRenderer;
 
   public ViewLensSupport(
-      VisualizationViewer<V, E> vv,
+      VisualizationViewer<N, E> vv,
       LensTransformer lensTransformer,
       ModalGraphMouse lensGraphMouse) {
     super(vv, lensGraphMouse);
@@ -66,6 +68,7 @@ public class ViewLensSupport<V, E> extends AbstractLensSupport<V, E> implements 
     vv.addPostRenderPaintable(lensControls);
     vv.setGraphMouse(lensGraphMouse);
     vv.setToolTipText(instructions);
+    vv.setTransformSupport(new LensTransformSupport());
     vv.repaint();
   }
 
@@ -79,6 +82,7 @@ public class ViewLensSupport<V, E> extends AbstractLensSupport<V, E> implements 
     vv.setRenderContext(renderContext);
     vv.setToolTipText(defaultToolTipText);
     vv.setGraphMouse(graphMouse);
+    vv.setTransformSupport(new TransformSupport());
     vv.repaint();
   }
 }

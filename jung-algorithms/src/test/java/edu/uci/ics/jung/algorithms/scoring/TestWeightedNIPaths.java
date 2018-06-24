@@ -24,7 +24,7 @@ import junit.framework.TestSuite;
 /** @author Scott White, adapted to jung2 by Tom Nelson */
 public class TestWeightedNIPaths extends TestCase {
 
-  Supplier<String> vertexFactory;
+  Supplier<String> nodeFactory;
   Supplier<Number> edgeFactory;
 
   public static Test suite() {
@@ -33,7 +33,7 @@ public class TestWeightedNIPaths extends TestCase {
 
   @Override
   protected void setUp() {
-    vertexFactory =
+    nodeFactory =
         new Supplier<String>() {
           char a = 'A';
 
@@ -55,7 +55,7 @@ public class TestWeightedNIPaths extends TestCase {
 
     MutableNetwork<String, Number> graph = NetworkBuilder.directed().build();
     for (int i = 0; i < 5; i++) {
-      graph.addNode(vertexFactory.get());
+      graph.addNode(nodeFactory.get());
     }
 
     graph.addEdge("A", "B", edgeFactory.get());
@@ -76,7 +76,7 @@ public class TestWeightedNIPaths extends TestCase {
     priors.add("A");
 
     WeightedNIPaths<String, Number> ranker =
-        new WeightedNIPaths<String, Number>(graph, vertexFactory, edgeFactory, 2.0, 3, priors);
+        new WeightedNIPaths<String, Number>(graph, nodeFactory, edgeFactory, 2.0, 3, priors);
 
     Map<String, Double> expectedScores =
         ImmutableMap.of(
@@ -86,7 +86,7 @@ public class TestWeightedNIPaths extends TestCase {
             "D", 0.222222,
             "E", 0.166676);
     for (String node : graph.nodes()) {
-      Assert.assertEquals(expectedScores.get(node), ranker.getVertexScore(node), 0.0001);
+      Assert.assertEquals(expectedScores.get(node), ranker.getNodeScore(node), 0.0001);
     }
   }
 }

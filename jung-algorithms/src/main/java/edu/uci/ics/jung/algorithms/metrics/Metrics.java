@@ -14,8 +14,8 @@ import com.google.common.graph.Graph;
 /** A class consisting of static methods for calculating graph metrics. */
 public class Metrics {
   /**
-   * Returns a <code>Map</code> of vertices to their clustering coefficients. The clustering
-   * coefficient cc(v) of a vertex v is defined as follows:
+   * Returns a <code>Map</code> of nodes to their clustering coefficients. The clustering
+   * coefficient cc(v) of a node v is defined as follows:
    *
    * <ul>
    *   <li><code>degree(v) == {0,1}</code>: 0
@@ -29,24 +29,24 @@ public class Metrics {
    * ignored.
    *
    * @param graph the graph whose clustering coefficients are to be calculated
-   * @param <V> the vertex type
+   * @param <N> the node type
    * @param <E> the edge type
-   * @return the clustering coefficient for each vertex
+   * @return the clustering coefficient for each node
    * @see "The structure and function of complex networks, M.E.J. Newman,
    *     aps.arxiv.org/abs/cond-mat/0303516"
    */
-  public static <V> ImmutableMap<V, Double> clusteringCoefficients(Graph<V> graph) {
-    ImmutableMap.Builder<V, Double> coefficients = ImmutableMap.builder();
+  public static <N> ImmutableMap<N, Double> clusteringCoefficients(Graph<N> graph) {
+    ImmutableMap.Builder<N, Double> coefficients = ImmutableMap.builder();
 
-    for (V v : graph.nodes()) {
+    for (N v : graph.nodes()) {
       int n = graph.degree(v);
       if (n < 2) {
         coefficients.put(v, new Double(0));
       } else {
         int edgeCount = 0;
-        for (V w : graph.adjacentNodes(v)) {
+        for (N w : graph.adjacentNodes(v)) {
           if (!w.equals(v)) {
-            for (V x : graph.adjacentNodes(v)) {
+            for (N x : graph.adjacentNodes(v)) {
               // TODO: replace with hasEdge() once it's ready
               if (!w.equals(x) && graph.adjacentNodes(w).contains(x)) {
                 edgeCount++;

@@ -37,27 +37,27 @@ import java.util.function.Supplier;
  * <p>If the edge constraints do not permit parallel edges, only the first encountered of a set of
  * parallel edges will be read; subsequent edges in that set will be ignored.
  *
- * <p>More restrictive edge constraints will cause vertices to be generated that are more time- and
+ * <p>More restrictive edge constraints will cause nodes to be generated that are more time- and
  * space-efficient.
  *
  * <p>At the moment, only supports the part of the specification that defines:
  *
  * <ul>
- *   <li>vertex ids (each must have a value from 1 to n, where n is the number of vertices)
- *   <li>vertex labels (must be in quotes if interrupted by whitespace)
+ *   <li>node ids (each must have a value from 1 to n, where n is the number of nodes)
+ *   <li>node labels (must be in quotes if interrupted by whitespace)
  *   <li>directed edge connections (single or list)
  *   <li>undirected edge connections (single or list)
  *   <li>edge weights (not compatible with edges specified in list form) <br>
  *       <b>note</b>: this version of PajekNetReader does not support multiple edge weights, as
  *       PajekNetFile does; this behavior is consistent with the NET format.
- *   <li>vertex locations (x and y; z coordinate is ignored)
+ *   <li>node locations (x and y; z coordinate is ignored)
  * </ul>
  *
  * <p>Here is an example format for a directed graph without edge weights and edges specified in
  * list form: <br>
  *
  * <pre>
- * *vertices [# of vertices]
+ * *nodes [# of nodes]
  * 1 "a"
  * 2 "b"
  * 3 "c"
@@ -70,7 +70,7 @@ import java.util.function.Supplier;
  * non-list form: <br>
  *
  * <pre>
- * *vertices [# of vertices]
+ * *nodes [# of nodes]
  * 1 "a"
  * 2 "b"
  * 3 "c"
@@ -85,23 +85,23 @@ import java.util.function.Supplier;
  *     Andrej Mrvar, http://vlado.fmf.uni-lj.si/pub/networks/pajek/doc/pajekman.pdf"
  * @author Tom Nelson - converted to jung2
  */
-public class PajekNetReader<G extends MutableNetwork<V, E>, V, E> {
-  protected Supplier<V> vertex_factory;
+public class PajekNetReader<G extends MutableNetwork<N, E>, N, E> {
+  protected Supplier<N> node_factory;
   protected Supplier<E> edge_factory;
 
-  /** The map for vertex labels (if any) created by this class. */
-  protected SettableTransformer<V, String> vertex_labels =
-      new MapSettableTransformer<V, String>(new HashMap<V, String>());
+  /** The map for node labels (if any) created by this class. */
+  protected SettableTransformer<N, String> node_labels =
+      new MapSettableTransformer<N, String>(new HashMap<N, String>());
 
-  /** The map for vertex locations (if any) defined by this class. */
-  protected SettableTransformer<V, Point2D> vertex_locations =
-      new MapSettableTransformer<V, Point2D>(new HashMap<V, Point2D>());
+  /** The map for node locations (if any) defined by this class. */
+  protected SettableTransformer<N, Point2D> node_locations =
+      new MapSettableTransformer<N, Point2D>(new HashMap<N, Point2D>());
 
   protected SettableTransformer<E, Number> edge_weights =
       new MapSettableTransformer<E, Number>(new HashMap<E, Number>());
 
   /** Used to specify whether the most recently read line is a Pajek-specific tag. */
-  private static final Predicate<String> v_pred = new StartsWithPredicate("*vertices");
+  private static final Predicate<String> v_pred = new StartsWithPredicate("*nodes");
 
   private static final Predicate<String> a_pred = new StartsWithPredicate("*arcs");
   private static final Predicate<String> e_pred = new StartsWithPredicate("*edges");
@@ -110,18 +110,18 @@ public class PajekNetReader<G extends MutableNetwork<V, E>, V, E> {
   protected static final Predicate<String> l_pred = ListTagPred.getInstance();
 
   /**
-   * Creates a PajekNetReader instance with the specified vertex and edge factories.
+   * Creates a PajekNetReader instance with the specified node and edge factories.
    *
-   * @param vertex_factory the Supplier to use to create vertex objects
+   * @param node_factory the Supplier to use to create node objects
    * @param edge_factory the Supplier to use to create edge objects
    */
-  public PajekNetReader(Supplier<V> vertex_factory, Supplier<E> edge_factory) {
-    this.vertex_factory = vertex_factory;
+  public PajekNetReader(Supplier<N> node_factory, Supplier<E> edge_factory) {
+    this.node_factory = node_factory;
     this.edge_factory = edge_factory;
   }
 
   /**
-   * Creates a PajekNetReader instance with the specified edge Supplier, and whose vertex objects
+   * Creates a PajekNetReader instance with the specified edge Supplier, and whose node objects
    * correspond to the integer IDs assigned in the file. Note that this requires <code>V</code> to
    * be assignment-compatible with an <code>Integer</code> value.
    *
@@ -173,7 +173,7 @@ public class PajekNetReader<G extends MutableNetwork<V, E>, V, E> {
    * by <code>reader</code>. Stores edge weights, if any, according to <code>nev</code> (if
    * non-null).
    *
-   * <p>Any existing vertices/edges of <code>g</code>, if any, are unaffected.
+   * <p>Any existing nodes/edges of <code>g</code>, if any, are unaffected.
    *
    * <p>The edge data are filtered according to <code>g</code>'s constraints, if any; thus, if
    * <code>g</code> only accepts directed edges, any undirected edges in the input are ignored.
@@ -187,27 +187,27 @@ public class PajekNetReader<G extends MutableNetwork<V, E>, V, E> {
     Preconditions.checkNotNull(g);
     BufferedReader br = new BufferedReader(reader);
 
-    // ignore everything until we see '*Vertices'
+    // ignore everything until we see '*Nodes'
     String curLine = skip(br, v_pred);
 
-    if (curLine == null) { // no vertices in the graph; return empty graph
+    if (curLine == null) { // no nodes in the graph; return empty graph
       return g;
     }
 
-    // create appropriate number of vertices
+    // create appropriate number of nodes
     StringTokenizer st = new StringTokenizer(curLine);
-    st.nextToken(); // skip past "*vertices";
-    int num_vertices = Integer.parseInt(st.nextToken());
-    List<V> id = null;
-    // TODO: under what circumstances (if any) is it reasonable for vertex_factory to be null?
-    if (vertex_factory != null) {
-      for (int i = 1; i <= num_vertices; i++) {
-        g.addNode(vertex_factory.get());
+    st.nextToken(); // skip past "*nodes";
+    int num_nodes = Integer.parseInt(st.nextToken());
+    List<N> id = null;
+    // TODO: under what circumstances (if any) is it reasonable for node_factory to be null?
+    if (node_factory != null) {
+      for (int i = 1; i <= num_nodes; i++) {
+        g.addNode(node_factory.get());
       }
-      id = new ArrayList<V>(g.nodes());
+      id = new ArrayList<N>(g.nodes());
     }
 
-    // read vertices until we see any Pajek format tag ('*...')
+    // read nodes until we see any Pajek format tag ('*...')
     curLine = null;
     while (br.ready()) {
       curLine = br.readLine();
@@ -219,7 +219,7 @@ public class PajekNetReader<G extends MutableNetwork<V, E>, V, E> {
       }
 
       try {
-        readVertex(curLine, id, num_vertices);
+        readNode(curLine, id, num_nodes);
       } catch (IllegalArgumentException iae) {
         br.close();
         reader.close();
@@ -241,12 +241,12 @@ public class PajekNetReader<G extends MutableNetwork<V, E>, V, E> {
   }
 
   /**
-   * Parses <code>curLine</code> as a reference to a vertex, and optionally assigns label and
-   * location information.
+   * Parses <code>curLine</code> as a reference to a node, and optionally assigns label and location
+   * information.
    */
   @SuppressWarnings("unchecked")
-  private void readVertex(String curLine, List<V> id, int num_vertices) {
-    V v;
+  private void readNode(String curLine, List<N> id, int num_nodes) {
+    N v;
     String[] parts = null;
     int coord_idx = -1; // index of first coordinate in parts; -1 indicates no coordinates found
     String index;
@@ -282,25 +282,25 @@ public class PajekNetReader<G extends MutableNetwork<V, E>, V, E> {
       }
     }
     int v_id = Integer.parseInt(index) - 1; // go from 1-based to 0-based index
-    Preconditions.checkArgument(v_id >= 0 && v_id < num_vertices);
+    Preconditions.checkArgument(v_id >= 0 && v_id < num_nodes);
     if (id != null) {
       v = id.get(v_id);
     } else {
-      v = (V) (new Integer(v_id));
+      v = (N) (new Integer(v_id));
     }
     // only attach the label if there's one to attach
-    if (label != null && label.length() > 0 && vertex_labels != null) {
-      vertex_labels.set(v, label);
+    if (label != null && label.length() > 0 && node_labels != null) {
+      node_labels.set(v, label);
     }
 
     // parse the rest of the line
     if (coord_idx != -1
         && parts != null
         && parts.length >= coord_idx + 2
-        && vertex_locations != null) {
+        && node_locations != null) {
       double x = Double.parseDouble(parts[coord_idx]);
       double y = Double.parseDouble(parts[coord_idx + 1]);
-      vertex_locations.set(v, new Point2D.Double(x, y));
+      node_locations.set(v, new Point2D.Double(x, y));
     }
   }
 
@@ -308,8 +308,8 @@ public class PajekNetReader<G extends MutableNetwork<V, E>, V, E> {
   private String readArcsOrEdges(
       String curLine,
       BufferedReader br,
-      MutableNetwork<V, E> g,
-      List<V> id,
+      MutableNetwork<N, E> g,
+      List<N> id,
       Supplier<E> edge_factory)
       throws IOException {
     String nextLine = curLine;
@@ -352,12 +352,12 @@ public class PajekNetReader<G extends MutableNetwork<V, E>, V, E> {
 
       int vid1 = Integer.parseInt(st.nextToken()) - 1;
       // FIXME: check for vid < 0
-      V v1;
+      N v1;
       if (id != null) {
         v1 = id.get(vid1);
       } else {
-        // TODO: wat (look for other (V) casts also)
-        v1 = (V) new Integer(vid1);
+        // TODO: wat (look for other (N) casts also)
+        v1 = (N) new Integer(vid1);
       }
 
       if (is_list) { // one source, multiple destinations
@@ -377,13 +377,13 @@ public class PajekNetReader<G extends MutableNetwork<V, E>, V, E> {
 
   @SuppressWarnings("unchecked")
   protected E createAddEdge(
-      StringTokenizer st, V v1, MutableNetwork<V, E> g, List<V> id, Supplier<E> edge_factory) {
+      StringTokenizer st, N v1, MutableNetwork<N, E> g, List<N> id, Supplier<E> edge_factory) {
     int vid2 = Integer.parseInt(st.nextToken()) - 1;
-    V v2;
+    N v2;
     if (id != null) {
       v2 = id.get(vid2);
     } else {
-      v2 = (V) new Integer(vid2);
+      v2 = (N) new Integer(vid2);
     }
     E e = edge_factory.get();
 
@@ -456,32 +456,32 @@ public class PajekNetReader<G extends MutableNetwork<V, E>, V, E> {
     }
   }
 
-  /** @return the vertexLocationTransformer */
-  public SettableTransformer<V, Point2D> getVertexLocationTransformer() {
-    return vertex_locations;
+  /** @return the nodeLocationTransformer */
+  public SettableTransformer<N, Point2D> getNodeLocationTransformer() {
+    return node_locations;
   }
 
   /**
-   * Provides a Function which will be used to write out the vertex locations.
+   * Provides a Function which will be used to write out the node locations.
    *
-   * @param vertex_locations a container for the vertex locations
+   * @param node_locations a container for the node locations
    */
-  public void setVertexLocationTransformer(SettableTransformer<V, Point2D> vertex_locations) {
-    this.vertex_locations = vertex_locations;
+  public void setNodeLocationTransformer(SettableTransformer<N, Point2D> node_locations) {
+    this.node_locations = node_locations;
   }
 
-  /** @return a mapping from vertices to their labels */
-  public SettableTransformer<V, String> getVertexLabeller() {
-    return vertex_labels;
+  /** @return a mapping from nodes to their labels */
+  public SettableTransformer<N, String> getNodeLabeller() {
+    return node_labels;
   }
 
   /**
-   * Provides a Function which will be used to write out the vertex labels.
+   * Provides a Function which will be used to write out the node labels.
    *
-   * @param vertex_labels a container for the vertex labels
+   * @param node_labels a container for the node labels
    */
-  public void setVertexLabeller(SettableTransformer<V, String> vertex_labels) {
-    this.vertex_labels = vertex_labels;
+  public void setNodeLabeller(SettableTransformer<N, String> node_labels) {
+    this.node_labels = node_labels;
   }
 
   /** @return a mapping from edges to their weights */

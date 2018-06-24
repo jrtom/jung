@@ -10,8 +10,8 @@
 package edu.uci.ics.jung.visualization.picking;
 
 /**
- * An interface for classes that return information regarding whether a given graph element (vertex
- * or edge) has been selected.
+ * An interface for classes that return information regarding whether a given graph element (node or
+ * edge) has been selected.
  *
  * @author danyelf
  */

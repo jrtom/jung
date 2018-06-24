@@ -13,7 +13,7 @@ package edu.uci.ics.jung.visualization.layout;
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.layout.model.LayoutModel;
-import edu.uci.ics.jung.layout.model.PointModel;
+import edu.uci.ics.jung.layout.model.Point;
 import edu.uci.ics.jung.layout.util.RadiusNetworkNodeAccessor;
 import java.awt.*;
 import java.awt.geom.Point2D;
@@ -31,13 +31,13 @@ import java.util.Set;
  * @author Tom Nelson
  * @author Joshua O'Madadhain
  */
-public class RadiusNetworkElementAccessor<N, E> extends RadiusNetworkNodeAccessor<N, Point2D>
+public class RadiusNetworkElementAccessor<N, E> extends RadiusNetworkNodeAccessor<N>
     implements NetworkElementAccessor<N, E> {
   private final Network<N, E> network;
 
   /** Creates an instance with an effectively infinite default maximum distance. */
-  public RadiusNetworkElementAccessor(Network<N, E> network, PointModel<Point2D> pointModel) {
-    this(network, pointModel, Math.sqrt(Double.MAX_VALUE - 1000));
+  public RadiusNetworkElementAccessor(Network<N, E> network) {
+    this(network, Math.sqrt(Double.MAX_VALUE - 1000));
   }
 
   /**
@@ -46,12 +46,8 @@ public class RadiusNetworkElementAccessor<N, E> extends RadiusNetworkNodeAccesso
    * @param maxDistance the maximum distance at which any element can be from a specified location
    *     and still be returned
    */
-  public RadiusNetworkElementAccessor(
-      Network<N, E> network,
-      //      LayoutModel<N, P> layoutModel,
-      PointModel<Point2D> pointModel,
-      double maxDistance) {
-    super(network.asGraph(), pointModel, maxDistance);
+  public RadiusNetworkElementAccessor(Network<N, E> network, double maxDistance) {
+    super(maxDistance);
     this.network = network;
   }
 
@@ -65,7 +61,7 @@ public class RadiusNetworkElementAccessor<N, E> extends RadiusNetworkNodeAccesso
    * @return
    */
   @Override
-  public E getEdge(LayoutModel<N, Point2D> layoutModel, Point2D p) {
+  public E getEdge(LayoutModel<N> layoutModel, Point2D p) {
     return getEdge(layoutModel, p.getX(), p.getY());
   }
 
@@ -82,7 +78,7 @@ public class RadiusNetworkElementAccessor<N, E> extends RadiusNetworkNodeAccesso
    * @return an edge which is associated with the location {@code (x,y)} as given by {@code layout}
    */
   @Override
-  public E getEdge(LayoutModel<N, Point2D> layoutModel, double x, double y) {
+  public E getEdge(LayoutModel<N> layoutModel, double x, double y) {
     double minDistance = maxDistance * maxDistance;
     E closest = null;
     while (true) {
@@ -92,12 +88,12 @@ public class RadiusNetworkElementAccessor<N, E> extends RadiusNetworkNodeAccesso
           N node1 = endpoints.nodeU();
           N node2 = endpoints.nodeV();
           // Get coords
-          Point2D p1 = layoutModel.apply(node1);
-          Point2D p2 = layoutModel.apply(node2);
-          double x1 = p1.getX();
-          double y1 = p1.getY();
-          double x2 = p2.getX();
-          double y2 = p2.getY();
+          Point p1 = layoutModel.apply(node1);
+          Point p2 = layoutModel.apply(node2);
+          double x1 = p1.x;
+          double y1 = p1.y;
+          double x2 = p2.x;
+          double y2 = p2.y;
           // Calculate location on line closest to (x,y)
           // First, check that v1 and v2 are not coincident.
           if (x1 == x2 && y1 == y2) {
@@ -130,13 +126,13 @@ public class RadiusNetworkElementAccessor<N, E> extends RadiusNetworkNodeAccesso
     return closest;
   }
 
-  public Set<N> getNodes(LayoutModel<N, Point2D> layoutModel, Shape rectangle) {
+  public Set<N> getNodes(LayoutModel<N> layoutModel, Shape rectangle) {
     Set<N> pickednodes = new HashSet<N>();
     while (true) {
       try {
-        for (N node : graph.nodes()) {
-          Point2D p = layoutModel.apply(node);
-          if (rectangle.contains(p.getX(), p.getY())) {
+        for (N node : layoutModel.getGraph().nodes()) {
+          Point p = layoutModel.apply(node);
+          if (rectangle.contains(p.x, p.y)) {
             pickednodes.add(node);
           }
         }

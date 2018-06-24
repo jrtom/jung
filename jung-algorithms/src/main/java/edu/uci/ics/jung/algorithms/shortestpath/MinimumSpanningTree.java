@@ -21,7 +21,7 @@ import java.util.function.Function;
  *
  * @author Tom Nelson - tomnelson@dev.java.net
  * @author Joshua O'Madadhain
- * @param <N> the vertex type
+ * @param <N> the node type
  * @param <E> the edge type
  */
 public class MinimumSpanningTree<N, E> {
@@ -86,7 +86,7 @@ public class MinimumSpanningTree<N, E> {
    * doubles). If {@code graph} is connected, then the graph returned will be a tree; otherwise it
    * will be a forest of trees.
    *
-   * <p>Uses Prim's algorithm with a binary heap, for a run time of O(|E| log |V|).
+   * <p>Uses Prim's algorithm with a binary heap, for a run time of {@code O(|E| log |V|)}.
    *
    * @param graph the graph from which to extract the minimum spanning forest
    */
@@ -111,14 +111,29 @@ public class MinimumSpanningTree<N, E> {
       if (connectedNode == null) {
         tree.addNode(node);
       } else {
-        tree.putEdgeValue(node, connectedNode, graph.edgeValue(node, connectedNode));
+        tree.putEdgeValue(
+            node,
+            connectedNode,
+            graph
+                .edgeValue(node, connectedNode)
+                .orElseThrow(
+                    () ->
+                        new IllegalStateException(
+                            "unexpected exception caused by bug in graph data structures")));
       }
       for (N adjacentNode : graph.adjacentNodes(node)) {
         if (!remainingNodes.contains(adjacentNode)) {
           continue;
         }
         NodeData<N> adjacentNodeData = nodeData.get(adjacentNode);
-        double connectingEdgeWeight = graph.edgeValue(node, adjacentNode).doubleValue();
+        double connectingEdgeWeight =
+            graph
+                .edgeValue(node, adjacentNode)
+                .orElseThrow(
+                    () ->
+                        new IllegalStateException(
+                            "unexpected exception caused by bug in graph data structures"))
+                .doubleValue();
         if (connectingEdgeWeight < adjacentNodeData.cost) {
           adjacentNodeData.update(connectingEdgeWeight, node);
           heap.update(adjacentNode);

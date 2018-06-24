@@ -8,8 +8,7 @@
  */
 package edu.uci.ics.jung.visualization.transform;
 
-import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
-
+import edu.uci.ics.jung.layout.model.Point;
 import edu.uci.ics.jung.layout.model.PolarPoint;
 import java.awt.*;
 import java.awt.geom.Point2D;
@@ -73,11 +72,11 @@ public class MagnifyTransformer extends LensTransformer implements MutableTransf
     double dy = viewPoint.getY() - viewCenter.getY();
     // factor out ellipse
     dx *= ratio;
-    Point2D pointFromCenter = new Point2D.Double(dx, dy);
+    Point pointFromCenter = Point.of(dx, dy);
 
-    PolarPoint polar = PolarPoint.cartesianToPolar(POINT_MODEL, pointFromCenter);
-    double theta = polar.getTheta();
-    double radius = polar.getRadius();
+    PolarPoint polar = PolarPoint.cartesianToPolar(pointFromCenter);
+    double theta = polar.theta;
+    double radius = polar.radius;
     if (radius > viewRadius) {
       return viewPoint;
     }
@@ -86,11 +85,11 @@ public class MagnifyTransformer extends LensTransformer implements MutableTransf
     radius *= mag;
 
     radius = Math.min(radius, viewRadius);
-    Point2D projectedPoint = PolarPoint.polarToCartesian(POINT_MODEL, theta, radius);
-    projectedPoint.setLocation(projectedPoint.getX() / ratio, projectedPoint.getY());
+    Point projectedPoint = PolarPoint.polarToCartesian(theta, radius);
+    projectedPoint = Point.of(projectedPoint.x / ratio, projectedPoint.y);
     Point2D translatedBack =
         new Point2D.Double(
-            projectedPoint.getX() + viewCenter.getX(), projectedPoint.getY() + viewCenter.getY());
+            projectedPoint.x + viewCenter.getX(), projectedPoint.y + viewCenter.getY());
     return translatedBack;
   }
 
@@ -105,23 +104,23 @@ public class MagnifyTransformer extends LensTransformer implements MutableTransf
     // factor out ellipse
     dx *= ratio;
 
-    Point2D pointFromCenter = new Point2D.Double(dx, dy);
+    Point pointFromCenter = Point.of(dx, dy);
 
-    PolarPoint polar = PolarPoint.cartesianToPolar(POINT_MODEL, pointFromCenter);
+    PolarPoint polar = PolarPoint.cartesianToPolar(pointFromCenter);
 
-    double radius = polar.getRadius();
+    double radius = polar.radius;
     if (radius > viewRadius) {
       return delegate.inverseTransform(viewPoint);
     }
 
     double mag = lens.getMagnification();
     radius /= mag;
-    polar.setRadius(radius);
-    Point2D projectedPoint = PolarPoint.polarToCartesian(POINT_MODEL, polar);
-    projectedPoint.setLocation(projectedPoint.getX() / ratio, projectedPoint.getY());
+    polar = polar.newRadius(radius);
+    Point projectedPoint = PolarPoint.polarToCartesian(polar);
+    projectedPoint = Point.of(projectedPoint.x / ratio, projectedPoint.y);
     Point2D translatedBack =
         new Point2D.Double(
-            projectedPoint.getX() + viewCenter.getX(), projectedPoint.getY() + viewCenter.getY());
+            projectedPoint.x + viewCenter.getX(), projectedPoint.y + viewCenter.getY());
     return delegate.inverseTransform(translatedBack);
   }
 
@@ -144,21 +143,21 @@ public class MagnifyTransformer extends LensTransformer implements MutableTransf
     double dy = viewPoint.getY() - viewCenter.getY();
     // factor out ellipse
     dx *= ratio;
-    Point2D pointFromCenter = new Point2D.Double(dx, dy);
+    Point pointFromCenter = Point.of(dx, dy);
 
-    PolarPoint polar = PolarPoint.cartesianToPolar(POINT_MODEL, pointFromCenter);
-    double theta = polar.getTheta();
-    double radius = polar.getRadius();
+    PolarPoint polar = PolarPoint.cartesianToPolar(pointFromCenter);
+    double theta = polar.theta;
+    double radius = polar.radius;
 
     double mag = lens.getMagnification();
     radius *= mag;
 
     //        radius = Math.min(radius, viewRadius);
-    Point2D projectedPoint = PolarPoint.polarToCartesian(POINT_MODEL, theta, radius);
-    projectedPoint.setLocation(projectedPoint.getX() / ratio, projectedPoint.getY());
+    Point projectedPoint = PolarPoint.polarToCartesian(theta, radius);
+    projectedPoint = Point.of(projectedPoint.x / ratio, projectedPoint.y);
     Point2D translatedBack =
         new Point2D.Double(
-            projectedPoint.getX() + viewCenter.getX(), projectedPoint.getY() + viewCenter.getY());
+            projectedPoint.x + viewCenter.getX(), projectedPoint.y + viewCenter.getY());
     return translatedBack;
   }
 }

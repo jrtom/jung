@@ -13,8 +13,9 @@ import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
 import edu.uci.ics.jung.layout.algorithms.KKLayoutAlgorithm;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
-import edu.uci.ics.jung.visualization.renderers.BasicVertexLabelRenderer;
-import edu.uci.ics.jung.visualization.renderers.GradientVertexRenderer;
+import edu.uci.ics.jung.visualization.renderers.BasicNodeLabelRenderer;
+import edu.uci.ics.jung.visualization.renderers.GradientNodeRenderer;
+import edu.uci.ics.jung.visualization.renderers.Renderer;
 import java.awt.*;
 import java.awt.geom.Point2D;
 import javax.swing.*;
@@ -41,20 +42,17 @@ public class VisualizationImageServerDemo {
     vv = new VisualizationImageServer<>(graph, new KKLayoutAlgorithm<>(), new Dimension(600, 600));
 
     vv.getRenderer()
-        .setVertexRenderer(
-            new GradientVertexRenderer<>(
-                vv, Color.white, Color.red, Color.white, Color.blue, false));
-    vv.getRenderContext().setEdgeDrawPaintTransformer(e -> Color.lightGray);
-    vv.getRenderContext().setArrowFillPaintTransformer(e -> Color.lightGray);
-    vv.getRenderContext().setArrowDrawPaintTransformer(e -> Color.lightGray);
+        .setNodeRenderer(
+            new GradientNodeRenderer<>(vv, Color.white, Color.red, Color.white, Color.blue, false));
+    vv.getRenderContext().setEdgeDrawPaintFunction(e -> Color.lightGray);
+    vv.getRenderContext().setArrowFillPaintFunction(e -> Color.lightGray);
+    vv.getRenderContext().setArrowDrawPaintFunction(e -> Color.lightGray);
 
-    vv.getRenderContext().setVertexLabelTransformer(Object::toString);
+    vv.getRenderContext().setNodeLabelFunction(Object::toString);
     vv.getRenderer()
-        .getVertexLabelRenderer()
-        .setPositioner(new BasicVertexLabelRenderer.InsidePositioner());
-    vv.getRenderer()
-        .getVertexLabelRenderer()
-        .setPosition(edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position.AUTO);
+        .getNodeLabelRenderer()
+        .setPositioner(new BasicNodeLabelRenderer.InsidePositioner());
+    vv.getRenderer().getNodeLabelRenderer().setPosition(Renderer.NodeLabel.Position.AUTO);
 
     // create a frome to hold the graph
     final JFrame frame = new JFrame();

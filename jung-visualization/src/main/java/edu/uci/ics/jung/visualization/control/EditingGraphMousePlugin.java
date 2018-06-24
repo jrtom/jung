@@ -12,23 +12,23 @@ import java.util.function.Supplier;
 import javax.swing.JComponent;
 
 /**
- * A plugin that can create vertices, undirected edges, and directed edges using mouse gestures.
+ * A plugin that can create nodes, undirected edges, and directed edges using mouse gestures.
  *
- * <p>vertexSupport and edgeSupport member classes are responsible for actually creating the new
- * graph elements, and for repainting the view when changes were made.
+ * <p>nodeSupport and edgeSupport member classes are responsible for actually creating the new graph
+ * elements, and for repainting the view when changes were made.
  *
  * @author Tom Nelson
  */
-public class EditingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
+public class EditingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
     implements MouseListener, MouseMotionListener {
 
-  protected VertexSupport<V, E> vertexSupport;
-  protected EdgeSupport<V, E> edgeSupport;
+  protected NodeSupport<N, E> nodeSupport;
+  protected EdgeSupport<N, E> edgeSupport;
   private Creating createMode = Creating.UNDETERMINED;
 
   private enum Creating {
     EDGE,
-    VERTEX,
+    NODE,
     UNDETERMINED
   }
 
@@ -36,26 +36,25 @@ public class EditingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
    * Creates an instance and prepares shapes for visual effects, using the default modifiers of
    * BUTTON1_MASK.
    *
-   * @param vertexFactory for creating vertices
+   * @param nodeFactory for creating nodes
    * @param edgeFactory for creating edges
    */
-  public EditingGraphMousePlugin(Supplier<V> vertexFactory, Supplier<E> edgeFactory) {
-    this(MouseEvent.BUTTON1_MASK, vertexFactory, edgeFactory);
+  public EditingGraphMousePlugin(Supplier<N> nodeFactory, Supplier<E> edgeFactory) {
+    this(MouseEvent.BUTTON1_MASK, nodeFactory, edgeFactory);
   }
 
   /**
    * Creates an instance and prepares shapes for visual effects.
    *
    * @param modifiers the mouse event modifiers to use
-   * @param vertexFactory for creating vertices
+   * @param nodeFactory for creating nodes
    * @param edgeFactory for creating edges
    */
-  public EditingGraphMousePlugin(
-      int modifiers, Supplier<V> vertexFactory, Supplier<E> edgeFactory) {
+  public EditingGraphMousePlugin(int modifiers, Supplier<N> nodeFactory, Supplier<E> edgeFactory) {
     super(modifiers);
     this.cursor = Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR);
-    this.vertexSupport = new SimpleVertexSupport<V, E>(vertexFactory);
-    this.edgeSupport = new SimpleEdgeSupport<V, E>(edgeFactory);
+    this.nodeSupport = new SimpleNodeSupport<>(nodeFactory);
+    this.edgeSupport = new SimpleEdgeSupport<>(edgeFactory);
   }
 
   /**
@@ -68,70 +67,74 @@ public class EditingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
   }
 
   /**
-   * If the mouse is pressed in an empty area, create a new vertex there. If the mouse is pressed on
-   * an existing vertex, prepare to create an edge from that vertex to another
+   * If the mouse is pressed in an empty area, create a new node there. If the mouse is pressed on
+   * an existing node, prepare to create an edge from that node to another
    */
   @SuppressWarnings("unchecked")
   public void mousePressed(MouseEvent e) {
     if (checkModifiers(e)) {
-      final VisualizationViewer<V, E> vv = (VisualizationViewer<V, E>) e.getSource();
-      final LayoutModel<V, Point2D> layoutModel = vv.getModel().getLayoutModel();
+      final VisualizationViewer<N, E> vv = (VisualizationViewer<N, E>) e.getSource();
+      //      vv.getNodeSpatial().setActive(true);
+      final LayoutModel<N> layoutModel = vv.getModel().getLayoutModel();
       final Point2D p = e.getPoint();
-      NetworkElementAccessor<V, E> pickSupport = vv.getPickSupport();
+      NetworkElementAccessor<N, E> pickSupport = vv.getPickSupport();
       if (pickSupport != null) {
-        final V vertex = pickSupport.getNode(layoutModel, p.getX(), p.getY());
-        if (vertex != null) { // get ready to make an edge
+        final N node = pickSupport.getNode(layoutModel, p.getX(), p.getY());
+        if (node != null) { // get ready to make an edge
           this.createMode = Creating.EDGE;
-          edgeSupport.startEdgeCreate(vv, vertex, e.getPoint());
-        } else { // make a new vertex
-          this.createMode = Creating.VERTEX;
-          vertexSupport.startVertexCreate(vv, e.getPoint());
+          edgeSupport.startEdgeCreate(vv, node, e.getPoint());
+        } else { // make a new node
+          this.createMode = Creating.NODE;
+          nodeSupport.startNodeCreate(vv, e.getPoint());
         }
       }
     }
   }
 
   /**
-   * If startVertex is non-null, and the mouse is released over an existing vertex, create an edge
-   * from startVertex to the vertex under the mouse pointer.
+   * If startNode is non-null, and the mouse is released over an existing node, create an edge from
+   * startNode to the node under the mouse pointer.
    */
   @SuppressWarnings("unchecked")
   public void mouseReleased(MouseEvent e) {
     if (checkModifiers(e)) {
-      final VisualizationViewer<V, E> vv = (VisualizationViewer<V, E>) e.getSource();
-      final LayoutModel<V, Point2D> layoutModel = vv.getModel().getLayoutModel();
+      final VisualizationViewer<N, E> vv = (VisualizationViewer<N, E>) e.getSource();
+      final LayoutModel<N> layoutModel = vv.getModel().getLayoutModel();
       final Point2D p = e.getPoint();
       if (createMode == Creating.EDGE) {
-        NetworkElementAccessor<V, E> pickSupport = vv.getPickSupport();
-        V vertex = null;
+        NetworkElementAccessor<N, E> pickSupport = vv.getPickSupport();
+        N node = null;
         // TODO: how does it make any sense for pickSupport to be null in this scenario?
         if (pickSupport != null) {
-          vertex = pickSupport.getNode(layoutModel, p.getX(), p.getY());
+          node = pickSupport.getNode(layoutModel, p.getX(), p.getY());
         }
-        if (vertex != null) {
-          edgeSupport.endEdgeCreate(vv, vertex);
+        if (node != null) {
+          edgeSupport.endEdgeCreate(vv, node);
+          vv.getEdgeSpatial().recalculate();
+
         } else {
           edgeSupport.abort(vv);
         }
-      } else if (createMode == Creating.VERTEX) {
-        vertexSupport.endVertexCreate(vv, e.getPoint());
+      } else if (createMode == Creating.NODE) {
+        nodeSupport.endNodeCreate(vv, e.getPoint());
+        vv.getNodeSpatial().recalculate();
       }
     }
     createMode = Creating.UNDETERMINED;
   }
 
   /**
-   * If startVertex is non-null, stretch an edge shape between startVertex and the mouse pointer to
+   * If startNode is non-null, stretch an edge shape between startNode and the mouse pointer to
    * simulate edge creation
    */
   @SuppressWarnings("unchecked")
   public void mouseDragged(MouseEvent e) {
     if (checkModifiers(e)) {
-      VisualizationViewer<V, E> vv = (VisualizationViewer<V, E>) e.getSource();
+      VisualizationViewer<N, E> vv = (VisualizationViewer<N, E>) e.getSource();
       if (createMode == Creating.EDGE) {
         edgeSupport.midEdgeCreate(vv, e.getPoint());
-      } else if (createMode == Creating.VERTEX) {
-        vertexSupport.midVertexCreate(vv, e.getPoint());
+      } else if (createMode == Creating.NODE) {
+        nodeSupport.midNodeCreate(vv, e.getPoint());
       }
     }
   }
@@ -150,19 +153,19 @@ public class EditingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
 
   public void mouseMoved(MouseEvent e) {}
 
-  public VertexSupport<V, E> getVertexSupport() {
-    return vertexSupport;
+  public NodeSupport<N, E> getNodeSupport() {
+    return nodeSupport;
   }
 
-  public void setVertexSupport(VertexSupport<V, E> vertexSupport) {
-    this.vertexSupport = vertexSupport;
+  public void setNodeSupport(NodeSupport<N, E> nodeSupport) {
+    this.nodeSupport = nodeSupport;
   }
 
-  public EdgeSupport<V, E> edgesupport() {
+  public EdgeSupport<N, E> edgesupport() {
     return edgeSupport;
   }
 
-  public void setEdgeSupport(EdgeSupport<V, E> edgeSupport) {
+  public void setEdgeSupport(EdgeSupport<N, E> edgeSupport) {
     this.edgeSupport = edgeSupport;
   }
 }

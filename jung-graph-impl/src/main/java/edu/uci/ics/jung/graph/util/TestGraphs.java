@@ -59,10 +59,10 @@ public class TestGraphs {
   }
 
   /**
-   * @param chain_length the length of the chain of vertices to add to the returned graph
-   * @param isolate_count the number of isolated vertices to add to the returned graph
-   * @return a graph consisting of a chain of {@code chain_length} vertices and {@code
-   *     isolate_count} isolated vertices.
+   * @param chain_length the length of the chain of nodes to add to the returned graph
+   * @param isolate_count the number of isolated nodes to add to the returned graph
+   * @return a graph consisting of a chain of {@code chain_length} nodes and {@code isolate_count}
+   *     isolated nodes.
    */
   public static Network<String, Number> createChainPlusIsolates(
       int chain_length, int isolate_count) {
@@ -87,13 +87,13 @@ public class TestGraphs {
 
   /**
    * Creates a sample directed acyclic graph by generating several "layers", and connecting nodes
-   * (randomly) to nodes in earlier (but never later) layers. The number of vertices in each layer
-   * is a random value in the range [1, maxNodesPerLayer].
+   * (randomly) to nodes in earlier (but never later) layers. The number of nodes in each layer is a
+   * random value in the range [1, maxNodesPerLayer].
    *
-   * @param layers the number of layers of vertices to create in the graph
-   * @param maxNodesPerLayer the maximum number of vertices to put in any layer
-   * @param linkprob the probability that this method will add an edge from a vertex in layer
-   *     <i>k</i> to a vertex in layer <i>k+1</i>
+   * @param layers the number of layers of nodes to create in the graph
+   * @param maxNodesPerLayer the maximum number of nodes to put in any layer
+   * @param linkprob the probability that this method will add an edge from a node in layer <i>k</i>
+   *     to a node in layer <i>k+1</i>
    * @return the created graph
    */
   public static Network<String, Number> createDirectedAcyclicGraph(
@@ -176,7 +176,7 @@ public class TestGraphs {
   /**
    * Returns a bigger test graph with a clique, several components, and other parts.
    *
-   * @return a demonstration graph of type <tt>UndirectedSparseMultiNetwork</tt> with 28 vertices.
+   * @return a demonstration graph of type <tt>UndirectedSparseMultiNetwork</tt> with 28 nodes.
    */
   public static Network<String, Number> getDemoGraph() {
     MutableNetwork<String, Number> g =

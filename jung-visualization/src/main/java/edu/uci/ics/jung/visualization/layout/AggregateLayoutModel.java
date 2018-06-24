@@ -12,12 +12,12 @@ package edu.uci.ics.jung.visualization.layout;
 
 import com.google.common.collect.Maps;
 import com.google.common.graph.Graph;
-import edu.uci.ics.jung.algorithms.util.IterativeContext;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
 import edu.uci.ics.jung.layout.model.LayoutModel;
-import edu.uci.ics.jung.layout.model.PointModel;
+import edu.uci.ics.jung.layout.model.Point;
 import java.awt.geom.AffineTransform;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,20 +28,19 @@ import org.slf4j.LoggerFactory;
  *
  * @author Tom Nelson
  * @param <N> the node type
- * @param <P> the domain point type
  */
-public class AggregateLayoutModel<N, P> implements LayoutModel<N, P> {
+public class AggregateLayoutModel<N> implements LayoutModel<N> {
 
   private static final Logger log = LoggerFactory.getLogger(AggregateLayoutModel.class);
-  protected final LayoutModel<N, P> delegate;
-  protected Map<LayoutModel<N, P>, P> layouts = Maps.newHashMap();
+  protected final LayoutModel<N> delegate;
+  protected Map<LayoutModel<N>, Point> layouts = Maps.newHashMap();
 
   /**
    * Creates an instance backed by the specified {@code delegate}.
    *
    * @param delegate the layout to which this instance is delegating
    */
-  public AggregateLayoutModel(LayoutModel<N, P> delegate) {
+  public AggregateLayoutModel(LayoutModel<N> delegate) {
     this.delegate = delegate;
   }
 
@@ -49,32 +48,52 @@ public class AggregateLayoutModel<N, P> implements LayoutModel<N, P> {
    * Adds the passed layout as a sublayout, and specifies the center of where this sublayout should
    * appear.
    *
-   * @param layout the layout algorithm to use as a sublayout
-   * @param center the center of the coordinates for the sublayout
+   * @param layoutModel the layout model to use as a sublayout
+   * @param center the center of the coordinates for the sublayout model
    */
-  public void put(LayoutModel<N, P> layout, P center) {
+  public void put(LayoutModel<N> layoutModel, Point center) {
     if (log.isTraceEnabled()) {
-      log.trace("put layout: {} at {}", layout, center);
+      log.trace("put layout: {} at {}", layoutModel, center);
     }
-    layouts.put(layout, center);
+    layouts.put(layoutModel, center);
+    connectListeners(layoutModel);
+  }
+
+  private void connectListeners(LayoutModel<N> newLayoutModel) {
+    for (LayoutStateChangeListener layoutStateChangeListener :
+        delegate.getLayoutStateChangeSupport().getLayoutStateChangeListeners()) {
+      newLayoutModel
+          .getLayoutStateChangeSupport()
+          .addLayoutStateChangeListener(layoutStateChangeListener);
+    }
+
+    for (LayoutModel.ChangeListener changeListener :
+        delegate.getChangeSupport().getChangeListeners()) {
+      newLayoutModel.getChangeSupport().addChangeListener(changeListener);
+    }
+  }
+
+  private void disconnectListeners(LayoutModel<N> newLayoutModel) {
+    newLayoutModel.getLayoutStateChangeSupport().getLayoutStateChangeListeners().clear();
+    newLayoutModel.getChangeSupport().getChangeListeners().clear();
   }
 
   /**
    * @param layout the layout whose center is to be returned
    * @return the center of the passed layout
    */
-  public P get(LayoutModel<N, P> layout) {
+  public Point get(LayoutModel<N> layout) {
     return layouts.get(layout);
   }
 
   @Override
-  public void accept(LayoutAlgorithm<N, P> layoutAlgorithm) {
+  public void accept(LayoutAlgorithm<N> layoutAlgorithm) {
     delegate.accept(layoutAlgorithm);
   }
 
   @Override
-  public PointModel<P> getPointModel() {
-    return delegate.getPointModel();
+  public Map<N, Point> getLocations() {
+    return delegate.getLocations();
   }
 
   @Override
@@ -85,13 +104,28 @@ public class AggregateLayoutModel<N, P> implements LayoutModel<N, P> {
   @Override
   public void stopRelaxer() {
     delegate.stopRelaxer();
-    for (LayoutModel<N, P> childLayoutModel : layouts.keySet()) {
+    for (LayoutModel<N> childLayoutModel : layouts.keySet()) {
       childLayoutModel.stopRelaxer();
     }
   }
 
   @Override
-  public void set(N node, P location) {
+  public void setRelaxing(boolean relaxing) {
+    delegate.setRelaxing(relaxing);
+  }
+
+  @Override
+  public boolean isRelaxing() {
+    return delegate.isRelaxing();
+  }
+
+  @Override
+  public CompletableFuture getTheFuture() {
+    return delegate.getTheFuture();
+  }
+
+  @Override
+  public void set(N node, Point location) {
     delegate.set(node, location);
   }
 
@@ -101,12 +135,7 @@ public class AggregateLayoutModel<N, P> implements LayoutModel<N, P> {
   }
 
   @Override
-  public void set(N node, double x, double y, double z) {
-    delegate.set(node, x, y, z);
-  }
-
-  @Override
-  public P get(N node) {
+  public Point get(N node) {
     return delegate.get(node);
   }
 
@@ -125,7 +154,7 @@ public class AggregateLayoutModel<N, P> implements LayoutModel<N, P> {
    *
    * @param layout the layout to remove
    */
-  public void remove(LayoutModel<N, P> layout) {
+  public void remove(LayoutModel<N> layout) {
     layouts.remove(layout);
   }
 
@@ -144,17 +173,12 @@ public class AggregateLayoutModel<N, P> implements LayoutModel<N, P> {
     return delegate.getHeight();
   }
 
-  @Override
-  public int getDepth() {
-    return delegate.getDepth();
-  }
-
   /**
    * @param node the node whose locked state is to be returned
    * @return true if v is locked in any of the layouts, and false otherwise
    */
   public boolean isLocked(N node) {
-    for (LayoutModel<N, P> layoutModel : layouts.keySet()) {
+    for (LayoutModel<N> layoutModel : layouts.keySet()) {
       if (layoutModel.isLocked(node)) {
         return true;
       }
@@ -169,7 +193,7 @@ public class AggregateLayoutModel<N, P> implements LayoutModel<N, P> {
    * @param state {@code true} if the node is to be locked, and {@code false} if unlocked
    */
   public void lock(N node, boolean state) {
-    for (LayoutModel<N, P> layoutModel : layouts.keySet()) {
+    for (LayoutModel<N> layoutModel : layouts.keySet()) {
       if (layoutModel.getGraph().nodes().contains(node)) {
         layoutModel.lock(node, state);
       }
@@ -190,8 +214,18 @@ public class AggregateLayoutModel<N, P> implements LayoutModel<N, P> {
     return delegate.isLocked();
   }
 
-  public void setInitializer(Function<N, P> initializer) {
+  public void setInitializer(Function<N, Point> initializer) {
     delegate.setInitializer(initializer);
+  }
+
+  @Override
+  public LayoutStateChangeSupport getLayoutStateChangeSupport() {
+    return delegate.getLayoutStateChangeSupport();
+  }
+
+  @Override
+  public ChangeSupport getChangeSupport() {
+    return delegate.getChangeSupport();
   }
 
   /**
@@ -200,42 +234,24 @@ public class AggregateLayoutModel<N, P> implements LayoutModel<N, P> {
    *
    * @return the location of the node
    */
-  public P apply(N node) {
-    PointModel<P> pointModel = delegate.getPointModel();
-    for (LayoutModel<N, P> layoutModel : layouts.keySet()) {
+  public Point apply(N node) {
+    for (LayoutModel<N> layoutModel : layouts.keySet()) {
       if (layoutModel.getGraph().nodes().contains(node)) {
-        P center = layouts.get(layoutModel);
+        Point center = layouts.get(layoutModel);
         // transform by the layout itself, but offset to the
         // center of the sublayout
         int width = layoutModel.getWidth();
         int height = layoutModel.getHeight();
         AffineTransform at =
-            AffineTransform.getTranslateInstance(
-                pointModel.getX(center) - width / 2, pointModel.getY(center) - height / 2);
-        P nodeCenter = layoutModel.apply(node);
+            AffineTransform.getTranslateInstance(center.x - width / 2, center.y - height / 2);
+        Point nodeCenter = layoutModel.apply(node);
         log.trace("sublayout center is {}", nodeCenter);
-        double[] srcPoints =
-            new double[] {pointModel.getX(nodeCenter), pointModel.getY(nodeCenter)};
+        double[] srcPoints = new double[] {nodeCenter.x, nodeCenter.y};
         double[] destPoints = new double[2];
         at.transform(srcPoints, 0, destPoints, 0, 1);
-        return pointModel.newPoint(destPoints[0], destPoints[1]);
+        return Point.of(destPoints[0], destPoints[1]);
       }
     }
     return delegate.apply(node);
-  }
-
-  /** @return {@code true} iff the delegate layout and all sublayouts are done */
-  public boolean done() {
-    for (LayoutModel<N, P> layoutModel : layouts.keySet()) {
-      if (layoutModel instanceof IterativeContext) {
-        if (!((IterativeContext) layoutModel).done()) {
-          return false;
-        }
-      }
-    }
-    if (delegate instanceof IterativeContext) {
-      return ((IterativeContext) delegate).done();
-    }
-    return true;
   }
 }

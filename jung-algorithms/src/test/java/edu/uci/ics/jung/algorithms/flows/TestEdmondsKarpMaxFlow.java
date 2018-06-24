@@ -45,19 +45,19 @@ public class TestEdmondsKarpMaxFlow extends TestCase {
 
     try {
       new EdmondsKarpMaxFlow<Number, Number>(g, source, source, null, null, null);
-      fail("source and sink vertices not distinct");
+      fail("source and sink nodes not distinct");
     } catch (IllegalArgumentException iae) {
     }
 
     try {
       new EdmondsKarpMaxFlow<Number, Number>(h, source, w, null, null, null);
-      fail("source and sink vertices not both part of specified graph");
+      fail("source and sink nodes not both part of specified graph");
     } catch (IllegalArgumentException iae) {
     }
 
     try {
       new EdmondsKarpMaxFlow<Number, Number>(g, source, v, null, null, null);
-      fail("source and sink vertices not both part of specified graph");
+      fail("source and sink nodes not both part of specified graph");
     } catch (IllegalArgumentException iae) {
     }
   }

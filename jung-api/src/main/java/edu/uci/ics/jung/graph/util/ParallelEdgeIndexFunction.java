@@ -11,6 +11,8 @@
  */
 package edu.uci.ics.jung.graph.util;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Network;
 import java.util.HashMap;
@@ -27,35 +29,36 @@ import java.util.Map;
  * @author Joshua O'Madadhain
  * @author Tom Nelson
  */
-public class ParallelEdgeIndexFunction<V, E> implements EdgeIndexFunction<E> {
-  protected Map<E, Integer> edge_index = new HashMap<E, Integer>();
-  protected Network<V, E> graph;
+public class ParallelEdgeIndexFunction<N, E> implements EdgeIndexFunction<E> {
+  protected Map<E, Integer> edgeIndex = new HashMap<E, Integer>();
+  protected Network<N, E> graph;
 
   /** @param graph the graph for which this index function is defined */
-  public ParallelEdgeIndexFunction(Network<V, E> graph) {
-    this.graph = graph;
+  public ParallelEdgeIndexFunction(Network<N, E> graph) {
+    this.graph = checkNotNull(graph, "graph");
   }
 
   public int getIndex(E edge) {
-    Integer index = edge_index.get(edge);
+    checkNotNull(edge, "edge");
+    Integer index = edgeIndex.get(edge);
     if (index == null) {
-      EndpointPair<V> endpoints = graph.incidentNodes(edge);
-      V u = endpoints.nodeU();
-      V v = endpoints.nodeV();
+      EndpointPair<N> endpoints = graph.incidentNodes(edge);
+      N u = endpoints.nodeU();
+      N v = endpoints.nodeV();
       int count = 0;
       for (E connectingEdge : graph.edgesConnecting(u, v)) {
-        edge_index.put(connectingEdge, count++);
+        edgeIndex.put(connectingEdge, count++);
       }
-      return edge_index.get(edge);
+      return edgeIndex.get(edge);
     }
     return index;
   }
 
   public void reset(E edge) {
-    edge_index.remove(edge);
+    edgeIndex.remove(checkNotNull(edge, "edge"));
   }
 
   public void reset() {
-    edge_index.clear();
+    edgeIndex.clear();
   }
 }

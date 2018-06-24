@@ -32,7 +32,7 @@ public class TestGraphMLReader2 {
           + "<graphml xmlns=\"http://graphml.graphdrawing.org/xmlns\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
           + "xsi:schemaLocation=\"http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd\">";
 
-  private GraphMLReader2<MutableNetwork<DummyVertex, DummyEdge>, DummyVertex, DummyEdge> reader;
+  private GraphMLReader2<MutableNetwork<DummyNode, DummyEdge>, DummyNode, DummyEdge> reader;
 
   @After
   public void tearDown() throws Exception {
@@ -49,7 +49,7 @@ public class TestGraphMLReader2 {
     readGraph(
         xml,
         new DummyGraphObjectBase.UndirectedNetworkFactory(),
-        new DummyVertex.Factory(),
+        new DummyNode.Factory(),
         new DummyEdge.EdgeFactory()); //, new DummyEdge.HyperEdgeFactory());
   }
 
@@ -77,11 +77,11 @@ public class TestGraphMLReader2 {
             + "</graphml>";
 
     // Read the graph object.
-    Network<DummyVertex, DummyEdge> graph =
+    Network<DummyNode, DummyEdge> graph =
         readGraph(
             xml,
             new DummyGraphObjectBase.UndirectedNetworkFactory(),
-            new DummyVertex.Factory(),
+            new DummyNode.Factory(),
             new DummyEdge.EdgeFactory()); //, new DummyEdge.HyperEdgeFactory());
 
     // Check out the graph.
@@ -126,7 +126,7 @@ public class TestGraphMLReader2 {
     readGraph(
         xml,
         new DummyGraphObjectBase.UndirectedNetworkFactory(),
-        new DummyVertex.Factory(),
+        new DummyNode.Factory(),
         new DummyEdge.EdgeFactory()); //, new DummyEdge.HyperEdgeFactory());
 
     // Check out metadata.
@@ -179,7 +179,7 @@ public class TestGraphMLReader2 {
     readGraph(
         xml,
         new DummyGraphObjectBase.UndirectedNetworkFactory(),
-        new DummyVertex.Factory(),
+        new DummyNode.Factory(),
         new DummyEdge.EdgeFactory()); //, new DummyEdge.HyperEdgeFactory());
   }
 
@@ -200,8 +200,8 @@ public class TestGraphMLReader2 {
   //                + "<endpoint node=\"n2\"/>" + "</hyperedge>" + "</graph>" + "</graphml>";
   //
   //        // Read the graph object.
-  //        Hypergraph<DummyVertex, DummyEdge> graph = readGraph(xml, new DummyGraphObjectBase.SetHypergraphFactory(),
-  //                new DummyVertex.Factory(), new DummyEdge.EdgeFactory(), new DummyEdge.HyperEdgeFactory());
+  //        Hypergraph<DummyNode, DummyEdge> graph = readGraph(xml, new DummyGraphObjectBase.SetHypergraphFactory(),
+  //                new DummyNode.Factory(), new DummyEdge.EdgeFactory(), new DummyEdge.HyperEdgeFactory());
   //
   //        // Check out the graph.
   //        Assert.assertNotNull(graph);
@@ -237,21 +237,21 @@ public class TestGraphMLReader2 {
   //                + "<endpoint node=\"n0\"/>" + "<endpoint node=\"n1\"/>"
   //                + "<endpoint node=\"n2\"/>" + "</hyperedge>" + "</graphml>";
   //
-  //	// This will attempt to add an edge with an invalid number of incident vertices (3)
+  //	// This will attempt to add an edge with an invalid number of incident nodes (3)
   //	// for an UndirectedGraph, which should trigger an IllegalArgumentException.
   //        readGraph(xml, new DummyGraphObjectBase.UndirectedNetworkFactory(),
-  //                new DummyVertex.Factory(), new DummyEdge.EdgeFactory()); //, new DummyEdge.HyperEdgeFactory());
+  //                new DummyNode.Factory(), new DummyEdge.EdgeFactory()); //, new DummyEdge.HyperEdgeFactory());
   //    }
 
   @Test
   public void testAttributesFile() throws Exception {
 
     // Read the graph object.
-    Network<DummyVertex, DummyEdge> graph =
+    Network<DummyNode, DummyEdge> graph =
         readGraphFromFile(
             "attributes.graphml",
             new DummyGraphObjectBase.UndirectedNetworkFactory(),
-            new DummyVertex.Factory(),
+            new DummyNode.Factory(),
             new DummyEdge.EdgeFactory()); //, new DummyEdge.HyperEdgeFactory());
 
     Assert.assertEquals(6, graph.nodes().size());
@@ -320,7 +320,7 @@ public class TestGraphMLReader2 {
   //            }
   //        };
   //
-  //        Function<NodeMetadata, Number> vertexFactory = new Function<NodeMetadata, Number>() {
+  //        Function<NodeMetadata, Number> nodeFactory = new Function<NodeMetadata, Number>() {
   //            int n = 0;
   //
   //            public Number apply(NodeMetadata md) {
@@ -348,7 +348,7 @@ public class TestGraphMLReader2 {
   //        Reader fileReader = new InputStreamReader(getClass().getResourceAsStream("hyper.graphml"));
   //        GraphMLReader2<MutableNetwork<Number, Number>, Number, Number> reader =
   //                new GraphMLReader2<MutableNetwork<Number, Number>, Number, Number>(fileReader,
-  //                        graphFactory, vertexFactory, edgeFactory); //, hyperEdgeFactory);
+  //                        graphFactory, nodeFactory, edgeFactory); //, hyperEdgeFactory);
   //
   //        // Read the graph.
   //        Network<Number, Number> graph = reader.readGraph();
@@ -406,10 +406,10 @@ public class TestGraphMLReader2 {
       for( int ix=0; ix<numTrials; ++ix ) {
           Reader fileReader = new InputStreamReader(getClass().getResourceAsStream(fileName));
 
-          GraphMLReader<Hypergraph<DummyVertex, DummyEdge>, DummyVertex, DummyEdge> reader = new GraphMLReader<Hypergraph<DummyVertex, DummyEdge>, DummyVertex, DummyEdge>(new Factory<DummyVertex>() {
+          GraphMLReader<Hypergraph<DummyNode, DummyEdge>, DummyNode, DummyEdge> reader = new GraphMLReader<Hypergraph<DummyNode, DummyEdge>, DummyNode, DummyEdge>(new Factory<DummyNode>() {
 
-              public DummyVertex create() {
-                  return new DummyVertex();
+              public DummyNode create() {
+                  return new DummyNode();
               }
 
           }, new Factory<DummyEdge>() {
@@ -421,7 +421,7 @@ public class TestGraphMLReader2 {
           Thread.sleep(10);
 
           long start = System.currentTimeMillis();
-          Hypergraph<DummyVertex, DummyEdge> graph = new UndirectedSparseGraph<DummyVertex, DummyEdge>();
+          Hypergraph<DummyNode, DummyEdge> graph = new UndirectedSparseGraph<DummyNode, DummyEdge>();
           reader.load(fileReader, graph);
           long duration = System.currentTimeMillis() - start;
           totalTime += duration;
@@ -443,9 +443,9 @@ public class TestGraphMLReader2 {
       // Test reader2
       for( int ix=0; ix<numTrials; ++ix ) {
           Reader fileReader = new InputStreamReader(getClass().getResourceAsStream(fileName));
-          reader = new GraphMLReader2<Hypergraph<DummyVertex, DummyEdge>, DummyVertex, DummyEdge>(
+          reader = new GraphMLReader2<Hypergraph<DummyNode, DummyEdge>, DummyNode, DummyEdge>(
                   fileReader, new DummyGraphObjectBase.UndirectedSparseGraphFactory(),
-                  new DummyVertex.Factory(), new DummyEdge.EdgeFactory(), new DummyEdge.HyperEdgeFactory());
+                  new DummyNode.Factory(), new DummyEdge.EdgeFactory(), new DummyEdge.HyperEdgeFactory());
           reader.init();
 
           Thread.sleep(10);
@@ -464,30 +464,30 @@ public class TestGraphMLReader2 {
       System.out.println();
   }*/
 
-  private Network<DummyVertex, DummyEdge> readGraph(
+  private Network<DummyNode, DummyEdge> readGraph(
       String xml,
-      Function<GraphMetadata, MutableNetwork<DummyVertex, DummyEdge>> gf,
-      DummyVertex.Factory nf,
+      Function<GraphMetadata, MutableNetwork<DummyNode, DummyEdge>> gf,
+      DummyNode.Factory nf,
       DummyEdge.EdgeFactory ef) //, DummyEdge.HyperEdgeFactory hef)
       throws GraphIOException {
     Reader fileReader = new StringReader(xml);
     reader =
-        new GraphMLReader2<MutableNetwork<DummyVertex, DummyEdge>, DummyVertex, DummyEdge>(
+        new GraphMLReader2<MutableNetwork<DummyNode, DummyEdge>, DummyNode, DummyEdge>(
             fileReader, gf, nf, ef); //, hef);
 
     return reader.readGraph();
   }
 
-  private Network<DummyVertex, DummyEdge> readGraphFromFile(
+  private Network<DummyNode, DummyEdge> readGraphFromFile(
       String file,
-      Function<GraphMetadata, MutableNetwork<DummyVertex, DummyEdge>> gf,
-      DummyVertex.Factory nf,
+      Function<GraphMetadata, MutableNetwork<DummyNode, DummyEdge>> gf,
+      DummyNode.Factory nf,
       DummyEdge.EdgeFactory ef) //, DummyEdge.HyperEdgeFactory hef)
       throws Exception {
     InputStream is = getClass().getResourceAsStream(file);
     Reader fileReader = new InputStreamReader(is);
     reader =
-        new GraphMLReader2<MutableNetwork<DummyVertex, DummyEdge>, DummyVertex, DummyEdge>(
+        new GraphMLReader2<MutableNetwork<DummyNode, DummyEdge>, DummyNode, DummyEdge>(
             fileReader, gf, nf, ef); //, hef);
 
     return reader.readGraph();

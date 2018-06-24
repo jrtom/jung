@@ -33,54 +33,54 @@ public class BFSDistanceLabeler<N> {
 
   private Map<N, Integer> distanceDecorator = new HashMap<N, Integer>();
   private List<N> mCurrentList;
-  private Set<N> mUnvisitedVertices;
-  private List<N> mVerticesInOrderVisited;
+  private Set<N> mUnvisitedNodes;
+  private List<N> mNodesInOrderVisited;
   private Map<N, HashSet<N>> mPredecessorMap;
 
   /**
    * Creates a new BFS labeler for the specified graph and root set The distances are stored in the
-   * corresponding Vertex objects and are of type MutableInteger
+   * corresponding Node objects and are of type MutableInteger
    */
   public BFSDistanceLabeler() {
     mPredecessorMap = new HashMap<N, HashSet<N>>();
   }
 
   /**
-   * Returns the list of vertices visited in order of traversal
+   * Returns the list of nodes visited in order of traversal
    *
-   * @return the list of vertices
+   * @return the list of nodes
    */
-  public List<N> getVerticesInOrderVisited() {
-    return mVerticesInOrderVisited;
+  public List<N> getNodesInOrderVisited() {
+    return mNodesInOrderVisited;
   }
 
   /**
-   * Returns the set of all vertices that were not visited
+   * Returns the set of all nodes that were not visited
    *
-   * @return the list of unvisited vertices
+   * @return the list of unvisited nodes
    */
-  public Set<N> getUnvisitedVertices() {
-    return mUnvisitedVertices;
+  public Set<N> getUnvisitedNodes() {
+    return mUnvisitedNodes;
   }
 
   /**
-   * Given a vertex, returns the shortest distance from any node in the root set to v
+   * Given a node, returns the shortest distance from any node in the root set to v
    *
    * @param g the graph in which the distances are to be measured
-   * @param v the vertex whose distance is to be retrieved
+   * @param v the node whose distance is to be retrieved
    * @return the shortest distance from any node in the root set to v
    */
   public int getDistance(Graph<N> g, N v) {
     Preconditions.checkArgument(
-        g.nodes().contains(v), "Vertex %s is not contained in the graph %s", v, g);
+        g.nodes().contains(v), "Node %s is not contained in the graph %s", v, g);
 
     return distanceDecorator.get(v);
   }
 
   /**
-   * Returns set of predecessors of the given vertex
+   * Returns set of predecessors of the given node
    *
-   * @param v the vertex whose predecessors are to be retrieved
+   * @param v the node whose predecessors are to be retrieved
    * @return the set of predecessors
    */
   public Set<N> getPredecessors(N v) {
@@ -88,19 +88,19 @@ public class BFSDistanceLabeler<N> {
   }
 
   protected void initialize(Graph<N> g, Set<N> rootSet) {
-    mVerticesInOrderVisited = new ArrayList<N>();
-    mUnvisitedVertices = new HashSet<N>();
-    for (N currentVertex : g.nodes()) {
-      mUnvisitedVertices.add(currentVertex);
-      mPredecessorMap.put(currentVertex, new HashSet<N>());
+    mNodesInOrderVisited = new ArrayList<N>();
+    mUnvisitedNodes = new HashSet<N>();
+    for (N currentNode : g.nodes()) {
+      mUnvisitedNodes.add(currentNode);
+      mPredecessorMap.put(currentNode, new HashSet<N>());
     }
 
     mCurrentList = new ArrayList<N>();
     for (N v : rootSet) {
       distanceDecorator.put(v, 0);
       mCurrentList.add(v);
-      mUnvisitedVertices.remove(v);
-      mVerticesInOrderVisited.add(v);
+      mUnvisitedNodes.remove(v);
+      mNodesInOrderVisited.add(v);
     }
   }
 
@@ -116,7 +116,7 @@ public class BFSDistanceLabeler<N> {
    * nodes traversed.
    *
    * @param graph the graph to label
-   * @param rootSet the set of starting vertices to traverse from
+   * @param rootSet the set of starting nodes to traverse from
    */
   public void labelDistances(Graph<N> graph, Set<N> rootSet) {
 
@@ -125,10 +125,10 @@ public class BFSDistanceLabeler<N> {
     int distance = 1;
     while (true) {
       List<N> newList = new ArrayList<N>();
-      for (N currentVertex : mCurrentList) {
-        if (graph.nodes().contains(currentVertex)) {
-          for (N next : graph.successors(currentVertex)) {
-            visitNewVertex(currentVertex, next, distance, newList);
+      for (N currentNode : mCurrentList) {
+        if (graph.nodes().contains(currentNode)) {
+          for (N next : graph.successors(currentNode)) {
+            visitNewNode(currentNode, next, distance, newList);
           }
         }
       }
@@ -139,7 +139,7 @@ public class BFSDistanceLabeler<N> {
       distance++;
     }
 
-    for (N v : mUnvisitedVertices) {
+    for (N v : mUnvisitedNodes) {
       distanceDecorator.put(v, -1);
     }
   }
@@ -149,18 +149,18 @@ public class BFSDistanceLabeler<N> {
    * predecessors of each node traversed as well as the order of nodes traversed.
    *
    * @param graph the graph to label
-   * @param root the single starting vertex to traverse from
+   * @param root the single starting node to traverse from
    */
   public void labelDistances(Graph<N> graph, N root) {
     labelDistances(graph, Collections.singleton(root));
   }
 
-  private void visitNewVertex(N predecessor, N neighbor, int distance, List<N> newList) {
-    if (mUnvisitedVertices.contains(neighbor)) {
+  private void visitNewNode(N predecessor, N neighbor, int distance, List<N> newList) {
+    if (mUnvisitedNodes.contains(neighbor)) {
       distanceDecorator.put(neighbor, distance);
       newList.add(neighbor);
-      mVerticesInOrderVisited.add(neighbor);
-      mUnvisitedVertices.remove(neighbor);
+      mNodesInOrderVisited.add(neighbor);
+      mUnvisitedNodes.remove(neighbor);
     }
     int predecessorDistance = distanceDecorator.get(predecessor).intValue();
     int successorDistance = distanceDecorator.get(neighbor).intValue();
@@ -172,7 +172,7 @@ public class BFSDistanceLabeler<N> {
   /**
    * Must be called after {@code labelDistances} in order to contain valid data.
    *
-   * @return a map from vertices to minimum distances from the original source(s)
+   * @return a map from nodes to minimum distances from the original source(s)
    */
   public Map<N, Integer> getDistanceDecorator() {
     return distanceDecorator;

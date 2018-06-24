@@ -13,7 +13,7 @@ package edu.uci.ics.jung.io.graphml.parser;
 import com.google.common.graph.MutableNetwork;
 import edu.uci.ics.jung.io.graphml.DummyEdge;
 import edu.uci.ics.jung.io.graphml.DummyGraphObjectBase;
-import edu.uci.ics.jung.io.graphml.DummyVertex;
+import edu.uci.ics.jung.io.graphml.DummyNode;
 import edu.uci.ics.jung.io.graphml.KeyMap;
 import java.io.Reader;
 import java.io.StringReader;
@@ -27,16 +27,16 @@ import org.junit.Before;
 
 public abstract class AbstractParserTest {
 
-  private ElementParserRegistry<MutableNetwork<DummyVertex, DummyEdge>, DummyVertex, DummyEdge>
+  private ElementParserRegistry<MutableNetwork<DummyNode, DummyEdge>, DummyNode, DummyEdge>
       registry;
 
   @Before
   public void setUp() throws Exception {
     registry =
-        new ElementParserRegistry<MutableNetwork<DummyVertex, DummyEdge>, DummyVertex, DummyEdge>(
+        new ElementParserRegistry<MutableNetwork<DummyNode, DummyEdge>, DummyNode, DummyEdge>(
             new KeyMap(),
             new DummyGraphObjectBase.UndirectedNetworkFactory(),
-            new DummyVertex.Factory(),
+            new DummyNode.Factory(),
             new DummyEdge.EdgeFactory());
     //                new DummyEdge.HyperEdgeFactory());
   }

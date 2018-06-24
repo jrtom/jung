@@ -17,6 +17,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.graph.Graph;
 import edu.uci.ics.jung.graph.util.TreeUtils;
 import edu.uci.ics.jung.layout.model.LayoutModel;
+import edu.uci.ics.jung.layout.model.Point;
 import edu.uci.ics.jung.layout.model.PolarPoint;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,7 +32,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Tom Nelson
  */
-public class BalloonLayoutAlgorithm<N, P> extends TreeLayoutAlgorithm<N, P> {
+public class BalloonLayoutAlgorithm<N> extends TreeLayoutAlgorithm<N> {
 
   private static final Logger log = LoggerFactory.getLogger(BalloonLayoutAlgorithm.class);
 
@@ -40,14 +41,14 @@ public class BalloonLayoutAlgorithm<N, P> extends TreeLayoutAlgorithm<N, P> {
           .build(
               new CacheLoader<N, PolarPoint>() {
                 public PolarPoint load(N node) {
-                  return new PolarPoint();
+                  return PolarPoint.ORIGIN;
                 }
               });
 
   protected Map<N, Double> radii = new HashMap<N, Double>();
 
   @Override
-  public void visit(LayoutModel<N, P> layoutModel) {
+  public void visit(LayoutModel<N> layoutModel) {
     super.visit(layoutModel);
     if (log.isTraceEnabled()) {
       log.trace("visit {}", layoutModel);
@@ -56,14 +57,14 @@ public class BalloonLayoutAlgorithm<N, P> extends TreeLayoutAlgorithm<N, P> {
     setRootPolars(layoutModel);
   }
 
-  private void putRadialPointsInModel(LayoutModel<N, P> layoutModel) {
+  private void putRadialPointsInModel(LayoutModel<N> layoutModel) {
     for (Map.Entry<N, PolarPoint> entry : polarLocations.asMap().entrySet()) {
       PolarPoint polar = entry.getValue();
       layoutModel.set(entry.getKey(), getCartesian(layoutModel, entry.getKey()));
     }
   }
 
-  protected void setRootPolars(LayoutModel<N, P> layoutModel) {
+  protected void setRootPolars(LayoutModel<N> layoutModel) {
     Graph<N> graph = layoutModel.getGraph();
     Set<N> roots = TreeUtils.roots(graph);
     int width = layoutModel.getWidth();
@@ -78,15 +79,15 @@ public class BalloonLayoutAlgorithm<N, P> extends TreeLayoutAlgorithm<N, P> {
     }
   }
 
-  protected void setRootPolar(LayoutModel<N, P> layoutModel, N root) {
-    PolarPoint pp = new PolarPoint(0, 0);
-    P p = getCenter(layoutModel);
+  protected void setRootPolar(LayoutModel<N> layoutModel, N root) {
+    PolarPoint pp = PolarPoint.ORIGIN;
+    Point p = getCenter(layoutModel);
     polarLocations.put(root, pp);
     layoutModel.set(root, p);
   }
 
   protected void setPolars(
-      LayoutModel<N, P> layoutModel, Set<N> kids, P parentLocation, double parentRadius) {
+      LayoutModel<N> layoutModel, Set<N> kids, Point parentLocation, double parentRadius) {
 
     int childCount = kids.size();
     if (childCount == 0) {
@@ -104,16 +105,12 @@ public class BalloonLayoutAlgorithm<N, P> extends TreeLayoutAlgorithm<N, P> {
       double theta = i++ * 2 * Math.PI / childCount + rand;
       radii.put(child, childRadius);
 
-      PolarPoint pp = new PolarPoint(theta, radius);
+      PolarPoint pp = PolarPoint.of(theta, radius);
       polarLocations.put(child, pp);
 
-      P p = PolarPoint.polarToCartesian(pointModel, pp);
-      pointModel.setLocation(
-          p,
-          pointModel.getX(p) + pointModel.getX(parentLocation),
-          pointModel.getY(p) + pointModel.getY(parentLocation));
+      Point p = PolarPoint.polarToCartesian(pp);
+      p = p.add(parentLocation.x, parentLocation.y);
       layoutModel.set(child, p);
-
       setPolars(layoutModel, layoutModel.getGraph().successors(child), p, childRadius);
     }
   }
@@ -123,7 +120,7 @@ public class BalloonLayoutAlgorithm<N, P> extends TreeLayoutAlgorithm<N, P> {
    * @return the coordinates of {@code node}'s parent, or the center of this layout's area if it's a
    *     root.
    */
-  public P getCenter(LayoutModel<N, P> layoutModel, N node) {
+  public Point getCenter(LayoutModel<N> layoutModel, N node) {
     Graph<N> graph = layoutModel.getGraph();
     N parent = Iterables.getOnlyElement(graph.predecessors(node), null);
     if (parent == null) {
@@ -132,32 +129,23 @@ public class BalloonLayoutAlgorithm<N, P> extends TreeLayoutAlgorithm<N, P> {
     return layoutModel.get(parent);
   }
 
-  private P getCartesian(LayoutModel<N, P> layoutModel, N node) {
+  private Point getCartesian(LayoutModel<N> layoutModel, N node) {
     PolarPoint pp = polarLocations.getUnchecked(node);
     double centerX = layoutModel.getWidth() / 2;
     double centerY = layoutModel.getHeight() / 2;
-    P cartesian = PolarPoint.polarToCartesian(pointModel, pp);
-    pointModel.setLocation(
-        cartesian, pointModel.getX(cartesian) + centerX, pointModel.getY(cartesian) + centerY);
+    Point cartesian = PolarPoint.polarToCartesian(pp);
+    cartesian = cartesian.add(centerX, centerY);
     return cartesian;
   }
 
-  //  @Override
-  protected void setLocation(LayoutModel<N, P> layoutModel, N node, P location) {
-    P c = getCenter(layoutModel, node);
-    P pv =
-        pointModel.newPoint(
-            pointModel.getX(location) - pointModel.getX(c),
-            pointModel.getY(location) - pointModel.getY(c));
-    PolarPoint newLocation =
-        PolarPoint.cartesianToPolar(pointModel, pointModel.getX(pv), pointModel.getY(pv));
-    polarLocations.getUnchecked(node).setLocation(newLocation);
+  protected void setLocation(LayoutModel<N> layoutModel, N node, Point location) {
+    Point c = getCenter(layoutModel, node);
+    Point pv = location.add(-c.x, -c.y);
+    PolarPoint newLocation = PolarPoint.cartesianToPolar(pv.x, pv.y);
+    polarLocations.put(node, newLocation);
 
-    P center = getCenter(layoutModel, node);
-    pointModel.setLocation(
-        pv,
-        pointModel.getX(pv) + pointModel.getX(center),
-        pointModel.getY(pv) + pointModel.getY(center));
+    Point center = getCenter(layoutModel, node);
+    center = pv.add(center.x, center.y);
     layoutModel.set(node, pv);
   }
 

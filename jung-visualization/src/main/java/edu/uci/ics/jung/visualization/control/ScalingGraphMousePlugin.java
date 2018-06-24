@@ -18,9 +18,9 @@ import java.awt.event.MouseWheelListener;
 import java.awt.geom.Point2D;
 
 /**
- * ScalingGraphMouse applies a scaling transformation to the graph layout. The Vertices get closer
- * or farther apart, but do not themselves change layoutSize. ScalingGraphMouse uses
- * MouseWheelEvents to apply the scaling.
+ * ScalingGraphMouse applies a scaling transformation to the graph layout. The Nodes get closer or
+ * farther apart, but do not themselves change layoutSize. ScalingGraphMouse uses MouseWheelEvents
+ * to apply the scaling.
  *
  * @author Tom Nelson
  */

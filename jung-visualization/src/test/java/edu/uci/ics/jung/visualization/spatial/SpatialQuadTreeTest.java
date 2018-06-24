@@ -1,15 +1,13 @@
 package edu.uci.ics.jung.visualization.spatial;
 
-import static edu.uci.ics.jung.visualization.layout.AWT.POINT_MODEL;
-
 import com.google.common.graph.Graph;
 import edu.uci.ics.jung.graph.util.TestGraphs;
 import edu.uci.ics.jung.layout.model.LayoutModel;
 import edu.uci.ics.jung.layout.model.LoadingCacheLayoutModel;
+import edu.uci.ics.jung.layout.model.Point;
 import edu.uci.ics.jung.layout.util.NetworkNodeAccessor;
 import edu.uci.ics.jung.layout.util.RadiusNetworkNodeAccessor;
 import edu.uci.ics.jung.layout.util.RandomLocationTransformer;
-import java.awt.geom.Point2D;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,7 +27,7 @@ public class SpatialQuadTreeTest {
   int width = 600;
   int height = 600;
   Graph<String> graph;
-  LayoutModel<String, Point2D> layoutModel;
+  LayoutModel<String> layoutModel;
   SpatialQuadTree<String> tree;
 
   @Before
@@ -37,13 +35,11 @@ public class SpatialQuadTreeTest {
     // generate 100 random nodes in a graph at random locations in the layoutModel
     graph = TestGraphs.createChainPlusIsolates(0, 100).asGraph();
     layoutModel =
-        LoadingCacheLayoutModel.<String, Point2D>builder()
+        LoadingCacheLayoutModel.<String>builder()
             .setGraph(graph)
-            .setPointModel(POINT_MODEL)
             .setSize(width, height)
             .setInitializer(
-                new RandomLocationTransformer(
-                    POINT_MODEL, width, height, 0, System.currentTimeMillis()))
+                new RandomLocationTransformer(width, height, System.currentTimeMillis()))
             .build();
 
     tree = new SpatialQuadTree(layoutModel, width, height);
@@ -59,9 +55,9 @@ public class SpatialQuadTreeTest {
   @Test
   public void testRandomPointsAndLocations() {
     for (String node : graph.nodes()) {
-      Point2D location = layoutModel.apply(node);
-      SpatialQuadTree pointQuadTree = tree.getContainingQuadTreeLeaf(location);
-      SpatialQuadTree nodeQuadTree = tree.getContainingQuadTreeLeaf(node);
+      Point location = layoutModel.apply(node);
+      SpatialQuadTree pointQuadTree = tree.getContainingQuadTreeLeaf(location.x, location.y);
+      SpatialQuadTree nodeQuadTree = (SpatialQuadTree) tree.getContainingQuadTreeLeaf(node);
       Assert.assertEquals(pointQuadTree, nodeQuadTree);
       log.debug(
           "pointQuadTree level {} nodeQuadTree level {}",
@@ -77,19 +73,18 @@ public class SpatialQuadTreeTest {
   @Test
   public void testClosestNodes() {
     final int COUNT = 10000;
-    NetworkNodeAccessor<String, Point2D> slowWay =
-        new RadiusNetworkNodeAccessor<String, Point2D>(graph, POINT_MODEL, Double.MAX_VALUE);
+    NetworkNodeAccessor<String> slowWay = new RadiusNetworkNodeAccessor<>(Double.MAX_VALUE);
 
     // look for nodes closest to COUNT random locations
     for (int i = 0; i < COUNT; i++) {
       double x = Math.random() * layoutModel.getWidth();
       double y = Math.random() * layoutModel.getHeight();
       // use the slowWay
-      String winnerOne = slowWay.getNode(layoutModel, x, y, 0);
+      String winnerOne = slowWay.getNode(layoutModel, x, y);
       // use the quadtree
-      String winnerTwo = tree.getClosestNode(x, y);
+      String winnerTwo = tree.getClosestElement(x, y);
 
-      log.debug("{} and {} should be the same...", winnerOne, winnerTwo);
+      log.trace("{} and {} should be the same...", winnerOne, winnerTwo);
 
       if (!winnerOne.equals(winnerTwo)) {
         log.warn(
@@ -98,14 +93,14 @@ public class SpatialQuadTreeTest {
             layoutModel.apply(winnerOne),
             x,
             y,
-            layoutModel.apply(winnerOne).distanceSq(x, y));
+            layoutModel.apply(winnerOne).distanceSquared(x, y));
         log.warn(
             "the radius distanceSq from winnerTwo {} at {} to {},{} is {}",
             winnerTwo,
             layoutModel.apply(winnerTwo),
             x,
             y,
-            layoutModel.apply(winnerTwo).distanceSq(x, y));
+            layoutModel.apply(winnerTwo).distanceSquared(x, y));
 
         log.warn(
             "the cell for winnerOne {} is {}",
@@ -132,8 +127,7 @@ public class SpatialQuadTreeTest {
   @Test
   public void comparePerformance() {
     final int COUNT = 100000;
-    NetworkNodeAccessor<String, Point2D> slowWay =
-        new RadiusNetworkNodeAccessor<String, Point2D>(graph, POINT_MODEL, Double.MAX_VALUE);
+    NetworkNodeAccessor<String> slowWay = new RadiusNetworkNodeAccessor<>(Double.MAX_VALUE);
 
     // generate the points first so both tests use the same points
     double[] xs = new double[COUNT];
@@ -146,14 +140,14 @@ public class SpatialQuadTreeTest {
     // look for nodes closest to 10000 random locations
     for (int i = 0; i < COUNT; i++) {
       // use the RadiusNetworkNodeAccessor
-      String winnerOne = slowWay.getNode(layoutModel, xs[i], ys[i], 0);
+      String winnerOne = slowWay.getNode(layoutModel, xs[i], ys[i]);
     }
     long end = System.currentTimeMillis();
     log.info("radius way took {}", end - start);
     start = System.currentTimeMillis();
     for (int i = 0; i < COUNT; i++) {
       // use the quadtree
-      String winnerTwo = tree.getClosestNode(xs[i], ys[i]);
+      String winnerTwo = tree.getClosestElement(xs[i], ys[i]);
     }
     end = System.currentTimeMillis();
     log.info("spatial way took {}", end - start);

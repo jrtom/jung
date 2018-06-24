@@ -11,7 +11,7 @@
  */
 package edu.uci.ics.jung.visualization.control;
 
-import edu.uci.ics.jung.visualization.Layer;
+import edu.uci.ics.jung.visualization.MultiLayerTransformer.Layer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.transform.Lens;
 import edu.uci.ics.jung.visualization.transform.LensTransformer;
@@ -89,16 +89,7 @@ public class LensMagnificationGraphMousePlugin extends AbstractGraphMousePlugin
     lens.setMagnification(magnification);
   }
 
-  //    private void changeMagnification(MutableTransformer transformer, float delta) {
-  //    if (transformer instanceof LensTransformer) {
-  //      LensTransformer ht =  transformer;
-  //      float magnification = ht.getMagnification() + delta;
-  //      magnification = Math.max(floor, magnification);
-  //      magnification = Math.min(magnification, ceiling);
-  //      ht.setMagnification(magnification);
-  //    }
-  //  }
-  /** zoom the display in or out, depending on the direction of the mouse wheel motion. */
+  /** change magnification of the lens, depending on the direction of the mouse wheel motion. */
   public void mouseWheelMoved(MouseWheelEvent e) {
     boolean accepted = checkModifiers(e);
     float delta = this.delta;

@@ -6,22 +6,21 @@ import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 import java.awt.geom.Point2D;
 import java.util.function.Supplier;
 
-public class SimpleEdgeSupport<V, E> implements EdgeSupport<V, E> {
+public class SimpleEdgeSupport<N, E> implements EdgeSupport<N, E> {
 
   protected Point2D down;
-  protected EdgeEffects<V, E> edgeEffects;
+  protected EdgeEffects<N, E> edgeEffects;
   protected Supplier<E> edgeFactory;
-  protected V startVertex;
+  protected N startNode;
 
   public SimpleEdgeSupport(Supplier<E> edgeFactory) {
     this.edgeFactory = edgeFactory;
-    this.edgeEffects = new CubicCurveEdgeEffects<V, E>();
+    this.edgeEffects = new CubicCurveEdgeEffects<N, E>();
   }
 
   @Override
-  public void startEdgeCreate(
-      BasicVisualizationServer<V, E> vv, V startVertex, Point2D startPoint) {
-    this.startVertex = startVertex;
+  public void startEdgeCreate(BasicVisualizationServer<N, E> vv, N startNode, Point2D startPoint) {
+    this.startNode = startNode;
     this.down = startPoint;
     this.edgeEffects.startEdgeEffects(vv, startPoint, startPoint);
     if (vv.getModel().getNetwork().isDirected()) {
@@ -31,8 +30,8 @@ public class SimpleEdgeSupport<V, E> implements EdgeSupport<V, E> {
   }
 
   @Override
-  public void midEdgeCreate(BasicVisualizationServer<V, E> vv, Point2D midPoint) {
-    if (startVertex != null) {
+  public void midEdgeCreate(BasicVisualizationServer<N, E> vv, Point2D midPoint) {
+    if (startNode != null) {
       this.edgeEffects.midEdgeEffects(vv, down, midPoint);
       if (vv.getModel().getNetwork().isDirected()) {
         this.edgeEffects.midArrowEffects(vv, down, midPoint);
@@ -42,32 +41,33 @@ public class SimpleEdgeSupport<V, E> implements EdgeSupport<V, E> {
   }
 
   @Override
-  public void endEdgeCreate(BasicVisualizationServer<V, E> vv, V endVertex) {
+  public void endEdgeCreate(BasicVisualizationServer<N, E> vv, N endNode) {
     Preconditions.checkState(
         vv.getModel().getNetwork() instanceof MutableNetwork<?, ?>, "graph must be mutable");
-    if (startVertex != null) {
-      MutableNetwork<V, E> graph = (MutableNetwork<V, E>) vv.getModel().getNetwork();
-      graph.addEdge(startVertex, endVertex, edgeFactory.get());
+    if (startNode != null) {
+      MutableNetwork<N, E> graph = (MutableNetwork<N, E>) vv.getModel().getNetwork();
+      graph.addEdge(startNode, endNode, edgeFactory.get());
+      vv.getEdgeSpatial().recalculate();
       vv.repaint();
     }
-    startVertex = null;
+    startNode = null;
     edgeEffects.endEdgeEffects(vv);
     edgeEffects.endArrowEffects(vv);
   }
 
   @Override
-  public void abort(BasicVisualizationServer<V, E> vv) {
-    startVertex = null;
+  public void abort(BasicVisualizationServer<N, E> vv) {
+    startNode = null;
     edgeEffects.endEdgeEffects(vv);
     edgeEffects.endArrowEffects(vv);
     vv.repaint();
   }
 
-  public EdgeEffects<V, E> getEdgeEffects() {
+  public EdgeEffects<N, E> getEdgeEffects() {
     return edgeEffects;
   }
 
-  public void setEdgeEffects(EdgeEffects<V, E> edgeEffects) {
+  public void setEdgeEffects(EdgeEffects<N, E> edgeEffects) {
     this.edgeEffects = edgeEffects;
   }
 

@@ -61,7 +61,7 @@
         <configuration>
           <archive>
             <manifest>
-              <mainClass>edu.uci.ics.jung.samples.VertexImageShaperDemo</mainClass>
+              <mainClass>edu.uci.ics.jung.samples.NodeImageShaperDemo</mainClass>
               <addClasspath>true</addClasspath>
             </manifest>
           </archive>

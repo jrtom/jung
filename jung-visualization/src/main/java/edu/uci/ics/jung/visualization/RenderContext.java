@@ -1,13 +1,13 @@
 package edu.uci.ics.jung.visualization;
 
 import com.google.common.graph.Network;
-import edu.uci.ics.jung.graph.util.EdgeIndexFunction;
 import edu.uci.ics.jung.visualization.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import edu.uci.ics.jung.visualization.renderers.EdgeLabelRenderer;
-import edu.uci.ics.jung.visualization.renderers.VertexLabelRenderer;
+import edu.uci.ics.jung.visualization.renderers.NodeLabelRenderer;
 import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
 import edu.uci.ics.jung.visualization.util.Context;
+import edu.uci.ics.jung.visualization.util.EdgeIndexFunction;
 import java.awt.BasicStroke;
 import java.awt.Font;
 import java.awt.Paint;
@@ -56,9 +56,9 @@ public interface RenderContext<N, E> {
 
   void setRenderEdgeArrow(boolean render);
 
-  Function<? super E, Font> getEdgeFontTransformer();
+  Function<? super E, Font> getEdgeFontFunction();
 
-  void setEdgeFontTransformer(Function<? super E, Font> edgeFontTransformer);
+  void setEdgeFontFunction(Function<? super E, Font> edgeFontFunction);
 
   Predicate<E> getEdgeIncludePredicate();
 
@@ -72,53 +72,53 @@ public interface RenderContext<N, E> {
 
   void setEdgeLabelRenderer(EdgeLabelRenderer edgeLabelRenderer);
 
-  Function<? super E, Paint> getEdgeFillPaintTransformer();
+  Function<? super E, Paint> getEdgeFillPaintFunction();
 
-  void setEdgeFillPaintTransformer(Function<? super E, Paint> edgePaintTransformer);
+  void setEdgeFillPaintFunction(Function<? super E, Paint> edgePaintFunction);
 
-  Function<? super E, Paint> getEdgeDrawPaintTransformer();
+  Function<? super E, Paint> getEdgeDrawPaintFunction();
 
-  void setEdgeDrawPaintTransformer(Function<? super E, Paint> edgeDrawPaintTransformer);
+  void setEdgeDrawPaintFunction(Function<? super E, Paint> edgeDrawPaintFunction);
 
-  Function<? super E, Paint> getArrowDrawPaintTransformer();
+  Function<? super E, Paint> getArrowDrawPaintFunction();
 
-  void setArrowDrawPaintTransformer(Function<? super E, Paint> arrowDrawPaintTransformer);
+  void setArrowDrawPaintFunction(Function<? super E, Paint> arrowDrawPaintFunction);
 
-  Function<? super E, Paint> getArrowFillPaintTransformer();
+  Function<? super E, Paint> getArrowFillPaintFunction();
 
-  void setArrowFillPaintTransformer(Function<? super E, Paint> arrowFillPaintTransformer);
+  void setArrowFillPaintFunction(Function<? super E, Paint> arrowFillPaintFunction);
 
-  Function<Context<Network, E>, Shape> getEdgeShapeTransformer();
+  Function<Context<Network<N, E>, E>, Shape> getEdgeShapeFunction();
 
-  void setEdgeShapeTransformer(Function<Context<Network, E>, Shape> edgeShapeTransformer);
+  void setEdgeShapeFunction(Function<Context<Network<N, E>, E>, Shape> edgeShapeFunction);
 
-  Function<? super E, String> getEdgeLabelTransformer();
+  Function<? super E, String> getEdgeLabelFunction();
 
-  void setEdgeLabelTransformer(Function<? super E, String> edgeStringer);
+  void setEdgeLabelFunction(Function<? super E, String> edgeStringer);
 
-  Function<? super E, Stroke> edgestrokeTransformer();
+  Function<? super E, Stroke> edgeStrokeFunction();
 
-  void setEdgeStrokeTransformer(Function<? super E, Stroke> edgeStrokeTransformer);
+  void setEdgeStrokeFunction(Function<? super E, Stroke> edgeStrokeFunction);
 
-  Function<? super E, Stroke> getEdgeArrowStrokeTransformer();
+  Function<? super E, Stroke> getEdgeArrowStrokeFunction();
 
-  void setEdgeArrowStrokeTransformer(Function<? super E, Stroke> edgeArrowStrokeTransformer);
+  void setEdgeArrowStrokeFunction(Function<? super E, Stroke> edgeArrowStrokeFunction);
 
   GraphicsDecorator getGraphicsContext();
 
   void setGraphicsContext(GraphicsDecorator graphicsContext);
 
-  EdgeIndexFunction<E> getParallelEdgeIndexFunction();
+  EdgeIndexFunction<N, E> getParallelEdgeIndexFunction();
 
-  void setParallelEdgeIndexFunction(EdgeIndexFunction<E> parallelEdgeIndexFunction);
+  void setParallelEdgeIndexFunction(EdgeIndexFunction<N, E> parallelEdgeIndexFunction);
 
   PickedState<E> getPickedEdgeState();
 
   void setPickedEdgeState(PickedState<E> pickedEdgeState);
 
-  PickedState<N> getPickedVertexState();
+  PickedState<N> getPickedNodeState();
 
-  void setPickedVertexState(PickedState<N> pickedVertexState);
+  void setPickedNodeState(PickedState<N> pickedNodeState);
 
   CellRendererPane getRendererPane();
 
@@ -128,41 +128,45 @@ public interface RenderContext<N, E> {
 
   void setScreenDevice(JComponent screenDevice);
 
-  Function<? super N, Font> getVertexFontTransformer();
+  Function<? super N, Font> getNodeFontFunction();
 
-  void setVertexFontTransformer(Function<? super N, Font> vertexFontTransformer);
+  void setNodeFontFunction(Function<? super N, Font> nodeFontFunction);
 
-  Function<N, Icon> getVertexIconTransformer();
+  Function<N, Icon> getNodeIconFunction();
 
-  void setVertexIconTransformer(Function<N, Icon> vertexIconTransformer);
+  void setNodeIconFunction(Function<N, Icon> nodeIconFunction);
 
-  Predicate<N> getVertexIncludePredicate();
+  Predicate<N> getNodeIncludePredicate();
 
-  void setVertexIncludePredicate(Predicate<N> vertexIncludePredicate);
+  void setNodeIncludePredicate(Predicate<N> nodeIncludePredicate);
 
-  VertexLabelRenderer getVertexLabelRenderer();
+  NodeLabelRenderer getNodeLabelRenderer();
 
-  void setVertexLabelRenderer(VertexLabelRenderer vertexLabelRenderer);
+  void setNodeLabelRenderer(NodeLabelRenderer nodeLabelRenderer);
 
-  Function<? super N, Paint> getVertexFillPaintTransformer();
+  Function<? super N, Paint> getNodeFillPaintFunction();
 
-  void setVertexFillPaintTransformer(Function<? super N, Paint> vertexFillPaintTransformer);
+  void setNodeFillPaintFunction(Function<? super N, Paint> nodeFillPaintFunction);
 
-  Function<? super N, Paint> getVertexDrawPaintTransformer();
+  Function<? super N, Paint> getNodeDrawPaintFunction();
 
-  void setVertexDrawPaintTransformer(Function<? super N, Paint> vertexDrawPaintTransformer);
+  void setNodeDrawPaintFunction(Function<? super N, Paint> nodeDrawPaintFunction);
 
-  Function<? super N, Shape> getVertexShapeTransformer();
+  Function<? super N, Shape> getNodeShapeFunction();
 
-  void setVertexShapeTransformer(Function<? super N, Shape> vertexShapeTransformer);
+  void setNodeShapeFunction(Function<? super N, Shape> nodeShapeFunction);
 
-  Function<? super N, String> getVertexLabelTransformer();
+  Function<? super N, String> getNodeLabelFunction();
 
-  void setVertexLabelTransformer(Function<? super N, String> vertexStringer);
+  void setNodeLabelFunction(Function<? super N, String> nodeStringer);
 
-  Function<? super N, Stroke> getVertexStrokeTransformer();
+  Function<? super N, Paint> getNodeLabelDrawPaintFunction();
 
-  void setVertexStrokeTransformer(Function<? super N, Stroke> vertexStrokeTransformer);
+  void setNodeLabelDrawPaintFunction(Function<? super N, Paint> nodeLabelDrawPaintFunction);
+
+  Function<? super N, Stroke> getNodeStrokeFunction();
+
+  void setNodeStrokeFunction(Function<? super N, Stroke> nodeStrokeFunction);
 
   class DirectedEdgeArrowPredicate implements Predicate<Network<?, ?>> {
 

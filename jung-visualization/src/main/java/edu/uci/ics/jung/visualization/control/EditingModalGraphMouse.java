@@ -20,49 +20,49 @@ import javax.swing.JMenu;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.plaf.basic.BasicIconFactory;
 
-public class EditingModalGraphMouse<V, E> extends AbstractModalGraphMouse
+public class EditingModalGraphMouse<N, E> extends AbstractModalGraphMouse
     implements ModalGraphMouse, ItemSelectable {
 
-  protected Supplier<V> vertexFactory;
+  protected Supplier<N> nodeFactory;
   protected Supplier<E> edgeFactory;
-  protected EditingGraphMousePlugin<V, E> editingPlugin;
-  protected LabelEditingGraphMousePlugin<V, E> labelEditingPlugin;
-  protected EditingPopupGraphMousePlugin<V, E> popupEditingPlugin;
-  protected AnnotatingGraphMousePlugin<V, E> annotatingPlugin;
+  protected EditingGraphMousePlugin<N, E> editingPlugin;
+  protected LabelEditingGraphMousePlugin<N, E> labelEditingPlugin;
+  protected EditingPopupGraphMousePlugin<N, E> popupEditingPlugin;
+  protected AnnotatingGraphMousePlugin<N, E> annotatingPlugin;
   protected MultiLayerTransformer basicTransformer;
-  protected RenderContext<V, E> rc;
+  protected RenderContext<N, E> rc;
 
   /**
-   * Creates an instance with the specified rendering context and vertex/edge factories, and with
+   * Creates an instance with the specified rendering context and node/edge factories, and with
    * default zoom in/out values of 1.1 and 1/1.1.
    *
    * @param rc the rendering context
-   * @param vertexFactory used to construct vertices
+   * @param nodeFactory used to construct nodes
    * @param edgeFactory used to construct edges
    */
   public EditingModalGraphMouse(
-      RenderContext<V, E> rc, Supplier<V> vertexFactory, Supplier<E> edgeFactory) {
-    this(rc, vertexFactory, edgeFactory, 1.1f, 1 / 1.1f);
+      RenderContext<N, E> rc, Supplier<N> nodeFactory, Supplier<E> edgeFactory) {
+    this(rc, nodeFactory, edgeFactory, 1.1f, 1 / 1.1f);
   }
 
   /**
-   * Creates an instance with the specified rendering context and vertex/edge factories, and with
-   * the specified zoom in/out values.
+   * Creates an instance with the specified rendering context and node/edge factories, and with the
+   * specified zoom in/out values.
    *
    * @param rc the rendering context
-   * @param vertexFactory used to construct vertices
+   * @param nodeFactory used to construct nodes
    * @param edgeFactory used to construct edges
    * @param in amount to zoom in by for each action
    * @param out amount to zoom out by for each action
    */
   public EditingModalGraphMouse(
-      RenderContext<V, E> rc,
-      Supplier<V> vertexFactory,
+      RenderContext<N, E> rc,
+      Supplier<N> nodeFactory,
       Supplier<E> edgeFactory,
       float in,
       float out) {
     super(in, out);
-    this.vertexFactory = vertexFactory;
+    this.nodeFactory = nodeFactory;
     this.edgeFactory = edgeFactory;
     this.rc = rc;
     this.basicTransformer = rc.getMultiLayerTransformer();
@@ -73,16 +73,16 @@ public class EditingModalGraphMouse<V, E> extends AbstractModalGraphMouse
   /** create the plugins, and load the plugins for TRANSFORMING mode */
   @Override
   protected void loadPlugins() {
-    pickingPlugin = new PickingGraphMousePlugin<V, E>();
-    animatedPickingPlugin = new AnimatedPickingGraphMousePlugin<V, E>();
+    pickingPlugin = new PickingGraphMousePlugin<N, E>();
+    animatedPickingPlugin = new AnimatedPickingGraphMousePlugin<N, E>();
     translatingPlugin = new TranslatingGraphMousePlugin(InputEvent.BUTTON1_MASK);
     scalingPlugin = new ScalingGraphMousePlugin(new CrossoverScalingControl(), 0, in, out);
     rotatingPlugin = new RotatingGraphMousePlugin();
     shearingPlugin = new ShearingGraphMousePlugin();
-    editingPlugin = new EditingGraphMousePlugin<V, E>(vertexFactory, edgeFactory);
-    labelEditingPlugin = new LabelEditingGraphMousePlugin<V, E>();
-    annotatingPlugin = new AnnotatingGraphMousePlugin<V, E>(rc);
-    popupEditingPlugin = new EditingPopupGraphMousePlugin<V, E>(vertexFactory, edgeFactory);
+    editingPlugin = new EditingGraphMousePlugin<N, E>(nodeFactory, edgeFactory);
+    labelEditingPlugin = new LabelEditingGraphMousePlugin<>();
+    annotatingPlugin = new AnnotatingGraphMousePlugin<>(rc);
+    popupEditingPlugin = new EditingPopupGraphMousePlugin<N, E>(nodeFactory, edgeFactory);
     add(scalingPlugin);
     setMode(Mode.EDITING);
   }
@@ -287,22 +287,22 @@ public class EditingModalGraphMouse<V, E> extends AbstractModalGraphMouse
   }
 
   /** @return the annotatingPlugin */
-  public AnnotatingGraphMousePlugin<V, E> getAnnotatingPlugin() {
+  public AnnotatingGraphMousePlugin<N, E> getAnnotatingPlugin() {
     return annotatingPlugin;
   }
 
   /** @return the editingPlugin */
-  public EditingGraphMousePlugin<V, E> getEditingPlugin() {
+  public EditingGraphMousePlugin<N, E> getEditingPlugin() {
     return editingPlugin;
   }
 
   /** @return the labelEditingPlugin */
-  public LabelEditingGraphMousePlugin<V, E> getLabelEditingPlugin() {
+  public LabelEditingGraphMousePlugin<N, E> getLabelEditingPlugin() {
     return labelEditingPlugin;
   }
 
   /** @return the popupEditingPlugin */
-  public EditingPopupGraphMousePlugin<V, E> getPopupEditingPlugin() {
+  public EditingPopupGraphMousePlugin<N, E> getPopupEditingPlugin() {
     return popupEditingPlugin;
   }
 }

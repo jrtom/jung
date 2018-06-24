@@ -9,9 +9,11 @@
  */
 package edu.uci.ics.jung.visualization;
 
+import edu.uci.ics.jung.visualization.control.TransformSupport;
 import edu.uci.ics.jung.visualization.layout.NetworkElementAccessor;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
+import edu.uci.ics.jung.visualization.spatial.Spatial;
 import java.awt.*;
 import java.awt.RenderingHints.Key;
 import java.awt.geom.Point2D;
@@ -22,12 +24,10 @@ import javax.swing.event.EventListenerList;
 
 /**
  * @author Tom Nelson
- * @param <N> the vertex type
+ * @param <N> the node type
  * @param <E> the edge type
  */
 public interface VisualizationServer<N, E> {
-
-  Dimension DEFAULT_SIZE = new Dimension(600, 600);
 
   /**
    * Specify whether this class uses its offscreen image or not.
@@ -45,11 +45,21 @@ public interface VisualizationServer<N, E> {
 
   Shape viewOnLayout();
 
+  Spatial<N> getNodeSpatial();
+
+  void setNodeSpatial(Spatial<N> spatial);
+
+  Spatial<E> getEdgeSpatial();
+
+  void setEdgeSpatial(Spatial<E> spatial);
+
+  TransformSupport<N, E> getTransformSupport();
+
   /** @return the model. */
-  VisualizationModel<N, E, Point2D> getModel();
+  VisualizationModel<N, E> getModel();
 
   /** @param model the model for this class to use */
-  void setModel(VisualizationModel<N, E, Point2D> model);
+  void setModel(VisualizationModel<N, E> model);
 
   /**
    * In response to changes from the model, repaint the view, then fire an event to any listeners.
@@ -127,13 +137,13 @@ public interface VisualizationServer<N, E> {
    */
   void fireStateChanged();
 
-  /** @return the vertex PickedState instance */
-  PickedState<N> getPickedVertexState();
+  /** @return the node PickedState instance */
+  PickedState<N> getPickedNodeState();
 
   /** @return the edge PickedState instance */
   PickedState<E> getPickedEdgeState();
 
-  void setPickedVertexState(PickedState<N> pickedVertexState);
+  void setPickedNodeState(PickedState<N> pickedNodeState);
 
   void setPickedEdgeState(PickedState<E> pickedEdgeState);
 

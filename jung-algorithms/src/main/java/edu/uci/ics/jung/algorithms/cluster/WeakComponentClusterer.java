@@ -18,47 +18,47 @@ import java.util.Set;
 import java.util.function.Function;
 
 /**
- * Finds all weak components in a graph as sets of vertex sets. A weak component is defined as a
- * maximal subgraph in which all pairs of vertices in the subgraph are reachable from one another in
+ * Finds all weak components in a graph as sets of node sets. A weak component is defined as a
+ * maximal subgraph in which all pairs of nodes in the subgraph are reachable from one another in
  * the underlying undirected subgraph.
  *
- * <p>This implementation identifies components as sets of vertex sets. To create the induced graphs
- * from any or all of these vertex sets, see <code>algorithms.filters.FilterUtils</code>.
+ * <p>This implementation identifies components as sets of node sets. To create the induced graphs
+ * from any or all of these node sets, see <code>algorithms.filters.FilterUtils</code>.
  *
- * <p>Running time: O(|V| + |E|) where |V| is the number of vertices and |E| is the number of edges.
+ * <p>Running time: O(|V| + |E|) where |V| is the number of nodes and |E| is the number of edges.
  *
  * @author Scott White
  */
-public class WeakComponentClusterer<V, E> implements Function<Network<V, E>, Set<Set<V>>> {
+public class WeakComponentClusterer<N, E> implements Function<Network<N, E>, Set<Set<N>>> {
   /**
    * Extracts the weak components from a graph.
    *
    * @param graph the graph whose weak components are to be extracted
    * @return the list of weak components
    */
-  public Set<Set<V>> apply(Network<V, E> graph) {
+  public Set<Set<N>> apply(Network<N, E> graph) {
 
-    Set<Set<V>> clusterSet = new HashSet<Set<V>>();
+    Set<Set<N>> clusterSet = new HashSet<Set<N>>();
 
-    HashSet<V> unvisitedVertices = new HashSet<V>(graph.nodes());
+    HashSet<N> unvisitedNodes = new HashSet<N>(graph.nodes());
 
-    while (!unvisitedVertices.isEmpty()) {
-      Set<V> cluster = new HashSet<V>();
-      V root = unvisitedVertices.iterator().next();
-      unvisitedVertices.remove(root);
+    while (!unvisitedNodes.isEmpty()) {
+      Set<N> cluster = new HashSet<N>();
+      N root = unvisitedNodes.iterator().next();
+      unvisitedNodes.remove(root);
       cluster.add(root);
 
-      Queue<V> queue = new LinkedList<V>();
+      Queue<N> queue = new LinkedList<N>();
       queue.add(root);
 
       while (!queue.isEmpty()) {
-        V currentVertex = queue.remove();
-        Collection<V> neighbors = graph.adjacentNodes(currentVertex);
+        N currentNode = queue.remove();
+        Collection<N> neighbors = graph.adjacentNodes(currentNode);
 
-        for (V neighbor : neighbors) {
-          if (unvisitedVertices.contains(neighbor)) {
+        for (N neighbor : neighbors) {
+          if (unvisitedNodes.contains(neighbor)) {
             queue.add(neighbor);
-            unvisitedVertices.remove(neighbor);
+            unvisitedNodes.remove(neighbor);
             cluster.add(neighbor);
           }
         }

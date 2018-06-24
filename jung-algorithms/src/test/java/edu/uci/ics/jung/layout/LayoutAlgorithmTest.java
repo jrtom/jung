@@ -7,12 +7,12 @@ import edu.uci.ics.jung.graph.MutableCTreeNetwork;
 import edu.uci.ics.jung.graph.TreeNetworkBuilder;
 import edu.uci.ics.jung.graph.util.TestGraphs;
 import edu.uci.ics.jung.layout.algorithms.CircleLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.KKLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.SpringLayoutAlgorithm;
-import edu.uci.ics.jung.layout.algorithms.immutable.KKLayoutAlgorithm;
-import edu.uci.ics.jung.layout.algorithms.immutable.TreeLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.TreeLayoutAlgorithm;
 import edu.uci.ics.jung.layout.model.LoadingCacheLayoutModel;
-import edu.uci.ics.jung.layout.model.PointModel;
+import edu.uci.ics.jung.layout.model.Point;
 import java.util.Collection;
 import java.util.Set;
 import org.junit.Assert;
@@ -26,22 +26,17 @@ public class LayoutAlgorithmTest {
   private static final Logger log = LoggerFactory.getLogger(LayoutAlgorithmTest.class);
 
   Graph<String> graph;
-  LoadingCacheLayoutModel<String, TestPointModel.Point> layoutModel;
-  PointModel<TestPointModel.Point> pointModel = new TestPointModel();
+  LoadingCacheLayoutModel<String> layoutModel;
 
   @Test
   public void testLayoutAlgorithms() {
     graph = TestGraphs.getDemoGraph().asGraph();
     layoutModel =
-        LoadingCacheLayoutModel.<String, TestPointModel.Point>builder()
-            .setGraph(graph)
-            .setPointModel(pointModel)
-            .setSize(500, 500)
-            .build();
+        LoadingCacheLayoutModel.<String>builder().setGraph(graph).setSize(500, 500).build();
     testLayoutAlgorithm(new SpringLayoutAlgorithm<>());
     testLayoutAlgorithm(new KKLayoutAlgorithm<>());
     // ISOM seems to put some nodes in the same location, so the test will fail
-    //    testLayoutAlgorithm(new ISOMLayoutAlgorithm<String, TestPointModel.Point>(pointModel));
+    //    testLayoutAlgorithm(new ISOMLayoutAlgorithm<>();
     testLayoutAlgorithm(new CircleLayoutAlgorithm<>());
   }
 
@@ -49,25 +44,21 @@ public class LayoutAlgorithmTest {
   public void testTreeLayoutAlgorithms() {
     graph = createTree().asGraph();
     layoutModel =
-        LoadingCacheLayoutModel.<String, TestPointModel.Point>builder()
-            .setGraph(graph)
-            .setPointModel(pointModel)
-            .setSize(500, 500)
-            .build();
+        LoadingCacheLayoutModel.<String>builder().setGraph(graph).setSize(500, 500).build();
     testLayoutAlgorithm(new TreeLayoutAlgorithm<>());
   }
 
-  private void testLayoutAlgorithm(LayoutAlgorithm<String, TestPointModel.Point> layoutAlgorithm) {
+  private void testLayoutAlgorithm(LayoutAlgorithm<String> layoutAlgorithm) {
     layoutModel.clear();
     layoutModel.accept(layoutAlgorithm);
     testUniqueLocations();
   }
 
   private void testUniqueLocations() {
-    Set<TestPointModel.Point> locations = Sets.newHashSet();
+    Set<Point> locations = Sets.newHashSet();
     Collection<String> nodes = layoutModel.getGraph().nodes();
     for (String node : nodes) {
-      TestPointModel.Point p = layoutModel.get(node);
+      Point p = layoutModel.get(node);
       locations.add(layoutModel.get(node));
     }
     // make sure that the algorithm as provided unique locations for all nodes

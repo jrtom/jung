@@ -28,6 +28,8 @@ public interface BidirectionalTransformer {
    */
   Point2D transform(Point2D p);
 
+  Point2D transform(double x, double y);
+
   /**
    * convert the supplied screen coordinate to the graph coordinate.
    *
@@ -35,4 +37,6 @@ public interface BidirectionalTransformer {
    * @return the graph point
    */
   Point2D inverseTransform(Point2D p);
+
+  Point2D inverseTransform(double x, double y);
 }

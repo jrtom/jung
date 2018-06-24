@@ -31,25 +31,25 @@ import java.util.function.Function;
  *   <li>Does not indent lines for text-format readability.
  * </ul>
  */
-public class GraphMLWriter<V, E> {
-  protected Function<? super V, String> vertex_ids;
+public class GraphMLWriter<N, E> {
+  protected Function<? super N, String> node_ids;
   protected Function<? super E, String> edge_ids;
-  protected Map<String, GraphMLMetadata<Network<V, E>>> graph_data;
-  protected Map<String, GraphMLMetadata<V>> vertex_data;
+  protected Map<String, GraphMLMetadata<Network<N, E>>> graph_data;
+  protected Map<String, GraphMLMetadata<N>> node_data;
   protected Map<String, GraphMLMetadata<E>> edge_data;
-  protected Function<? super V, String> vertex_desc;
+  protected Function<? super N, String> node_desc;
   protected Function<? super E, String> edge_desc;
-  protected Function<? super Network<V, E>, String> graph_desc;
+  protected Function<? super Network<N, E>, String> graph_desc;
   protected boolean directed;
   protected int nest_level;
 
   public GraphMLWriter() {
-    vertex_ids = V::toString;
+    node_ids = N::toString;
     edge_ids = e -> null;
     graph_data = Collections.emptyMap();
-    vertex_data = Collections.emptyMap();
+    node_data = Collections.emptyMap();
     edge_data = Collections.emptyMap();
-    vertex_desc = n -> null;
+    node_desc = n -> null;
     edge_desc = e -> null;
     graph_desc = g -> null;
     nest_level = 0;
@@ -62,7 +62,7 @@ public class GraphMLWriter<V, E> {
    * @param w the writer instance to which the graph data will be written out
    * @throws IOException if writing the graph fails
    */
-  public void save(Network<V, E> g, Writer w) throws IOException {
+  public void save(Network<N, E> g, Writer w) throws IOException {
     BufferedWriter bw = new BufferedWriter(w);
 
     // write out boilerplate header
@@ -76,8 +76,8 @@ public class GraphMLWriter<V, E> {
     for (String key : graph_data.keySet()) {
       writeKeySpecification(key, "graph", graph_data.get(key), bw);
     }
-    for (String key : vertex_data.keySet()) {
-      writeKeySpecification(key, "node", vertex_data.get(key), bw);
+    for (String key : node_data.keySet()) {
+      writeKeySpecification(key, "node", node_data.get(key), bw);
     }
     for (String key : edge_data.keySet()) {
       writeKeySpecification(key, "edge", edge_data.get(key), bw);
@@ -100,15 +100,15 @@ public class GraphMLWriter<V, E> {
 
     // write graph data out if any
     for (String key : graph_data.keySet()) {
-      Function<Network<V, E>, ?> t = graph_data.get(key).transformer;
+      Function<Network<N, E>, ?> t = graph_data.get(key).transformer;
       Object value = t.apply(g);
       if (value != null) {
         bw.write(format("data", "key", key, value.toString()) + "\n");
       }
     }
 
-    // write vertex information
-    writeVertexData(g, bw);
+    // write node information
+    writeNodeData(g, bw);
 
     // write edge information
     writeEdgeData(g, bw);
@@ -128,20 +128,20 @@ public class GraphMLWriter<V, E> {
     w.write(to_write);
   }
 
-  protected void writeVertexData(Network<V, E> graph, BufferedWriter w) throws IOException {
-    for (V v : graph.nodes()) {
-      String v_string = String.format("<node id=\"%s\"", vertex_ids.apply(v));
+  protected void writeNodeData(Network<N, E> graph, BufferedWriter w) throws IOException {
+    for (N v : graph.nodes()) {
+      String v_string = String.format("<node id=\"%s\"", node_ids.apply(v));
       boolean closed = false;
       // write description out if any
-      String desc = vertex_desc.apply(v);
+      String desc = node_desc.apply(v);
       if (desc != null) {
         w.write(v_string + ">\n");
         closed = true;
         w.write("<desc>" + desc + "</desc>\n");
       }
       // write data out if any
-      for (String key : vertex_data.keySet()) {
-        Function<V, ?> t = vertex_data.get(key).transformer;
+      for (String key : node_data.keySet()) {
+        Function<N, ?> t = node_data.get(key).transformer;
         if (t != null) {
           Object value = t.apply(v);
           if (value != null) {
@@ -161,9 +161,9 @@ public class GraphMLWriter<V, E> {
     }
   }
 
-  protected void writeEdgeData(Network<V, E> g, Writer w) throws IOException {
+  protected void writeEdgeData(Network<N, E> g, Writer w) throws IOException {
     for (E e : g.edges()) {
-      EndpointPair<V> endpoints = g.incidentNodes(e);
+      EndpointPair<N> endpoints = g.incidentNodes(e);
       String id = edge_ids.apply(e);
       String e_string;
       e_string = "<edge ";
@@ -174,9 +174,9 @@ public class GraphMLWriter<V, E> {
       // add edge type if doesn't match default
       e_string +=
           "source=\""
-              + vertex_ids.apply(endpoints.nodeU())
+              + node_ids.apply(endpoints.nodeU())
               + "\" target=\""
-              + vertex_ids.apply(endpoints.nodeV())
+              + node_ids.apply(endpoints.nodeV())
               + "\"";
 
       boolean closed = false;
@@ -242,14 +242,14 @@ public class GraphMLWriter<V, E> {
   }
 
   /**
-   * Provides an ID that will be used to identify a vertex in the output file. If the vertex IDs are
-   * not set, the ID for each vertex will default to the output of <code>toString</code> (and thus
-   * not guaranteed to be unique).
+   * Provides an ID that will be used to identify a node in the output file. If the node IDs are not
+   * set, the ID for each node will default to the output of <code>toString</code> (and thus not
+   * guaranteed to be unique).
    *
-   * @param vertex_ids a mapping from vertex to ID
+   * @param node_ids a mapping from node to ID
    */
-  public void setVertexIDs(Function<V, String> vertex_ids) {
-    this.vertex_ids = vertex_ids;
+  public void setNodeIDs(Function<N, String> node_ids) {
+    this.node_ids = node_ids;
   }
 
   /**
@@ -267,17 +267,17 @@ public class GraphMLWriter<V, E> {
    *
    * @param graph_map map from data type name to graph data
    */
-  public void setGraphData(Map<String, GraphMLMetadata<Network<V, E>>> graph_map) {
+  public void setGraphData(Map<String, GraphMLMetadata<Network<N, E>>> graph_map) {
     graph_data = graph_map;
   }
 
   /**
-   * Provides a map from data type name to vertex data.
+   * Provides a map from data type name to node data.
    *
-   * @param vertex_map map from data type name to vertex data
+   * @param node_map map from data type name to node data
    */
-  public void setVertexData(Map<String, GraphMLMetadata<V>> vertex_map) {
-    vertex_data = vertex_map;
+  public void setNodeData(Map<String, GraphMLMetadata<N>> node_map) {
+    node_data = node_map;
   }
 
   /**
@@ -301,28 +301,28 @@ public class GraphMLWriter<V, E> {
       String id,
       String description,
       String default_value,
-      Function<Network<V, E>, String> graph_transformer) {
+      Function<Network<N, E>, String> graph_transformer) {
     if (graph_data.equals(Collections.EMPTY_MAP)) {
-      graph_data = new HashMap<String, GraphMLMetadata<Network<V, E>>>();
+      graph_data = new HashMap<String, GraphMLMetadata<Network<N, E>>>();
     }
     graph_data.put(
-        id, new GraphMLMetadata<Network<V, E>>(description, default_value, graph_transformer));
+        id, new GraphMLMetadata<Network<N, E>>(description, default_value, graph_transformer));
   }
 
   /**
-   * Adds a new vertex data specification.
+   * Adds a new node data specification.
    *
    * @param id the ID of the data to add
    * @param description a description of the data to add
    * @param default_value a default value for the data type
-   * @param vertex_transformer a mapping from vertices to their string representations
+   * @param node_transformer a mapping from nodes to their string representations
    */
-  public void addVertexData(
-      String id, String description, String default_value, Function<V, String> vertex_transformer) {
-    if (vertex_data.equals(Collections.EMPTY_MAP)) {
-      vertex_data = new HashMap<String, GraphMLMetadata<V>>();
+  public void addNodeData(
+      String id, String description, String default_value, Function<N, String> node_transformer) {
+    if (node_data.equals(Collections.EMPTY_MAP)) {
+      node_data = new HashMap<String, GraphMLMetadata<N>>();
     }
-    vertex_data.put(id, new GraphMLMetadata<V>(description, default_value, vertex_transformer));
+    node_data.put(id, new GraphMLMetadata<N>(description, default_value, node_transformer));
   }
 
   /**
@@ -342,12 +342,12 @@ public class GraphMLWriter<V, E> {
   }
 
   /**
-   * Provides vertex descriptions.
+   * Provides node descriptions.
    *
-   * @param vertex_desc a mapping from vertices to their descriptions
+   * @param node_desc a mapping from nodes to their descriptions
    */
-  public void setVertexDescriptions(Function<V, String> vertex_desc) {
-    this.vertex_desc = vertex_desc;
+  public void setNodeDescriptions(Function<N, String> node_desc) {
+    this.node_desc = node_desc;
   }
 
   /**
@@ -364,7 +364,7 @@ public class GraphMLWriter<V, E> {
    *
    * @param graph_desc a mapping from graphs to their descriptions
    */
-  public void setGraphDescriptions(Function<Network<V, E>, String> graph_desc) {
+  public void setGraphDescriptions(Function<Network<N, E>, String> graph_desc) {
     this.graph_desc = graph_desc;
   }
 }

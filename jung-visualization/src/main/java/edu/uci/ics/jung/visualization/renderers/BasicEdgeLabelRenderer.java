@@ -11,7 +11,8 @@ package edu.uci.ics.jung.visualization.renderers;
 
 import com.google.common.graph.EndpointPair;
 import edu.uci.ics.jung.layout.model.LayoutModel;
-import edu.uci.ics.jung.visualization.Layer;
+import edu.uci.ics.jung.layout.model.Point;
+import edu.uci.ics.jung.visualization.MultiLayerTransformer.Layer;
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.VisualizationModel;
 import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
@@ -24,11 +25,11 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.util.function.Predicate;
 
-public class BasicEdgeLabelRenderer<V, E> implements Renderer.EdgeLabel<V, E> {
+public class BasicEdgeLabelRenderer<N, E> implements Renderer.EdgeLabel<N, E> {
 
   public Component prepareRenderer(
-      RenderContext<V, E> renderContext,
-      LayoutModel<V, Point2D> layoutModel,
+      RenderContext<N, E> renderContext,
+      LayoutModel<N> layoutModel,
       EdgeLabelRenderer graphLabelRenderer,
       Object value,
       boolean isSelected,
@@ -38,38 +39,44 @@ public class BasicEdgeLabelRenderer<V, E> implements Renderer.EdgeLabel<V, E> {
         .<E>getEdgeLabelRendererComponent(
             renderContext.getScreenDevice(),
             value,
-            renderContext.getEdgeFontTransformer().apply(edge),
+            renderContext.getEdgeFontFunction().apply(edge),
             isSelected,
             edge);
   }
 
   @Override
   public void labelEdge(
-      RenderContext<V, E> renderContext,
-      VisualizationModel<V, E, Point2D> visualizationModel,
+      RenderContext<N, E> renderContext,
+      VisualizationModel<N, E> visualizationModel,
       E e,
       String label) {
     if (label == null || label.length() == 0) {
       return;
     }
 
-    // don't draw edge if either incident vertex is not drawn
-    EndpointPair<V> endpoints = visualizationModel.getNetwork().incidentNodes(e);
-    V v1 = endpoints.nodeU();
-    V v2 = endpoints.nodeV();
-    Predicate<V> nodeIncludePredicate = renderContext.getVertexIncludePredicate();
+    // don't draw edge if either incident node is not drawn
+    EndpointPair<N> endpoints = visualizationModel.getNetwork().incidentNodes(e);
+    N v1 = endpoints.nodeU();
+    N v2 = endpoints.nodeV();
+    Predicate<N> nodeIncludePredicate = renderContext.getNodeIncludePredicate();
     if (!nodeIncludePredicate.test(v1) || !nodeIncludePredicate.test(v2)) {
       return;
     }
 
-    Point2D p1 = visualizationModel.getLayoutModel().apply(v1);
-    Point2D p2 = visualizationModel.getLayoutModel().apply(v2);
-    p1 = renderContext.getMultiLayerTransformer().transform(Layer.LAYOUT, p1);
-    p2 = renderContext.getMultiLayerTransformer().transform(Layer.LAYOUT, p2);
-    float x1 = (float) p1.getX();
-    float y1 = (float) p1.getY();
-    float x2 = (float) p2.getX();
-    float y2 = (float) p2.getY();
+    Point p1 = visualizationModel.getLayoutModel().apply(v1);
+    Point p2 = visualizationModel.getLayoutModel().apply(v2);
+    Point2D p2d1 =
+        renderContext
+            .getMultiLayerTransformer()
+            .transform(Layer.LAYOUT, new Point2D.Double(p1.x, p1.y));
+    Point2D p2d2 =
+        renderContext
+            .getMultiLayerTransformer()
+            .transform(Layer.LAYOUT, new Point2D.Double(p2.x, p2.y));
+    float x1 = (float) p2d1.getX();
+    float y1 = (float) p2d1.getY();
+    float x2 = (float) p2d2.getX();
+    float y2 = (float) p2d2.getY();
 
     GraphicsDecorator g = renderContext.getGraphicsContext();
     float distX = x2 - x1;
@@ -97,12 +104,15 @@ public class BasicEdgeLabelRenderer<V, E> implements Renderer.EdgeLabel<V, E> {
 
     Shape edgeShape =
         renderContext
-            .getEdgeShapeTransformer()
+            .getEdgeShapeFunction()
             .apply(Context.getInstance(visualizationModel.getNetwork(), e));
 
     double parallelOffset = 1;
 
-    parallelOffset += renderContext.getParallelEdgeIndexFunction().getIndex(e);
+    parallelOffset +=
+        renderContext
+            .getParallelEdgeIndexFunction()
+            .getIndex(Context.getInstance(visualizationModel.getNetwork(), e));
 
     parallelOffset *= d.height;
     if (edgeShape instanceof Ellipse2D) {

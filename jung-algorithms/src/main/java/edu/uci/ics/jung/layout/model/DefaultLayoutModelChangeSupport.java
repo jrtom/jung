@@ -6,6 +6,13 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * an Event system for LayoutModels to announce the change in the location of Nodes This replaces
+ * the dependency on the javax.swing.ChangeEvent, and is used to alert the visualization system that
+ * it should re-draw the visualization
+ *
+ * @author Tom Nelson
+ */
 public class DefaultLayoutModelChangeSupport implements LayoutModel.ChangeSupport {
 
   private static final Logger log = LoggerFactory.getLogger(DefaultLayoutModelChangeSupport.class);
@@ -49,5 +56,10 @@ public class DefaultLayoutModelChangeSupport implements LayoutModel.ChangeSuppor
         listener.changed();
       }
     }
+  }
+
+  @Override
+  public List<LayoutModel.ChangeListener> getChangeListeners() {
+    return changeListeners;
   }
 }

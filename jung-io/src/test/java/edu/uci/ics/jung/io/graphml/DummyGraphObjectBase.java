@@ -9,22 +9,22 @@ public class DummyGraphObjectBase {
 
   // TODO: hopefully we can get rid of this; could just use lambdas if we need the factory at all
   public static class UndirectedNetworkFactory
-      implements Function<GraphMetadata, MutableNetwork<DummyVertex, DummyEdge>> {
-    public MutableNetwork<DummyVertex, DummyEdge> apply(GraphMetadata arg0) {
+      implements Function<GraphMetadata, MutableNetwork<DummyNode, DummyEdge>> {
+    public MutableNetwork<DummyNode, DummyEdge> apply(GraphMetadata arg0) {
       return NetworkBuilder.undirected().allowsParallelEdges(false).allowsSelfLoops(true).build();
     }
   }
-  //    public static class UndirectedSparseGraphFactory implements Function<GraphMetadata, Hypergraph<DummyVertex, DummyEdge>> {
+  //    public static class UndirectedSparseGraphFactory implements Function<GraphMetadata, Hypergraph<DummyNode, DummyEdge>> {
   //
-  //        public Hypergraph<DummyVertex, DummyEdge> apply(GraphMetadata arg0) {
-  //            return new UndirectedSparseGraph<DummyVertex, DummyEdge>();
+  //        public Hypergraph<DummyNode, DummyEdge> apply(GraphMetadata arg0) {
+  //            return new UndirectedSparseGraph<DummyNode, DummyEdge>();
   //        }
   //    }
   //
-  //    public static class SetHypergraphFactory implements Function<GraphMetadata, Hypergraph<DummyVertex, DummyEdge>> {
+  //    public static class SetHypergraphFactory implements Function<GraphMetadata, Hypergraph<DummyNode, DummyEdge>> {
   //
-  //        public Hypergraph<DummyVertex, DummyEdge> apply(GraphMetadata arg0) {
-  //            return new SetHypergraph<DummyVertex, DummyEdge>();
+  //        public Hypergraph<DummyNode, DummyEdge> apply(GraphMetadata arg0) {
+  //            return new SetHypergraph<DummyNode, DummyEdge>();
   //        }
   //    }
 

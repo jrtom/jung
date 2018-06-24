@@ -11,9 +11,10 @@
  */
 package edu.uci.ics.jung.graph.util;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.graph.Graph;
 import com.google.common.graph.Graphs;
@@ -26,6 +27,7 @@ import edu.uci.ics.jung.graph.TreeNetworkBuilder;
 // TODO: add tests
 public class TreeUtils {
   public static <N> ImmutableSet<N> roots(Graph<N> graph) {
+    checkNotNull(graph, "graph");
     return graph
         .nodes()
         .stream()
@@ -38,6 +40,7 @@ public class TreeUtils {
    * predecessor.
    */
   public static <N> boolean isForestShaped(Graph<N> graph) {
+    checkNotNull(graph, "graph");
     return graph.isDirected()
         && !Graphs.hasCycle(graph)
         && graph.nodes().stream().allMatch(node -> graph.predecessors(node).size() <= 1);
@@ -48,6 +51,7 @@ public class TreeUtils {
    * predecessor.
    */
   public static <N> boolean isForestShaped(Network<N, ?> graph) {
+    checkNotNull(graph, "graph");
     return graph.isDirected()
         && !Graphs.hasCycle(graph)
         && graph.nodes().stream().allMatch(node -> graph.predecessors(node).size() <= 1);
@@ -56,13 +60,15 @@ public class TreeUtils {
   /**
    * Returns a copy of the subtree of <code>tree</code> which is rooted at <code>root</code>.
    *
-   * @param <N> the vertex type
+   * @param <N> the node type
    * @param <E> the edge type
    * @param tree the tree whose subtree is to be extracted
    * @param root the root of the subtree to be extracted
    */
   public static <N, E> MutableCTreeNetwork<N, E> getSubTree(CTreeNetwork<N, E> tree, N root) {
-    Preconditions.checkArgument(
+    checkNotNull(tree, "tree");
+    checkNotNull(root, "root");
+    checkArgument(
         tree.nodes().contains(root), "Input tree does not contain the input subtree root");
     MutableCTreeNetwork<N, E> subtree = TreeNetworkBuilder.from(tree).withRoot(root).build();
     growSubTree(tree, subtree, root);
@@ -74,7 +80,7 @@ public class TreeUtils {
    * Populates <code>subtree</code> with the subtree of <code>tree</code> which is rooted at <code>
    * root</code>.
    *
-   * @param <N> the vertex type
+   * @param <N> the node type
    * @param <E> the edge type
    * @param tree the tree whose subtree is to be extracted
    * @param subTree the tree instance which is to be populated with the subtree of <code>tree</code>
@@ -83,6 +89,9 @@ public class TreeUtils {
   // does this need to be a public method?  (or even separate?)
   public static <N, E> void growSubTree(
       CTreeNetwork<N, E> tree, MutableCTreeNetwork<N, E> subTree, N root) {
+    checkNotNull(tree, "tree");
+    checkNotNull(subTree, "subTree");
+    checkNotNull(root, "root");
     for (N kid : tree.successors(root)) {
       E edge = tree.edgesConnecting(root, kid).iterator().next(); // guaranteed to be only one edge
       subTree.addEdge(root, kid, edge);
@@ -107,28 +116,27 @@ public class TreeUtils {
       CTreeNetwork<N, E> subTree,
       N subTreeParent,
       E connectingEdge) {
-    Preconditions.checkNotNull(tree);
-    Preconditions.checkNotNull(subTree);
-    Preconditions.checkArgument(
-        subTreeParent == null || tree.nodes().contains(subTreeParent),
-        "'tree' does not contain 'subTreeParent'");
+    checkNotNull(tree, "tree");
+    checkNotNull(subTree, "subTree");
+    checkNotNull(subTreeParent, "subTreeParent");
+    checkNotNull(connectingEdge, "connectingEdge");
+    checkArgument(tree.nodes().contains(subTreeParent), "'tree' does not contain 'subTreeParent'");
+
     if (!subTree.root().isPresent()) {
       // empty subtree; nothing to do
       return;
     }
 
     N subTreeRoot = subTree.root().get();
-    if (subTreeParent == null) {
-      Preconditions.checkArgument(tree.nodes().isEmpty());
-    } else {
-      Preconditions.checkNotNull(connectingEdge);
-      tree.addEdge(subTreeParent, subTreeRoot, connectingEdge);
-    }
+    tree.addEdge(subTreeParent, subTreeRoot, connectingEdge);
     addFromSubTree(tree, subTree, subTreeRoot);
   }
 
   private static <N, E> void addFromSubTree(
       MutableCTreeNetwork<N, E> tree, CTreeNetwork<N, E> subTree, N subTreeRoot) {
+    checkNotNull(tree, "tree");
+    checkNotNull(subTree, "subTree");
+    checkNotNull(subTreeRoot, "subTreeRoot");
     for (E edge : subTree.outEdges(subTreeRoot)) {
       N child = subTree.incidentNodes(edge).target();
       tree.addEdge(subTreeRoot, child, edge);

@@ -36,7 +36,7 @@ public class TestTriad extends TestCase {
     }
   }
 
-  public void testFourVertexGraph() {
+  public void testFourNodeGraph() {
     // we'll set up a graph of
     // t->u
     // u->v
@@ -138,18 +138,18 @@ public class TestTriad extends TestCase {
     }
   }
 
-  public void testOneVertex() {
+  public void testOneNode() {
     MutableGraph<Character> g = GraphBuilder.directed().build();
     g.addNode('u');
     long[] counts = TriadicCensus.getCounts(g);
 
     // t looks like a hashtable for the twelve keys
     for (int i = 1; i < TriadicCensus.MAX_TRIADS; i++) {
-      assertEquals("One vertex Graph doesn't have count 0", 0, counts[i]);
+      assertEquals("One node Graph doesn't have count 0", 0, counts[i]);
     }
   }
 
-  public void testTwoVertices() {
+  public void testTwoNodes() {
     MutableGraph<Character> g = GraphBuilder.directed().build();
     char v1, v2;
     g.addNode(v1 = 'u');
@@ -159,7 +159,7 @@ public class TestTriad extends TestCase {
 
     // t looks like a hashtable for the twelve keys
     for (int i = 1; i < TriadicCensus.MAX_TRIADS; i++) {
-      assertEquals("Two vertex Graph doesn't have count 0", 0, counts[i]);
+      assertEquals("Two node Graph doesn't have count 0", 0, counts[i]);
     }
   }
 }

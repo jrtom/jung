@@ -13,19 +13,19 @@
 </head>
 <body>
 
-Mechanisms for identifying clusters in graphs.  Where these clusters define disjoint sets of vertices, 
-they may be used to define a <code>VertexPartition</code> for more convenient manipulation of the vertex/set
+Mechanisms for identifying clusters in graphs.  Where these clusters define disjoint sets of nodes,
+they may be used to define a <code>NodePartition</code> for more convenient manipulation of the node/set
 relationships.
 
 Current clustering algorithms include:
 <ul>
-<li><code>BicomponentClusterer</code>: finds all subsets of vertices for which at least
-2 vertices must be removed in order to disconnect the induced subgraphs.
-<li><code>EdgeBetweennessClusterer</code>: identifies vertex clusters by removing the edges of the highest
+<li><code>BicomponentClusterer</code>: finds all subsets of nodes for which at least
+2 nodes must be removed in order to disconnect the induced subgraphs.
+<li><code>EdgeBetweennessClusterer</code>: identifies node clusters by removing the edges of the highest
 'betweenness' scores (see the importance/scoring package).
-<li><code>VoltageClusterer</code>: Clusters vertices based on their ranks as 
+<li><code>VoltageClusterer</code>: Clusters nodes based on their ranks as
 calculated by <code>VoltageRanker</code>. 
-<li><code>WeakComponentVertexClusterer</code>: Clusters vertices based on their membership in weakly 
+<li><code>WeakComponentNodeClusterer</code>: Clusters nodes based on their membership in weakly
 connected components of a graph.
 </ul>
 

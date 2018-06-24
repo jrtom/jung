@@ -13,16 +13,19 @@ import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.NetworkBuilder;
 import edu.uci.ics.jung.graph.ObservableNetwork;
 import edu.uci.ics.jung.graph.util.Graphs;
-import edu.uci.ics.jung.layout.algorithms.*;
+import edu.uci.ics.jung.layout.algorithms.FRLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.SpringLayoutAlgorithm;
+import edu.uci.ics.jung.layout.algorithms.StaticLayoutAlgorithm;
 import edu.uci.ics.jung.layout.model.LayoutModel;
-import edu.uci.ics.jung.layout.util.LayoutAlgorithmTransition;
 import edu.uci.ics.jung.visualization.VisualizationModel;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
+import edu.uci.ics.jung.visualization.layout.LayoutAlgorithmTransition;
+import edu.uci.ics.jung.visualization.renderers.Renderer;
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.awt.geom.Point2D;
 import java.util.Timer;
 import java.util.TimerTask;
 import javax.swing.*;
@@ -44,7 +47,7 @@ public class AddNodeDemo extends JPanel {
 
   private VisualizationViewer<Number, Number> vv = null;
 
-  private AbstractLayoutAlgorithm<Number, Point2D> layoutAlgorithm = null;
+  private LayoutAlgorithm<Number> layoutAlgorithm = null;
 
   Timer timer;
 
@@ -68,7 +71,7 @@ public class AddNodeDemo extends JPanel {
 
     layoutAlgorithm = new FRLayoutAlgorithm<>();
 
-    LayoutAlgorithm<Number, Point2D> staticLayoutAlgorithm = new StaticLayoutAlgorithm<>();
+    LayoutAlgorithm<Number> staticLayoutAlgorithm = new StaticLayoutAlgorithm<>();
 
     vv = new VisualizationViewer<>(ig, staticLayoutAlgorithm, new Dimension(600, 600));
 
@@ -78,10 +81,8 @@ public class AddNodeDemo extends JPanel {
 
     vv.setGraphMouse(new DefaultModalGraphMouse<Number, Number>());
 
-    vv.getRenderer()
-        .getVertexLabelRenderer()
-        .setPosition(edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position.CNTR);
-    vv.getRenderContext().setVertexLabelTransformer(Object::toString);
+    vv.getRenderer().getNodeLabelRenderer().setPosition(Renderer.NodeLabel.Position.CNTR);
+    vv.getRenderContext().setNodeLabelFunction(Object::toString);
     vv.setForeground(Color.white);
 
     this.add(vv);
@@ -118,9 +119,9 @@ public class AddNodeDemo extends JPanel {
             layoutAlgorithm = new FRLayoutAlgorithm<>();
           }
           if (animateChange.isSelected()) {
-            LayoutAlgorithmTransition.animate(vv.getModel(), layoutAlgorithm);
+            LayoutAlgorithmTransition.animate(vv, layoutAlgorithm);
           } else {
-            LayoutAlgorithmTransition.apply(vv.getModel(), layoutAlgorithm);
+            LayoutAlgorithmTransition.apply(vv, layoutAlgorithm);
           }
         });
 
@@ -139,23 +140,23 @@ public class AddNodeDemo extends JPanel {
 
   public void process() {
 
-    vv.getRenderContext().getPickedVertexState().clear();
+    vv.getRenderContext().getPickedNodeState().clear();
     vv.getRenderContext().getPickedEdgeState().clear();
     try {
 
       if (g.nodes().size() < 100) {
-        //add a vertex
+        //add a node
         Integer v1 = g.nodes().size();
 
         g.addNode(v1);
-        vv.getRenderContext().getPickedVertexState().pick(v1, true);
+        vv.getRenderContext().getPickedNodeState().pick(v1, true);
 
         // wire it to some edges
         if (v_prev != null) {
           Integer edge = g.edges().size();
           vv.getRenderContext().getPickedEdgeState().pick(edge, true);
           g.addEdge(v_prev, v1, edge);
-          // let's connect to a random vertex, too!
+          // let's connect to a random node, too!
           int rand = (int) (Math.random() * g.nodes().size());
           edge = g.edges().size();
           vv.getRenderContext().getPickedEdgeState().pick(edge, true);
