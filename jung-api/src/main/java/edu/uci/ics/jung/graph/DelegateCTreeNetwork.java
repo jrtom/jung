@@ -43,6 +43,15 @@ class DelegateCTreeNetwork<N, E> implements MutableCTreeNetwork<N, E> {
   }
 
   @Override
+  public Optional<E> inEdge(N node) {
+    Set<E> inEdges = delegate.inEdges(node);
+    Preconditions.checkState(inEdges.size() <= 1);
+    return inEdges.isEmpty()
+	? Optional.<E>empty()
+	: Optional.of(Iterables.getOnlyElement(inEdges));
+  }
+
+  @Override
   public int depth(N node) {
     Preconditions.checkArgument(delegate.nodes().contains(node));
     return depths.get(node);
