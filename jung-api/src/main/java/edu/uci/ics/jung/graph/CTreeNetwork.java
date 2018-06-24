@@ -2,6 +2,8 @@ package edu.uci.ics.jung.graph;
 
 import com.google.common.graph.Network;
 
+import java.util.Optional;
+
 /**
  * A subtype of Network<N, E> that is a directed rooted tree.
  *
