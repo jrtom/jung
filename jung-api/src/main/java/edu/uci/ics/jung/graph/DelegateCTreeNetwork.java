@@ -54,6 +54,13 @@ class DelegateCTreeNetwork<N, E> extends AbstractNetwork<N, E>
   }
 
   @Override
+  public Optional<E> inEdge(N node) {
+    Set<E> inEdges = delegate.inEdges(node);
+    checkState(inEdges.size() <= 1);
+    return inEdges.isEmpty() ? Optional.<E>empty() : Optional.of(Iterables.getOnlyElement(inEdges));
+  }
+
+  @Override
   public int depth(N node) {
     checkNotNull(node, "node");
     checkArgument(delegate.nodes().contains(node), NODE_NOT_IN_TREE, node);
