@@ -701,7 +701,7 @@ public class GraphMLReader<G extends MutableNetwork<N, E>, N, E> extends Default
     }
 
     if (state == TagState.EDGE) {
-      assignEdgeSourceTarget(e, atts, edge_atts); //, id);
+      assignEdgeSourceTarget(e, atts, edge_atts); // , id);
     }
 
     // put remaining attribute/value pairs in edge_data
@@ -711,7 +711,7 @@ public class GraphMLReader<G extends MutableNetwork<N, E>, N, E> extends Default
   }
 
   protected void assignEdgeSourceTarget(
-      E e, Attributes atts, Map<String, String> edge_atts) //, String id)
+      E e, Attributes atts, Map<String, String> edge_atts) // , String id)
       throws SAXNotSupportedException {
     String source_id = edge_atts.remove("source");
     if (source_id == null) {

@@ -109,7 +109,7 @@ public class Node<T> {
       }
       // we're already split, update the forceElement for this new element
       forceObject = forceObject.add(element);
-      //and follow down the tree to insert
+      // and follow down the tree to insert
       insertForceObject(element);
     }
   }

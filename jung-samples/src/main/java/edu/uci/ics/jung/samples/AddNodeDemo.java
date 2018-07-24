@@ -132,7 +132,7 @@ public class AddNodeDemo extends JPanel {
 
     timer = new Timer();
 
-    timer.schedule(new RemindTask(), 1000, 1000); //subsequent rate
+    timer.schedule(new RemindTask(), 1000, 1000); // subsequent rate
     vv.repaint();
   }
 
@@ -145,7 +145,7 @@ public class AddNodeDemo extends JPanel {
     try {
 
       if (g.nodes().size() < 100) {
-        //add a node
+        // add a node
         Integer v1 = g.nodes().size();
 
         g.addNode(v1);

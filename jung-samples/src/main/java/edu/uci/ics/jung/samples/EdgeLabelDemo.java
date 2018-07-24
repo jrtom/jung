@@ -216,7 +216,7 @@ public class EdgeLabelDemo extends JPanel {
   class EdgeClosenessUpdater {
     BoundedRangeModel rangeModel;
 
-    public EdgeClosenessUpdater() { //double undirected, double directed) {
+    public EdgeClosenessUpdater() { // double undirected, double directed) {
       int initialValue = ((int) vv.getRenderContext().getEdgeLabelCloseness() * 10) / 10;
       this.rangeModel = new DefaultBoundedRangeModel(initialValue, 0, 0, 10);
 

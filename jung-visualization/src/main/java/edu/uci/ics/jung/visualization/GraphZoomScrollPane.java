@@ -157,7 +157,7 @@ public class GraphZoomScrollPane extends JPanel {
 
     // a rectangle representing the layout
     Rectangle layoutRectangle = new Rectangle(0, 0, d.width, d.height);
-    //-d.width/2, -d.height/2, 2*d.width, 2*d.height);
+    // -d.width/2, -d.height/2, 2*d.width, 2*d.height);
 
     BidirectionalTransformer viewTransformer =
         vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.VIEW);

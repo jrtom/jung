@@ -1,4 +1,3 @@
-
 package edu.uci.ics.jung.algorithms.generators.random;
 
 /*
@@ -110,7 +109,8 @@ public class KleinbergSmallWorld<N, E> {
     // without creating parallel edges or self-loops (both are disallowed)
     Preconditions.checkArgument(graph.nodes().size() - 5 >= connectionCount);
 
-    // TODO: For toroidal graphs, we can make this more clever by pre-creating the WeightedChoice object
+    // TODO: For toroidal graphs, we can make this more clever by pre-creating the WeightedChoice
+    // object
     // and using the output as an offset to the current node location.
 
     for (N node : graph.nodes()) {
@@ -124,7 +124,8 @@ public class KleinbergSmallWorld<N, E> {
       while (targets.size() < connectionCount) {
         // the item returned is guaranteed by getWeightedChoiceForDistance() to not be equal to node
         // or any of its successors; we may try to add the same node to targets more than once
-        // (see the note above re: selection w/o replacement) but the Set semantics disallows duplicates
+        // (see the note above re: selection w/o replacement) but the Set semantics disallows
+        // duplicates
         targets.add(weightedChoice.nextItem());
       }
 

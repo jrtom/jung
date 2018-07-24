@@ -111,7 +111,7 @@ public class InternalFrameSatelliteViewDemo {
     JInternalFrame vvFrame = new JInternalFrame();
     vvFrame.getContentPane().add(vv);
     vvFrame.pack();
-    vvFrame.setVisible(true); //necessary as of 1.3
+    vvFrame.setVisible(true); // necessary as of 1.3
     desktop.add(vvFrame);
     try {
       vvFrame.setSelected(true);

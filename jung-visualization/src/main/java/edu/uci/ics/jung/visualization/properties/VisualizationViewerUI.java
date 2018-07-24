@@ -192,7 +192,8 @@ public class VisualizationViewerUI<N, E> {
       return VisualizationModel.SpatialSupport.valueOf(spatialSupportProperty);
     } catch (IllegalArgumentException ex) {
       // the user set an unknown name
-      // issue a warning because unlike colors and shapes, it is not immediately obvious what spatial
+      // issue a warning because unlike colors and shapes, it is not immediately obvious what
+      // spatial
       // support is being used
       log.warn("Unknown ModelStructure type {} ignored.", spatialSupportProperty);
     }
@@ -205,7 +206,8 @@ public class VisualizationViewerUI<N, E> {
       return VisualizationModel.SpatialSupport.valueOf(spatialSupportProperty);
     } catch (IllegalArgumentException ex) {
       // the user set an unknown name
-      // issue a warning because unlike colors and shapes, it is not immediately obvious what spatial
+      // issue a warning because unlike colors and shapes, it is not immediately obvious what
+      // spatial
       // support is being used
       log.warn("Unknown ModelStructure type {} ignored.", spatialSupportProperty);
     }

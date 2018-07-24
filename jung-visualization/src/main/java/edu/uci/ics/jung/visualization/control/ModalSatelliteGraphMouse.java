@@ -11,6 +11,7 @@
 package edu.uci.ics.jung.visualization.control;
 
 import java.awt.event.InputEvent;
+
 /** @author Tom Nelson */
 @SuppressWarnings("rawtypes")
 public class ModalSatelliteGraphMouse extends DefaultModalGraphMouse implements ModalGraphMouse {

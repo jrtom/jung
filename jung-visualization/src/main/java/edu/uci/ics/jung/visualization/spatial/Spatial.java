@@ -266,7 +266,7 @@ public interface Spatial<T> extends LayoutModel.LayoutStateChangeListener {
 
       @Override
       public N getClosestElement(double x, double y) {
-        return null; //use radius node accessor
+        return null; // use radius node accessor
       }
     }
 

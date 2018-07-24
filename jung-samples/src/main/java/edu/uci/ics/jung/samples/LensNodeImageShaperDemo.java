@@ -141,7 +141,7 @@ public class LensNodeImageShaperDemo extends JPanel {
     vv.getRenderContext().setNodeIconFunction(nodeIconFunction);
 
     // Get the pickedState and add a listener that will decorate the
-    //Node images with a checkmark icon when they are picked
+    // Node images with a checkmark icon when they are picked
     PickedState<Number> ps = vv.getPickedNodeState();
     ps.addItemListener(new PickWithIconListener(nodeIconFunction));
 
