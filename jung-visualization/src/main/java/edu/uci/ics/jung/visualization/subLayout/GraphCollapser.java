@@ -86,8 +86,7 @@ public class GraphCollapser {
       }
     }
 
-    // add all edges that don't have an endpoint that either is clusterGraphNode or is in
-    // clusterGraphNode
+    // add all edges that don't have an endpoint that either is clusterGraphNode or is in clusterGraphNode
     for (Object edge : inGraph.edges()) {
       EndpointPair endpoints = inGraph.incidentNodes(edge);
       boolean dontWantThis = false;

@@ -40,8 +40,7 @@ import java.util.function.Supplier;
 // TODO: versions for Graph/ValueGraph
 // TODO: extend AbstractIterativeScorer and provide for iterating one step (depth) at a time?
 // TODO: review this and make sure it's correctly implementing the algorithm
-// TODO: this takes in a MutableNetwork and factories as a hack; there's got to be a better way;
-// options include:
+// TODO: this takes in a MutableNetwork and factories as a hack; there's got to be a better way; options include:
 // (1) create a delegate class that pretends that the extra node/edge are there
 // (2) refactor the internal logic so that we can emulate the presence of that node/edge
 public class WeightedNIPaths<N, E> implements NodeScorer<N, Double> {

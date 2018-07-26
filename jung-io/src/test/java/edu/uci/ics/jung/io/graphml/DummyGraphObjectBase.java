@@ -14,16 +14,14 @@ public class DummyGraphObjectBase {
       return NetworkBuilder.undirected().allowsParallelEdges(false).allowsSelfLoops(true).build();
     }
   }
-  //    public static class UndirectedSparseGraphFactory implements Function<GraphMetadata,
-  // Hypergraph<DummyNode, DummyEdge>> {
+  //    public static class UndirectedSparseGraphFactory implements Function<GraphMetadata, Hypergraph<DummyNode, DummyEdge>> {
   //
   //        public Hypergraph<DummyNode, DummyEdge> apply(GraphMetadata arg0) {
   //            return new UndirectedSparseGraph<DummyNode, DummyEdge>();
   //        }
   //    }
   //
-  //    public static class SetHypergraphFactory implements Function<GraphMetadata,
-  // Hypergraph<DummyNode, DummyEdge>> {
+  //    public static class SetHypergraphFactory implements Function<GraphMetadata, Hypergraph<DummyNode, DummyEdge>> {
   //
   //        public Hypergraph<DummyNode, DummyEdge> apply(GraphMetadata arg0) {
   //            return new SetHypergraph<DummyNode, DummyEdge>();

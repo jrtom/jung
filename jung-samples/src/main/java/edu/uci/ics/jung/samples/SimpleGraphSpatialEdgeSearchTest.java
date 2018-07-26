@@ -103,8 +103,7 @@ public class SimpleGraphSpatialEdgeSearchTest extends JPanel {
           if (e.getStateChange() == ItemEvent.SELECTED) {
             System.err.println("TURNED ON LOGGING");
             // turn on the logging
-            // programmatically set the log level so that the spatial grid is drawn for this demo
-            // and the SpatialGrid logging is output
+            // programmatically set the log level so that the spatial grid is drawn for this demo and the SpatialGrid logging is output
             ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) log;
             LoggerContext ctx = (LoggerContext) LoggerFactory.getILoggerFactory();
             ctx.getLogger("edu.uci.ics.jung.visualization.spatial").setLevel(Level.DEBUG);
@@ -116,8 +115,7 @@ public class SimpleGraphSpatialEdgeSearchTest extends JPanel {
           } else if (e.getStateChange() == ItemEvent.DESELECTED) {
             System.err.println("TURNED OFF LOGGING");
             // turn off the logging
-            // programmatically set the log level so that the spatial grid is drawn for this demo
-            // and the SpatialGrid logging is output
+            // programmatically set the log level so that the spatial grid is drawn for this demo and the SpatialGrid logging is output
             ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) log;
             LoggerContext ctx = (LoggerContext) LoggerFactory.getILoggerFactory();
             ctx.getLogger("edu.uci.ics.jung.visualization.spatial").setLevel(Level.INFO);

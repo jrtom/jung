@@ -160,7 +160,7 @@ public class KKLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
 
       double L0 = Math.min(height, width);
       L = (L0 / diameter) * length_factor; // length_factor used to be hardcoded to 0.9
-      // L = 0.75 * Math.sqrt(height * width / n);
+      //L = 0.75 * Math.sqrt(height * width / n);
 
       for (int i = 0; i < n - 1; i++) {
         for (int j = i + 1; j < n; j++) {

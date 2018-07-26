@@ -379,8 +379,7 @@ public abstract class SpatialRTree<T, NT> extends AbstractSpatial<T, NT> impleme
               boundingRectangleCollector.getForElement(
                   element, layoutModel.apply(n1), layoutModel.apply(n2));
           LeafNode<E> containingLeaf = getContainingLeaf(element);
-          // if the shape does not enlarge the containingRTree, then only update what is in elements
-          // map
+          // if the shape does not enlarge the containingRTree, then only update what is in elements map
           // otherwise, remove this node and re-insert it
           if (containingLeaf != null) {
             if (containingLeaf.getBounds().contains(itsShape)) {

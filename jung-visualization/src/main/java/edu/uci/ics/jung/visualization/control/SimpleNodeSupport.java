@@ -41,7 +41,7 @@ public class SimpleNodeSupport<N, E> implements NodeSupport<N, E> {
   }
 
   public void endNodeCreate(BasicVisualizationServer<N, E> vv, Point2D point) {
-    // noop
+    //noop
   }
 
   public Supplier<N> getNodeFactory() {

@@ -42,7 +42,7 @@ public class TestGraphMLWriter extends TestCase {
         };
 
     Function<String, String> node_name = Function.identity();
-    // TransformerUtils.nopTransformer();
+    //TransformerUtils.nopTransformer();
 
     gmlw.addEdgeData("weight", "integer value for the edge", Integer.toString(-1), edge_weight);
     gmlw.addNodeData("name", "identifier for the node", null, node_name);

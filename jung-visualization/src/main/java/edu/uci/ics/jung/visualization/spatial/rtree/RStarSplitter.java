@@ -101,7 +101,7 @@ public class RStarSplitter<T> extends AbstractSplitter<T> implements Splitter<T>
   @Override
   public Optional<Node<T>> chooseSubtree(InnerNode<T> nodeToSplit, T element, Rectangle2D bounds) {
     if (nodeToSplit.isLeafChildren()) {
-      return leastOverlapThenEnlargementThenAreaThenKids(nodeToSplit, bounds); // R*-Tree
+      return leastOverlapThenEnlargementThenAreaThenKids(nodeToSplit, bounds); //R*-Tree
     } else {
       return leastEnlargementThenAreaThenKids(nodeToSplit, bounds);
     }

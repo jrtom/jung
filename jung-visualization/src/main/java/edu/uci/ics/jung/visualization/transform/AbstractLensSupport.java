@@ -18,7 +18,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.geom.RectangularShape;
-
 /**
  * A class to make it easy to add an examining lens to a jung graph application. See
  * HyperbolicTransformerDemo, ViewLensSupport and LayoutLensSupport for examples of how to use it.

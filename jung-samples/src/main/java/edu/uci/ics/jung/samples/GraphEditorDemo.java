@@ -108,7 +108,7 @@ public class GraphEditorDemo extends JPanel implements Printable {
     // create a simple graph for the demo
     graph = NetworkBuilder.directed().allowsParallelEdges(true).allowsSelfLoops(true).build();
 
-    this.layoutAlgorithm = new StaticLayoutAlgorithm<>(); // , new Dimension(600, 600));
+    this.layoutAlgorithm = new StaticLayoutAlgorithm<>(); //, new Dimension(600, 600));
 
     vv = new VisualizationViewer<>(graph, layoutAlgorithm, new Dimension(600, 600));
     vv.setBackground(Color.white);

@@ -169,7 +169,7 @@ public class HyperbolicShapeTransformer extends HyperbolicTransformer
     double viewRadius = lens.getRadius();
     double ratio = lens.getRatio();
     // transform the point from the graph to the view
-    Point2D viewPoint = graphPoint; // delegate.transform(graphPoint);
+    Point2D viewPoint = graphPoint; //delegate.transform(graphPoint);
     // calculate point from center
     double dx = viewPoint.getX() - viewCenter.getX();
     double dy = viewPoint.getY() - viewCenter.getY();

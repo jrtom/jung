@@ -48,7 +48,7 @@ public class MouseListenerTranslator<N, E> extends MouseAdapter {
   private N getNode(Point2D point) {
     // adjust for scale and offset in the VisualizationViewer
     Point2D p = point;
-    // vv.getRenderContext().getBasicTransformer().inverseViewTransform(point);
+    //vv.getRenderContext().getBasicTransformer().inverseViewTransform(point);
     NetworkElementAccessor<N, E> pickSupport = vv.getPickSupport();
     LayoutModel<N> layoutModel = vv.getModel().getLayoutModel();
     //        Layout<N> layout = vv.getGraphLayout();

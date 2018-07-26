@@ -72,8 +72,7 @@ public class TreeBuilder<N> {
   /** Returns an empty {@link MutableCTree} with the properties of this {@link TreeBuilder}. */
   // TODO(jrtom): decide how we're going to handle different implementations.
   // For the graph stuff, we don't really need different implementations, but
-  // for trees, maybe we do; at least for binary trees vs. trees with no restrictions on outgoing
-  // edges...
+  // for trees, maybe we do; at least for binary trees vs. trees with no restrictions on outgoing edges...
   public <N1 extends N> MutableCTree<N1> build() {
     GraphBuilder<Object> graphBuilder = GraphBuilder.directed().allowsSelfLoops(false);
     if (expectedNodeCount.isPresent()) {

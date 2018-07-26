@@ -211,7 +211,7 @@ public class DAGLayoutAlgorithm<N> extends SpringLayoutAlgorithm<N> {
         setLocation(node, posX, posY);
       }
     }
-    // System.out.println("MeanSquareAccel="+meanSquareVel);
+    //System.out.println("MeanSquareAccel="+meanSquareVel);
     if (!stoppingIncrements && Math.abs(meanSquareVel - oldMSV) < MSV_THRESHOLD) {
       stoppingIncrements = true;
       incrementsLeft = COOL_DOWN_INCREMENTS;

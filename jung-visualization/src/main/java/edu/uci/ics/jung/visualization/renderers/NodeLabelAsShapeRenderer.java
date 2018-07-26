@@ -144,6 +144,6 @@ public class NodeLabelAsShapeRenderer<N, E>
   }
 
   public void setPositioner(Renderer.NodeLabel.Positioner positioner) {
-    // noop
+    //noop
   }
 }
