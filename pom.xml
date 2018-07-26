@@ -193,6 +193,8 @@
             <googleJavaFormat>
               <version>${google-java-format.version}</version>
             </googleJavaFormat>
+            <!-- TODO: Add a <licenseHeader> configuration to make all license headers in source
+                 files consistent -->
           </java>
         </configuration>
         <executions>
