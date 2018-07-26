@@ -1,5 +1,5 @@
-# Set all text files to unix newlines
-* text eol=lf
+# Auto detect text files and perform LF normalization
+* text=auto
 
 # Known text files
 *.java text
