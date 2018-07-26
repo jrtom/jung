@@ -72,15 +72,15 @@
 
     <cobertura.plugin.version>2.7</cobertura.plugin.version>
     <compiler.plugin.version>3.5.1</compiler.plugin.version>
-    <fmt.plugin.version>1.8.0</fmt.plugin.version>
     <gpg.plugin.version>1.6</gpg.plugin.version>
     <jar.plugin.version>2.6</jar.plugin.version>
     <javadoc.plugin.version>2.10.4</javadoc.plugin.version>
     <jxr.plugin.version>2.5</jxr.plugin.version>
     <pmd.plugin.version>3.8</pmd.plugin.version>
     <release.plugin.version>2.5.3</release.plugin.version>
+    <source.plugin.version>3.0.1</source.plugin.version>
+    <spotless.plugin.version>1.14.0</spotless.plugin.version>
     <surefire.plugin.version>2.19.1</surefire.plugin.version>
-    <source.plugin.version>3.0.1</source.plugin.version>    
   </properties>
   <developers>
     <developer>
@@ -185,9 +185,18 @@
     </pluginManagement>
     <plugins>
       <plugin>
-        <groupId>com.coveo</groupId>
-        <artifactId>fmt-maven-plugin</artifactId>
-        <version>${fmt.plugin.version}</version>
+        <groupId>com.diffplug.spotless</groupId>
+        <artifactId>spotless-maven-plugin</artifactId>
+        <version>${spotless.plugin.version}</version>
+        <configuration>
+          <java>
+            <googleJavaFormat>
+              <version>${google-java-format.version}</version>
+            </googleJavaFormat>
+            <!-- TODO: Add a <licenseHeader> configuration to make all license headers in source
+                 files consistent -->
+          </java>
+        </configuration>
         <executions>
           <execution>
             <phase>verify</phase>
@@ -196,13 +205,6 @@
             </goals>
           </execution>
         </executions>
-        <dependencies>
-          <dependency>
-            <groupId>com.google.googlejavaformat</groupId>
-            <artifactId>google-java-format</artifactId>
-            <version>${google-java-format.version}</version>
-          </dependency>
-        </dependencies>
       </plugin>
     </plugins>
   </build>
