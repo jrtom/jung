@@ -15,8 +15,8 @@ import com.google.common.graph.AbstractNetwork;
 import com.google.common.graph.ElementOrder;
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Graph;
-import com.google.common.graph.Graphs;
 import com.google.common.graph.MutableNetwork;
+import com.google.common.graph.Traverser;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -285,7 +285,7 @@ class DelegateCTreeNetwork<N, E> extends AbstractNetwork<N, E>
     if (!nodes().contains(node)) {
       return false;
     }
-    for (N nodeToRemove : Graphs.reachableNodes(delegate.asGraph(), node)) {
+    for (N nodeToRemove : Traverser.forTree(delegate).breadthFirst(node)) {
       delegate.removeNode(nodeToRemove);
       depths.remove(nodeToRemove);
     }
