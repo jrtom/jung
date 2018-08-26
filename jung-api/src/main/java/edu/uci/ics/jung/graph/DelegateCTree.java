@@ -24,8 +24,8 @@ import com.google.common.collect.Iterables;
 import com.google.common.graph.AbstractGraph;
 import com.google.common.graph.ElementOrder;
 import com.google.common.graph.EndpointPair;
-import com.google.common.graph.Graphs;
 import com.google.common.graph.MutableGraph;
+import com.google.common.graph.Traverser;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -227,7 +227,7 @@ class DelegateCTree<N> extends AbstractGraph<N> implements MutableCTree<N> {
     if (!nodes().contains(node)) {
       return false;
     }
-    for (N nodeToRemove : Graphs.reachableNodes(delegate, node)) {
+    for (N nodeToRemove : Traverser.forTree(delegate).breadthFirst(node)) {
       delegate.removeNode(nodeToRemove);
       depths.remove(nodeToRemove);
     }
