@@ -19,7 +19,7 @@ public class TestMinimumSpanningTree extends TestCase {
 
     assertEquals(tree.nodes(), mst.nodes());
     assertEquals(tree.edges(), mst.edges());
-    assertEquals(tree.asGraph(), mst.asGraph());
+    assertEquals(tree, mst);
   }
 
   public void testDAG() {
