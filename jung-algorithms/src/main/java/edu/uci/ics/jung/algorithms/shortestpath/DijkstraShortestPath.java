@@ -11,6 +11,7 @@ package edu.uci.ics.jung.algorithms.shortestpath;
 
 import com.google.common.base.Preconditions;
 import com.google.common.graph.Network;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -152,7 +153,7 @@ public class DijkstraShortestPath<N, E> extends DijkstraDistance<N, E>
     Preconditions.checkArgument(
         g.nodes().contains(source), "Specified source node %s  is not part of graph %s", source, g);
 
-    // TODO: Consider replacing this with an `ArrayList` (http://errorprone.info/bugpattern/JdkObsolete)
+    // we use a LinkedList here because we're always appending to the front
     LinkedList<E> path = new LinkedList<E>();
 
     // collect path data; must use internal method rather than
@@ -173,7 +174,12 @@ public class DijkstraShortestPath<N, E> extends DijkstraDistance<N, E>
       path.addFirst(incoming);
       current = g.incidentNodes(incoming).adjacentNode(current);
     }
-    return path;
+
+    if (!cached) {
+      reset(source);
+    }
+
+    return new ArrayList(path);
   }
 
   /**
