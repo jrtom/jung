@@ -1,5 +1,7 @@
 package edu.uci.ics.jung.layout.model;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -50,7 +52,7 @@ public class LoadingCacheLayoutModel<N> extends AbstractLayoutModel<N>
      * @return this builder for further use
      */
     public LoadingCacheLayoutModel.Builder<N, T> setGraph(Graph<N> graph) {
-      this.graph = graph;
+      this.graph = checkNotNull(graph);
       return this;
     }
 

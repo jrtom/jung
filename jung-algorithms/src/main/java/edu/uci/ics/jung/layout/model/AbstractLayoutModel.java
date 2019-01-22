@@ -1,5 +1,7 @@
 package edu.uci.ics.jung.layout.model;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.graph.Graph;
@@ -44,7 +46,7 @@ public abstract class AbstractLayoutModel<N>
       new DefaultLayoutStateChangeSupport();
 
   protected AbstractLayoutModel(Graph<N> graph, int width, int height) {
-    this.graph = graph;
+    this.graph = checkNotNull(graph);
     setSize(width, height);
   }
 
@@ -151,7 +153,7 @@ public abstract class AbstractLayoutModel<N>
   }
 
   public void setGraph(Graph<N> graph) {
-    this.graph = graph;
+    this.graph = checkNotNull(graph);
     if (log.isTraceEnabled()) {
       log.trace("setGraph to n:{} e:{}", graph.nodes(), graph.edges());
     }
