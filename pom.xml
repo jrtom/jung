@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>net.sf.jung</groupId>
   <artifactId>jung-parent</artifactId>
-  <version>2.1.1</version>
+  <version>2.2.0</version>
   <packaging>pom</packaging>
   <name>JUNG (parent metadata project)</name>
   <url>http://jrtom.github.io/jung/</url>
