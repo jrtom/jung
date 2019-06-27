@@ -28,7 +28,7 @@ import org.junit.Test;
 import com.google.common.base.Function;
 
 import edu.uci.ics.jung.graph.Hypergraph;
-import edu.uci.ics.jung.graph.SetHypergraph;
+import edu.uci.ics.jung.graph.impl.SetHypergraph;
 import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.io.GraphIOException;
 

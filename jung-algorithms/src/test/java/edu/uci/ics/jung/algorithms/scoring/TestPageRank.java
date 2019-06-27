@@ -21,8 +21,8 @@ import com.google.common.base.Functions;
 import com.google.common.base.Supplier;
 
 import edu.uci.ics.jung.graph.DirectedGraph;
-import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.Graph;
+import edu.uci.ics.jung.graph.impl.DirectedSparseMultigraph;
 
 /**
  * @author Joshua O'Madadhain

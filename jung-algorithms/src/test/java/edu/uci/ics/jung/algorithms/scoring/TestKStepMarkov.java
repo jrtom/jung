@@ -11,7 +11,7 @@ import com.google.common.base.Functions;
 
 import edu.uci.ics.jung.algorithms.scoring.util.ScoringUtils;
 import edu.uci.ics.jung.graph.DirectedGraph;
-import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
+import edu.uci.ics.jung.graph.impl.DirectedSparseMultigraph;
 
 public class TestKStepMarkov extends TestCase 
 {

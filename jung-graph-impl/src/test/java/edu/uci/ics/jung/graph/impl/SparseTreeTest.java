@@ -1,6 +1,10 @@
-package edu.uci.ics.jung.graph;
+package edu.uci.ics.jung.graph.impl;
 
 import com.google.common.base.Supplier;
+
+import edu.uci.ics.jung.graph.AbstractSparseTreeTest;
+import edu.uci.ics.jung.graph.impl.DelegateTree;
+import edu.uci.ics.jung.graph.impl.DirectedSparseMultigraph;
 
 public class SparseTreeTest extends AbstractSparseTreeTest {
 

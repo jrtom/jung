@@ -9,7 +9,7 @@
  * Created on Jul 2, 2003
  *  
  */
-package edu.uci.ics.jung.graph.util;
+package edu.uci.ics.jung.graph.impl.util;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -17,11 +17,12 @@ import java.util.List;
 import java.util.Set;
 
 import edu.uci.ics.jung.graph.DirectedGraph;
-import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.SparseMultigraph;
 import edu.uci.ics.jung.graph.UndirectedGraph;
-import edu.uci.ics.jung.graph.UndirectedSparseMultigraph;
+import edu.uci.ics.jung.graph.impl.DirectedSparseMultigraph;
+import edu.uci.ics.jung.graph.impl.SparseMultigraph;
+import edu.uci.ics.jung.graph.impl.UndirectedSparseMultigraph;
+import edu.uci.ics.jung.graph.util.EdgeType;
 
 /**
  * Provides generators for several different test graphs.

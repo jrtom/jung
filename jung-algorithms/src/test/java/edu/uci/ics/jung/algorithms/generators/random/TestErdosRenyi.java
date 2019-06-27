@@ -13,7 +13,7 @@ import com.google.common.base.Supplier;
 
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.UndirectedGraph;
-import edu.uci.ics.jung.graph.UndirectedSparseMultigraph;
+import edu.uci.ics.jung.graph.impl.UndirectedSparseMultigraph;
 
 
 public class TestErdosRenyi extends TestCase {

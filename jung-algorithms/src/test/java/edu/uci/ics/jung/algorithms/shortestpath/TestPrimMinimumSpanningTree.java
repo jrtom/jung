@@ -2,11 +2,11 @@ package edu.uci.ics.jung.algorithms.shortestpath;
 
 import junit.framework.TestCase;
 import edu.uci.ics.jung.graph.DirectedGraph;
-import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
-import edu.uci.ics.jung.graph.DelegateTree;
 import edu.uci.ics.jung.graph.Tree;
 import edu.uci.ics.jung.graph.UndirectedGraph;
-import edu.uci.ics.jung.graph.UndirectedSparseMultigraph;
+import edu.uci.ics.jung.graph.impl.DelegateTree;
+import edu.uci.ics.jung.graph.impl.DirectedSparseMultigraph;
+import edu.uci.ics.jung.graph.impl.UndirectedSparseMultigraph;
 
 public class TestPrimMinimumSpanningTree extends TestCase {
 	

@@ -17,7 +17,7 @@ import junit.framework.TestSuite;
 import com.google.common.base.Supplier;
 
 import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.SparseMultigraph;
+import edu.uci.ics.jung.graph.impl.SparseMultigraph;
 
 /**
  * @author Scott White

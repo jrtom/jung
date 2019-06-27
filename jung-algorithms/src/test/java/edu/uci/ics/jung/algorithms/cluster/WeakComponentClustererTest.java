@@ -2,7 +2,7 @@ package edu.uci.ics.jung.algorithms.cluster;
 
 import junit.framework.TestCase;
 import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.util.TestGraphs;
+import edu.uci.ics.jung.graph.impl.util.TestGraphs;
 
 public class WeakComponentClustererTest extends TestCase {
 	

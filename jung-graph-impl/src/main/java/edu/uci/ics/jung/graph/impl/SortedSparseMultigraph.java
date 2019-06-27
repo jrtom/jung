@@ -9,7 +9,7 @@
  * "license.txt" or
  * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  */
-package edu.uci.ics.jung.graph;
+package edu.uci.ics.jung.graph.impl;
 
 import java.util.Comparator;
 import java.util.Map;
@@ -20,6 +20,8 @@ import java.util.TreeSet;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Ordering;
 
+import edu.uci.ics.jung.graph.Graph;
+import edu.uci.ics.jung.graph.MultiGraph;
 import edu.uci.ics.jung.graph.util.Pair;
 
 /**

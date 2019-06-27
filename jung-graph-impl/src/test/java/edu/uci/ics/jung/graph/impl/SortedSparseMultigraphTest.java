@@ -1,8 +1,12 @@
-package edu.uci.ics.jung.graph;
+package edu.uci.ics.jung.graph.impl;
 
 import java.util.HashSet;
 import java.util.Set;
 
+import edu.uci.ics.jung.graph.AbstractSortedSparseMultigraphTest;
+import edu.uci.ics.jung.graph.Graph;
+import edu.uci.ics.jung.graph.impl.SortedSparseMultigraph;
+import edu.uci.ics.jung.graph.impl.SparseMultigraph;
 import edu.uci.ics.jung.graph.util.EdgeType;
 
 public class SortedSparseMultigraphTest 

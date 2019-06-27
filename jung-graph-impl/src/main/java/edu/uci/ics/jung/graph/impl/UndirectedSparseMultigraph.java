@@ -20,7 +20,7 @@
  * "license.txt" or
  * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  */
-package edu.uci.ics.jung.graph;
+package edu.uci.ics.jung.graph.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,6 +32,8 @@ import java.util.Set;
 
 import com.google.common.base.Supplier;
 
+import edu.uci.ics.jung.graph.MultiGraph;
+import edu.uci.ics.jung.graph.UndirectedGraph;
 import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.graph.util.Pair;
 

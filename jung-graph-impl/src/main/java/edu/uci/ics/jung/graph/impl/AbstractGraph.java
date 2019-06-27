@@ -9,13 +9,14 @@
  * "license.txt" or
  * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  */
-package edu.uci.ics.jung.graph;
+package edu.uci.ics.jung.graph.impl;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
+import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.graph.util.Pair;
 

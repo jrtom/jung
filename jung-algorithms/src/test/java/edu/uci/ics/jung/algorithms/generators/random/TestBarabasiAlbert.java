@@ -11,13 +11,13 @@ import java.util.HashSet;
 
 import com.google.common.base.Supplier;
 
-import edu.uci.ics.jung.graph.DirectedSparseGraph;
-import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.SparseGraph;
-import edu.uci.ics.jung.graph.SparseMultigraph;
-import edu.uci.ics.jung.graph.UndirectedSparseGraph;
-import edu.uci.ics.jung.graph.UndirectedSparseMultigraph;
+import edu.uci.ics.jung.graph.impl.DirectedSparseGraph;
+import edu.uci.ics.jung.graph.impl.DirectedSparseMultigraph;
+import edu.uci.ics.jung.graph.impl.SparseGraph;
+import edu.uci.ics.jung.graph.impl.SparseMultigraph;
+import edu.uci.ics.jung.graph.impl.UndirectedSparseGraph;
+import edu.uci.ics.jung.graph.impl.UndirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.graph.util.Pair;
 import junit.framework.Test;

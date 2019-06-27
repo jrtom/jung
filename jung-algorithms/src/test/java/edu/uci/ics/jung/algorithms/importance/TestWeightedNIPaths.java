@@ -20,7 +20,7 @@ import junit.framework.TestSuite;
 import com.google.common.base.Supplier;
 
 import edu.uci.ics.jung.graph.DirectedGraph;
-import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
+import edu.uci.ics.jung.graph.impl.DirectedSparseMultigraph;
 
 /**
  * @author Scott White, adapted to jung2 by Tom Nelson

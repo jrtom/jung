@@ -31,10 +31,10 @@ import org.xml.sax.SAXException;
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
 
-import edu.uci.ics.jung.graph.DirectedSparseGraph;
 import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.SparseMultigraph;
-import edu.uci.ics.jung.graph.util.TestGraphs;
+import edu.uci.ics.jung.graph.impl.DirectedSparseGraph;
+import edu.uci.ics.jung.graph.impl.SparseMultigraph;
+import edu.uci.ics.jung.graph.impl.util.TestGraphs;
 
 public class TestGraphMLWriter extends TestCase
 {

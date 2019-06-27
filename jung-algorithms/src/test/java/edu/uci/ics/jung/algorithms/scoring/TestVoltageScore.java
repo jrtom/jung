@@ -21,7 +21,7 @@ import junit.framework.TestCase;
 import com.google.common.base.Functions;
 
 import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.UndirectedSparseMultigraph;
+import edu.uci.ics.jung.graph.impl.UndirectedSparseMultigraph;
 
 /**
  * @author jrtom

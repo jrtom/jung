@@ -19,7 +19,7 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.UndirectedGraph;
-import edu.uci.ics.jung.graph.UndirectedSparseMultigraph;
+import edu.uci.ics.jung.graph.impl.UndirectedSparseMultigraph;
 
 
 /**

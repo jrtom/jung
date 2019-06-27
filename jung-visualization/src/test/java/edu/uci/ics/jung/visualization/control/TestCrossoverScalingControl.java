@@ -4,7 +4,7 @@ import java.awt.geom.Point2D;
 
 import junit.framework.TestCase;
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
-import edu.uci.ics.jung.graph.SparseGraph;
+import edu.uci.ics.jung.graph.impl.SparseGraph;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 import edu.uci.ics.jung.visualization.VisualizationServer;
 

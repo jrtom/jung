@@ -9,12 +9,26 @@
  * "license.txt" or
  * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
  */
-package edu.uci.ics.jung.graph;
+package edu.uci.ics.jung.graph.impl;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import com.google.common.base.Supplier;
+
+import edu.uci.ics.jung.graph.AbstractHypergraphTest;
+import edu.uci.ics.jung.graph.Hypergraph;
+import edu.uci.ics.jung.graph.impl.DirectedOrderedSparseMultigraph;
+import edu.uci.ics.jung.graph.impl.DirectedSparseGraph;
+import edu.uci.ics.jung.graph.impl.DirectedSparseMultigraph;
+import edu.uci.ics.jung.graph.impl.OrderedSparseMultigraph;
+import edu.uci.ics.jung.graph.impl.SetHypergraph;
+import edu.uci.ics.jung.graph.impl.SortedSparseMultigraph;
+import edu.uci.ics.jung.graph.impl.SparseGraph;
+import edu.uci.ics.jung.graph.impl.SparseMultigraph;
+import edu.uci.ics.jung.graph.impl.UndirectedOrderedSparseMultigraph;
+import edu.uci.ics.jung.graph.impl.UndirectedSparseGraph;
+import edu.uci.ics.jung.graph.impl.UndirectedSparseMultigraph;
 
 
 public class HypergraphTest extends AbstractHypergraphTest

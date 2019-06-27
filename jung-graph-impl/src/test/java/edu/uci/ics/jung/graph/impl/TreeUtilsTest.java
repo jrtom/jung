@@ -1,6 +1,7 @@
-package edu.uci.ics.jung.graph;
+package edu.uci.ics.jung.graph.impl;
 
-import edu.uci.ics.jung.graph.DelegateTree;
+import edu.uci.ics.jung.graph.AbstractTreeUtilsTest;
+import edu.uci.ics.jung.graph.impl.DelegateTree;
 
 public class TreeUtilsTest extends AbstractTreeUtilsTest {
 	

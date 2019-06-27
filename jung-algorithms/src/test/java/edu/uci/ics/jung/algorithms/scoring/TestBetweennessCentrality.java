@@ -15,8 +15,8 @@ import junit.framework.TestCase;
 
 import com.google.common.base.Function;
 
-import edu.uci.ics.jung.graph.DirectedSparseGraph;
 import edu.uci.ics.jung.graph.Graph;
+import edu.uci.ics.jung.graph.impl.DirectedSparseGraph;
 
 /**
  *

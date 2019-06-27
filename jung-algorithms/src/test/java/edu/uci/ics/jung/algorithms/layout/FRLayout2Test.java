@@ -9,7 +9,7 @@ import edu.uci.ics.jung.algorithms.layout.util.Relaxer;
 import edu.uci.ics.jung.algorithms.layout.util.VisRunner;
 import edu.uci.ics.jung.algorithms.util.IterativeContext;
 import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.util.TestGraphs;
+import edu.uci.ics.jung.graph.impl.util.TestGraphs;
 
 public class FRLayout2Test extends TestCase {
 	

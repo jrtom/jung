@@ -23,7 +23,7 @@ import javax.swing.JLabel;
 import com.google.common.base.Functions;
 
 import edu.uci.ics.jung.algorithms.layout.KKLayout;
-import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
+import edu.uci.ics.jung.graph.impl.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;

@@ -1,6 +1,7 @@
-package edu.uci.ics.jung.graph;
+package edu.uci.ics.jung.graph.impl;
 
-import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
+import edu.uci.ics.jung.graph.AbstractDirectedSparseMultigraphTest;
+import edu.uci.ics.jung.graph.impl.DirectedSparseMultigraph;
 
 public class DirectedSparseMultigraphTest 
 	extends AbstractDirectedSparseMultigraphTest {

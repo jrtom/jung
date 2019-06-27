@@ -1,7 +1,7 @@
 package edu.uci.ics.jung.visualization;
 
 import edu.uci.ics.jung.algorithms.layout.CircleLayout;
-import edu.uci.ics.jung.graph.SparseGraph;
+import edu.uci.ics.jung.graph.impl.SparseGraph;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import junit.framework.TestCase;
 

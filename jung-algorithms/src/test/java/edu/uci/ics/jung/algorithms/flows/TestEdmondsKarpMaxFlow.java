@@ -22,7 +22,7 @@ import com.google.common.base.Functions;
 import com.google.common.base.Supplier;
 
 import edu.uci.ics.jung.graph.DirectedGraph;
-import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
+import edu.uci.ics.jung.graph.impl.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.util.EdgeType;
 
 /**

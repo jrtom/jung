@@ -9,7 +9,7 @@
  * Created on Sep 1, 2008
  * 
  */
-package edu.uci.ics.jung.graph;
+package edu.uci.ics.jung.graph.impl;
 
 import java.util.Collection;
 import java.util.Collections;

@@ -1,5 +1,6 @@
-package edu.uci.ics.jung.graph;
+package edu.uci.ics.jung.graph.impl;
 
+import edu.uci.ics.jung.graph.impl.SparseGraph;
 import junit.framework.TestCase;
 
 

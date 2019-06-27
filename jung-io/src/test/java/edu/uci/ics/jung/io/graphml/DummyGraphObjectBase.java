@@ -3,8 +3,8 @@ package edu.uci.ics.jung.io.graphml;
 import com.google.common.base.Function;
 
 import edu.uci.ics.jung.graph.Hypergraph;
-import edu.uci.ics.jung.graph.SetHypergraph;
-import edu.uci.ics.jung.graph.UndirectedSparseGraph;
+import edu.uci.ics.jung.graph.impl.SetHypergraph;
+import edu.uci.ics.jung.graph.impl.UndirectedSparseGraph;
 
 public class DummyGraphObjectBase {
     

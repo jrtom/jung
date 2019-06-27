@@ -3,7 +3,7 @@ package edu.uci.ics.jung.algorithms.metrics;
 import junit.framework.TestCase;
 import edu.uci.ics.jung.algorithms.metrics.TriadicCensus;
 import edu.uci.ics.jung.graph.DirectedGraph;
-import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
+import edu.uci.ics.jung.graph.impl.DirectedSparseMultigraph;
 
 public class TestTriad extends TestCase {
 

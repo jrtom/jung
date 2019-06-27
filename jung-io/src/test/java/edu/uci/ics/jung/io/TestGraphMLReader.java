@@ -30,11 +30,11 @@ import com.google.common.base.Function;
 import com.google.common.base.Supplier;
 import com.google.common.collect.BiMap;
 
-import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.Hypergraph;
-import edu.uci.ics.jung.graph.SetHypergraph;
-import edu.uci.ics.jung.graph.UndirectedSparseGraph;
+import edu.uci.ics.jung.graph.impl.DirectedSparseMultigraph;
+import edu.uci.ics.jung.graph.impl.SetHypergraph;
+import edu.uci.ics.jung.graph.impl.UndirectedSparseGraph;
 
 /**
  * @author Scott White
