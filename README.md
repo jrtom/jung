@@ -31,6 +31,21 @@ To add a dependency on this release of JUNG using Maven, use the following for e
 </dependency>
 ```
 
+To add a dependency on a snapshot of the master branch in gradle:
+
+```
+dependencies {
+   // ...
+	compile("com.github.jrtom:jung:master-SNAPSHOT")
+}
+repositories {
+    // ...
+    maven { url "https://jitpack.io" }
+    
+}
+
+```
+
 ### Snapshots
 
 Snapshots of JUNG built from the `master` branch are available through Maven using version `2.2-SNAPSHOT`.
