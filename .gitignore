@@ -23,3 +23,6 @@ out/
 .metadata/
 .factoryPath
 bin/
+
+# Netbeans
+/nb-configuration.xml

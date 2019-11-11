@@ -233,6 +233,11 @@ public class KMeansClusterer<T> {
     this.rand = new Random(random_seed);
   }
 
+  /** Replaces the internal random number generator by a new instance. */
+  public void setRandom(Random random) {
+    this.rand = random;
+  }
+
   /**
    * An exception that indicates that the specified data points cannot be clustered into the number
    * of clusters requested by the user. This will happen if and only if there are fewer distinct
