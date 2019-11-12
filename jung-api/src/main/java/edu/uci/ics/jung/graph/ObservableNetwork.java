@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
 
 /**
  * A decorator class for graphs which generates events
@@ -54,8 +55,13 @@ public class ObservableNetwork<N, E> implements MutableNetwork<N, E> {
     listenerList.remove(checkNotNull(l, "l"));
   }
 
-  protected void fireGraphEvent(NetworkEvent<N, E> evt) {
+  protected void fireGraphEvent(Supplier<NetworkEvent<N, E>> evtSupplier) {
+    checkNotNull(evtSupplier, "evtSupplier");
+    if (listenerList.isEmpty()) return;
+
+    NetworkEvent<N, E> evt = evtSupplier.get();
     checkNotNull(evt, "evt");
+
     for (NetworkEventListener<N, E> listener : listenerList) {
       listener.handleGraphEvent(evt);
     }
@@ -65,9 +71,7 @@ public class ObservableNetwork<N, E> implements MutableNetwork<N, E> {
   public boolean addEdge(N v1, N v2, E e) {
     boolean state = delegate.addEdge(v1, v2, e);
     if (state) {
-      NetworkEvent<N, E> evt =
-          new NetworkEvent.Edge<N, E>(delegate, NetworkEvent.Type.EDGE_ADDED, e);
-      fireGraphEvent(evt);
+      fireGraphEvent(() -> new NetworkEvent.Edge<>(delegate, NetworkEvent.Type.EDGE_ADDED, e));
     }
     return state;
   }
@@ -76,9 +80,7 @@ public class ObservableNetwork<N, E> implements MutableNetwork<N, E> {
   public boolean addNode(N node) {
     boolean state = delegate.addNode(node);
     if (state) {
-      NetworkEvent<N, E> evt =
-          new NetworkEvent.Node<>(delegate, NetworkEvent.Type.NODE_ADDED, node);
-      fireGraphEvent(evt);
+      fireGraphEvent(() -> new NetworkEvent.Node<>(delegate, NetworkEvent.Type.NODE_ADDED, node));
     }
     return state;
   }
@@ -87,9 +89,8 @@ public class ObservableNetwork<N, E> implements MutableNetwork<N, E> {
   public boolean removeEdge(E edge) {
     boolean state = delegate.removeEdge(edge);
     if (state) {
-      NetworkEvent<N, E> evt =
-          new NetworkEvent.Edge<N, E>(delegate, NetworkEvent.Type.EDGE_REMOVED, (E) edge);
-      fireGraphEvent(evt);
+      fireGraphEvent(
+          () -> new NetworkEvent.Edge<N, E>(delegate, NetworkEvent.Type.EDGE_REMOVED, (E) edge));
     }
     return state;
   }
@@ -107,9 +108,8 @@ public class ObservableNetwork<N, E> implements MutableNetwork<N, E> {
 
     boolean state = delegate.removeNode(node);
     if (state) {
-      NetworkEvent<N, E> evt =
-          new NetworkEvent.Node<N, E>(delegate, NetworkEvent.Type.NODE_REMOVED, (N) node);
-      fireGraphEvent(evt);
+      fireGraphEvent(
+          () -> new NetworkEvent.Node<>(delegate, NetworkEvent.Type.NODE_REMOVED, (N) node));
     }
     return state;
   }
