@@ -10,6 +10,7 @@
 package edu.uci.ics.jung.algorithms.generators.random;
 
 import com.google.common.graph.Graph;
+import java.util.Random;
 import java.util.function.Supplier;
 import junit.framework.Assert;
 import junit.framework.Test;
@@ -41,7 +42,7 @@ public class TestEppsteinPowerLawGenerator extends TestCase {
     for (int r = 0; r < 10; r++) {
       EppsteinPowerLawGenerator<Integer> generator =
           new EppsteinPowerLawGenerator<Integer>(nodeFactory, 10, 40, r);
-      generator.setSeed(2);
+      generator.setRandom(new Random(2));
 
       Graph<Integer> graph = generator.get();
       Assert.assertEquals(graph.nodes().size(), 10);

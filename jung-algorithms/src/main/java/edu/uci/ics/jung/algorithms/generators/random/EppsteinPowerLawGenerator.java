@@ -26,6 +26,7 @@ import java.util.function.Supplier;
  * @see "A Steady State Model for Graph Power Law by David Eppstein and Joseph Wang"
  */
 public class EppsteinPowerLawGenerator<N> {
+
   private int nodeCount;
   private int edgeCount;
   private int mNumIterations;
@@ -104,7 +105,6 @@ public class EppsteinPowerLawGenerator<N> {
 
       // FIXME: use WeightedChoice (see BarabasiAlbert) for a more efficient impl
       // for finding an edge
-
       N x = nodes.get((int) (mRandom.nextDouble() * nodeCount));
       N y = null;
       do {
@@ -122,12 +122,7 @@ public class EppsteinPowerLawGenerator<N> {
     return graph;
   }
 
-  /**
-   * Sets the seed for the random number generator.
-   *
-   * @param seed input to the random number generator.
-   */
-  public void setSeed(long seed) {
-    mRandom.setSeed(seed);
+  public void setRandom(Random random) {
+    this.mRandom = random;
   }
 }

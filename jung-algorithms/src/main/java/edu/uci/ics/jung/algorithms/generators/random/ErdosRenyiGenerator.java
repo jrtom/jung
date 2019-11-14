@@ -69,13 +69,7 @@ public class ErdosRenyiGenerator<N> {
     return graph;
   }
 
-  /**
-   * Sets the seed of the internal random number generator to {@code seed}. Enables consistent
-   * behavior.
-   *
-   * @param seed the seed to use for the internal random number generator
-   */
-  public void setSeed(long seed) {
-    random.setSeed(seed);
+  public void setRandom(Random random) {
+    this.random = random;
   }
 }
