@@ -53,7 +53,7 @@ public class MinimumSpanningTree<N, E> {
     // * let the user specify whether to create a directed or undirected graph
     // * let TreeLayout (etc.) handle undirected graphs (given a root set)
     MutableNetwork<N, E> tree =
-        NetworkBuilder.directed().build(); // no self-loops or parallel edges
+        NetworkBuilder.undirected().build(); // no self-loops or parallel edges
 
     while (!remainingNodes.isEmpty()) {
       N node = heap.poll(); // remove the node with the minimum incident edge cost

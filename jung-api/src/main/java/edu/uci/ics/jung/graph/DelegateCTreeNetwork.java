@@ -81,7 +81,7 @@ class DelegateCTreeNetwork<N, E> extends AbstractNetwork<N, E>
 
   @Override
   public boolean isDirected() {
-    return true;
+    return delegate.isDirected();
   }
 
   @Override

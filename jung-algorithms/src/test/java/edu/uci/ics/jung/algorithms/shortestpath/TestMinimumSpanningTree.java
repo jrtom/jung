@@ -10,7 +10,7 @@ import junit.framework.TestCase;
 public class TestMinimumSpanningTree extends TestCase {
 
   public void testSimpleTree() {
-    MutableCTreeNetwork<String, Integer> tree = TreeNetworkBuilder.builder().build();
+    MutableCTreeNetwork<String, Integer> tree = TreeNetworkBuilder.builder().undirected().build();
     tree.addNode("A");
     tree.addEdge("A", "B0", 0);
     tree.addEdge("A", "B1", 1);
@@ -23,7 +23,7 @@ public class TestMinimumSpanningTree extends TestCase {
   }
 
   public void testDAG() {
-    MutableNetwork<String, Integer> graph = NetworkBuilder.directed().build();
+    MutableNetwork<String, Integer> graph = NetworkBuilder.undirected().build();
     graph.addNode("B0");
     graph.addEdge("A", "B0", 0);
     graph.addEdge("A", "B1", 1);
