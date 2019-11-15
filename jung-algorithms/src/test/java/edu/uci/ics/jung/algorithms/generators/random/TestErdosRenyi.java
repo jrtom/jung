@@ -35,7 +35,7 @@ public class TestErdosRenyi extends TestCase {
     int total = 0;
     for (int i = 1; i <= 10; i++) {
       ErdosRenyiGenerator<String> generator = new ErdosRenyiGenerator<>(nodeFactory, numNodes, 0.1);
-      generator.setRandom(new Random());
+      generator.setRandom(new Random(0));
 
       Graph<String> graph = generator.get();
       Assert.assertTrue(graph.nodes().size() == numNodes);
