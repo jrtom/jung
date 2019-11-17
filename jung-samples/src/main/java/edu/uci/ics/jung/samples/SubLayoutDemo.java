@@ -165,6 +165,7 @@ public class SubLayoutDemo extends JPanel {
             Class<CircleLayoutAlgorithm> clazz = (Class<CircleLayoutAlgorithm>) e.getItem();
             try {
               vv.getModel().getLayoutModel().accept(getLayoutAlgorithmFor(clazz));
+              vv.repaint();
             } catch (Exception ex) {
               ex.printStackTrace();
             }
