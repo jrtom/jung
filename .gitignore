@@ -25,4 +25,4 @@ out/
 bin/
 
 # Netbeans
-/nb-configuration.xml
+**/nb-configuration.xml

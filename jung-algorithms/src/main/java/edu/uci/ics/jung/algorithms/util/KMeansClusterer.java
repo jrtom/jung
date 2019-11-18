@@ -224,15 +224,6 @@ public class KMeansClusterer<T> {
     return error;
   }
 
-  /**
-   * Sets the seed used by the internal random number generator. Enables consistent outputs.
-   *
-   * @param random_seed the random seed to use
-   */
-  public void setSeed(int random_seed) {
-    this.rand = new Random(random_seed);
-  }
-
   /** Replaces the internal random number generator by a new instance. */
   public void setRandom(Random random) {
     this.rand = random;

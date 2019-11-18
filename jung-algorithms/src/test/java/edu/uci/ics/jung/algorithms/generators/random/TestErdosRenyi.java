@@ -1,6 +1,7 @@
 package edu.uci.ics.jung.algorithms.generators.random;
 
 import com.google.common.graph.Graph;
+import java.util.Random;
 import java.util.function.Supplier;
 import junit.framework.Assert;
 import junit.framework.Test;
@@ -34,7 +35,7 @@ public class TestErdosRenyi extends TestCase {
     int total = 0;
     for (int i = 1; i <= 10; i++) {
       ErdosRenyiGenerator<String> generator = new ErdosRenyiGenerator<>(nodeFactory, numNodes, 0.1);
-      generator.setSeed(0);
+      generator.setRandom(new Random(0));
 
       Graph<String> graph = generator.get();
       Assert.assertTrue(graph.nodes().size() == numNodes);
