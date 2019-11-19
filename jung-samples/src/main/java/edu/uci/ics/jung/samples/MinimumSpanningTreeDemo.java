@@ -11,6 +11,7 @@ package edu.uci.ics.jung.samples;
 import com.google.common.graph.Network;
 import edu.uci.ics.jung.algorithms.shortestpath.MinimumSpanningTree;
 import edu.uci.ics.jung.graph.util.TestGraphs;
+import edu.uci.ics.jung.layout.algorithms.FRLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.KKLayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm;
 import edu.uci.ics.jung.layout.algorithms.StaticLayoutAlgorithm;
@@ -71,7 +72,7 @@ public class MinimumSpanningTreeDemo extends JPanel {
     tree = MinimumSpanningTree.extractFrom(graph, e -> 1.0);
 
     LayoutAlgorithm<String> layout0 = new KKLayoutAlgorithm<>();
-    LayoutAlgorithm<String> layout1 = new TreeLayoutAlgorithm<>();
+    LayoutAlgorithm<String> layout1 = new FRLayoutAlgorithm<>();
     LayoutAlgorithm<String> layout2 = new StaticLayoutAlgorithm<>();
 
     // create the two models, each with a different layout
