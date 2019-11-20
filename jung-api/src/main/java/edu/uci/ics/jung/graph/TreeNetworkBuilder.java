@@ -24,7 +24,6 @@ public class TreeNetworkBuilder<N, E> {
   ElementOrder<E> edgeOrder = ElementOrder.insertion();
   Optional<Integer> expectedNodeCount = Optional.empty();
   Optional<N> root = Optional.empty();
-  boolean directed = true;
 
   /** Returns a {@link TreeNetworkBuilder} instance. */
   public static TreeNetworkBuilder<Object, Object> builder() {
@@ -84,9 +83,7 @@ public class TreeNetworkBuilder<N, E> {
   // for trees, maybe we do; at least for binary trees vs. trees with no restrictions on outgoing edges...
   public <N1 extends N, E1 extends E> MutableCTreeNetwork<N1, E1> build() {
     NetworkBuilder<Object, Object> graphBuilder =
-        directed
-            ? NetworkBuilder.directed().allowsSelfLoops(false).allowsParallelEdges(false)
-            : NetworkBuilder.undirected().allowsSelfLoops(false).allowsParallelEdges(false);
+        NetworkBuilder.directed().allowsSelfLoops(false).allowsParallelEdges(false);
     if (expectedNodeCount.isPresent()) {
       graphBuilder = graphBuilder.expectedNodeCount(expectedNodeCount.get());
     }
@@ -95,12 +92,6 @@ public class TreeNetworkBuilder<N, E> {
     @SuppressWarnings("unchecked")
     Optional<N1> rootCast = (Optional<N1>) root;
     return new DelegateCTreeNetwork<N1, E1>(delegate, rootCast);
-  }
-
-  public <E1 extends E> TreeNetworkBuilder<N, E1> undirected() {
-    TreeNetworkBuilder<N, E1> newBuilder = cast();
-    newBuilder.directed = false;
-    return newBuilder;
   }
 
   @SuppressWarnings("unchecked")
