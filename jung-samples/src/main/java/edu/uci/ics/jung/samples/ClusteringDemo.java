@@ -127,8 +127,8 @@ public class ClusteringDemo extends JPanel {
 
     pnr.load(br, graph);
 
-    //Create a simple layout frame
-    //specify the Fruchterman-Rheingold layout algorithm
+    // Create a simple layout frame
+    // specify the Fruchterman-Rheingold layout algorithm
     LayoutAlgorithm<Number> algorithm = new FRLayoutAlgorithm<>();
     LayoutModel<Number> delegateModel =
         LoadingCacheLayoutModel.<Number>builder()
@@ -144,7 +144,7 @@ public class ClusteringDemo extends JPanel {
 
     vv = new VisualizationViewer<>(visualizationModel, new Dimension(800, 800));
     vv.setBackground(Color.white);
-    //Tell the renderer to use our own customized color rendering
+    // Tell the renderer to use our own customized color rendering
     vv.getRenderContext().setNodeFillPaintFunction(nodePaints);
     vv.getRenderContext()
         .setNodeDrawPaintFunction(
@@ -155,7 +155,7 @@ public class ClusteringDemo extends JPanel {
     vv.getRenderContext()
         .setEdgeStrokeFunction(e -> edgePaints.getUnchecked(e) == Color.LIGHT_GRAY ? THIN : THICK);
 
-    //add restart button
+    // add restart button
     JButton scramble = new JButton("Restart");
     scramble.addActionListener(
         e -> {
@@ -168,7 +168,7 @@ public class ClusteringDemo extends JPanel {
 
     final JToggleButton groupNodes = new JToggleButton("Group Clusters");
 
-    //Create slider to adjust the number of edges to remove when clustering
+    // Create slider to adjust the number of edges to remove when clustering
     final JSlider edgeBetweennessSlider = new JSlider(JSlider.HORIZONTAL);
     edgeBetweennessSlider.setBackground(Color.WHITE);
     edgeBetweennessSlider.setPreferredSize(new Dimension(210, 50));
@@ -181,8 +181,8 @@ public class ClusteringDemo extends JPanel {
     edgeBetweennessSlider.setPaintTicks(true);
 
     //		edgeBetweennessSlider.setBorder(BorderFactory.createLineBorder(Color.black));
-    //TO DO: edgeBetweennessSlider.add(new JLabel("Node Size (PageRank With Priors):"));
-    //I also want the slider value to appear
+    // TO DO: edgeBetweennessSlider.add(new JLabel("Node Size (PageRank With Priors):"));
+    // I also want the slider value to appear
     final JPanel eastControls = new JPanel();
     eastControls.setOpaque(true);
     eastControls.setLayout(new BoxLayout(eastControls, BoxLayout.Y_AXIS));
@@ -252,7 +252,7 @@ public class ClusteringDemo extends JPanel {
     Set<Number> edges = clusterer.getEdgesRemoved();
 
     int i = 0;
-    //Set the colors of each node so that each cluster's nodes have the same color
+    // Set the colors of each node so that each cluster's nodes have the same color
     for (Iterator<Set<Number>> cIt = clusterSet.iterator(); cIt.hasNext(); ) {
 
       Set<Number> nodes = cIt.next();

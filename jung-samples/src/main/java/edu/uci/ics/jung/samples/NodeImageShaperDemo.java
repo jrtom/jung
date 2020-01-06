@@ -108,7 +108,8 @@ public class NodeImageShaperDemo extends JPanel {
 
     FRLayoutAlgorithm<Number> layoutAlgorithm = new FRLayoutAlgorithm<>();
     layoutAlgorithm.setMaxIterations(100);
-    //    treeLayoutAlgorithm.setInitializer(new RandomLocationTransformer<>(new Dimension(400, 400), 0));
+    //    treeLayoutAlgorithm.setInitializer(new RandomLocationTransformer<>(new Dimension(400,
+    // 400), 0));
 
     vv =
         new VisualizationViewer<>(

@@ -78,7 +78,8 @@ public class GraphElementParser<G extends MutableNetwork<N, E>, N, E>
 
       Map<String, N> idToNodeMap = new HashMap<String, N>();
       Collection<EdgeMetadata> edgeMetadata = new LinkedList<EdgeMetadata>();
-      //            Collection<HyperEdgeMetadata> hyperEdgeMetadata = new LinkedList<HyperEdgeMetadata>();
+      //            Collection<HyperEdgeMetadata> hyperEdgeMetadata = new
+      // LinkedList<HyperEdgeMetadata>();
 
       while (xmlEventReader.hasNext()) {
 
@@ -133,7 +134,8 @@ public class GraphElementParser<G extends MutableNetwork<N, E>, N, E>
             //                    } else if (GraphMLConstants.HYPEREDGE_NAME.equals(name)) {
             //
             //                        // Parse the edge metadata
-            //                        HyperEdgeMetadata metadata = (HyperEdgeMetadata) getParser(name).parse(
+            //                        HyperEdgeMetadata metadata = (HyperEdgeMetadata)
+            // getParser(name).parse(
             //                                xmlEventReader, element);
             //
             //                        // Create the edge object and store it in the metadata
