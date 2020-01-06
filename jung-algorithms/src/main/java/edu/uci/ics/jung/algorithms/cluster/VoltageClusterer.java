@@ -40,9 +40,9 @@ import java.util.Set;
  * <p>The algorithm proceeds as follows:
  *
  * <ul>
- *   <li>first, generate a set of candidate clusters as follows:
+ *   <li>first, randomly generate a set of candidate clusters as follows:
  *       <ul>
- *         <li>pick (widely separated) node pair, run VoltageScorer
+ *         <li>randomly pick (widely separated) node pair, run VoltageScorer
  *         <li>group the nodes in two clusters according to their voltages
  *         <li>store resulting candidate clusters
  *       </ul>
@@ -68,7 +68,7 @@ import java.util.Set;
  * @see KMeansClusterer
  */
 public class VoltageClusterer<N, E> {
-  protected int num_candidates;
+  protected int random_sample_count;
   protected KMeansClusterer<N> kmc;
   protected Random rand;
   protected Network<N, E> g;
@@ -78,12 +78,12 @@ public class VoltageClusterer<N, E> {
    * parameters that are passed directly to VoltageScorer and KMeansClusterer.
    *
    * @param g the graph whose nodes are to be clustered
-   * @param num_candidates the number of candidate clusters to create
+   * @param random_sample_count the number of (random) candidate clusterings to generate
    */
-  public VoltageClusterer(Network<N, E> g, int num_candidates) {
-    Preconditions.checkArgument(num_candidates >= 1, "must generate >= 1 candidates");
+  public VoltageClusterer(Network<N, E> g, int random_sample_count) {
+    Preconditions.checkArgument(random_sample_count >= 1, "must generate >= 1 candidates");
 
-    this.num_candidates = num_candidates;
+    this.random_sample_count = random_sample_count;
     this.kmc = new KMeansClusterer<N>();
     rand = new Random();
     this.g = g;
@@ -121,7 +121,7 @@ public class VoltageClusterer<N, E> {
    */
   protected Collection<Set<N>> cluster_internal(N origin, int num_clusters) {
     // generate candidate clusters
-    // repeat the following 'samples' times:
+    // repeat the following 'random_sample_count' times:
     // * pick (widely separated) node pair, run VoltageScorer
     // * use k-means to identify 2 communities in ranked graph
     // * store resulting candidate communities
@@ -129,13 +129,9 @@ public class VoltageClusterer<N, E> {
 
     LinkedList<Set<N>> candidates = new LinkedList<Set<N>>();
 
-    for (int j = 0; j < num_candidates; j++) {
-      N source;
-      if (origin == null) {
-        source = v_array.get((int) (rand.nextDouble() * v_array.size()));
-      } else {
-        source = origin;
-      }
+    for (int j = 0; j < random_sample_count; j++) {
+      N source =
+          (origin == null) ? v_array.get((int) (rand.nextDouble() * v_array.size())) : origin;
       N target = null;
       do {
         target = v_array.get((int) (rand.nextDouble() * v_array.size()));
