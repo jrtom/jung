@@ -54,7 +54,8 @@ public class TestEppsteinPowerLawGenerator extends TestCase {
   //    public void testPowerLawProperties() {
   //
   //        //long start = System.currentTimeMillis();
-  //        EppsteinPowerLawGenerator generator = new EppsteinPowerLawGenerator(nodeFactory, edgeFactory,
+  //        EppsteinPowerLawGenerator generator = new EppsteinPowerLawGenerator(nodeFactory,
+  // edgeFactory,
   //        		500,1500,100000);
   //        generator.setSeed(5);
   //        Graph graph = (Graph) generator.generateGraph();
@@ -65,10 +66,12 @@ public class TestEppsteinPowerLawGenerator extends TestCase {
   //        int maxDegree = (int) Descriptive.max(degreeList);
   //        Histogram degreeHistogram = GraphStatistics.createHistogram(degreeList,0,maxDegree,1);
   //        //for (int index=0;index<maxDegree;index++) {
-  //        //    System.out.println(degreeHistogram.binIndex(index) + " " + degreeHistogram.binHeight(index));
+  //        //    System.out.println(degreeHistogram.binIndex(index) + " " +
+  // degreeHistogram.binHeight(index));
   //        //}
   //        //if it's power law, 0 is going to have the highest bin count
-  //        Assert.assertTrue(degreeHistogram.binHeight(0) + degreeHistogram.binHeight(1) > degreeHistogram.binHeight(2) + degreeHistogram.binHeight(3));
+  //        Assert.assertTrue(degreeHistogram.binHeight(0) + degreeHistogram.binHeight(1) >
+  // degreeHistogram.binHeight(2) + degreeHistogram.binHeight(3));
   //
   //        generator = new EppsteinPowerLawGenerator(500,1500,0);
   //        graph = (Graph) generator.generateGraph();
@@ -76,9 +79,11 @@ public class TestEppsteinPowerLawGenerator extends TestCase {
   //        maxDegree = (int) Descriptive.max(degreeList);
   //        degreeHistogram = GraphStatistics.createHistogram(degreeList,0,maxDegree,1);
   //        //for (int index=0;index<maxDegree;index++) {
-  //        //    System.out.println(degreeHistogram.binIndex(index) + " " + degreeHistogram.binHeight(index));
+  //        //    System.out.println(degreeHistogram.binIndex(index) + " " +
+  // degreeHistogram.binHeight(index));
   //        //}
-  //        //if it's not power law, 0 is not going to have the highest bin count rather it will start to go up
+  //        //if it's not power law, 0 is not going to have the highest bin count rather it will
+  // start to go up
   //        Assert.assertTrue(degreeHistogram.binHeight(0) < degreeHistogram.binHeight(1));
   //
   //

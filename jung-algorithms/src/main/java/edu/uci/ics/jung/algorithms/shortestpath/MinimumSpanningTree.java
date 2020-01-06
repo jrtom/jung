@@ -25,7 +25,8 @@ import java.util.function.Function;
  * @param <E> the edge type
  */
 public class MinimumSpanningTree<N, E> {
-  // TODO: consider providing a separate mechanism for extracting a spanning tree from an unweighted graph.
+  // TODO: consider providing a separate mechanism for extracting a spanning tree from an unweighted
+  // graph.
 
   /**
    * Extracts a minimum spanning forest from {@code graph} based on the specified edge weights. (If

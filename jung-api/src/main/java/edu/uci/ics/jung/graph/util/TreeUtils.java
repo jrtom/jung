@@ -28,9 +28,7 @@ import edu.uci.ics.jung.graph.TreeNetworkBuilder;
 public class TreeUtils {
   public static <N> ImmutableSet<N> roots(Graph<N> graph) {
     checkNotNull(graph, "graph");
-    return graph
-        .nodes()
-        .stream()
+    return graph.nodes().stream()
         .filter(node -> graph.predecessors(node).isEmpty())
         .collect(toImmutableSet());
   }

@@ -114,7 +114,7 @@ public class ShortestPathDemo extends JPanel {
         return Color.BLACK;
       }
       if (isBlessed(e)) {
-        return new Color(0.0f, 0.0f, 1.0f, 0.5f); //Color.BLUE;
+        return new Color(0.0f, 0.0f, 1.0f, 0.5f); // Color.BLUE;
       } else {
         return Color.LIGHT_GRAY;
       }

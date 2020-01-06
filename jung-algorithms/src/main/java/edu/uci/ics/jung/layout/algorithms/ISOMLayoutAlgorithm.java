@@ -95,14 +95,14 @@ public class ISOMLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
     adaption = initialAdaption;
     minAdaption = 0;
 
-    //factor = 0; //Will be set later on
+    // factor = 0; //Will be set later on
     coolingFactor = 2;
 
-    //temperature = 0.03;
-    //initialJumpRadius = 100;
-    //jumpRadius = initialJumpRadius;
+    // temperature = 0.03;
+    // initialJumpRadius = 100;
+    // jumpRadius = initialJumpRadius;
 
-    //delay = 100;
+    // delay = 100;
   }
 
   /** Advances the current positions of the graph elements. */
@@ -123,11 +123,11 @@ public class ISOMLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
   private synchronized void adjust() {
     double width = layoutModel.getWidth();
     double height = layoutModel.getHeight();
-    //Generate random position in graph space
+    // Generate random position in graph space
     // creates a new XY data location
     Point tempXYD = Point.of(10 + Math.random() * width, 10 + Math.random() * height);
 
-    //Get closest node to random position
+    // Get closest node to random position
     N winner = elementAccessor.getNode(layoutModel, tempXYD.x, tempXYD.y);
 
     while (true) {
@@ -148,8 +148,8 @@ public class ISOMLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
     epoch++;
     double factor = Math.exp(-1 * coolingFactor * (1.0 * epoch / maxEpoch));
     adaption = Math.max(minAdaption, factor * initialAdaption);
-    //jumpRadius = (int) factor * jumpRadius;
-    //temperature = factor * temperature;
+    // jumpRadius = (int) factor * jumpRadius;
+    // temperature = factor * temperature;
     if ((radius > minRadius) && (epoch % radiusConstantTime == 0)) {
       radius--;
     }

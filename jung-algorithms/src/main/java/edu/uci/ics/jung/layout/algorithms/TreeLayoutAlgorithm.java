@@ -101,7 +101,7 @@ public class TreeLayoutAlgorithm<N> implements LayoutAlgorithm<N> {
   protected void buildTree(LayoutModel<N> layoutModel, N node, int x) {
 
     if (alreadyDone.add(node)) {
-      //go one level further down
+      // go one level further down
       double newY = this.currentY + this.distY;
       this.currentX = x;
       this.currentY = newY;

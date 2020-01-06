@@ -71,7 +71,8 @@ public class SimpleGraphSpatialTest extends JPanel {
 
   public static void main(String[] args) throws IOException {
 
-    // programmatically set the log level so that the spatial grid is drawn for this demo and the SpatialGrid logging is output
+    // programmatically set the log level so that the spatial grid is drawn for this demo and the
+    // SpatialGrid logging is output
     ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) log;
     LoggerContext ctx = (LoggerContext) LoggerFactory.getILoggerFactory();
     ctx.getLogger("edu.uci.ics.jung.visualization.spatial").setLevel(Level.DEBUG);

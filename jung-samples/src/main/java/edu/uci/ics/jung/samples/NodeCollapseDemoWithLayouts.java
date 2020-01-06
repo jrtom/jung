@@ -144,10 +144,12 @@ public class NodeCollapseDemoWithLayouts extends JPanel {
     final JComboBox jcb = new JComboBox(combos);
     // use a renderer to shorten the layout name presentation
     //        jcb.setRenderer(new DefaultListCellRenderer() {
-    //            public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+    //            public Component getListCellRendererComponent(JList list, Object value, int index,
+    // boolean isSelected, boolean cellHasFocus) {
     //                String valueString = value.toString();
     //                valueString = valueString.substring(valueString.lastIndexOf('.')+1);
-    //                return super.getListCellRendererComponent(list, valueString, index, isSelected,
+    //                return super.getListCellRendererComponent(list, valueString, index,
+    // isSelected,
     //                        cellHasFocus);
     //            }
     //        });

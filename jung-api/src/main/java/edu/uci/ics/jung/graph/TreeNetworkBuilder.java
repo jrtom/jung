@@ -80,7 +80,8 @@ public class TreeNetworkBuilder<N, E> {
    */
   // TODO(jrtom): decide how we're going to handle different implementations.
   // For the graph stuff, we don't really need different implementations, but
-  // for trees, maybe we do; at least for binary trees vs. trees with no restrictions on outgoing edges...
+  // for trees, maybe we do; at least for binary trees vs. trees with no restrictions on outgoing
+  // edges...
   public <N1 extends N, E1 extends E> MutableCTreeNetwork<N1, E1> build() {
     NetworkBuilder<Object, Object> graphBuilder =
         NetworkBuilder.directed().allowsSelfLoops(false).allowsParallelEdges(false);
