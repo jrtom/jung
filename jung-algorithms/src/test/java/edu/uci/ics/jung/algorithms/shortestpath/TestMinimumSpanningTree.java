@@ -3,14 +3,12 @@ package edu.uci.ics.jung.algorithms.shortestpath;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
-import edu.uci.ics.jung.graph.MutableCTreeNetwork;
-import edu.uci.ics.jung.graph.TreeNetworkBuilder;
 import junit.framework.TestCase;
 
 public class TestMinimumSpanningTree extends TestCase {
 
   public void testSimpleTree() {
-    MutableCTreeNetwork<String, Integer> tree = TreeNetworkBuilder.builder().build();
+    MutableNetwork<String, Integer> tree = NetworkBuilder.undirected().build();
     tree.addNode("A");
     tree.addEdge("A", "B0", 0);
     tree.addEdge("A", "B1", 1);
