@@ -7,8 +7,8 @@ import com.google.common.graph.NetworkBuilder;
 import com.google.common.graph.ValueGraph;
 import com.google.common.graph.ValueGraphBuilder;
 import edu.uci.ics.jung.algorithms.util.MapBinaryHeap;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -39,8 +39,8 @@ public class MinimumSpanningTree<N, E> {
    */
   public static <N, E> Network<N, E> extractFrom(
       Network<N, E> graph, Function<? super E, Double> edgeWeights) {
-    Set<N> remainingNodes = new HashSet<>(graph.nodes());
-    Map<N, NodeData<E>> nodeData = new HashMap<>();
+    Set<N> remainingNodes = new TreeSet<>(graph.nodes());
+    Map<N, NodeData<E>> nodeData = new TreeMap<>();
     // initialize node data
     for (N node : remainingNodes) {
       nodeData.put(node, new NodeData<>());
@@ -92,8 +92,8 @@ public class MinimumSpanningTree<N, E> {
    * @param graph the graph from which to extract the minimum spanning forest
    */
   public static <N, V extends Number> ValueGraph<N, V> extractFrom(ValueGraph<N, V> graph) {
-    Set<N> remainingNodes = new HashSet<>(graph.nodes());
-    Map<N, NodeData<N>> nodeData = new HashMap<>();
+    Set<N> remainingNodes = new TreeSet<>(graph.nodes());
+    Map<N, NodeData<N>> nodeData = new TreeMap<>();
     // initialize node data
     for (N node : remainingNodes) {
       nodeData.put(node, new NodeData<>());
