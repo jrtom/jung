@@ -11,7 +11,7 @@
   <description>Algorithms for the JUNG project</description>
   <properties>
     <version.slf4j>1.7.25</version.slf4j>
-    <version.logback>1.2.3</version.logback>
+    <version.logback>1.2.9</version.logback>
   </properties>
   <dependencies>
   <dependency>
