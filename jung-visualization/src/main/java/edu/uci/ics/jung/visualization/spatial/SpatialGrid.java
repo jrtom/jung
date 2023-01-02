@@ -436,7 +436,9 @@ public class SpatialGrid<N> extends AbstractSpatial<N, N> implements Spatial<N>,
     return visibleNodes;
   }
 
-  /** @return the layout area rectangle for this grid */
+  /**
+   * @return the layout area rectangle for this grid
+   */
   @Override
   public Rectangle2D getLayoutArea() {
     return layoutArea;

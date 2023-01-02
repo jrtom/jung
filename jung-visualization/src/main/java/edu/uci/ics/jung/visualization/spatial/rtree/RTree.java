@@ -32,7 +32,9 @@ public class RTree<T> {
   /** the root of the R-Tree */
   private final Optional<Node<T>> root;
 
-  /** @return the root of the R-Tree */
+  /**
+   * @return the root of the R-Tree
+   */
   public Optional<Node<T>> getRoot() {
     return root;
   }
@@ -135,7 +137,9 @@ public class RTree<T> {
     }
   }
 
-  /** @return a collection of rectangular bounds of the R-Tree nodes */
+  /**
+   * @return a collection of rectangular bounds of the R-Tree nodes
+   */
   public Set<Shape> getGrid() {
     Set<Shape> areas = Sets.newHashSet();
     if (root.isPresent()) {

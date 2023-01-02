@@ -33,12 +33,16 @@ public class Lens {
 
   protected float magnification = 0.7f;
 
-  /** @param d the size used for the lens */
+  /**
+   * @param d the size used for the lens
+   */
   public Lens(Dimension d) {
     setSize(d);
   }
 
-  /** @param d the size used for the lens */
+  /**
+   * @param d the size used for the lens
+   */
   public void setSize(Dimension d) {
     Preconditions.checkNotNull(d);
     Preconditions.checkArgument(d.width > 0, "width must be > 0");
@@ -81,7 +85,9 @@ public class Lens {
         x - viewRadius / viewRatio, y - viewRadius, 2 * viewRadius / viewRatio, 2 * viewRadius);
   }
 
-  /** @return the ratio between the lens height and lens width */
+  /**
+   * @return the ratio between the lens height and lens width
+   */
   public double getRatio() {
     return lensShape.getHeight() / lensShape.getWidth();
   }

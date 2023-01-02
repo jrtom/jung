@@ -52,11 +52,15 @@ public class DefaultEdgeLabelRenderer extends JLabel implements EdgeLabelRendere
     setBorder(noFocusBorder);
   }
 
-  /** @return Returns the rotateEdgeLabels. */
+  /**
+   * @return Returns the rotateEdgeLabels.
+   */
   public boolean isRotateEdgeLabels() {
     return rotateEdgeLabels;
   }
-  /** @param rotateEdgeLabels The rotateEdgeLabels to set. */
+  /**
+   * @param rotateEdgeLabels The rotateEdgeLabels to set.
+   */
   public void setRotateEdgeLabels(boolean rotateEdgeLabels) {
     this.rotateEdgeLabels = rotateEdgeLabels;
   }

@@ -52,14 +52,18 @@ public class LeafNode<T> extends RTreeNode<T> implements Node<T> {
     return new LeafNode(entries);
   }
 
-  /** @param entries child elements for the new LeafNode */
+  /**
+   * @param entries child elements for the new LeafNode
+   */
   LeafNode(Collection<Map.Entry<T, Rectangle2D>> entries) {
     for (Map.Entry<T, Rectangle2D> entry : entries) {
       map.put(entry.getKey(), entry.getValue());
     }
   }
 
-  /** @param entry one child element for the new LeafNode */
+  /**
+   * @param entry one child element for the new LeafNode
+   */
   LeafNode(Map.Entry<T, Rectangle2D> entry) {
     map.put(entry.getKey(), entry.getValue());
   }
@@ -307,7 +311,9 @@ public class LeafNode<T> extends RTreeNode<T> implements Node<T> {
     return visibleElements;
   }
 
-  /** @return the number of children in this node */
+  /**
+   * @return the number of children in this node
+   */
   public int count() {
     return size();
   }

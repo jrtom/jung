@@ -251,6 +251,12 @@ class DelegateCTreeNetwork<N, E> extends AbstractNetwork<N, E>
     return delegate.addEdge(nodeU, nodeV, edge);
   }
 
+  @Override
+  public boolean addEdge(EndpointPair<N> endpoints, E edge) {
+    checkNotNull(endpoints, "endpoints");
+    return addEdge(endpoints.nodeU(), endpoints.nodeV(), edge);
+  }
+
   private void setDepth(N node, N parent) {
     if (parent == null) { // root: both depth and height are 0
       depths.put(node, 0);

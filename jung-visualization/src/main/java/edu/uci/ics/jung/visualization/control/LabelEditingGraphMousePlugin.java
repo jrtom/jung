@@ -24,7 +24,9 @@ import java.awt.geom.Point2D;
 import java.util.function.Function;
 import javax.swing.JOptionPane;
 
-/** @author Tom Nelson */
+/**
+ * @author Tom Nelson
+ */
 public class LabelEditingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
     implements MouseListener {
 

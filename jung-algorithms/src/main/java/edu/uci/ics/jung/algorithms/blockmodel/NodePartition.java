@@ -112,7 +112,9 @@ public class NodePartition<N> {
     return node_sets;
   }
 
-  /** @return the number of partitions. */
+  /**
+   * @return the number of partitions.
+   */
   public int numPartitions() {
     return node_sets.size();
   }

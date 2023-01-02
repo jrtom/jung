@@ -58,7 +58,9 @@ public class MouseListenerTranslator<N, E> extends MouseAdapter {
     }
     return v;
   }
-  /** @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent) */
+  /**
+   * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
+   */
   public void mouseClicked(MouseEvent e) {
     N v = getNode(e.getPoint());
     if (v != null) {
@@ -66,7 +68,9 @@ public class MouseListenerTranslator<N, E> extends MouseAdapter {
     }
   }
 
-  /** @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent) */
+  /**
+   * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
+   */
   public void mousePressed(MouseEvent e) {
     N v = getNode(e.getPoint());
     if (v != null) {
@@ -74,7 +78,9 @@ public class MouseListenerTranslator<N, E> extends MouseAdapter {
     }
   }
 
-  /** @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent) */
+  /**
+   * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
+   */
   public void mouseReleased(MouseEvent e) {
     N v = getNode(e.getPoint());
     if (v != null) {

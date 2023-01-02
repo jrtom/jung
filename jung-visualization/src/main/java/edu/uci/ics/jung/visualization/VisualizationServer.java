@@ -55,10 +55,14 @@ public interface VisualizationServer<N, E> {
 
   TransformSupport<N, E> getTransformSupport();
 
-  /** @return the model. */
+  /**
+   * @return the model.
+   */
   VisualizationModel<N, E> getModel();
 
-  /** @param model the model for this class to use */
+  /**
+   * @param model the model for this class to use
+   */
   void setModel(VisualizationModel<N, E> model);
 
   /**
@@ -78,7 +82,9 @@ public interface VisualizationServer<N, E> {
    */
   void setRenderer(Renderer<N, E> r);
 
-  /** @return the renderer used by this instance. */
+  /**
+   * @return the renderer used by this instance.
+   */
   Renderer<N, E> getRenderer();
 
   /**
@@ -89,22 +95,34 @@ public interface VisualizationServer<N, E> {
    */
   void setVisible(boolean aFlag);
 
-  /** @return the renderingHints */
+  /**
+   * @return the renderingHints
+   */
   Map<Key, Object> getRenderingHints();
 
-  /** @param renderingHints The renderingHints to set. */
+  /**
+   * @param renderingHints The renderingHints to set.
+   */
   void setRenderingHints(Map<Key, Object> renderingHints);
 
-  /** @param paintable The paintable to add. */
+  /**
+   * @param paintable The paintable to add.
+   */
   void addPreRenderPaintable(Paintable paintable);
 
-  /** @param paintable The paintable to remove. */
+  /**
+   * @param paintable The paintable to remove.
+   */
   void removePreRenderPaintable(Paintable paintable);
 
-  /** @param paintable The paintable to add. */
+  /**
+   * @param paintable The paintable to add.
+   */
   void addPostRenderPaintable(Paintable paintable);
 
-  /** @param paintable The paintable to remove. */
+  /**
+   * @param paintable The paintable to remove.
+   */
   void removePostRenderPaintable(Paintable paintable);
 
   /**
@@ -137,20 +155,28 @@ public interface VisualizationServer<N, E> {
    */
   void fireStateChanged();
 
-  /** @return the node PickedState instance */
+  /**
+   * @return the node PickedState instance
+   */
   PickedState<N> getPickedNodeState();
 
-  /** @return the edge PickedState instance */
+  /**
+   * @return the edge PickedState instance
+   */
   PickedState<E> getPickedEdgeState();
 
   void setPickedNodeState(PickedState<N> pickedNodeState);
 
   void setPickedEdgeState(PickedState<E> pickedEdgeState);
 
-  /** @return the NetworkElementAccessor */
+  /**
+   * @return the NetworkElementAccessor
+   */
   NetworkElementAccessor<N, E> getPickSupport();
 
-  /** @param pickSupport The pickSupport to set. */
+  /**
+   * @param pickSupport The pickSupport to set.
+   */
   void setPickSupport(NetworkElementAccessor<N, E> pickSupport);
 
   Point2D getCenter();

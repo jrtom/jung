@@ -117,7 +117,9 @@ public abstract class AbstractModalGraphMouse extends PluggableGraphMouse
     add(shearingPlugin);
   }
 
-  /** @param zoomAtMouse The zoomAtMouse to set. */
+  /**
+   * @param zoomAtMouse The zoomAtMouse to set.
+   */
   public void setZoomAtMouse(boolean zoomAtMouse) {
     ((ScalingGraphMousePlugin) scalingPlugin).setZoomAtMouse(zoomAtMouse);
   }
@@ -139,17 +141,23 @@ public abstract class AbstractModalGraphMouse extends PluggableGraphMouse
     return modeListener;
   }
 
-  /** @return the modeKeyListener */
+  /**
+   * @return the modeKeyListener
+   */
   public KeyListener getModeKeyListener() {
     return modeKeyListener;
   }
 
-  /** @param modeKeyListener the modeKeyListener to set */
+  /**
+   * @param modeKeyListener the modeKeyListener to set
+   */
   public void setModeKeyListener(KeyListener modeKeyListener) {
     this.modeKeyListener = modeKeyListener;
   }
 
-  /** @return Returns the modeBox. */
+  /**
+   * @return Returns the modeBox.
+   */
   public JComboBox<Mode> getModeComboBox() {
     if (modeBox == null) {
       modeBox = new JComboBox<Mode>(new Mode[] {Mode.TRANSFORMING, Mode.PICKING});

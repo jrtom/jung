@@ -87,7 +87,9 @@ public class MapBinaryHeap<T> extends AbstractCollection<T> implements Queue<T> 
     clear();
   }
 
-  /** @see Collection#clear() */
+  /**
+   * @see Collection#clear()
+   */
   @Override
   public void clear() {
     objectIndices.clear();
@@ -230,7 +232,9 @@ public class MapBinaryHeap<T> extends AbstractCollection<T> implements Queue<T> 
    * @author Joshua O'Madadhain
    */
   private class ComparableComparator implements Comparator<T> {
-    /** @see java.util.Comparator#compare(java.lang.Object, java.lang.Object) */
+    /**
+     * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
+     */
     @SuppressWarnings("unchecked")
     public int compare(T arg0, T arg1) {
       return ((Comparable<T>) arg0).compareTo(arg1);

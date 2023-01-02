@@ -22,10 +22,14 @@ import java.util.function.Function;
 /** two dimensional layoutmodel */
 public interface LayoutModel<N> extends Function<N, Point> {
 
-  /** @return the width of the layout area */
+  /**
+   * @return the width of the layout area
+   */
   int getWidth();
 
-  /** @return the height of the layout area */
+  /**
+   * @return the height of the layout area
+   */
   int getHeight();
 
   /**
@@ -35,7 +39,9 @@ public interface LayoutModel<N> extends Function<N, Point> {
    */
   void accept(LayoutAlgorithm<N> layoutAlgorithm);
 
-  /** @return a mapping of Nodes to Point locations */
+  /**
+   * @return a mapping of Nodes to Point locations
+   */
   default Map<N, Point> getLocations() {
     return Collections.unmodifiableMap(Maps.asMap(getGraph().nodes(), this::apply));
   }
@@ -99,10 +105,14 @@ public interface LayoutModel<N> extends Function<N, Point> {
    */
   Point get(N node);
 
-  /** @return the {@code Graph} that this model is mediating */
+  /**
+   * @return the {@code Graph} that this model is mediating
+   */
   Graph<N> getGraph();
 
-  /** @param graph the {@code Graph} to set */
+  /**
+   * @param graph the {@code Graph} to set
+   */
   void setGraph(Graph<N> graph);
 
   void lock(N node, boolean locked);
@@ -139,7 +149,9 @@ public interface LayoutModel<N> extends Function<N, Point> {
 
   ChangeSupport getChangeSupport();
 
-  /** @return the support for LayoutStateChange events */
+  /**
+   * @return the support for LayoutStateChange events
+   */
   LayoutStateChangeSupport getLayoutStateChangeSupport();
 
   /** support for LayoutStateChangeEvents and their Listeners. */

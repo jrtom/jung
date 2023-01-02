@@ -112,7 +112,9 @@ public class InnerNode<T> extends RTreeNode<T> implements Node<T> {
     return children.get(i);
   }
 
-  /** @return an immutable collection of the child nodes */
+  /**
+   * @return an immutable collection of the child nodes
+   */
   public List<Node<T>> getChildren() {
     return Collections.unmodifiableList(children);
   }
@@ -161,7 +163,9 @@ public class InnerNode<T> extends RTreeNode<T> implements Node<T> {
     return picked;
   }
 
-  /** @return the number of child nodes */
+  /**
+   * @return the number of child nodes
+   */
   @Override
   public int size() {
     return children.size();

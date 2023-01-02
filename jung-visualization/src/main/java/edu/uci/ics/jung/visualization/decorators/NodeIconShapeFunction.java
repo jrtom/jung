@@ -40,12 +40,16 @@ public class NodeIconShapeFunction<N> implements Function<N, Shape> {
     this.delegate = delegate;
   }
 
-  /** @return Returns the delegate. */
+  /**
+   * @return Returns the delegate.
+   */
   public Function<N, Shape> getDelegate() {
     return delegate;
   }
 
-  /** @param delegate The delegate to set. */
+  /**
+   * @param delegate The delegate to set.
+   */
   public void setDelegate(Function<N, Shape> delegate) {
     this.delegate = delegate;
   }
@@ -77,22 +81,30 @@ public class NodeIconShapeFunction<N> implements Function<N, Shape> {
     }
   }
 
-  /** @return the iconMap */
+  /**
+   * @return the iconMap
+   */
   public Map<N, Icon> getIconMap() {
     return iconMap;
   }
 
-  /** @param iconMap the iconMap to set */
+  /**
+   * @param iconMap the iconMap to set
+   */
   public void setIconMap(Map<N, Icon> iconMap) {
     this.iconMap = iconMap;
   }
 
-  /** @return the shapeMap */
+  /**
+   * @return the shapeMap
+   */
   public Map<Image, Shape> getShapeMap() {
     return shapeMap;
   }
 
-  /** @param shapeMap the shapeMap to set */
+  /**
+   * @param shapeMap the shapeMap to set
+   */
   public void setShapeMap(Map<Image, Shape> shapeMap) {
     this.shapeMap = shapeMap;
   }

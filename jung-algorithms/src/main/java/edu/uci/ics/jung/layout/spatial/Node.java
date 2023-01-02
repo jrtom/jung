@@ -44,32 +44,44 @@ public class Node<T> {
     return forceObject;
   }
 
-  /** @return true if this node has no child nodes, false otherwise */
+  /**
+   * @return true if this node has no child nodes, false otherwise
+   */
   public boolean isLeaf() {
     return NW == null && NE == null && SE == null && SW == null;
   }
 
-  /** @return the northwest quadrant node */
+  /**
+   * @return the northwest quadrant node
+   */
   public Node getNW() {
     return NW;
   }
 
-  /** @return the northeast quadrant node */
+  /**
+   * @return the northeast quadrant node
+   */
   public Node getNE() {
     return NE;
   }
 
-  /** @return the southeast quadrant node */
+  /**
+   * @return the southeast quadrant node
+   */
   public Node getSE() {
     return SE;
   }
 
-  /** @return the southwest quadrant node */
+  /**
+   * @return the southwest quadrant node
+   */
   public Node getSW() {
     return SW;
   }
 
-  /** @return the rectangular area of this node */
+  /**
+   * @return the rectangular area of this node
+   */
   public Rectangle getArea() {
     return area;
   }
@@ -131,7 +143,9 @@ public class Node<T> {
     }
   }
 
-  /** @return the rectangular bounds of this node */
+  /**
+   * @return the rectangular bounds of this node
+   */
   public Rectangle getBounds() {
     return area;
   }

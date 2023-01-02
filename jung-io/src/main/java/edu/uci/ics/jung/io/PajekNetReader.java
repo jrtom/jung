@@ -457,7 +457,9 @@ public class PajekNetReader<G extends MutableNetwork<N, E>, N, E> {
     }
   }
 
-  /** @return the nodeLocationTransformer */
+  /**
+   * @return the nodeLocationTransformer
+   */
   public SettableTransformer<N, Point2D> getNodeLocationTransformer() {
     return node_locations;
   }
@@ -471,7 +473,9 @@ public class PajekNetReader<G extends MutableNetwork<N, E>, N, E> {
     this.node_locations = node_locations;
   }
 
-  /** @return a mapping from nodes to their labels */
+  /**
+   * @return a mapping from nodes to their labels
+   */
   public SettableTransformer<N, String> getNodeLabeller() {
     return node_labels;
   }
@@ -485,7 +489,9 @@ public class PajekNetReader<G extends MutableNetwork<N, E>, N, E> {
     this.node_labels = node_labels;
   }
 
-  /** @return a mapping from edges to their weights */
+  /**
+   * @return a mapping from edges to their weights
+   */
   public SettableTransformer<E, Number> getEdgeWeightTransformer() {
     return edge_weights;
   }

@@ -57,12 +57,16 @@ public abstract class AbstractGraphMousePlugin implements GraphMousePlugin {
     return e.getModifiers() == modifiers;
   }
 
-  /** @return Returns the cursor. */
+  /**
+   * @return Returns the cursor.
+   */
   public Cursor getCursor() {
     return cursor;
   }
 
-  /** @param cursor The cursor to set. */
+  /**
+   * @param cursor The cursor to set.
+   */
   public void setCursor(Cursor cursor) {
     this.cursor = cursor;
   }

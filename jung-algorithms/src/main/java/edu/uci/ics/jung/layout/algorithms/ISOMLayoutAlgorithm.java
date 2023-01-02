@@ -64,7 +64,9 @@ public class ISOMLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
   private List<N> queue = new ArrayList<N>();
   private String status = null;
 
-  /** @return the current number of epochs and execution status, as a string. */
+  /**
+   * @return the current number of epochs and execution status, as a string.
+   */
   public String getStatus() {
     return status;
   }

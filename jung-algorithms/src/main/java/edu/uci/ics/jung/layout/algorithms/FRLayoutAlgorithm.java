@@ -284,7 +284,9 @@ public class FRLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
     return frNodeData.getUnchecked(node);
   }
 
-  /** @return true once the current iteration has passed the maximum count. */
+  /**
+   * @return true once the current iteration has passed the maximum count.
+   */
   public boolean done() {
     if (currentIteration > mMaxIterations || temperature < 1.0 / max_dimension) {
       return true;

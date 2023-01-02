@@ -65,7 +65,9 @@ public abstract class AbstractLensSupport<N, E> implements LensSupport {
     return lensTransformer;
   }
 
-  /** @return the hyperbolicGraphMouse. */
+  /**
+   * @return the hyperbolicGraphMouse.
+   */
   public ModalGraphMouse getGraphMouse() {
     return lensGraphMouse;
   }
@@ -83,12 +85,16 @@ public abstract class AbstractLensSupport<N, E> implements LensSupport {
       this.lensShape = lensTransformer.getLens().getLensShape();
     }
 
-    /** @return the paint */
+    /**
+     * @return the paint
+     */
     public Paint getPaint() {
       return paint;
     }
 
-    /** @param paint the paint to set */
+    /**
+     * @param paint the paint to set
+     */
     public void setPaint(Paint paint) {
       this.paint = paint;
     }
@@ -117,12 +123,16 @@ public abstract class AbstractLensSupport<N, E> implements LensSupport {
       this.lensShape = lensTransformer.getLens().getLensShape();
     }
 
-    /** @return the paint */
+    /**
+     * @return the paint
+     */
     public Paint getPaint() {
       return paint;
     }
 
-    /** @param paint the paint to set */
+    /**
+     * @param paint the paint to set
+     */
     public void setPaint(Paint paint) {
       this.paint = paint;
     }
@@ -142,22 +152,30 @@ public abstract class AbstractLensSupport<N, E> implements LensSupport {
     }
   }
 
-  /** @return the lensPaintable */
+  /**
+   * @return the lensPaintable
+   */
   public LensPaintable getLensPaintable() {
     return lensPaintable;
   }
 
-  /** @param lensPaintable the lens to set */
+  /**
+   * @param lensPaintable the lens to set
+   */
   public void setLensPaintable(LensPaintable lensPaintable) {
     this.lensPaintable = lensPaintable;
   }
 
-  /** @return the lensControls */
+  /**
+   * @return the lensControls
+   */
   public LensControls getLensControls() {
     return lensControls;
   }
 
-  /** @param lensControls the lensControls to set */
+  /**
+   * @param lensControls the lensControls to set
+   */
   public void setLensControls(LensControls lensControls) {
     this.lensControls = lensControls;
   }

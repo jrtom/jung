@@ -48,7 +48,9 @@ public class SpringLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N
     this.lengthFunction = length_function;
   }
 
-  /** @return the current value for the stretch parameter */
+  /**
+   * @return the current value for the stretch parameter
+   */
   public double getStretch() {
     return stretch;
   }
@@ -259,7 +261,9 @@ public class SpringLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N
     }
   }
 
-  /** @return false */
+  /**
+   * @return false
+   */
   public boolean done() {
     return false;
   }

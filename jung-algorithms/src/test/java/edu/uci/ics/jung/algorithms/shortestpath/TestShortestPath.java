@@ -19,7 +19,9 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import junit.framework.TestCase;
 
-/** @author Joshua O'Madadhain */
+/**
+ * @author Joshua O'Madadhain
+ */
 // TODO: needs major cleanup
 public class TestShortestPath extends TestCase {
   private MutableNetwork<String, Integer> dg;

@@ -17,7 +17,9 @@ import java.awt.geom.Point2D;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** @author Tom Nelson */
+/**
+ * @author Tom Nelson
+ */
 public class LensTransformSupport<N, E> extends TransformSupport<N, E> {
 
   private static final Logger log = LoggerFactory.getLogger(LensTransformSupport.class);

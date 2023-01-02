@@ -20,7 +20,9 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-/** @author Scott White, Joshua O'Madadhain, Tom Nelson */
+/**
+ * @author Scott White, Joshua O'Madadhain, Tom Nelson
+ */
 public class TestEdmondsKarpMaxFlow extends TestCase {
 
   public static Test suite() {

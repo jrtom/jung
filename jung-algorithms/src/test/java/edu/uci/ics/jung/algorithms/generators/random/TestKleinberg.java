@@ -10,7 +10,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** @author Joshua O'Madadhain */
+/**
+ * @author Joshua O'Madadhain
+ */
 @RunWith(JUnit4.class)
 public class TestKleinberg {
 

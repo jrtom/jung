@@ -193,6 +193,12 @@ class DelegateCTree<N> extends AbstractGraph<N> implements MutableCTree<N> {
     return delegate.putEdge(nodeU, nodeV);
   }
 
+  @Override
+  public boolean putEdge(EndpointPair<N> endpoints) {
+    checkNotNull(endpoints, "endpoints");
+    return putEdge(endpoints.nodeU(), endpoints.nodeV());
+  }
+
   private void setDepth(N node, N parent) {
     if (parent == null) { // root: both depth and height are 0
       depths.put(node, 0);
@@ -254,5 +260,11 @@ class DelegateCTree<N> extends AbstractGraph<N> implements MutableCTree<N> {
     checkNotNull(nodeV, "nodeV");
     delegate.removeEdge(nodeU, nodeV);
     return removeNode(nodeV);
+  }
+
+  @Override
+  public boolean removeEdge(EndpointPair<N> endpoints) {
+    checkNotNull(endpoints, "endpoints");
+    return removeEdge(endpoints.nodeU(), endpoints.nodeV());
   }
 }

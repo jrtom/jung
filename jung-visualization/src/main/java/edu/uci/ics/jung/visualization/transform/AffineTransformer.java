@@ -47,11 +47,15 @@ public class AffineTransformer implements BidirectionalTransformer, ShapeTransfo
     }
   }
 
-  /** @return Returns the transform. */
+  /**
+   * @return Returns the transform.
+   */
   public AffineTransform getTransform() {
     return transform;
   }
-  /** @param transform The transform to set. */
+  /**
+   * @param transform The transform to set.
+   */
   public void setTransform(AffineTransform transform) {
     this.transform = transform;
   }
@@ -82,37 +86,51 @@ public class AffineTransformer implements BidirectionalTransformer, ShapeTransfo
     return inverse;
   }
 
-  /** @return the transform's x scale value */
+  /**
+   * @return the transform's x scale value
+   */
   public double getScaleX() {
     return transform.getScaleX();
   }
 
-  /** @return the transform's y scale value */
+  /**
+   * @return the transform's y scale value
+   */
   public double getScaleY() {
     return transform.getScaleY();
   }
 
-  /** @return the transform's overall scale magnitude */
+  /**
+   * @return the transform's overall scale magnitude
+   */
   public double getScale() {
     return Math.sqrt(transform.getDeterminant());
   }
 
-  /** @return the transform's x shear value */
+  /**
+   * @return the transform's x shear value
+   */
   public double getShearX() {
     return transform.getShearX();
   }
 
-  /** @return the transform's y shear value */
+  /**
+   * @return the transform's y shear value
+   */
   public double getShearY() {
     return transform.getShearY();
   }
 
-  /** @return the transform's x translate value */
+  /**
+   * @return the transform's x translate value
+   */
   public double getTranslateX() {
     return transform.getTranslateX();
   }
 
-  /** @return the transform's y translate value */
+  /**
+   * @return the transform's y translate value
+   */
   public double getTranslateY() {
     return transform.getTranslateY();
   }

@@ -18,6 +18,8 @@ public interface IterativeContext {
   /** Advances one step. */
   void step();
 
-  /** @return {@code true} if this iterative process is finished, and {@code false} otherwise. */
+  /**
+   * @return {@code true} if this iterative process is finished, and {@code false} otherwise.
+   */
   boolean done();
 }

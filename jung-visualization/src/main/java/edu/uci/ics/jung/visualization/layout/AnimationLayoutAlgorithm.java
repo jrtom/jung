@@ -10,7 +10,9 @@ import edu.uci.ics.jung.visualization.VisualizationServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** @author Tom Nelson */
+/**
+ * @author Tom Nelson
+ */
 public class AnimationLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
     implements IterativeContext {
 

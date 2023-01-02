@@ -48,7 +48,9 @@ public abstract class NetworkEvent<N, E> {
       this.node = node;
     }
 
-    /** @return the node associated with this event */
+    /**
+     * @return the node associated with this event
+     */
     public N getNode() {
       return node;
     }
@@ -75,7 +77,9 @@ public abstract class NetworkEvent<N, E> {
       this.edge = edge;
     }
 
-    /** @return the edge associated with this event. */
+    /**
+     * @return the edge associated with this event.
+     */
     public E getEdge() {
       return edge;
     }
@@ -86,12 +90,16 @@ public abstract class NetworkEvent<N, E> {
     }
   }
 
-  /** @return the source */
+  /**
+   * @return the source
+   */
   public Network<N, E> getSource() {
     return source;
   }
 
-  /** @return the type */
+  /**
+   * @return the type
+   */
   public Type getType() {
     return type;
   }

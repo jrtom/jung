@@ -186,7 +186,9 @@ public class EdmondsKarpMaxFlow<N, E> extends IterativeProcess {
     }
   }
 
-  /** @return the value of the maximum flow from the source to the sink. */
+  /**
+   * @return the value of the maximum flow from the source to the sink.
+   */
   public int getMaxFlow() {
     return maxFlow;
   }
@@ -207,12 +209,16 @@ public class EdmondsKarpMaxFlow<N, E> extends IterativeProcess {
     return sourcePartitionNodes;
   }
 
-  /** @return the edges in the minimum cut. */
+  /**
+   * @return the edges in the minimum cut.
+   */
   public Set<E> getMinCutEdges() {
     return minCutEdges;
   }
 
-  /** @return the graph for which the maximum flow is calculated. */
+  /**
+   * @return the graph for which the maximum flow is calculated.
+   */
   public Network<N, E> getFlowGraph() {
     return flowNetwork;
   }

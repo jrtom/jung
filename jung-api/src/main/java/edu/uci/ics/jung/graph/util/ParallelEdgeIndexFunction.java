@@ -33,7 +33,9 @@ public class ParallelEdgeIndexFunction<N, E> implements EdgeIndexFunction<E> {
   protected Map<E, Integer> edgeIndex = new HashMap<E, Integer>();
   protected Network<N, E> graph;
 
-  /** @param graph the graph for which this index function is defined */
+  /**
+   * @param graph the graph for which this index function is defined
+   */
   public ParallelEdgeIndexFunction(Network<N, E> graph) {
     this.graph = checkNotNull(graph, "graph");
   }

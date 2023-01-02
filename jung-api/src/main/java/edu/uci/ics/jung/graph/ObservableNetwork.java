@@ -77,6 +77,15 @@ public class ObservableNetwork<N, E> implements MutableNetwork<N, E> {
   }
 
   @Override
+  public boolean addEdge(EndpointPair<N> endpoints, E edge) {
+    boolean state = delegate.addEdge(endpoints, edge);
+    if (state) {
+      fireGraphEvent(() -> new NetworkEvent.Edge<>(delegate, NetworkEvent.Type.EDGE_ADDED, edge));
+    }
+    return state;
+  }
+
+  @Override
   public boolean addNode(N node) {
     boolean state = delegate.addNode(node);
     if (state) {
@@ -160,8 +169,18 @@ public class ObservableNetwork<N, E> implements MutableNetwork<N, E> {
   }
 
   @Override
+  public Set<E> edgesConnecting(EndpointPair<N> endpoints) {
+    return delegate.edgesConnecting(endpoints);
+  }
+
+  @Override
   public Optional<E> edgeConnecting(N nodeU, N nodeV) {
     return delegate.edgeConnecting(nodeU, nodeV);
+  }
+
+  @Override
+  public Optional<E> edgeConnecting(EndpointPair<N> endpoints) {
+    return delegate.edgeConnecting(endpoints);
   }
 
   @Override
@@ -170,8 +189,18 @@ public class ObservableNetwork<N, E> implements MutableNetwork<N, E> {
   }
 
   @Override
+  public E edgeConnectingOrNull(EndpointPair<N> endpoints) {
+    return delegate.edgeConnectingOrNull(endpoints);
+  }
+
+  @Override
   public boolean hasEdgeConnecting(N nodeU, N nodeV) {
     return delegate.hasEdgeConnecting(nodeU, nodeV);
+  }
+
+  @Override
+  public boolean hasEdgeConnecting(EndpointPair<N> endpoints) {
+    return delegate.hasEdgeConnecting(endpoints);
   }
 
   @Override

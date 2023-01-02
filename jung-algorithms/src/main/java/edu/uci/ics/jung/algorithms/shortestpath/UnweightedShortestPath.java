@@ -36,13 +36,17 @@ public class UnweightedShortestPath<N> implements Distance<N> {
     mGraph = g;
   }
 
-  /** @see edu.uci.ics.jung.algorithms.shortestpath.Distance#getDistance(Object, Object) */
+  /**
+   * @see edu.uci.ics.jung.algorithms.shortestpath.Distance#getDistance(Object, Object)
+   */
   public Integer getDistance(N source, N target) {
     Map<N, Integer> sourceSPMap = getDistanceMap(source);
     return sourceSPMap.get(target);
   }
 
-  /** @see edu.uci.ics.jung.algorithms.shortestpath.Distance#getDistanceMap(Object) */
+  /**
+   * @see edu.uci.ics.jung.algorithms.shortestpath.Distance#getDistanceMap(Object)
+   */
   public Map<N, Integer> getDistanceMap(N source) {
     Map<N, Integer> sourceSPMap = mDistanceMap.get(source);
     if (sourceSPMap == null) {
@@ -52,7 +56,9 @@ public class UnweightedShortestPath<N> implements Distance<N> {
     return sourceSPMap;
   }
 
-  /** @see edu.uci.ics.jung.algorithms.shortestpath.ShortestPath#getIncomingEdgeMap(Object) */
+  /**
+   * @see edu.uci.ics.jung.algorithms.shortestpath.ShortestPath#getIncomingEdgeMap(Object)
+   */
   public Map<N, N> getIncomingEdgeMap(N source) {
     Map<N, N> sourceIEMap = mPredecessorMap.get(source);
     if (sourceIEMap == null) {

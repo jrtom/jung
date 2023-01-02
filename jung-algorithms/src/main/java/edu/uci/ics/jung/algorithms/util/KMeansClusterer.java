@@ -61,24 +61,32 @@ public class KMeansClusterer<T> {
     this(100, 0.001);
   }
 
-  /** @return the maximum number of iterations */
+  /**
+   * @return the maximum number of iterations
+   */
   public int getMaxIterations() {
     return max_iterations;
   }
 
-  /** @param max_iterations the maximum number of iterations */
+  /**
+   * @param max_iterations the maximum number of iterations
+   */
   public void setMaxIterations(int max_iterations) {
     Preconditions.checkArgument(max_iterations >= 0, "max iterations must be >= 0");
 
     this.max_iterations = max_iterations;
   }
 
-  /** @return the convergence threshold */
+  /**
+   * @return the convergence threshold
+   */
   public double getConvergenceThreshold() {
     return convergence_threshold;
   }
 
-  /** @param convergence_threshold the convergence threshold */
+  /**
+   * @param convergence_threshold the convergence threshold
+   */
   public void setConvergenceThreshold(double convergence_threshold) {
     Preconditions.checkArgument(convergence_threshold > 0, "convergence threshold must be > 0");
 

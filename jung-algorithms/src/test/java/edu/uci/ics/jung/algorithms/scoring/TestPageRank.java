@@ -19,7 +19,9 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-/** @author Joshua O'Madadhain */
+/**
+ * @author Joshua O'Madadhain
+ */
 public class TestPageRank extends TestCase {
 
   private Map<Integer, Number> edgeWeights;

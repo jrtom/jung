@@ -36,7 +36,9 @@ public abstract class AbstractLayoutModel<N>
   protected int height;
   protected Graph<N> graph;
   protected VisRunnable visRunnable;
-  /** @value relaxing true is this layout model is being accessed by a running relaxer */
+  /**
+   * @value relaxing true is this layout model is being accessed by a running relaxer
+   */
   protected boolean relaxing;
 
   protected CompletableFuture theFuture;
@@ -146,7 +148,9 @@ public abstract class AbstractLayoutModel<N>
                 });
   }
 
-  /** @return the graph */
+  /**
+   * @return the graph
+   */
   @Override
   public Graph<N> getGraph() {
     return graph;
@@ -194,7 +198,9 @@ public abstract class AbstractLayoutModel<N>
     this.locked = locked;
   }
 
-  /** @return whether this LayoutModel is locked for all nodes */
+  /**
+   * @return whether this LayoutModel is locked for all nodes
+   */
   @Override
   public boolean isLocked() {
     return this.locked;
@@ -251,13 +257,17 @@ public abstract class AbstractLayoutModel<N>
     }
   }
 
-  /** @return the width of the layout domain */
+  /**
+   * @return the width of the layout domain
+   */
   @Override
   public int getWidth() {
     return width;
   }
 
-  /** @return the height of the layout domain */
+  /**
+   * @return the height of the layout domain
+   */
   @Override
   public int getHeight() {
     return height;

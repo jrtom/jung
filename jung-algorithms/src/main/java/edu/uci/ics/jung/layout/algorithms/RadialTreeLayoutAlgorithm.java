@@ -71,7 +71,9 @@ public class RadialTreeLayoutAlgorithm<N> extends TreeLayoutAlgorithm<N> {
     }
   }
 
-  /** @return a map from nodes to their locations in polar coordinates. */
+  /**
+   * @return a map from nodes to their locations in polar coordinates.
+   */
   public Map<N, PolarPoint> getPolarLocations() {
     return polarLocations;
   }

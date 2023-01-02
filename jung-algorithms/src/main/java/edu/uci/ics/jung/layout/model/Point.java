@@ -95,7 +95,9 @@ public class Point {
     return x >= minX && maxX >= x && y >= minY && maxY >= y;
   }
 
-  /** @return the distance between this Point and the origin. */
+  /**
+   * @return the distance between this Point and the origin.
+   */
   public double length() {
     return Math.sqrt(x * x + y * y);
   }

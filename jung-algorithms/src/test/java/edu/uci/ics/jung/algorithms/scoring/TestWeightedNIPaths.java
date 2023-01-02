@@ -21,7 +21,9 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-/** @author Scott White, adapted to jung2 by Tom Nelson */
+/**
+ * @author Scott White, adapted to jung2 by Tom Nelson
+ */
 public class TestWeightedNIPaths extends TestCase {
 
   Supplier<String> nodeFactory;

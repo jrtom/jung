@@ -151,6 +151,11 @@ public class Graphs {
     }
 
     @Override
+    public synchronized boolean addEdge(EndpointPair<N> endpoints, E edge) {
+      return delegate.addEdge(endpoints, edge);
+    }
+
+    @Override
     public synchronized boolean addNode(N arg0) {
       return delegate.addNode(arg0);
     }

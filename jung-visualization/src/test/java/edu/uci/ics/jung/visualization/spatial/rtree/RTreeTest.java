@@ -12,7 +12,9 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** @author Tom Nelson */
+/**
+ * @author Tom Nelson
+ */
 public class RTreeTest {
 
   private static final Logger log = LoggerFactory.getLogger(RTreeTest.class);

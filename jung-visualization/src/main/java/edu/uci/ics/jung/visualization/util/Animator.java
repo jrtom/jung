@@ -11,7 +11,9 @@ package edu.uci.ics.jung.visualization.util;
 
 import edu.uci.ics.jung.algorithms.util.IterativeContext;
 
-/** @author Tom Nelson - tomnelson@dev.java.net */
+/**
+ * @author Tom Nelson - tomnelson@dev.java.net
+ */
 public class Animator implements Runnable {
 
   protected IterativeContext process;
@@ -30,12 +32,16 @@ public class Animator implements Runnable {
     this.sleepTime = sleepTime;
   }
 
-  /** @return the relaxer thread sleep time */
+  /**
+   * @return the relaxer thread sleep time
+   */
   public long getSleepTime() {
     return sleepTime;
   }
 
-  /** @param sleepTime the relaxer thread sleep time to set */
+  /**
+   * @param sleepTime the relaxer thread sleep time to set
+   */
   public void setSleepTime(long sleepTime) {
     this.sleepTime = sleepTime;
   }

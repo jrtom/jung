@@ -29,7 +29,9 @@ public abstract class LensTransformer extends MutableTransformerDecorator
 
   protected Lens lens;
 
-  /** @param d the size used for the lens */
+  /**
+   * @param d the size used for the lens
+   */
   public LensTransformer(Dimension d) {
     this(new Lens(d));
   }

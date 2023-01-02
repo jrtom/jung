@@ -33,7 +33,9 @@ public class CircleLayoutAlgorithm<N> implements LayoutAlgorithm<N> {
   private double radius;
   private List<N> node_ordered_list;
 
-  /** @return the radius of the circle. */
+  /**
+   * @return the radius of the circle.
+   */
   public double getRadius() {
     return radius;
   }

@@ -12,7 +12,9 @@ import java.util.HashMap;
 import java.util.Map;
 import junit.framework.TestCase;
 
-/** @author jrtom */
+/**
+ * @author jrtom
+ */
 public class TestWeightedChoice extends TestCase {
   private WeightedChoice<String> weighted_choice;
   private Map<String, Double> item_weights = new HashMap<String, Double>();

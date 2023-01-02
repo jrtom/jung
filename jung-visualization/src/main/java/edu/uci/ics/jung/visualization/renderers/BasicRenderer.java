@@ -146,32 +146,44 @@ public class BasicRenderer<N, E> implements Renderer<N, E> {
     this.edgeRenderer = r;
   }
 
-  /** @return the edgeLabelRenderer */
+  /**
+   * @return the edgeLabelRenderer
+   */
   public Renderer.EdgeLabel<N, E> getEdgeLabelRenderer() {
     return edgeLabelRenderer;
   }
 
-  /** @param edgeLabelRenderer the edgeLabelRenderer to set */
+  /**
+   * @param edgeLabelRenderer the edgeLabelRenderer to set
+   */
   public void setEdgeLabelRenderer(Renderer.EdgeLabel<N, E> edgeLabelRenderer) {
     this.edgeLabelRenderer = edgeLabelRenderer;
   }
 
-  /** @return the nodeLabelRenderer */
+  /**
+   * @return the nodeLabelRenderer
+   */
   public NodeLabel<N, E> getNodeLabelRenderer() {
     return nodeLabelRenderer;
   }
 
-  /** @param nodeLabelRenderer the nodeLabelRenderer to set */
+  /**
+   * @param nodeLabelRenderer the nodeLabelRenderer to set
+   */
   public void setNodeLabelRenderer(NodeLabel<N, E> nodeLabelRenderer) {
     this.nodeLabelRenderer = nodeLabelRenderer;
   }
 
-  /** @return the edgeRenderer */
+  /**
+   * @return the edgeRenderer
+   */
   public Renderer.Edge<N, E> getEdgeRenderer() {
     return edgeRenderer;
   }
 
-  /** @return the nodeRenderer */
+  /**
+   * @return the nodeRenderer
+   */
   public Node<N, E> getNodeRenderer() {
     return nodeRenderer;
   }

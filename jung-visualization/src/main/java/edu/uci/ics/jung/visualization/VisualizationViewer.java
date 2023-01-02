@@ -133,7 +133,9 @@ public class VisualizationViewer<N, E> extends BasicVisualizationServer<N, E> {
     addMouseWheelListener(graphMouse);
   }
 
-  /** @return the current <code>GraphMouse</code> */
+  /**
+   * @return the current <code>GraphMouse</code>
+   */
   public GraphMouse getGraphMouse() {
     return graphMouse;
   }
@@ -158,19 +160,25 @@ public class VisualizationViewer<N, E> extends BasicVisualizationServer<N, E> {
     super.addKeyListener(l);
   }
 
-  /** @param edgeToolTipFunction the edgeToolTipFunction to set */
+  /**
+   * @param edgeToolTipFunction the edgeToolTipFunction to set
+   */
   public void setEdgeToolTipFunction(Function<? super E, String> edgeToolTipFunction) {
     this.edgeToolTipFunction = edgeToolTipFunction;
     ToolTipManager.sharedInstance().registerComponent(this);
   }
 
-  /** @param mouseEventToolTipFunction the mouseEventToolTipFunction to set */
+  /**
+   * @param mouseEventToolTipFunction the mouseEventToolTipFunction to set
+   */
   public void setMouseEventToolTipFunction(Function<MouseEvent, String> mouseEventToolTipFunction) {
     this.mouseEventToolTipFunction = mouseEventToolTipFunction;
     ToolTipManager.sharedInstance().registerComponent(this);
   }
 
-  /** @param nodeToolTipFunction the nodeToolTipFunction to set */
+  /**
+   * @param nodeToolTipFunction the nodeToolTipFunction to set
+   */
   public void setNodeToolTipFunction(Function<? super N, String> nodeToolTipFunction) {
     this.nodeToolTipFunction = nodeToolTipFunction;
     ToolTipManager.sharedInstance().registerComponent(this);

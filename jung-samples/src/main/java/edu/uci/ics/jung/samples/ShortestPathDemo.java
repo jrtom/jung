@@ -106,7 +106,9 @@ public class ShortestPathDemo extends JPanel {
     return v1.equals(v2) == false && mPred.contains(v1) && mPred.contains(v2);
   }
 
-  /** @author danyelf */
+  /**
+   * @author danyelf
+   */
   public class MyEdgePaintFunction implements Function<Number, Paint> {
 
     public Paint apply(Number e) {
@@ -137,7 +139,9 @@ public class ShortestPathDemo extends JPanel {
     }
   }
 
-  /** @author danyelf */
+  /**
+   * @author danyelf
+   */
   public class MyNodeDrawPaintFunction<N> implements Function<N, Paint> {
 
     public Paint apply(N v) {
@@ -241,7 +245,9 @@ public class ShortestPathDemo extends JPanel {
     jf.setVisible(true);
   }
 
-  /** @return the graph for this demo */
+  /**
+   * @return the graph for this demo
+   */
   Network<String, Number> getGraph() {
     Graph<String> g = new EppsteinPowerLawGenerator<>(new NodeFactory(), 26, 50, 50).get();
     // convert this graph into a Network because the visualization system can't handle Graphs (yet)

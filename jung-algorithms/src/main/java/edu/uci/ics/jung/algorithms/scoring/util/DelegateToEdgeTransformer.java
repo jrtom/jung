@@ -32,7 +32,9 @@ public class DelegateToEdgeTransformer<N, E> implements Function<VEPair<N, E>, N
     this.delegate = delegate;
   }
 
-  /** @see Function#apply(Object) */
+  /**
+   * @see Function#apply(Object)
+   */
   public Number apply(VEPair<N, E> arg0) {
     return delegate.apply(arg0.getE());
   }

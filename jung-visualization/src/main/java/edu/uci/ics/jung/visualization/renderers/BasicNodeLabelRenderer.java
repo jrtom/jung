@@ -28,12 +28,16 @@ public class BasicNodeLabelRenderer<N, E> implements Renderer.NodeLabel<N, E> {
   protected Position position = Position.SE;
   private Positioner positioner = new OutsidePositioner();
 
-  /** @return the position */
+  /**
+   * @return the position
+   */
   public Position getPosition() {
     return position;
   }
 
-  /** @param position the position to set */
+  /**
+   * @param position the position to set
+   */
   public void setPosition(Position position) {
     this.position = position;
   }
@@ -227,12 +231,16 @@ public class BasicNodeLabelRenderer<N, E> implements Renderer.NodeLabel<N, E> {
       return Position.NW;
     }
   }
-  /** @return the positioner */
+  /**
+   * @return the positioner
+   */
   public Positioner getPositioner() {
     return positioner;
   }
 
-  /** @param positioner the positioner to set */
+  /**
+   * @param positioner the positioner to set
+   */
   public void setPositioner(Positioner positioner) {
     this.positioner = positioner;
   }

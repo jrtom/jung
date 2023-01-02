@@ -161,7 +161,9 @@ public class EditingModalGraphMouse<N, E> extends AbstractModalGraphMouse
     add(annotatingPlugin);
   }
 
-  /** @return the modeBox. */
+  /**
+   * @return the modeBox.
+   */
   @Override
   public JComboBox<Mode> getModeComboBox() {
     if (modeBox == null) {
@@ -286,22 +288,30 @@ public class EditingModalGraphMouse<N, E> extends AbstractModalGraphMouse
     }
   }
 
-  /** @return the annotatingPlugin */
+  /**
+   * @return the annotatingPlugin
+   */
   public AnnotatingGraphMousePlugin<N, E> getAnnotatingPlugin() {
     return annotatingPlugin;
   }
 
-  /** @return the editingPlugin */
+  /**
+   * @return the editingPlugin
+   */
   public EditingGraphMousePlugin<N, E> getEditingPlugin() {
     return editingPlugin;
   }
 
-  /** @return the labelEditingPlugin */
+  /**
+   * @return the labelEditingPlugin
+   */
   public LabelEditingGraphMousePlugin<N, E> getLabelEditingPlugin() {
     return labelEditingPlugin;
   }
 
-  /** @return the popupEditingPlugin */
+  /**
+   * @return the popupEditingPlugin
+   */
   public EditingPopupGraphMousePlugin<N, E> getPopupEditingPlugin() {
     return popupEditingPlugin;
   }

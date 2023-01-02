@@ -14,7 +14,9 @@ import java.awt.Component;
 import java.awt.Font;
 import javax.swing.JComponent;
 
-/** @author Tom Nelson */
+/**
+ * @author Tom Nelson
+ */
 public interface EdgeLabelRenderer {
   /**
    * Returns the component used for drawing the label. This method is used to configure the renderer

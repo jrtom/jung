@@ -86,12 +86,16 @@ public class PickingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
     this.cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR);
   }
 
-  /** @return Returns the lensColor. */
+  /**
+   * @return Returns the lensColor.
+   */
   public Color getLensColor() {
     return lensColor;
   }
 
-  /** @param lensColor The lensColor to set. */
+  /**
+   * @param lensColor The lensColor to set.
+   */
   public void setLensColor(Color lensColor) {
     this.lensColor = lensColor;
   }
@@ -402,12 +406,16 @@ public class PickingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
 
   public void mouseMoved(MouseEvent e) {}
 
-  /** @return Returns the locked. */
+  /**
+   * @return Returns the locked.
+   */
   public boolean isLocked() {
     return locked;
   }
 
-  /** @param locked The locked to set. */
+  /**
+   * @param locked The locked to set.
+   */
   public void setLocked(boolean locked) {
     this.locked = locked;
   }

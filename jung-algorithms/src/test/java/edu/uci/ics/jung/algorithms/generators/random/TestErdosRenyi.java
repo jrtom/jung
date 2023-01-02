@@ -8,7 +8,9 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-/** @author W. Giordano, Scott White */
+/**
+ * @author W. Giordano, Scott White
+ */
 public class TestErdosRenyi extends TestCase {
 
   Supplier<String> nodeFactory;

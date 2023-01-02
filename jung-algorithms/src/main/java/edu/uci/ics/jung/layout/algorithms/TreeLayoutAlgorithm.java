@@ -202,7 +202,9 @@ public class TreeLayoutAlgorithm<N> implements LayoutAlgorithm<N> {
 
   public void setInitializer(Function<N, Point> initializer) {}
 
-  /** @return the center of this layout's area. */
+  /**
+   * @return the center of this layout's area.
+   */
   public Point getCenter(LayoutModel<N> layoutModel) {
     return Point.of(layoutModel.getWidth() / 2, layoutModel.getHeight() / 2);
   }

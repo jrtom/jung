@@ -139,7 +139,9 @@ public class SatelliteVisualizationViewer<N, E> extends VisualizationViewer<N, E
     g2d.setTransform(oldXform);
   }
 
-  /** @return Returns the master. */
+  /**
+   * @return Returns the master.
+   */
   public VisualizationViewer<N, E> getMaster() {
     return master;
   }

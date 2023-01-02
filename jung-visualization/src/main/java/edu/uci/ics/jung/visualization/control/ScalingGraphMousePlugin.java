@@ -48,7 +48,9 @@ public class ScalingGraphMousePlugin extends AbstractGraphMousePlugin
     this.in = in;
     this.out = out;
   }
-  /** @param zoomAtMouse The zoomAtMouse to set. */
+  /**
+   * @param zoomAtMouse The zoomAtMouse to set.
+   */
   public void setZoomAtMouse(boolean zoomAtMouse) {
     this.zoomAtMouse = zoomAtMouse;
   }
@@ -82,19 +84,27 @@ public class ScalingGraphMousePlugin extends AbstractGraphMousePlugin
       vv.repaint();
     }
   }
-  /** @return Returns the zoom in value. */
+  /**
+   * @return Returns the zoom in value.
+   */
   public float getIn() {
     return in;
   }
-  /** @param in The zoom in value to set. */
+  /**
+   * @param in The zoom in value to set.
+   */
   public void setIn(float in) {
     this.in = in;
   }
-  /** @return Returns the zoom out value. */
+  /**
+   * @return Returns the zoom out value.
+   */
   public float getOut() {
     return out;
   }
-  /** @param out The zoom out value to set. */
+  /**
+   * @param out The zoom out value to set.
+   */
   public void setOut(float out) {
     this.out = out;
   }

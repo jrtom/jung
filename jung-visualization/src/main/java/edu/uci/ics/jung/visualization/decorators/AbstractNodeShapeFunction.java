@@ -14,7 +14,9 @@ package edu.uci.ics.jung.visualization.decorators;
 import edu.uci.ics.jung.visualization.util.NodeShapeFactory;
 import java.util.function.Function;
 
-/** @author Joshua O'Madadhain */
+/**
+ * @author Joshua O'Madadhain
+ */
 public abstract class AbstractNodeShapeFunction<N> implements SettableNodeShapeFunction<N> {
   protected Function<? super N, Integer> vsf;
   protected Function<? super N, Float> varf;

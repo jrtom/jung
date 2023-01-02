@@ -21,7 +21,9 @@ import java.util.function.Function;
 public class UniformDegreeWeight<N, E> implements Function<VEPair<N, E>, Double> {
   private Network<N, E> graph;
 
-  /** @param graph the graph for which an instance is being created */
+  /**
+   * @param graph the graph for which an instance is being created
+   */
   public UniformDegreeWeight(Network<N, E> graph) {
     this.graph = graph;
   }

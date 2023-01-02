@@ -38,43 +38,63 @@ public class Annotation<T> {
     this.fill = fill;
     this.location = location;
   }
-  /** @return the annotation */
+  /**
+   * @return the annotation
+   */
   public T getAnnotation() {
     return annotation;
   }
-  /** @param annotation the annotation to set */
+  /**
+   * @param annotation the annotation to set
+   */
   public void setAnnotation(T annotation) {
     this.annotation = annotation;
   }
-  /** @return the location */
+  /**
+   * @return the location
+   */
   public Point2D getLocation() {
     return location;
   }
-  /** @return the layer */
+  /**
+   * @return the layer
+   */
   public Layer getLayer() {
     return layer;
   }
-  /** @param layer the layer to set */
+  /**
+   * @param layer the layer to set
+   */
   public void setLayer(Layer layer) {
     this.layer = layer;
   }
-  /** @param location the location to set */
+  /**
+   * @param location the location to set
+   */
   public void setLocation(Point2D location) {
     this.location = location;
   }
-  /** @return the paint */
+  /**
+   * @return the paint
+   */
   public Paint getPaint() {
     return paint;
   }
-  /** @param paint the paint to set */
+  /**
+   * @param paint the paint to set
+   */
   public void setPaint(Paint paint) {
     this.paint = paint;
   }
-  /** @return the fill */
+  /**
+   * @return the fill
+   */
   public boolean isFill() {
     return fill;
   }
-  /** @param fill the fill to set */
+  /**
+   * @param fill the fill to set
+   */
   public void setFill(boolean fill) {
     this.fill = fill;
   }

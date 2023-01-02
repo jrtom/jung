@@ -20,7 +20,9 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-/** @author Scott White */
+/**
+ * @author Scott White
+ */
 public class TestPageRankWithPriors extends TestCase {
   private MutableNetwork<Integer, Integer> graph;
   private Supplier<Integer> edgeFactory;

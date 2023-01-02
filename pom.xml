@@ -67,8 +67,8 @@
 
     <junit.version>4.13.1</junit.version>
     <truth.version>0.36</truth.version>
-    <guava.version>30.1.1-jre</guava.version>
-    <google-java-format.version>1.7</google-java-format.version>
+    <guava.version>31.1-jre</guava.version>
+    <google-java-format.version>1.15.0</google-java-format.version>
 
     <cobertura.plugin.version>2.7</cobertura.plugin.version>
     <compiler.plugin.version>3.5.1</compiler.plugin.version>
@@ -79,7 +79,7 @@
     <pmd.plugin.version>3.8</pmd.plugin.version>
     <release.plugin.version>2.5.3</release.plugin.version>
     <source.plugin.version>3.0.1</source.plugin.version>
-    <spotless.plugin.version>1.20.0</spotless.plugin.version>
+    <spotless.plugin.version>2.29.0</spotless.plugin.version>
     <surefire.plugin.version>2.19.1</surefire.plugin.version>
   </properties>
   <developers>

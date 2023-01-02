@@ -96,12 +96,16 @@ public class AnnotatingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
     this.cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR);
   }
 
-  /** @return Returns the lensColor. */
+  /**
+   * @return Returns the lensColor.
+   */
   public Color getAnnotationColor() {
     return annotationColor;
   }
 
-  /** @param lensColor The lensColor to set. */
+  /**
+   * @param lensColor The lensColor to set.
+   */
   public void setAnnotationColor(Color lensColor) {
     this.annotationColor = lensColor;
   }
@@ -216,32 +220,44 @@ public class AnnotatingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
 
   public void mouseMoved(MouseEvent e) {}
 
-  /** @return the rect */
+  /**
+   * @return the rect
+   */
   public RectangularShape getRectangularShape() {
     return rectangularShape;
   }
 
-  /** @param rect the rect to set */
+  /**
+   * @param rect the rect to set
+   */
   public void setRectangularShape(RectangularShape rect) {
     this.rectangularShape = rect;
   }
 
-  /** @return the layer */
+  /**
+   * @return the layer
+   */
   public Annotation.Layer getLayer() {
     return layer;
   }
 
-  /** @param layer the layer to set */
+  /**
+   * @param layer the layer to set
+   */
   public void setLayer(Annotation.Layer layer) {
     this.layer = layer;
   }
 
-  /** @return the fill */
+  /**
+   * @return the fill
+   */
   public boolean isFill() {
     return fill;
   }
 
-  /** @param fill the fill to set */
+  /**
+   * @param fill the fill to set
+   */
   public void setFill(boolean fill) {
     this.fill = fill;
   }

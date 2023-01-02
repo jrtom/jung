@@ -106,7 +106,9 @@ public class KKLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
     this.disconnected_multiplier = disconnected_multiplier;
   }
 
-  /** @return a string with information about the current status of the algorithm. */
+  /**
+   * @return a string with information about the current status of the algorithm.
+   */
   public String getStatus() {
     return status + layoutModel.getWidth() + " " + layoutModel.getHeight();
   }
@@ -115,7 +117,9 @@ public class KKLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
     this.maxIterations = maxIterations;
   }
 
-  /** @return true if the current iteration has passed the maximum count. */
+  /**
+   * @return true if the current iteration has passed the maximum count.
+   */
   public boolean done() {
     if (currentIteration > maxIterations) {
       return true;

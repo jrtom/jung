@@ -69,7 +69,9 @@ public class SpatialQuadTree<N> extends AbstractSpatial<N, N>
 
   //  private Collection<Shape> pickShapes = EvictingQueue.create(4);
 
-  /** @param layoutModel */
+  /**
+   * @param layoutModel
+   */
   public SpatialQuadTree(LayoutModel<N> layoutModel) {
     this(layoutModel, 0, 0, 0, layoutModel.getWidth(), layoutModel.getHeight());
   }
@@ -120,12 +122,16 @@ public class SpatialQuadTree<N> extends AbstractSpatial<N, N>
     return this;
   }
 
-  /** @return the level of this cell */
+  /**
+   * @return the level of this cell
+   */
   protected int getLevel() {
     return level;
   }
 
-  /** @return the nodes in this cell, assuming it is a leaf */
+  /**
+   * @return the nodes in this cell, assuming it is a leaf
+   */
   public Set<N> getNodes() {
     return nodes;
   }

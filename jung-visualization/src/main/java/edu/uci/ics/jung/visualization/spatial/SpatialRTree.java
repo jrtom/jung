@@ -68,13 +68,17 @@ public abstract class SpatialRTree<T, NT> extends AbstractSpatial<T, NT> impleme
    */
   protected abstract List<Shape> collectGrids(List<Shape> list, RTree<T> tree);
 
-  /** @return the 2 dimensional area of interest for this class */
+  /**
+   * @return the 2 dimensional area of interest for this class
+   */
   @Override
   public Rectangle2D getLayoutArea() {
     return rectangle;
   }
 
-  /** @param bounds the new bounds for the data struture */
+  /**
+   * @param bounds the new bounds for the data struture
+   */
   @Override
   public void setBounds(Rectangle2D bounds) {
     this.rectangle = bounds;

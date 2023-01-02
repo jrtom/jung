@@ -28,10 +28,14 @@ public interface Spatial<T> extends LayoutModel.LayoutStateChangeListener {
    */
   void setActive(boolean active);
 
-  /** @return a hint about whether the spatial structure should be used */
+  /**
+   * @return a hint about whether the spatial structure should be used
+   */
   boolean isActive();
 
-  /** @return a geometic representation of the spatial structure */
+  /**
+   * @return a geometic representation of the spatial structure
+   */
   List<Shape> getGrid();
 
   /**
@@ -47,10 +51,14 @@ public interface Spatial<T> extends LayoutModel.LayoutStateChangeListener {
   /** rebuild the data structure */
   void recalculate();
 
-  /** @return the 2 dimensional area of interest for this class */
+  /**
+   * @return the 2 dimensional area of interest for this class
+   */
   Rectangle2D getLayoutArea();
 
-  /** @param bounds the new bounds for the data struture */
+  /**
+   * @param bounds the new bounds for the data struture
+   */
   void setBounds(Rectangle2D bounds);
 
   /**

@@ -760,7 +760,9 @@ public class GraphMLReader<G extends MutableNetwork<N, E>, N, E> extends Default
     current_graph.addEdge(source, target, e);
   }
 
-  /** @return a bidirectional map relating nodes and IDs. */
+  /**
+   * @return a bidirectional map relating nodes and IDs.
+   */
   public BiMap<N, String> getNodeIDs() {
     return node_ids;
   }
@@ -775,32 +777,44 @@ public class GraphMLReader<G extends MutableNetwork<N, E>, N, E> extends Default
     return edge_ids;
   }
 
-  /** @return a map from graph type name to type metadata */
+  /**
+   * @return a map from graph type name to type metadata
+   */
   public Map<String, GraphMLMetadata<G>> getGraphMetadata() {
     return graph_metadata;
   }
 
-  /** @return a map from node type name to type metadata */
+  /**
+   * @return a map from node type name to type metadata
+   */
   public Map<String, GraphMLMetadata<N>> getNodeMetadata() {
     return node_metadata;
   }
 
-  /** @return a map from edge type name to type metadata */
+  /**
+   * @return a map from edge type name to type metadata
+   */
   public Map<String, GraphMLMetadata<E>> getEdgeMetadata() {
     return edge_metadata;
   }
 
-  /** @return a map from graphs to graph descriptions */
+  /**
+   * @return a map from graphs to graph descriptions
+   */
   public Map<G, String> getGraphDescriptions() {
     return graph_desc;
   }
 
-  /** @return a map from nodes to node descriptions */
+  /**
+   * @return a map from nodes to node descriptions
+   */
   public Map<N, String> getNodeDescriptions() {
     return node_desc;
   }
 
-  /** @return a map from edges to edge descriptions */
+  /**
+   * @return a map from edges to edge descriptions
+   */
   public Map<E, String> getEdgeDescriptions() {
     return edge_desc;
   }

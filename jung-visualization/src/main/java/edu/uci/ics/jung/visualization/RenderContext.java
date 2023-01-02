@@ -186,9 +186,13 @@ public interface RenderContext<N, E> {
 
   void setMultiLayerTransformer(MultiLayerTransformer basicTransformer);
 
-  /** @return the pickSupport */
+  /**
+   * @return the pickSupport
+   */
   NetworkElementAccessor<N, E> getPickSupport();
 
-  /** @param pickSupport the pickSupport to set */
+  /**
+   * @param pickSupport the pickSupport to set
+   */
   void setPickSupport(NetworkElementAccessor<N, E> pickSupport);
 }

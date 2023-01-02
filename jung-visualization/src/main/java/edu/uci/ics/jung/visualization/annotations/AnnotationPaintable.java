@@ -63,7 +63,9 @@ public class AnnotationPaintable implements VisualizationServer.Paintable {
     annotations.remove(annotation);
   }
 
-  /** @return the annotations */
+  /**
+   * @return the annotations
+   */
   @SuppressWarnings("rawtypes")
   public Set<Annotation> getAnnotations() {
     return Collections.unmodifiableSet(annotations);

@@ -41,12 +41,16 @@ public class TransformingGraphics extends GraphicsDecorator {
     this.transformer = Function;
   }
 
-  /** @return Returns the Function. */
+  /**
+   * @return Returns the Function.
+   */
   public BidirectionalTransformer getTransformer() {
     return transformer;
   }
 
-  /** @param Function The Function to set. */
+  /**
+   * @param Function The Function to set.
+   */
   public void setTransformer(BidirectionalTransformer Function) {
     this.transformer = Function;
   }

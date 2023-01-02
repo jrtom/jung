@@ -149,7 +149,9 @@ public class BalloonLayoutAlgorithm<N> extends TreeLayoutAlgorithm<N> {
     layoutModel.set(node, pv);
   }
 
-  /** @return the radii */
+  /**
+   * @return the radii
+   */
   public Map<N, Double> getRadii() {
     return radii;
   }

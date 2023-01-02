@@ -352,7 +352,9 @@ public class PluggableRendererDemo extends JPanel implements ActionListener {
     return g;
   }
 
-  /** @param jp panel to which controls will be added */
+  /**
+   * @param jp panel to which controls will be added
+   */
   protected void addBottomControls(final JPanel jp) {
     final JPanel control_panel = new JPanel();
     jp.add(control_panel, BorderLayout.EAST);

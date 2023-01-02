@@ -4,7 +4,9 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import org.junit.Test;
 
-/** @author Tom Nelson */
+/**
+ * @author Tom Nelson
+ */
 public class ShapeTest {
 
   @Test

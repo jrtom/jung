@@ -22,7 +22,9 @@ public interface ModalGraphMouse extends VisualizationViewer.GraphMouse {
 
   void setMode(Mode mode);
 
-  /** @return Returns the modeListener. */
+  /**
+   * @return Returns the modeListener.
+   */
   ItemListener getModeListener();
 
   /** */

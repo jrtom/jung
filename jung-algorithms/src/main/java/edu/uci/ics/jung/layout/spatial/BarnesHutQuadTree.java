@@ -30,7 +30,9 @@ public class BarnesHutQuadTree<T> {
     return root.getBounds();
   }
 
-  /** @return the root {@code Node} of this tree */
+  /**
+   * @return the root {@code Node} of this tree
+   */
   public Node<T> getRoot() {
     return root;
   }

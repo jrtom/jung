@@ -39,12 +39,16 @@ public class VEPair<N, E> {
     this.e = e;
   }
 
-  /** @return the node of this pair */
+  /**
+   * @return the node of this pair
+   */
   public N getV() {
     return v;
   }
 
-  /** @return the edge of this pair */
+  /**
+   * @return the edge of this pair
+   */
   public E getE() {
     return e;
   }

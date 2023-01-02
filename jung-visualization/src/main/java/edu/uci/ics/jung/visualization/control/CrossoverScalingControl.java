@@ -39,7 +39,9 @@ public class CrossoverScalingControl implements ScalingControl {
     this.crossover = crossover;
   }
 
-  /** @return the current crossover value */
+  /**
+   * @return the current crossover value
+   */
   public double getCrossover() {
     return crossover;
   }

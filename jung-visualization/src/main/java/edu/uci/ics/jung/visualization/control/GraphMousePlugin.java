@@ -19,10 +19,14 @@ import java.awt.event.MouseEvent;
  */
 public interface GraphMousePlugin {
 
-  /** @return the mouse event modifiers that will activate this plugin */
+  /**
+   * @return the mouse event modifiers that will activate this plugin
+   */
   int getModifiers();
 
-  /** @param modifiers the mouse event modifiers that will activate this plugin */
+  /**
+   * @param modifiers the mouse event modifiers that will activate this plugin
+   */
   void setModifiers(int modifiers);
 
   /**

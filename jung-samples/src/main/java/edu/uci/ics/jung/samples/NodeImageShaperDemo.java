@@ -302,12 +302,16 @@ public class NodeImageShaperDemo extends JPanel {
       }
     }
 
-    /** @return Returns the enabled. */
+    /**
+     * @return Returns the enabled.
+     */
     public boolean isEnabled() {
       return enabled;
     }
 
-    /** @param enabled The enabled to set. */
+    /**
+     * @param enabled The enabled to set.
+     */
     public void setEnabled(boolean enabled) {
       this.enabled = enabled;
     }
@@ -353,11 +357,15 @@ public class NodeImageShaperDemo extends JPanel {
       this.iconMap = iconMap;
     }
 
-    /** @return Returns the fillImages. */
+    /**
+     * @return Returns the fillImages.
+     */
     public boolean isFillImages() {
       return fillImages;
     }
-    /** @param fillImages The fillImages to set. */
+    /**
+     * @param fillImages The fillImages to set.
+     */
     public void setFillImages(boolean fillImages) {
       this.fillImages = fillImages;
     }
@@ -391,11 +399,15 @@ public class NodeImageShaperDemo extends JPanel {
       super(delegate);
     }
 
-    /** @return Returns the shapeImages. */
+    /**
+     * @return Returns the shapeImages.
+     */
     public boolean isShapeImages() {
       return shapeImages;
     }
-    /** @param shapeImages The shapeImages to set. */
+    /**
+     * @param shapeImages The shapeImages to set.
+     */
     public void setShapeImages(boolean shapeImages) {
       shapeMap.clear();
       this.shapeImages = shapeImages;

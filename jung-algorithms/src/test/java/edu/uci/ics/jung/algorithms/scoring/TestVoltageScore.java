@@ -12,7 +12,9 @@ import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.NetworkBuilder;
 import junit.framework.TestCase;
 
-/** @author jrtom */
+/**
+ * @author jrtom
+ */
 public class TestVoltageScore extends TestCase {
   protected MutableNetwork<Number, Number> g;
 

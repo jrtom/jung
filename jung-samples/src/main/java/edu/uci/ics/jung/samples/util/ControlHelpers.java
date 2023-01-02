@@ -8,7 +8,9 @@ import edu.uci.ics.jung.visualization.control.ScalingControl;
 import java.awt.*;
 import javax.swing.*;
 
-/** @author Tom Nelson */
+/**
+ * @author Tom Nelson
+ */
 public class ControlHelpers {
 
   public static JComponent getZoomControls(VisualizationServer vv, String title) {

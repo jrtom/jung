@@ -155,7 +155,9 @@ public class AnnotatingModalGraphMouse<N, E> extends AbstractModalGraphMouse
     add(annotatingPlugin);
   }
 
-  /** @return Returns the modeBox. */
+  /**
+   * @return Returns the modeBox.
+   */
   @Override
   public JComboBox<Mode> getModeComboBox() {
     if (modeBox == null) {

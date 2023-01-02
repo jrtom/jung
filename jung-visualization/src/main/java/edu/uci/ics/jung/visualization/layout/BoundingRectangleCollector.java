@@ -297,7 +297,9 @@ public abstract class BoundingRectangleCollector<T> {
 
   public abstract Rectangle2D getForElement(T element, Point p1, Point p2);
 
-  /** @return the rectangles */
+  /**
+   * @return the rectangles
+   */
   public List<Rectangle2D> getRectangles() {
     return rectangles;
   }

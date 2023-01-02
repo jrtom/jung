@@ -301,12 +301,16 @@ public class GraphZoomScrollPane extends JPanel {
     public void componentShown(ComponentEvent e) {}
   }
 
-  /** @return Returns the corner component. */
+  /**
+   * @return Returns the corner component.
+   */
   public JComponent getCorner() {
     return corner;
   }
 
-  /** @param corner The cornerButton to set. */
+  /**
+   * @param corner The cornerButton to set.
+   */
   public void setCorner(JComponent corner) {
     this.corner = corner;
     corner.setPreferredSize(

@@ -196,7 +196,9 @@ public class VoltageScorer<N, E> extends AbstractIterativeScorer<N, E, Double>
     }
   }
 
-  /** @see edu.uci.ics.jung.algorithms.scoring.AbstractIterativeScorer#update(Object) */
+  /**
+   * @see edu.uci.ics.jung.algorithms.scoring.AbstractIterativeScorer#update(Object)
+   */
   @Override
   public double update(N v) {
     // if it's a voltage source or sink, we're done

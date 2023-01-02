@@ -69,27 +69,37 @@ public abstract class IterativeProcess implements IterativeContext {
   /** Perform eventual clean-up operations (must be implement by subclass when needed). */
   protected void finalizeIterations() {}
 
-  /** @return the desired precision. */
+  /**
+   * @return the desired precision.
+   */
   public double getDesiredPrecision() {
     return desiredPrecision;
   }
 
-  /** @return the number of iterations performed. */
+  /**
+   * @return the number of iterations performed.
+   */
   public int getIterations() {
     return iterations;
   }
 
-  /** @return the maximum allowed number of iterations. */
+  /**
+   * @return the maximum allowed number of iterations.
+   */
   public int getMaximumIterations() {
     return maximumIterations;
   }
 
-  /** @return the attained precision. */
+  /**
+   * @return the attained precision.
+   */
   public double getPrecision() {
     return precision;
   }
 
-  /** @param precision the precision to set */
+  /**
+   * @param precision the precision to set
+   */
   public void setPrecision(double precision) {
     this.precision = precision;
   }
@@ -122,13 +132,17 @@ public abstract class IterativeProcess implements IterativeContext {
     return x > desiredPrecision ? epsilon / x : epsilon;
   }
 
-  /** @param prec the desired precision. */
+  /**
+   * @param prec the desired precision.
+   */
   public void setDesiredPrecision(double prec) throws IllegalArgumentException {
     Preconditions.checkArgument(prec > 0, "precision must be positive");
     desiredPrecision = prec;
   }
 
-  /** @param maxIter the maximum allowed number of iterations */
+  /**
+   * @param maxIter the maximum allowed number of iterations
+   */
   public void setMaximumIterations(int maxIter) throws IllegalArgumentException {
     Preconditions.checkArgument(maxIter >= 1, "max iterations must be >= 1");
     maximumIterations = maxIter;

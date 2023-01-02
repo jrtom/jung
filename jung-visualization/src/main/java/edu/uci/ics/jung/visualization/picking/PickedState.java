@@ -33,9 +33,13 @@ public interface PickedState<T> extends PickedInfo<T>, ItemSelectable {
   /** Clears the "picked" state from all elements. */
   void clear();
 
-  /** @return all "picked" elements. */
+  /**
+   * @return all "picked" elements.
+   */
   Set<T> getPicked();
 
-  /** @return <code>true</code> if <code>v</code> is currently "picked". */
+  /**
+   * @return <code>true</code> if <code>v</code> is currently "picked".
+   */
   boolean isPicked(T v);
 }

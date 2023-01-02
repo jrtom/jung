@@ -32,7 +32,9 @@ import javax.swing.event.ChangeListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** @author Tom Nelson */
+/**
+ * @author Tom Nelson
+ */
 public class BaseVisualizationModel<N, E>
     implements VisualizationModel<N, E>,
         ChangeEventSupport,

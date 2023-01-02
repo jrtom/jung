@@ -16,7 +16,9 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-/** @author Scott White, adapted to jung2 by Tom Nelson */
+/**
+ * @author Scott White, adapted to jung2 by Tom Nelson
+ */
 public class TestBFSDistanceLabeler extends TestCase {
   public static Test suite() {
     return new TestSuite(TestBFSDistanceLabeler.class);

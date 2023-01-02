@@ -119,22 +119,30 @@ public class PluggableRenderContext<N, E> implements RenderContext<N, E> {
     }
   }
 
-  /** @return the nodeShapeFunction */
+  /**
+   * @return the nodeShapeFunction
+   */
   public Function<? super N, Shape> getNodeShapeFunction() {
     return nodeShapeFunction;
   }
 
-  /** @param nodeShapeFunction the nodeShapeFunction to set */
+  /**
+   * @param nodeShapeFunction the nodeShapeFunction to set
+   */
   public void setNodeShapeFunction(Function<? super N, Shape> nodeShapeFunction) {
     this.nodeShapeFunction = nodeShapeFunction;
   }
 
-  /** @return the nodeStrokeFunction */
+  /**
+   * @return the nodeStrokeFunction
+   */
   public Function<? super N, Stroke> getNodeStrokeFunction() {
     return nodeStrokeFunction;
   }
 
-  /** @param nodeStrokeFunction the nodeStrokeFunction to set */
+  /**
+   * @param nodeStrokeFunction the nodeStrokeFunction to set
+   */
   public void setNodeStrokeFunction(Function<? super N, Stroke> nodeStrokeFunction) {
     this.nodeStrokeFunction = nodeStrokeFunction;
   }

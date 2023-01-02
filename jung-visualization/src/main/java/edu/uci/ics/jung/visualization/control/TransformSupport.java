@@ -8,7 +8,9 @@ import java.awt.geom.Point2D;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** @author Tom Nelson */
+/**
+ * @author Tom Nelson
+ */
 public class TransformSupport<N, E> extends MutableAffineTransformer {
 
   private static final Logger log = LoggerFactory.getLogger(TransformSupport.class);

@@ -16,7 +16,9 @@ import edu.uci.ics.jung.graph.MutableCTreeNetwork;
 import edu.uci.ics.jung.graph.TreeNetworkBuilder;
 import org.junit.Test;
 
-/** @author Tom Nelson */
+/**
+ * @author Tom Nelson
+ */
 public class TreeUtilsTest {
 
   @Test

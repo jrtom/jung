@@ -64,7 +64,8 @@ public interface Renderer<N, E> {
     class NOOP<N, E> implements Node<N, E> {
       public void paintNode(
           RenderContext<N, E> renderContext, VisualizationModel<N, E> visualizationModel, N v) {}
-    };
+    }
+    ;
   }
 
   interface Edge<N, E> {

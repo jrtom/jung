@@ -14,7 +14,9 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-/** @author Scott White */
+/**
+ * @author Scott White
+ */
 public class TestUnweightedShortestPath extends TestCase {
   private Supplier<String> nodeFactory =
       new Supplier<String>() {

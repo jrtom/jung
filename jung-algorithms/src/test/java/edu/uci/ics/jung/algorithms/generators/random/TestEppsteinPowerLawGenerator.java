@@ -17,7 +17,9 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-/** @author Scott White */
+/**
+ * @author Scott White
+ */
 public class TestEppsteinPowerLawGenerator extends TestCase {
   Supplier<Integer> nodeFactory;
 
