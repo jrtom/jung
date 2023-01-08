@@ -1,5 +1,6 @@
 package edu.uci.ics.jung.algorithms.shortestpath;
 
+import com.google.common.collect.Sets;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.MutableValueGraph;
 import com.google.common.graph.Network;
@@ -7,8 +8,8 @@ import com.google.common.graph.NetworkBuilder;
 import com.google.common.graph.ValueGraph;
 import com.google.common.graph.ValueGraphBuilder;
 import edu.uci.ics.jung.algorithms.util.MapBinaryHeap;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -39,8 +40,8 @@ public class MinimumSpanningTree<N, E> {
    */
   public static <N, E> Network<N, E> extractFrom(
       Network<N, E> graph, Function<? super E, Double> edgeWeights) {
-    Set<N> remainingNodes = new HashSet<>(graph.nodes());
-    Map<N, NodeData<E>> nodeData = new HashMap<>();
+    Set<N> remainingNodes = new LinkedHashSet<>(graph.nodes());
+    Map<N, NodeData<E>> nodeData = new LinkedHashMap<>();
     // initialize node data
     for (N node : remainingNodes) {
       nodeData.put(node, new NodeData<>());
@@ -70,7 +71,13 @@ public class MinimumSpanningTree<N, E> {
           continue;
         }
         NodeData<E> adjacentNodeData = nodeData.get(adjacentNode);
-        for (E connectingEdge : graph.edgesConnecting(node, adjacentNode)) {
+        // edgesConnecting() respects direction, so since the input graph may be directed
+        // (and we want to treat it as undirected), get all connecting edges in both
+        // directions.
+        for (E connectingEdge :
+            Sets.union(
+                graph.edgesConnecting(node, adjacentNode),
+                graph.edgesConnecting(adjacentNode, node))) {
           double connectingEdgeWeight = edgeWeights.apply(connectingEdge);
           if (connectingEdgeWeight < adjacentNodeData.cost) {
             adjacentNodeData.update(connectingEdgeWeight, connectingEdge);
@@ -92,8 +99,8 @@ public class MinimumSpanningTree<N, E> {
    * @param graph the graph from which to extract the minimum spanning forest
    */
   public static <N, V extends Number> ValueGraph<N, V> extractFrom(ValueGraph<N, V> graph) {
-    Set<N> remainingNodes = new HashSet<>(graph.nodes());
-    Map<N, NodeData<N>> nodeData = new HashMap<>();
+    Set<N> remainingNodes = new LinkedHashSet<>(graph.nodes());
+    Map<N, NodeData<N>> nodeData = new LinkedHashMap<>();
     // initialize node data
     for (N node : remainingNodes) {
       nodeData.put(node, new NodeData<>());
@@ -154,6 +161,10 @@ public class MinimumSpanningTree<N, E> {
     private void update(double cost, T connection) {
       this.cost = cost;
       this.connection = connection;
+    }
+
+    public String toString() {
+      return String.format("cost: %s, connection: %s", cost, connection);
     }
   }
 }
