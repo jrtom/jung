@@ -87,8 +87,8 @@ public class EdgeBetweennessClusterer<N, E> implements Function<Network<N, E>, S
       filtered.removeEdge(to_remove);
     }
 
-    WeakComponentClusterer<N, E> wcSearch = new WeakComponentClusterer<N, E>();
-    Set<Set<N>> clusterSet = wcSearch.apply(filtered);
+    WeakComponentClusterer<N> wcSearch = new WeakComponentClusterer<N>();
+    Set<Set<N>> clusterSet = wcSearch.apply(filtered.asGraph());
 
     return clusterSet;
   }
