@@ -47,8 +47,7 @@ public class Metrics {
         for (N w : graph.adjacentNodes(v)) {
           if (!w.equals(v)) {
             for (N x : graph.adjacentNodes(v)) {
-              // TODO: replace with hasEdge() once it's ready
-              if (!w.equals(x) && graph.adjacentNodes(w).contains(x)) {
+              if (!w.equals(x) && graph.hasEdgeConnecting(w, x)) {
                 edgeCount++;
               }
             }

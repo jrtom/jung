@@ -9,7 +9,7 @@
  */
 package edu.uci.ics.jung.algorithms.cluster;
 
-import com.google.common.graph.Network;
+import com.google.common.graph.Graph;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -29,14 +29,14 @@ import java.util.function.Function;
  *
  * @author Scott White
  */
-public class WeakComponentClusterer<N, E> implements Function<Network<N, E>, Set<Set<N>>> {
+public class WeakComponentClusterer<N> implements Function<Graph<N>, Set<Set<N>>> {
   /**
    * Extracts the weak components from a graph.
    *
    * @param graph the graph whose weak components are to be extracted
    * @return the list of weak components
    */
-  public Set<Set<N>> apply(Network<N, E> graph) {
+  public Set<Set<N>> apply(Graph<N> graph) {
 
     Set<Set<N>> clusterSet = new HashSet<Set<N>>();
 

@@ -9,9 +9,9 @@ public class WeakComponentClustererTest extends TestCase {
   Network<String, Number> graph = TestGraphs.getDemoGraph();
 
   public void testWeakComponent() {
-    WeakComponentClusterer<String, Number> clusterer = new WeakComponentClusterer<String, Number>();
+    WeakComponentClusterer<String> clusterer = new WeakComponentClusterer<String>();
     //		Set<Set<String>> clusterSet =
-    clusterer.apply(graph);
+    clusterer.apply(graph.asGraph());
     //		System.err.println("set is "+clusterSet);
   }
 }
