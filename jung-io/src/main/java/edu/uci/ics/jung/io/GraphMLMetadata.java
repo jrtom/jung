@@ -8,6 +8,7 @@
  */
 package edu.uci.ics.jung.io;
 
+import edu.uci.ics.jung.io.graphml.AttributeType;
 import java.util.function.Function;
 
 /**
@@ -24,6 +25,10 @@ public class GraphMLMetadata<T> {
   /** A Function mapping objects to string representations of their values. */
   public Function<T, String> transformer;
 
+  public String attributeName;
+
+  public AttributeType attributeType;
+
   /**
    * Creates a new instance with the specified description, default value, and function.
    *
@@ -31,9 +36,20 @@ public class GraphMLMetadata<T> {
    * @param default_value the default value for the object, as a String
    * @param function maps objects of this type to string representations
    */
-  public GraphMLMetadata(String description, String default_value, Function<T, String> function) {
+  public GraphMLMetadata(
+      String description,
+      String default_value,
+      Function<T, String> function,
+      String attributeName,
+      AttributeType attributeType) {
     this.description = description;
     this.transformer = function;
     this.default_value = default_value;
+    this.attributeName = attributeName;
+    this.attributeType = attributeType;
+  }
+
+  public GraphMLMetadata(String description, String default_value, Function<T, String> function) {
+    this(description, default_value, function, null, null);
   }
 }
