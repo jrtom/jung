@@ -66,7 +66,7 @@
     <java.version>1.8</java.version>
 
     <junit.version>4.13.1</junit.version>
-    <truth.version>0.36</truth.version>
+    <truth.version>1.4.2</truth.version>
     <guava.version>31.1-jre</guava.version>
     <google-java-format.version>1.15.0</google-java-format.version>
 
@@ -130,11 +130,6 @@
       <dependency>
         <groupId>com.google.truth</groupId>
         <artifactId>truth</artifactId>
-        <version>${truth.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.google.truth.extensions</groupId>
-        <artifactId>truth-java8-extension</artifactId>
         <version>${truth.version}</version>
       </dependency>
       <dependency>
