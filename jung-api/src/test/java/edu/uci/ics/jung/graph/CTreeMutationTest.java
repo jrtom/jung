@@ -11,7 +11,6 @@
 package edu.uci.ics.jung.graph;
 
 import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.truth.Truth8.assertThat;
 import static java.lang.Boolean.TRUE;
 import static java.util.stream.Collectors.toCollection;
 
