@@ -25,7 +25,7 @@ import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import javax.swing.JComponent;
 
@@ -37,7 +37,7 @@ import javax.swing.JComponent;
 public class AnnotationPaintable implements VisualizationServer.Paintable {
 
   @SuppressWarnings("rawtypes")
-  protected Set<Annotation> annotations = new HashSet<Annotation>();
+  protected Set<Annotation> annotations = new LinkedHashSet<Annotation>();
 
   protected AnnotationRenderer annotationRenderer;
 
