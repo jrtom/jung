@@ -67,7 +67,7 @@
 
     <junit.version>4.13.1</junit.version>
     <truth.version>1.4.2</truth.version>
-    <guava.version>31.1-jre</guava.version>
+    <guava.version>32.0.0-jre</guava.version>
     <google-java-format.version>1.15.0</google-java-format.version>
 
     <cobertura.plugin.version>2.7</cobertura.plugin.version>
