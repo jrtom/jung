@@ -88,8 +88,6 @@
       <name>Joshua</name>
       <email>joshua.omadadhain+maven@gmail.com</email>
       <url>https://sites.google.com/site/joshuaomadadhain</url>
-      <organization>Google</organization>
-      <organizationUrl>http://www.google.com</organizationUrl>
       <timezone>-8</timezone>
       <roles>
         <role>Owner</role>
@@ -100,8 +98,6 @@
       <id>offkey</id>
       <name>Danyel</name>
       <email>offkey@sf.net</email>
-      <organization>Microsoft Research</organization>
-      <organizationUrl>http://research.microsoft.com</organizationUrl>
       <timezone>-8</timezone>
       <roles>
         <role>Owner</role>
