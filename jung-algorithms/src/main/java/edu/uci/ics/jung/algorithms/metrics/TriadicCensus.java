@@ -22,16 +22,18 @@ import java.util.Set;
  * graph. This may then be compared to the set of expected counts for this particular graph or to an
  * expected sample. This is often used in p* modeling.
  *
- * <p>To use this class,
+ * <p>To use this class:
  *
  * <pre>
- * long[] triad_counts = TriadicCensus(dg);
+ * long[] triad_counts = TriadicCensus.getCounts(dg);
  * </pre>
  *
- * where <code>dg</code> is a <code>DirectedGraph</code>. ith element of the array (for i in [1,16])
+ * You can also access it through {@code Metrics.triadicCensus(dg)}.
+ *
+ * <p>where <code>dg</code> is a directed {@code Graph}. ith element of the array (for i in [1,16])
  * is the number of occurrences of the corresponding triad type. (The 0th element is not meaningful;
- * this array is effectively 1-based.) To get the name of the ith triad (e.g. "003"), look at the
- * global constant array c.TRIAD_NAMES[i]
+ * this array is effectively 1-based.) The names of the triads are encoded in this class's constant
+ * array {@code TRIAD_NAMES}.
  *
  * <p>Triads are named as (number of pairs that are mutually tied) (number of pairs that are one-way
  * tied) (number of non-tied pairs) in the triple. Since there are be only three pairs, there is a
@@ -58,20 +60,19 @@ import java.util.Set;
  * <tr><td>13</td><td>120U</td><td>"Up": 021U but the third edge is mutual</td></tr>
  * <tr><td>14</td><td>120C</td><td>"Circle": 021C but the third edge is mutual</td></tr>
  * <tr><td>15</td><td>210</td><td></td></tr>
- * <tr><td>16</td><td>300</td><td>The complete</td></tr>
+ * <tr><td>16</td><td>300</td><td>The complete triad</td></tr>
  * </table>
  *
- * <p>This implementation takes O( m ), m is the number of edges in the graph. <br>
- * It is based on <a href="http://vlado.fmf.uni-lj.si/pub/networks/doc/triads/triads.pdf">A
- * subquadratic triad census algorithm for large sparse networks with small maximum degree</a>
- * Vladimir Batagelj and Andrej Mrvar, University of Ljubljana Published in Social Networks.
+ * <p>This implementation takes O(m) time, where {@code m} is the number of edges in the graph. <br>
+ * It is based on the paper published in Social Networks (23 (3), 237-243, 2001) by Vladimir
+ * Batagelj and Andrej Mrvar, University of Ljubljana.
  *
  * @author Danyel Fisher
  * @author Tom Nelson - converted to jung2
+ * @see <a href="https://www.sciencedirect.com/science/article/abs/pii/S0378873301000351">A
+ *     subquadratic triad census algorithm for large sparse networks with small maximum degree</a>
  */
 public class TriadicCensus {
-
-  // NOTE THAT THIS RETURNS STANDARD 1-16 COUNT!
 
   // and their types
   public static final String[] TRIAD_NAMES = {
@@ -94,7 +95,6 @@ public class TriadicCensus {
     Preconditions.checkArgument(g.isDirected(), "input graph must be directed");
     long[] count = new long[MAX_TRIADS];
 
-    // TODO: can we make this more efficient and not require the extra list?
     List<N> id = new ArrayList<N>(g.nodes());
 
     // apply algorithm to each edge, one at at time
@@ -109,8 +109,7 @@ public class TriadicCensus {
         neighbors.addAll(g.adjacentNodes(v));
         neighbors.remove(u);
         neighbors.remove(v);
-        // TODO: use hasEdge() when available
-        if (g.successors(v).contains(u) && g.successors(u).contains(v)) {
+        if (g.hasEdgeConnecting(v, u) && g.hasEdgeConnecting(u, v)) {
           triType = 3;
         } else {
           triType = 2;
