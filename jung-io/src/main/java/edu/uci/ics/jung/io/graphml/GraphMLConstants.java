@@ -22,7 +22,6 @@ public class GraphMLConstants {
   public static final String NODE_NAME = "node";
   public static final String EDGE_NAME = "edge";
   public static final String ENDPOINT_NAME = "endpoint";
-  public static final String HYPEREDGE_NAME = "hyperedge";
   public static final String PORT_NAME = "port";
   public static final String KEY_NAME = "key";
   public static final String DATA_NAME = "data";

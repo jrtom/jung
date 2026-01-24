@@ -33,8 +33,6 @@ public class GraphMetadata extends AbstractMetadata {
   private Object graph;
   private final Map<Object, NodeMetadata> nodes = new HashMap<Object, NodeMetadata>();
   private final Map<Object, EdgeMetadata> edges = new HashMap<Object, EdgeMetadata>();
-  private final Map<Object, HyperEdgeMetadata> hyperEdges =
-      new HashMap<Object, HyperEdgeMetadata>();
 
   public String getId() {
     return id;
@@ -84,18 +82,6 @@ public class GraphMetadata extends AbstractMetadata {
     return edges;
   }
 
-  public void addHyperEdgeMetadata(Object edge, HyperEdgeMetadata metadata) {
-    hyperEdges.put(edge, metadata);
-  }
-
-  public HyperEdgeMetadata getHyperEdgeMetadata(Object edge) {
-    return hyperEdges.get(edge);
-  }
-
-  public Map<Object, HyperEdgeMetadata> getHyperEdgeMap() {
-    return hyperEdges;
-  }
-
   public Object getGraph() {
     return graph;
   }
@@ -138,12 +124,6 @@ public class GraphMetadata extends AbstractMetadata {
     EdgeMetadata em = getEdgeMetadata(edge);
     if (em != null) {
       return em.getProperty(key);
-    }
-
-    // Next, try hyperedges.
-    HyperEdgeMetadata hem = getHyperEdgeMetadata(edge);
-    if (hem != null) {
-      return hem.getProperty(key);
     }
 
     // Couldn't find the edge.

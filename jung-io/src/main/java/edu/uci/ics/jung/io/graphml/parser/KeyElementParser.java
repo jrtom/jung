@@ -111,9 +111,6 @@ public class KeyElementParser<G extends MutableNetwork<N, E>, N, E>
       if (GraphMLConstants.ENDPOINT_NAME.equals(value)) {
         return Key.ForType.ENDPOINT;
       }
-      if (GraphMLConstants.HYPEREDGE_NAME.equals(value)) {
-        return Key.ForType.HYPEREDGE;
-      }
       if (GraphMLConstants.NODE_NAME.equals(value)) {
         return Key.ForType.NODE;
       }

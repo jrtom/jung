@@ -89,7 +89,7 @@ public class GraphMLReader2<G extends MutableNetwork<N, E>, N, E> implements Gra
             document.getKeyMap(),
             graphTransformer,
             nodeTransformer,
-            edgeTransformer); // , hyperEdgeTransformer);
+            edgeTransformer);
   }
 
   /**
@@ -124,7 +124,7 @@ public class GraphMLReader2<G extends MutableNetwork<N, E>, N, E> implements Gra
             document.getKeyMap(),
             graphTransformer,
             nodeTransformer,
-            edgeTransformer); // , hyperEdgeTransformer);
+            edgeTransformer);
   }
 
   /**

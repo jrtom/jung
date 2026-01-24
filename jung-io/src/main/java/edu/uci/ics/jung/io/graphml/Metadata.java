@@ -24,7 +24,6 @@ public interface Metadata {
     GRAPH,
     NODE,
     EDGE,
-    HYPEREDGE,
     PORT,
     ENDPOINT
   }

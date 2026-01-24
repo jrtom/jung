@@ -78,6 +78,4 @@ public class TestPageRankWithPriors extends TestCase {
     }
     Assert.assertEquals(1.0, score_sum, pr.getTolerance() * graph.nodes().size());
   }
-
-  public void testHypergraphScoring() {}
 }

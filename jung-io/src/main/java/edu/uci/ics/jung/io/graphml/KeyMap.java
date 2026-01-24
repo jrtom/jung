@@ -52,11 +52,6 @@ public class KeyMap {
           getKeyList(Metadata.MetadataType.GRAPH).add(key);
           break;
         }
-      case HYPEREDGE:
-        {
-          getKeyList(Metadata.MetadataType.HYPEREDGE).add(key);
-          break;
-        }
       case NODE:
         {
           getKeyList(Metadata.MetadataType.NODE).add(key);
@@ -74,7 +69,6 @@ public class KeyMap {
           getKeyList(Metadata.MetadataType.EDGE).add(key);
           getKeyList(Metadata.MetadataType.ENDPOINT).add(key);
           getKeyList(Metadata.MetadataType.GRAPH).add(key);
-          getKeyList(Metadata.MetadataType.HYPEREDGE).add(key);
           getKeyList(Metadata.MetadataType.NODE).add(key);
           getKeyList(Metadata.MetadataType.PORT).add(key);
         }
