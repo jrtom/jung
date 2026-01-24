@@ -32,7 +32,6 @@ public class ParserContext<G extends MutableNetwork<N, E>, N, E> {
   private final Function<GraphMetadata, G> graphTransformer;
   private final Function<NodeMetadata, N> nodeTransformer;
   private final Function<EdgeMetadata, E> edgeTransformer;
-  //    private final Function<HyperEdgeMetadata, E> hyperEdgeTransformer;
 
   public ParserContext(
       ElementParserRegistry<G, N, E> elementParserRegistry,
@@ -40,13 +39,11 @@ public class ParserContext<G extends MutableNetwork<N, E>, N, E> {
       Function<GraphMetadata, G> graphTransformer,
       Function<NodeMetadata, N> nodeTransformer,
       Function<EdgeMetadata, E> edgeTransformer) {
-    //            Function<HyperEdgeMetadata, E> hyperEdgeTransformer ) {
     this.elementParserRegistry = elementParserRegistry;
     this.keyMap = keyMap;
     this.graphTransformer = graphTransformer;
     this.nodeTransformer = nodeTransformer;
     this.edgeTransformer = edgeTransformer;
-    //        this.hyperEdgeTransformer = hyperEdgeTransformer;
   }
 
   public ElementParserRegistry<G, N, E> getElementParserRegistry() {
@@ -67,9 +64,5 @@ public class ParserContext<G extends MutableNetwork<N, E>, N, E> {
 
   public E createEdge(EdgeMetadata metadata) {
     return edgeTransformer.apply(metadata);
-  }
-
-  //    public E createHyperEdge(HyperEdgeMetadata metadata) {
-  //        return hyperEdgeTransformer.apply(metadata);
-  //    }
+	}
 }

@@ -68,16 +68,16 @@ public class DistanceStatistics {
    * For each node <code>v</code> in <code>g</code>, calculates the average shortest path length
    * from <code>v</code> to all other nodes in <code>g</code>, ignoring edge weights.
    *
-   * @see #diameter(Hypergraph)
+   * @see #diameter(Graph)
    * @see edu.uci.ics.jung.algorithms.scoring.ClosenessCentrality
    * @param g the graph for which distances are to be calculated
    * @param <N> the node type
    * @param <E> the edge type
    * @return a map from each node to the mean distance to each other (reachable) node
    */
-  public static <N, E> Function<N, Double> averageDistances(Network<N, E> g) {
+  public static <N> Function<N, Double> averageDistances(Graph<N> g) {
     final ClosenessCentrality<N, E> cc =
-        new ClosenessCentrality<N, E>(g, new UnweightedShortestPath<N>(g.asGraph()));
+        new ClosenessCentrality<N, E>(g, new UnweightedShortestPath<N>(g));
     return new NodeScoreTransformer<N, Double>(cc);
   }
 

@@ -36,7 +36,6 @@ public class ElementParserRegistry<G extends MutableNetwork<N, E>, N, E> {
       Function<GraphMetadata, G> graphTransformer,
       Function<NodeMetadata, N> nodeTransformer,
       Function<EdgeMetadata, E> edgeTransformer) {
-    //            Function<HyperEdgeMetadata, E> hyperEdgeTransformer) {
 
     // Create the parser context.
     ParserContext<G, N, E> context =
@@ -52,9 +51,6 @@ public class ElementParserRegistry<G extends MutableNetwork<N, E>, N, E> {
     parserMap.put(GraphMLConstants.GRAPH_NAME, new GraphElementParser<G, N, E>(context));
     parserMap.put(GraphMLConstants.ENDPOINT_NAME, new EndpointElementParser<G, N, E>(context));
     parserMap.put(GraphMLConstants.EDGE_NAME, new EdgeElementParser<G, N, E>(context));
-    // TODO: restore this once we have a Hypergraph type again
-    //        parserMap.put(GraphMLConstants.HYPEREDGE_NAME, new
-    // HyperEdgeElementParser<G,V,E>(context));
   }
 
   public ElementParser getUnknownElementParser() {

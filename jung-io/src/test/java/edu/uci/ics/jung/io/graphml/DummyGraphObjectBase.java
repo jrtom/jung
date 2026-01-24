@@ -4,7 +4,6 @@ import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.NetworkBuilder;
 import java.util.function.Function;
 
-// TODO: replace common.base.Function with java.util.Function
 public class DummyGraphObjectBase {
 
   // TODO: hopefully we can get rid of this; could just use lambdas if we need the factory at all
@@ -14,21 +13,6 @@ public class DummyGraphObjectBase {
       return NetworkBuilder.undirected().allowsParallelEdges(false).allowsSelfLoops(true).build();
     }
   }
-  //    public static class UndirectedSparseGraphFactory implements Function<GraphMetadata,
-  // Hypergraph<DummyNode, DummyEdge>> {
-  //
-  //        public Hypergraph<DummyNode, DummyEdge> apply(GraphMetadata arg0) {
-  //            return new UndirectedSparseGraph<DummyNode, DummyEdge>();
-  //        }
-  //    }
-  //
-  //    public static class SetHypergraphFactory implements Function<GraphMetadata,
-  // Hypergraph<DummyNode, DummyEdge>> {
-  //
-  //        public Hypergraph<DummyNode, DummyEdge> apply(GraphMetadata arg0) {
-  //            return new SetHypergraph<DummyNode, DummyEdge>();
-  //        }
-  //    }
 
   public int myValue;
 

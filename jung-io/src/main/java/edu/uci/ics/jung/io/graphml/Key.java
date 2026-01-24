@@ -28,7 +28,6 @@ public class Key {
     GRAPH,
     NODE,
     EDGE,
-    HYPEREDGE,
     PORT,
     ENDPOINT
   }

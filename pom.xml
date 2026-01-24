@@ -30,7 +30,7 @@
     existing third-party Java libraries. The JUNG architecture is
     designed to support a variety of representations of entities and
     their relations, such as directed and undirected graphs,
-    multi-modal graphs, graphs with parallel edges, and hypergraphs.
+    multi-modal graphs, and graphs with parallel edges.
     It provides a mechanism for annotating graphs, entities, and
     relations with metadata. This facilitates the creation of
     analytic tools for complex data sets that can examine the

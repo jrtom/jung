@@ -38,7 +38,6 @@ public abstract class AbstractParserTest {
             new DummyGraphObjectBase.UndirectedNetworkFactory(),
             new DummyNode.Factory(),
             new DummyEdge.EdgeFactory());
-    //                new DummyEdge.HyperEdgeFactory());
   }
 
   @After

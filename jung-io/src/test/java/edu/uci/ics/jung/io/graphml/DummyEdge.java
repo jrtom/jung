@@ -12,14 +12,6 @@ public class DummyEdge extends DummyGraphObjectBase {
     }
   }
 
-  public static class HyperEdgeFactory implements Function<HyperEdgeMetadata, DummyEdge> {
-    int n = 0;
-
-    public DummyEdge apply(HyperEdgeMetadata md) {
-      return new DummyEdge(n++);
-    }
-  }
-
   public DummyEdge() {}
 
   public DummyEdge(int v) {

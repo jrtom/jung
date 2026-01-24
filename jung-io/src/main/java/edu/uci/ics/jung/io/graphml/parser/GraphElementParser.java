@@ -78,8 +78,6 @@ public class GraphElementParser<G extends MutableNetwork<N, E>, N, E>
 
       Map<String, N> idToNodeMap = new HashMap<String, N>();
       Collection<EdgeMetadata> edgeMetadata = new LinkedList<EdgeMetadata>();
-      //            Collection<HyperEdgeMetadata> hyperEdgeMetadata = new
-      // LinkedList<HyperEdgeMetadata>();
 
       while (xmlEventReader.hasNext()) {
 
@@ -131,21 +129,6 @@ public class GraphElementParser<G extends MutableNetwork<N, E>, N, E>
             // Add it to the graph.
             graphMetadata.addEdgeMetadata(edge, metadata);
 
-            //                    } else if (GraphMLConstants.HYPEREDGE_NAME.equals(name)) {
-            //
-            //                        // Parse the edge metadata
-            //                        HyperEdgeMetadata metadata = (HyperEdgeMetadata)
-            // getParser(name).parse(
-            //                                xmlEventReader, element);
-            //
-            //                        // Create the edge object and store it in the metadata
-            //                        E edge = getParserContext().createHyperEdge(metadata);
-            //                        hyperEdgeMetadata.add(metadata);
-            //                        metadata.setEdge(edge);
-            //
-            //                        // Add it to the graph
-            //                        graphMetadata.addHyperEdgeMetadata(edge, metadata);
-
           } else {
 
             // Treat anything else as unknown
@@ -171,7 +154,6 @@ public class GraphElementParser<G extends MutableNetwork<N, E>, N, E>
 
       // Add the edges to the graph object.
       addEdgesToGraph(graph, edgeMetadata, idToNodeMap);
-      //            addHyperEdgesToGraph(graph, hyperEdgeMetadata, idToNodeMap);
 
       return graphMetadata;
 
@@ -215,32 +197,4 @@ public class GraphElementParser<G extends MutableNetwork<N, E>, N, E>
       graph.addEdge(source, target, edge);
     }
   }
-
-  // TODO: hypergraph support
-  //    @SuppressWarnings("unchecked")
-  //    private void addHyperEdgesToGraph(G graph, Collection<HyperEdgeMetadata> metadata,
-  //            Map<String,V> idToNodeMap) throws GraphIOException {
-  //
-  //        for (HyperEdgeMetadata emd : metadata) {
-  //
-  //            // Get the edge out of the metadata
-  //            E edge = (E)emd.getEdge();
-  //
-  //            // Add the verticies to a list.
-  //            List<N> verticies = new ArrayList<N>();
-  //            List<EndpointMetadata> endpoints = emd.getEndpoints();
-  //            for (EndpointMetadata ep : endpoints) {
-  //                N v = idToNodeMap.get(ep.getNode());
-  //                if (v == null) {
-  //                    throw new GraphIOException(
-  //                            "hyperedge references undefined node: "
-  //                                    + ep.getNode());
-  //                }
-  //                verticies.add(v);
-  //            }
-  //
-  //            // Add it to the graph.
-  //            graph.addEdge(edge, verticies);
-  //        }
-  //    }
 }
