@@ -160,6 +160,7 @@ public class HyperbolicShapeTransformer extends HyperbolicTransformer
     }
     return newPath;
   }
+
   /** override base class transform to project the fisheye effect */
   private Point2D _transform(Point2D graphPoint) {
     if (graphPoint == null) {

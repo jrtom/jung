@@ -91,6 +91,7 @@ public class CubicCurveEdgeEffects<N, E> implements EdgeEffects<N, E> {
     xform.rotate(thetaRadians);
     arrowShape = xform.createTransformedShape(rawArrowShape);
   }
+
   /** Used for the edge creation visual effect during mouse drag */
   class EdgePaintable implements VisualizationServer.Paintable {
 

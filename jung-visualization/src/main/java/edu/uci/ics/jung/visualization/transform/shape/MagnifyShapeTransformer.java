@@ -31,6 +31,7 @@ public class MagnifyShapeTransformer extends MagnifyTransformer
     implements ShapeFlatnessTransformer {
 
   private static final Logger log = LoggerFactory.getLogger(MagnifyShapeTransformer.class);
+
   /**
    * @param d the size used for the lens
    */

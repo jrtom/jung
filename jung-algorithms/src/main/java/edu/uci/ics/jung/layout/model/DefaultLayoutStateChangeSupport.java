@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 public class DefaultLayoutStateChangeSupport implements LayoutModel.LayoutStateChangeSupport {
 
   private static final Logger log = LoggerFactory.getLogger(DefaultLayoutStateChangeSupport.class);
+
   /** to fire or not to fire.... */
   protected boolean fireEvents;
 

@@ -29,6 +29,7 @@ public class PivotingImageShaper {
 
   /** the number of pixels to skip while sampling the images edges */
   static int sample = 1;
+
   /** the first x coordinate of the shape. Used to discern when we are done */
   static int firstx = 0;
 
@@ -62,6 +63,7 @@ public class PivotingImageShaper {
     }
     return p2;
   }
+
   /**
    * trace the left side of the image
    *

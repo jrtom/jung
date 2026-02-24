@@ -48,16 +48,22 @@ public abstract class AbstractModalGraphMouse extends PluggableGraphMouse
 
   /** used by the scaling plugins for zoom in */
   protected float in;
+
   /** used by the scaling plugins for zoom out */
   protected float out;
+
   /** a listener for mode changes */
   protected ItemListener modeListener;
+
   /** a JComboBox control available to set the mode */
   protected JComboBox<Mode> modeBox;
+
   /** a menu available to set the mode */
   protected JMenu modeMenu;
+
   /** the current mode */
   protected Mode mode;
+
   /** listeners for mode changes */
   protected EventListenerList listenerList = new EventListenerList();
 
@@ -95,6 +101,7 @@ public abstract class AbstractModalGraphMouse extends PluggableGraphMouse
           new ItemEvent(this, ItemEvent.ITEM_STATE_CHANGED, mode, ItemEvent.SELECTED));
     }
   }
+
   /* (non-Javadoc)
    * @see ModalGraphMouse#setPickingMode()
    */

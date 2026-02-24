@@ -32,6 +32,7 @@ public class Indexer {
   public static <T> BiMap<T, Integer> create(Collection<T> collection) {
     return create(collection, 0);
   }
+
   /**
    * Returns a <code>BiMap</code> mapping each element of the collection to its index as encountered
    * while iterating over the collection. The purpose of the index operation is to supply an O(1)

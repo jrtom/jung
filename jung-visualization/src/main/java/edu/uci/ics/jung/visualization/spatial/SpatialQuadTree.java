@@ -52,15 +52,19 @@ public class SpatialQuadTree<N> extends AbstractSpatial<N, N>
 
   /** how many nodes per cell */
   private int MAX_OBJECTS = 1;
+
   /** max tree height */
   private int MAX_LEVELS = 12;
 
   /** the level of this cell in the tree */
   private int level;
+
   /** the nodes contains in this cell, assuming this cell is a leaf */
   private Set<N> nodes;
+
   /** the area for this cell */
   private Rectangle2D area;
+
   /** a collection of child nodes, assuming this is not a leaf */
   private Map<Quadrant, SpatialQuadTree<N>> children;
 

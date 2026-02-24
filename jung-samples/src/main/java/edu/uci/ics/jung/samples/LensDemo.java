@@ -75,11 +75,13 @@ public class LensDemo extends JPanel {
 
   /** provides a Hyperbolic lens for the view */
   LensSupport hyperbolicViewSupport;
+
   /** provides a magnification lens for the view */
   LensSupport magnifyViewSupport;
 
   /** provides a Hyperbolic lens for the model */
   LensSupport hyperbolicLayoutSupport;
+
   /** provides a magnification lens for the model */
   LensSupport magnifyLayoutSupport;
 

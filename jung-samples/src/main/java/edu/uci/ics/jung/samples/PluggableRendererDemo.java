@@ -829,6 +829,7 @@ public class PluggableRendererDemo extends JPanel implements ActionListener {
     protected boolean funny_shapes = false;
     protected Function<N, Double> voltages;
     protected Network<N, E> graph;
+
     //        protected AffineTransform scaleTransform = new AffineTransform();
 
     public NodeShapeSizeAspect(Network<N, E> graphIn, Function<N, Double> voltagesIn) {

@@ -50,6 +50,7 @@ import org.slf4j.LoggerFactory;
 public class ShapePickSupport<N, E> implements NetworkElementAccessor<N, E> {
 
   private static final Logger log = LoggerFactory.getLogger(ShapePickSupport.class);
+
   /**
    * The available picking heuristics:
    *
@@ -396,6 +397,7 @@ public class ShapePickSupport<N, E> implements NetworkElementAccessor<N, E> {
     }
     return visible;
   }
+
   /**
    * use the spatial R tree to find edges inside the passed shape
    *

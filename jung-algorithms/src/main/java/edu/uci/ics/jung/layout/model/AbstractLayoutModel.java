@@ -36,6 +36,7 @@ public abstract class AbstractLayoutModel<N>
   protected int height;
   protected Graph<N> graph;
   protected VisRunnable visRunnable;
+
   /**
    * @value relaxing true is this layout model is being accessed by a running relaxer
    */

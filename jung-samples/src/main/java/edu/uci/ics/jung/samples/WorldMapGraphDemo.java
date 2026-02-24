@@ -223,6 +223,7 @@ public class WorldMapGraphDemo extends JPanel {
     public LatLonPixelTransformer(Dimension d) {
       this.d = d;
     }
+
     /** transform a lat */
     public Point apply(String[] latlon) {
       String[] lat = latlon[0].split(" ");

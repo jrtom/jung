@@ -1,4 +1,5 @@
 package edu.uci.ics.jung.samples;
+
 /*
  * Copyright (c) 2003, The JUNG Authors
  * All rights reserved.

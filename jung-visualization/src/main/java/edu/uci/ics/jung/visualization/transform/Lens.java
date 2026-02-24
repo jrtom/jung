@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 public class Lens {
 
   private static final Logger log = LoggerFactory.getLogger(Lens.class);
+
   /** the area affected by the transform */
   protected RectangularShape lensShape = new Ellipse2D.Float();
 

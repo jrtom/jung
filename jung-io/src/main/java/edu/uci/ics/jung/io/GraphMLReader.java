@@ -61,6 +61,7 @@ public class GraphMLReader<G extends MutableNetwork<N, E>, N, E> extends Default
     NO_TAG,
     NODE,
     EDGE,
+    HYPEREDGE,
     ENDPOINT,
     GRAPH,
     DATA,

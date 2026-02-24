@@ -22,6 +22,7 @@ import javax.swing.event.EventListenerList;
 public class DefaultChangeEventSupport implements ChangeEventSupport {
 
   Object eventSource;
+
   /** holds the registered listeners */
   protected EventListenerList listenerList = new EventListenerList();
 

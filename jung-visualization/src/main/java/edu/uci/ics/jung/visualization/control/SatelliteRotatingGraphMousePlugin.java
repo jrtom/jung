@@ -31,6 +31,7 @@ public class SatelliteRotatingGraphMousePlugin extends RotatingGraphMousePlugin 
   public SatelliteRotatingGraphMousePlugin(int modifiers) {
     super(modifiers);
   }
+
   /**
    * check the modifiers. If accepted, use the mouse drag motion to rotate the graph in the master
    * view

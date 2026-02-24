@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractSpatial<T, NT> implements Spatial<T> {
 
   private static Logger log = LoggerFactory.getLogger(AbstractSpatial.class);
+
   /** should this model actively update itself */
   boolean active = false;
 

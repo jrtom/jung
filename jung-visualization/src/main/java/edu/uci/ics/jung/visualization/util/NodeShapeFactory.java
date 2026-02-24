@@ -90,6 +90,7 @@ public class NodeShapeFactory<N> {
   }
 
   private static final RoundRectangle2D theRoundRectangle = new RoundRectangle2D.Float();
+
   /**
    * Returns a <code>RoundRectangle2D</code> whose width and height are defined by this instance's
    * layoutSize and aspect ratio functions for this node. The arc layoutSize is set to be half the

@@ -88,6 +88,7 @@ public class LensNodeImageShaperDemo extends JPanel {
 
   LensSupport magnifyLayoutSupport;
   LensSupport magnifyViewSupport;
+
   /** create an instance of a simple graph with controls to demo the zoom features. */
   public LensNodeImageShaperDemo() {
 

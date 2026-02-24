@@ -119,6 +119,7 @@ public class NodeList<B extends Bounded> extends ArrayList<B> implements Bounded
       bounds = bounds.createUnion(kid.getBounds());
     }
   }
+
   /** iterate over all children and update the bounds Called after removing from the collection */
   public void recalculateBounds() {
     bounds = null;

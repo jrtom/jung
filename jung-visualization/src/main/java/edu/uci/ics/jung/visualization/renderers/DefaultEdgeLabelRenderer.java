@@ -58,12 +58,14 @@ public class DefaultEdgeLabelRenderer extends JLabel implements EdgeLabelRendere
   public boolean isRotateEdgeLabels() {
     return rotateEdgeLabels;
   }
+
   /**
    * @param rotateEdgeLabels The rotateEdgeLabels to set.
    */
   public void setRotateEdgeLabels(boolean rotateEdgeLabels) {
     this.rotateEdgeLabels = rotateEdgeLabels;
   }
+
   /**
    * Overrides <code>JComponent.setForeground</code> to assign the unselected-foreground color to
    * the specified color.
