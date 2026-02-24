@@ -1,4 +1,14 @@
+plugins {
+    application
+}
+
 description = "Sample programs using JUNG"
+
+val defaultMainClass = "edu.uci.ics.jung.samples.ShowLayouts"
+
+application {
+    mainClass.set(project.findProperty("mainClass") as String? ?: defaultMainClass)
+}
 
 dependencies {
     implementation(project(":jung-api"))
@@ -12,7 +22,6 @@ dependencies {
 
 tasks.jar {
     manifest {
-        attributes("Main-Class" to "edu.uci.ics.jung.samples.NodeImageShaperDemo")
-        attributes("Class-Path" to configurations.runtimeClasspath.get().files.joinToString(" ") { it.name })
+        attributes("Main-Class" to defaultMainClass)
     }
 }

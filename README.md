@@ -9,6 +9,30 @@ extensive built-in capabilities of the Java API, as well as those of other exist
 
 [**JUNG Website**](https://jrtom.github.io/jung/)
 
+### Building
+
+```bash
+./gradlew build -x test
+```
+
+### Running Demos
+
+The `jung-samples` module includes interactive demos. Run the default demo (ShowLayouts) with:
+
+```bash
+./gradlew :jung-samples:run
+```
+
+To run a specific demo, pass the fully qualified class name:
+
+```bash
+./gradlew :jung-samples:run -PmainClass=edu.uci.ics.jung.samples.AddNodeDemo
+```
+
+Available demos include `ShowLayouts`, `AddNodeDemo`, `GraphEditorDemo`, `ShortestPathDemo`, `ClusteringDemo`, `LensDemo`, `SatelliteViewDemo`, `TreeLayoutDemo`, and many more. See `jung-samples/src/main/java/edu/uci/ics/jung/samples/` for the full list.
+
+**Tip:** Many demos start in Transforming mode (drag to pan). Press `p` to switch to Picking mode, which lets you click and drag individual nodes. Press `t` to switch back.
+
 ### Latest Release
 
 The most recent version of JUNG is [version 2.1.1](https://github.com/jrtom/jung/releases/tag/jung-2.1.1), released 7 September 2016.
