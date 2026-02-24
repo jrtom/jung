@@ -74,6 +74,7 @@ public class NodeCollapseDemoWithLayouts extends JPanel {
           + "<p>You can drag the nodes with the mouse."
           + "<p>Use the 'Picking'/'Transforming' combo-box to switch"
           + "<p>between picking and transforming mode.</html>";
+
   /** the graph */
   @SuppressWarnings("rawtypes")
   Network graph;

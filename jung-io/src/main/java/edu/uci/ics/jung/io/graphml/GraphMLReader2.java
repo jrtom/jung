@@ -86,10 +86,7 @@ public class GraphMLReader2<G extends MutableNetwork<N, E>, N, E> implements Gra
     // Create the parser registry.
     this.parserRegistry =
         new ElementParserRegistry<G, N, E>(
-            document.getKeyMap(),
-            graphTransformer,
-            nodeTransformer,
-            edgeTransformer);
+            document.getKeyMap(), graphTransformer, nodeTransformer, edgeTransformer);
   }
 
   /**
@@ -121,10 +118,7 @@ public class GraphMLReader2<G extends MutableNetwork<N, E>, N, E> implements Gra
     // Create the parser registry.
     this.parserRegistry =
         new ElementParserRegistry<G, N, E>(
-            document.getKeyMap(),
-            graphTransformer,
-            nodeTransformer,
-            edgeTransformer);
+            document.getKeyMap(), graphTransformer, nodeTransformer, edgeTransformer);
   }
 
   /**

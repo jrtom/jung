@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 public class DAGLayoutAlgorithm<N> extends SpringLayoutAlgorithm<N> {
 
   private static final Logger log = LoggerFactory.getLogger(DAGLayoutAlgorithm.class);
+
   /**
    * Each node has a minimumLevel. Any node with no successors has minimumLevel of zero. The
    * minimumLevel of any node must be strictly greater than the minimumLevel of its parents. (node A
@@ -44,6 +45,7 @@ public class DAGLayoutAlgorithm<N> extends SpringLayoutAlgorithm<N> {
    * assigned minimumLevel.
    */
   private Map<N, Number> minLevels = new HashMap<N, Number>();
+
   // Simpler than the "pair" technique.
   static int graphHeight;
   static int numRoots;

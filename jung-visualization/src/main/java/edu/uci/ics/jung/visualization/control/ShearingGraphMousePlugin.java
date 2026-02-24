@@ -47,6 +47,7 @@ public class ShearingGraphMousePlugin extends AbstractGraphMousePlugin
       mask = MouseEvent.META_MASK;
     }
   }
+
   /** create an instance with default modifier values */
   public ShearingGraphMousePlugin() {
     this(MouseEvent.BUTTON1_MASK | mask);

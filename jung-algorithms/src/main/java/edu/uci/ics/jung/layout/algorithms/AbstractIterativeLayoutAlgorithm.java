@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractIterativeLayoutAlgorithm<N> implements IterativeLayoutAlgorithm<N> {
 
   private static final Logger log = LoggerFactory.getLogger(AbstractIterativeLayoutAlgorithm.class);
+
   /**
    * because the IterativeLayoutAlgorithms use multithreading to continuously update node positions,
    * the layoutModel state is saved (during the visit method) so that it can be used continuously

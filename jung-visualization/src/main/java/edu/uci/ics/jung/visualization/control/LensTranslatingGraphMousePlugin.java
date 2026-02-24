@@ -36,6 +36,7 @@ public class LensTranslatingGraphMousePlugin extends TranslatingGraphMousePlugin
   protected boolean dragOnLens;
   protected boolean dragOnEdge;
   protected double edgeOffset;
+
   /** create an instance with default modifiers */
   public LensTranslatingGraphMousePlugin() {
     this(MouseEvent.BUTTON1_MASK);

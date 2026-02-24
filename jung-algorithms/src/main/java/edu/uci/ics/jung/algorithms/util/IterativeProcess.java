@@ -36,10 +36,13 @@ import com.google.common.base.Preconditions;
 public abstract class IterativeProcess implements IterativeContext {
   /** Number of iterations performed. */
   private int iterations;
+
   /** Maximum allowed number of iterations. */
   private int maximumIterations = 50;
+
   /** Desired precision. */
   private double desiredPrecision = Double.MIN_VALUE;
+
   /** Achieved precision. */
   private double precision;
 

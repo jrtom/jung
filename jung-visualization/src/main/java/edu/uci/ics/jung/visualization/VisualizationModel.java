@@ -26,6 +26,7 @@ public interface VisualizationModel<N, E> extends LayoutEventSupport<N>, ChangeE
     GRID,
     NONE
   }
+
   /**
    * @return the current layoutSize of the visualization's space
    */

@@ -4,10 +4,9 @@
 *~
 *.bak
 
-# Maven
-target/
-*.ser
-*.ec
+# Gradle
+build/
+.gradle/
 
 # IntelliJ Idea
 .idea/

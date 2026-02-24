@@ -279,6 +279,7 @@ public class NodeImageShaperDemo extends JPanel {
       }
     }
   }
+
   /**
    * A simple implementation of Function that gets Node labels from a Map
    *
@@ -363,6 +364,7 @@ public class NodeImageShaperDemo extends JPanel {
     public boolean isFillImages() {
       return fillImages;
     }
+
     /**
      * @param fillImages The fillImages to set.
      */
@@ -405,6 +407,7 @@ public class NodeImageShaperDemo extends JPanel {
     public boolean isShapeImages() {
       return shapeImages;
     }
+
     /**
      * @param shapeImages The shapeImages to set.
      */

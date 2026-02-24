@@ -64,5 +64,5 @@ public class ParserContext<G extends MutableNetwork<N, E>, N, E> {
 
   public E createEdge(EdgeMetadata metadata) {
     return edgeTransformer.apply(metadata);
-	}
+  }
 }

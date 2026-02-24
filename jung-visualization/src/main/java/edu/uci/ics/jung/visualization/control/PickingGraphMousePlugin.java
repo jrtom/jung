@@ -43,6 +43,7 @@ public class PickingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
     implements MouseListener, MouseMotionListener {
 
   private static final Logger log = LoggerFactory.getLogger(PickingGraphMousePlugin.class);
+
   /** the picked Node, if any */
   protected N node;
 
@@ -57,6 +58,7 @@ public class PickingGraphMousePlugin<N, E> extends AbstractGraphMousePlugin
 
   /** used to draw a rectangle to contain picked nodes */
   protected Rectangle2D viewRectangle = new Rectangle2D.Float();
+
   // viewRectangle projected onto the layout coordinate system
   protected Shape layoutTargetShape = viewRectangle;
 

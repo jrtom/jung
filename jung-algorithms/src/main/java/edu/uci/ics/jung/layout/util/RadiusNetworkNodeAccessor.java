@@ -30,6 +30,7 @@ public class RadiusNetworkNodeAccessor<N> implements NetworkNodeAccessor<N> {
 
   private static final Logger log = LoggerFactory.getLogger(RadiusNetworkNodeAccessor.class);
   protected double maxDistance;
+
   /** Creates an instance with an effectively infinite default maximum distance. */
   public RadiusNetworkNodeAccessor() {
     this(Math.sqrt(Double.MAX_VALUE - 1000));

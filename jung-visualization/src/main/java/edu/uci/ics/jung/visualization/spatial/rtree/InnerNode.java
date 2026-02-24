@@ -352,6 +352,7 @@ public class InnerNode<T> extends RTreeNode<T> implements Node<T> {
     }
     return top;
   }
+
   /**
    * adding either a LeafNode or an InnerNode
    *
@@ -420,6 +421,7 @@ public class InnerNode<T> extends RTreeNode<T> implements Node<T> {
     }
     return count;
   }
+
   // to string methods:
 
   private String asString() {

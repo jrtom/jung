@@ -51,6 +51,7 @@ public class SpatialGrid<N> extends AbstractSpatial<N, N> implements Spatial<N>,
 
   /** the width of a grid cell */
   private double boxWidth;
+
   /** the height of a grid cell */
   private double boxHeight;
 
@@ -379,6 +380,7 @@ public class SpatialGrid<N> extends AbstractSpatial<N, N> implements Spatial<N>,
 
     return null;
   }
+
   /**
    * given a rectangular area and an offset, return the tile numbers that are contained in it
    *

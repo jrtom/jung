@@ -16,6 +16,7 @@ public class Context<G, E> {
     this.graph = graph;
     this.element = element;
   }
+
   /**
    * Returns an instance of this type for the specified graph and element.
    *

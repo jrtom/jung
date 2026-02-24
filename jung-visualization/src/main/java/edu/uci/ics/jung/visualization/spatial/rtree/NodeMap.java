@@ -72,6 +72,7 @@ public class NodeMap<N> extends HashMap<N, Rectangle2D> implements BoundedMap<N>
       bounds = bounds.createUnion(r);
     }
   }
+
   /** iterate over all children and update the bounds Called after removing from the collection */
   public void recalculateBounds() {
     bounds = null;

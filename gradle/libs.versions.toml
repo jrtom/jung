@@ -1,0 +1,20 @@
+[versions]
+guava = "32.0.0-jre"
+junit = "4.13.1"
+truth = "1.4.2"
+slf4j = "1.7.25"
+logback = "1.5.25"
+google-java-format = "1.19.2"
+spotless = "6.25.0"
+
+[libraries]
+guava = { module = "com.google.guava:guava", version.ref = "guava" }
+guava-testlib = { module = "com.google.guava:guava-testlib", version.ref = "guava" }
+junit = { module = "junit:junit", version.ref = "junit" }
+truth = { module = "com.google.truth:truth", version.ref = "truth" }
+slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
+logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
+logback-core = { module = "ch.qos.logback:logback-core", version.ref = "logback" }
+
+[plugins]
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }

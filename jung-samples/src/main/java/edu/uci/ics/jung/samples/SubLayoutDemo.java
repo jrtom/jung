@@ -67,6 +67,7 @@ public class SubLayoutDemo extends JPanel {
           + "<p>You can drag the cluster with the mouse."
           + "<p>Use the 'Picking'/'Transforming' combo-box to switch"
           + "<p>between picking and transforming mode.</html>";
+
   /** the graph */
   Network<String, Number> graph;
 
@@ -78,6 +79,7 @@ public class SubLayoutDemo extends JPanel {
         FRLayoutAlgorithm.class,
         KKLayoutAlgorithm.class
       };
+
   /** the visual component and renderer for the graph */
   VisualizationViewer<String, Number> vv;
 

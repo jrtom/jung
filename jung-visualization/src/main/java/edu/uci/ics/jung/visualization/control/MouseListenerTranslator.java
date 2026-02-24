@@ -58,6 +58,7 @@ public class MouseListenerTranslator<N, E> extends MouseAdapter {
     }
     return v;
   }
+
   /**
    * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
    */

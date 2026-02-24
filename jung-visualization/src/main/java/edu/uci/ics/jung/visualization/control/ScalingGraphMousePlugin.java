@@ -29,6 +29,7 @@ public class ScalingGraphMousePlugin extends AbstractGraphMousePlugin
 
   /** the amount to zoom in by */
   protected float in = 1.1f;
+
   /** the amount to zoom out by */
   protected float out = 1 / 1.1f;
 
@@ -48,6 +49,7 @@ public class ScalingGraphMousePlugin extends AbstractGraphMousePlugin
     this.in = in;
     this.out = out;
   }
+
   /**
    * @param zoomAtMouse The zoomAtMouse to set.
    */
@@ -84,24 +86,28 @@ public class ScalingGraphMousePlugin extends AbstractGraphMousePlugin
       vv.repaint();
     }
   }
+
   /**
    * @return Returns the zoom in value.
    */
   public float getIn() {
     return in;
   }
+
   /**
    * @param in The zoom in value to set.
    */
   public void setIn(float in) {
     this.in = in;
   }
+
   /**
    * @return Returns the zoom out value.
    */
   public float getOut() {
     return out;
   }
+
   /**
    * @param out The zoom out value to set.
    */

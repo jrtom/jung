@@ -35,6 +35,7 @@ public class FourPassImageShaper {
     area.intersect(new Area(topEdge(image)));
     return area;
   }
+
   /**
    * Checks to see if point p is on a line that passes thru points p1 and p2. If p is on the line,
    * extend the line segment so that it is from p1 to the location of p. If the point p is not on
@@ -66,6 +67,7 @@ public class FourPassImageShaper {
     }
     return p2;
   }
+
   /**
    * trace the left side of the image
    *

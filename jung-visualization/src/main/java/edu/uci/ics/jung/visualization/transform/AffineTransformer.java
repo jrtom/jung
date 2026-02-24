@@ -53,6 +53,7 @@ public class AffineTransformer implements BidirectionalTransformer, ShapeTransfo
   public AffineTransform getTransform() {
     return transform;
   }
+
   /**
    * @param transform The transform to set.
    */

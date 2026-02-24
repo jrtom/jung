@@ -231,6 +231,7 @@ public class BasicNodeLabelRenderer<N, E> implements Renderer.NodeLabel<N, E> {
       return Position.NW;
     }
   }
+
   /**
    * @return the positioner
    */
