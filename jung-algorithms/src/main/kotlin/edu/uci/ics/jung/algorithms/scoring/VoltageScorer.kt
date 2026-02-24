@@ -1,0 +1,233 @@
+/*
+ * Created on Jul 15, 2007
+ *
+ * Copyright (c) 2007, The JUNG Authors
+ *
+ * All rights reserved.
+ *
+ * This software is open-source under the BSD license; see either
+ * "license.txt" or
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
+ */
+package edu.uci.ics.jung.algorithms.scoring
+
+import com.google.common.base.Preconditions
+import com.google.common.collect.ImmutableMap
+import com.google.common.collect.ImmutableSet
+import com.google.common.collect.Sets
+import com.google.common.graph.Network
+import edu.uci.ics.jung.algorithms.scoring.util.UniformDegreeWeight
+import java.util.HashMap
+import java.util.function.Function
+
+/**
+ * Assigns scores to nodes according to their 'voltage' in an approximate solution to the Kirchoff
+ * equations. This is accomplished by tying "source" nodes to specified positive voltages, "sink"
+ * nodes to 0 N, and iteratively updating the voltage of each other node to the (weighted) average
+ * of the voltages of its neighbors.
+ *
+ * The resultant voltages will all be in the range `[0, max]` where `max`
+ * is the largest voltage of any source node (in the absence of negative source voltages; see
+ * below).
+ *
+ * A few notes about this algorithm's interpretation of the graph data:
+ *
+ * - Higher edge weights are interpreted as indicative of greater influence/effect than lower
+ *   edge weights.
+ * - Negative edge weights (and negative "source" voltages) invalidate the interpretation of the
+ *   resultant values as voltages. However, this algorithm will not reject graphs with negative
+ *   edge weights or source voltages.
+ * - Parallel edges are equivalent to a single edge whose weight is the sum of the weights on
+ *   the parallel edges.
+ * - Current flows along undirected edges in both directions, but only flows along directed
+ *   edges in the direction of the edge.
+ */
+class VoltageScorer<N : Any, E : Any> : AbstractIterativeScorer<N, E, Double>,
+  NodeScorer<N, Double> {
+
+  protected var source_voltages: Map<N, out Number>
+  protected var sinks: Set<N>
+
+  /**
+   * Creates an instance with the specified graph, edge weights, source voltages, and sinks.
+   *
+   * @param g the input graph
+   * @param edge_weights the edge weights, representing conductivity
+   * @param source_voltages the (fixed) voltage for each source
+   * @param sinks the nodes whose voltages are tied to 0
+   */
+  constructor(
+    g: Network<N, E>,
+    edge_weights: Function<in E, out Number>,
+    source_voltages: Map<N, out Number>,
+    sinks: Set<N>
+  ) : super(g, edge_weights) {
+    this.source_voltages = source_voltages
+    this.sinks = sinks
+    initialize()
+  }
+
+  /**
+   * Creates an instance with the specified graph, edge weights, source nodes (each of whose
+   * 'voltages' are tied to 1), and sinks.
+   *
+   * @param g the input graph
+   * @param edge_weights the edge weights, representing conductivity
+   * @param sources the nodes whose voltages are tied to 1
+   * @param sinks the nodes whose voltages are tied to 0
+   */
+  constructor(
+    g: Network<N, E>,
+    edge_weights: Function<in E, out Number>,
+    sources: Set<N>,
+    sinks: Set<N>
+  ) : super(g, edge_weights) {
+    val unit_voltages = HashMap<N, Double>()
+    for (v in sources) {
+      unit_voltages[v] = 1.0
+    }
+    this.source_voltages = unit_voltages
+    this.sinks = sinks
+    initialize()
+  }
+
+  /**
+   * Creates an instance with the specified graph, source nodes (each of whose 'voltages' are tied
+   * to 1), and sinks. The outgoing edges for each node are assigned weights that sum to 1.
+   *
+   * @param g the input graph
+   * @param sources the nodes whose voltages are tied to 1
+   * @param sinks the nodes whose voltages are tied to 0
+   */
+  constructor(g: Network<N, E>, sources: Set<N>, sinks: Set<N>) : super(g) {
+    val unit_voltages = HashMap<N, Double>()
+    for (v in sources) {
+      unit_voltages[v] = 1.0
+    }
+    this.source_voltages = unit_voltages
+    this.sinks = sinks
+    initialize()
+  }
+
+  /**
+   * Creates an instance with the specified graph, source voltages, and sinks. The outgoing edges
+   * for each node are assigned weights that sum to 1.
+   *
+   * @param g the input graph
+   * @param source_voltages the (fixed) voltage for each source
+   * @param sinks the nodes whose voltages are tied to 0
+   */
+  constructor(g: Network<N, E>, source_voltages: Map<N, out Number>, sinks: Set<N>) : super(g) {
+    this.source_voltages = source_voltages
+    this.sinks = sinks
+    this.edge_weights = UniformDegreeWeight(g)
+    initialize()
+  }
+
+  /**
+   * Creates an instance with the specified graph, edge weights, source, and sink. The source node
+   * voltage is tied to 1.
+   *
+   * @param g the input graph
+   * @param edge_weights the edge weights, representing conductivity
+   * @param source the node whose voltage is tied to 1
+   * @param sink the node whose voltage is tied to 0
+   */
+  constructor(
+    g: Network<N, E>,
+    edge_weights: Function<in E, out Number>,
+    source: N,
+    sink: N
+  ) : this(g, edge_weights, ImmutableMap.of(source, 1.0), ImmutableSet.of(sink)) {
+    initialize()
+  }
+
+  /**
+   * Creates an instance with the specified graph, edge weights, source, and sink. The source node
+   * voltage is tied to 1. The outgoing edges for each node are assigned weights that sum to 1.
+   *
+   * @param g the input graph
+   * @param source the node whose voltage is tied to 1
+   * @param sink the node whose voltage is tied to 0
+   */
+  constructor(g: Network<N, E>, source: N, sink: N)
+      : this(g, ImmutableMap.of(source, 1.0), ImmutableSet.of(sink)) {
+    initialize()
+  }
+
+  /** Initializes the state of this instance. */
+  override fun initialize() {
+    super.initialize()
+
+    // sanity check
+    Preconditions.checkArgument(source_voltages.isNotEmpty(), "Source voltages must be non-empty")
+    Preconditions.checkArgument(sinks.isNotEmpty(), "Sinks must be non-empty")
+
+    Preconditions.checkArgument(
+      Sets.intersection(source_voltages.keys, sinks).isEmpty(),
+      "Sources and sinks must be disjoint"
+    )
+    Preconditions.checkArgument(
+      graph.nodes().containsAll(source_voltages.keys),
+      "Sources must all be elements of the graph"
+    )
+    Preconditions.checkArgument(
+      graph.nodes().containsAll(sinks), "Sinks must all be elements of the graph"
+    )
+
+    for ((v, number) in source_voltages) {
+      Preconditions.checkArgument(
+        !sinks.contains(v), "Node $v is incorrectly specified as both source and sink"
+      )
+      val value = number.toDouble()
+      Preconditions.checkArgument(
+        value > 0, "Source node $v has non-positive voltage $value"
+      )
+    }
+
+    // set up initial voltages
+    for (v in graph.nodes()) {
+      if (source_voltages.containsKey(v)) {
+        setOutputValue(v, source_voltages[v]!!.toDouble())
+      } else {
+        setOutputValue(v, 0.0)
+      }
+    }
+  }
+
+  /**
+   * @see edu.uci.ics.jung.algorithms.scoring.AbstractIterativeScorer.update
+   */
+  override fun update(v: N): Double {
+    // if it's a voltage source or sink, we're done
+    val source_volts = source_voltages[v]
+    if (source_volts != null) {
+      setOutputValue(v, source_volts.toDouble())
+      return 0.0
+    }
+    if (sinks.contains(v)) {
+      setOutputValue(v, 0.0)
+      return 0.0
+    }
+
+    var voltage_sum = 0.0
+    var weight_sum = 0.0
+    for (u in graph.predecessors(v)) {
+      for (e in graph.edgesConnecting(u, v)) {
+        val weight = getEdgeWeight(u, e).toDouble()
+        voltage_sum += getCurrentValue(u) * weight
+        weight_sum += weight
+      }
+    }
+
+    // if either is 0, new value is 0
+    if (voltage_sum == 0.0 || weight_sum == 0.0) {
+      setOutputValue(v, 0.0)
+      return getCurrentValue(v)
+    }
+
+    val outputValue = voltage_sum / weight_sum
+    setOutputValue(v, outputValue)
+    return Math.abs(getCurrentValue(v) - outputValue)
+  }
+}

@@ -1,0 +1,20 @@
+/*
+ * Copyright (c) 2003, The JUNG Authors
+ *
+ * All rights reserved.
+ *
+ * This software is open-source under the BSD license; see either
+ * "license.txt" or
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
+ */
+package edu.uci.ics.jung.visualization.picking
+
+/**
+ * An interface for classes that return information regarding whether a given graph element (node or
+ * edge) has been selected.
+ *
+ * @author danyelf
+ */
+interface PickedInfo<T> {
+    fun isPicked(t: T): Boolean
+}

@@ -1,0 +1,161 @@
+package edu.uci.ics.jung.layout.spatial
+
+import com.google.common.collect.Maps
+import com.google.common.graph.GraphBuilder
+import com.google.common.graph.MutableGraph
+import edu.uci.ics.jung.layout.algorithms.FRBHIteratorLayoutAlgorithm
+import edu.uci.ics.jung.layout.algorithms.FRBHVisitorLayoutAlgorithm
+import edu.uci.ics.jung.layout.algorithms.FRLayoutAlgorithm
+import edu.uci.ics.jung.layout.algorithms.IterativeLayoutAlgorithm
+import edu.uci.ics.jung.layout.algorithms.LayoutAlgorithm
+import edu.uci.ics.jung.layout.model.LayoutModel
+import edu.uci.ics.jung.layout.model.LoadingCacheLayoutModel
+import edu.uci.ics.jung.layout.model.Point
+import org.junit.AfterClass
+import org.junit.Assert
+import org.junit.Before
+import org.junit.Test
+import org.slf4j.LoggerFactory
+
+/**
+ * This test makes a very small graph, sets initial locations for each node, and each time, it runs
+ * a version of FRLayout.
+ *
+ *  * FRLayoutAlgorithm - the JUNG legacy version
+ *  * FRBHLayoutAlgorithm - modified to use a BarnesHutQuadTree to reduce the number of repulsion
+ *    comparisons with a custom Iterator
+ *  * FRBHVisitorLayoutAlgorithm - modified to use the BarnesHutQuadTree as a visitor during the
+ *    repulsion step.
+ *
+ * The LayoutModel is subclassed so that no relax thread is started. A total of 200 steps of the
+ * layout relax is run. After all tests are run, the end values for both BarnesHut versions are
+ * compared. The end values should be very close. The standard FRLayoutAlgorithm will vary because
+ * force comparisons are approximated in the BarnesHut versions
+ *
+ * The Iterator version of BarnesHut uses storage space to cache collections of 'nodes' (or force
+ * vectors) to compare with. The Visitor version does not use that additional storage space, so it
+ * should be better.
+ *
+ * @author Tom Nelson
+ */
+class FRLayoutsTest {
+
+  private lateinit var graph: MutableGraph<String>
+  private lateinit var layoutModel: LayoutModel<String>
+
+  /**
+   * this runs again before each test. Build a simple graph, build a custom layout model (see below)
+   * initialize the locations to be the same each time.
+   */
+  @Before
+  fun setup() {
+    graph = GraphBuilder.directed().build()
+    graph.putEdge("A", "B")
+    graph.putEdge("B", "C")
+    graph.putEdge("C", "A")
+    graph.putEdge("D", "C")
+
+    layoutModel =
+      TestLayoutModel(
+        LoadingCacheLayoutModel.builder<String>().setGraph(graph).setSize(500, 500), 200
+      )
+    layoutModel.set("A", Point.of(200.0, 100.0))
+    layoutModel.set("B", Point.of(100.0, 200.0))
+    layoutModel.set("C", Point.of(100.0, 100.0))
+    layoutModel.set("D", Point.of(500.0, 100.0))
+    for (node in graph.nodes()) {
+      log.debug("node {} starts at {}", node, layoutModel.apply(node))
+    }
+  }
+
+  @Test
+  fun testFRLayouts() {
+    val layoutAlgorithmOne = FRLayoutAlgorithm<String>()
+    // using the same random seed each time for repeatable results from each test.
+    layoutAlgorithmOne.setRandomSeed(0)
+    doTest(layoutAlgorithmOne, mapOne)
+  }
+
+  @Test
+  fun testFRBH() {
+    val layoutAlgorithmTwo = FRBHIteratorLayoutAlgorithm<String>()
+    // using the same random seed each time for repeatable results from each test.
+    layoutAlgorithmTwo.setRandomSeed(0)
+    doTest(layoutAlgorithmTwo, mapTwo)
+  }
+
+  @Test
+  fun testFRBHVisitor() {
+    val layoutAlgorithmThree = FRBHVisitorLayoutAlgorithm<String>()
+    // using the same random seed each time for repeatable results from each test.
+    layoutAlgorithmThree.setRandomSeed(0)
+    doTest(layoutAlgorithmThree, mapThree)
+  }
+
+  private fun doTest(layoutAlgorithm: LayoutAlgorithm<String>, map: MutableMap<String, Point>) {
+    log.debug("for {}", layoutAlgorithm.javaClass)
+    layoutModel.accept(layoutAlgorithm)
+    for (node in graph.nodes()) {
+      map[node] = layoutModel.apply(node)
+      log.debug("node {} placed at {}", node, layoutModel.apply(node))
+    }
+  }
+
+  /**
+   * a LoadingCacheLayoutModel that will not start a relax thread, but will 'step' the layout the
+   * number of times requested in a passed parameter
+   */
+  private class TestLayoutModel<T : Any>(
+    builder: Builder<T, *>,
+    private val steps: Int
+  ) : LoadingCacheLayoutModel<T>(builder) {
+
+    override fun accept(layoutAlgorithm: LayoutAlgorithm<T>) {
+      layoutAlgorithm.visit(this)
+      if (layoutAlgorithm is IterativeLayoutAlgorithm<*>) {
+        @Suppress("UNCHECKED_CAST")
+        val iterativeLayoutAlgorithm = layoutAlgorithm as IterativeLayoutAlgorithm<T>
+        for (i in 0 until steps) {
+          iterativeLayoutAlgorithm.step()
+        }
+      }
+    }
+  }
+
+  companion object {
+    private val log = LoggerFactory.getLogger(FRLayoutsTest::class.java)
+    val mapOne: MutableMap<String, Point> = Maps.newHashMap()
+    val mapTwo: MutableMap<String, Point> = Maps.newHashMap()
+    val mapThree: MutableMap<String, Point> = Maps.newHashMap()
+
+    /**
+     * check to see if mapTwo and mapThree (the ones that used the BarnesHut optimization) returned
+     * similar results
+     */
+    @AfterClass
+    @JvmStatic
+    fun check() {
+      log.debug("mapOne:{}", mapOne)
+      log.debug("mapTwo:{}", mapTwo)
+      log.debug("mapThree:{}", mapThree)
+
+      Assert.assertTrue(
+        "the compared maps are not close enough: mapTwo:$mapTwo, mapThree:$mapThree",
+        closeEnough(mapTwo, mapThree)
+      )
+    }
+
+    private fun closeEnough(left: Map<String, Point>, right: Map<String, Point>): Boolean {
+      if (left.keys == right.keys) {
+        for (key in left.keys) {
+          val leftPoint = left[key]!!
+          val rightPoint = right[key]!!
+          if (Math.abs(leftPoint.x - rightPoint.x) > 0.001) return false
+          if (Math.abs(leftPoint.y - rightPoint.y) > 0.001) return false
+        }
+        return true
+      }
+      return false
+    }
+  }
+}

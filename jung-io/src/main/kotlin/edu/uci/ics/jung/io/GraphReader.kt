@@ -1,0 +1,39 @@
+/*
+ * Copyright (c) 2008, The JUNG Authors
+ *
+ * All rights reserved.
+ *
+ * This software is open-source under the BSD license; see either
+ * "license.txt" or
+ * https://github.com/jrtom/jung/blob/master/LICENSE for a description.
+ */
+package edu.uci.ics.jung.io
+
+import com.google.common.graph.MutableNetwork
+
+/**
+ * Interface for a reader of graph objects
+ *
+ * @author Nathan Mittler - nathan.mittler@gmail.com
+ * @param G the graph type
+ * @param N the node type
+ * @param E the edge type
+ */
+interface GraphReader<G : MutableNetwork<N, E>, N, E> {
+  /**
+   * Reads a single graph object, if one is available.
+   *
+   * @return the next graph object, or null if none exists.
+   * @throws GraphIOException thrown if an error occurred.
+   */
+  @Throws(GraphIOException::class)
+  fun readGraph(): G?
+
+  /**
+   * Closes this resource and frees any resources.
+   *
+   * @throws GraphIOException thrown if an error occurred.
+   */
+  @Throws(GraphIOException::class)
+  fun close()
+}
