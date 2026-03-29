@@ -19,12 +19,13 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    # JDK 9 needed for Set.of(); we may also check against other Java versions later.
     steps:
     - uses: actions/checkout@v4
-    - name: Set up JDK 8
+    - name: Set up JDK 9
       uses: actions/setup-java@v4
       with:
-        java-version: '8'
+        java-version: '9'
         distribution: 'temurin'
         cache: maven
     - name: Build with Maven
