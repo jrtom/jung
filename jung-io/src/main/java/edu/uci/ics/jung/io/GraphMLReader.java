@@ -61,7 +61,7 @@ public class GraphMLReader<G extends MutableNetwork<N, E>, N, E> extends Default
     NO_TAG,
     NODE,
     EDGE,
-		HYPEREDGE,
+    HYPEREDGE,
     ENDPOINT,
     GRAPH,
     DATA,
@@ -128,7 +128,7 @@ public class GraphMLReader<G extends MutableNetwork<N, E>, N, E> extends Default
     tag_state = HashBiMap.<String, TagState>create();
     tag_state.put("node", TagState.NODE);
     tag_state.put("edge", TagState.EDGE);
-		tag_state.put("hyperedge", TagState.HYPEREDGE);
+    tag_state.put("hyperedge", TagState.HYPEREDGE);
     tag_state.put("endpoint", TagState.ENDPOINT);
     tag_state.put("graph", TagState.GRAPH);
     tag_state.put("data", TagState.DATA);

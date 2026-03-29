@@ -75,10 +75,8 @@ public class DistanceStatistics {
    * @param <E> the edge type
    * @return a map from each node to the mean distance to each other (reachable) node
    */
-  public static <N> Function<N, Double> averageDistances(Graph<N> g) {
-    final ClosenessCentrality<N, E> cc =
-        new ClosenessCentrality<N, E>(g, new UnweightedShortestPath<N>(g));
-    return new NodeScoreTransformer<N, Double>(cc);
+  public static <N, E> Function<N, Double> averageDistances(Graph<N> g) {
+    return new NodeScoreTransformer<N, Double>(new ClosenessCentrality<N, E>(g));
   }
 
   /**
