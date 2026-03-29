@@ -103,17 +103,17 @@ public class FoldingTransformer<N, E> {
    * @throws IllegalArgumentException if {@code graph} does not contain all of {@code nodes}
    */
   // TODO: consider renaming this
-  public static <N> MutableValueGraph<N, Set<N>> foldToValueGraph(Graph<N> g, Set<N> nodes) {
+  public static <N> MutableValueGraph<N, Set<N>> foldToValueGraph(Graph<N> graph, Set<N> nodes) {
     Preconditions.checkArgument(
-        g.nodes().containsAll(nodes), "Input graph must contain all specified nodes");
+        graph.nodes().containsAll(nodes), "Input graph must contain all specified nodes");
     ValueGraphBuilder<Object, Object> builder =
-        g.isDirected() ? ValueGraphBuilder.directed() : ValueGraphBuilder.undirected();
+        graph.isDirected() ? ValueGraphBuilder.directed() : ValueGraphBuilder.undirected();
     MutableValueGraph<N, Set<N>> newGraph =
-        builder.expectedNodeCount(nodes.size()).nodeOrder(g.nodeOrder()).build();
+        builder.expectedNodeCount(nodes.size()).nodeOrder(graph.nodeOrder()).build();
 
     for (N node : nodes) {
-      for (N s : g.successors(node)) {
-        for (N t : g.successors(s)) {
+      for (N s : graph.successors(node)) {
+        for (N t : graph.successors(s)) {
           if (!nodes.contains(t) || t.equals(node)) {
             continue;
           }

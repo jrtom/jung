@@ -70,9 +70,8 @@ public class DistanceStatistics {
    *
    * @see #diameter(Graph)
    * @see edu.uci.ics.jung.algorithms.scoring.ClosenessCentrality
-   * @param g the graph for which distances are to be calculated
+   * @param graph the graph for which distances are to be calculated
    * @param <N> the node type
-   * @param <E> the edge type
    * @return a map from each node to the mean distance to each other (reachable) node
    */
   public static <N, E> Function<N, Double> averageDistances(Graph<N> g) {
