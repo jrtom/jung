@@ -74,8 +74,8 @@ public class DistanceStatistics {
    * @param <N> the node type
    * @return a map from each node to the mean distance to each other (reachable) node
    */
-  public static <N, E> Function<N, Double> averageDistances(Graph<N> graph) {
-    return new NodeScoreTransformer<N, Double>(new ClosenessCentrality<N, E>(graph));
+  public static <N, E> Function<N, Double> averageDistances(Graph<N> g) {
+    return new NodeScoreTransformer<N, Double>(new ClosenessCentrality<N, E>(g));
   }
 
   /**
