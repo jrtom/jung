@@ -19,13 +19,14 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    # JDK 9 needed for Set.of(); we may also check against other Java versions later.
+    # JDK 9 needed for Set.of(); JDK 11 used because it has LTS (long-term support).
+		# We may also check against other Java versions later.
     steps:
     - uses: actions/checkout@v4
-    - name: Set up JDK 9
+    - name: Set up JDK 11
       uses: actions/setup-java@v4
       with:
-        java-version: '9'
+        java-version: '11'
         distribution: 'temurin'
         cache: maven
     - name: Build with Maven
