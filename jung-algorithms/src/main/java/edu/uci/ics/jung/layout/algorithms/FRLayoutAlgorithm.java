@@ -189,10 +189,11 @@ public class FRLayoutAlgorithm<N> extends AbstractIterativeLayoutAlgorithm<N>
       positionX = layoutModel.getWidth() - borderWidth - random.nextDouble() * borderWidth * 2.0;
     }
 
-    if (positionY < borderWidth) {
-      positionY = borderWidth + random.nextDouble() * borderWidth * 2.0;
-    } else if (positionY > layoutModel.getWidth() - borderWidth * 2) {
-      positionY = layoutModel.getWidth() - borderWidth - random.nextDouble() * borderWidth * 2.0;
+    double borderHeight = layoutModel.getHeight() / 50.0;
+    if (positionY < borderHeight) {
+      positionY = borderHeight + random.nextDouble() * borderHeight * 2.0;
+    } else if (positionY > layoutModel.getHeight() - borderHeight * 2) {
+      positionY = layoutModel.getHeight() - borderHeight - random.nextDouble() * borderHeight * 2.0;
     }
 
     layoutModel.set(node, positionX, positionY);
