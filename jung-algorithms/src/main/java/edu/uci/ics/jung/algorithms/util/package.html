@@ -5,7 +5,7 @@
 
   @(#)package.html
 
- Copyright (c) 2003-2015 The JUNG Authors. 
+ Copyright (c) 2003-2026 The JUNG Authors. 
  All Rights Reserved. 
  
  License text: https://github.com/jrtom/jung/blob/master/LICENSE
@@ -13,16 +13,19 @@
 </head>
 <body>
 
-Provides general algorithmic utilities.  These include:
+General-purpose (non-graph-specific) algorithmic utilities.  These include:
 <ul>
-<li><code>KMeansClusterer</code>: uses the k-means algorithm to cluster 
-points in d-dimensional space into k clusters 
-<li><code>MapBinaryHeap</code>: a binary heap implementation that permits
-efficient element access and update operations
-<li><code>RandomLocationTransformer</code>: a class that randomly assigns
-2D coordinates to items (default initializer for iterative Layouts)
-<li><code>SettableTransformer</code>: an extension of <code>Transformer</code>
-that allows mutation of the transformation
+  <li><code>IterativeContext</code> and <code>Iterative Process</code>: scaffolding
+    for algorithms that iterate until they converge, or until a maximum number of
+    iterations is reached
+  <li><code>KMeansClusterer</code>: uses the k-means algorithm to cluster 
+    points in d-dimensional space into k clusters
+  <li><code>MapBinaryHeap</code>: a binary heap implementation that permits
+    efficient element access and update operations
+  <li><code>SettableTransformer</code>: an extension of <code>Function</code>
+    that allows mutation of the transformation
+  <li><code>WeightedChoice</code>: an implementation of a non-uniform random
+    item selector with user-specified weights
 </ul>
 
 </body>
