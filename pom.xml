@@ -81,6 +81,7 @@
     <source.plugin.version>3.0.1</source.plugin.version>
     <spotless.plugin.version>2.29.0</spotless.plugin.version>
     <surefire.plugin.version>2.19.1</surefire.plugin.version>
+    <maven.jar.plugin.version>3.5.0</maven.jar.plugin.version>
   </properties>
   <developers>
     <developer>
@@ -171,6 +172,11 @@
             <useReleaseProfile>false</useReleaseProfile>
             <arguments>${arguments} -Psonatype-oss-release</arguments>
           </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-jar-plugin</artifactId>
+          <version>${maven.jar.plugin.version}</version>
         </plugin>
       </plugins>
     </pluginManagement>
