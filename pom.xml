@@ -63,6 +63,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <maven.compiler.release>11</maven.compiler.release>
     <java.version>11</java.version>
 
     <junit.version>4.13.1</junit.version>
@@ -220,12 +221,12 @@
         <!-- generates aggregated javadoc for root project -->
         <artifactId>maven-javadoc-plugin</artifactId>
         <version>${javadoc.plugin.version}</version>
-        <configuration>
+<!--        <configuration>
           <aggregate>true</aggregate>
           <links>
             <link>http://docs.oracle.com/javase/8/docs/api/</link>
           </links>
-        </configuration>
+        </configuration> -->
       </plugin>
       <plugin>
         <artifactId>maven-surefire-report-plugin</artifactId>
