@@ -45,7 +45,7 @@ public class Metrics {
     for (N v : graph.nodes()) {
       int n = graph.degree(v);
       if (n < 2) {
-        coefficients.put(v, new Double(0));
+        coefficients.put(v, Double.valueOf(0));
       } else {
         int edgeCount = 0;
         for (N w : difference(graph.adjacentNodes(v), Set.of(v))) {
@@ -56,7 +56,7 @@ public class Metrics {
           }
         }
         double possible_edges = (n * (n - 1)) / 2.0;
-        coefficients.put(v, new Double(edgeCount / possible_edges));
+        coefficients.put(v, Double.valueOf(edgeCount / possible_edges));
       }
     }
 
@@ -67,6 +67,7 @@ public class Metrics {
    * Returns an instance of {@code StructuralHoles} with the specified edge weight {@code
    * BiFunction}.
    */
+  @SuppressWarnings("deprecation")
   public static <N> StructuralHoles<N> structuralHoles(
       Graph<N> graph, BiFunction<N, N, ? extends Number> edgeWeights) {
     // TODO(jrtom): consider adding an overload that takes a Function<EndpointPair<N>, Number>
