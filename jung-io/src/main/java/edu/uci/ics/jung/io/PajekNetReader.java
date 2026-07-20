@@ -286,7 +286,7 @@ public class PajekNetReader<G extends MutableNetwork<N, E>, N, E> {
     if (id != null) {
       v = id.get(v_id);
     } else {
-      v = (N) (new Integer(v_id));
+      v = (N) (Integer.valueOf(v_id));
     }
     // only attach the label if there's one to attach
     if (label != null && label.length() > 0 && node_labels != null) {
@@ -357,7 +357,7 @@ public class PajekNetReader<G extends MutableNetwork<N, E>, N, E> {
         v1 = id.get(vid1);
       } else {
         // TODO: wat (look for other (N) casts also)
-        v1 = (N) new Integer(vid1);
+        v1 = (N) Integer.valueOf(vid1);
       }
 
       if (is_list) { // one source, multiple destinations
@@ -368,7 +368,7 @@ public class PajekNetReader<G extends MutableNetwork<N, E>, N, E> {
         E e = createAddEdge(st, v1, g, id, edge_factory);
         // get the edge weight if we care
         if (edge_weights != null && st.hasMoreTokens()) {
-          edge_weights.set(e, new Float(st.nextToken()));
+          edge_weights.set(e, Float.valueOf(st.nextToken()));
         }
       }
     }
@@ -383,7 +383,7 @@ public class PajekNetReader<G extends MutableNetwork<N, E>, N, E> {
     if (id != null) {
       v2 = id.get(vid2);
     } else {
-      v2 = (N) new Integer(vid2);
+      v2 = (N) Integer.valueOf(vid2);
     }
     E e = edge_factory.get();
 

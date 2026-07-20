@@ -34,15 +34,15 @@ public class TestEdmondsKarpMaxFlow extends TestCase {
 
   public void testSanityChecks() {
     MutableNetwork<Number, Number> g = NetworkBuilder.directed().build();
-    Number source = new Integer(1);
-    Number sink = new Integer(2);
+    Number source = Integer.valueOf(1);
+    Number sink = Integer.valueOf(2);
     g.addNode(source);
     g.addNode(sink);
 
-    Number v = new Integer(3);
+    Number v = Integer.valueOf(3);
 
     MutableNetwork<Number, Number> h = NetworkBuilder.directed().build();
-    Number w = new Integer(4);
+    Number w = Integer.valueOf(4);
     g.addNode(w);
 
     try {

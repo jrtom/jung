@@ -327,7 +327,7 @@ public class NodeCollapseDemo extends JPanel {
 
     //    while(var5.hasNext()) {
     //      next = (String)var5.next();
-    //      g.addEdge(var6, next, new Integer(var7++));
+    //      g.addEdge(var6, next, Integer.valueOf(var7++));
     //    }
 
     return g;
