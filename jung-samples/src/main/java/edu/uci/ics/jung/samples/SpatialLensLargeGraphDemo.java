@@ -364,7 +364,7 @@ public class SpatialLensLargeGraphDemo extends JPanel {
 
   private static void createEdge(
       MutableNetwork<String, Number> g, String v1Label, String v2Label, int weight) {
-    g.addEdge(v1Label, v2Label, new Double(Math.random()));
+    g.addEdge(v1Label, v2Label, Double.valueOf(Math.random()));
   }
 
   public static String[][] pairs = {

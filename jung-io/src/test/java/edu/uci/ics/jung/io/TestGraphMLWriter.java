@@ -97,7 +97,7 @@ public class TestGraphMLWriter extends TestCase {
     }
 
     for (Object o : g2.edges()) {
-      String weight = edge_weight.apply(new Double((String) o));
+      String weight = edge_weight.apply(Double.valueOf((String) o));
       String weight2 = edge_weight2.apply(o);
       Assert.assertEquals(weight2, weight);
     }

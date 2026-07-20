@@ -93,7 +93,7 @@ public class DAGLayoutAlgorithm<N> extends SpringLayoutAlgorithm<N> {
    * @param node the node to set as root
    */
   public void setRoot(N node) {
-    minLevels.put(node, new Integer(0));
+    minLevels.put(node, Integer.valueOf(0));
     // set all the levels.
     propagateMinimumLevel(node);
   }
@@ -116,7 +116,7 @@ public class DAGLayoutAlgorithm<N> extends SpringLayoutAlgorithm<N> {
         oldLevel = 0;
       }
       newLevel = Math.max(oldLevel, level + 1);
-      minLevels.put(child, new Integer(newLevel));
+      minLevels.put(child, Integer.valueOf(newLevel));
 
       if (newLevel > graphHeight) {
         graphHeight = newLevel;

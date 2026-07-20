@@ -20,6 +20,7 @@ import static edu.uci.ics.jung.graph.GraphConstants.NODE_NOT_IN_TREE;
 import static edu.uci.ics.jung.graph.GraphConstants.NODE_ROOT_OF_TREE;
 import static edu.uci.ics.jung.graph.GraphConstants.SELF_LOOP_NOT_ALLOWED;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.graph.AbstractGraph;
 import com.google.common.graph.ElementOrder;
@@ -233,10 +234,11 @@ class DelegateCTree<N> extends AbstractGraph<N> implements MutableCTree<N> {
     if (!nodes().contains(node)) {
       return false;
     }
-    for (N nodeToRemove : Traverser.forTree(delegate).breadthFirst(node)) {
+    for (N nodeToRemove : ImmutableSet.copyOf(Traverser.forTree(delegate).breadthFirst(node))) {
       delegate.removeNode(nodeToRemove);
       depths.remove(nodeToRemove);
     }
+
     if (root.isPresent() && root.get().equals(node)) {
       setRoot(Optional.empty());
     }

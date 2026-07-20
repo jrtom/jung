@@ -75,7 +75,7 @@ public class TestGraphs {
       for (int i = 1; i < chain_length; i++) {
         v[i] = "v" + i;
         g.addNode(v[i]);
-        g.addEdge(v[i], v[i - 1], new Double(Math.random()));
+        g.addEdge(v[i], v[i - 1], Double.valueOf(Math.random()));
       }
     }
     for (int i = 0; i < isolate_count; i++) {
@@ -113,7 +113,7 @@ public class TestGraphs {
         // for each previous node...
         for (String v2 : previousLayers) {
           if (Math.random() < linkprob) {
-            Double de = new Double(Math.random());
+            Double de = Double.valueOf(Math.random());
             dag.addEdge(v, v2, de);
           }
         }
@@ -127,7 +127,7 @@ public class TestGraphs {
 
   private static void createEdge(
       MutableNetwork<String, Number> g, String v1Label, String v2Label, int weight) {
-    g.addEdge(v1Label, v2Label, new Double(Math.random()));
+    g.addEdge(v1Label, v2Label, Double.valueOf(Math.random()));
   }
 
   /**
@@ -167,7 +167,7 @@ public class TestGraphs {
     int i = 0;
     while (nodeIt.hasNext()) {
       String next = nodeIt.next();
-      g.addEdge(current, next, new Integer(i++));
+      g.addEdge(current, next, Integer.valueOf(i++));
     }
 
     return g;

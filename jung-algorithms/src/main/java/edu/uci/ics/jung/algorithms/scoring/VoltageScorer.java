@@ -88,7 +88,7 @@ public class VoltageScorer<N, E> extends AbstractIterativeScorer<N, E, Double>
 
     Map<N, Double> unit_voltages = new HashMap<N, Double>();
     for (N v : sources) {
-      unit_voltages.put(v, new Double(1.0));
+      unit_voltages.put(v, Double.valueOf(1.0));
     }
     this.source_voltages = unit_voltages;
     this.sinks = sinks;
@@ -108,7 +108,7 @@ public class VoltageScorer<N, E> extends AbstractIterativeScorer<N, E, Double>
 
     Map<N, Double> unit_voltages = new HashMap<N, Double>();
     for (N v : sources) {
-      unit_voltages.put(v, new Double(1.0));
+      unit_voltages.put(v, Double.valueOf(1.0));
     }
     this.source_voltages = unit_voltages;
     this.sinks = sinks;

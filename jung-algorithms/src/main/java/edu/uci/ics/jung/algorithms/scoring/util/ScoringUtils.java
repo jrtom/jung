@@ -34,7 +34,7 @@ public class ScoringUtils {
         new Function<N, Double>() {
           public Double apply(N input) {
             if (inner_roots.contains(input)) {
-              return new Double(1.0 / inner_roots.size());
+              return Double.valueOf(1.0 / inner_roots.size());
             } else {
               return 0.0;
             }
