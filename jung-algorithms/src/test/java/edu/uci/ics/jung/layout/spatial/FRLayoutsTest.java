@@ -142,7 +142,7 @@ public class FRLayoutsTest {
    *
    * @param <T>
    */
-  private static class TestLayoutModel<T> extends LoadingCacheLayoutModel<T> {
+  public static class TestLayoutModel<T> extends LoadingCacheLayoutModel<T> {
 
     // how many steps
     private int steps;
